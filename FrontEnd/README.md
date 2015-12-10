@@ -1,5 +1,6 @@
-OS DNA - OpenStack network Discovery and Assurance
-==================================================
+OS DNA
+OpenStack network Discovery and Assurance
+=========================================
 
 Proto
 https://korenlev.mybalsamiq.com/projects
