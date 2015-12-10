@@ -1,8 +1,6 @@
 OS DNA - OpenStack Network Discovery and Assurance
 ==================================================
 
-Make sure you pull this Repo first
-
 ##About
 TBD
 
