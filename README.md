@@ -9,8 +9,6 @@ Frontend TODO List:
 * Node js - now it's only frontend with static data.json
 * D3.js Next.js
 * Custom CSS to avoud Bootstap style
-* CDN
-* Grunt
 * Bower
 * Angular Matherial theam
 * SASS
