@@ -13,7 +13,7 @@ FrontEnd TODO List:
 - [ ] Node js + MongoDB - now it's only frontend with static data.json
 - [ ] D3.js Next.js
 - [ ] Custom CSS
-- [ ]SASS
+- [ ] SASS
 - [ ] Smart search
 
 
