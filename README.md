@@ -1,12 +1,16 @@
-OS DNA - OpenStack network Discovery and Assurance
+OS DNA - OpenStack Network Discovery and Assurance
 ==================================================
+
+Make sure you pull this Repo first
+
+##About
+TBD
 
 Proto
 https://korenlev.mybalsamiq.com/projects
 
 
-
-FrontEnd TODO List:
+###FrontEnd TODO List:
 - [x] Angular Matherial theam
 - [x] Bower
 - [ ] Only Angular view - instead of mix
