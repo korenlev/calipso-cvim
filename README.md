@@ -19,6 +19,11 @@ https://korenlev.mybalsamiq.com/projects
 - [ ] Custom CSS
 - [ ] SASS
 - [ ] Smart search
+* For D3 Graf part
+- [ ] Diferent color for up and down links
+- [ ] Safe as PDF menu
+- [ ] Edit menu
+- [ ] Live Reload
 
 
 ### Contacts
