@@ -1,0 +1,26 @@
+Every Openstack Distro has it's own 'central manager' used to DEPLOY the openstack modules on the physical servers.
+Mirantis is using a 'central manager' called Fuel. We do not need to use it as the 'install' procedure was already done.
+note: OSDNA starts AFTER openstack environment has been installed and used.
+
+Fuel is here : https://10.56.20.74:8000 admin/admin   BUT PLEASE READ ONLY AS THIS IS ALL FULLY CONFIGURED FOR OUR DEVOPS/PRODUCTION.
+
+we use Fuel server as 'SSH TUNNEL' host to get through to the specific openstack servers.
+Setup of fuel controls 4 servers : 
+
+server   status     IP              MAC               OS Modules    
+node14 | ready  | 192.168.100.7 | ee:97:b2:ec:23:49 | cinder, controller |                   
+node15 | ready  | 192.168.100.8 | 9a:1a:c9:6e:b2:46 | cinder, compute    |                      
+node16 | ready  | 192.168.100.9 | a6:02:43:22:2e:43 | cinder, compute    |                    
+node13 | ready  | 192.168.100.6 | 8e:b8:ae:06:e1:42 | cinder, compute    |                   
+
+node 14 (private ip = 192.168.100.7) is our controller , therefore it will be used for all our access points.
+
+horizon : http://10.56.20.74:8888  admin/admin  (real: node 14 port 80)
+SSH to controller : 10.56.20.74 2222 using root/private-key (ask korlev for the key).
+from OS controller you ssh to other servers as needed, like this: root@node-14:~# ssh node-15   etc ...
+controller node-14 runs our application code at: /root/confD and /root/osdna
+
+to use local CLI into OS API do : source openrc for admin and source openrc-tenant-demo for tenant.
+Tip: nova --debug list will show debug messages including openstack API requests and responses 
+
+

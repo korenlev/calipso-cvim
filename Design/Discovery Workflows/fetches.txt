@@ -1,0 +1,77 @@
+
+design/fetches/region-AZ-host.txt
+============================================
+Objective
+---------
+fetch host data:
+- id
+- name
+- state
+- neutron agents
+- pNICs
+  - id?
+  - TP name
+- path (region + AZ)
+- Agreggates list
+  - e.g. ["SSD Hosts", "Vendor: Dell"]
+
+How to fetch:
+---------------  
+p1 - OS API or SDK ?
+p2 - SQL DB
+p3 - CLI   
+- ifconfig
+
+design/fetches/region-AZ-host-instance.txt
+============================================
+Objective
+---------
+fetch instance data:
+- id
+- name
+- state
+- project (tenant)
+- neutron agents
+- vNICs
+  - id?
+  - TP name
+
+How to fetch:
+---------------  
+
+design/fetches/region-AZ-host-link.txt
+============================================
+Objective
+---------
+fetch link data:
+- id
+- state
+- bi-directional?
+- from TP (instance + vNIC)
+- to TP
+
+design/fetches/region-AZ-host-bridge.txt
+============================================
+
+Objective
+---------
+fetch bridge data:
+- id
+- name
+- type
+- state
+- TPs
+
+design/fetches/region-AZ-host-OVS.txt
+============================================
+
+Objective
+---------
+fetch OVS data:
+- id
+- name
+- type
+- state
+- TPs
+- ....
+
