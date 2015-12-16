@@ -104,7 +104,7 @@ SSH, CLI :
 you will need the list of underlying servers --> from API or from the SQL DB : 
 nova database--> 'compute_nodes' table the values of : hypervisor_hostname , host_ip
 
-NEXT_STEPS : look at fetches.txt file for commands on the controller (local, where OSDNA code runs currently) and on the specific servers !
+NEXT_STEPS : look at fetcheX.txt files for commands on the controller (local, where OSDNA code runs currently) and on the specific servers !
 
 
 
