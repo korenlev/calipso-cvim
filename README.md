@@ -18,7 +18,7 @@ Rally:<br>
 https://rally1.rallydev.com/#/48530212030d/dashboard
 <br>
 
-Portotype Intent:
+##Portotype Intent:
 
 Provide Cloud Network Administrators and Tenant Network Administrators with support for:
 <br>
@@ -31,26 +31,18 @@ Provide Cloud Network Administrators and Tenant Network Administrators with supp
 4. Assess impact of failure in virtual networks
 <br>
 
-High Level Functionality Tree:
+##High Level Functionality Tree:
 <br>
 http://korlev-osdna.cisco.com/ <br>
 Model: https://cto-github.cisco.com/korlev/OSDNA/blob/master/Design/UML.jpg
 
-Proto (mockups, updated Nov 15th):<br>
-We are folowing Domain-Driven-Design proccess and procedures 
-ref: http://www.methodsandtools.com/archive/archive.php?id=97
-
-Main Functionality Tree:
-http://korlev-osdna.cisco.com/
-
-Proto (mockups, updated Nov 15th)
+##Proto (mockups, updated Nov 15th)
 <br>
 https://korenlev.mybalsamiq.com/projects
 
 #### Typeface
-Flat UI Pro made using the Lato typeface, http://www.google.com/webfonts/specimen/Lato, + we plan to utilize AnX 
-
-framework.
+Flat UI Pro made using the Lato typeface, http://www.google.com/webfonts/specimen/Lato, 
++ we plan to utilize AnX framework.
 
 #### Data Collection
 see under /Design
