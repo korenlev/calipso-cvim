@@ -1,0 +1,30 @@
+Design/Discovery Workflows/region-AZ-host-instance.txt
+============================================
+Objective
+---------
+fetch instance data:
+- id
+- name
+- state
+- project (tenant)
+- neutron agents
+- vNICs
+  - id?
+  - TP name
+
+How to fetch:
+--------------- 
+API: 
+- nova list
+ -- get 'name' , 'Status' , 'Power State' , 'Networks' for each instance !
+- nova show NAME   // for each instance above
+ -- get hostid, id, tenant_id, 'security-groups'
+ 
+ 
+optional code:
+Do
+for i in $(nova list)do
+nova show $i | grep hostId
+// Sort and print on output
+
+/v2/​{tenant_id}​/servers/​{server_id}​/os-virtual-interfaces

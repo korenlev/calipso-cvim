@@ -1,0 +1,35 @@
+Design/Discovery Workflows/General-Tree.txt
+============================================
+
+Objective
+---------
+fetch some openstack general infrastructure data:
+
+How to fetch:
+---------------
+API: 
+- keystone endpoint-list
+ -- get 'region' list
+- keystone tenant-list
+ -- get 'name' list, 'tenant_id' list
+- nova availability-zone-list
+ -- get zones and host associations
+- nova aggregate-list
+ -- get 'name' list and 'id'
+- nova aggregate-details 1  (for each 'id' from the list above)
+ -- get Hosts to zone and aggregate associations 
+- nova host-list   
+ -- get host_name , zone
+- nova hypervisor-list
+ -- get 'Hypervisor hostname' list and 'ID' list
+- neutron net-list
+ -- get 'name' and 'id' lists
+
+ 
+output : build JSON with the tree above
+
+howto ref: http://developer.openstack.org/api-ref-compute-v2-ext.html 
+ 
+Note: nova list-extensions  --> which extensions are available to use for more detailed quarries later ...
+example howto use here : https://openstackgd.wordpress.com/tag/nova-extensions/ 
+
