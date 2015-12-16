@@ -24,7 +24,7 @@ The first access point into OpenStack API should be Keystone, known sometimes as
 Currently there are 3 known version of Keystone API, the latest being v3.
 We therefore need to choose the proper one based on the particular environment.
 Our LAB environment, which is based on current commit to executives, is: Mirantis OpenStack with OpenVSwitch and Linux Bridge as Neutron plugin.
-This is the distro and plugin used by cisco Webex Worldwide, which might be our first customer. 
+This is the distro and plugin used by cisco Webex Worldwide. 
 
 Latest keystone API docs
 ------------------------
