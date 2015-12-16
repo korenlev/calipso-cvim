@@ -6,6 +6,11 @@ See also :
 [1] design/lab setup/Mirantis-OpenStack.txt
 
 ----------------------------------------------------------------------------------------------------------------
+
+SDK - TBD
+https://libcloud.apache.org/        --> python SDK might be an interesting option !
+
+----------------------------------------------------------------------------------------------------------------
 API:
 
 The first access point into OpenStack API should be Keystone, known sometimes as 'Identity' or 'authenticate' API.

@@ -1,6 +1,3 @@
-OpenStack API ref : http://developer.openstack.org/api-ref.html 
-+ read OpenStack Interfaces HowTO.txt for some working examples against our lab ...
-http://developer.openstack.org/api-guide/quick-start/       --> python SDK might be an interesting option !
 
 design/fetches/region-AZ-host.txt
 ============================================
