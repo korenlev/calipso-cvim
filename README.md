@@ -52,7 +52,7 @@ Main Functionality Tree:
 http://korlev-osdna.cisco.com/
 
 Proto (mockups, updated Nov 15th)
->>>>>>> origin/gh-pages
+<br>
 https://korenlev.mybalsamiq.com/projects
 
 #### Typeface
