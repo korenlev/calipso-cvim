@@ -38,7 +38,7 @@ http://korlev-osdna.cisco.com/ <br>
 Model: https://cto-github.cisco.com/korlev/OSDNA/blob/master/Design/UML.jpg
 
 Proto (mockups, updated Nov 15th):
-=======
+
 We are folowing Domain-Driven-Design proccess and procedures 
 ref: http://www.methodsandtools.com/archive/archive.php?id=97
 
