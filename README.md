@@ -11,10 +11,15 @@ ref: http://www.methodsandtools.com/archive/archive.php?id=97
 Portotype Intent:
 
 Provide Cloud Network Administrators and Tenant Network Administrators with support for:
+<br>
 1. Building virtual Network inventory and visualizing all inter-connections in real-time
+<br>
 2. Monitor all virtual network objects state
+<br>
 3. Troubleshoot failures in virtual networks
+<br>
 4. Assess impact of failure in virtual networks
+<br>
 
 High Level Functionality Tree:
 http://korlev-osdna.cisco.com/
