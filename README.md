@@ -22,7 +22,9 @@ Provide Cloud Network Administrators and Tenant Network Administrators with supp
 <br>
 
 High Level Functionality Tree:
+<br>
 http://korlev-osdna.cisco.com/
+Model: https://cto-github.cisco.com/korlev/OSDNA/blob/master/Design/UML.jpg
 
 Proto (mockups, updated Nov 15th):
 https://korenlev.mybalsamiq.com/projects
@@ -49,6 +51,7 @@ https://korenlev.mybalsamiq.com/projects
 * Yaron Yogev (yayogev)
 * Amit Kumar (amikumar)
 * Stas Isakov (sisakov)
+* Amit Saha (amisaha)
 
 #### Typeface
 Flat UI Pro is made using the Lato typeface, which can be downloaded for free here: http://www.google.com/webfonts/specimen/Lato
