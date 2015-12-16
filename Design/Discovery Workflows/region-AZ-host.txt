@@ -10,8 +10,7 @@ How to fetch:
 API:
 - nova hypervisor-show 2      // get details of hypervisor with ID=2 !
  -- get hypervisor_hostname, host_ip, hypervisor_type, vcpus, memory_mb, cpu_info_vendor, cpu_info_arch, running_vms, state, status
-
- - neutron agent-list
+- neutron agent-list
  -- get 'agent_type' to 'host' associations and 'alive' state, 'admin_state_up' state
  
 CLI/SSH:

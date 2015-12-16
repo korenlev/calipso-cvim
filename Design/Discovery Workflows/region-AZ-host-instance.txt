@@ -20,11 +20,13 @@ API:
 - nova show NAME   // for each instance above
  -- get hostid, id, tenant_id, 'security-groups'
  
- 
-optional code:
-Do
-for i in $(nova list)do
-nova show $i | grep hostId
-// Sort and print on output
+- nova hypervisor-servers 2  // get which instance (Linux names) on which host (from hypervisor with ID=2)
+ -- get 'Name' to 'Hypervisor Hostname' mappings
 
+CLI/SSH on the controller : nova-manage vm list | column -t   to get 'real' OS instances names
+CLI/SSH to each of the host_ip 's and then on each:
+virsh list  // instance list and ids (Linux names)
+virsh dumpxml 2 // many low level details for that instance 
+
+todo:
 /v2/​{tenant_id}​/servers/​{server_id}​/os-virtual-interfaces
