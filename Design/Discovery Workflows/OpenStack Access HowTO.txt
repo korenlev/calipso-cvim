@@ -1,6 +1,6 @@
 Abstract:
-This document describes howto access the 3 type of interfaces into OpenStack infrastructure: API, DB, CLI
-main reference used is http://developer.openstack.org/.
+This document describes howto access the 4 interface types into OpenStack infrastructure: SDK, API, DB, CLI
+main reference:  http://developer.openstack.org/  , but the following is a good cheat-sheet ...
 
 See also : 
 [1] design/lab setup/Mirantis-OpenStack.txt
@@ -20,7 +20,7 @@ This is the distro and plugin used by cisco Webex Worldwide, which might be our 
 
 latest keystone API docs at :
 - http://developer.openstack.org/api-ref-identity-admin-v2.html   
-  - typically v1 used user/pass, typically v2 uses simple authentication with a local token (see value of 'admin_token' at /etc/keystone/keystone.conf)
+  - typically v1 uses user/pass, v2 uses simple authentication with a local token (see value of 'admin_token' at /etc/keystone/keystone.conf)
   
 - http://developer.openstack.org/api-ref-identity-v3.html
   - v3 added support for SSL login using certificates and PKI, we might look at those details at later stages.
@@ -107,7 +107,7 @@ etc....
 SSH, CLI :
 
 you will need the list of underlying servers --> from API or from the SQL DB : 
-nova database--> 'compute_nodes' table the values of : hypervisor_hostname , host_ip
+nova database--> 'compute_nodes' table, then the values of : hypervisor_hostname , host_ip
 
 NEXT_STEPS : look at fetcheX.txt files for commands on the controller (local, where OSDNA code runs currently) and on the specific servers !
 
