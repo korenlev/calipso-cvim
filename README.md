@@ -5,7 +5,6 @@ OS DNA - OpenStack Network Discovery and Assurance
 We are going to enhance the way Cloud Network Administrators and Tenant Network Administrators 
 Understands, Monitors and Troubleshoot OpenStack Environments.
 
-<<<<<<< HEAD
 We are following Domain-Driven-Design process and procedures:
 ref: http://www.methodsandtools.com/archive/archive.php?id=97
 <br>
