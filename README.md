@@ -3,7 +3,7 @@ OS DNA - OpenStack Network Discovery and Assurance
 
 ##About
 We are going to enhance the way Cloud Network Administrators(CNA) and Tenant Network Administrators(TNA) 
-Understands, Monitors and Troubleshoot OpenStack Environments.
+Understands, Monitors and Troubleshoot highly distributed OpenStack Environments.
 
 We are following Domain-Driven-Design process and procedures:
 ref: http://www.methodsandtools.com/archive/archive.php?id=97
