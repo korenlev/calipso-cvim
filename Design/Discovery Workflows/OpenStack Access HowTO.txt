@@ -70,7 +70,7 @@ Using RestClient:
             "password": {
                 "user": {
                     "name": "admin",
-                    "password": "admin",
+                    "password": "THE-PASS",
                     "domain": {
                                "name":"Default"
                             }
