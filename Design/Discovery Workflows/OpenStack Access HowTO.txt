@@ -1,60 +1,66 @@
-Abstract:
-This document describes howto access the 4 interface types into OpenStack infrastructure: SDK, API, DB, CLI
-main reference:  http://developer.openstack.org/  , but the following is a good cheat-sheet ...
+Abstract
+--------
+This document describes how to access the 4 interface types into OpenStack infrastructure: SDK, API, DB, CLI
+Main reference:  http://developer.OpenStack.org/ - but the following is a good cheat-sheet...
 
-See also : 
+See also
+--------
 [1] design/lab setup/Mirantis-OpenStack.txt
 
-----------------------------------------------------------------------------------------------------------------
-
-SDK - TBD
-https://libcloud.apache.org/        --> python SDK might be an interesting option !
 
 ----------------------------------------------------------------------------------------------------------------
-API:
 
+SDK
+===
+TBD
+https://libcloud.apache.org/
+Python SDK might be an interesting option !
+
+----------------------------------------------------------------------------------------------------------------
+
+API
+===
 The first access point into OpenStack API should be Keystone, known sometimes as 'Identity' or 'authenticate' API.
-Currently there are 3 known version of Keystone API: latest being v3. We therefore need to choose the proper one based on the particular environment.
-Our LAB environment which is based on current commit to executives is : Mirantis Openstack with OpenvSwitch and Linux Bridge as Neutron Plugin.
+Currently there are 3 known version of Keystone API, the latest being v3.
+We therefore need to choose the proper one based on the particular environment.
+Our LAB environment, which is based on current commit to executives, is: Mirantis OpenStack with OpenVSwitch and Linux Bridge as Neutron plugin.
 This is the distro and plugin used by cisco Webex Worldwide, which might be our first customer. 
 
-latest keystone API docs at :
-- http://developer.openstack.org/api-ref-identity-admin-v2.html   
+Latest keystone API docs
+------------------------
+- http://developer.OpenStack.org/api-ref-identity-admin-v2.html   
   - typically v1 uses user/pass, v2 uses simple authentication with a local token (see value of 'admin_token' at /etc/keystone/keystone.conf)
-  
-- http://developer.openstack.org/api-ref-identity-v3.html
+- http://developer.OpenStack.org/api-ref-identity-v3.html
   - v3 added support for SSL login using certificates and PKI, we might look at those details at later stages.
 
-Tip: The best way to just TEST the API :  on our server run this CLI : source /root/openrc   +   nova --debug list   -> u see what are the API requests/responses made to the system ...
+Tip: The best way to test the API using debug option of CLI commands:
+# source /root/openrc
+# nova --debug list
+The output shows the API requests/responses made to OpenStack
 
-Initial login using v2:
-On the keystone controller under /etc/keystone/keystone.conf u find the admin_token !   , in our case it is admin_token=vIhNb1l2
+Initial login using V2: Use admin token, found in /etc/keystone/keystone.conf
+(in our case: admin_token=vIhNb1l2)
 
-Example, howto Get Tenant List in v2:
+Example: how to get tenant list in V2
 -------------------------------------
 curl -i -X GET http://192.168.100.7:35357/v2.0/tenants -H "X-Auth-Token: vIhNb1l2"
 
 Or using RestClient from remote (in our lab case):
+- URL: http://10.56.20.74:7777/v2.0/tenants
+  - note: in our lab remote ports might be different then local...
+- Method: GET
+- Request Headers: X-Auth-Token=vIhNb1l2b
+- Request Body: (none)
 
-*URL: http://10.56.20.74:7777/v2.0/tenants                        -- note: in our lab remote PORTS might be different then local ...
-*Method: GET
-*Request Headers:
-X-Auth-Token : vIhNb1l2b
-*Request Body:
-none
-
-Example, hotwo get region list with keystone API v3:
+Example: how to get region list with keystone API v3
 ----------------------------------------------------
-
-reference : https://github.com/openstack-attic/identity-api 
+Reference : https://github.com/OpenStack-attic/identity-api 
 
 Using RestClient:
-
-*URL: http://10.56.20.74:5000/v3/auth/tokens
-*Method: POST
-*Request Headers:
-Content-type : application/json
-*Request Body:
+- URL: http://10.56.20.74:5000/v3/auth/tokens
+- Method: POST
+- Request Headers: Content-type=application/json
+- Request Body:
 {
     "auth": {
         "identity": {
@@ -75,15 +81,15 @@ Content-type : application/json
     }
 }
 
-You then find the "X-Subject-Token" from the response header of this request, it is a cookie to be used for further requests to v3!
-You can also find urls and other details (like regions) in the body of the response as well as access points to each region for further details.
-note that the response give you private IP addresses. you should replace it with the IP of the controller !!
+The response contains "X-Subject-Token" - a session cookie to be used for further requests to v3!
+The body of the response also contains other details like regions & access points to each region.
+Note that the response gives private IP addresses. These should be replaced with the controller IP address!!
 
 --------------------------------------------------------------------------------------------------
 
-SQL:
-
-login to OPENSTACK DB (in our mirantis setup only, probably need to change later):
+SQL
+===
+login to OpenStack DB (in our mirantis setup only, probably need to change later):
 [optional ] ssh to the controller (or login local) and look for : vi /etc/mysql/conf.d/password.cnf     -get the PASS !
 
 typical (initial) login:
@@ -104,13 +110,16 @@ etc....
 
 ----------------------------------------------------------------------------------------------------------------
 
-SSH, CLI :
+SSH & CLI
+=========
+You will need the list of underlying server.
+Get this list either: 
+A) from the API
+   or 
+B) from the SQL DB: DB:nova, table: compute_nodes, then take the values of hypervisor_hostname, host_ip
 
-you will need the list of underlying servers --> from API or from the SQL DB : 
-nova database--> 'compute_nodes' table, then the values of : hypervisor_hostname , host_ip
-
-NEXT_STEPS : look at fetcheX.txt files for commands on the controller (local, where OSDNA code runs currently) and on the specific servers !
-
+NEXT STEPS: look at fetchX.txt files (under "Design\Discovery Workflows") for
+specifics commands on the controller (local, where OSDNA code runs currently) and on the specific servers !
 
 
 
