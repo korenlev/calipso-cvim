@@ -1,7 +1,10 @@
 // discover compute-node low level details at the host CLI:
 
-root@node-14:~# ssh node-13
+root@node-14:~# ssh node-13              // see discovery0-2 , we know this host runs demo's instances ...
  
+
+// from here on, look at the diagram to understand how all the inter-connections are coming together:
+
 root@node-13:~# virsh list
  Id    Name                           State
 ----------------------------------------------------
@@ -379,3 +382,8 @@ br-eth0   Link encap:Ethernet  HWaddr 00:50:56:bd:11:e8
 br-eth1   Link encap:Ethernet  HWaddr 00:50:56:bd:7d:3e  
 eth0      Link encap:Ethernet  HWaddr 00:50:56:bd:11:e8  
 eth1      Link encap:Ethernet  HWaddr 00:50:56:bd:7d:3e  
+
+root@node-13:~# ovs-ofctl dump-flows br-int | grep vlan
+ cookie=0x0, duration=8198574.839s, table=0, n_packets=419693, n_bytes=104909638, idle_age=38, hard_age=65534, priority=3,in_port=1,dl_vlan=1001 actions=mod_vlan_vid:1,NORMAL
+ cookie=0x0, duration=30609.202s, table=0, n_packets=86, n_bytes=8111, idle_age=3507, priority=3,in_port=1,dl_vlan=1000 actions=mod_vlan_vid:2,NORMAL
+ 
