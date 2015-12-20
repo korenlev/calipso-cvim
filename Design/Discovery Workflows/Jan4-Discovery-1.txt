@@ -14,15 +14,6 @@ root@node-14:~# source openrc          //--> openrc has the OS ADMIN credentials
 //export NOVA_ENDPOINT_TYPE='publicURL'
 //export NEUTRON_ENDPOINT_TYPE='publicURL'
 
-root@node-14:~# nova hypervisor-list
-+----+---------------------+
-| ID | Hypervisor hostname |
-+----+---------------------+
-| 1  | node-15.koren.tld   |
-| 2  | node-16.koren.tld   |
-| 3  | node-13.koren.tld   |
-+----+---------------------+
-
 
 root@node-14:~# nova hypervisor-servers node-16          // no instances on this host
 +----+------+---------------+---------------------+

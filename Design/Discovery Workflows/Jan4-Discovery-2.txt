@@ -4,7 +4,7 @@ root@node-14:~# neutron port-list
 +--------------------------------------+------+-------------------+-------------------------------------------------------------------------------------+
 | id                                   | name | mac_address       | fixed_ips                                                                           |
 +--------------------------------------+------+-------------------+-------------------------------------------------------------------------------------+
-| 7e28fab0-1d2d-453d-93bd-108b942afa41 |      | fa:16:3e:dc:49:12 | {"subnet_id": "97b4193e-fc7c-4df0-aa78-0659b91b507d", "ip_address": "192.168.44.5"} |   // get ID, MAC, IP for each !
+| 7e28fab0-1d2d-453d-93bd-108b942afa41 |      | fa:16:3e:dc:49:12 | {"subnet_id": "97b4193e-fc7c-4df0-aa78-0659b91b507d", "ip_address": "192.168.44.5"} | // get ID, MAC, IP for each !
 | 8d2bdd98-30c3-4a4e-8c10-a8222a3335db |      | fa:16:3e:01:70:54 | {"subnet_id": "97b4193e-fc7c-4df0-aa78-0659b91b507d", "ip_address": "192.168.44.3"} |
 | c590288f-10c8-420a-b8a9-31b425153b8f |      | fa:16:3e:6e:f1:c6 | {"subnet_id": "97b4193e-fc7c-4df0-aa78-0659b91b507d", "ip_address": "192.168.44.1"} |
 | dc41c38d-6d98-4911-9acf-39789485e3d4 |      | fa:16:3e:d3:d8:94 | {"subnet_id": "bf43c33c-b6f4-49a9-893c-64c65338318d", "ip_address": "192.168.55.3"} |
@@ -64,7 +64,7 @@ root@node-14:~# neutron port-show c590288f-10c8-420a-b8a9-31b425153b8f
 | id                    | c590288f-10c8-420a-b8a9-31b425153b8f                                                |
 | mac_address           | fa:16:3e:6e:f1:c6                                                                   |
 | name                  |                                                                                     |
-| network_id            | 00e98c7c-bac0-40f5-9c7c-952732bee5b2                                                |
+| network_id            | 00e98c7c-bac0-40f5-9c7c-952732bee5b2                                                |    // --> service for net444 network !
 | security_groups       |                                                                                     |
 | status                | ACTIVE                                                                              |
 | tenant_id             | 67796509be634932acef545fd1426a22                                                    |   // --> for demo tenant !
