@@ -213,13 +213,42 @@ br-eth1   Link encap:Ethernet  HWaddr 00:50:56:bd:4a:29
 eth0      Link encap:Ethernet  HWaddr 00:50:56:bd:e2:2d  
 eth1      Link encap:Ethernet  HWaddr 00:50:56:bd:4a:29  
 
-root@node-14:~# ovs-dpctl dump-flows | grep vlan
-skb_priority(0),in_port(2),eth(src=d2:c0:19:53:0f:4f,dst=fa:2d:32:12:e3:42),eth_type(0x8100),vlan(vid=101,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.0.4/0.0.0.0,dst=192.168.0.2/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:1211069, bytes:225417177, used:0.112s, actions:pop_vlan,6
-skb_priority(0),in_port(6),eth(src=fa:2d:32:12:e3:42,dst=ce:06:1e:1b:1b:40),eth_type(0x0800),ipv4(src=192.168.0.2/0.0.0.0,dst=192.168.0.1/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff), packets:151535, bytes:31102503, used:4.240s, actions:push_vlan(vid=101,pcp=0),2
-skb_priority(0),in_port(6),eth(src=fa:2d:32:12:e3:42,dst=d2:c0:19:53:0f:4f),eth_type(0x0800),ipv4(src=192.168.0.2/0.0.0.0,dst=192.168.0.4/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff), packets:55016, bytes:8347292, used:0.112s, actions:push_vlan(vid=101,pcp=0),2
-skb_priority(0),in_port(2),eth(src=22:12:b3:57:86:40,dst=fa:2d:32:12:e3:42),eth_type(0x8100),vlan(vid=101,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.0.3/0.0.0.0,dst=192.168.0.2/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:61901, bytes:11811459, used:2.292s, actions:pop_vlan,6
-skb_priority(0),in_port(2),eth(src=fa:16:3e:dc:49:12,dst=ff:ff:ff:ff:ff:ff),eth_type(0x8100),vlan(vid=1001,pcp=0),encap(eth_type(0x0800),ipv4(src=0.0.0.0/0.0.0.0,dst=255.255.255.255/0.0.0.0,proto=17/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:0, bytes:0, used:never, actions:1,9,pop_vlan,push_vlan(vid=3,pcp=0),10,pop_vlan,14,16
-skb_priority(0),in_port(2),eth(src=ce:06:1e:1b:1b:40,dst=fa:2d:32:12:e3:42),eth_type(0x8100),vlan(vid=101,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.0.1/0.0.0.0,dst=192.168.0.2/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:202471, bytes:37940835, used:4.216s, actions:pop_vlan,6
-skb_priority(0),in_port(2),eth(src=fa:16:3e:dc:49:12,dst=fa:16:3e:01:70:54),eth_type(0x8100),vlan(vid=1001,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.44.5/0.0.0.0,dst=192.168.44.3/0.0.0.0,proto=1/0,tos=0xc0/0,ttl=64/0,frag=no/0xff)), packets:0, bytes:0, used:never, actions:pop_vlan,14
-skb_priority(0),in_port(14),eth(src=fa:16:3e:01:70:54,dst=fa:16:3e:dc:49:12),eth_type(0x0800),ipv4(src=192.168.44.3/0.0.0.0,dst=192.168.44.5/0.0.0.0,proto=17/0,tos=0xc0/0,ttl=64/0,frag=no/0xff), packets:0, bytes:0, used:never, actions:push_vlan(vid=1001,pcp=0),2
-skb_priority(0),in_port(6),eth(src=fa:2d:32:12:e3:42,dst=22:12:b3:57:86:40),eth_type(0x0800),ipv4(src=192.168.0.2/0.0.0.0,dst=192.168.0.3/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff), packets:10213, bytes:1593737, used:2.332s, actions:push_vlan(vid=101,pcp=0),
+//OVS vConnectors inside OVS v-Edge:
+
+root@node-14:~# ovs-vsctl list-br
+br-eth0
+br-eth1
+br-ex
+br-fw-admin
+br-int
+br-mgmt
+br-prv
+br-storage
+root@node-14:~# ovs-vsctl list-ports br-eth0
+br-eth0--br-fw-admin
+br-eth0--br-mgmt
+br-eth0--br-prv
+br-eth0--br-storage
+eth0
+root@node-14:~# ovs-vsctl list-ports br-eth1
+br-eth1--br-ex
+eth1
+root@node-14:~# ovs-vsctl list-ports br-int 
+int-br-prv
+qr-8cc761cf-b2
+qr-c590288f-10
+qr-fc21086b-38
+tap8d2bdd98-30
+tapdc41c38d-6d
+
+//find vlan-id mappings (because "neutron plug-in=OVS, network-type=VLANs!) :
+root@node-14:~# ovs-ofctl dump-flows br-int | grep vlan
+ cookie=0x0, duration=9355948.733s, table=0, n_packets=969959, n_bytes=237139907, idle_age=25, hard_age=65534, priority=3,in_port=1,dl_vlan=1001 actions=mod_vlan_vid:3,NORMAL
+ cookie=0x0, duration=9360899.285s, table=0, n_packets=57, n_bytes=3273, idle_age=3288, hard_age=65534, priority=3,in_port=1,dl_vlan=1030 actions=mod_vlan_vid:1,NORMAL
+ cookie=0x0, duration=9355963.114s, table=0, n_packets=482068, n_bytes=123952829, idle_age=3288, hard_age=65534, priority=3,in_port=1,dl_vlan=1000 actions=mod_vlan_vid:2,NORMAL
+//therefore:
+ //tag1=vlan1030
+ //tag2=vlan1000
+ /tag3=vlan1001
+
+
