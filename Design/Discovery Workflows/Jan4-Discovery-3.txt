@@ -1,0 +1,209 @@
+// discover network-node low level details at the host CLI:
+ 
+ 
+root@node-14:~# ip netns 
+qrouter-09136872-bcb5-4170-b95c-b8db3b4cf12b
+qdhcp-00e98c7c-bac0-40f5-9c7c-952732bee5b2
+qdhcp-21811028-e3bf-4f29-882a-ea2417a7e2e7
+qrouter-1ca83534-dde3-4a60-994a-f6813fe93b84
+root@node-14:~# ip netns exec qrouter-09136872-bcb5-4170-b95c-b8db3b4cf12b ip a 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+17: qg-601678ad-9c: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:00:46:98 brd ff:ff:ff:ff:ff:ff
+    inet 172.16.0.131/24 brd 172.16.0.255 scope global qg-601678ad-9c
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fe00:4698/64 scope link 
+       valid_lft forever preferred_lft forever
+18: qr-c590288f-10: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:6e:f1:c6 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.44.1/24 brd 192.168.44.255 scope global qr-c590288f-10
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fe6e:f1c6/64 scope link 
+       valid_lft forever preferred_lft forever
+19: qr-fc21086b-38: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:c8:ba:ee brd ff:ff:ff:ff:ff:ff
+    inet 192.168.55.1/24 brd 192.168.55.255 scope global qr-fc21086b-38
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fec8:baee/64 scope link 
+       valid_lft forever preferred_lft forever
+root@node-14:~# ip netns exec qdhcp-00e98c7c-bac0-40f5-9c7c-952732bee5b2 ip a 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+16: tap8d2bdd98-30: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:01:70:54 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.44.3/24 brd 192.168.44.255 scope global tap8d2bdd98-30
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fe01:7054/64 scope link 
+       valid_lft forever preferred_lft forever
+root@node-14:~# ip netns exec qdhcp-21811028-e3bf-4f29-882a-ea2417a7e2e7 ip a 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+15: tapdc41c38d-6d: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:d3:d8:94 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.55.3/24 brd 192.168.55.255 scope global tapdc41c38d-6d
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fed3:d894/64 scope link 
+       valid_lft forever preferred_lft forever
+
+root@node-14:~# ovs-dpctl show
+system@ovs-system:
+        lookups: hit:268335308 missed:9183591 lost:0
+        flows: 13
+        port 0: ovs-system (internal)
+        port 1: br-eth0 (internal)
+        port 2: eth0
+        port 3: br-eth1 (internal)
+        port 4: eth1
+        port 5: br-ex (internal)
+        port 6: br-mgmt (internal)
+        port 7: br-storage (internal)
+        port 8: br-fw-admin (internal)
+        port 9: br-prv (internal)
+        port 10: br-int (internal)
+        port 11: qg-1d3c8aad-0e (internal)
+        port 12: qr-8cc761cf-b2 (internal)
+        port 13: tapdc41c38d-6d (internal)
+        port 14: tap8d2bdd98-30 (internal)
+        port 15: qg-601678ad-9c (internal)
+        port 16: qr-c590288f-10 (internal)
+        port 17: qr-fc21086b-38 (internal)
+
+root@node-14:~# ovs-vsctl show
+3f93ffe5-e3fd-46d2-a4a8-9128404233b7
+    Bridge br-ex
+        Port br-ex
+            Interface br-ex
+                type: internal
+        Port "qg-1d3c8aad-0e"
+            Interface "qg-1d3c8aad-0e"
+                type: internal
+        Port "qg-601678ad-9c"
+            Interface "qg-601678ad-9c"
+                type: internal
+        Port "br-ex--br-eth1"
+            trunks: [0]
+            Interface "br-ex--br-eth1"
+                type: patch
+                options: {peer="br-eth1--br-ex"}
+    Bridge br-mgmt
+        Port br-mgmt
+            Interface br-mgmt
+                type: internal
+        Port "br-mgmt--br-eth0"
+            Interface "br-mgmt--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-mgmt"}
+    Bridge br-int
+        fail_mode: secure
+        Port "qr-c590288f-10"
+            tag: 3
+            Interface "qr-c590288f-10"
+                type: internal
+        Port br-int
+            Interface br-int
+                type: internal
+        Port int-br-prv
+            Interface int-br-prv
+                type: patch
+                options: {peer=phy-br-prv}
+        Port "tapdc41c38d-6d"
+            tag: 2
+            Interface "tapdc41c38d-6d"
+                type: internal
+        Port "qr-8cc761cf-b2"
+            tag: 1
+            Interface "qr-8cc761cf-b2"
+                type: internal
+        Port "qr-fc21086b-38"
+            tag: 2
+            Interface "qr-fc21086b-38"
+                type: internal
+        Port "tap8d2bdd98-30"
+            tag: 3
+            Interface "tap8d2bdd98-30"
+                type: internal
+    Bridge "br-eth0"
+        Port "br-eth0--br-mgmt"
+            tag: 101
+            Interface "br-eth0--br-mgmt"
+                type: patch
+                options: {peer="br-mgmt--br-eth0"}
+        Port "eth0"
+            Interface "eth0"
+        Port "br-eth0--br-storage"
+            tag: 102
+            Interface "br-eth0--br-storage"
+                type: patch
+                options: {peer="br-storage--br-eth0"}
+        Port "br-eth0--br-prv"
+            Interface "br-eth0--br-prv"
+                type: patch
+                options: {peer="br-prv--br-eth0"}
+        Port "br-eth0"
+            Interface "br-eth0"
+                type: internal
+        Port "br-eth0--br-fw-admin"
+            trunks: [0]
+            Interface "br-eth0--br-fw-admin"
+                type: patch
+                options: {peer="br-fw-admin--br-eth0"}
+    Bridge "br-eth1"
+        Port "br-eth1--br-ex"
+            trunks: [0]
+            Interface "br-eth1--br-ex"
+                type: patch
+                options: {peer="br-ex--br-eth1"}
+        Port "eth1"
+            Interface "eth1"
+        Port "br-eth1"
+            Interface "br-eth1"
+                type: internal
+    Bridge br-storage
+        Port "br-storage--br-eth0"
+            Interface "br-storage--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-storage"}
+        Port br-storage
+            Interface br-storage
+                type: internal
+    Bridge br-prv
+        Port phy-br-prv
+            Interface phy-br-prv
+                type: patch
+                options: {peer=int-br-prv}
+        Port br-prv
+            Interface br-prv
+                type: internal
+        Port "br-prv--br-eth0"
+            Interface "br-prv--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-prv"}
+    Bridge br-fw-admin
+        Port "br-fw-admin--br-eth0"
+            trunks: [0]
+            Interface "br-fw-admin--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-fw-admin"}
+        Port br-fw-admin
+            Interface br-fw-admin
+                type: internal
+    ovs_version: "2.0.2"
+
+root@node-14:~# ifconfig | grep eth
+br-eth0   Link encap:Ethernet  HWaddr 00:50:56:bd:e2:2d  
+br-eth1   Link encap:Ethernet  HWaddr 00:50:56:bd:4a:29  
+eth0      Link encap:Ethernet  HWaddr 00:50:56:bd:e2:2d  
+eth1      Link encap:Ethernet  HWaddr 00:50:56:bd:4a:29  

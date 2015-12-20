@@ -1,0 +1,381 @@
+// discover compute-node low level details at the host CLI:
+
+root@node-14:~# ssh node-13
+ 
+root@node-13:~# virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 2     instance-00000004              running
+ 3     instance-00000008              running
+
+root@node-13:~# virsh dumpxml 2
+<domain type='kvm' id='2'>
+  <name>instance-00000004</name>
+  <uuid>f2d1ef85-1dc3-47a6-9162-d90e45707dfa</uuid>
+  <metadata>
+    <nova:instance xmlns:nova="http://openstack.org/xmlns/libvirt/nova/1.0">
+      <nova:package version="2014.2"/>
+      <nova:name>vm333</nova:name>
+      <nova:creationTime>2015-09-16 20:26:21</nova:creationTime>
+      <nova:flavor name="m1.micro">
+        <nova:memory>64</nova:memory>
+        <nova:disk>0</nova:disk>
+        <nova:swap>0</nova:swap>
+        <nova:ephemeral>0</nova:ephemeral>
+        <nova:vcpus>1</nova:vcpus>
+      </nova:flavor>
+      <nova:owner>
+        <nova:user uuid="76948f1c1a7b4b8c957f8ca93e8ac58b">admin</nova:user>
+        <nova:project uuid="67796509be634932acef545fd1426a22">demo</nova:project>
+      </nova:owner>
+      <nova:root type="image" uuid="c76862fd-e61b-4cb4-af53-db07bd30885c"/>
+    </nova:instance>
+  </metadata>
+  <memory unit='KiB'>65536</memory>
+  <currentMemory unit='KiB'>65536</currentMemory>
+  <vcpu placement='static' cpuset='0-1'>1</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <sysinfo type='smbios'>
+    <system>
+      <entry name='manufacturer'>OpenStack Foundation</entry>
+      <entry name='product'>OpenStack Nova</entry>
+      <entry name='version'>2014.2</entry>
+      <entry name='serial'>7a33f0a9-c41c-44b8-b1e0-106a14f4c860</entry>
+      <entry name='uuid'>f2d1ef85-1dc3-47a6-9162-d90e45707dfa</entry>
+    </system>
+  </sysinfo>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
+    <boot dev='hd'/>
+    <smbios mode='sysinfo'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu>
+    <topology sockets='1' cores='1' threads='1'/>
+  </cpu>
+  <clock offset='utc'>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm-spice</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='none'/>
+      <source file='/var/lib/nova/instances/f2d1ef85-1dc3-47a6-9162-d90e45707dfa/disk'/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>
+    </disk>
+    <controller type='usb' index='0'>
+      <alias name='usb0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x2'/>
+    </controller>
+    <controller type='pci' index='0' model='pci-root'>
+      <alias name='pci.0'/>
+    </controller>
+    <interface type='bridge'>
+      <mac address='fa:16:3e:9d:4c:5d'/>
+      <source bridge='qbrf6defcb4-1d'/>
+      <target dev='tapf6defcb4-1d'/>
+      <model type='virtio'/>
+      <alias name='net0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+    </interface>
+    <serial type='file'>
+      <source path='/var/lib/nova/instances/f2d1ef85-1dc3-47a6-9162-d90e45707dfa/console.log'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <serial type='pty'>
+      <source path='/dev/pts/0'/>
+      <target port='1'/>
+      <alias name='serial1'/>
+    </serial>
+    <console type='file'>
+      <source path='/var/lib/nova/instances/f2d1ef85-1dc3-47a6-9162-d90e45707dfa/console.log'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+    <input type='tablet' bus='usb'>
+      <alias name='input0'/>
+    </input>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='vnc' port='5900' autoport='yes' listen='0.0.0.0' keymap='en-us'>
+      <listen type='address' address='0.0.0.0'/>
+    </graphics>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+      <alias name='video0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
+    </video>
+    <memballoon model='virtio'>
+      <alias name='balloon0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
+      <stats period='10'/>
+    </memballoon>
+  </devices>
+  <seclabel type='none'/>
+</domain>
+
+root@node-13:~# virsh dumpxml 3
+<domain type='kvm' id='3'>
+  <name>instance-00000008</name>
+  <uuid>2f3a51a1-ca5b-49c6-8748-1a76b4bda512</uuid>
+  <metadata>
+    <nova:instance xmlns:nova="http://openstack.org/xmlns/libvirt/nova/1.0">
+      <nova:package version="2014.2"/>
+      <nova:name>Jan4</nova:name>
+      <nova:creationTime>2015-12-20 09:19:08</nova:creationTime>
+      <nova:flavor name="m1.micro">
+        <nova:memory>64</nova:memory>
+        <nova:disk>0</nova:disk>
+        <nova:swap>0</nova:swap>
+        <nova:ephemeral>0</nova:ephemeral>
+        <nova:vcpus>1</nova:vcpus>
+      </nova:flavor>
+      <nova:owner>
+        <nova:user uuid="76948f1c1a7b4b8c957f8ca93e8ac58b">admin</nova:user>
+        <nova:project uuid="67796509be634932acef545fd1426a22">demo</nova:project>
+      </nova:owner>
+      <nova:root type="image" uuid="c76862fd-e61b-4cb4-af53-db07bd30885c"/>
+    </nova:instance>
+  </metadata>
+  <memory unit='KiB'>65536</memory>
+  <currentMemory unit='KiB'>65536</currentMemory>
+  <vcpu placement='static' cpuset='0-1'>1</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <sysinfo type='smbios'>
+    <system>
+      <entry name='manufacturer'>OpenStack Foundation</entry>
+      <entry name='product'>OpenStack Nova</entry>
+      <entry name='version'>2014.2</entry>
+      <entry name='serial'>7a33f0a9-c41c-44b8-b1e0-106a14f4c860</entry>
+      <entry name='uuid'>2f3a51a1-ca5b-49c6-8748-1a76b4bda512</entry>
+    </system>
+  </sysinfo>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
+    <boot dev='hd'/>
+    <smbios mode='sysinfo'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu>
+    <topology sockets='1' cores='1' threads='1'/>
+  </cpu>
+  <clock offset='utc'>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm-spice</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='none'/>
+      <source file='/var/lib/nova/instances/2f3a51a1-ca5b-49c6-8748-1a76b4bda512/disk'/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
+    </disk>
+    <controller type='usb' index='0'>
+      <alias name='usb0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x2'/>
+    </controller>
+    <controller type='pci' index='0' model='pci-root'>
+      <alias name='pci.0'/>
+    </controller>
+    <interface type='bridge'>
+      <mac address='fa:16:3e:dc:49:12'/>
+      <source bridge='qbr7e28fab0-1d'/>
+      <target dev='tap7e28fab0-1d'/>
+      <model type='virtio'/>
+      <alias name='net0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+    </interface>
+    <interface type='bridge'>
+      <mac address='fa:16:3e:6e:02:a8'/>
+      <source bridge='qbred12ebc2-c3'/>
+      <target dev='taped12ebc2-c3'/>
+      <model type='virtio'/>
+      <alias name='net1'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>
+    </interface>
+    <serial type='file'>
+      <source path='/var/lib/nova/instances/2f3a51a1-ca5b-49c6-8748-1a76b4bda512/console.log'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <serial type='pty'>
+      <source path='/dev/pts/1'/>
+      <target port='1'/>
+      <alias name='serial1'/>
+    </serial>
+    <console type='file'>
+      <source path='/var/lib/nova/instances/2f3a51a1-ca5b-49c6-8748-1a76b4bda512/console.log'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+    <input type='tablet' bus='usb'>
+      <alias name='input0'/>
+    </input>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='vnc' port='5901' autoport='yes' listen='0.0.0.0' keymap='en-us'>
+      <listen type='address' address='0.0.0.0'/>
+    </graphics>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+      <alias name='video0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
+    </video>
+    <memballoon model='virtio'>
+      <alias name='balloon0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
+      <stats period='10'/>
+    </memballoon>
+  </devices>
+  <seclabel type='none'/>
+</domain>
+
+root@node-13:~# brctl show
+bridge name     bridge id               STP enabled     interfaces
+qbr7e28fab0-1d          8000.8a8abd2f4bfa       no              qvb7e28fab0-1d
+                                                        tap7e28fab0-1d
+qbred12ebc2-c3          8000.862290bff48a       no              qvbed12ebc2-c3
+                                                        taped12ebc2-c3
+qbrf6defcb4-1d          8000.c6196ac55e28       no              qvbf6defcb4-1d
+                                                        tapf6defcb4-1d
+virbr0          8000.000000000000       yes
+
+
+root@node-13:~# ovs-dpctl show
+system@ovs-system:
+        lookups: hit:268677288 missed:8920299 lost:0
+        flows: 12
+        port 0: ovs-system (internal)
+        port 1: br-storage (internal)
+        port 2: br-eth1 (internal)
+        port 3: eth1
+        port 4: br-fw-admin (internal)
+        port 5: br-prv (internal)
+        port 6: br-int (internal)
+        port 7: eth0
+        port 8: br-eth0 (internal)
+        port 9: br-mgmt (internal)
+        port 10: qvof6defcb4-1d
+        port 11: qvo7e28fab0-1d
+        port 12: qvoed12ebc2-c3
+
+
+root@node-13:~# ovs-vsctl show
+61b95ab9-713f-404f-a69c-c9d1320b3df3
+    Bridge br-fw-admin
+        Port "br-fw-admin--br-eth0"
+            trunks: [0]
+            Interface "br-fw-admin--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-fw-admin"}
+        Port br-fw-admin
+            Interface br-fw-admin
+                type: internal
+    Bridge br-mgmt
+        Port "br-mgmt--br-eth0"
+            Interface "br-mgmt--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-mgmt"}
+        Port br-mgmt
+            Interface br-mgmt
+                type: internal
+    Bridge br-int
+        fail_mode: secure
+        Port br-int
+            Interface br-int
+                type: internal
+        Port "qvof6defcb4-1d"
+            tag: 1
+            Interface "qvof6defcb4-1d"
+        Port "qvo7e28fab0-1d"
+            tag: 1
+            Interface "qvo7e28fab0-1d"
+        Port "qvoed12ebc2-c3"
+            tag: 2
+            Interface "qvoed12ebc2-c3"
+        Port int-br-prv
+            Interface int-br-prv
+                type: patch
+                options: {peer=phy-br-prv}
+    Bridge "br-eth1"
+        Port "eth1"
+            Interface "eth1"
+        Port "br-eth1"
+            Interface "br-eth1"
+                type: internal
+    Bridge br-prv
+        Port phy-br-prv
+            Interface phy-br-prv
+                type: patch
+                options: {peer=int-br-prv}
+        Port br-prv
+            Interface br-prv
+                type: internal
+        Port "br-prv--br-eth0"
+            Interface "br-prv--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-prv"}
+    Bridge "br-eth0"
+        Port "br-eth0"
+            Interface "br-eth0"
+                type: internal
+        Port "br-eth0--br-fw-admin"
+            trunks: [0]
+            Interface "br-eth0--br-fw-admin"
+                type: patch
+                options: {peer="br-fw-admin--br-eth0"}
+        Port "br-eth0--br-storage"
+            tag: 102
+            Interface "br-eth0--br-storage"
+                type: patch
+                options: {peer="br-storage--br-eth0"}
+        Port "br-eth0--br-mgmt"
+            tag: 101
+            Interface "br-eth0--br-mgmt"
+                type: patch
+                options: {peer="br-mgmt--br-eth0"}
+        Port "eth0"
+            Interface "eth0"
+        Port "br-eth0--br-prv"
+            Interface "br-eth0--br-prv"
+                type: patch
+                options: {peer="br-prv--br-eth0"}
+    Bridge br-storage
+        Port "br-storage--br-eth0"
+            Interface "br-storage--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-storage"}
+        Port br-storage
+            Interface br-storage
+                type: internal
+    ovs_version: "2.0.2"
+
+root@node-13:~# ifconfig | grep eth
+br-eth0   Link encap:Ethernet  HWaddr 00:50:56:bd:11:e8  
+br-eth1   Link encap:Ethernet  HWaddr 00:50:56:bd:7d:3e  
+eth0      Link encap:Ethernet  HWaddr 00:50:56:bd:11:e8  
+eth1      Link encap:Ethernet  HWaddr 00:50:56:bd:7d:3e  
