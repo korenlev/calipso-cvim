@@ -212,3 +212,11 @@ br-eth0   Link encap:Ethernet  HWaddr 00:50:56:bd:e2:2d
 br-eth1   Link encap:Ethernet  HWaddr 00:50:56:bd:4a:29  
 eth0      Link encap:Ethernet  HWaddr 00:50:56:bd:e2:2d  
 eth1      Link encap:Ethernet  HWaddr 00:50:56:bd:4a:29  
+
+vroot@node-14:~# ovs-dpctl dump-flows | grep vlan
+skb_priority(0),in_port(6),eth(src=fa:2d:32:12:e3:42,dst=d2:c0:19:53:0f:4f),eth_type(0x0800),ipv4(src=192.168.0.2/0.0.0.0,dst=192.168.0.4/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff), packets:52816, bytes:8005118, used:0.932s, actions:push_vlan(vid=101,pcp=0),2
+skb_priority(0),in_port(2),eth(src=d2:c0:19:53:0f:4f,dst=fa:2d:32:12:e3:42),eth_type(0x8100),vlan(vid=101,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.0.4/0.0.0.0,dst=192.168.0.2/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:1208098, bytes:224862102, used:0.932s, actions:pop_vlan,6
+skb_priority(0),in_port(2),eth(src=22:12:b3:57:86:40,dst=fa:2d:32:12:e3:42),eth_type(0x8100),vlan(vid=101,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.0.3/0.0.0.0,dst=192.168.0.2/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:59030, bytes:11262136, used:0.072s, actions:pop_vlan,6
+skb_priority(0),in_port(2),eth(src=ce:06:1e:1b:1b:40,dst=fa:2d:32:12:e3:42),eth_type(0x8100),vlan(vid=101,pcp=0),encap(eth_type(0x0800),ipv4(src=192.168.0.1/0.0.0.0,dst=192.168.0.2/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff)), packets:198431, bytes:37192166, used:0.100s, actions:pop_vlan,6
+skb_priority(0),in_port(6),eth(src=fa:2d:32:12:e3:42,dst=22:12:b3:57:86:40),eth_type(0x0800),ipv4(src=192.168.0.2/0.0.0.0,dst=192.168.0.3/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff), packets:8115, bytes:1258847, used:0.072s, actions:push_vlan(vid=101,pcp=0),2
+skb_priority(0),in_port(6),eth(src=fa:2d:32:12:e3:42,dst=ce:06:1e:1b:1b:40),eth_type(0x0800),ipv4(src=192.168.0.2/0.0.0.0,dst=192.168.0.1/0.0.0.0,proto=6/0,tos=0/0,ttl=64/0,frag=no/0xff), packets:148406, bytes:30445429, used:0.100s, actions:push_vlan(vid=101,pcp=0),2
