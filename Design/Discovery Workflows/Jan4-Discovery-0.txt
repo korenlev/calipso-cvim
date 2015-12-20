@@ -161,7 +161,7 @@ root@node-14:~# nova aggregate-details 2          // details of host-aggregate i
 +----+----------+-------------------+-----------+------------------------------+
 
 
-root@node-14:~# nova aggregate-details 1        // details of host-aggregate id '2'
+root@node-14:~# nova aggregate-details 1        // details of host-aggregate id '1'
 
 +----+---------------------+-------------------+-----------+------------------------------+
 | Id | Name                | Availability Zone | Hosts     | Metadata                     |
@@ -186,14 +186,14 @@ Usage from 2015-11-22 to 2015-12-21:
 +----------------------------------+---------+--------------+-----------+---------------+
 | Tenant ID                        | Servers | RAM MB-Hours | CPU Hours | Disk GB-Hours |
 +----------------------------------+---------+--------------+-----------+---------------+
-| 67796509be634932acef545fd1426a22 | 4       | 128974.61    | 2015.23   | 0.00          |        // note tenant 'demo' uses several servers/instances , so we will focus here !
+| 67796509be634932acef545fd1426a22 | 4       | 128974.61    | 2015.23   | 0.00          |        // note tenant 'demo' uses several servers(instances) , so we will focus here !
 +----------------------------------+---------+--------------+-----------+---------------+
 
 neutron net-list
 +--------------------------------------+-----------+------------------------------------------------------+
 | id                                   | name      | subnets                                              |
 +--------------------------------------+-----------+------------------------------------------------------+
-| 00e98c7c-bac0-40f5-9c7c-952732bee5b2 | net444    | 97b4193e-fc7c-4df0-aa78-0659b91b507d 192.168.44.0/24 |                     //take note of network lists and their IDs !
+| 00e98c7c-bac0-40f5-9c7c-952732bee5b2 | net444    | 97b4193e-fc7c-4df0-aa78-0659b91b507d 192.168.44.0/24 |                     //take note of network list and their IDs !
 | 21811028-e3bf-4f29-882a-ea2417a7e2e7 | net555    | bf43c33c-b6f4-49a9-893c-64c65338318d 192.168.55.0/24 |
 | 3efdf3ed-0bb5-4539-b1d5-4ed72d86c4dd | net04_ext | ed46c742-82b2-49e3-9669-891f4005e4f7                 |
 +--------------------------------------+-----------+------------------------------------------------------+
@@ -208,4 +208,4 @@ RegionOne --> Jan4-Agg --> node-13
 RegionOne --> Jan4-Zon --> node-13
 
 3 network names and IDs
-4 tenants, demo tenant runs some instances 
+4 tenants, demo tenant runs some instances
