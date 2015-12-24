@@ -1,5 +1,5 @@
 require 'mysql2'
-require 'JSON'
+require 'json'
 
 class DbAccess
   
@@ -22,10 +22,21 @@ class DbAccess
     ret = {:rows => rows}
     return jsonify(ret)
   end
+
+  def get()
+    # return list of available fetch types
+    ret = {
+      :description => "List of available fetch calls for this interface",
+      :types => [
+        :regions => "Regions of this environment",
+	:projects => "Projects (a.k.a. Tenants) of this environment"
+      ]
+    }
+    return jsonify(ret)
+  end
   
   def jsonify(object)
-    #return @prettify ? JSON.pretty_generate(object) : JSON.generate(object)
-    return JSON.pretty_generate(object)
+    return @prettify ? JSON.pretty_generate(object) : JSON.generate(object)
   end
  
 end
