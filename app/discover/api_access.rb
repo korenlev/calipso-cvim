@@ -10,65 +10,60 @@ class ApiAccess
   @@regions = Hash.new
   
   # identitity API v2 version with admin token
-  def initialize(url, admin_token)
+  def initialize(url)
     @@base_url = url
     @@logger = Logger.new(STDOUT)
-    @@logger.level = Logger::INFO
-    
-    @@subject_token ||= admin_token
+    @@logger.level = Logger::DEBUG
   end
   
   def set_v2_admin_token(token)
     @@admin_token = token
+    @@admin_endpoint = @@base_url.sub(":5000", ":35357")
   end
-  
-  # identitity API v3 version with user+password
-  def initialize(url, user, password)
-    @@base_url = url
-    @@logger = Logger.new(STDOUT)
-    @@logger.level = Logger::INFO
-    
-    if (@@subject_token == nil)
-      auth(user, password)
+ 
+  def v2_auth_pwd(user, pwd, project)
+    req_url = @@base_url + "/v2.0/tokens"
+    if (user != nil)
+      @@user = user
+    else
+      user = @@user
     end
-  end
-  
-  def auth(user, password)
-    req_url = @@base_url + "/v3/auth/tokens"
+    if (pwd != nil)
+      @@pwd = pwd
+    else
+      pwd = @@pwd
+    end
+    
     post_body = {
       :auth => {
-        :identity => {
-          :methods => ["password"],
-          :password => {
-              :user => {
-                  :name => "admin",
-                  :password => "admin",
-                  :domain => {:name => "Default"}
-              }
-          }
+        :passwordCredentials => {
+          :username => user,
+          :password => pwd
         }
       }
     }
+    if project != nil
+      post_body["tenantName"] = project
+    end
+    
     request_body = JSON.generate(post_body)
     @@logger.debug("request URL: " + req_url + ", request body:\n" + request_body + "\n")
     response = RestClient.post(req_url, request_body, :content_type => 'application/json')
-    @@subject_token = response.headers[:x_subject_token]
     body = Nokogiri::XML(response.body)
     body_hash = Hash.from_xml(body.to_s)
-    @@logger.debug "\nauth: got response: " +
-      "code=" + response.code.to_s + ", " +
-      "subject_token: " + @@subject_token + ", " +
-      "headers" + response.headers.to_s +
-      ",\n body: \n" + body_hash.to_s + "\n"
-    services = body_hash["token"]["catalog"]["service"]
-    services.each {|service|
-      service["name"] == "keystone" || next
-      endpoints = service["endpoint"]
-      endpoints.each {|e|
-        e["interface"] == "admin" || next
-        @@regions[e["region"]] = e
-      }
-    }
+    @@subject_token = body_hash["access"]["token"]["id"]
+  end
+ 
+  def v2_auth_token(token)
+    set_v2_admin_token(token)
+    req_url = @@admin_endpoint + "/v2.0/tokens"
+    post_body = {:auth => {:passwordCredentials => {:token => token}}}
+    request_body = JSON.generate(post_body)
+    @@logger.debug("request URL: " + req_url + ", request body:\n" + request_body + "\n")
+    response = RestClient.post(req_url, request_body, :content_type => 'application/json')
+    body = Nokogiri::XML(response.body)
+    body_hash = Hash.from_xml(body.to_s)
+    @@subject_token = body_hash["access"]["token"]["id"]
   end
   
   def get(relative_url)
