@@ -3,7 +3,7 @@ require_relative 'db_access'
 
 class FetchRegions < DbAccess
   
-  def get_regions()
+  def get()
     return get_objects("SELECT id FROM keystone.region")
   end
   
