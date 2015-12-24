@@ -1,5 +1,5 @@
 require 'mysql2'
-require 'JSON'
+require 'json'
 
 class DbAccess
   
