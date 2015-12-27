@@ -3,11 +3,11 @@ require 'json'
 
 class DbAccess
   
-  @@client = nil
+  @@sql_client = nil
   @@prettify = false
   
   def connect(host, port, user, pwd, db)
-    @@client = Mysql2::Client.new(:host => host, :port => port,
+    @@sql_client = Mysql2::Client.new(:host => host, :port => port,
       :username => user, :password => pwd, :database => db)
   end
   
@@ -16,20 +16,24 @@ class DbAccess
   end
   
   def get_objects(qry)
-    results = @@client.query(qry)
+    results = @@sql_client.query(qry)
     rows = []
     results.each {|row| rows.push(row) }
     ret = {:rows => rows}
     return jsonify(ret)
   end
 
-  def get()
+  def get(id)
     # return list of available fetch types
     ret = {
       :description => "List of available fetch calls for this interface",
       :types => [
         :regions => "Regions of this environment",
-	:projects => "Projects (a.k.a. Tenants) of this environment"
+	:projects => "Projects (a.k.a. Tenants) of this environment",
+	:availability_zones => "Availability zones",
+	:aggregates => "Host aggregates",
+	:aggregate_hosts => "Hosts in aggregate X (parameter: id)",
+	:az_hosts => "Host in availability_zone X (parameter: id)"
       ]
     }
     return jsonify(ret)
