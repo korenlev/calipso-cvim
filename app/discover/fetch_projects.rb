@@ -4,7 +4,8 @@ require_relative 'db_access'
 class FetchProjects < DbAccess
   
   def get(id)
-    return get_objects("SELECT id, name, description FROM keystone.project WHERE enabled")
+    query = "SELECT id, name, description FROM keystone.project WHERE enabled"
+    return get_objects(query, "project")
   end
   
 end

@@ -15,12 +15,16 @@ class DbAccess
     @@prettify = pretty
   end
   
-  def get_objects(qry)
+  def get_objects_list(qry, type)
     results = @@sql_client.query(qry)
     rows = []
     results.each {|row| rows.push(row) }
-    ret = {:rows => rows}
-    return jsonify(ret)
+    ret = {"type" => type, "rows" => rows}
+    return ret
+  end
+  
+  def get_objects(qry, type)
+    return jsonify(get_objects_list(qry, type))
   end
 
   def get(id)
@@ -37,6 +41,10 @@ class DbAccess
       ]
     }
     return jsonify(ret)
+  end
+  
+  def escape(str)
+    return @@sql_client.escape(str)
   end
   
   def jsonify(object)
