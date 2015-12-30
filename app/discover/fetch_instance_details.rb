@@ -62,10 +62,19 @@ class FetchInstanceDetails < DbAccess
           "IP address" => ip_addr,
           "Target device" => tap_id,
 	  "Model type" => "VirtIO",
-	  "Tag" => "5 (TBD)"
+	  "VLAN vid" => "5 (TBD)"
         }
       }
       links.push(instance_to_br_edge)
+      segment_query = %Q{
+        SELECT segmentation_id
+        FROM neutron.ml2_network_segments
+        WHERE network_id = '#{net_data["id"]}'
+      }
+      segment_matches = get_objects_list(segment_query, "segment")
+      segment_id = segment_matches["rows"][0] ?
+        segment_matches["rows"][0]["segmentation_id"] :
+        "UNKNOWN"
       ovs_edge = {
         "from" => bridge_id,
 	"to" => ovs_id,
@@ -73,7 +82,7 @@ class FetchInstanceDetails < DbAccess
         "attributes" => {
           "bridge outgoing port" => br_to_ovs_port_id,
           "OVS incoming port" => ovs_from_br_port_id,
-	  "dl vlan" => "1001 (TBD)"
+	  "DL VLAN" => segment_id
         }
       }
       links.push(ovs_edge)
@@ -103,9 +112,9 @@ class FetchInstanceDetails < DbAccess
     nodes.push(ovs_node)
     nodes.push(pnic_node)
     ovs_to_pnic_edge = {
-      "from": ovs_id,
-      "to": pnic_id,
-      "label": "Networks: " + network_names_list
+      "from" => ovs_id,
+      "to" => pnic_id,
+      "label" => "Networks: " + network_names_list
     }
     links.push(ovs_to_pnic_edge)
     result["networks"] = networks
