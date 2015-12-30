@@ -7,12 +7,11 @@ class FetchEnvironments < DbAccess
     ret = {
       "type" => "environment",
       "id" => "",
-      "parent" => "", 
       "rows" => [
-        {"id" => 1, "text" => "Koren's RedHat RDO"},
-        {"id" => 2, "text" => "DT-VMS-Canonical"},
-        {"id" => 3, "text" => "WebEX-Mirantis@Cisco"},
-        {"id" => 4, "text" => "DEVNET-VIRL-OS-Build288"}
+        {"id" => 1, "text" => "Koren's RedHat RDO", "descendants" => 2},
+        {"id" => 2, "text" => "DT-VMS-Canonical", "descendants" => 2},
+        {"id" => 3, "text" => "WebEX-Mirantis@Cisco", "descendants" => 2},
+        {"id" => 4, "text" => "DEVNET-VIRL-OS-Build288", "descendants" => 2}
       ]
     }
     return jsonify(ret)
