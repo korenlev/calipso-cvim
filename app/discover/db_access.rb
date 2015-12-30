@@ -55,7 +55,8 @@ class DbAccess
   end
   
   def jsonify(object)
-    return @prettify ? JSON.pretty_generate(object) : JSON.generate(object)
+    return @prettify != false ? JSON.pretty_generate(object) :
+      JSON.generate(object)
   end
  
 end
