@@ -4,7 +4,7 @@ class FetchInstances < DbAccess
   
   def get_instances(field, id)
     query = %Q{
-      SELECT uuid AS id, hostname AS name, 1 AS descendants
+      SELECT uuid AS id, display_name AS name, 1 AS descendants
       FROM nova.instances
       WHERE #{field} = '#{id}' AND deleted = 0
     }
