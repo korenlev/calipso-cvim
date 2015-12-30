@@ -57,7 +57,7 @@ class FetchInstanceDetails < DbAccess
         "attributes" => [{"id" => bridge_id}]}
       nodes.push(bridge_node)
       ovs_node = {
-        "id" => bridge_id,
+        "id" => ovs_id,
 	"label" => "bridge: " + bridge_label + " (" + bridge_id + ")"}
       nodes.push(ovs_node)
     }
