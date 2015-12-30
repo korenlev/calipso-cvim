@@ -38,7 +38,6 @@ class FetchInstanceDetails < DbAccess
     }
     nodes = [instance]
     links = []
-    network_names_list = "";
     network_info.each {|network|
       net_data = network["network"]
       tap_id = network["devname"]
@@ -51,8 +50,6 @@ class FetchInstanceDetails < DbAccess
         "name" => net_data["label"],
         "address" => ip_addr
       }
-      network_names_list += (network_names_list == "" ? "" : ",") +
-        net_data["label"]
       networks.push(network_details)
       instance_to_br_edge = {
         "from" => instance_id,
@@ -111,10 +108,11 @@ class FetchInstanceDetails < DbAccess
     }
     nodes.push(ovs_node)
     nodes.push(pnic_node)
+    network_names_list = network_info.map{|n| n["network"]["label"]}
     ovs_to_pnic_edge = {
       "from" => ovs_id,
       "to" => pnic_id,
-      "label" => "Networks: " + network_names_list
+      "label" => "Networks: " + network_names_list.join(", ")
     }
     links.push(ovs_to_pnic_edge)
     result["networks"] = networks
