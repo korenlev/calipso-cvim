@@ -15,11 +15,18 @@ class DbAccess
     @@prettify = pretty
   end
   
-  def get_objects_list(qry, type)
+  def get_objects_list(qry, object_type)
     results = @@sql_client.query(qry)
     rows = []
     results.each {|row| rows.push(row) }
-    ret = {"type" => type, "rows" => rows}
+    if (object_type.is_a?(String))
+      ret = {"type" => object_type, "rows" => rows}
+    else
+      # object_type is a hash of parameters, just add "rows" to it
+      ret = object_type
+      ret["rows"] = rows
+    end
+    
     return ret
   end
   
