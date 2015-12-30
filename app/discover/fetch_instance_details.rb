@@ -25,11 +25,15 @@ class FetchInstanceDetails < DbAccess
     host_name = result["host"]
     ovs_id = "ovs-" + host_name
     instance = {
+      "type" => "instance",
       "id" => instance_id,
       "group" => instance_id,
       "label" => result["name"],
       "attributes" => {
-        "Project" => "XXX"
+        "Name" => result["name"],
+	"Host" => host_name,
+	"Availability zone" => result["availability_zone"],
+        "Project" => result["project"]
       }
     }
     nodes = [instance]
@@ -57,7 +61,8 @@ class FetchInstanceDetails < DbAccess
         "attributes" => {
           "IP address" => ip_addr,
           "Target device" => tap_id,
-	  "Model type" => "VirtIO"
+	  "Model type" => "VirtIO",
+	  "Tag" => "5 (TBD)"
         }
       }
       links.push(instance_to_br_edge)
@@ -67,12 +72,14 @@ class FetchInstanceDetails < DbAccess
 	"label" => net_data["label"],
         "attributes" => {
           "bridge outgoing port" => br_to_ovs_port_id,
-          "OVS incoming port" => ovs_from_br_port_id
+          "OVS incoming port" => ovs_from_br_port_id,
+	  "dl vlan" => "1001 (TBD)"
         }
       }
       links.push(ovs_edge)
       bridge_label = net_data["bridge"]
       bridge_node = {
+        "type" => "bridge",
         "id" => bridge_id,
 	"group" => instance_id,
 	"label" => "bridge: " + bridge_label + " (" + bridge_id + ")",
@@ -81,12 +88,14 @@ class FetchInstanceDetails < DbAccess
       nodes.push(bridge_node)
     }
     ovs_node = {
+      "type" => "OVS",
       "id" => ovs_id,
       "label" => "OVS: " + ovs_id,
       "group" => ovs_id
     }
     pnic_id = "eth0-" + host_name
     pnic_node = {
+      "type" => "pNIC",
       "id" => pnic_id,
       "group" => ovs_id,
       "label" => "pNIC"
