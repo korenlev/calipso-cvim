@@ -6,7 +6,7 @@ class FetchInstanceDetails < DbAccess
 
   def get(id)
     query = %Q{
-      SELECT DISTINCT i.uuid AS id, i.host AS name, i.hostname AS host,
+      SELECT DISTINCT i.uuid AS id, i.display_name AS name, i.hostname AS host,
         network_info, i.availability_zone, p.name AS project
       FROM nova.instances i
         JOIN keystone.project p ON p.id = i.project_id
@@ -56,7 +56,9 @@ class FetchInstanceDetails < DbAccess
       bridge_node = {"id" => bridge_id, "label" => "bridge: " + bridge_label,
         "attributes" => [{"id" => bridge_id}]}
       nodes.push(bridge_node)
-      ovs_node = {"id" => bridge_id, "label" => "bridge " + bridge_label + bridge_id}
+      ovs_node = {
+        "id" => bridge_id,
+	"label" => "bridge: " + bridge_label + " (" + bridge_id + ")"}
       nodes.push(ovs_node)
     }
     result["networks"] = networks
