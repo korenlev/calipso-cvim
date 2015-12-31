@@ -38,6 +38,7 @@ class FetchInstanceDetails < DbAccess
     }
     @nodes = [instance]
     @links = []
+    @segments = []
     network_info.each {|network|
       handle_single_network(network, result)
     }
@@ -52,7 +53,7 @@ class FetchInstanceDetails < DbAccess
       "type" => "pNIC",
       "id" => pnic_id,
       "group" => @ovs_id,
-      "label" => "pNIC"
+      "label" => "pNIC: " + pnic_id
     }
     @nodes.push(ovs_node)
     @nodes.push(pnic_node)
@@ -60,7 +61,11 @@ class FetchInstanceDetails < DbAccess
     ovs_to_pnic_edge = {
       "from" => @ovs_id,
       "to" => pnic_id,
-      "label" => "Networks: " + network_names_list.join(", ")
+      "label" => "Networks: " + network_names_list.join(", "),
+      "attributes" => [
+        "Network Type: " => "VLAN Trunk",
+        "Segment ID(s): " => @segments.join(", ")
+      ]
     }
     @links.push(ovs_to_pnic_edge)
     result["networks"] = @networks
@@ -103,6 +108,7 @@ class FetchInstanceDetails < DbAccess
     segment_id = segment_matches["rows"][0] ?
       segment_matches["rows"][0]["segmentation_id"] :
       "UNKNOWN"
+    @segments.push(segment_id)
     ovs_edge = {
       "from" => bridge_id,
       "to" => @ovs_id,
