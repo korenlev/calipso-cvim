@@ -29,7 +29,7 @@ class FetchInstanceDetails < DbAccess
       "id" => @instance_id,
       "group" => @instance_id,
       "label" => result["name"],
-      "weight" => 100,
+      "level" => 1,
       "attributes" => {
         "Name" => result["name"],
 	"Host" => host_name,
@@ -47,7 +47,7 @@ class FetchInstanceDetails < DbAccess
       "type" => "OVS",
       "id" => @ovs_id,
       "label" => "OVS: " + @ovs_id,
-      "weight" => 500,
+      "level" => 5,
       "group" => @ovs_id,
       "attributes" => [
         "ID" => @ovs_id
@@ -59,7 +59,7 @@ class FetchInstanceDetails < DbAccess
       "id" => pnic_id,
       "group" => @ovs_id,
       "label" => "pNIC: " + pnic_id,
-      "weight" => 700,
+      "level" => 7,
       "attributes" => [
         "ID" => pnic_id
       ]
@@ -135,7 +135,7 @@ class FetchInstanceDetails < DbAccess
       "id" => bridge_id,
       "group" => @instance_id,
       "label" => "bridge: " + bridge_label + " (" + bridge_id + ")",
-      "weight" => 200,
+      "level" => 2,
       "attributes" => [{"id" => bridge_id}]
     }
     @nodes.push(bridge_node)
