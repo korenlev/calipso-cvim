@@ -46,14 +46,20 @@ class FetchInstanceDetails < DbAccess
       "type" => "OVS",
       "id" => @ovs_id,
       "label" => "OVS: " + @ovs_id,
-      "group" => @ovs_id
+      "group" => @ovs_id,
+      "attributes" => [
+        "ID" => @ovs_id
+      ]
     }
     pnic_id = "eth0-" + host_name
     pnic_node = {
       "type" => "pNIC",
       "id" => pnic_id,
       "group" => @ovs_id,
-      "label" => "pNIC: " + pnic_id
+      "label" => "pNIC: " + pnic_id,
+      "attributes" => [
+        "ID" => pnic_id
+      ]
     }
     @nodes.push(ovs_node)
     @nodes.push(pnic_node)
