@@ -1,26 +1,5 @@
 #!/usr/bin/env ruby
 
-<<<<<<< HEAD
-require 'json'
-require_relative 'fetch_regions'
-require_relative 'fetch_projects'
-
-url = "http://10.56.20.74:5000"
-token = "vIhNb1l2b"
-user = "admin"
-password = "admin"
-regionFetcher = FetchRegions.new(url, user, password)
-projectFetcher = FetchProjects.new(url, user, password)
-projectFetcher.set_v2_admin_token(token)
-
-print regionFetcher.get_catalog(true)
-print "\n"
-print "projects:\n"
-print "=========\n"
-print projectFetcher.get_projects("RegionOne", true)
-
-
-=======
 require 'cgi'
 require_relative 'fetch_environments'
 require_relative 'fetch_regions'
@@ -103,4 +82,3 @@ escaped_id = fetcher.escape(id)
 response = fetcher.get(escaped_id)
 !debug || response = %Q|{"type": #{what_to_fetch}, "id": #{id}}|
 cgi.out("application/json") { response + "\n" }
->>>>>>> origin/fetch_from_db

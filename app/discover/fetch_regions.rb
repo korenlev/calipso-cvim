@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-require_relative 'api_access'
-require 'json'
-
-class FetchRegions < ApiAccess
-  
-  def get_catalog(pretty)
-    return jsonify(@@regions, pretty)
-  end
-  
-end  
-=======
 require 'mysql2'
 require_relative 'db_access'
 
@@ -20,4 +8,3 @@ class FetchRegions < DbAccess
   end
   
 end
->>>>>>> origin/fetch_from_db
