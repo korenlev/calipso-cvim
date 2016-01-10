@@ -1,7 +1,7 @@
 require 'mysql2'
 require_relative 'db_access'
 
-class FetchAvailabilityZones < DbAccess
+class DbFetchAvailabilityZones < DbAccess
   
   def get(id)
     query = %Q{

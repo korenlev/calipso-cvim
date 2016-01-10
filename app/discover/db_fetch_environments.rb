@@ -1,7 +1,7 @@
 require 'mysql2'
 require_relative 'db_access'
 
-class FetchEnvironments < DbAccess
+class DbFetchEnvironments < DbAccess
   
   def get(parent)
     ret = {

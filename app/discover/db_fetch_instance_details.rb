@@ -2,7 +2,7 @@ require 'mysql2'
 require 'json'
 require_relative 'db_access'
 
-class FetchInstanceDetails < DbAccess
+class DbFetchInstanceDetails < DbAccess
 
   def get(id)
     query = %Q{

@@ -1,7 +1,7 @@
 require 'mysql2'
 require_relative 'db_access'
 
-class FetchAZHosts < DbAccess
+class DbFetchAZHosts < DbAccess
   
   def get(id)
     query = %Q{
