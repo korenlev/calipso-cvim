@@ -1,17 +1,17 @@
 #!/usr/bin/env ruby
 
 require 'cgi'
-require_relative 'fetch_environments'
-require_relative 'fetch_regions'
 require_relative 'fetch_region_object_types'
-require_relative 'fetch_projects'
-require_relative 'fetch_aggregates.rb'
-require_relative 'fetch_availability_zones.rb'
-require_relative 'fetch_aggregate_hosts.rb'
-require_relative 'fetch_az_hosts.rb'
-require_relative 'fetch_project_instances.rb'
-require_relative 'fetch_host_instances.rb'
-require_relative 'fetch_instance_details.rb'
+require_relative 'db_fetch_environments'
+require_relative 'db_fetch_regions'
+require_relative 'db_fetch_projects'
+require_relative 'db_fetch_aggregates.rb'
+require_relative 'db_fetch_availability_zones.rb'
+require_relative 'db_fetch_aggregate_hosts.rb'
+require_relative 'db_fetch_az_hosts.rb'
+require_relative 'db_fetch_project_instances.rb'
+require_relative 'db_fetch_host_instances.rb'
+require_relative 'db_fetch_instance_details.rb'
 
 def get_fetch_type(params)
   type = params["type"]
@@ -51,27 +51,27 @@ id = cgi.params["id"][0] || ""
 fetcher = nil
 case what_to_fetch
   when "environments"
-    fetcher = FetchEnvironments.new()
+    fetcher = DbFetchEnvironments.new()
   when "regions"
-    fetcher = FetchRegions.new()
+    fetcher = DbFetchRegions.new()
   when "region_object_types"
     fetcher = FetchRegionObjectTypes.new()
   when "projects"
-    fetcher = FetchProjects.new()
+    fetcher = DbFetchProjects.new()
   when "availability_zones"
-    fetcher = FetchAvailabilityZones.new()
+    fetcher = DbFetchAvailabilityZones.new()
   when "aggregates"
-    fetcher = FetchAggregates.new()
+    fetcher = DbFetchAggregates.new()
   when "aggregate_hosts"
-    fetcher = FetchAggregateHosts.new()
+    fetcher = DbFetchAggregateHosts.new()
   when "az_hosts"
-    fetcher = FetchAZHosts.new()
+    fetcher = DbFetchAZHosts.new()
   when "project_instances"
-    fetcher = FetchProjectInstances.new()
+    fetcher = DbFetchProjectInstances.new()
   when "host_instances"
-    fetcher = FetchHostInstances.new()
+    fetcher = DbFetchHostInstances.new()
   when "instance_details"
-    fetcher = FetchInstanceDetails.new()
+    fetcher = DbFetchInstanceDetails.new()
   else
     fetcher = DbAccess.new()
 end

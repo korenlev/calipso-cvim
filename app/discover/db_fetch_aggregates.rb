@@ -1,7 +1,7 @@
 require 'mysql2'
 require_relative 'db_access'
 
-class FetchAggregates < DbAccess
+class DbFetchAggregates < DbAccess
   
   def get(id)
     return get_objects(%Q{

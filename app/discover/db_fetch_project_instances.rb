@@ -1,7 +1,7 @@
 require 'mysql2'
-require_relative 'fetch_instances'
+require_relative 'db_fetch_instances'
 
-class FetchProjectInstances < FetchInstances
+class DbFetchProjectInstances < DbFetchInstances
   
   def get(id)
     return get_instances("project_id", id)

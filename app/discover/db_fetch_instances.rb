@@ -1,6 +1,6 @@
 require_relative 'db_access'
 
-class FetchInstances < DbAccess
+class DbFetchInstances < DbAccess
   
   def get_instances(field, id)
     query = %Q{
