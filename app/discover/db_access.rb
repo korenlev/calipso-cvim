@@ -1,6 +1,8 @@
 require 'mysql2'
 require 'json'
 
+require_relative 'configuration.rb'
+
 class DbAccess
   
   @@sql_client = nil
@@ -11,11 +13,22 @@ class DbAccess
       :username => user, :password => pwd, :database => db)
   end
   
+  def connect_to_db()
+    @@sql_client && return
+    config_mgr = Configuration.new()
+    conf = config_mgr.get("mysql")
+    connect(conf[:host], conf[:port], conf[:user], conf[:password], conf[:schema])
+  end
+  
   def set_prettify(pretty)
     @@prettify = pretty
   end
   
   def get_objects_list(qry, object_type)
+    if (@@sql_client == nil)
+      connect_to_db()
+    end
+    
     results = @@sql_client.query(qry)
     rows = []
     results.each {|row| rows.push(row) }
@@ -51,6 +64,7 @@ class DbAccess
   end
   
   def escape(str)
+    connect_to_db()
     return @@sql_client.escape(str)
   end
   

@@ -76,7 +76,6 @@ case what_to_fetch
     fetcher = DbAccess.new()
 end
 fetcher.set_prettify(true)
-fetcher.connect("10.56.20.74", 13306, "root", "BsfYNGxi", "nova")
 fetcher.set_prettify(true)
 escaped_id = fetcher.escape(id)
 response = fetcher.get(escaped_id)
