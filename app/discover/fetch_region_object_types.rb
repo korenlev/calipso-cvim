@@ -1,4 +1,3 @@
-require 'mysql2'
 require_relative 'db_access'
 
 class FetchRegionObjectTypes < DbAccess

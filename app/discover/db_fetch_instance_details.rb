@@ -1,4 +1,3 @@
-require 'mysql2'
 require 'json'
 require_relative 'db_access'
 

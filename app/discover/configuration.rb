@@ -1,4 +1,3 @@
-require 'bson'
 require_relative 'mongo_access.rb'
 
 class Configuration < MongoAccess
