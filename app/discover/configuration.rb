@@ -1,10 +1,7 @@
-require 'mongo'
-require 'json'
 require 'bson'
+require_relative 'mongo_access.rb'
 
-class Configuration
-  
-  @@client = nil
+class Configuration < MongoAccess
   
   def get(component)
     if (@@client == nil)
@@ -19,10 +16,6 @@ class Configuration
       raise IndexError, "Found multiple matches for configuration component: " + component
     end
     matches.each {|e| return e }
-  end
-  
-  def connect()
-    @@client = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'osdna')
   end
   
 end
