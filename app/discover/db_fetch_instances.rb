@@ -8,7 +8,7 @@ class DbFetchInstances < DbAccess
       FROM nova.instances
       WHERE #{field} = '#{id}' AND deleted = 0
     }
-    return get_objects(query, "instance")
+    return get_objects_list(query, "instance")
   end
 
   def get(id)

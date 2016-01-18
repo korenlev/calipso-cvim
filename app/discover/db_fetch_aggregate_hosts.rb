@@ -10,7 +10,7 @@ class DbFetchAggregateHosts < DbAccess
       WHERE h.deleted = 0 AND aggregate_id = '#{id}'
       GROUP BY h.id, h.host
     }
-    return get_objects(query, "host")
+    return get_objects_list(query, "host")
   end
   
 end

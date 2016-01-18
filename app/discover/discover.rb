@@ -1,17 +1,18 @@
 #!/usr/bin/env ruby
 
 require 'cgi'
+require_relative 'configuration'
 require_relative 'fetch_region_object_types'
 require_relative 'db_fetch_environments'
 require_relative 'db_fetch_regions'
 require_relative 'db_fetch_projects'
-require_relative 'db_fetch_aggregates.rb'
-require_relative 'db_fetch_availability_zones.rb'
-require_relative 'db_fetch_aggregate_hosts.rb'
-require_relative 'db_fetch_az_hosts.rb'
-require_relative 'db_fetch_project_instances.rb'
-require_relative 'db_fetch_host_instances.rb'
-require_relative 'db_fetch_instance_details.rb'
+require_relative 'db_fetch_aggregates'
+require_relative 'db_fetch_availability_zones'
+require_relative 'db_fetch_aggregate_hosts'
+require_relative 'db_fetch_az_hosts'
+require_relative 'db_fetch_project_instances'
+require_relative 'db_fetch_host_instances'
+require_relative 'db_fetch_instance_details'
 
 def get_fetch_type(params)
   type = params["type"]
@@ -75,9 +76,10 @@ case what_to_fetch
   else
     fetcher = DbAccess.new()
 end
+Configuration.instance.use_env("WebEX-Mirantis@Cisco")
 fetcher.set_prettify(true)
 fetcher.set_prettify(true)
 escaped_id = fetcher.escape(id)
-response = fetcher.get(escaped_id)
+response = fetcher.jsonify(fetcher.get(escaped_id))
 !debug || response = %Q|{"type": #{what_to_fetch}, "id": #{id}}|
 cgi.out("application/json") { response + "\n" }

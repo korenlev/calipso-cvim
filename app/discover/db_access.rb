@@ -1,7 +1,7 @@
 require 'mysql2'
 require 'json'
 
-require_relative 'configuration.rb'
+require_relative 'configuration'
 
 class DbAccess
   
@@ -15,7 +15,7 @@ class DbAccess
   
   def connect_to_db()
     @@sql_client && return
-    config_mgr = Configuration.new()
+    config_mgr = Configuration.instance
     conf = config_mgr.get("mysql")
     connect(conf[:host], conf[:port], conf[:user], conf[:password], conf[:schema])
   end
