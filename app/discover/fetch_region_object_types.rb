@@ -13,7 +13,7 @@ class FetchRegionObjectTypes < DbAccess
         {"id" => "availability zones root", "text" => "availability zones", "descendants" => 1}
       ]
     }
-    return jsonify(ret)
+    return ret
   end
   
 end
