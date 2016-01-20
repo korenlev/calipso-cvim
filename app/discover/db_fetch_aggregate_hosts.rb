@@ -4,7 +4,7 @@ class DbFetchAggregateHosts < DbAccess
   
   def get(id)
     query = %Q{
-      SELECT h.id, h.host AS name, COUNT(*) AS descendants
+      SELECT h.host AS id, h.host AS name, COUNT(*) AS descendants
       FROM nova.aggregate_hosts h
         LEFT JOIN nova.instances i ON h.host = i.hostname
       WHERE h.deleted = 0 AND aggregate_id = '#{id}'
