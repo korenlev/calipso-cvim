@@ -4,14 +4,14 @@
 
 require 'singleton'
 require_relative 'db_fetch_host_instances'
-require_relative 'scan_instance'
+require_relative 'scanner'
 
 class ScanHost < Scanner
   include Singleton
   
   def initialize()
     super([
-      {:fetcher => DbFetchHostInstances.new(), :children_scanner => ScanInstance.instance}
+      {:fetcher => DbFetchHostInstances.new()}
     ])
   end
   
