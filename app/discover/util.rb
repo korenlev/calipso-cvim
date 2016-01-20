@@ -8,4 +8,22 @@ module Util
     end
   end
   
+  
+  def set_prettify(pretty)
+    @@prettify = pretty
+  end
+  
+  def jsonify(object)
+    object_class = object.class.name
+    case
+    when object_class == "Mongo::Collection::View"
+      matches = []
+      object.each {|e| matches.push(e)}
+      object = matches
+    end
+    
+    return @prettify != false ? JSON.pretty_generate(object) :
+      JSON.generate(object)
+  end
+  
 end
