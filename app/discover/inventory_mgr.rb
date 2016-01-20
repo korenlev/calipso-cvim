@@ -1,15 +1,27 @@
 require 'singleton'
-require_relative 'mongo_access.rb'
-require_relative 'util.rb'
+require_relative 'mongo_access'
+require_relative 'util'
 
 class InventoryMgr < MongoAccess
   include Singleton
   include Util
   
+  @@prettify = false
+  
   def get(environment, item_type, item_id)
-    matches = item_id ?
+    matches = item_id && (item_id.to_s > "") ?
       @@client[:inventory].find(:environment => environment, :type => item_type, :id => item_id) :
       @@client[:inventory].find(:environment => environment, :type => item_type)
+    return matches
+  end
+  
+  def get_children(environment, item_type, parent_id)
+    matches = []
+    if parent_id && (parent_id.to_s > "")
+      matches = @@client[:inventory].find({:environment => environment, :type => item_type, :parent_id => parent_id})
+    else
+      matches = @@client[:inventory].find({:environment => environment, :type => item_type})
+    end
     return matches
   end
   
@@ -53,4 +65,5 @@ class InventoryMgr < MongoAccess
     end
     #code
   end
+  
 end
