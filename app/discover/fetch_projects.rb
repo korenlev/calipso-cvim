@@ -8,7 +8,7 @@ class FetchProjects < ApiAccess
     req_url = @@admin_endpoint + "/v2.0/tenants"
     @@logger.debug("getting projects: " + req_url)
     response_string = RestClient.get req_url,
-      :"X-Auth-Token" => @@subject_token
+      :"X-Auth-Token" => @@admin_token
     response_xml = Nokogiri::XML(response_string)
     response = Hash.from_xml(response_xml.to_s)
     response = response["tenants"]["tenant"]
