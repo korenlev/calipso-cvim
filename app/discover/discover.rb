@@ -5,7 +5,7 @@ require_relative 'fetch_regions'
 require_relative 'fetch_projects'
 
 url = "http://10.56.20.74:5000"
-token = "vIhNb1l2b"
+token = "vIhNb1l2"
 user = "admin"
 password = "admin"
 regionFetcher = FetchRegions.new(url)
