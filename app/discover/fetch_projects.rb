@@ -4,7 +4,7 @@ require 'json'
 class FetchProjects < ApiAccess
   
   def get_projects(region, pretty)
-    @@admin_endpoint = @@base_url #.sub(":5000", ":35357")
+    @@admin_endpoint = @@base_url.sub(":5000", ":7777")
     req_url = @@admin_endpoint + "/v2.0/tenants"
     @@logger.debug("getting projects: " + req_url)
     response_string = RestClient.get req_url,
