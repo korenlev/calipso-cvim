@@ -1,7 +1,7 @@
 require_relative 'api_access'
 require 'json'
 
-class FetchRegions < ApiAccess
+class ApiFetchRegions < ApiAccess
   
   def fetch_v2(args)
     #code
