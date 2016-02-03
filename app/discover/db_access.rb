@@ -1,12 +1,11 @@
 require 'mysql2'
-require 'json'
-
-require_relative 'configuration.rb'
+require_relative 'util'
+require_relative 'configuration'
 
 class DbAccess
+  include Util
   
   @@sql_client = nil
-  @@prettify = false
   
   def connect(host, port, user, pwd, db)
     @@sql_client = Mysql2::Client.new(:host => host, :port => port,
@@ -15,13 +14,9 @@ class DbAccess
   
   def connect_to_db()
     @@sql_client && return
-    config_mgr = Configuration.new()
+    config_mgr = Configuration.instance
     conf = config_mgr.get("mysql")
     connect(conf[:host], conf[:port], conf[:user], conf[:password], conf[:schema])
-  end
-  
-  def set_prettify(pretty)
-    @@prettify = pretty
   end
   
   def get_objects_list(qry, object_type)
@@ -66,11 +61,6 @@ class DbAccess
   def escape(str)
     connect_to_db()
     return @@sql_client.escape(str)
-  end
-  
-  def jsonify(object)
-    return @prettify != false ? JSON.pretty_generate(object) :
-      JSON.generate(object)
   end
  
 end

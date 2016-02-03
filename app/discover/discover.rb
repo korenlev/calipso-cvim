@@ -1,22 +1,27 @@
 #!/usr/bin/env ruby
 
 require 'cgi'
+require 'json'
+require_relative 'configuration'
+require_relative 'inventory_mgr'
 require_relative 'fetch_region_object_types'
-require_relative 'db_fetch_environments'
-require_relative 'db_fetch_regions'
-require_relative 'db_fetch_projects'
-require_relative 'db_fetch_aggregates.rb'
-require_relative 'db_fetch_availability_zones.rb'
-require_relative 'db_fetch_aggregate_hosts.rb'
-require_relative 'db_fetch_az_hosts.rb'
-require_relative 'db_fetch_project_instances.rb'
-require_relative 'db_fetch_host_instances.rb'
-require_relative 'db_fetch_instance_details.rb'
 
 def get_fetch_type(params)
+  fetch_types_by_name = {
+    "availability zones root" => "availability zone",
+    "project" => "instance",
+    "availability zone" => "host",
+    "aggregates" => "host aggregate",
+    "aggregate_hosts" => "host",
+    "az_hosts" => "host",
+    "project_instances" => "instance",
+    "host_instances" => "instance",
+    "instance" => "instance"
+  }
   type = params["type"]
   !type && (return "")
   type = type[0] || ""
+  type = fetch_types_by_name[type] || type.gsub(/[_]/, " ").gsub(/s$/, "")
   (type != "tree") && (return type)
   parent_type = params["parent_type"]
   parent_type = parent_type == nil ? "" : parent_type[0]
@@ -26,58 +31,40 @@ def get_fetch_type(params)
   end
   
   fetch_types_by_parent = {
-    "" => "environments",
-    "environment" => "regions",
+    "" => "environment",
+    "environment" => "region",
     "region" => "region_object_types",
-    "projects root" => "projects",
-    "aggregates root" => "aggregates",
-    "availability zones root" => "availability_zones",
-    "project" => "project_instances",
-    "availability zone" => "az_hosts",
-    "aggregate" => "aggregate_hosts",
-    "host" => "host_instances",
-    "instance" => "instance_details"
+    "projects root" => "project",
+    "aggregates root" => "aggregate",
+    "availability zones root" => "availability zone",
+    "project" => "instance",
+    "availability zone" => "host",
+    "aggregate" => "host",
+    "host" => "instance",
+    "instance" => "instance"
   }
   type = fetch_types_by_parent[parent_type] || ""
   return type
 end
 
 debug = false
+prettify = true
 cgi = CGI.new
 what_to_fetch = get_fetch_type(cgi.params)
 
 id = cgi.params["id"][0] || ""
 
-fetcher = nil
-case what_to_fetch
-  when "environments"
-    fetcher = DbFetchEnvironments.new()
-  when "regions"
-    fetcher = DbFetchRegions.new()
-  when "region_object_types"
-    fetcher = FetchRegionObjectTypes.new()
-  when "projects"
-    fetcher = DbFetchProjects.new()
-  when "availability_zones"
-    fetcher = DbFetchAvailabilityZones.new()
-  when "aggregates"
-    fetcher = DbFetchAggregates.new()
-  when "aggregate_hosts"
-    fetcher = DbFetchAggregateHosts.new()
-  when "az_hosts"
-    fetcher = DbFetchAZHosts.new()
-  when "project_instances"
-    fetcher = DbFetchProjectInstances.new()
-  when "host_instances"
-    fetcher = DbFetchHostInstances.new()
-  when "instance_details"
-    fetcher = DbFetchInstanceDetails.new()
-  else
-    fetcher = DbAccess.new()
+env_name = "WebEX-Mirantis@Cisco"
+if what_to_fetch == "region object type"
+  fetcher = FetchRegionObjectTypes.new()
+  fetcher.set_prettify(prettify)
+  response = fetcher.jsonify(fetcher.get(id))
+else
+  fetcher = InventoryMgr.instance
+  fetcher.set_prettify(prettify)
+
+  response = fetcher.get_children(env_name, what_to_fetch, id)
+  response = fetcher.jsonify(response)
 end
-fetcher.set_prettify(true)
-fetcher.set_prettify(true)
-escaped_id = fetcher.escape(id)
-response = fetcher.get(escaped_id)
 !debug || response = %Q|{"type": #{what_to_fetch}, "id": #{id}}|
 cgi.out("application/json") { response + "\n" }
