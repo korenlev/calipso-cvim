@@ -1,8 +1,9 @@
 require 'mysql2'
 require_relative 'util'
 require_relative 'configuration'
+require_relative 'fetcher'
 
-class DbAccess
+class DbAccess < Fetcher
   include Util
   
   @@sql_client = nil

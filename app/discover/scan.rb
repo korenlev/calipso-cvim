@@ -16,4 +16,4 @@ Configuration.instance.use_env(env_name)
 inventory = InventoryMgr.instance
 scanner = ScanEnvironment.instance
 scanner.set_env(env_name)
-scanner.scan({:type => "environment", :id => env_name})
+scanner.scan({:type => "environment", :id => env_name}, "id")

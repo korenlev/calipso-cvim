@@ -5,13 +5,19 @@ class Configuration < MongoAccess
   include Singleton
   
   @config = nil
+  @env = nil
   
   def use_env(env_name)
-    envs = @@client[:environments].find(:name => env_name)
+    @env = env_name
+    envs = @@client[:environments].find(:name => @env)
     if envs.count() != 1
       raise ArgumentError, "set_env: could not find matching environment"
     end
     envs.each {|e| @config = e[:configuration]}
+  end
+  
+  def get_env()
+    return @env
   end
   
   def check_config()

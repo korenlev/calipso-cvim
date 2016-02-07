@@ -1,17 +1,24 @@
 #!/usr/bin/env ruby
 
-# scan a region for projects, availability zones and aggregates
+# scan a environment for projects and regions
 
 require 'singleton'
 require_relative 'db_fetch_regions'
-require_relative 'scan_region'
+require_relative 'api_fetch_projects'
+require_relative 'api_fetch_regions'
+require_relative 'scan_project'
 
 class ScanEnvironment < Scanner
   include Singleton
   
   def initialize()
     super([
-      {:fetcher => DbFetchRegions.new(), :children_scanner => ScanRegion.instance}
+      {
+        :type => "project",
+        :fetcher => ApiFetchProjects.new(),
+        :object_id_to_use_in_child => "name",
+        :children_scanner => ScanProject.instance
+      }
     ])
   end
   

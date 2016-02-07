@@ -11,7 +11,11 @@ class ScanAggregate < Scanner
   
   def initialize()
     super([
-      {:fetcher => DbFetchAggregateHosts.new(), :children_scanner => ScanHost.instance}
+      {
+        :type => "host",
+        :fetcher => DbFetchAggregateHosts.new(),
+        :children_scanner => ScanHost.instance
+      }
     ])
   end
   

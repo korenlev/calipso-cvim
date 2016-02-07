@@ -11,7 +11,10 @@ class ScanHost < Scanner
   
   def initialize()
     super([
-      {:fetcher => DbFetchHostInstances.new()}
+      {
+        :type => "instance",
+        :fetcher => DbFetchHostInstances.new()
+      }
     ])
   end
   

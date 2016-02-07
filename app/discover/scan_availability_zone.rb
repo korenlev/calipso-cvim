@@ -11,7 +11,11 @@ class ScanAvailabilityZone < Scanner
   
   def initialize()
     super([
-      {:fetcher => DbFetchAZHosts.new(), :children_scanner => ScanHost.instance}
+      {
+        :type => "host",
+        :fetcher => DbFetchAZHosts.new(),
+        :children_scanner => ScanHost.instance
+      }
     ])
   end
   

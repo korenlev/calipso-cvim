@@ -3,9 +3,8 @@ require 'json'
 
 class ApiFetchRegions < ApiAccess
   
-  def fetch_v2(args)
-    #code
-    services = body_hash["token"]["catalog"]["service"]
+  def get(id)
+    services = @@body_hash["token"]["catalog"]["service"]
     services.each {|service|
       service["name"] == "keystone" || next
       endpoints = service["endpoint"]
@@ -14,10 +13,7 @@ class ApiFetchRegions < ApiAccess
         @@regions[e["region"]] = e
       }
     }
-  end
-  
-  def get_catalog(pretty)
-    return jsonify(@@regions, pretty)
+    return @@regions
   end
   
 end  

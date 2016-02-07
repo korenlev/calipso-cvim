@@ -15,9 +15,16 @@ class ScanRegion < Scanner
   
   def initialize()
     super([
-      {:fetcher => DbFetchAggregates.new(), :children_scanner => ScanAggregate.instance},
-      {:fetcher => DbFetchProjects.new(), :children_scanner => nil},
-      {:fetcher => DbFetchAvailabilityZones.new(), :children_scanner => ScanAvailabilityZone.instance}
+      {
+        :type => "aggregate",
+        :fetcher => DbFetchAggregates.new(),
+        :children_scanner => ScanAggregate.instance
+      },
+      {
+        :type => "availability zone",
+        :fetcher => DbFetchAvailabilityZones.new(),
+        :children_scanner => ScanAvailabilityZone.instance
+      }
     ])
   end
   

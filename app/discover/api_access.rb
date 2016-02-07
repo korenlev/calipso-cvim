@@ -3,70 +3,74 @@ require 'json'
 require 'logger'
 require 'nokogiri'
 require 'active_support/core_ext/hash/conversions'
+require_relative 'configuration'
+require_relative 'fetcher'
 
-class ApiAccess
+class ApiAccess < Fetcher
   
   @@subject_token = nil
+  @@initialized  = false
   @@regions = Hash.new
   
   # identitity API v2 version with admin token
-  def initialize(url)
-    @@base_url = url
+  def initialize()
+    @@initialized && return
+    @@config = Configuration.instance.get("OpenStack")
+    host = @@config["host"]
+    port = @@config["port"]
+    if (host == nil or port == nil)
+      raise ArgumentError, "Missing definition of host or port for OpenSTack API access"
+    end
+    @@base_url = "http://" + host  + ":" + port
     @@logger = Logger.new(STDOUT)
     @@logger.level = Logger::DEBUG
-  end
-  
-  def set_v2_admin_token(token)
-    @@admin_token = token
+    @@admin_token = @@config["admin_token"]
     @@admin_endpoint = @@base_url.sub(":5000", ":35357")
+    
+    v2_auth_pwd(nil)
+    @@initialized  = true
   end
  
-  def v2_auth_pwd(user, pwd, project)
+  def v2_auth_pwd(project)
     req_url = @@base_url + "/v2.0/tokens"
-    if (user != nil)
-      @@user = user
-    else
-      user = @@user
-    end
-    if (pwd != nil)
-      @@pwd = pwd
-    else
-      pwd = @@pwd
-    end
+    @@user = @@config["user"]
+    @@pwd = @@config["pwd"]
     
     post_body = {
       :auth => {
         :passwordCredentials => {
-          :username => user,
-          :password => pwd
+          :username => @@user,
+          :password => @@pwd
         }
       }
     }
     if project != nil
-      post_body["tenantName"] = project
+      post_body[:auth][:tenantName] = project
     end
     
     request_body = JSON.generate(post_body)
     @@logger.debug("request URL: " + req_url + ", request body:\n" + request_body + "\n")
     response = RestClient.post(req_url, request_body, :content_type => 'application/json')
-    body = Nokogiri::XML(response.body)
-    body_hash = Hash.from_xml(body.to_s)
-    @@subject_token = body_hash["access"]["token"]["id"]
+    @@body_hash = xml_to_hash(response.body)
+    @@subject_token = @@body_hash["access"]["token"]["id"]
   end
  
-  def v2_auth_token(token)
-    set_v2_admin_token(token)
+  def v2_auth_token()
     req_url = @@admin_endpoint + "/v2.0/tokens"
-    post_body = {:auth => {:passwordCredentials => {:token => token}}}
+    post_body = {:auth => {:passwordCredentials => {:token => @@admin_token}}}
     request_body = JSON.generate(post_body)
     @@logger.debug("request URL: " + req_url + ", request body:\n" + request_body + "\n")
-    response = RestClient.post(req_url, request_body, :content_type => 'application/json')
-    body = Nokogiri::XML(response.body)
-    body_hash = Hash.from_xml(body.to_s)
-    @@subject_token = body_hash["access"]["token"]["id"]
+    response = RestClient.post req_url, request_body, :content_type => 'application/json',
+      :"X-Auth-Token" => @@admin_token
+    @@body_hash = xml_to_hash(response.body)
+    @@subject_token = @@body_hash["access"]["token"]["id"]
   end
   
-  def get(relative_url)
+  def get(id)
+    return nil
+  end
+  
+  def get_url(relative_url)
     return RestClient.get(@@base_url + relative_url)
   end
   
@@ -75,9 +79,14 @@ class ApiAccess
     return region_details ? region_details["url"] : nil
   end
   
-  def jsonify(object, pretty)
-    return pretty ? JSON.pretty_generate(object) :
-      JSON.generate(object)
+  def get_catalog(pretty)
+    return jsonify(@@regions, pretty)
+  end
+  
+  def xml_to_hash(xml_text)
+    xml = Nokogiri::XML(xml_text)
+    hash = Hash.from_xml(xml.to_s)
+    return hash
   end
   
 end
