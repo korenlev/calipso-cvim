@@ -9,8 +9,8 @@ class ApiFetchProjects < ApiAccess
     @@logger.debug("getting projects: " + req_url)
     response_string = RestClient.get req_url,
       :"X-Auth-Token" => @@admin_token
-    response = xml_to_hash(response_string)
-    response = response["tenants"]["tenant"]
+    response = JSON.parse(response_string)
+    response = response["tenants"]
     response.delete_if {|e| e["name"] == "services"}
     
     return response

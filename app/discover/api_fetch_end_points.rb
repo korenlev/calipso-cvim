@@ -22,9 +22,10 @@ class ApiFetchEndPoints < ApiAccess
     
     environment = Configuration.instance.get_env()
     regions = []
-    @@body_hash["access"]["serviceCatalog"]["service"].each {|s|
+    services = @@body_hash['access']['serviceCatalog']
+    services.each {|s|
       (s["type"] != "identity") && next
-      e = s["endpoint"]
+      e = s["endpoints"][0]
       e[:environment] = environment
       e[:project] = id
       e[:type] = "endpoint"

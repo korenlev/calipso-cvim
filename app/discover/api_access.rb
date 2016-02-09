@@ -51,7 +51,7 @@ class ApiAccess < Fetcher
     request_body = JSON.generate(post_body)
     @@logger.debug("request URL: " + req_url + ", request body:\n" + request_body + "\n")
     response = RestClient.post(req_url, request_body, :content_type => 'application/json')
-    @@body_hash = xml_to_hash(response.body)
+    @@body_hash = JSON.parse(response)
     @@subject_token = @@body_hash["access"]["token"]["id"]
   end
  
@@ -60,9 +60,8 @@ class ApiAccess < Fetcher
     post_body = {:auth => {:passwordCredentials => {:token => @@admin_token}}}
     request_body = JSON.generate(post_body)
     @@logger.debug("request URL: " + req_url + ", request body:\n" + request_body + "\n")
-    response = RestClient.post req_url, request_body, :content_type => 'application/json',
+    @@body_hash = RestClient.post req_url, request_body, :content_type => 'application/json',
       :"X-Auth-Token" => @@admin_token
-    @@body_hash = xml_to_hash(response.body)
     @@subject_token = @@body_hash["access"]["token"]["id"]
   end
   

@@ -7,13 +7,15 @@
 require_relative 'configuration'
 require_relative 'inventory_mgr'
 require_relative 'db_fetch_regions'
+require_relative 'cli_access'
 require_relative 'scan_environment'
-
-debug = false
 
 env_name = "WebEX-Mirantis@Cisco"
 Configuration.instance.use_env(env_name)
-inventory = InventoryMgr.instance
+
+cli_access = CliAccess.new()
+puts cli_access.run("ip netns")
+
 scanner = ScanEnvironment.instance
 scanner.set_env(env_name)
-scanner.scan({:type => "environment", :id => env_name}, "id")
+scanner.scan({:type => 'environment', :id => env_name}, "id")

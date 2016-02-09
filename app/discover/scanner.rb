@@ -3,6 +3,7 @@
 # base class for scanners
 
 require_relative 'inventory_mgr'
+require_relative 'cli_access'
 require_relative 'util'
 
 class Scanner
