@@ -12,6 +12,7 @@ class Util(object):
   
   def jsonify(self, obj):
     if self.prettify:
-      return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
+      ret = json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
     else:
-      return json.dumps(obj)
+      ret = json.dumps(obj)
+    return ret

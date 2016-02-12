@@ -6,10 +6,10 @@ class MongoAccess:
   db = None
   
   def __init__(self):
-    connect()
+    self.connect()
   
   def connect(self):
-    if (client != None):
+    if (MongoAccess.client != None):
       return
-    client = MongoClient('localhost', 27017) #, :database => 'osdna')
-    db = client.osdna
+    MongoAccess.client = MongoClient('localhost', 27017) #, :database => 'osdna')
+    MongoAccess.db = MongoAccess.client.osdna

@@ -6,6 +6,7 @@ import re
 
 from fetch_region_object_types import FetchRegionObjectTypes
 from fetch_host_object_types import FetchHostObjectTypes
+from inventory_mgr import InventoryMgr
 
 prettify = True
 
@@ -78,9 +79,9 @@ class CgiFetcher:
             response = fetcher.jsonify(fetcher.get(id))
         else:
           self.inventory = InventoryMgr()
-          inventory.set_prettify(prettify)
-          response = inventory.get_children(env_name, what_to_fetch, id)
-          response = inventory.jsonify(response)
+          self.inventory.set_prettify(prettify)
+          response = self.inventory.get_children(env_name, what_to_fetch, id)
+          response = self.inventory.jsonify(response)
         return response
           
 
@@ -88,6 +89,6 @@ if __name__ == '__main__':
     fetch_manager = CgiFetcher()
     response = fetch_manager.get()
     
-    print "Content-type: application/json"
-    print
-    print response
+    print("Content-type: application/json")
+    print()
+    print(response)
