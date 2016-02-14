@@ -73,10 +73,6 @@ class CgiFetcher:
           fetcher = FetchRegionObjectTypes()
           fetcher.set_prettify(prettify)
           response = fetcher.jsonify(fetcher.get(id))
-        elif what_to_fetch == "host object type":
-            fetcher = FetchHostObjectTypes()
-            fetcher.set_prettify(prettify)
-            response = fetcher.jsonify(fetcher.get(id))
         else:
           self.inventory = InventoryMgr()
           self.inventory.set_prettify(prettify)
