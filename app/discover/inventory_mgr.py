@@ -15,7 +15,11 @@ class InventoryMgr(MongoAccess, Util):
       matches = self.inv.find({"environment": environment, "type": item_type, "id": item_id})
     else:
       matches = self.inv.find({"environment": environment, "type": item_type})
-    return matches
+    ret = []
+    for doc in matches:
+      doc["_id"] = str(doc["_id"])
+      ret.append(doc)
+    return ret
   
   def get_children(self, environment, item_type, parent_id):
     matches = []
@@ -34,13 +38,15 @@ class InventoryMgr(MongoAccess, Util):
   
   def getSingle(self, environment, item_type, item_id):
     matches = self.inv.find({"environment": environment, "type": item_type, "id": item_id})
-    if matches.len() == 0:
+    ret = []
+    for doc in matches:
+      doc["_id"] = str(doc["_id"])
+      ret.append(doc)
+      if len(ret) > 1:
+        raise(ValueError, "Found multiple matches for item: type=" + item_type + ", id=" + item_id)
+    if len(ret) == 0:
       raise(ValueError, "No matches for item: type=" + item_type + ", id=" + item_id)
-    elif matches.len() > 1:
-      raise(ValueError, "Found multiple matches for item: type=" + item_type + ", id=" + item_id)
-    else:
-      for doc in matches:
-        return doc
+    return ret[0]
   
   # item must contain properties 'environment', 'type' and 'id'
   def set(self, item):
