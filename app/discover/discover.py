@@ -39,9 +39,8 @@ class CgiFetcher:
     
       # handle case of tree navigating: find type to fetch by type of parent
       parent_type = form.getvalue("parent_type", "")
-      if parent_type == "region object type" or parent_type == "host object type":
+      if parent_type == "region object type":
         parent_type = form.getvalue("id")
-      end
       
       fetch_types_by_parent = {
         "": "environment",
@@ -53,7 +52,7 @@ class CgiFetcher:
         "project": "instance",
         "availability zone": "host",
         "aggregate": "host",
-        "host": "host_object_types",
+        "host": "host_object_type",
         "instances root": "instance",
         "vservices root": "vservice",
         "instance": "instance"
@@ -76,6 +75,8 @@ class CgiFetcher:
         else:
           self.inventory = InventoryMgr()
           self.inventory.set_prettify(prettify)
+          if what_to_fetch == "host_object_type":
+            what_to_fetch = None # just fetch all children of host
           response = self.inventory.get_children(env_name, what_to_fetch, id)
           response = self.inventory.jsonify(response)
         return response

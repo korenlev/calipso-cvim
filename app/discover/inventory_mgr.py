@@ -19,10 +19,13 @@ class InventoryMgr(MongoAccess, Util):
   
   def get_children(self, environment, item_type, parent_id):
     matches = []
-    if parent_id and parent_id > "":
-      matches = self.inv.find({"environment": environment, "type": item_type, "parent_id": parent_id})
+    if parent_id and parent_id > "" and item_type == None:
+      matches = self.inv.find({"environment": environment, "parent_id": parent_id})
     else:
-      matches = self.inv.find({"environment": environment, "type": item_type})
+      if parent_id and parent_id > "":
+        matches = self.inv.find({"environment": environment, "type": item_type, "parent_id": parent_id})
+      else:
+        matches = self.inv.find({"environment": environment, "type": item_type})
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
