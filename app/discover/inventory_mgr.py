@@ -18,7 +18,7 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
-      base_url = "http://yayogev-web-test.cisco.com/osdna_dev/discover.py?"
+      base_url = "/osdna_dev/discover.py?"
       url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
       doc["children_url"] = url
       ret.append(doc)
@@ -36,7 +36,7 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
-      base_url = "http://yayogev-web-test.cisco.com/osdna_dev/discover.py?"
+      base_url = "/osdna_dev/discover.py?"
       url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
       doc["children_url"] = url
       ret.append(doc)
@@ -47,7 +47,7 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
-      base_url = "http://yayogev-web-test.cisco.com/osdna_dev/discover.py?"
+      base_url = "/osdna_dev/discover.py?"
       url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
       doc["children_url"] = url
       ret.append(doc)
