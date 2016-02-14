@@ -18,6 +18,9 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
+      base_url = "http://yayogev-web-test.cisco.com/osdna_dev/discover.py?"
+      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
+      doc["children_url"] = url
       ret.append(doc)
     return ret
   
@@ -33,6 +36,9 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
+      base_url = "http://yayogev-web-test.cisco.com/osdna_dev/discover.py?"
+      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
+      doc["children_url"] = url
       ret.append(doc)
     return ret
   
@@ -41,6 +47,9 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
+      base_url = "http://yayogev-web-test.cisco.com/osdna_dev/discover.py?"
+      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
+      doc["children_url"] = url
       ret.append(doc)
       if len(ret) > 1:
         raise(ValueError, "Found multiple matches for item: type=" + item_type + ", id=" + item_id)
