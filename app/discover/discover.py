@@ -53,8 +53,8 @@ class CgiFetcher:
         "availability zone": "host",
         "aggregate": "host",
         "host": "host_object_type",
-        "instances root": "instance",
-        "vservices root": "vservice",
+        "instances_root": "instance",
+        "vservices_root": "vservice",
         "instance": "instance"
       }
       type = fetch_types_by_parent[parent_type] if parent_type in fetch_types_by_parent else ""
