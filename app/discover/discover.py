@@ -86,6 +86,6 @@ if __name__ == '__main__':
     fetch_manager = CgiFetcher()
     response = fetch_manager.get()
     
-    print("Content-type: application/json")
-    print()
+    print("Content-type: application/json\n\n")
     print(response)
+    print("\n")
