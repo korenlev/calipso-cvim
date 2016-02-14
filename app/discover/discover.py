@@ -75,13 +75,14 @@ class CgiFetcher:
         else:
           self.inventory = InventoryMgr()
           self.inventory.set_prettify(prettify)
-          if what_to_fetch == "host_object_type":
-            what_to_fetch = None # just fetch all children of host
           if what_to_fetch == "instance detail":
             response = self.inventory.getSingle(env_name, "instance", id)
           else:
-            response = self.inventory.get_children(env_name, what_to_fetch, id)
-            response = {type: what_to_fetch, rows: response}
+            if what_to_fetch == "host_object_type":
+              response = self.inventory.get_children(env_name, None, id)
+            else:
+              response = self.inventory.get_children(env_name, what_to_fetch, id)
+            response = {"type": what_to_fetch, "rows": response}
           response = self.inventory.jsonify(response)
         return response
           
