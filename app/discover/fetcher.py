@@ -1,8 +1,12 @@
 import json
 
 class Fetcher:
+  
+  inventory = None
+  
   def __init__(self):
-    pass
+    if not Fetcher.inventory:
+      Fetcher.inventory = InventoryMgr()
   
   def escape(self, string):
     return string

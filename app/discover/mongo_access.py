@@ -11,5 +11,5 @@ class MongoAccess:
   def connect(self):
     if (MongoAccess.client != None):
       return
-    MongoAccess.client = MongoClient('localhost', 27017) #, :database => 'osdna')
+    MongoAccess.client = MongoClient('localhost', 27017)
     MongoAccess.db = MongoAccess.client.osdna

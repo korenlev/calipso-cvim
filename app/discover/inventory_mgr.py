@@ -52,9 +52,9 @@ class InventoryMgr(MongoAccess, Util):
       doc["children_url"] = url
       ret.append(doc)
       if len(ret) > 1:
-        raise(ValueError, "Found multiple matches for item: type=" + item_type + ", id=" + item_id)
+        raise ValueError("Found multiple matches for item: type=" + item_type + ", id=" + item_id)
     if len(ret) == 0:
-      raise(ValueError, "No matches for item: type=" + item_type + ", id=" + item_id)
+      raise ValueError("No matches for item: type=" + item_type + ", id=" + item_id)
     return ret[0]
   
   # item must contain properties 'environment', 'type' and 'id'
@@ -76,4 +76,4 @@ class InventoryMgr(MongoAccess, Util):
   def check(self, obj, field_name):
     arg = obj[field_name]
     if arg == None or not str(arg).rstrip():
-      raise(ValueError, "Inventory item - the following field is not defined: " + field_name)
+      raise ValueError("Inventory item - the following field is not defined: " + field_name)
