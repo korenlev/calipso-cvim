@@ -2,6 +2,7 @@
 # return list of regions, to allow further recursive scanning
 
 from api_access import ApiAccess
+from fetcher import Fetcher
 from util import Util
 
 class ApiFetchEndPoints(ApiAccess, Util):
@@ -13,11 +14,11 @@ class ApiFetchEndPoints(ApiAccess, Util):
   def get(self, id):
     if id != "admin":
       return [] # XXX currently having problems authenticating to other tenants
-    ApiAccess.v2_auth_pwd(id)
+    self.v2_auth_pwd(id)
     
     environment = ApiAccess.config.get_env()
     regions = []
-    services = body_hash['access']['serviceCatalog']
+    services = ApiAccess.body_hash['access']['serviceCatalog']
     for s in services:
       if s["type"] != "identity":
         next

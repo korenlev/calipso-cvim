@@ -8,10 +8,6 @@ class DbAccess(Fetcher, Util):
   conn = None
   
   def __init__(self):
-    pass
-
-
-  def __init__(self):
     self.config = Configuration()
     self.conf = self.config.get("mysql")
     self.connect_to_db()
@@ -36,14 +32,13 @@ class DbAccess(Fetcher, Util):
   def get_objects_list_for_id(self, query, object_type, id):
     self.connect_to_db()
     
-    cursor = conn.cursor()
+    cursor = DbAccess.conn.cursor(dictionary=True)
     if id:
-      cursor.execute(query, (id))
+      cursor.execute(query, [str(id)])
     else:
       cursor.execute(query)
       
     rows = []
-    row = cursor.fetchone()
     for row in cursor:
       rows.append(row)
     return rows
@@ -58,10 +53,10 @@ class DbAccess(Fetcher, Util):
     return ret
 
   def get_objects_list(self, query, object_type):
-    return get_objects_list_for_id(query, object_type, None)
+    return self.get_objects_list_for_id(query, object_type, None)
   
   def get_objects(self, qry, type, id):
-    return jsonify(get_objects_list(qry, type))
+    return self.jsonify(self.get_objects_list(qry, type))
 
 
   def get(self, id):

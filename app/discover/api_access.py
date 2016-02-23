@@ -19,10 +19,12 @@ class ApiAccess(Fetcher):
   base_url = ""
   admin_token = ""
   admin_endpoint = ""
+  body_hash = None
   
   
   # identitity API v2 version with admin token
   def __init__(self):
+    super(ApiAccess, self).__init__()
     if ApiAccess.initialized:
       return
     ApiAccess.config = Configuration()
@@ -45,8 +47,9 @@ class ApiAccess(Fetcher):
     method = 'POST'
     h = http.Http()
     response, content = h.request(req_url, method, request_body, headers)
-    body_hash = json.loads(content)
-    subject_token = body_hash["access"]["token"]["id"]
+    content_string = content.decode('utf-8')
+    ApiAccess.body_hash = json.loads(content_string)
+    subject_token = ApiAccess.body_hash["access"]["token"]["id"]
     
  
   def v2_auth_pwd(self, project):
@@ -92,7 +95,8 @@ class ApiAccess(Fetcher):
     method = 'GET'
     h = http.Http()
     response, content = h.request(req_url, method, "", headers)
-    ret = json.loads(content)
+    content_string = content.decode('utf-8')
+    ret = json.loads(content_string)
     return ret
   
   

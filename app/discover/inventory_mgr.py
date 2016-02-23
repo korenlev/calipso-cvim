@@ -11,7 +11,7 @@ class InventoryMgr(MongoAccess, Util):
 
     
   def get(self, environment, item_type, item_id):
-    if item_id and (item_id > ""):
+    if item_id and (not isinstance(item_id, str) or item_id > ""):
       matches = self.inv.find({"environment": environment, "type": item_type, "id": item_id})
     else:
       matches = self.inv.find({"environment": environment, "type": item_type})
@@ -19,7 +19,7 @@ class InventoryMgr(MongoAccess, Util):
     for doc in matches:
       doc["_id"] = str(doc["_id"])
       base_url = "/osdna_dev/discover.py?"
-      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
+      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + str(doc["id"])
       doc["children_url"] = url
       ret.append(doc)
     return ret
@@ -60,17 +60,17 @@ class InventoryMgr(MongoAccess, Util):
   # item must contain properties 'environment', 'type' and 'id'
   def set(self, item):
     # make sure we have environment, type & id
-    check(item, "environment")
-    check(item, "type")
-    check(item, "id")
-    curr_item_matches = get(item["environment"], item["type"], item["id"])
-    if curr_item_matches.len() > 0:
-      update(curr_item_matches, item)
+    self.check(item, "environment")
+    self.check(item, "type")
+    self.check(item, "id")
+    curr_item_matches = self.get(item["environment"], item["type"], item["id"])
+    if len(curr_item_matches) > 0:
+      self.update(curr_item_matches, item)
     else:
       self.inv.insert_one(item)
   
   def update(self, curr_item_matches, item):
-    curr_item = curr_item_matches.first
+    curr_item = curr_item_matches[0]
     self.inv.find_one_and_update({"_id": curr_item["_id"]}, {"$set": item})
   
   def check(self, obj, field_name):

@@ -11,4 +11,4 @@ class DbFetchAZHosts(DbAccess):
         AND availability_zone IS NOT NULL
         AND deleted = 0
     """
-    return get_objects_list_for_id(query, "host", id)
+    return self.get_objects_list_for_id(query, "host", id)

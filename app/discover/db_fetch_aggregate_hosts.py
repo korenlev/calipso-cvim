@@ -10,4 +10,4 @@ class DbFetchAggregateHosts(DbAccess):
       WHERE h.deleted = 0 AND aggregate_id = %s
       GROUP BY h.id, h.host
     """
-    return get_objects_list_for_id(query, "host", id)
+    return self.get_objects_list_for_id(query, "host", id)

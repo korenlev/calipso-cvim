@@ -31,7 +31,10 @@ class Scanner(Util):
     if self.obj_to_scan and (self.id == None or not self.id.rstrip()):
       raise ValueError("Object missing " + id_field + " attribute")
     fetcher = type_to_fetch["fetcher"]
-    children_scanner = type_to_fetch["children_scanner"]
+    try:
+      children_scanner = type_to_fetch["children_scanner"]
+    except KeyError:
+      children_scanner = None
     escaped_id = fetcher.escape(str(self.id)) if self.id else self.id
     db_results = fetcher.get(escaped_id)
     
@@ -39,8 +42,9 @@ class Scanner(Util):
       results = db_results["rows"] if db_results["rows"] else [db_results]
     else:
       results = db_results
-    child_id_field = type_to_fetch["object_id_to_use_in_child"]
-    if not child_id_field:
+    try:
+      child_id_field = type_to_fetch["object_id_to_use_in_child"]
+    except KeyError:
       child_id_field = "id"
     for o in results:
       o["environment"] = Scanner.environment

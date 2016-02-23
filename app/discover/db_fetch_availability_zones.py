@@ -10,4 +10,4 @@ class DbFetchAvailabilityZones(DbAccess):
       WHERE availability_zone IS NOT NULL
       GROUP BY availability_zone
     """
-    return get_objects_list(query, "availability zone")
+    return self.get_objects_list(query, "availability zone")

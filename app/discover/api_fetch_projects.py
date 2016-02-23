@@ -12,8 +12,8 @@ class ApiFetchProjects(ApiAccess):
     super(ApiFetchProjects, self).__init__()
   
   def get(self, id):
-    admin_endpoint = ApiAccess.base_url.replace(":5000", ":7777")
+    admin_endpoint = ApiAccess.base_url.replace(":5000", ":35357")
     req_url = admin_endpoint + "/v2.0/tenants"
-    response = ApiAccess.get_url(req_url, {"X-Auth-Token": ApiAccess.admin_token})
+    response = self.get_url(req_url, {"X-Auth-Token": ApiAccess.admin_token})
     response = [t for t in response["tenants"] if t["name"] != "services"]
     return response

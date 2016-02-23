@@ -1,4 +1,5 @@
 import json
+from inventory_mgr import InventoryMgr
 
 class Fetcher:
   

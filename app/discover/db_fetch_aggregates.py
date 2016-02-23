@@ -3,7 +3,7 @@ from db_access import DbAccess
 class DbFetchAggregates(DbAccess):
   
   def get(self, id):
-    return DbAccess.get_objects_list(
+    return self.get_objects_list(
       """
         SELECT a.id, a.name, COUNT(*) AS descendants
         FROM nova.aggregates a
