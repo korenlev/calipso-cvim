@@ -37,7 +37,7 @@ class InventoryMgr(MongoAccess, Util):
     for doc in matches:
       doc["_id"] = str(doc["_id"])
       base_url = "/osdna_dev/discover.py?"
-      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
+      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + str(doc["id"])
       doc["children_url"] = url
       ret.append(doc)
     return ret
