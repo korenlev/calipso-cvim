@@ -1,5 +1,6 @@
 import paramiko
 import json
+import os
 
 from configuration import Configuration
 from fetcher import Fetcher
@@ -13,22 +14,75 @@ class CliAccess(Fetcher):
   def __init__(self):
     if CliAccess.initialized:
       return
-    CliAccess.config = Configuration.instance.get('CLI')
-    self.host = CliAccess.config['host']
-    self.user = CliAccess.config['user']
-    self.key = CliAccess.config['keyfile']
-    self.pwd = CliAccess.config['pwd']
-    if (self.host == None or self.user == None or self.key == None) and self.pwd == None:
-      raise ValueError('Missing definition of host, user or key/pwd for CLI access')
+    self.config = Configuration()
+    self.conf = self.config.get('CLI')
+    try:
+      self.host = self.conf['host']
+    except KeyError:
+      raise ValueError('Missing definition of host for CLI access')
+    try:
+      self.user = self.conf['user']
+    except KeyError:
+      raise ValueError('Missing definition of user for CLI access')
+    try:
+      self.key = self.conf['key']
+      if not os.path.exists(self.key):
+        raise ValueError('Key file not found: ' + self.key)
+    except KeyError:
+      pass
+    try:
+      self.pwd = self.conf['pwd']
+    except KeyError:
+      pass
+    if self.key == None and self.pwd == None:
+      raise ValueError('Must specify key or password for CLI access')
  
   def connect(self):
     if CliAccess.ssh:
       return
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(self.host, username=self.user,  password=self.pwd)
+    CliAccess.ssh = paramiko.SSHClient()
+    if (self.key):
+      k = paramiko.RSAKey.from_private_key_file(self.key)
+      CliAccess.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+      CliAccess.ssh.connect(hostname=self.host, username=self.user, pkey=k)
+    else:
+      CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd)
   
   def run(self, cmd):
-    connect()
-    stdin, stdout, stderr = ssh.exec_command(cmd)
-    return stdout
+    self.connect()
+    stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
+    stdin.close()
+    ret = self.binary2str(stdout.read())
+    return ret
+  
+  def run_fetch_lines(self, cmd):
+    out = self.run(cmd)
+    ret = out.splitlines()
+    return ret
+ 
+  def parse_cmd_result(self, lines):
+    headers = self.parse_headers_line(lines[1])
+    # remove line with headers and formatting lines above it and below it
+    del lines[:3]
+    # remove formatting line in the end
+    lines.pop()
+    results = [self.parse_content_line(line, headers) for line in lines]
+    return results
+    
+  def parse_line(self, line):
+    s = self.binary2str(line)
+    parts = [word.strip() for word in s.split("|") if word.strip()]
+    # remove the ID field
+    del parts[:1]
+    return parts
+  
+  def parse_headers_line(self, line):
+    return self.parse_line(line)
+  
+  def parse_content_line(self, line, headers):
+    content_parts = self.parse_line(line)
+    content = {}
+    for i in range(0, len(content_parts)):
+      content[headers[i]] = content_parts[i]
+    return content
+ 
