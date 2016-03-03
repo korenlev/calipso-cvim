@@ -1,4 +1,5 @@
 import json
+import re
 from inventory_mgr import InventoryMgr
 
 class Fetcher:
@@ -23,4 +24,10 @@ class Fetcher:
       return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
     else:
       return json.dumps(obj)
+  
+  def binary2str(self, txt):
+    s = str(txt)
+    s = re.sub(r"^b.", "", s)
+    s = re.sub(r"'$", "", s)
+    return s
     
