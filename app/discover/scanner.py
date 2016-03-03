@@ -49,7 +49,7 @@ class Scanner(Util):
     for o in results:
       o["environment"] = Scanner.environment
       o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
-      if parent:
+      if "parent_id" not in o and parent:
         o["parent_id"] = str(parent["id"])
         o["parent_type"] = parent["type"]
       Scanner.inventory.set(o)
