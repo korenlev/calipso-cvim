@@ -11,9 +11,10 @@ class FetchRegionObjectTypes(Fetcher):
       "id": "",
       "parent": parent,
       "rows": [
-        {"id": "projects root", "text": "projects", "descendants": 1},
-        {"id": "aggregates root", "text": "aggregates", "descendants": 1},
-        {"id": "availability zones root", "text": "availability zones", "descendants": 1}
+        {"id": "projects_root", "text": "projects", "descendants": 1},
+        {"id": "aggregates_root", "text": "aggregates", "descendants": 1},
+        {"id": "availability_zones_root", "text": "availability zones", "descendants": 1},
+        {"id": "network_agents_root", "text": "network agents", "descendants": 1}
       ]
     }
     return ret
