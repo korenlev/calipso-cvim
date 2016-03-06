@@ -92,6 +92,8 @@ class DbFetchInstances(DbAccess):
     result["Entities"] = self.nodes
     result["Relations"] = self.links
     result["type"] = "instance"
+    result["parent_type"] = "instances_root";
+    result["parent_id"] = host_name + "-instances";
     return result
   
   def handle_single_network(self, network, result):
