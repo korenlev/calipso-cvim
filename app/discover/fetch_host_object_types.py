@@ -7,12 +7,14 @@ class FetchHostObjectTypes(Fetcher):
   
   def get(self, parent):
     ret = {
-      "type": "host object type",
+      "type": "host_object_type",
       "id": "",
       "parent": parent,
       "rows": [
-        {"id": "instances root", "text": "instances", "descendants": 1},
-        {"id": "vservices root", "text": "vservices", "descendants": 1}
+        {"id": "instances_root", "text": "Instances", "descendants": 1},
+        {"id": "networks_root", "text": "Networks", "descendants": 1},
+        {"id": "pnics_root", "text": "pNICs", "descendants": 1},
+        {"id": "vservices_root", "text": "vServices", "descendants": 1}
       ]
     }
     return ret

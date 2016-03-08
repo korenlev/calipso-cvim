@@ -7,14 +7,13 @@ class FetchRegionObjectTypes(Fetcher):
   
   def get(self, parent):
     ret = {
-      "type": "region object type",
+      "type": "region_object_type",
       "id": "",
       "parent": parent,
       "rows": [
-        {"id": "projects_root", "text": "projects", "descendants": 1},
-        {"id": "aggregates_root", "text": "aggregates", "descendants": 1},
-        {"id": "availability_zones_root", "text": "availability zones", "descendants": 1},
-        {"id": "network_agents_root", "text": "network agents", "descendants": 1}
+        {"id": "aggregates_root", "text": "Aggregates", "descendants": 1},
+        {"id": "availability_zones_root", "text": "Availability Zones", "descendants": 1},
+        {"id": "network_agents_root", "text": "network Agents", "descendants": 1}
       ]
     }
     return ret

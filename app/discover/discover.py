@@ -17,10 +17,10 @@ class CgiFetcher:
 
     def get_fetch_type(self, form):
       fetch_types_by_name = {
-        "availability zones root": "availability zone",
+        "availability_zones_root": "availability_zone",
         "project": "instance",
-        "availability zone": "host",
-        "aggregates": "host aggregate",
+        "availability_zone": "host",
+        "aggregates": "host_aggregate",
         "aggregate_hosts": "host",
         "az_hosts": "host",
         "project_instances": "instance",
@@ -44,17 +44,20 @@ class CgiFetcher:
       
       fetch_types_by_parent = {
         "": "environment",
-        "environment": "region",
-        "region": "region_object_types",
-        "projects root": "project",
-        "aggregates root": "aggregate",
-        "availability zones root": "availability zone",
+        "environment": "environment_object_type",
+        "regions_root": "region",
+        "region": "region_object_type",
+        "projects_root": "project",
+        "aggregates_root": "aggregate",
+        "availability_zones_root": "availability_zone",
         "project": "instance",
-        "availability zone": "host",
+        "availability_zone": "host",
         "aggregate": "host",
         "host": "host_object_type",
         "instances_root": "instance",
+        "networks_root": "instance",
         "vservices_root": "vservice",
+        "pnics_root": "pnic",
         "instance": "instance"
       }
       type = fetch_types_by_parent[parent_type] if parent_type in fetch_types_by_parent else ""
