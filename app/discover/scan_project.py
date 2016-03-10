@@ -11,7 +11,6 @@ class ScanProject(Scanner, metaclass=Singleton):
     super(ScanProject, self).__init__([
       {
         "type": "endpoint",
-        "fetcher": ApiFetchEndPoints(),
-        "children_scanner": ScanRegion()
+        "fetcher": ApiFetchEndPoints()
       }
     ])

@@ -16,7 +16,8 @@ class DbFetchInstances(DbAccess):
         AND i.deleted = 0
     """
     query = query.format(field)
-    results = self.get_objects_list_for_id(query, "instance", id)
+    host_id = id[:-1*len("-instances")]
+    results = self.get_objects_list_for_id(query, "instance", host_id)
     ret = []
     # build instance details for each of the instances found
     for e in results:
