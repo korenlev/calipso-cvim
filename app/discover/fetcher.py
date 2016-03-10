@@ -7,6 +7,7 @@ class Fetcher:
   inventory = None
   
   def __init__(self):
+    self.prettify = False
     if not Fetcher.inventory:
       Fetcher.inventory = InventoryMgr()
   
