@@ -6,7 +6,7 @@ class Configuration(MongoAccess, metaclass=Singleton):
   def __init__(self):
     self.db_client = MongoAccess()
     self.db = MongoAccess.db
-    self.collection = self.db["environments"]
+    self.collection = self.db["environments_config"]
   
   def use_env(self, env_name):
     self.env = env_name
