@@ -19,6 +19,7 @@ class ApiFetchEndPoints(ApiAccess, Util):
     environment = ApiAccess.config.get_env()
     regions = []
     services = ApiAccess.body_hash['access']['serviceCatalog']
+    endpoints = []
     for s in services:
       if s["type"] != "identity":
         next
@@ -26,15 +27,5 @@ class ApiFetchEndPoints(ApiAccess, Util):
       e["environment"] = environment
       e["project"] = id
       e["type"] = "endpoint"
-      Fetcher.inventory.set(e)
-      region = {
-        "id": e["region"],
-        "environment": environment,
-        "text": e["region"],
-        "descendants": 3,
-        "parent_id": environment,
-        "parent_type": "environment"
-      }
-      regions.append(region)
-    
-    return regions
+      endpoints.append(e)
+    return endpoints
