@@ -11,5 +11,5 @@ class CliFetchHostNetworkAgents(CliAccess):
     results = json.loads(json_string)
     for o in results:
       o["parent_id"] = o["host"] + "-vservices"
-      o["parent_type"] = "vservices_root"
+      o["parent_type"] = "host_object_type"
     return results

@@ -3,6 +3,7 @@
 from inventory_mgr import InventoryMgr
 from util import Util
 
+import json
 import re
 
 class Scanner(Util):
@@ -43,6 +44,8 @@ class Scanner(Util):
     
     if isinstance(db_results, dict):
       results = db_results["rows"] if db_results["rows"] else [db_results]
+    elif isinstance(db_results, str):
+      results = json.loads(db_results)
     else:
       results = db_results
     try:
