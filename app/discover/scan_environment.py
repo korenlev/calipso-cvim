@@ -3,24 +3,22 @@
 
 from singleton import Singleton
 from scanner import Scanner
-from api_fetch_projects import ApiFetchProjects
-from db_fetch_regions import DbFetchRegions
-from scan_project import ScanProject
-from scan_region import ScanRegion
+from folder_fetcher import FolderFetcher
+from scan_projects_root import ScanProjectsRoot
+from scan_regions_root import ScanRegionsRoot
 
 class ScanEnvironment(Scanner, metaclass=Singleton):
   
   def __init__(self):
     super(ScanEnvironment, self).__init__([
       {
-        "type": "project",
-        "fetcher": ApiFetchProjects(),
-        "object_id_to_use_in_child": "name",
-        "children_scanner": ScanProject()
+        "type": "environment_object_type",
+        "fetcher": FolderFetcher("regions", "environment"),
+        "children_scanner": ScanRegionsRoot()
       },
       {
-        "type": "region",
-        "fetcher": DbFetchRegions(),
-        "children_scanner": ScanRegion()
+        "type": "environment_object_type",
+        "fetcher": FolderFetcher("projects", "environment"),
+        "children_scanner": ScanProjectsRoot()
       }
     ])
