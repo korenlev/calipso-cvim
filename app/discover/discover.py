@@ -34,6 +34,7 @@ class CgiFetcher:
         type = fetch_types_by_name[type]
       else:
         type = re.sub(r"s$", "", re.sub(r"[_]+", " ", type))
+      return type
       if type != "tree":
         return type
     
@@ -71,22 +72,14 @@ class CgiFetcher:
         id = form.getvalue("id", "")
         
         env_name = "WebEX-Mirantis@Cisco"
-        if what_to_fetch == "region object type":
-          fetcher = FetchRegionObjectTypes()
-          fetcher.set_prettify(prettify)
-          response = fetcher.jsonify(fetcher.get(id))
+        self.inventory = InventoryMgr()
+        self.inventory.set_prettify(prettify)
+        if what_to_fetch == "instance detail":
+          response = self.inventory.getSingle(env_name, "instance", id)
         else:
-          self.inventory = InventoryMgr()
-          self.inventory.set_prettify(prettify)
-          if what_to_fetch == "instance detail":
-            response = self.inventory.getSingle(env_name, "instance", id)
-          else:
-            if what_to_fetch == "host_object_type":
-              response = self.inventory.get_children(env_name, None, id)
-            else:
-              response = self.inventory.get_children(env_name, what_to_fetch, id)
-            response = {"type": what_to_fetch, "rows": response}
-          response = self.inventory.jsonify(response)
+          response = self.inventory.get_children(env_name, None, id)
+        response = {"type": what_to_fetch, "rows": response}
+        response = self.inventory.jsonify(response)
         return response
           
 
