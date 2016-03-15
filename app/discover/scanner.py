@@ -60,6 +60,7 @@ class Scanner(Util):
          master_parent_type = o["master_parent_type"]
          master_parent_id = o["master_parent_id"]
          folder = {
+           "environment": parent["environment"],
            "parent_id": master_parent_id,
            "parent_type": master_parent_type,
            "id": o["parent_id"],
