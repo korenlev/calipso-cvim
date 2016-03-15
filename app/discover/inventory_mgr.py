@@ -8,6 +8,7 @@ class InventoryMgr(MongoAccess, Util):
   def __init__(self):
     super(InventoryMgr, self).__init__()
     self.inv = MongoAccess.db["inventory"]
+    self.base_url_prefix = "/osdna_dev/discover.py?type=tree&"
 
     
   def get(self, environment, item_type, item_id):
@@ -18,9 +19,7 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
-      base_url = "/osdna_dev/discover.py?"
-      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + str(doc["id"])
-      doc["children_url"] = url
+      doc["children_url"] = self.get_base_url(doc)
       ret.append(doc)
     return ret
   
@@ -36,9 +35,7 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
-      base_url = "/osdna_dev/discover.py?"
-      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + str(doc["id"])
-      doc["children_url"] = url
+      doc["children_url"] = self.get_base_url(doc)
       ret.append(doc)
     return ret
   
@@ -47,9 +44,7 @@ class InventoryMgr(MongoAccess, Util):
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
-      base_url = "/osdna_dev/discover.py?"
-      url = base_url + "type=tree&parent_type=" + doc["type"] + "&id=" + doc["id"]
-      doc["children_url"] = url
+      doc["children_url"] = self.get_base_url(doc)
       ret.append(doc)
       if len(ret) > 1:
         raise ValueError("Found multiple matches for item: type=" + item_type + ", id=" + item_id)
@@ -77,3 +72,7 @@ class InventoryMgr(MongoAccess, Util):
     arg = obj[field_name]
     if arg == None or not str(arg).rstrip():
       raise ValueError("Inventory item - the following field is not defined: " + field_name)
+
+  def get_base_url(self, doc):
+    return self.base_url_prefix + "&id=" + str(doc["id"])
+
