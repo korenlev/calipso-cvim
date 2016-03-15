@@ -24,6 +24,7 @@ class CliAccess(Fetcher):
       self.user = self.conf['user']
     except KeyError:
       raise ValueError('Missing definition of user for CLI access')
+    self.key = None
     try:
       self.key = self.conf['key']
       if not os.path.exists(self.key):
