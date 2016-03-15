@@ -55,24 +55,26 @@ class Scanner(Util):
     for o in results:
       o["environment"] = Scanner.environment
       o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
-      if o["type"] in ["region", "project"]:
-        o["parent_id"] = o["environment"] + "-" + o["type"] + "s"
-        o["parent_type"] = o["type"] + "s_root"
-      elif self.is_in_folder(o):
-        o["parent_id"] = str(parent["id"]) + "-" + re.sub(r"_root$", "", o["parent_type"])
-      elif "parent_id" not in o and parent:
+      try:
+         # case of dynamic folder added by need
+         master_parent_type = o["master_parent_type"]
+         master_parent_id = o["master_parent_id"]
+         folder = {
+           "parent_id": master_parent_id,
+           "parent_type": master_parent_type,
+           "id": o["parent_id"],
+           "name": o["parent_id"],
+           "type": o["parent_type"],
+           "text": o["parent_text"]
+         }
+         Scanner.inventory.set(folder)
+      except KeyError:
+         pass
+
+      if "parent_id" not in o and parent:
         parent_id = str(parent["id"])
         o["parent_id"] = parent_id
         o["parent_type"] = parent["type"]
       Scanner.inventory.set(o)
       if children_scanner:
         children_scanner.scan(o, child_id_field)
-  
-  def is_in_folder(self, o):
-    try:
-      parent_type = o["parent_type"]
-    except KeyError:
-      return False
-    if not Scanner.root_patern:
-      Scanner.root_patern = re.compile("_root$")
-    return Scanner.root_patern.match(parent_type)
