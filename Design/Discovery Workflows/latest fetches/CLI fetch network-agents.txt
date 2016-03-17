@@ -1,0 +1,64 @@
+// discover network-node low level details at the host CLI:
+ 
+root@node-14:~# ip netns     // recap: node-14 runs our vServices:
+
+qrouter-09136872-bcb5-4170-b95c-b8db3b4cf12b
+qdhcp-00e98c7c-bac0-40f5-9c7c-952732bee5b2
+qdhcp-21811028-e3bf-4f29-882a-ea2417a7e2e7
+qrouter-1ca83534-dde3-4a60-994a-f6813fe93b84
+
+
+root@node-14:~# ip netns exec qrouter-09136872-bcb5-4170-b95c-b8db3b4cf12b ip a 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN           // we will skip 'lo' interfaces !!
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+17: qg-601678ad-9c: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN    // this will be eth0 vNIC on that machine
+    link/ether fa:16:3e:00:46:98 brd ff:ff:ff:ff:ff:ff
+    inet 172.16.0.131/24 brd 172.16.0.255 scope global qg-601678ad-9c
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fe00:4698/64 scope link 
+       valid_lft forever preferred_lft forever
+18: qr-c590288f-10: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN     // this will be eth1 vNIC on that machine
+    link/ether fa:16:3e:6e:f1:c6 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.44.1/24 brd 192.168.44.255 scope global qr-c590288f-10
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fe6e:f1c6/64 scope link 
+       valid_lft forever preferred_lft forever
+19: qr-fc21086b-38: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN     // this will be eth2 vNIC on that machine
+    link/ether fa:16:3e:c8:ba:ee brd ff:ff:ff:ff:ff:ff
+    inet 192.168.55.1/24 brd 192.168.55.255 scope global qr-fc21086b-38
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fec8:baee/64 scope link 
+       valid_lft forever preferred_lft forever
+	   
+	   
+root@node-14:~# ip netns exec qdhcp-00e98c7c-bac0-40f5-9c7c-952732bee5b2 ip a 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN                    // we will skip 'lo' interfaces !!
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+16: tap8d2bdd98-30: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN      // this will be eth0 vNIC on that machine
+    link/ether fa:16:3e:01:70:54 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.44.3/24 brd 192.168.44.255 scope global tap8d2bdd98-30
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fe01:7054/64 scope link 
+       valid_lft forever preferred_lft forever
+	   
+root@node-14:~# ip netns exec qdhcp-21811028-e3bf-4f29-882a-ea2417a7e2e7 ip a     
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN                    // we will skip 'lo' interfaces !!
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+15: tapdc41c38d-6d: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN       // this will be eth0 vNIC on that machine
+    link/ether fa:16:3e:d3:d8:94 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.55.3/24 brd 192.168.55.255 scope global tapdc41c38d-6d
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f816:3eff:fed3:d894/64 scope link 
+       valid_lft forever preferred_lft forever
