@@ -52,17 +52,27 @@ class Scanner(Util):
       child_id_field = type_to_fetch["object_id_to_use_in_child"]
     except KeyError:
       child_id_field = "id"
+    environment = Scanner.environment
     for o in results:
-      o["environment"] = Scanner.environment
+      o["environment"] = environment
       o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
+      try:
+        parent_id_path = parent["id_path"]
+        parent_name_path = parent["name_path"]
+      except KeyError:
+         parent_id_path = "/" + environment
+         parent_name_path = "/" + environment
       try:
          # case of dynamic folder added by need
          master_parent_type = o["master_parent_type"]
          master_parent_id = o["master_parent_id"]
          folder = {
+           "environment": parent["environment"],
            "parent_id": master_parent_id,
            "parent_type": master_parent_type,
            "id": o["parent_id"],
+           "id_path": parent_id_path + "/" + o["parent_id"],
+           "name_path": parent_name_path + "/" + o["parent_text"],
            "name": o["parent_id"],
            "type": o["parent_type"],
            "text": o["parent_text"]
@@ -71,6 +81,16 @@ class Scanner(Util):
       except KeyError:
          pass
 
+      o["id_path"] = parent_id_path + "/" + str(o["id"]).strip()
+      try:
+        name = o["text"]
+      except KeyError:
+        try:
+          name = o["name"]
+        except KeyError:
+          name = o["id"]
+      o["name_path"] = parent_name_path + "/" + name
+      
       if "parent_id" not in o and parent:
         parent_id = str(parent["id"])
         o["parent_id"] = parent_id
