@@ -1,0 +1,1 @@
+get ml2_network_segments   , ml2_port_bindings   , networkdhcpagentbindings , router , routerroutes, routerports

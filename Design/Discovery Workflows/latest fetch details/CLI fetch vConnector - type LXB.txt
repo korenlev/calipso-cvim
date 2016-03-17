@@ -1,0 +1,120 @@
+root@node-13:~# brctl show
+bridge name     bridge id               STP enabled     interfaces
+qbr7e28fab0-1d          8000.8a8abd2f4bfa       no              qvb7e28fab0-1d
+                                                        tap7e28fab0-1d
+qbred12ebc2-c3          8000.862290bff48a       no              qvbed12ebc2-c3
+                                                        taped12ebc2-c3
+qbrf6defcb4-1d          8000.c6196ac55e28       no              qvbf6defcb4-1d
+                                                        tapf6defcb4-1d
+virbr0          8000.000000000000       yes
+
+
+root@node-13:~# ovs-dpctl show
+system@ovs-system:
+        lookups: hit:268677288 missed:8920299 lost:0
+        flows: 12
+        port 0: ovs-system (internal)
+        port 1: br-storage (internal)
+        port 2: br-eth1 (internal)
+        port 3: eth1
+        port 4: br-fw-admin (internal)
+        port 5: br-prv (internal)
+        port 6: br-int (internal)
+        port 7: eth0
+        port 8: br-eth0 (internal)
+        port 9: br-mgmt (internal)
+        port 10: qvof6defcb4-1d
+        port 11: qvo7e28fab0-1d
+        port 12: qvoed12ebc2-c3
+
+
+root@node-13:~# ovs-vsctl show
+61b95ab9-713f-404f-a69c-c9d1320b3df3
+    Bridge br-fw-admin
+        Port "br-fw-admin--br-eth0"
+            trunks: [0]
+            Interface "br-fw-admin--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-fw-admin"}
+        Port br-fw-admin
+            Interface br-fw-admin
+                type: internal
+    Bridge br-mgmt
+        Port "br-mgmt--br-eth0"
+            Interface "br-mgmt--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-mgmt"}
+        Port br-mgmt
+            Interface br-mgmt
+                type: internal
+    Bridge br-int
+        fail_mode: secure
+        Port br-int
+            Interface br-int
+                type: internal
+        Port "qvof6defcb4-1d"
+            tag: 1
+            Interface "qvof6defcb4-1d"
+        Port "qvo7e28fab0-1d"
+            tag: 1
+            Interface "qvo7e28fab0-1d"
+        Port "qvoed12ebc2-c3"
+            tag: 2
+            Interface "qvoed12ebc2-c3"
+        Port int-br-prv
+            Interface int-br-prv
+                type: patch
+                options: {peer=phy-br-prv}
+    Bridge "br-eth1"
+        Port "eth1"
+            Interface "eth1"
+        Port "br-eth1"
+            Interface "br-eth1"
+                type: internal
+    Bridge br-prv
+        Port phy-br-prv
+            Interface phy-br-prv
+                type: patch
+                options: {peer=int-br-prv}
+        Port br-prv
+            Interface br-prv
+                type: internal
+        Port "br-prv--br-eth0"
+            Interface "br-prv--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-prv"}
+    Bridge "br-eth0"
+        Port "br-eth0"
+            Interface "br-eth0"
+                type: internal
+        Port "br-eth0--br-fw-admin"
+            trunks: [0]
+            Interface "br-eth0--br-fw-admin"
+                type: patch
+                options: {peer="br-fw-admin--br-eth0"}
+        Port "br-eth0--br-storage"
+            tag: 102
+            Interface "br-eth0--br-storage"
+                type: patch
+                options: {peer="br-storage--br-eth0"}
+        Port "br-eth0--br-mgmt"
+            tag: 101
+            Interface "br-eth0--br-mgmt"
+                type: patch
+                options: {peer="br-mgmt--br-eth0"}
+        Port "eth0"
+            Interface "eth0"
+        Port "br-eth0--br-prv"
+            Interface "br-eth0--br-prv"
+                type: patch
+                options: {peer="br-prv--br-eth0"}
+    Bridge br-storage
+        Port "br-storage--br-eth0"
+            Interface "br-storage--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-storage"}
+        Port br-storage
+            Interface br-storage
+                type: internal
+    ovs_version: "2.0.2"
+
