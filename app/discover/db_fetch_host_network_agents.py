@@ -1,24 +1,22 @@
 import json
-import re
-from cli_access import CliAccess
+
+from db_access import DbAccess
 from network_agents_list import NetworkAgentsList
 
-class CliFetchHostNetworkAgents(CliAccess):
-  
+class DbFetchHostNetworkAgents(DbAccess):
+
   def __init__(self):
-    super(CliFetchHostNetworkAgents, self).__init__()
     self.agents_list = NetworkAgentsList()
 
   def get(self, id):
-    out = self.run("source openrc; neutron agent-list -D -fjson")
-    out = self.binary2str(out)
-    json_string = re.sub(r"\\n$", "", out)
-    results = json.loads(json_string)
+    query = "SELECT * FROM neutron.agents"
+    results = self.get_objects_list(query, "vservice")
     for o in results:
       self.set_vservice_type(o)
     return results
 
   # dynamically create sub-folder for vServices by type
+  # also change 'configurations' field from JSON to object
   def set_vservice_type(self, o):
     o["master_parent_id"] = o["host"] + "-vservices"
     o["master_parent_type"] = "host_object_type"
@@ -31,3 +29,4 @@ class CliFetchHostNetworkAgents(CliAccess):
     except KeyError:
       o["parent_id"] = o["master_parent_id"] + "-" + "miscellenaous"
       o["parent_text"] = "Misc. services"
+    o["configurations"] = json.loads(o["configurations"])

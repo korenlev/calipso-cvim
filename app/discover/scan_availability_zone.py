@@ -2,7 +2,7 @@
 
 from singleton import Singleton
 from db_fetch_az_hosts import DbFetchAZHosts
-from cli_fetch_host_network_agents import CliFetchHostNetworkAgents
+from db_fetch_host_network_agents import DbFetchHostNetworkAgents
 from scanner import Scanner
 from scan_host import ScanHost
 
@@ -17,6 +17,6 @@ class ScanAvailabilityZone(Scanner, metaclass=Singleton):
       },
       {
         "type": "vservice",
-        "fetcher": CliFetchHostNetworkAgents()
+        "fetcher": DbFetchHostNetworkAgents()
       }
     ])
