@@ -58,7 +58,7 @@ class InventoryMgr(MongoAccess, Util):
     self.check(item, "environment")
     self.check(item, "type")
     self.check(item, "id")
-    self.inv.find_one_and_update(
+    self.inv.update(
       {"environment": item["environment"],
        "type": item["type"], "id": item["id"]},
       {'$set': item},
