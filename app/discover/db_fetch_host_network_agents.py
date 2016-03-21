@@ -9,8 +9,11 @@ class DbFetchHostNetworkAgents(DbAccess):
     self.agents_list = NetworkAgentsList()
 
   def get(self, id):
-    query = "SELECT * FROM neutron.agents"
-    results = self.get_objects_list(query, "vservice")
+    query = """
+      SELECT * FROM neutron.agents
+      WHERE host = %s
+    """
+    return self.get_objects_list_for_id(query, "vservice", id)
     for o in results:
       self.set_vservice_type(o)
     return results
