@@ -22,8 +22,15 @@ class Scanner(Util):
   
   def scan(self, obj, id_field):
     self.obj_to_scan = obj
-    for t in self.types_to_fetch:
-      self.scan_type(t, obj, id_field)
+    ret = True
+    types_children = []
+    try:
+      for t in self.types_to_fetch:
+        children = self.scan_type(t, obj, id_field)
+        types_children.append({"type": t["type"], "children": children})
+    except ValueError:
+      return False
+    return types_children
   
   def scan_type(self, type_to_fetch, parent, id_field):
     if not self.obj_to_scan:
@@ -53,6 +60,7 @@ class Scanner(Util):
     except KeyError:
       child_id_field = "id"
     environment = Scanner.environment
+    children = []
     for o in results:
       o["environment"] = environment
       o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
@@ -96,5 +104,7 @@ class Scanner(Util):
         o["parent_id"] = parent_id
         o["parent_type"] = parent["type"]
       Scanner.inventory.set(o)
+      children.append(o)
       if children_scanner:
         children_scanner.scan(o, child_id_field)
+      return children
