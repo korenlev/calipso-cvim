@@ -20,33 +20,39 @@ class Scanner(Util):
   def set_env(self, env):
     Scanner.environment = env
   
-  def scan(self, obj, id_field):
-    self.obj_to_scan = obj
+  def scan(self, obj, id_field = "id",
+      limit_to_child_id = None, limit_to_child_type = None):
     ret = True
     types_children = []
     try:
       for t in self.types_to_fetch:
+        if limit_to_child_type and t["type"] != limit_to_child_type:
+          next
         children = self.scan_type(t, obj, id_field)
+        if limit_to_child_id:
+          children = [c for c in children if c[id_field] == limit_to_child_id]
         types_children.append({"type": t["type"], "children": children})
     except ValueError:
       return False
-    return types_children
+    if limit_to_child_id:
+      t = types_children[0]
+      children = t["children"]
+      return children[0]
+    return obj
   
   def scan_type(self, type_to_fetch, parent, id_field):
-    if not self.obj_to_scan:
-      self.id = None
-    elif id_field == "name":
-      self.id = str(self.obj_to_scan["name"])
+    if not parent:
+      id = None
     else:
-      self.id = str(self.obj_to_scan["id"])
-    if self.obj_to_scan and (self.id == None or not self.id.rstrip()):
-      raise ValueError("Object missing " + id_field + " attribute")
+      id = str(parent[id_field])
+      if id == None or not id.rstrip():
+        raise ValueError("Object missing " + id_field + " attribute")
     fetcher = type_to_fetch["fetcher"]
     try:
       children_scanner = type_to_fetch["children_scanner"]
     except KeyError:
       children_scanner = None
-    escaped_id = fetcher.escape(str(self.id)) if self.id else self.id
+    escaped_id = fetcher.escape(str(id)) if id else id
     db_results = fetcher.get(escaped_id)
     
     if isinstance(db_results, dict):
@@ -105,6 +111,6 @@ class Scanner(Util):
         o["parent_type"] = parent["type"]
       Scanner.inventory.set(o)
       children.append(o)
-      if children_scanner:
+      if children_scanner:        
         children_scanner.scan(o, child_id_field)
-      return children
+    return children
