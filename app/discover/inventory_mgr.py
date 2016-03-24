@@ -58,15 +58,11 @@ class InventoryMgr(MongoAccess, Util):
     self.check(item, "environment")
     self.check(item, "type")
     self.check(item, "id")
-    curr_item_matches = self.get(item["environment"], item["type"], item["id"])
-    if len(curr_item_matches) > 0:
-      self.update(curr_item_matches, item)
-    else:
-      self.inv.insert_one(item)
-  
-  def update(self, curr_item_matches, item):
-    curr_item = curr_item_matches[0]
-    self.inv.find_one_and_update({"_id": curr_item["_id"]}, {"$set": item})
+    self.inv.update(
+      {"environment": item["environment"],
+       "type": item["type"], "id": item["id"]},
+      {'$set': item},
+      upsert=True)
   
   def check(self, obj, field_name):
     arg = obj[field_name]
