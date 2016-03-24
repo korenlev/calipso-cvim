@@ -1,5 +1,6 @@
 from mongo_access import MongoAccess
 from util import Util
+from datetime import datetime
 
 class InventoryMgr(MongoAccess, Util):
   
@@ -8,7 +9,7 @@ class InventoryMgr(MongoAccess, Util):
   def __init__(self):
     super(InventoryMgr, self).__init__()
     self.inv = MongoAccess.db["inventory"]
-    self.base_url_prefix = "/osdna_dev/discover.py?type=tree&"
+    self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
     
   def get(self, environment, item_type, item_id):
@@ -58,6 +59,7 @@ class InventoryMgr(MongoAccess, Util):
     self.check(item, "environment")
     self.check(item, "type")
     self.check(item, "id")
+    item["last_scanned"] = datetime.now()
     self.inv.update(
       {"environment": item["environment"],
        "type": item["type"], "id": item["id"]},
