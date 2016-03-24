@@ -1,0 +1,212 @@
+network_nodes are hosts running vServices (network_agents) 
+
+1) DB or API : neutron.agents; tells us agent_type 'DHCP agent' runs on host 'node-14'.    -Fetch : 'configurations' data!
+2) DB or API : neutron.agents; tells us agent_type 'L3 agent' runs on host 'node-14'.      -Fetch : 'configurations' data!
+3) DB or API : neutron.agents; tells us agent_type 'Metadata agent' has IP of 192.168.0.2'    -Fetch : 'configurations' data!
+4) SSH to node-14/192.168.0.2
+5) CLI:
+           ip netns        -Fetch results : list of agents on host
+qrouter-c7591adf-d0ed-406a-bd79-4f81e7e32bee
+qrouter-1ca83534-dde3-4a60-994a-f6813fe93b84
+qdhcp-080145e2-ccef-4946-b6ce-be633c88669e
+qdhcp-61a82a53-2116-4c4b-b861-6f8e5d8ed65e
+qdhcp-a588da43-dd61-4f9a-800e-38831ccdd58f
+6) CLI:
+
+6.1) ifconfig | grep eth   , fetch list of pNICs
+6.2)
+for dhcp :
+"ip netns exec qdhcp-080145e2-ccef-4946-b6ce-be633c88669e ifconfig"
+
+tapf6881e77-b1 Link encap:Ethernet  HWaddr fa:16:3e:8d:a9:30  
+          inet addr:172.16.102.3  Bcast:172.16.102.255  Mask:255.255.255.0
+          inet6 addr: fe80::f816:3eff:fe8d:a930/64 Scope:Link
+          UP BROADCAST RUNNING  MTU:1500  Metric:1
+          RX packets:31 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:13 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:2828 (2.8 KB)  TX bytes:1644 (1.6 KB)
+		
+or for gateway:
+"ip netns exec qrouter-1ca83534-dde3-4a60-994a-f6813fe93b84 ifconfig"
+
+qg-1d3c8aad-0e Link encap:Ethernet  HWaddr fa:16:3e:36:c5:8f           
+          inet addr:172.16.0.130  Bcast:172.16.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::f816:3eff:fe36:c58f/64 Scope:Link
+          UP BROADCAST RUNNING  MTU:1500  Metric:1
+          RX packets:141 errors:0 dropped:1 overruns:0 frame:0
+          TX packets:17 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:16016 (16.0 KB)  TX bytes:1162 (1.1 KB)
+
+qr-8cc761cf-b2 Link encap:Ethernet  HWaddr fa:16:3e:f5:6e:1a  
+          inet addr:192.168.111.1  Bcast:192.168.111.255  Mask:255.255.255.0
+          inet6 addr: fe80::f816:3eff:fef5:6e1a/64 Scope:Link
+          UP BROADCAST RUNNING  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:16 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:1084 (1.0 KB)
+		  
+6.3)"brctl show"  , if no results then:
+6.4)"ovs-dpctl show"
+system@ovs-system:
+        lookups: hit:144712793 missed:2918867 lost:0
+        flows: 21
+        port 0: ovs-system (internal)
+        port 1: br-ex (internal)
+        port 2: br-eth1 (internal)
+        port 3: eth1
+        port 4: tap1e7074a3-55 (internal)
+        port 5: tapa0f357d9-65 (internal)
+        port 6: br-int (internal)
+        port 7: tapf6881e77-b1 (internal)
+        port 8: br-storage (internal)
+        port 9: br-fw-admin (internal)
+        port 10: br-prv (internal)
+        port 11: eth0
+        port 12: br-eth0 (internal)
+        port 13: br-mgmt (internal)
+        port 14: qr-8cc761cf-b2 (internal)
+        port 15: qg-1d3c8aad-0e (internal)
+        port 16: qr-7ba53729-21 (internal)
+		
+Fetch results (example dhcp): tap1e7074a3-55  on a 'DHCP-agent' is connected to port 4 on 'OVS' (a vEdge), this 'DHCP-agent' IP is 172.16.102.3
+Fetch results (example gateway): qr-8cc761cf-b2  on a 'l3-agent' is connected to port 14 on 'OVS' (a vEdge), this 'l3-agent' IP is 192.168.111.1
+
+Fetch this for all network-agents on every host (every network_node) !!
+
+6.5) inside OVS :
+
+ovs-vsctl show
+3f93ffe5-e3fd-46d2-a4a8-9128404233b7
+    Bridge br-ex
+        Port br-ex
+            Interface br-ex
+                type: internal
+        Port "qg-1d3c8aad-0e"
+            Interface "qg-1d3c8aad-0e"
+                type: internal
+        Port "br-ex--br-eth1"
+            trunks: [0]
+            Interface "br-ex--br-eth1"
+                type: patch
+                options: {peer="br-eth1--br-ex"}
+    Bridge br-mgmt
+        Port br-mgmt
+            Interface br-mgmt
+                type: internal
+        Port "br-mgmt--br-eth0"
+            Interface "br-mgmt--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-mgmt"}
+    Bridge br-int
+        fail_mode: secure
+        Port "tapa0f357d9-65"
+            tag: 1
+            Interface "tapa0f357d9-65"
+                type: internal
+        Port "tapf6881e77-b1"
+            tag: 2
+            Interface "tapf6881e77-b1"
+                type: internal
+        Port "tap1e7074a3-55"
+            tag: 3
+            Interface "tap1e7074a3-55"
+                type: internal
+        Port "qr-7ba53729-21"
+            tag: 1
+            Interface "qr-7ba53729-21"
+                type: internal
+        Port br-int
+            Interface br-int
+                type: internal
+        Port "qr-8cc761cf-b2"
+            tag: 3
+            Interface "qr-8cc761cf-b2"
+                type: internal
+        Port int-br-prv
+            Interface int-br-prv
+                type: patch
+                options: {peer=phy-br-prv}
+    Bridge "br-eth0"
+        Port "br-eth0--br-mgmt"
+            tag: 101
+            Interface "br-eth0--br-mgmt"
+                type: patch
+                options: {peer="br-mgmt--br-eth0"}
+        Port "eth0"
+            Interface "eth0"
+        Port "br-eth0--br-storage"
+            tag: 102
+            Interface "br-eth0--br-storage"
+                type: patch
+                options: {peer="br-storage--br-eth0"}
+        Port "br-eth0--br-prv"
+            Interface "br-eth0--br-prv"
+                type: patch
+                options: {peer="br-prv--br-eth0"}
+        Port "br-eth0"
+            Interface "br-eth0"
+                type: internal
+        Port "br-eth0--br-fw-admin"
+            trunks: [0]
+            Interface "br-eth0--br-fw-admin"
+                type: patch
+                options: {peer="br-fw-admin--br-eth0"}
+    Bridge "br-eth1"
+        Port "br-eth1--br-ex"
+            trunks: [0]
+            Interface "br-eth1--br-ex"
+                type: patch
+                options: {peer="br-ex--br-eth1"}
+        Port "eth1"
+            Interface "eth1"
+        Port "br-eth1"
+            Interface "br-eth1"
+                type: internal
+    Bridge br-storage
+        Port "br-storage--br-eth0"
+            Interface "br-storage--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-storage"}
+        Port br-storage
+            Interface br-storage
+                type: internal
+    Bridge br-prv
+        Port phy-br-prv
+            Interface phy-br-prv
+                type: patch
+                options: {peer=int-br-prv}
+        Port br-prv
+            Interface br-prv
+                type: internal
+        Port "br-prv--br-eth0"
+            Interface "br-prv--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-prv"}
+    Bridge br-fw-admin
+        Port "br-fw-admin--br-eth0"
+            trunks: [0]
+            Interface "br-fw-admin--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-fw-admin"}
+        Port br-fw-admin
+            Interface br-fw-admin
+                type: internal
+    ovs_version: "2.0.2"
+	
+Fetch results from inside a OVS vEdge: 
+for dhcp : tap1e7074a3-55  on port 4 on OVS (vEdge) connects to br-int bridge tag=3 , to br-prv, to eth0 pNIC on the host !
+for gateway (l3_agent) : qr-8cc761cf-b2 on on port 14 on OVS (vEdge) connects to br-int bridge tag=3, to br-prv, to eth0 pNIC on the host !
+
+6.6) vlans/segmentation details:
+"ovs-ofctl dump-flows br-int | grep vlan"
+ cookie=0x0, duration=3262432.733s, table=0, n_packets=17, n_bytes=1680, idle_age=65534, hard_age=65534, priority=3,in_port=1,dl_vlan=1001 actions=mod_vlan_vid:2,NORMAL
+ cookie=0x0, duration=3262432.16s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=3,in_port=1,dl_vlan=1030 actions=mod_vlan_vid:3,NORMAL
+ cookie=0x0, duration=3262433.608s, table=0, n_packets=143011, n_bytes=35933096, idle_age=0, hard_age=65534, priority=3,in_port=1,dl_vlan=1000 actions=mod_vlan_vid:1,NORMAL
+ 
+ fetch  results : mod_vlan_vid=3 is tag=3 is vlan=1030
+                  mod_vlan_vid=2 is tag=2 is vlan=1001
+				  mod_vlan_vid=1 is tag=1 is vlan=1000
+				  
