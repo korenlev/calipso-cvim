@@ -1,0 +1,300 @@
+pre-requisites : all nova hierarchies from regions to zones to hosts, keystone.project for tenant ids etc ...
+ 
+1) DB or API : nova.instances where deleted=null; tells us 'display_name' (=instacne name!), 'node' (=host name!)  -Fetch : all data, 'uuid' !
+2) DB or API : nova.compute_nodes where deleted=0; tells us 'hypervisor_hostname' and 'host_ip' for all hosts.    -Fetch : all data per host! 
+3) DB or API : nova.instance_info_caches where deleted=0, for each instance 'uuid' -Fetch: 'network_info', look for 'profile' section per vNIC:
+example output:
+[{"profile": {}, "ovs_interfaceid": "1fe117c8-23d7-4ca6-b3c3-d75d0dfa21ca",
+ 
+"network": {"bridge": "br-int", "subnets": [{"ips": [{"meta": {}, "version": 4, "type": "fixed", "floating_ips": [], 
+"address": "172.16.101.2"}], "version": 4, "meta": {"dhcp_server": "172.16.101.3"}, "dns": [], "routes": [], "cidr": "172.16.101.0/24", 
+"gateway": {"meta": {}, "version": 4, "type": "gateway", "address": "172.16.101.1"}}], 
+"meta": {"injected": false, "tenant_id": "9bb12590b58d4c729871dc0c41c5a0f3"}, "id": "a588da43-dd61-4f9a-800e-38831ccdd58f", 
+"label": "net-101"}, "devname": "tap1fe117c8-23", "vnic_type": "normal", "qbh_params": null, "meta": {}, "details": {"port_filter": true, "ovs_hybrid_plug": true}, 
+"address": "fa:16:3e:56:2c:ba", "active": true, "type": "ovs", "id": "1fe117c8-23d7-4ca6-b3c3-d75d0dfa21ca", "qbg_params": null}] 
+
+{"profile": {}, "ovs_interfaceid": "eebdea1f-19bc-4970-a58a-5fcd63fa1153", 
+"network": {"bridge": "br-int", "subnets": [{"ips": [{"meta": {}, "version": 4, "type": "fixed", "floating_ips": [], 
+"address": "172.16.102.2"}], "version": 4, "meta": {"dhcp_server": "172.16.102.3"}, "dns": [], "routes": [], "cidr": "172.16.102.0/24", 
+"gateway": {"meta": {}, "version": 4, "type": "gateway", "address": "172.16.102.1"}}], 
+"meta": {"injected": false, "tenant_id": "9bb12590b58d4c729871dc0c41c5a0f3"}, "id": "080145e2-ccef-4946-b6ce-be633c88669e", 
+"label": "net-102"}, "devname": "tapeebdea1f-19", "vnic_type": "normal", "qbh_params": null, "meta": {}, "details": {"port_filter": true, "ovs_hybrid_plug": true}, 
+"address": "fa:16:3e:1f:2b:e1", "active": true, "type": "ovs", "id": "eebdea1f-19bc-4970-a58a-5fcd63fa1153", "qbg_params": null}]
+
+Fetch results: instance have 2 vNICs (2 "profile" sections) , each with a 'tap..' and 'address' (IP and MAC ** !!)
+Fetch results: associations/dependencies with "gateway" (L3_Agent vService) , "dhcp" (dhcp_agent vService)
+
+4) SSH to node-25/192.168.100.10  ( for all hosts IP running instances)
+5) CLI:
+5.1)        "virsh list"        -Fetch : list of instacnes on host
+
+ Id    Name                           State
+----------------------------------------------------
+ 2     instance-0000003a              running
+
+
+5.2)     " virsh dumpxml 2"
+
+<domain type='kvm' id='2'>
+  <name>instance-0000003a</name>            ---> local libvirt NAME of instance.
+  <uuid>74f2b444-938f-4c5f-b3ea-8bbf7831a040</uuid>
+  <metadata>
+    <nova:instance xmlns:nova="http://openstack.org/xmlns/libvirt/nova/1.0">
+      <nova:package version="2014.2"/>
+      <nova:name>koren-vm-test1</nova:name>       ---> nova name of instance (match DB 'display_name' of instance)
+      <nova:creationTime>2016-02-22 09:30:19</nova:creationTime>
+      <nova:flavor name="m1.micro">
+        <nova:memory>64</nova:memory>
+        <nova:disk>0</nova:disk>
+        <nova:swap>0</nova:swap>
+        <nova:ephemeral>0</nova:ephemeral>
+        <nova:vcpus>1</nova:vcpus>
+      </nova:flavor>
+      <nova:owner>
+        <nova:user uuid="76948f1c1a7b4b8c957f8ca93e8ac58b">admin</nova:user>
+        <nova:project uuid="9bb12590b58d4c729871dc0c41c5a0f3">Webex-Dev</nova:project>         ---> instance uuid
+      </nova:owner>
+      <nova:root type="image" uuid="c76862fd-e61b-4cb4-af53-db07bd30885c"/>
+    </nova:instance>
+  </metadata>
+  <memory unit='KiB'>65536</memory>
+  <currentMemory unit='KiB'>65536</currentMemory>
+  <vcpu placement='static' cpuset='0-1'>1</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <sysinfo type='smbios'>
+    <system>
+      <entry name='manufacturer'>OpenStack Foundation</entry>
+      <entry name='product'>OpenStack Nova</entry>
+      <entry name='version'>2014.2</entry>
+      <entry name='serial'>4e0be7f2-5e5b-42e2-b605-d953e17cadad</entry>
+      <entry name='uuid'>74f2b444-938f-4c5f-b3ea-8bbf7831a040</entry>
+    </system>
+  </sysinfo>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
+    <boot dev='hd'/>
+    <smbios mode='sysinfo'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu>
+    <topology sockets='1' cores='1' threads='1'/>
+  </cpu>
+  <clock offset='utc'>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm-spice</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='none'/>
+      <source file='/var/lib/nova/instances/74f2b444-938f-4c5f-b3ea-8bbf7831a040/disk'/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
+    </disk>
+    <controller type='usb' index='0'>
+      <alias name='usb0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x2'/>
+    </controller>
+    <controller type='pci' index='0' model='pci-root'>
+      <alias name='pci.0'/>
+    </controller>
+    <interface type='bridge'>
+      <mac address='fa:16:3e:56:2c:ba'/>               --------> ** MAC , match DB info_cache... 
+      <source bridge='qbr1fe117c8-23'/>                --------> connected to this bridge (vConnector)
+      <target dev='tap1fe117c8-23'/>                   --------> TAP from DB info_cache
+      <model type='virtio'/>
+      <alias name='net0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+    </interface>
+    <interface type='bridge'>
+      <mac address='fa:16:3e:1f:2b:e1'/>
+      <source bridge='qbreebdea1f-19'/>
+      <target dev='tapeebdea1f-19'/>
+      <model type='virtio'/>
+      <alias name='net1'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>
+    </interface>
+    <serial type='file'>
+      <source path='/var/lib/nova/instances/74f2b444-938f-4c5f-b3ea-8bbf7831a040/console.log'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <serial type='pty'>
+      <source path='/dev/pts/0'/>
+      <target port='1'/>
+      <alias name='serial1'/>
+    </serial>
+    <console type='file'>
+      <source path='/var/lib/nova/instances/74f2b444-938f-4c5f-b3ea-8bbf7831a040/console.log'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+    <input type='tablet' bus='usb'>
+      <alias name='input0'/>
+    </input>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='vnc' port='5900' autoport='yes' listen='0.0.0.0' keymap='en-us'>
+      <listen type='address' address='0.0.0.0'/>
+    </graphics>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+      <alias name='video0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
+    </video>
+    <memballoon model='virtio'>
+      <alias name='balloon0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
+      <stats period='10'/>
+    </memballoon>
+  </devices>
+  <seclabel type='none'/>
+</domain>
+
+
+fetch results :  instance local-name , vNICS 'tap' (2 in this case) ,  bridge (vConnector) connection , IP and MAC per vNIC
+
+
+5.3) "brctl show"
+bridge name     bridge id               STP enabled     interfaces
+qbr1fe117c8-23          8000.768849221c8c       no              qvb1fe117c8-23
+                                                        tap1fe117c8-23
+qbreebdea1f-19          8000.62315cb4b2e5       no              qvbeebdea1f-19
+                                                        tapeebdea1f-19
+virbr0          8000.000000000000       yes
+
+fetch results : bridge (vConnector) name and id , qvb as interface tag on bridge side , tap as interface tag on vNIC side
+
+5.4) "ovs-dpctl show"
+system@ovs-system:
+        lookups: hit:147568325 missed:2848746 lost:0
+        flows: 16
+        port 0: ovs-system (internal)
+        port 1: br-eth1 (internal)
+        port 2: eth1
+        port 3: br-fw-admin (internal)
+        port 4: br-storage (internal)
+        port 5: br-prv (internal)
+        port 6: br-int (internal)
+        port 7: eth0
+        port 8: br-eth0 (internal)
+        port 9: br-mgmt (internal)
+        port 10: qvo1fe117c8-23
+        port 11: qvoeebdea1f-19
+		
+fetch results : OVS (vEdge) details , qvo as interface tag on OVS (vEdge) side , eth[ID] as interface tag for pNICs , fetch also OVS (cEdge) port numbers 
+
+5.5) " 
+5.5) pNIC list  - ifconfig | grep eth
+pNIC details - ethtool -i eth0  , ethtool -k eth0, ethtool -S eth0, ip link show eth0
+
+
+6) CLI details inside OVS:
+
+6.1) "ovs-vsctl show"
+6187c14a-27bf-4496-9b8a-3b798646a935
+    Bridge "br-eth0"
+        Port "br-eth0--br-mgmt"
+            tag: 101
+            Interface "br-eth0--br-mgmt"
+                type: patch
+                options: {peer="br-mgmt--br-eth0"}
+        Port "br-eth0"
+            Interface "br-eth0"
+                type: internal
+        Port "eth0"
+            Interface "eth0"
+        Port "br-eth0--br-fw-admin"
+            trunks: [0]
+            Interface "br-eth0--br-fw-admin"
+                type: patch
+                options: {peer="br-fw-admin--br-eth0"}
+        Port "br-eth0--br-storage"
+            tag: 102qvoeebdea1f-19
+            Interface "br-eth0--br-storage"
+                type: patch
+                options: {peer="br-storage--br-eth0"}
+        Port "br-eth0--br-prv"
+            Interface "br-eth0--br-prv"
+                type: patch
+                options: {peer="br-prv--br-eth0"}
+    Bridge br-int
+        fail_mode: secure
+        Port "qvo1fe117c8-23"
+            tag: 1
+            Interface "qvo1fe117c8-23"
+        Port "qvoeebdea1f-19"
+            tag: 2
+            Interface "qvoeebdea1f-19"
+        Port br-int
+            Interface br-int
+                type: internal
+        Port int-br-prv
+            Interface int-br-prv
+                type: patch
+                options: {peer=phy-br-prv}
+    Bridge br-mgmt
+        Port "br-mgmt--br-eth0"
+            Interface "br-mgmt--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-mgmt"}
+        Port br-mgmt
+            Interface br-mgmt
+                type: internal
+    Bridge br-prv
+        Port phy-br-prv
+            Interface phy-br-prv
+                type: patch
+                options: {peer=int-br-prv}
+        Port "br-prv--br-eth0"
+            Interface "br-prv--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-prv"}
+        Port br-prv
+            Interface br-prv
+                type: internal
+    Bridge br-storage
+        Port br-storage
+            Interface br-storage
+                type: internal
+        Port "br-storage--br-eth0"
+            Interface "br-storage--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-storage"}
+    Bridge br-fw-admin
+        Port "br-fw-admin--br-eth0"
+            trunks: [0]
+            Interface "br-fw-admin--br-eth0"
+                type: patch
+                options: {peer="br-eth0--br-fw-admin"}
+        Port br-fw-admin
+            Interface br-fw-admin
+                type: internal
+    Bridge "br-eth1"
+        Port "br-eth1"
+            Interface "br-eth1"
+                type: internal
+        Port "eth1"
+            Interface "eth1"
+    ovs_version: "2.0.2"
+
+fetch results : qvo1fe117c8-23 inside OVS (vEdge) on br-int, tag=1
+                qvoeebdea1f-19 inside OVS (vEdge) on br-int, tag=2
+				
+6.2) "ovs-ofctl dump-flows br-int | grep vlan"
+ cookie=0x0, duration=3263400.993s, table=0, n_packets=15, n_bytes=1540, idle_age=65534, hard_age=65534, priority=3,in_port=1,dl_vlan=1001 actions=mod_vlan_vid:2,NORMAL
+ cookie=0x0, duration=3263401.489s, table=0, n_packets=98311, n_bytes=20071319, idle_age=5, hard_age=65534, priority=3,in_port=1,dl_vlan=1000 actions=mod_vlan_vid:1,NORMAL
+
+ fetch  results : mod_vlan_vid=1 is tag=1 is vlan=1000
+                  mod_vlan_vid=2 is tag=2 is vlan=1001
+				  
