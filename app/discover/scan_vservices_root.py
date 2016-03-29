@@ -1,6 +1,7 @@
 from singleton import Singleton
 from scanner import Scanner
 from db_fetch_host_network_agents import DbFetchHostNetworkAgents
+from cli_fetch_host_network_agents import CliFetchHostNetworkAgents
 
 class ScanVservicesRoot(Scanner, metaclass=Singleton):
   
@@ -9,5 +10,9 @@ class ScanVservicesRoot(Scanner, metaclass=Singleton):
       {
         "type": "vservice",
         "fetcher": DbFetchHostNetworkAgents()
+      },
+      {
+        "type": "vservice",
+        "fetcher": CliFetchHostNetworkAgents()
       }
     ])
