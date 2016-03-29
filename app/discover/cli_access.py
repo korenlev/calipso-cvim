@@ -58,7 +58,7 @@ class CliAccess(Fetcher):
   
   def run_fetch_lines(self, cmd):
     out = self.run(cmd)
-    ret = out.splitlines()
+    ret = [l for l in out.split("\\n") if l != ""]
     return ret
  
   def parse_cmd_result(self, lines):
