@@ -8,7 +8,6 @@ class DbFetchAZHosts(DbAccess):
       FROM nova.instances
       WHERE availability_zone = %s
         AND host IS NOT NULL
-        AND availability_zone IS NOT NULL
         AND deleted = 0
     """
     return self.get_objects_list_for_id(query, "host", id)
