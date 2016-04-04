@@ -11,17 +11,27 @@ class InventoryMgr(MongoAccess, Util):
     self.inv = MongoAccess.db["inventory"]
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
-    
-  def get(self, environment, item_type, item_id):
-    if item_id and (not isinstance(item_id, str) or item_id > ""):
-      matches = self.inv.find({"environment": environment, "type": item_type, "id": item_id})
+  def get_by_field(self, environment, item_type, field_name, field_value):
+    if field_value and (not isinstance(field_value, str) or field_value > ""):
+      matches = self.inv.find({
+        "environment": environment,
+        "type": item_type,
+        field_name: field_value
+      })
     else:
-      matches = self.inv.find({"environment": environment, "type": item_type})
+      matches = self.inv.find({
+        "environment": environment,
+        "type": item_type
+      })
     ret = []
     for doc in matches:
       doc["_id"] = str(doc["_id"])
       doc["children_url"] = self.get_base_url(doc)
       ret.append(doc)
+    return ret
+    
+  def get(self, environment, item_type, item_id):
+    ret = self.get_by_field(environment, item_type, "id", item_id)
     return ret
   
   def get_children(self, environment, item_type, parent_id):
@@ -60,10 +70,19 @@ class InventoryMgr(MongoAccess, Util):
     self.check(item, "type")
     self.check(item, "id")
     item["last_scanned"] = datetime.now()
+    try:
+      projects = item.pop("projects")
+    except KeyError:
+      projects = []
     self.inv.update(
       {"environment": item["environment"],
        "type": item["type"], "id": item["id"]},
       {'$set': item},
+      upsert=True)
+    self.inv.update(
+      {"environment": item["environment"],
+       "type": item["type"], "id": item["id"]},
+      {'$addToSet': {"projects": {'$each': projects}}},
       upsert=True)
   
   def check(self, obj, field_name):

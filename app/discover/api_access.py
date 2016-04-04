@@ -3,6 +3,9 @@ from fetcher import Fetcher
 
 import httplib2 as http
 import json
+import time
+import calendar
+
 try:
     from urlparse import urlparse
 except ImportError:
@@ -18,6 +21,7 @@ class ApiAccess(Fetcher):
   
   base_url = ""
   admin_token = ""
+  tokens = {}
   admin_endpoint = ""
   body_hash = None
   
@@ -40,8 +44,26 @@ class ApiAccess(Fetcher):
     self.v2_auth_pwd(None)
     initialized  = True
     
- 
-  def v2_auth(self, headers, post_body):
+  # try to use existing token, if it did not expire
+  def get_existing_token(self, id):
+    try:
+        token_details = ApiAccess.tokens[id]
+    except KeyError:
+      return None
+    token_expiry = token_details["expires"]
+    token_expiry_time_struct = time.strptime(token_expiry, "%Y-%m-%dT%H:%M:%SZ")
+    token_expiry_time = token_details["token_expiry_time"]
+    now = time.time()
+    if now > token_expiry_time:
+      # token has expired
+      ApiAccess.tokens.pop(id)
+      return None
+    return token_details
+
+  def v2_auth(self, id, headers, post_body):
+    subject_token = self.get_existing_token(id)
+    if subject_token:
+      return subject_token
     req_url = ApiAccess.base_url + "/v2.0/tokens"
     request_body = json.dumps(post_body)
     method = 'POST'
@@ -49,7 +71,13 @@ class ApiAccess(Fetcher):
     response, content = h.request(req_url, method, request_body, headers)
     content_string = content.decode('utf-8')
     ApiAccess.body_hash = json.loads(content_string)
-    subject_token = ApiAccess.body_hash["access"]["token"]["id"]
+    token_details = ApiAccess.body_hash["access"]["token"]
+    token_expiry = token_details["expires"]
+    token_expiry_time_struct = time.strptime(token_expiry, "%Y-%m-%dT%H:%M:%SZ")
+    token_expiry_time = calendar.timegm(token_expiry_time_struct)
+    token_details["token_expiry_time"] = token_expiry_time
+    ApiAccess.tokens[id] = token_details
+    return token_details
     
  
   def v2_auth_pwd(self, project):
@@ -63,13 +91,17 @@ class ApiAccess(Fetcher):
         }
       }
     }
+    id = ""
     if project != None:
       post_body["auth"]["tenantName"] = project
+      id = project
+    else:
+      id = ""
     headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json; charset=UTF-8'
     }
-    self.v2_auth(headers, post_body)
+    return self.v2_auth(id, headers, post_body)
  
  
   def v2_auth_token(self):
@@ -79,7 +111,7 @@ class ApiAccess(Fetcher):
       'X-Auth-Token': admin_token
     }
     post_body = {"auth": {"passwordCredentials": {"token": admin_token}}}
-    self.v2_auth(headers, post_body)
+    return self.v2_auth("admin_token", headers, post_body)
   
   
   def get(id):

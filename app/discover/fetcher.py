@@ -8,6 +8,7 @@ class Fetcher:
   
   def __init__(self):
     self.prettify = False
+    self.environment = ""
     if not Fetcher.inventory:
       Fetcher.inventory = InventoryMgr()
   
@@ -20,6 +21,12 @@ class Fetcher:
   def get_prettify(self):
     return self.prettify
   
+  def set_env(self, env):
+    self.environment = env
+
+  def get_env(self):
+    return self.environment
+
   def jsonify(self, obj):
     if self.prettify:
       return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))

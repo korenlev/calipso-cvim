@@ -2,23 +2,25 @@
 
 from inventory_mgr import InventoryMgr
 from util import Util
+from fetcher import Fetcher
 
+import queue
 import json
 import re
 
-class Scanner(Util):
+class Scanner(Util, Fetcher):
   
   inventory = None
   environment = None
   root_patern = None
+  scan_queue = queue.Queue()
+  scan_queue_track = {}
   
   def __init__(self, types_to_fetch):
+    super(Scanner, self).__init__()
     self.types_to_fetch = types_to_fetch
     if not Scanner.inventory:
       Scanner.inventory = InventoryMgr()
-  
-  def set_env(self, env):
-    Scanner.environment = env
   
   def scan(self, obj, id_field = "id",
       limit_to_child_id = None, limit_to_child_type = None):
@@ -32,7 +34,7 @@ class Scanner(Util):
         if limit_to_child_id:
           children = [c for c in children if c[id_field] == limit_to_child_id]
         types_children.append({"type": t["type"], "children": children})
-    except ValueError:
+    except ValueError as e:
       return False
     if limit_to_child_id:
       t = types_children[0]
@@ -48,8 +50,10 @@ class Scanner(Util):
       if id == None or not id.rstrip():
         raise ValueError("Object missing " + id_field + " attribute")
     fetcher = type_to_fetch["fetcher"]
+    fetcher.set_env(self.get_env())
     try:
       children_scanner = type_to_fetch["children_scanner"]
+      children_scanner.set_env(self.get_env())
     except KeyError:
       children_scanner = None
     escaped_id = fetcher.escape(str(id)) if id else id
@@ -65,7 +69,7 @@ class Scanner(Util):
       child_id_field = type_to_fetch["object_id_to_use_in_child"]
     except KeyError:
       child_id_field = "id"
-    environment = Scanner.environment
+    environment = self.get_env()
     children = []
     for o in results:
       o["environment"] = environment
@@ -102,15 +106,46 @@ class Scanner(Util):
         try:
           name = o["name"]
         except KeyError:
-          name = o["id"]
+          name = str(o["id"])
       o["name_path"] = parent_name_path + "/" + name
       
       if "parent_id" not in o and parent:
         parent_id = str(parent["id"])
         o["parent_id"] = parent_id
         o["parent_type"] = parent["type"]
+
+      # keep list of projects that an object is in
+      associated_projects = []
+      for k in o:
+        if k.startswith("in_project-"):
+          proj_name = k[k.index('-')+1:]
+          associated_projects.append(proj_name)
+      if associated_projects:
+        projects = o["projects"] if "projects" in o.keys() else []
+        projects.extend(associated_projects)
+        o["projects"] = projects
+
       Scanner.inventory.set(o)
       children.append(o)
-      if children_scanner:        
-        children_scanner.scan(o, child_id_field)
+      if children_scanner:
+        self.queue_for_scan(o, child_id_field, children_scanner)
     return children
+
+  # scanning queued items, rather than going depth-first (DFS)
+  # this is done to allow collecting all required data for objects
+  # before continuing to next level
+  # for example, get host ID from API os-hypervisors call, so later
+  # we can use this ID in the "os-hypervisors/<ID>/servers" call
+  def queue_for_scan(self, o, child_id_field, children_scanner):
+    if o["id"] in Scanner.scan_queue_track:
+      return
+    Scanner.scan_queue_track[o["id"]] = 1
+    Scanner.scan_queue.put({"object": o,
+      "child_id_field": child_id_field, "scanner": children_scanner})
+
+  def scan_from_queue(self):
+    while not Scanner.scan_queue.empty():
+      item = Scanner.scan_queue.get()
+      scanner = item["scanner"]
+      scanner.scan(item["object"], item["child_id_field"])
+
