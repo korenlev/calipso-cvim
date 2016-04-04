@@ -85,6 +85,7 @@ class ScanController:
       what_to_scan["id_field"],
       what_to_scan["child_id"],
       what_to_scan["child_type"])
+    scanner.scan_from_queue()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
     return response
