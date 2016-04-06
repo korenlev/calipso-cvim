@@ -1,0 +1,61 @@
+Ssh cisco@ts2-host4
+pass: cisco
+
+Use:
+CONFD agent:
+/opt/cisco/vpe/bin/confd_cli –C 
+
+VPP CLI:
+telnet 0 5002
+
+
+howto fetch:
+
+1.	Instances vNICs IDs associated with VPP ‘virtual-ethernet’ IDS’, connection details like port numbers, mac-address/IPs, status up/down and hopefully a ‘show interface details’ type of data.
+
+The “Get interfaces operational” POSTMAN will give you the above for all interfaces.
+
+
+2.	Bridge-group associations, which ‘virtual-Ethernet’ belongs to which ‘bridge-group’ of any other ‘segment type’.
+
+Same as above, with the cisco-cpp:l2 JSON element giving you the b-id.
+Alternatively you can also get this from the “Get Interfaces config” in a less verbose form.
+
+3.	For each bridge get mac-addresses table.
+
+In theory this would be the l2-fib element in the response to "GET bridge-domains operational” . On my machine however I didn’t get a VM running, so wasn’t able to see if it’s actually implemented.
+
+4.	Neutron-port association to VPP host-id:‘virtual-Ethernet’ interface for each host.
+
+Two ways of getting this:
+1.	For each (VPP) host GET the interface config, and then for each interface of type “cisco-cpp:ghost-user” either get the “description” or tweeze it out from the socket file path field. Both of these use the Neutron Port UUID. 
+2.	Get the whole Neutron Port database.
+
+5.	Associations between bridge-group and an external network overlay, like L2TPv3 ‘session-id’ associated with ‘bridge-id. – purpose is to learn which segmentation on physical network is assign to which internal segmentation.
+
+This can be also arrived at through two indirect ways:
+1.	For a given tenant bridge domain, identify the external (non vhost-user) interface
+2.	Get the Neutron Network info from ODL, and check the external-provider network attribute.
+
+6.	Associations of physical NICs on the server, who is used for each overlay and external segmentation.
+
+The only way to get that is by looking at the VPP config file and getting the PCI-address-to-interface mapping. The file is qn.conf, and we’re looking at:
+
+Properly formatted qn.conf file:
+
+vpe = {
+        pgm = "$(install_root)/bin/vpe",
+        args = "unix { nodaemon log /tmp/vpe.log cli-listen localhost:5002 full-coredump } api-trace { on } dpdk { socket-mem 1024,1024 dev 0000:08:00.0 dev 0000:0e:00.0 }",
+        max_cpu_percent = "111.0",
+        console_output = "yes",
+        crash_reset_all="yes"
+}
+ 
+
+7.	Linux-bridge associations , if applicable.
+
+Not applicable, really.
+
+Regards,
+Wojciech.
+
