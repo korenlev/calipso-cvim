@@ -34,7 +34,10 @@ class Fetcher:
       return json.dumps(obj)
   
   def binary2str(self, txt):
-    s = str(txt)
+    try:
+      s = txt.decode("utf-8")
+    except TypeError:
+      s = str(txt)
     s = re.sub(r"^b.", "", s)
     s = re.sub(r"'$", "", s)
     return s
