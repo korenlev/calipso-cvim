@@ -8,6 +8,7 @@ class Fetcher:
   
   def __init__(self):
     self.prettify = False
+    self.environment = ""
     if not Fetcher.inventory:
       Fetcher.inventory = InventoryMgr()
   
@@ -20,6 +21,12 @@ class Fetcher:
   def get_prettify(self):
     return self.prettify
   
+  def set_env(self, env):
+    self.environment = env
+
+  def get_env(self):
+    return self.environment
+
   def jsonify(self, obj):
     if self.prettify:
       return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
@@ -27,7 +34,10 @@ class Fetcher:
       return json.dumps(obj)
   
   def binary2str(self, txt):
-    s = str(txt)
+    try:
+      s = txt.decode("utf-8")
+    except TypeError:
+      s = str(txt)
     s = re.sub(r"^b.", "", s)
     s = re.sub(r"'$", "", s)
     return s
