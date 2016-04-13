@@ -7,11 +7,10 @@ class ScanNetwork(Scanner, metaclass=Singleton):
     super(ScanNetwork, self).__init__([
       {
         "type": "network_object_type",
-        "fetcher": FolderFetcher("ports", "host")
+        "fetcher": FolderFetcher("ports", "network")
       },
       {
         "type": "network_object_type",
-        "fetcher": FolderFetcher("vservices", "host", "vServices"),
-        "children_scanner": ScanNetworkVservices()
+        "fetcher": FolderFetcher("network_services", "network", "Network vServices")
       }
     ])
