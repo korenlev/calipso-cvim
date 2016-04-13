@@ -10,4 +10,8 @@ class DbFetchAZHosts(DbAccess):
         AND host IS NOT NULL
         AND deleted = 0
     """
-    return self.get_objects_list_for_id(query, "host", id)
+    results = self.get_objects_list_for_id(query, "host", id)
+    for r in results:
+      r["id"] = r["host"]
+      r["host_type"] = "Compute Node"
+    return results

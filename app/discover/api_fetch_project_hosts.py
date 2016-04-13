@@ -27,6 +27,7 @@ class ApiFetchProjectHosts(ApiAccess):
     for doc in response["hypervisors"]:
         # for hosts we use the name as id
         doc["os_id"] = str(doc["id"])
+        doc["host_type"] = "Compute Node"
         id = doc["hypervisor_hostname"]
         doc["id"] = id[:id.index('.')]
         # keep a list of projects using the host by adding "in_project-X"
