@@ -4,10 +4,15 @@ class DbFetchAZHosts(DbAccess):
   
   def get(self, id):
     query = """
-      SELECT DISTINCT host, host AS id
-      FROM nova.instances
+      SELECT DISTINCT host, host AS id, host_ip AS ip_address
+      FROM nova.instances i
+        JOIN nova.compute_nodes n ON i.node = n.hypervisor_hostname
       WHERE availability_zone = %s
         AND host IS NOT NULL
-        AND deleted = 0
+        AND i.deleted = 0
     """
-    return self.get_objects_list_for_id(query, "host", id)
+    results = self.get_objects_list_for_id(query, "host", id)
+    for r in results:
+      r["id"] = r["host"]
+      r["host_type"] = "Compute Node"
+    return results

@@ -13,19 +13,20 @@ class DbFetchHostNetworkAgents(DbAccess):
       SELECT * FROM neutron.agents
       WHERE host = %s
     """
-    return self.get_objects_list_for_id(query, "vservice", id)
+    host_id = id[:-1*len("-network_agents")]
+    results = self.get_objects_list_for_id(query, "network_agent", host_id)
     for o in results:
-      self.set_vservice_type(o)
+      self.set_agent_type(o)
     return results
 
-  # dynamically create sub-folder for vServices by type
+  # dynamically create sub-folder for agents by type
   # also change 'configurations' field from JSON to object
-  def set_vservice_type(self, o):
-    o["master_parent_id"] = o["host"] + "-vservices"
+  def set_agent_type(self, o):
+    o["master_parent_id"] = o["host"] + "-network_agents"
     o["master_parent_type"] = "host_object_type"
     atype = o["agent_type"]
     agent = self.agents_list.get_type(atype)
-    o["parent_type"] = "vservice_object_type"
+    o["parent_type"] = "network_agent_object_type"
     try:
       o["parent_id"] = o["master_parent_id"] + "-" + agent["type"] + "s"
       o["parent_text"] = agent["folder_text"]

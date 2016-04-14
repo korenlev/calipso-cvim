@@ -18,6 +18,8 @@ class ApiFetchHostInstances(ApiAccess):
   def get(self, id):
     host_name = id.replace("-instances", "")
     host = self.inv.getSingle(self.get_env(), "host", host_name)
+    if host["host_type"] == "Network Node":
+      return []
     os_id = host["os_id"]
     instances_found = []
     for project in host["projects"]:
