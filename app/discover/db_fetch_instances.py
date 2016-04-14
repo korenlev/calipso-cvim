@@ -35,6 +35,7 @@ class DbFetchInstances(DbAccess):
       pass
     result["descendants"] = 0
     network_info = json.loads(network_info_str)
+    result["network_info"] = network_info
     self.networks = []
     self.instance_id = result["id"]
     host_name = result["host"]
