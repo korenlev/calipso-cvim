@@ -9,6 +9,7 @@ class ScanVservicesRoot(Scanner, metaclass=Singleton):
     super(ScanVservicesRoot, self).__init__([
       {
         "type": "vservice",
-        "fetcher": CliFetchHostVservices()
+        "fetcher": CliFetchHostVservices(),
+        "show_in_tree": False
       }
     ])

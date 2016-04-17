@@ -75,6 +75,10 @@ class Scanner(Util, Fetcher):
       o["environment"] = environment
       o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
       try:
+        o["show_in_tree"] = type_to_fetch["show_in_tree"]
+      except KeyError:
+        o["show_in_tree"] = True
+      try:
         parent_id_path = parent["id_path"]
         parent_name_path = parent["name_path"]
       except KeyError:
