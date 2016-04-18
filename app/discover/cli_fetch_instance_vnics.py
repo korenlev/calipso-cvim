@@ -17,23 +17,30 @@ class CliFetchInstanceVnics(CliAccess):
     if len(matching_items) == 0:
       return []
     try:
-      instance_ip_address = matching_items[0]["ip_address"]
+      instance = matching_items[0]
     except KeyError:
       return []
-    cmd = "ssh -o StrictHostKeyChecking=no "
-    cmd += instance_ip_address + " virsh list"
+    cmd = "ssh -o StrictHostKeyChecking=no " + \
+      instance["ip_address"] + " virsh list"
     lines = self.run_fetch_lines(cmd)
     del lines[:2] # remove header
     virsh_ids = [l.split()[0] for l in lines if l>""]
     results = []
+    # Note: there are 2 ids here of instances with local names, which are
+    # not connected to the data we have thus far for the instance
+    # therefore, we will decide whether the instance is the correct one based
+    # on comparison of the uuid in the dumpxml output
     for id in virsh_ids:
-      results.extend(self.get_vnics_from_dumpxml(instance_ip_address, id))
+      results.extend(self.get_vnics_from_dumpxml(instance, id))
     return results
 
-  def get_vnics_from_dumpxml(self, ip_address, id):
-    cmd = "ssh " + ip_address + " virsh dumpxml " + id
+  def get_vnics_from_dumpxml(self, instance, id):
+    cmd = "ssh " + instance["ip_address"] + " virsh dumpxml " + id
     xml_string = self.run(cmd)
     response = xmltodict.parse(xml_string)
+    if instance["uuid"] != response["domain"]["uuid"]:
+      # this is the wrong instance - skip it
+      return []
     try:
       vnics = response["domain"]["devices"]["interface"]
     except KeyError:
