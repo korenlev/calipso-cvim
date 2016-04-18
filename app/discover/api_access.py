@@ -44,6 +44,17 @@ class ApiAccess(Fetcher):
     self.v2_auth_pwd(None)
     initialized  = True
     
+  def parse_time(self, time_str):
+    try:
+        time_struct = time.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        try:
+          time_struct = time.strptime(time_str,
+            "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+          return None
+    return time_struct
+
   # try to use existing token, if it did not expire
   def get_existing_token(self, id):
     try:
@@ -51,7 +62,9 @@ class ApiAccess(Fetcher):
     except KeyError:
       return None
     token_expiry = token_details["expires"]
-    token_expiry_time_struct = time.strptime(token_expiry, "%Y-%m-%dT%H:%M:%SZ")
+    token_expiry_time_struct = self.parse_time(token_expiry)
+    if not token_expiry_time_struct:
+      return None
     token_expiry_time = token_details["token_expiry_time"]
     now = time.time()
     if now > token_expiry_time:
@@ -73,12 +86,13 @@ class ApiAccess(Fetcher):
     ApiAccess.body_hash = json.loads(content_string)
     token_details = ApiAccess.body_hash["access"]["token"]
     token_expiry = token_details["expires"]
-    token_expiry_time_struct = time.strptime(token_expiry, "%Y-%m-%dT%H:%M:%SZ")
+    token_expiry_time_struct = self.parse_time(token_expiry)
+    if not token_expiry_time_struct:
+      return None
     token_expiry_time = calendar.timegm(token_expiry_time_struct)
     token_details["token_expiry_time"] = token_expiry_time
     ApiAccess.tokens[id] = token_details
     return token_details
-    
  
   def v2_auth_pwd(self, project):
     user = ApiAccess.api_config["user"]
