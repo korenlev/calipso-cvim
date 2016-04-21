@@ -15,6 +15,9 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
 
   def get(self, id):
     pr_name = id
+    if pr_name != "admin":
+        # do not scan hosts except under project 'admin'
+        return []
     admin_endpoint = ApiAccess.base_url.replace(":5000", ":8774")
     token = self.v2_auth_pwd(pr_name)
     ret = []
@@ -57,15 +60,22 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     ret = []
     for h in az["hosts"]:
       doc = self.get_host_details(az, h)
-      doc["in_project-" + proj] = "1"
       ret.append(doc)
     return ret
 
   def get_host_details(self, az, h):
     # for hosts we use the name
     services = az["hosts"][h]
-    doc = {"id": h, "name": h, "zone": az["zoneName"], "services": services}
-    doc["host_type"] = ""
+    doc = {
+      "id": h,
+      "host": h,
+      "name": h,
+      "zone": az["zoneName"],
+      "parent_type": "availability_zone",
+      "parent_id": az["zoneName"],
+      "services": services,
+      "host_type": ""
+    }
     if "nova-conductor" in services:
       s = services["nova-conductor"]
       if s["available"] and s["active"]:
