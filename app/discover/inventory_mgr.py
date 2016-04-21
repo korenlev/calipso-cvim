@@ -74,6 +74,9 @@ class InventoryMgr(MongoAccess, Util):
       projects = item.pop("projects")
     except KeyError:
       projects = []
+    obj_name = item["name_path"]
+    obj_name = obj_name[obj_name.rindex('/')+1:]
+    item["object_name"] = obj_name
     self.inv.update(
       {"environment": item["environment"],
        "type": item["type"], "id": item["id"]},

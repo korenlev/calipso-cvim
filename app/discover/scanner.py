@@ -95,7 +95,6 @@ class Scanner(Util, Fetcher):
            "id": o["parent_id"],
            "id_path": parent_id_path + "/" + o["parent_id"],
            "name_path": parent_name_path + "/" + o["parent_text"],
-           "object_name": o["parent_text"],
            "name": o["parent_id"],
            "type": o["parent_type"],
            "text": o["parent_text"]
@@ -113,7 +112,6 @@ class Scanner(Util, Fetcher):
         except KeyError:
           name = str(o["id"])
       o["name_path"] = parent_name_path + "/" + name
-      o["object_name"] = name
       
       if "parent_id" not in o and parent:
         parent_id = str(parent["id"])
