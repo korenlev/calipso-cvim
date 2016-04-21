@@ -4,7 +4,6 @@ from singleton import Singleton
 from folder_fetcher import FolderFetcher
 from scanner import Scanner
 from scan_aggregates_root import ScanAggregatesRoot
-from scan_availability_zones_root import ScanAvailabilityZonesRoot
 
 class ScanRegion(Scanner, metaclass=Singleton):
   
@@ -14,10 +13,5 @@ class ScanRegion(Scanner, metaclass=Singleton):
         "type": "region_object_type",
         "fetcher": FolderFetcher("aggregates", "region"),
         "children_scanner": ScanAggregatesRoot()
-      },
-      {
-        "type": "region_object_type",
-        "fetcher": FolderFetcher("availability_zones", "region"),
-        "children_scanner": ScanAvailabilityZonesRoot()
       }
     ])

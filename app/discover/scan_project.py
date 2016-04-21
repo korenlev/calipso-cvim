@@ -3,9 +3,11 @@
 from singleton import Singleton
 from api_fetch_end_points import ApiFetchEndPoints
 from api_fetch_project_hosts import ApiFetchProjectHosts
+from api_fetch_availability_zones import ApiFetchAvailabilityZones
 from scanner import Scanner
 from scan_region import ScanRegion
 from scan_host import ScanHost
+from scan_availability_zone import ScanAvailabilityZone
 
 class ScanProject(Scanner, metaclass=Singleton):
   
@@ -14,6 +16,11 @@ class ScanProject(Scanner, metaclass=Singleton):
       {
         "type": "endpoint",
         "fetcher": ApiFetchEndPoints()
+      },
+      {
+        "type": "availability_zone",
+        "fetcher": ApiFetchAvailabilityZones(),
+        "children_scanner": ScanAvailabilityZone()
       },
       {
         "type": "host",

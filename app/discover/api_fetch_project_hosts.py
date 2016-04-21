@@ -1,6 +1,5 @@
 from api_access import ApiAccess
 from db_access import DbAccess
-from inventory_mgr import InventoryMgr
 from scanner import Scanner
 import json
 
@@ -13,37 +12,79 @@ except ImportError:
 class ApiFetchProjectHosts(ApiAccess, DbAccess):
   def __init__(self):
     super(ApiFetchProjectHosts, self).__init__()
-    self.inv = InventoryMgr()
 
   def get(self, id):
+    pr_name = id
     admin_endpoint = ApiAccess.base_url.replace(":5000", ":8774")
-    matches = self.inv.get_by_field(self.get_env(), "project", "name", id)
-    if not len(matches):
-      return []
-    project = matches[0]
-    req_url = admin_endpoint + "/v2/" + project["id"]  + "/os-hypervisors"
-    token = self.v2_auth_pwd(project["name"])
-    response = self.get_url(req_url, {"X-Auth-Token": token["id"]})
+    token = self.v2_auth_pwd(pr_name)
     ret = []
-    for doc in response["hypervisors"]:
-        # for hosts we use the name as id
-        doc["os_id"] = str(doc["id"])
-        doc["host_type"] = "Compute Node"
-        id = doc["hypervisor_hostname"]
-        doc["id"] = id[:id.index('.')]
-        doc["host"] = doc["id"]
-        # keep a list of projects using the host by adding "in_project-X"
-        # attribute for each project X that the host is associated with
-        doc["in_project-" + project["name"]] = "1"
-        # fetch ip_address from nova.compute_nodes table if possible
-        query = """
-          SELECT host_ip AS ip_address
-          FROM nova.compute_nodes
-          WHERE hypervisor_hostname = %s
-        """
-        results = self.get_objects_list_for_id(query, "", id)
-        for db_row in results:
-            doc.update(db_row)
-        ret.append(doc)
+    if not token:
+      return []
+    req_url_pre = admin_endpoint + "/v2/" + token["tenant"]["id"] + "/"
+    req_url = req_url_pre + "os-availability-zone/detail"
+    headers = {
+      "X-Auth-Project-Id": id,
+      "X-Auth-Token": token["id"]
+    }
+    response = self.get_url(req_url, headers)
+    if "status" in response and int(response["status"]) != 200:
+      return []
+    az_info = response["availabilityZoneInfo"]
+    hosts = {}
+    for doc in az_info:
+      ret.extend(self.get_hosts_from_az(pr_name, doc))
+    for h in ret:
+      hosts[h["name"]] = h
+    # get os_id for hosts using the os-hypervisors API call
+    req_url = req_url_pre + "os-hypervisors"
+    response = self.get_url(req_url, headers)
+    if "status" in response and int(response["status"]) != 200:
+      return ret
+    if "hypervisors" not in response:
+      return ret
+    for h in response["hypervisors"]:
+        hvname = h["hypervisor_hostname"]
+        dot_pos = hvname.index('.')
+        if '.' in hvname:
+          hostname = hvname[:hvname.index('.')]
+        else:
+          hostname = hvname
+        doc = hosts[hostname]
+        doc["os_id"] = str(h["id"])
     return ret
+
+  def get_hosts_from_az(self, proj, az):
+    ret = []
+    for h in az["hosts"]:
+      doc = self.get_host_details(az, h)
+      doc["in_project-" + proj] = "1"
+      ret.append(doc)
+    return ret
+
+  def get_host_details(self, az, h):
+    # for hosts we use the name
+    services = az["hosts"][h]
+    doc = {"id": h, "name": h, "zone": az["zoneName"], "services": services}
+    doc["host_type"] = ""
+    if "nova-conductor" in services:
+      s = services["nova-conductor"]
+      if s["available"] and s["active"]:
+        doc["host_type"] = "Controller node"
+    if "nova-compute" in services:
+      s = services["nova-compute"]
+      if s["available"] and s["active"]:
+        doc["host_type"] = "Compute node"
+        self.fetch_compute_node_ip_address(doc, h)
+    return doc
+
+  # fetch ip_address from nova.compute_nodes table if possible
+  def fetch_compute_node_ip_address(self, doc, h):
+    query = """
+      SELECT host_ip AS ip_address
+      FROM nova.compute_nodes
+      WHERE hypervisor_hostname LIKE CONCAT(%s, '.%')
+    """
+    results = self.get_objects_list_for_id(query, "", h)
+    for db_row in results:
+      doc.update(db_row)
 
