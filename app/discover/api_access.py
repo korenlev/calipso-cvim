@@ -84,7 +84,11 @@ class ApiAccess(Fetcher):
     response, content = h.request(req_url, method, request_body, headers)
     content_string = content.decode('utf-8')
     ApiAccess.body_hash = json.loads(content_string)
-    token_details = ApiAccess.body_hash["access"]["token"]
+    try:
+        token_details = ApiAccess.body_hash["access"]["token"]
+    except KeyError:
+        # assume authentication failed
+        return None
     token_expiry = token_details["expires"]
     token_expiry_time_struct = self.parse_time(token_expiry)
     if not token_expiry_time_struct:
@@ -141,6 +145,14 @@ class ApiAccess(Fetcher):
     method = 'GET'
     h = http.Http()
     response, content = h.request(req_url, method, "", headers)
+    if int(response["status"]) != 200:
+      # some error happened
+      if "reason" in response:
+        msg = ", reason: " + response["reason"]
+      else:
+        msg = ", response: " + str(response)
+      print("Error: req_url:" + req_url + msg)
+      return response
     content_string = content.decode('utf-8')
     ret = json.loads(content_string)
     return ret
