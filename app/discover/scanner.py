@@ -120,10 +120,14 @@ class Scanner(Util, Fetcher):
 
       # keep list of projects that an object is in
       associated_projects = []
+      keys_to_remove = []
       for k in o:
         if k.startswith("in_project-"):
           proj_name = k[k.index('-')+1:]
           associated_projects.append(proj_name)
+          keys_to_remove.append(k)
+      for k in keys_to_remove:
+          o.pop(k)
       if associated_projects:
         projects = o["projects"] if "projects" in o.keys() else []
         projects.extend(associated_projects)
@@ -143,7 +147,7 @@ class Scanner(Util, Fetcher):
   def queue_for_scan(self, o, child_id_field, children_scanner):
     if o["id"] in Scanner.scan_queue_track:
       return
-    Scanner.scan_queue_track[o["id"]] = 1
+    Scanner.scan_queue_track[o["type"] + ";" + str(o["id"])] = 1
     Scanner.scan_queue.put({"object": o,
       "child_id_field": child_id_field, "scanner": children_scanner})
 
