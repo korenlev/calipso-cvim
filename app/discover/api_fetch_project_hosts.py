@@ -87,6 +87,19 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
         self.fetch_compute_node_ip_address(doc, h)
     return doc
 
+  # fetch ip_address of network nodes from neutron.agents table if possible
+  def fetch_network_node_ip_address(self, doc, h):
+    query = """
+      SELECT DISTINCT host, host AS id, configurations
+      FROM neutron.agents
+      WHERE agent_type = 'Metadata agent' AND hoost = %s
+    """
+    results = self.get_objects_list_for_id(query, "", h)
+    for r in results:
+        config = json.loads(r["configurations"])
+        doc["ip_address"] = config["nova_metadata_ip"]
+        doc["host_type"] = "Network node"
+
   # fetch ip_address from nova.compute_nodes table if possible
   def fetch_compute_node_ip_address(self, doc, h):
     query = """

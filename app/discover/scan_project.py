@@ -19,8 +19,7 @@ class ScanProject(Scanner, metaclass=Singleton):
       },
       {
         "type": "availability_zone",
-        "fetcher": ApiFetchAvailabilityZones(),
-        "children_scanner": ScanAvailabilityZone()
+        "fetcher": ApiFetchAvailabilityZones()
       },
       {
         "type": "host",
