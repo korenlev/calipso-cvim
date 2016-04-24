@@ -27,7 +27,6 @@ class DbFetchInstances(DbAccess):
       del result["network_info"]
     except KeyError:
       pass
-    result["descendants"] = 0
     network_info = json.loads(network_info_str)
     result["network_info"] = network_info
     self.networks = []

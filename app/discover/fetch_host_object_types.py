@@ -11,10 +11,10 @@ class FetchHostObjectTypes(Fetcher):
       "id": "",
       "parent": parent,
       "rows": [
-        {"id": "instances_root", "text": "Instances", "descendants": 1},
-        {"id": "networks_root", "text": "Networks", "descendants": 1},
-        {"id": "pnics_root", "text": "pNICs", "descendants": 1},
-        {"id": "vservices_root", "text": "vServices", "descendants": 1}
+        {"id": "instances_root", "text": "Instances"},
+        {"id": "networks_root", "text": "Networks"},
+        {"id": "pnics_root", "text": "pNICs"},
+        {"id": "vservices_root", "text": "vServices"}
       ]
     }
     return ret
