@@ -7,7 +7,6 @@ from api_fetch_availability_zones import ApiFetchAvailabilityZones
 from scanner import Scanner
 from scan_region import ScanRegion
 from scan_host import ScanHost
-from scan_availability_zone import ScanAvailabilityZone
 
 class ScanProject(Scanner, metaclass=Singleton):
   

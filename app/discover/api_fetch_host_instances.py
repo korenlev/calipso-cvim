@@ -1,6 +1,10 @@
 from api_access import ApiAccess
+from db_access import DbAccess
+from db_fetch_instances import DbFetchInstances
 from inventory_mgr import InventoryMgr
 from scanner import Scanner
+from singleton import Singleton
+
 import json
 
 import httplib2 as http
@@ -9,19 +13,28 @@ try:
 except ImportError:
     from urllib.parse import urlparse
     
-class ApiFetchHostInstances(ApiAccess):
+class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
+
   def __init__(self):
     super(ApiFetchHostInstances, self).__init__()
     self.inv = InventoryMgr()
     self.endpoint = ApiAccess.base_url.replace(":5000", ":8774")
+    self.projects = None
+    self.db_fetcher = DbFetchInstances()
+
+  def get_projects(self):
+    if not self.projects:
+        projects_list = self.inv.get(self.get_env(), "project", None)
+        self.projects = [p["name"] for p in projects_list]
   
   def get(self, id):
+    self.get_projects()
     host_name = id.replace("-instances", "")
     host = self.inv.getSingle(self.get_env(), "host", host_name)
     if host["host_type"] != "Compute node":
       return []
     instances_found = []
-    for project in host["projects"]:
+    for project in self.projects:
       instances_found.extend(self.get_instances_for_project(host_name, project))
     return instances_found
 
@@ -43,5 +56,9 @@ class ApiFetchHostInstances(ApiAccess):
         doc["host"] = host_name
         doc["in_project-" + project] = "1"
         doc["local_name"] = doc.pop("name")
+        db_matches = self.db_fetcher.get_instance(doc["uuid"])
+        if len(db_matches):
+          doc.update(db_matches[0])
         ret.append(doc)
     return ret
+

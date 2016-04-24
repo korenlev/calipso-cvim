@@ -3,7 +3,7 @@ from db_access import DbAccess
 
 class DbFetchInstances(DbAccess):
   
-  def get_instances(self, field, id):
+  def get_instance(self, uuid):
     query = """
       SELECT DISTINCT i.uuid AS id, i.display_name AS name,
         i.host AS host, host_ip AS ip_address,
@@ -12,16 +12,10 @@ class DbFetchInstances(DbAccess):
         JOIN keystone.project p ON p.id = i.project_id
         JOIN nova.instance_info_caches ic ON i.uuid = ic.instance_uuid
         JOIN nova.compute_nodes cn ON i.node = cn.hypervisor_hostname
-      WHERE {0} = %s
-        AND host IS NOT NULL
-        AND availability_zone IS NOT NULL
-        AND i.deleted = 0
+      WHERE uuid = %s
     """
-    query = query.format(field)
-    host_id = id[:-1*len("-instances")]
-    results = self.get_objects_list_for_id(query, "instance", host_id)
+    results = self.get_objects_list_for_id(query, "instance", uuid)
     ret = []
-    # build instance details for each of the instances found
     for e in results:
       result = self.build_instance_details(e)
       ret.append(result)

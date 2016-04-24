@@ -1,5 +1,4 @@
 from singleton import Singleton
-from db_fetch_host_instances import DbFetchHostInstances
 from api_fetch_host_instances import ApiFetchHostInstances
 from scanner import Scanner
 from scan_instance import ScanInstance
@@ -10,11 +9,7 @@ class ScanInstancesRoot(Scanner, metaclass=Singleton):
     super(ScanInstancesRoot, self).__init__([
       {
         "type": "instance",
-        "fetcher": DbFetchHostInstances(),
-        "children_scanner": ScanInstance()
-      },
-      {
-        "type": "instance",
         "fetcher": ApiFetchHostInstances(),
+        "children_scanner": ScanInstance()
       }
     ])
