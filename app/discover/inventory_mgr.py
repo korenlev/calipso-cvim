@@ -11,6 +11,19 @@ class InventoryMgr(MongoAccess, Util):
     self.inv = MongoAccess.db["inventory"]
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
+  # return single match
+  def get_by_id(self, environment, item_id):
+    matches = self.inv.find({
+      "environment": environment,
+      "id": item_id
+    })
+    ret = []
+    for doc in matches:
+      doc["_id"] = str(doc["_id"])
+      doc["children_url"] = self.get_base_url(doc)
+      return doc
+    return ret
+
   def get_by_field(self, environment, item_type, field_name, field_value):
     if field_value and (not isinstance(field_value, str) or field_value > ""):
       matches = self.inv.find({
