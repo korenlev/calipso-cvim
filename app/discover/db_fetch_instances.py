@@ -7,7 +7,7 @@ class DbFetchInstances(DbAccess):
     query = """
       SELECT DISTINCT i.uuid AS id, i.display_name AS name,
         i.host AS host, host_ip AS ip_address,
-        network_info, i.availability_zone, p.name AS project
+        network_info, p.name AS project
       FROM nova.instances i
         JOIN keystone.project p ON p.id = i.project_id
         JOIN nova.instance_info_caches ic ON i.uuid = ic.instance_uuid
@@ -42,7 +42,6 @@ class DbFetchInstances(DbAccess):
       "attributes": {
         "Name": result["name"],
         "Host": host_name,
-        "Availability zone": result["availability_zone"],
         "Project": result["project"]
       }
     }
