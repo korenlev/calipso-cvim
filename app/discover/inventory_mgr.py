@@ -82,11 +82,12 @@ class InventoryMgr(MongoAccess, Util):
        "type": item["type"], "id": item["id"]},
       {'$set': item},
       upsert=True)
-    self.inv.update(
-      {"environment": item["environment"],
-       "type": item["type"], "id": item["id"]},
-      {'$addToSet': {"projects": {'$each': projects}}},
-      upsert=True)
+    if projects:
+      self.inv.update(
+        {"environment": item["environment"],
+         "type": item["type"], "id": item["id"]},
+        {'$addToSet': {"projects": {'$each': projects}}},
+        upsert=True)
   
   def check(self, obj, field_name):
     arg = obj[field_name]

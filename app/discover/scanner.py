@@ -128,10 +128,11 @@ class Scanner(Util, Fetcher):
           keys_to_remove.append(k)
       for k in keys_to_remove:
           o.pop(k)
-      if associated_projects:
+      if len(associated_projects) > 0:
         projects = o["projects"] if "projects" in o.keys() else []
         projects.extend(associated_projects)
-        o["projects"] = projects
+        if projects:
+          o["projects"] = projects
 
       Scanner.inventory.set(o)
       children.append(o)
