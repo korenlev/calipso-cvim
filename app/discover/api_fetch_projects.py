@@ -1,12 +1,6 @@
 from api_access import ApiAccess
 import json
 
-import httplib2 as http
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-    
 class ApiFetchProjects(ApiAccess):
   def __init__(self):
     super(ApiFetchProjects, self).__init__()

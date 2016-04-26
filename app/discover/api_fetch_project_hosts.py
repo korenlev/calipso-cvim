@@ -3,12 +3,6 @@ from db_access import DbAccess
 from scanner import Scanner
 import json
 
-import httplib2 as http
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-
 class ApiFetchProjectHosts(ApiAccess, DbAccess):
   def __init__(self):
     super(ApiFetchProjectHosts, self).__init__()

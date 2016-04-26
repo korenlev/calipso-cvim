@@ -7,12 +7,6 @@ from singleton import Singleton
 
 import json
 
-import httplib2 as http
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-    
 class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
 
   def __init__(self):
