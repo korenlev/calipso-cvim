@@ -104,14 +104,14 @@ class Scanner(Util, Fetcher):
       except KeyError:
          pass
 
-      try:
+      if "text" in o and o["text"]:
         name = o["text"]
-      except KeyError:
-        try:
-          name = o["name"]
-        except KeyError:
-          name = o["id"]
-      
+      elif "name" in o and o["name"]:
+        name = o["name"]
+      else:
+        name = o["id"]
+      o["name"] = name
+     
       if "parent_id" not in o and parent:
         parent_id = parent["id"]
         o["parent_id"] = parent_id
