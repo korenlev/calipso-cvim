@@ -1,4 +1,3 @@
-import json
 import re
 import xmltodict
 from cli_access import CliAccess

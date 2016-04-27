@@ -1,5 +1,4 @@
 import paramiko
-import json
 import os
 
 from configuration import Configuration

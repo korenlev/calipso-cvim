@@ -1,4 +1,3 @@
-import json
 import re
 from cli_access import CliAccess
 from network_agents_list import NetworkAgentsList

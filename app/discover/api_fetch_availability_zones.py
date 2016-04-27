@@ -1,5 +1,4 @@
 from api_access import ApiAccess
-import json
 
 class ApiFetchAvailabilityZones(ApiAccess):
   def __init__(self):

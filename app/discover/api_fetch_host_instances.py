@@ -5,8 +5,6 @@ from inventory_mgr import InventoryMgr
 from scanner import Scanner
 from singleton import Singleton
 
-import json
-
 class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
 
   def __init__(self):

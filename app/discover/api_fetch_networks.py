@@ -1,6 +1,5 @@
 from api_access import ApiAccess
 from inventory_mgr import InventoryMgr
-import json
 
 class ApiFetchNetworks(ApiAccess):
   def __init__(self):
