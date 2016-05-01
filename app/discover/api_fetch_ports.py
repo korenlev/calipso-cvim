@@ -4,7 +4,6 @@ from inventory_mgr import InventoryMgr
 class ApiFetchPorts(ApiAccess):
   def __init__(self):
     super(ApiFetchPorts, self).__init__()
-    self.endpoint = ApiAccess.base_url.replace(":5000", ":9696")
     self.inv = InventoryMgr()
 
   def get(self, id):
@@ -12,9 +11,16 @@ class ApiFetchPorts(ApiAccess):
     token = self.v2_auth_pwd("admin")
     if not token:
         return []
-    req_url = self.endpoint + "/v2.0/ports"
+    ret = []
+    for region in self.regions:
+      ret.extend(self.get_ports_for_region(region, token))
+    return ret
+
+  def get_ports_for_region(self, region, token):
+    endpoint = self.get_region_url_nover(region, "neutron")
+    req_url = endpoint + "/v2.0/ports"
     headers = {
-      "X-Auth-Project-Id": token["tenant"]["id"],
+      "X-Auth-Project-Id": "admin",
       "X-Auth-Token": token["id"]
     }
     response = self.get_url(req_url, headers)

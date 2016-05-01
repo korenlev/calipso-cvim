@@ -8,19 +8,25 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     super(ApiFetchProjectHosts, self).__init__()
 
   def get(self, id):
-    pr_name = id
-    if pr_name != "admin":
+    if id != "admin":
         # do not scan hosts except under project 'admin'
         return []
-    admin_endpoint = ApiAccess.base_url.replace(":5000", ":8774")
-    token = self.v2_auth_pwd(pr_name)
+    token = self.v2_auth_pwd("admin")
+    if not token:
+        return []
+    ret = []
+    for region in self.regions:
+      ret.extend(self.get_for_region(region, token))
+    return ret
+
+  def get_for_region(self, region, token):
+    endpoint = self.get_region_url(region, "nova")
     ret = []
     if not token:
       return []
-    req_url_pre = admin_endpoint + "/v2/" + token["tenant"]["id"] + "/"
-    req_url = req_url_pre + "os-availability-zone/detail"
+    req_url = endpoint + "/os-availability-zone/detail"
     headers = {
-      "X-Auth-Project-Id": id,
+      "X-Auth-Project-Id": "admin",
       "X-Auth-Token": token["id"]
     }
     response = self.get_url(req_url, headers)
@@ -29,11 +35,11 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     az_info = response["availabilityZoneInfo"]
     hosts = {}
     for doc in az_info:
-      ret.extend(self.get_hosts_from_az(pr_name, doc))
+      ret.extend(self.get_hosts_from_az(doc))
     for h in ret:
       hosts[h["name"]] = h
     # get os_id for hosts using the os-hypervisors API call
-    req_url = req_url_pre + "os-hypervisors"
+    req_url = endpoint + "/os-hypervisors"
     response = self.get_url(req_url, headers)
     if "status" in response and int(response["status"]) != 200:
       return ret
@@ -50,7 +56,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
         doc["os_id"] = str(h["id"])
     return ret
 
-  def get_hosts_from_az(self, proj, az):
+  def get_hosts_from_az(self, az):
     ret = []
     for h in az["hosts"]:
       doc = self.get_host_details(az, h)

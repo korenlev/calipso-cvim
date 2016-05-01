@@ -3,19 +3,25 @@ from api_access import ApiAccess
 class ApiFetchAvailabilityZones(ApiAccess):
   def __init__(self):
     super(ApiFetchAvailabilityZones, self).__init__()
-    self.endpoint = ApiAccess.base_url.replace(":5000", ":8774")
 
   def get(self, id):
     project = id
     token = self.v2_auth_pwd(project)
     if not token:
         return []
+    ret = []
+    for region in self.regions:
+      ret.extend(self.get_for_region(project, region, token))
+    return ret
+
+  def get_for_region(self, project, region, token):
     # we use os-availability-zone/detail rather than os-availability-zone,
     # because the later does not inclde the "internal" zone in the results
-    req_url = self.endpoint + "/v2/" + token["tenant"]["id"] + \
+    endpoint = self.get_region_url_nover(region, "nova")
+    req_url = endpoint + "/v2/" + token["tenant"]["id"] + \
       "/os-availability-zone/detail"
     headers = {
-      "X-Auth-Project-Id": id,
+      "X-Auth-Project-Id": project,
       "X-Auth-Token": token["id"]
     }
     response = self.get_url(req_url, headers)
