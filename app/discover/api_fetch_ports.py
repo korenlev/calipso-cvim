@@ -31,6 +31,11 @@ class ApiFetchPorts(ApiAccess):
       doc["parent_type"] = "network"
       doc["parent_id"] = doc["network_id"]
       # get the project name
+      net = self.inv.get_by_id(self.get_env(), doc["network_id"])
+      if net:
+        doc["name"] = net["name"] + "-" + doc["mac_address"]
+      else:
+        doc["name"] = doc["id"]
       project = self.inv.get_by_id(self.get_env(), doc["tenant_id"])
       if project:
         doc["project"] = project["name"]
