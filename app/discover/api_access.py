@@ -5,6 +5,7 @@ import httplib2 as http
 import json
 import time
 import calendar
+import re
 
 try:
     from urlparse import urlparse
@@ -19,11 +20,12 @@ class ApiAccess(Fetcher):
   config = None
   api_config = None
   
+  host = ""
   base_url = ""
   admin_token = ""
   tokens = {}
   admin_endpoint = ""
-  body_hash = None
+  auth_response = None
   
   
   # identitity API v2 version with admin token
@@ -34,14 +36,15 @@ class ApiAccess(Fetcher):
     ApiAccess.config = Configuration()
     ApiAccess.api_config = ApiAccess.config.get("OpenStack")
     host = ApiAccess.api_config["host"]
+    ApiAccess.host = host
     port = ApiAccess.api_config["port"]
     if (host == None or port == None):
-      raise ValueError("Missing definition of host or port for OpenSTack API access")
+      raise ValueError("Missing definition of host or port for OpenStack API access")
     ApiAccess.base_url = "http://" + host  + ":" + port
     ApiAccess.admin_token = ApiAccess.api_config["admin_token"]
-    ApiAccess.admin_endpoint = ApiAccess.base_url.replace(":5000", ":35357")
+    ApiAccess.admin_endpoint = "http://" + host  + ":" + "35357"
     
-    self.v2_auth_pwd(None)
+    self.v2_auth_pwd("admin")
     initialized  = True
     
   def parse_time(self, time_str):
@@ -83,9 +86,9 @@ class ApiAccess(Fetcher):
     h = http.Http()
     response, content = h.request(req_url, method, request_body, headers)
     content_string = content.decode('utf-8')
-    ApiAccess.body_hash = json.loads(content_string)
+    ApiAccess.auth_response = json.loads(content_string)
     try:
-        token_details = ApiAccess.body_hash["access"]["token"]
+        token_details = ApiAccess.auth_response["access"]["token"]
     except KeyError:
         # assume authentication failed
         return None
@@ -158,10 +161,23 @@ class ApiAccess(Fetcher):
     return ret
   
   
-  def get_region_url(self, region):
-    region_details = regions[region]
-    return region_details["url"] if region_details else None
+  def get_region_url(self, region_name, service):
+    if region_name not in self.regions:
+      return None
+    region = self.regions[region_name]
+    if not service in region["endpoints"]:
+      return None
+    s = region["endpoints"][service]
+    orig_url = s["adminURL"]
+    # replace host name with the host found in config
+    url = re.sub(r"^([^/]+)//[^:]+", r"\1//" + ApiAccess.host, orig_url)
+    return url
   
+  # like get_region_url(), but remove everything starting from the "/v2"
+  def get_region_url_nover(self, region, service):
+    full_url = self.get_region_url(region, service)
+    url = re.sub(r":([0-9]+)/v[2-9].*", r":\1", full_url)
+    return url
   
   def get_catalog(self, pretty):
     return jsonify(regions, pretty)
