@@ -3,7 +3,7 @@ import json
 from db_access import DbAccess
 from network_agents_list import NetworkAgentsList
 
-class DbFetchHostNetworkAgents(DbAccess):
+class DbFetchHostVservices(DbAccess):
 
   def __init__(self):
     self.agents_list = NetworkAgentsList()
