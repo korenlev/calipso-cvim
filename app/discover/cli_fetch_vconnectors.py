@@ -7,17 +7,12 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
   def __init__(self):
     super(CliFetchVconnectors, self).__init__()
     self.inv = InventoryMgr()
-    self.hosts_visited = {}
 
   def get(self, id):
-    instance_uuid = id[:id.rindex('-')]
-    instance = self.inv.get_by_id(self.get_env(), instance_uuid)
-    host = instance["host"]
-    if host in self.hosts_visited:
-        return []
-    self.hosts_visited[host] = 1
+    host_id = id[:id.rindex('-')]
+    host = self.inv.get_by_id(self.get_env(), host_id)
 
-    lines = self.run_fetch_lines("ssh " + host + " brctl show")
+    lines = self.run_fetch_lines("ssh " + host_id + " brctl show")
     headers = ["bridge_name", "bridge_id", "stp_enabled", "interfaces"]
     headers_count = len(headers)
     # since we hard-coded the headers list, remove the headers line
