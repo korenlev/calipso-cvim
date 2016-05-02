@@ -2,6 +2,7 @@ import re
 from cli_access import CliAccess
 from network_agents_list import NetworkAgentsList
 from db_access import DbAccess
+from inventory_mgr import InventoryMgr
 
 class CliFetchHostVservices(CliAccess, DbAccess):
 
@@ -9,9 +10,15 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     super(CliFetchHostVservices, self).__init__()
     # match only DHCP agent and router (L3 agent)
     self.type_re = re.compile("^q(dhcp|router)-")
+    self.inv = InventoryMgr()
 
   def get(self, id):
-    services_ids = self.run_fetch_lines("source openrc; ip netns")
+    host_id = id[:-1*len("-vservices")]
+    host = self.inv.getSingle(self.get_env(), "host", host_id)
+    if host["host_type"] == "Compute node":
+      return []
+    cmd = "ssh " + host_id + ' "source openrc && ip netns"'
+    services_ids = self.run_fetch_lines(cmd)
     results = [{"id": s} for s in services_ids if self.type_re.match(s)]
     for r in results:
       self.set_details(r)
