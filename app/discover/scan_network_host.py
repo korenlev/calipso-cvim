@@ -4,12 +4,12 @@ from scanner import Scanner
 from scan_instances_root import ScanInstancesRoot
 from scan_networks_root import ScanNetworksRoot
 from scan_pnics_root import ScanPnicsRoot
-from scan_network_agents_root import ScanNetworkAgentsRoot
+from scan_vservices_root import ScanVservicesRoot
 
-class ScanHost(Scanner, metaclass=Singleton):
-  
+class ScanNetworkHost(Scanner, metaclass=Singleton):
+
   def __init__(self):
-    super(ScanHost, self).__init__([
+    super(ScanNetworkHost, self).__init__([
       {
         "type": "host_object_type",
         "fetcher": FolderFetcher("instances", "host"),
@@ -27,7 +27,7 @@ class ScanHost(Scanner, metaclass=Singleton):
       },
       {
         "type": "host_object_type",
-        "fetcher": FolderFetcher("network_agents", "host", "Network Agents"),
-        "children_scanner": ScanNetworkAgentsRoot()
+        "fetcher": FolderFetcher("vservices", "host", "vServices"),
+        "children_scanner": ScanVservicesRoot()
       }
     ])
