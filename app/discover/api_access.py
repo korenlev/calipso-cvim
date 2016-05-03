@@ -5,6 +5,7 @@ import httplib2 as http
 import json
 import time
 import calendar
+import re
 
 try:
     from urlparse import urlparse
@@ -19,11 +20,12 @@ class ApiAccess(Fetcher):
   config = None
   api_config = None
   
+  host = ""
   base_url = ""
   admin_token = ""
   tokens = {}
   admin_endpoint = ""
-  body_hash = None
+  auth_response = None
   
   
   # identitity API v2 version with admin token
@@ -34,16 +36,28 @@ class ApiAccess(Fetcher):
     ApiAccess.config = Configuration()
     ApiAccess.api_config = ApiAccess.config.get("OpenStack")
     host = ApiAccess.api_config["host"]
+    ApiAccess.host = host
     port = ApiAccess.api_config["port"]
     if (host == None or port == None):
-      raise ValueError("Missing definition of host or port for OpenSTack API access")
+      raise ValueError("Missing definition of host or port for OpenStack API access")
     ApiAccess.base_url = "http://" + host  + ":" + port
     ApiAccess.admin_token = ApiAccess.api_config["admin_token"]
-    ApiAccess.admin_endpoint = ApiAccess.base_url.replace(":5000", ":35357")
+    ApiAccess.admin_endpoint = "http://" + host  + ":" + "35357"
     
-    self.v2_auth_pwd(None)
+    self.v2_auth_pwd("admin")
     initialized  = True
     
+  def parse_time(self, time_str):
+    try:
+        time_struct = time.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        try:
+          time_struct = time.strptime(time_str,
+            "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+          return None
+    return time_struct
+
   # try to use existing token, if it did not expire
   def get_existing_token(self, id):
     try:
@@ -51,7 +65,9 @@ class ApiAccess(Fetcher):
     except KeyError:
       return None
     token_expiry = token_details["expires"]
-    token_expiry_time_struct = time.strptime(token_expiry, "%Y-%m-%dT%H:%M:%SZ")
+    token_expiry_time_struct = self.parse_time(token_expiry)
+    if not token_expiry_time_struct:
+      return None
     token_expiry_time = token_details["token_expiry_time"]
     now = time.time()
     if now > token_expiry_time:
@@ -70,15 +86,20 @@ class ApiAccess(Fetcher):
     h = http.Http()
     response, content = h.request(req_url, method, request_body, headers)
     content_string = content.decode('utf-8')
-    ApiAccess.body_hash = json.loads(content_string)
-    token_details = ApiAccess.body_hash["access"]["token"]
+    ApiAccess.auth_response = json.loads(content_string)
+    try:
+        token_details = ApiAccess.auth_response["access"]["token"]
+    except KeyError:
+        # assume authentication failed
+        return None
     token_expiry = token_details["expires"]
-    token_expiry_time_struct = time.strptime(token_expiry, "%Y-%m-%dT%H:%M:%SZ")
+    token_expiry_time_struct = self.parse_time(token_expiry)
+    if not token_expiry_time_struct:
+      return None
     token_expiry_time = calendar.timegm(token_expiry_time_struct)
     token_details["token_expiry_time"] = token_expiry_time
     ApiAccess.tokens[id] = token_details
     return token_details
-    
  
   def v2_auth_pwd(self, project):
     user = ApiAccess.api_config["user"]
@@ -127,15 +148,36 @@ class ApiAccess(Fetcher):
     method = 'GET'
     h = http.Http()
     response, content = h.request(req_url, method, "", headers)
+    if int(response["status"]) != 200:
+      # some error happened
+      if "reason" in response:
+        msg = ", reason: " + response["reason"]
+      else:
+        msg = ", response: " + str(response)
+      print("Error: req_url:" + req_url + msg)
+      return response
     content_string = content.decode('utf-8')
     ret = json.loads(content_string)
     return ret
   
   
-  def get_region_url(self, region):
-    region_details = regions[region]
-    return region_details["url"] if region_details else None
+  def get_region_url(self, region_name, service):
+    if region_name not in self.regions:
+      return None
+    region = self.regions[region_name]
+    if not service in region["endpoints"]:
+      return None
+    s = region["endpoints"][service]
+    orig_url = s["adminURL"]
+    # replace host name with the host found in config
+    url = re.sub(r"^([^/]+)//[^:]+", r"\1//" + ApiAccess.host, orig_url)
+    return url
   
+  # like get_region_url(), but remove everything starting from the "/v2"
+  def get_region_url_nover(self, region, service):
+    full_url = self.get_region_url(region, service)
+    url = re.sub(r":([0-9]+)/v[2-9].*", r":\1", full_url)
+    return url
   
   def get_catalog(self, pretty):
     return jsonify(regions, pretty)

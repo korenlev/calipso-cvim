@@ -72,6 +72,7 @@ class Scanner(Util, Fetcher):
     environment = self.get_env()
     children = []
     for o in results:
+      o["id"] = str(o["id"])
       o["environment"] = environment
       o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
       try:
@@ -103,31 +104,42 @@ class Scanner(Util, Fetcher):
       except KeyError:
          pass
 
-      o["id_path"] = parent_id_path + "/" + str(o["id"]).strip()
-      try:
+      if "text" in o and o["text"]:
         name = o["text"]
-      except KeyError:
-        try:
-          name = o["name"]
-        except KeyError:
-          name = str(o["id"])
-      o["name_path"] = parent_name_path + "/" + name
-      
+      elif "name" in o and o["name"]:
+        name = o["name"]
+      else:
+        name = o["id"]
+      o["name"] = name
+     
       if "parent_id" not in o and parent:
-        parent_id = str(parent["id"])
+        parent_id = parent["id"]
         o["parent_id"] = parent_id
         o["parent_type"] = parent["type"]
+      elif "parent_id" in o and o["parent_id"] != parent["id"]:
+        # using alternate parent - fetch parent path from inventory
+        parent_obj = Scanner.inventory.get_by_id(environment, o["parent_id"])
+        if parent_obj:
+          parent_id_path = parent_obj["id_path"]
+          parent_name_path = parent_obj["name_path"]
+      o["id_path"] = parent_id_path + "/" + o["id"].strip()
+      o["name_path"] = parent_name_path + "/" + name
 
       # keep list of projects that an object is in
       associated_projects = []
+      keys_to_remove = []
       for k in o:
         if k.startswith("in_project-"):
           proj_name = k[k.index('-')+1:]
           associated_projects.append(proj_name)
-      if associated_projects:
+          keys_to_remove.append(k)
+      for k in keys_to_remove:
+          o.pop(k)
+      if len(associated_projects) > 0:
         projects = o["projects"] if "projects" in o.keys() else []
         projects.extend(associated_projects)
-        o["projects"] = projects
+        if projects:
+          o["projects"] = projects
 
       Scanner.inventory.set(o)
       children.append(o)
@@ -143,7 +155,7 @@ class Scanner(Util, Fetcher):
   def queue_for_scan(self, o, child_id_field, children_scanner):
     if o["id"] in Scanner.scan_queue_track:
       return
-    Scanner.scan_queue_track[o["id"]] = 1
+    Scanner.scan_queue_track[o["type"] + ";" + o["id"]] = 1
     Scanner.scan_queue.put({"object": o,
       "child_id_field": child_id_field, "scanner": children_scanner})
 

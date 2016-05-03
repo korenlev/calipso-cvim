@@ -3,25 +3,19 @@ from db_access import DbAccess
 
 class DbFetchInstances(DbAccess):
   
-  def get_instances(self, field, id):
+  def get_instance(self, uuid):
     query = """
       SELECT DISTINCT i.uuid AS id, i.display_name AS name,
         i.host AS host, host_ip AS ip_address,
-        network_info, i.availability_zone, p.name AS project
+        network_info, p.name AS project
       FROM nova.instances i
         JOIN keystone.project p ON p.id = i.project_id
         JOIN nova.instance_info_caches ic ON i.uuid = ic.instance_uuid
         JOIN nova.compute_nodes cn ON i.node = cn.hypervisor_hostname
-      WHERE {0} = %s
-        AND host IS NOT NULL
-        AND availability_zone IS NOT NULL
-        AND i.deleted = 0
+      WHERE uuid = %s
     """
-    query = query.format(field)
-    host_id = id[:-1*len("-instances")]
-    results = self.get_objects_list_for_id(query, "instance", host_id)
+    results = self.get_objects_list_for_id(query, "instance", uuid)
     ret = []
-    # build instance details for each of the instances found
     for e in results:
       result = self.build_instance_details(e)
       ret.append(result)
@@ -33,7 +27,6 @@ class DbFetchInstances(DbAccess):
       del result["network_info"]
     except KeyError:
       pass
-    result["descendants"] = 0
     network_info = json.loads(network_info_str)
     result["network_info"] = network_info
     self.networks = []
@@ -49,7 +42,6 @@ class DbFetchInstances(DbAccess):
       "attributes": {
         "Name": result["name"],
         "Host": host_name,
-        "Availability zone": result["availability_zone"],
         "Project": result["project"]
       }
     }

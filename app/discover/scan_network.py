@@ -1,5 +1,6 @@
 from singleton import Singleton
 from scanner import Scanner
+from folder_fetcher import FolderFetcher
 
 class ScanNetwork(Scanner, metaclass=Singleton):
   

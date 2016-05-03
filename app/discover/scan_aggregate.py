@@ -10,8 +10,7 @@ class ScanAggregate(Scanner, metaclass=Singleton):
   def __init__(self):
     super(ScanAggregate, self).__init__([
       {
-        "type": "host",
-        "fetcher": DbFetchAggregateHosts(),
-        "children_scanner": ScanHost()
+        "type": "host_ref",
+        "fetcher": DbFetchAggregateHosts()
       }
     ])

@@ -2,7 +2,6 @@ from singleton import Singleton
 from folder_fetcher import FolderFetcher
 from scanner import Scanner
 from scan_instances_root import ScanInstancesRoot
-from scan_networks_root import ScanNetworksRoot
 from scan_pnics_root import ScanPnicsRoot
 from scan_network_agents_root import ScanNetworkAgentsRoot
 
@@ -14,11 +13,6 @@ class ScanHost(Scanner, metaclass=Singleton):
         "type": "host_object_type",
         "fetcher": FolderFetcher("instances", "host"),
         "children_scanner": ScanInstancesRoot()
-      },
-      {
-        "type": "host_object_type",
-        "fetcher": FolderFetcher("networks", "host"),
-        "children_scanner": ScanNetworksRoot()
       },
       {
         "type": "host_object_type",

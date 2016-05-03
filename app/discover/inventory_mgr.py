@@ -11,6 +11,19 @@ class InventoryMgr(MongoAccess, Util):
     self.inv = MongoAccess.db["inventory"]
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
+  # return single match
+  def get_by_id(self, environment, item_id):
+    matches = self.inv.find({
+      "environment": environment,
+      "id": item_id
+    })
+    ret = []
+    for doc in matches:
+      doc["_id"] = str(doc["_id"])
+      doc["children_url"] = self.get_base_url(doc)
+      return doc
+    return ret
+
   def get_by_field(self, environment, item_type, field_name, field_value):
     if field_value and (not isinstance(field_value, str) or field_value > ""):
       matches = self.inv.find({
@@ -74,16 +87,20 @@ class InventoryMgr(MongoAccess, Util):
       projects = item.pop("projects")
     except KeyError:
       projects = []
+    obj_name = item["name_path"]
+    obj_name = obj_name[obj_name.rindex('/')+1:]
+    item["object_name"] = obj_name
     self.inv.update(
       {"environment": item["environment"],
        "type": item["type"], "id": item["id"]},
       {'$set': item},
       upsert=True)
-    self.inv.update(
-      {"environment": item["environment"],
-       "type": item["type"], "id": item["id"]},
-      {'$addToSet': {"projects": {'$each': projects}}},
-      upsert=True)
+    if projects:
+      self.inv.update(
+        {"environment": item["environment"],
+         "type": item["type"], "id": item["id"]},
+        {'$addToSet': {"projects": {'$each': projects}}},
+        upsert=True)
   
   def check(self, obj, field_name):
     arg = obj[field_name]
