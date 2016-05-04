@@ -29,7 +29,7 @@ class Scanner(Util, Fetcher):
     try:
       for t in self.types_to_fetch:
         if limit_to_child_type and t["type"] != limit_to_child_type:
-          next
+          continue
         children = self.scan_type(t, obj, id_field)
         if limit_to_child_id:
           children = [c for c in children if c[id_field] == limit_to_child_id]
