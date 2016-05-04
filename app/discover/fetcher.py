@@ -7,6 +7,7 @@ class Fetcher:
   inventory = None
   
   def __init__(self):
+    super().__init__()
     self.prettify = False
     self.environment = ""
     if not Fetcher.inventory:

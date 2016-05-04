@@ -5,7 +5,7 @@ from singleton import Singleton
 class CliFetchVconnectors(CliAccess, metaclass=Singleton):
 
   def __init__(self):
-    super(CliFetchVconnectors, self).__init__()
+    super().__init__()
     self.inv = InventoryMgr()
 
   def get(self, id):
