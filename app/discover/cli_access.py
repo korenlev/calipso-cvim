@@ -6,13 +6,11 @@ from fetcher import Fetcher
 
 class CliAccess(Fetcher):
 
-  initialized  = False
   config = None
   ssh = None
   
   def __init__(self):
-    if CliAccess.initialized:
-      return
+    super().__init__()
     self.config = Configuration()
     self.conf = self.config.get('CLI')
     try:
@@ -37,7 +35,7 @@ class CliAccess(Fetcher):
     if self.key == None and self.pwd == None:
       raise ValueError('Must specify key or password for CLI access')
  
-  def connect(self):
+  def ssh_connect(self):
     if CliAccess.ssh:
       return
     CliAccess.ssh = paramiko.SSHClient()
@@ -49,7 +47,7 @@ class CliAccess(Fetcher):
       CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd)
   
   def run(self, cmd):
-    self.connect()
+    self.ssh_connect()
     stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
     stdin.close()
     ret = self.binary2str(stdout.read())

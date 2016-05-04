@@ -8,12 +8,13 @@ class DbAccess(Fetcher, Util):
   conn = None
   
   def __init__(self):
+    super().__init__()
     self.config = Configuration()
     self.conf = self.config.get("mysql")
     self.connect_to_db()
 
 
-  def connect(self, _host, _port, _user, _password, _database):
+  def db_connect(self, _host, _port, _user, _password, _database):
     if DbAccess.conn:
       return
     DbAccess.conn = mysql.connector.connect(host=_host, port=_port, \
@@ -26,7 +27,7 @@ class DbAccess(Fetcher, Util):
     if DbAccess.conn:
       return
     cnf = self.conf
-    self.connect(cnf["host"], cnf["port"], cnf["user"], cnf["password"], cnf["schema"])
+    self.db_connect(cnf["host"], cnf["port"], cnf["user"], cnf["password"], cnf["schema"])
     
   
   def get_objects_list_for_id(self, query, object_type, id):

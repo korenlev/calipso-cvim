@@ -6,9 +6,9 @@ class MongoAccess:
   db = None
   
   def __init__(self):
-    self.connect()
+    self.mongo_connect()
   
-  def connect(self):
+  def mongo_connect(self):
     if (MongoAccess.client != None):
       return
     MongoAccess.client = MongoClient('localhost', 27017)
