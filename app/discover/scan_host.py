@@ -6,6 +6,7 @@ from scan_pnics_root import ScanPnicsRoot
 from scan_host_network_agents_root import ScanHostNetworkAgentsRoot
 from scan_host_vservices_root import ScanHostVservicesRoot
 from scan_vconnectors_root import ScanVconnectorsRoot
+from scan_vedges_root import ScanVedgesRoot
 
 class ScanHost(Scanner, metaclass=Singleton):
   
@@ -25,6 +26,11 @@ class ScanHost(Scanner, metaclass=Singleton):
         "type": "host_object_type",
         "fetcher": FolderFetcher("vconnectors", "host", "vConnectors"),
         "children_scanner": ScanVconnectorsRoot()
+      },
+      {
+        "type": "host_object_type",
+        "fetcher": FolderFetcher("vedges", "host", "vEdges"),
+        "children_scanner": ScanVedgesRoot()
       },
       {
         "type": "host_object_type",
