@@ -4,7 +4,6 @@ from singleton import Singleton
 from scanner import Scanner
 from folder_fetcher import FolderFetcher
 from scan_vnics_root import ScanVnicsRoot
-from scan_vedges_root import ScanVedgesRoot
 
 class ScanInstance(Scanner, metaclass=Singleton):
   
@@ -14,10 +13,5 @@ class ScanInstance(Scanner, metaclass=Singleton):
         "type": "instance_object_type",
         "fetcher": FolderFetcher("vnics", "instance", "vNICs"),
         "children_scanner": ScanVnicsRoot()
-      },
-      {
-        "type": "instance_object_type",
-        "fetcher": FolderFetcher("vedges", "instance", "vEdges"),
-        "children_scanner": ScanVedgesRoot()
       }
     ])
