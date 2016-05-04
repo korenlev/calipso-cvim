@@ -92,7 +92,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     query = """
       SELECT DISTINCT host, host AS id, configurations
       FROM neutron.agents
-      WHERE agent_type = 'Metadata agent' AND hoost = %s
+      WHERE agent_type = 'Metadata agent' AND host = %s
     """
     results = self.get_objects_list_for_id(query, "", h)
     for r in results:
