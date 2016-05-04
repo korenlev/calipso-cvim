@@ -4,6 +4,9 @@ class Util(object):
   
   prettify = False
   
+  def __init__(self):
+    super().__init__()
+
   def set_prettify(self, prettify):
     self.prettify = prettify
     
