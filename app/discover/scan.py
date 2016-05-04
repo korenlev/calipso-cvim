@@ -17,7 +17,6 @@ class ScanController:
   default_env = "WebEX-Mirantis@Cisco"
 
   def __init__(self, ):
-    self.default_env_name = "WebEX-Mirantis@Cisco"
     self.conf = Configuration()
     self.inv = InventoryMgr()
 
