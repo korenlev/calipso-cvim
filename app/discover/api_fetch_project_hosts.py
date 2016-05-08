@@ -58,6 +58,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
             # TBD - add error output
             continue
         doc["os_id"] = str(h["id"])
+        self.fetch_compute_node_ip_address(doc, hvname)
     # find hosts without ip_address
     for doc in [doc for doc in ret if "ip_address" not in doc]:
       self.fetch_network_node_ip_address(doc)
@@ -91,7 +92,6 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       s = services["nova-compute"]
       if s["available"] and s["active"]:
         doc["host_type"] = "Compute node"
-        self.fetch_compute_node_ip_address(doc, h)
     return doc
 
   # fetch ip_address of network nodes from neutron.agents table if possible
@@ -112,7 +112,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     query = """
       SELECT host_ip AS ip_address
       FROM nova.compute_nodes
-      WHERE hypervisor_hostname LIKE CONCAT(%s, '.%')
+      WHERE hypervisor_hostname = %s
     """
     results = self.get_objects_list_for_id(query, "", h)
     for db_row in results:
