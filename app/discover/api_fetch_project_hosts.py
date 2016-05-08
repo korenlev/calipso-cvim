@@ -58,6 +58,9 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
             # TBD - add error output
             continue
         doc["os_id"] = str(h["id"])
+    # find hosts without ip_address
+    for doc in [doc for doc in ret if "ip_address" not in doc]:
+      self.fetch_network_node_ip_address(doc)
     return ret
 
   def get_hosts_from_az(self, az):
@@ -92,13 +95,13 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     return doc
 
   # fetch ip_address of network nodes from neutron.agents table if possible
-  def fetch_network_node_ip_address(self, doc, h):
+  def fetch_network_node_ip_address(self, doc):
     query = """
       SELECT DISTINCT host, host AS id, configurations
       FROM neutron.agents
       WHERE agent_type = 'Metadata agent' AND host = %s
     """
-    results = self.get_objects_list_for_id(query, "", h)
+    results = self.get_objects_list_for_id(query, "", doc["host"])
     for r in results:
         config = json.loads(r["configurations"])
         doc["ip_address"] = config["nova_metadata_ip"]
