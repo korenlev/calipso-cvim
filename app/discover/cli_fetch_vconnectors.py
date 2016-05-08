@@ -23,10 +23,12 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     fixed_lines = self.merge_ws_spillover_lines(lines)
 
     results = self.parse_cmd_result_with_whitespace(fixed_lines, headers, False)
+    ret = []
     for doc in results:
       doc["id"] = doc.pop("bridge_id")
       doc["name"] = doc.pop("bridge_name")
       doc["connector_type"] = "bridge"
-      doc["interfaces"] = doc["interfaces"].split(",") if "interfaces" in doc \
-        else []
-    return results
+      if "interfaces" in doc:
+        doc["interfaces"] = doc["interfaces"].split(",")
+        ret.append(doc)
+    return ret
