@@ -48,11 +48,15 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     for h in response["hypervisors"]:
         hvname = h["hypervisor_hostname"]
         dot_pos = hvname.index('.')
-        if '.' in hvname:
+        if '.' in hvname and hvname not in hosts:
           hostname = hvname[:hvname.index('.')]
         else:
           hostname = hvname
-        doc = hosts[hostname]
+        try:
+          doc = hosts[hostname]
+        except KeyError:
+            # TBD - add error output
+            continue
         doc["os_id"] = str(h["id"])
     return ret
 
