@@ -17,8 +17,6 @@ class DbFetchHostNetworkAgents(DbAccess):
     """
     host_id = id[:-1*len("-network_agents")]
     host = self.inv.getSingle(self.get_env(), "host", host_id)
-    if host["host_type"] == "Compute node":
-      return []
     results = self.get_objects_list_for_id(query, "network_agent", host_id)
     for o in results:
       self.set_agent_type(o)
