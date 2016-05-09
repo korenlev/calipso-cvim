@@ -7,6 +7,7 @@ class CliFetchHostPnics(CliAccess):
   def __init__(self):
     super(CliFetchHostPnics, self).__init__()
     self.if_header = re.compile('^(\S+)\s+(.*)$')
+    self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
     self.regexps = {
       "MAC Address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
       "IP Address": re.compile('^\s*inet addr:(\S+)\s.*$'),
@@ -35,7 +36,13 @@ class CliFetchHostPnics(CliAccess):
         else:
           line_remainder = matches.group(2)
           id = host_id + "-" + name
-          current = {"id": id, "name": id, "lines": []}
+          current = {
+            "id": id,
+            "host": host_id,
+            "name": id,
+            "local_name": name,
+            "lines": []
+          }
           self.handle_line(current, line_remainder)
       else:
         if current:
@@ -57,6 +64,25 @@ class CliFetchHostPnics(CliAccess):
     interface["lines"].append(line.strip())
 
   def set_interface_data(self, interface):
-    if interface:
-      interface["data"] = "\n".join(interface["lines"])
-      interface.pop("lines", None)
+    if not interface:
+      return
+    interface["data"] = "\n".join(interface["lines"])
+    interface.pop("lines", None)
+    cmd = "ssh " + interface["host"] + ' " ethtool ' + interface["local_name"] + '"'
+    lines = self.run_fetch_lines(cmd)
+    attr = None
+    for line in lines[1:]:
+      matches = self.ethtool_attr.match(line)
+      if matches:
+        # add this attribute to the interface
+        attr = matches.group(1)
+        value = matches.group(2)
+        interface[attr] = value.strip()
+      else:
+        # add more values to the current attribute as an array
+        if isinstance(interface[attr], str):
+          interface[attr] = [interface[attr], line.strip()]
+        else:
+          interface[attr].append(line.strip())
+
+
