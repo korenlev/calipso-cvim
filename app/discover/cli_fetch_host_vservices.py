@@ -33,6 +33,8 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     r["service_type"] = prefix
     if prefix == "router":
       self.set_router_name(r)
+    if prefix == "dhcp":
+      r["name"] = "dhcp-" + r["id"]
 
   def set_router_name(self, r):
     query = """
