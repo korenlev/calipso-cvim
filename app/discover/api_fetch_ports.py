@@ -28,8 +28,11 @@ class ApiFetchPorts(ApiAccess):
       return []
     ports = response["ports"]
     for doc in ports:
-      doc["parent_type"] = "network"
-      doc["parent_id"] = doc["network_id"]
+      doc["master_parent_type"] = "network"
+      doc["master_parent_id"] = doc["network_id"]
+      doc["parent_type"] = "network_object_type"
+      doc["parent_id"] = doc["network_id"] + "-ports"
+      doc["parent_text"] = "Ports"
       # get the project name
       net = self.inv.get_by_id(self.get_env(), doc["network_id"])
       if net:

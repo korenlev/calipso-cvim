@@ -36,8 +36,11 @@ class ApiFetchNetworks(ApiAccess):
       for s in subnets:
         subnets_hash[s["id"]] = s
     for doc in networks:
-      doc["parent_type"] = "project"
-      doc["parent_id"] = doc["tenant_id"]
+      doc["master_parent_type"] = "project"
+      doc["master_parent_id"] = doc["tenant_id"]
+      doc["parent_type"] = "project_object_type"
+      doc["parent_id"] = doc["tenant_id"] + "-networks"
+      doc["parent_text"] = "Networks"
       # get the project name
       project = self.inv.get_by_id(self.get_env(), doc["tenant_id"])
       if project:

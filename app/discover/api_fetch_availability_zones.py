@@ -36,8 +36,11 @@ class ApiFetchAvailabilityZones(ApiAccess):
     for doc in azs:
       doc["id"] = doc["zoneName"]
       doc["name"] = doc.pop("zoneName")
-      doc["parent_type"] = "region"
-      doc["parent_id"] = "RegionOne"
+      doc["master_parent_type"] = "region"
+      doc["master_parent_id"] = region
+      doc["parent_type"] = "region_object_type"
+      doc["parent_id"] = region + "-availability_zones"
+      doc["parent_text"] = "Availability Zones"
       doc["available"] = doc["zoneState"]["available"]
       doc.pop("zoneState")
       ret.append(doc)
