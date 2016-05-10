@@ -50,6 +50,10 @@ class CliAccess(Fetcher):
     self.ssh_connect()
     stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
     stdin.close()
+    err = self.binary2str(stderr.read())
+    if err:
+      print("CLI access error: " + err)
+      return ""
     ret = self.binary2str(stdout.read())
     return ret
   
