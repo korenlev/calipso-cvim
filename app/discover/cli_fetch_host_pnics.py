@@ -6,7 +6,7 @@ class CliFetchHostPnics(CliAccess):
 
   def __init__(self):
     super(CliFetchHostPnics, self).__init__()
-    self.if_header = re.compile('^(\S+)\s+(.*)$')
+    self.if_header = re.compile('^[-]?(eth\S+)\s+(.*)$')
     self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
     self.regexps = {
       "MAC Address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
@@ -16,44 +16,41 @@ class CliFetchHostPnics(CliAccess):
 
   def get(self, id):
     host_id = id[:id.rindex("-")]
-    cmd = "ssh " + host_id + ' " ifconfig"'
-    lines = self.run_fetch_lines(cmd)
-    interfaces = [i for i in self.find_interfaces(host_id, lines) if i]
+    cmd = "ssh " + host_id + \
+      " ip -d link show | grep '^[0-9]\+: eth' | sed 's/^[^:]*: *//' | sed 's/:.*//'"
+    interfaces_names = self.run_fetch_lines(cmd)
+    interfaces = []
+    for i in interfaces_names:
+      # run ifconfig with specific interface name,
+      # since running it with no name yields a list without inactive pNICs
+      interface = self.find_interface_details(host_id, i)
+      if interface:
+        interfaces.append(interface)
     return interfaces
 
-  def find_interfaces(self, host_id, lines):
-    interfaces = []
-    current = None
+  def find_interface_details(self, host_id, interface_name):
+    cmd = "ssh " + host_id + ' " ifconfig"'
+    lines = self.run_fetch_lines(cmd)
+    interface = None
     for line in lines:
       matches = self.if_header.match(line)
       if matches:
-        if current:
-          self.finish_interface_handling(interfaces, current)
         name = matches.group(1)
-        # look only for interfaces starting with 'eth'
-        if not name.startswith("eth"):
-          current = None
-        else:
-          line_remainder = matches.group(2)
-          id = host_id + "-" + name
-          current = {
-            "id": id,
-            "host": host_id,
-            "name": id,
-            "local_name": name,
-            "lines": []
-          }
-          self.handle_line(current, line_remainder)
+        line_remainder = matches.group(2)
+        id = host_id + "-" + interface_name
+        interface = {
+          "id": id,
+          "host": host_id,
+          "name": id,
+          "local_name": interface_name,
+          "lines": []
+        }
+        self.handle_line(interface, line_remainder)
       else:
-        if current:
-          self.handle_line(current, line)
-    if current:
-      self.h_interface_handling(interfaces, current)
-    return interfaces
-
-  def finish_interface_handling(self, interfaces, interface):
-    interfaces.append(interface)
+        if interface:
+          self.handle_line(interface, line)
     self.set_interface_data(interface)
+    return interface
 
   def handle_line(self, interface, line):
     for re_name, re_value in self.regexps.items():
