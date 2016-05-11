@@ -1,15 +1,23 @@
 from mongo_access import MongoAccess
 from util import Util
 from datetime import datetime
+from singleton import Singleton
 
-class InventoryMgr(MongoAccess, Util):
+class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   
   prettify = False
   
   def __init__(self):
     super(InventoryMgr, self).__init__()
-    self.inv = MongoAccess.db["inventory"]
+    self.inventory_changed = False
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
+
+  def set_inventory_collection(self, inventory_collection):
+    # do not allow setting inventory collection more than once
+    if not self.inventory_changed:
+      print("using inventory collection: " + inventory_collection)
+      self.inv = MongoAccess.db[inventory_collection]
+      self.inventory_changed = True
 
   # return single match
   def get_by_id(self, environment, item_id):
