@@ -11,6 +11,7 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     # match only DHCP agent and router (L3 agent)
     self.type_re = re.compile("^q(dhcp|router)-")
     self.inv = InventoryMgr()
+    self.agents_list = NetworkAgentsList()
 
   def get(self, id):
     host_id = id[:-1*len("-vservices")]
@@ -35,6 +36,7 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     r["name"] = host_id + "-" + prefix + "-" + name
     r["host"] = host_id
     r["id"] = host_id + "-" + prefix + "-" + id_clean
+    self.set_agent_type(r)
 
   def get_network_name(self, id):
     query = """
@@ -58,3 +60,17 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     for db_row in results:
       r.update(db_row)
     return r["name"]
+
+  # dynamically create sub-folder for vService by type
+  def set_agent_type(self, o):
+    o["master_parent_id"] = o["host"] + "-vservices"
+    o["master_parent_type"] = "host_object_type"
+    atype = o["service_type"]
+    agent = self.agents_list.get_type(atype)
+    o["parent_type"] = "vservice_object_type"
+    try:
+      o["parent_id"] = o["master_parent_id"] + "-" + agent["type"] + "s"
+      o["parent_text"] = agent["folder_text"]
+    except KeyError:
+      o["parent_id"] = o["master_parent_id"] + "-" + "miscellenaous"
+      o["parent_text"] = "Misc. services"
