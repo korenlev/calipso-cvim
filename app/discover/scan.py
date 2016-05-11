@@ -6,7 +6,8 @@
 
 import cgi
 import sys
-import re
+import os
+import argparse
 
 from configuration import Configuration
 from inventory_mgr import InventoryMgr
@@ -16,74 +17,110 @@ class ScanController:
 
   default_env = "WebEX-Mirantis@Cisco"
 
-  def __init__(self, ):
+  def __init__(self):
     self.conf = Configuration()
     self.inv = InventoryMgr()
 
-  def get_scan_object(self, form):
-    object_type = form.getvalue("type", "environment")
-    module = object_type
-    type_to_scan = module
-    scan_self = form.getvalue("scan_self", "")
-    if scan_self:
-      scan_self = scan_self.lower() == "true"
-    else:
-      scan_self = object_type != "environment"      
-    child_id = None
-    child_type = None
+  def get_scan_plan(self):
+    form = cgi.FieldStorage()
+    if "REQUEST_METHOD" in os.environ:
+      return self.get_scan_object_from_cgi()
+    # try to read scan plan from command line parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--cgi", nargs="?", type=bool, default=False,
+      help="read argument from CGI (true/false) \n(default: false)")
+    parser.add_argument("-e", "--env", nargs="?", type=str,
+      default=self.default_env,
+      help="name of environment to scan \n(default: " + self.default_env + ")")
+    parser.add_argument("-t", "--type", nargs="?", type=str,
+      default="environment",
+      help="type of object to scan \n(default: environment)")
+    parser.add_argument("-y", "--inventory", nargs="?", type=str,
+      default="inventory",
+      help="name of inventory collection \n(default: 'inventory')")
+    parser.add_argument("-s", "--scan_self", nargs="?", type=bool, default=False,
+      help="scan changes to a specific object \n(default: false)")
+    parser.add_argument("-i", "--id", nargs="?", type=str,
+      default=ScanController.default_env,
+      help="ID of object to scan (when scan_self=true)")
+    parser.add_argument("-p", "--parent_id", nargs="?", type=str, default="",
+      help="ID of parent object (when scan_self=true)")
+    parser.add_argument("-a", "--parent_type", nargs="?", type=str, default="",
+      help="type of parent object (when scan_self=true)")
+    parser.add_argument("-f", "--id_field", nargs="?", type=str, default="id",
+      help="name of ID field (when scan_self=true) \n(default: 'id', use 'name' for projects)")
+    args = parser.parse_args()
+    plan = {
+      "object_type": args.type,
+      "env": args.env,
+      "object_id": args.id,
+      "parent_id": args.parent_id,
+      "type_to_scan": args.parent_type,
+      "id_field": args.id_field,
+      "scan_self": args.scan_self,
+      "child_type": None,
+      "child_id": None,
+      "inventory_collection": args.inventory
+    }
+    return self.prepare_scan_plan(plan)
 
-    object_type = object_type.title().replace("_", "")
+  def get_scan_object_from_cgi(self):
+    object_type = form.getvalue("type", "environment")
     env = form.getvalue("env", ScanController.default_env)
     object_id = form.getvalue("id", ScanController.default_env)
-    if scan_self:
-      child_id = object_id
-      child_type = type_to_scan
-      object_id = form.getvalue("parent_id", "")
-      type_to_scan = form.getvalue("parent_type", "")
-      if re.match(r'^.*_object_type$', type_to_scan):
-        module = child_type + "s_root"
+    object_id = form.getvalue("parent_id", "")
+    type_to_scan = form.getvalue("parent_type", "")
+    id_field = form.getvalue("id_field", "id")
+    scan_self = form.getvalue("scan_self", "")
+    inventory_collection = form.getvalue("inventory_collection", "inventory")
+    return self.prepare_scan_plan(plan)
+
+  def prepare_scan_plan(self, plan):
+    self.inv.set_inventory_collection(plan["inventory_collection"])
+    module = plan["object_type"]
+    if plan["scan_self"]:
+      plan["scan_self"] = plan["scan_self"].lower() == "true"
+    else:
+      plan["scan_self"] = plan["object_type"] != "environment"
+    plan["child_type"] = None
+
+    plan["object_type"] = plan["object_type"].title().replace("_", "")
+    if plan["scan_self"]:
+      child_id = plan["object_id"]
+      plan["child_type"] = plan["type_to_scan"]
+      if plan["type_to_scan"].endswith("_object_type"):
+        module = plan["child_type"] + "s_root"
       else:
-        module = type_to_scan
-      object_type = module.title().replace("_", "")
+        module = plan["type_to_scan"]
+      plan["object_type"] = module.title().replace("_", "")
     if module == "environment":
-      obj = {"id": env}
+      plan["obj"] = {"id": plan["env"]}
     else:
       # fetch object from inventory
-      matches = self.inv.get(env, type_to_scan, object_id)
+      matches = self.inv.get(plan["env"], plan["type_to_scan"], plan["object_id"])
       if len(matches) == 0:
-        raise ValueError("No match for object ID: " + object_id)
-      obj = matches[0]
+        raise ValueError("No match for object ID: " + plan["object_id"])
+      plan["obj"] = matches[0]
 
-    id_field = form.getvalue("id_field",
-        "name" if module == "projects_root" else "id")
-    ret = {
-        "module": "scan_" + module,
-        "scan_self": scan_self,
-        "scanner_class": "Scan" + object_type,
-        "type": type_to_scan,
-        "obj": obj,
-        "id_field": id_field,
-        "child_type": child_type,
-        "child_id": child_id,
-        "env": env
-    }
-    return ret
+    plan["scanner_class"] = "Scan" + plan["object_type"]
+    plan["module_file"] = "scan_" + module
+    return plan
+
 
   def run(self):
-    form = cgi.FieldStorage()
-    what_to_scan = self.get_scan_object(form)
-    env_name = what_to_scan["env"]
+    scan_plan = self.get_scan_plan()
+    env_name = scan_plan["env"]
     self.conf.use_env(env_name)
-    class_name = what_to_scan["scanner_class"]
-    module = __import__(what_to_scan["module"])
+    class_name = scan_plan["scanner_class"]
+    module = __import__(scan_plan["module_file"])
     class_ = getattr(module, class_name)
     scanner = class_()
     scanner.set_env(env_name)
     results = scanner.scan(
-      what_to_scan["obj"],
-      what_to_scan["id_field"],
-      what_to_scan["child_id"],
-      what_to_scan["child_type"])
+      scan_plan["obj"],
+      scan_plan["id_field"],
+      scan_plan["child_id"],
+      scan_plan["child_type"])
     scanner.scan_from_queue()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
