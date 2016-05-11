@@ -19,29 +19,42 @@ class CliFetchHostVservices(CliAccess, DbAccess):
       return []
     cmd = "ssh " + host_id + ' "source openrc && ip netns"'
     services_ids = self.run_fetch_lines(cmd)
-    results = [{"id": s} for s in services_ids if self.type_re.match(s)]
+    results = [{"local_service_id": s} for s in services_ids if self.type_re.match(s)]
     for r in results:
-      self.set_details(r)
+      self.set_details(host_id, r)
     return results
 
-  def set_details(self, r):
+  def set_details(self, host_id, r):
     # keep the index without prefix
-    id_full = r["id"]
+    id_full = r["local_service_id"]
     prefix = id_full[1:id_full.index('-')]
     id_clean = id_full[id_full.index('-')+1:]
-    r["id"] = id_clean
     r["service_type"] = prefix
-    if prefix == "router":
-      self.set_router_name(r)
-    if prefix == "dhcp":
-      r["name"] = "dhcp-" + r["id"]
+    name = self.get_router_name(r, id_clean) if prefix == "router" \
+      else self.get_network_name(id_clean)
+    r["name"] = host_id + "-" + prefix + "-" + name
+    r["host"] = host_id
+    r["id"] = host_id + "-" + prefix + "-" + id_clean
 
-  def set_router_name(self, r):
+  def get_network_name(self, id):
+    query = """
+      SELECT name
+      FROM neutron.networks
+      WHERE id = %s
+    """
+    results = self.get_objects_list_for_id(query, "router", id)
+    if not list(results):
+      return id
+    for db_row in results:
+      return db_row["name"]
+
+  def get_router_name(self, r, id):
     query = """
       SELECT *
       FROM neutron.routers
       WHERE id = %s
     """
-    results = self.get_objects_list_for_id(query, "router", r["id"])
+    results = self.get_objects_list_for_id(query, "router", id)
     for db_row in results:
       r.update(db_row)
+    return r["name"]
