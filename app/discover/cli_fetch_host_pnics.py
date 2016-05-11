@@ -29,7 +29,7 @@ class CliFetchHostPnics(CliAccess):
     return interfaces
 
   def find_interface_details(self, host_id, interface_name):
-    cmd = "ssh " + host_id + ' " ifconfig"'
+    cmd = "ssh " + host_id + ' " ifconfig ' + interface_name + '"'
     lines = self.run_fetch_lines(cmd)
     interface = None
     for line in lines:
