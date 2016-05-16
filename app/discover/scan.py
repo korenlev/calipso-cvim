@@ -78,9 +78,7 @@ class ScanController:
   def prepare_scan_plan(self, plan):
     self.inv.set_inventory_collection(plan["inventory_collection"])
     module = plan["object_type"]
-    if plan["scan_self"]:
-      plan["scan_self"] = plan["scan_self"].lower() == "true"
-    else:
+    if not plan["scan_self"]:
       plan["scan_self"] = plan["object_type"] != "environment"
     plan["child_type"] = None
 
@@ -97,10 +95,10 @@ class ScanController:
       plan["obj"] = {"id": plan["env"]}
     else:
       # fetch object from inventory
-      matches = self.inv.get(plan["env"], plan["type_to_scan"], plan["object_id"])
-      if len(matches) == 0:
+      obj = self.inv.get_by_id(plan["env"], plan["object_id"])
+      if not obj:
         raise ValueError("No match for object ID: " + plan["object_id"])
-      plan["obj"] = matches[0]
+      plan["obj"] = obj
 
     plan["scanner_class"] = "Scan" + plan["object_type"]
     plan["module_file"] = "scan_" + module
