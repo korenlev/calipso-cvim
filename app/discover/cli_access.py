@@ -8,6 +8,7 @@ class CliAccess(Fetcher):
 
   config = None
   ssh = None
+  ssh_cmd = "ssh -o StrictHostKeyChecking=no "
   
   def __init__(self):
     super().__init__()
@@ -24,7 +25,7 @@ class CliAccess(Fetcher):
     self.key = None
     try:
       self.key = self.conf['key']
-      if not os.path.exists(self.key):
+      if self.key and not os.path.exists(self.key):
         raise ValueError('Key file not found: ' + self.key)
     except KeyError:
       pass
