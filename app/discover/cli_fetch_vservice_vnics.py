@@ -10,7 +10,6 @@ class CliFetchVserviceVnics(CliAccess):
     self.inv = InventoryMgr()
     self.if_header = re.compile('^[-]?(\S+)\s+(.*)$')
     self.regexps = {
-      "MAC Address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
       "IP Address": re.compile('^\s*inet addr:(\S+)\s.*$'),
       "IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')
     }
@@ -43,13 +42,12 @@ class CliFetchVserviceVnics(CliAccess):
         else:
           line_remainder = matches.group(2)
           vservice_id = host["id"] + "-"  + service[1:]
-          id = vservice_id + "-" + name
           current = {
             "id": id,
             "type": "vnic",
             "vnic_type": "vservice_vnic",
             "host": host["id"],
-            "name": id,
+            "name": name,
             "master_parent_type": "vservice",
             "master_parent_id": vservice_id,
             "parent_type": "vservice_object_type",
