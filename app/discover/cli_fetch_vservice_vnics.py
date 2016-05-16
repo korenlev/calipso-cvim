@@ -43,7 +43,7 @@ class CliFetchVserviceVnics(CliAccess):
           line_remainder = matches.group(2)
           vservice_id = host["id"] + "-"  + service[1:]
           current = {
-            "id": id,
+            "id": service + "-" + name,
             "type": "vnic",
             "vnic_type": "vservice_vnic",
             "host": host["id"],
