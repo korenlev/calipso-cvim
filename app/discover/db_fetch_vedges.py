@@ -29,7 +29,7 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     return results
 
   def fetch_ports(self, host):
-    cmd = "ssh " + host + " ovs-dpctl show"
+    cmd = self.ssh_cmd + host + " ovs-dpctl show"
     lines = self.run_fetch_lines(cmd)
     ports = []
     for l in lines:
