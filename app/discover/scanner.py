@@ -100,6 +100,10 @@ class Scanner(Util, Fetcher):
            "type": o["parent_type"],
            "text": o["parent_text"]
          }
+	 # remove master_parent_type & master_parent_id after use,
+	 # as they're there just ro help create the dynamic folder
+         o.pop("master_parent_type", True)
+         o.pop("master_parent_id", True)
          Scanner.inventory.set(folder)
       except KeyError:
          pass
