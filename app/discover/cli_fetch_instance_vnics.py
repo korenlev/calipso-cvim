@@ -19,8 +19,7 @@ class CliFetchInstanceVnics(CliAccess):
       instance = matching_items[0]
     except KeyError:
       return []
-    cmd = "ssh -o StrictHostKeyChecking=no " + \
-      instance["ip_address"] + " virsh list"
+    cmd = self.ssh_cmd + instance["ip_address"] + " virsh list"
     lines = self.run_fetch_lines(cmd)
     del lines[:2] # remove header
     virsh_ids = [l.split()[0] for l in lines if l>""]
@@ -34,7 +33,7 @@ class CliFetchInstanceVnics(CliAccess):
     return results
 
   def get_vnics_from_dumpxml(self, instance, id):
-    cmd = "ssh " + instance["ip_address"] + " virsh dumpxml " + id
+    cmd = self.ssh_cmd + instance["ip_address"] + " virsh dumpxml " + id
     xml_string = self.run(cmd)
     response = xmltodict.parse(xml_string)
     if instance["uuid"] != response["domain"]["uuid"]:
@@ -49,6 +48,7 @@ class CliFetchInstanceVnics(CliAccess):
     for v in vnics:
       v["name"] = v["target"]["@dev"]
       v["id"] =  v["name"]
+      v["vnic_type"] = "instance_vnic"
       v["mac_address"] = v["mac"]["@address"]
       v["source_bridge"] = v["source"]["@bridge"]
     return vnics
