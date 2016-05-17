@@ -82,16 +82,16 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       "parent_type": "availability_zone",
       "parent_id": az["zoneName"],
       "services": services,
-      "host_type": ""
+      "host_type": {}
     }
     if "nova-conductor" in services:
       s = services["nova-conductor"]
       if s["available"] and s["active"]:
-        doc["host_type"] = "Controller node"
+        doc["host_type"]["Controller node"] = 1
     if "nova-compute" in services:
       s = services["nova-compute"]
       if s["available"] and s["active"]:
-        doc["host_type"] = "Compute node"
+        doc["host_type"]["Compute node"] = 1
     return doc
 
   # fetch ip_address of network nodes from neutron.agents table if possible
@@ -99,13 +99,13 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     query = """
       SELECT DISTINCT host, host AS id, configurations
       FROM neutron.agents
-      WHERE agent_type = 'Metadata agent' AND host = %s
+      WHERE agent_type IN ('Metadata agent', 'DHCP agent', 'L3 agent')
+        AND host = %s
     """
     results = self.get_objects_list_for_id(query, "", doc["host"])
     for r in results:
         config = json.loads(r["configurations"])
-        doc["ip_address"] = config["nova_metadata_ip"]
-        doc["host_type"] = "Network node"
+        doc["host_type"]["Network node"] = 1
 
   # fetch ip_address from nova.compute_nodes table if possible
   def fetch_compute_node_ip_address(self, doc, h):

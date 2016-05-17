@@ -16,7 +16,7 @@ class CliFetchVserviceVnics(CliAccess):
 
   def get(self, host_id):
     host = self.inv.get_by_id(self.get_env(), host_id)
-    if not host or host["host_type"] == "Compute node":
+    if "Network node" not in host["host_type"].keys():
       return []
     cmd = self.ssh_cmd + host_id + " ip netns"
     lines = self.run_fetch_lines(cmd)
