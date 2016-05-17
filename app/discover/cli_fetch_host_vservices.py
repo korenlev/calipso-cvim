@@ -32,9 +32,9 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     r["service_type"] = prefix
     name = self.get_router_name(r, id_clean) if prefix == "router" \
       else self.get_network_name(id_clean)
-    r["name"] = host_id + "-" + prefix + "-" + name
+    r["name"] = prefix + "-" + name
     r["host"] = host_id
-    r["id"] = host_id + "-" + prefix + "-" + id_clean
+    r["id"] = id_full
     self.set_agent_type(r)
 
   def get_network_name(self, id):

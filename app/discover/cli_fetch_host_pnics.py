@@ -9,7 +9,7 @@ class CliFetchHostPnics(CliAccess):
     self.if_header = re.compile('^[-]?(eth\S+)\s+(.*)$')
     self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
     self.regexps = {
-      "MAC Address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
+      "mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
       "IP Address": re.compile('^\s*inet addr:(\S+)\s.*$'),
       "IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')
     }
@@ -37,15 +37,15 @@ class CliFetchHostPnics(CliAccess):
       if matches:
         name = matches.group(1)
         line_remainder = matches.group(2)
-        id = host_id + "-" + interface_name
+        id = interface_name
         interface = {
-          "id": id,
           "host": host_id,
           "name": id,
           "local_name": interface_name,
           "lines": []
         }
         self.handle_line(interface, line_remainder)
+        interface["id"] = interface_name + interface["mac_address"]
       else:
         if interface:
           self.handle_line(interface, line)
