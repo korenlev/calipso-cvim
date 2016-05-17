@@ -40,9 +40,9 @@ class CliAccess(Fetcher):
     if CliAccess.ssh:
       return
     CliAccess.ssh = paramiko.SSHClient()
+    CliAccess.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     if (self.key):
       k = paramiko.RSAKey.from_private_key_file(self.key)
-      CliAccess.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
       CliAccess.ssh.connect(hostname=self.host, username=self.user, pkey=k)
     else:
       CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd)
