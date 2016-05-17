@@ -89,19 +89,23 @@ class Scanner(Util, Fetcher):
          # case of dynamic folder added by need
          master_parent_type = o["master_parent_type"]
          master_parent_id = o["master_parent_id"]
+         master_parent = self.inventory.get_by_id(self.get_env(), master_parent_id)
+         if not master_parent:
+           print("ERROR: failed to find master parent " + master_parent_id)
+           continue
          folder = {
            "environment": parent["environment"],
            "parent_id": master_parent_id,
            "parent_type": master_parent_type,
            "id": o["parent_id"],
-           "id_path": parent_id_path + "/" + o["parent_id"],
-           "name_path": parent_name_path + "/" + o["parent_text"],
+           "id_path": master_parent["id_path"] + "/" + o["parent_id"],
+           "name_path": master_parent["name_path"] + "/" + o["parent_text"],
            "name": o["parent_id"],
            "type": o["parent_type"],
            "text": o["parent_text"]
          }
-	 # remove master_parent_type & master_parent_id after use,
-	 # as they're there just ro help create the dynamic folder
+         # remove master_parent_type & master_parent_id after use,
+         # as they're there just ro help create the dynamic folder
          o.pop("master_parent_type", True)
          o.pop("master_parent_id", True)
          Scanner.inventory.set(folder)
