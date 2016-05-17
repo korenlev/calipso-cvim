@@ -16,9 +16,8 @@ class CliFetchHostPnics(CliAccess):
 
   def get(self, id):
     host_id = id[:id.rindex("-")]
-    cmd = "ssh " + host_id + \
-      " ip -d link show | grep '^[0-9]\+: eth' | sed 's/^[^:]*: *//' | sed 's/:.*//'"
-    interfaces_names = self.run_fetch_lines(cmd)
+    cmd = "ip -d link show | grep '^[0-9]\+: eth' | sed 's/^[^:]*: *//' | sed 's/:.*//'"
+    interfaces_names = self.run_fetch_lines(cmd, host_id)
     interfaces = []
     for i in interfaces_names:
       # run ifconfig with specific interface name,
@@ -29,8 +28,7 @@ class CliFetchHostPnics(CliAccess):
     return interfaces
 
   def find_interface_details(self, host_id, interface_name):
-    cmd = "ssh " + host_id + ' " ifconfig ' + interface_name + '"'
-    lines = self.run_fetch_lines(cmd)
+    lines = self.run_fetch_lines("ifconfig " + interface_name, host_id)
     interface = None
     for line in lines:
       matches = self.if_header.match(line)
@@ -65,8 +63,8 @@ class CliFetchHostPnics(CliAccess):
       return
     interface["data"] = "\n".join(interface["lines"])
     interface.pop("lines", None)
-    cmd = "ssh " + interface["host"] + ' " ethtool ' + interface["local_name"] + '"'
-    lines = self.run_fetch_lines(cmd)
+    cmd = "ethtool " + interface["local_name"]
+    lines = self.run_fetch_lines(cmd, interface["host"])
     attr = None
     for line in lines[1:]:
       matches = self.ethtool_attr.match(line)

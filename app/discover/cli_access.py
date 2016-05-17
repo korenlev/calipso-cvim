@@ -47,8 +47,10 @@ class CliAccess(Fetcher):
     else:
       CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd)
   
-  def run(self, cmd):
+  def run(self, cmd, ssh_to_host = ""):
     self.ssh_connect()
+    if ssh_to_host:
+      cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
     stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
     stdin.close()
     err = self.binary2str(stderr.read())
@@ -58,8 +60,8 @@ class CliAccess(Fetcher):
     ret = self.binary2str(stdout.read())
     return ret
   
-  def run_fetch_lines(self, cmd):
-    out = self.run(cmd)
+  def run_fetch_lines(self, cmd, ssh_to_host = ""):
+    out = self.run(cmd, ssh_to_host)
     if not out:
       return []
     # first try to split lines by whitespace

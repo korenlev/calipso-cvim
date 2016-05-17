@@ -14,8 +14,7 @@ class CliFetchInstanceVnics(CliAccess):
     instance = self.inv.get_by_id(self.get_env(), instance_uuid)
     if not instance:
       return []
-    cmd = self.ssh_cmd + instance["host"] + " virsh list"
-    lines = self.run_fetch_lines(cmd)
+    lines = self.run_fetch_lines("virsh list", instance["host"])
     del lines[:2] # remove header
     virsh_ids = [l.split()[0] for l in lines if l>""]
     results = []
@@ -28,8 +27,7 @@ class CliFetchInstanceVnics(CliAccess):
     return results
 
   def get_vnics_from_dumpxml(self, instance, id):
-    cmd = self.ssh_cmd + instance["host"] + " virsh dumpxml " + id
-    xml_string = self.run(cmd)
+    xml_string = self.run("virsh dumpxml " + id, instance["host"])
     response = xmltodict.parse(xml_string)
     if instance["uuid"] != response["domain"]["uuid"]:
       # this is the wrong instance - skip it

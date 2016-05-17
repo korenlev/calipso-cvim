@@ -18,16 +18,14 @@ class CliFetchVserviceVnics(CliAccess):
     host = self.inv.get_by_id(self.get_env(), host_id)
     if "Network node" not in host["host_type"].keys():
       return []
-    cmd = self.ssh_cmd + host_id + " ip netns"
-    lines = self.run_fetch_lines(cmd)
+    lines = self.run_fetch_lines("ip netns", host_id)
     ret = []
     for l in [l for l in lines if l.startswith("qdhcp") or l.startswith("qrouter")]:
       ret.extend(self.handle_service(host_id, l))
     return ret
 
   def handle_service(self, host, service):
-    cmd = self.ssh_cmd + host + " ip netns exec " + service + " ifconfig"
-    lines = self.run_fetch_lines(cmd)
+    lines = self.run_fetch_lines("ip netns exec " + service + " ifconfig", host)
     interfaces = []
     current = None
     for line in lines:
