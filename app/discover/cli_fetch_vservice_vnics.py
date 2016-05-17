@@ -14,19 +14,19 @@ class CliFetchVserviceVnics(CliAccess):
       "IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')
     }
 
-  def get(self, id):
-    host = self.inv.get_by_id(self.get_env(), id)
+  def get(self, host_id):
+    host = self.inv.get_by_id(self.get_env(), host_id)
     if not host or host["host_type"] == "Compute node":
       return []
-    cmd = self.ssh_cmd + host["ip_address"] + " ip netns"
+    cmd = self.ssh_cmd + host_id + " ip netns"
     lines = self.run_fetch_lines(cmd)
     ret = []
     for l in [l for l in lines if l.startswith("qdhcp") or l.startswith("qrouter")]:
-      ret.extend(self.handle_service(host, l))
+      ret.extend(self.handle_service(host_id, l))
     return ret
 
   def handle_service(self, host, service):
-    cmd = self.ssh_cmd + host["ip_address"] + " ip netns exec " + service + " ifconfig"
+    cmd = self.ssh_cmd + host + " ip netns exec " + service + " ifconfig"
     lines = self.run_fetch_lines(cmd)
     interfaces = []
     current = None
@@ -41,12 +41,12 @@ class CliFetchVserviceVnics(CliAccess):
           current = None
         else:
           line_remainder = matches.group(2)
-          vservice_id = host["id"] + "-"  + service[1:]
+          vservice_id = host + "-"  + service[1:]
           current = {
             "id": service + "-" + name,
             "type": "vnic",
             "vnic_type": "vservice_vnic",
-            "host": host["id"],
+            "host": host,
             "name": name,
             "master_parent_type": "vservice",
             "master_parent_id": vservice_id,
