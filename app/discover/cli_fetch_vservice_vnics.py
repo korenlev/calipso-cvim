@@ -1,5 +1,4 @@
 import re
-import xmltodict
 from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 
@@ -10,6 +9,7 @@ class CliFetchVserviceVnics(CliAccess):
     self.inv = InventoryMgr()
     self.if_header = re.compile('^[-]?(\S+)\s+(.*)$')
     self.regexps = {
+      "mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
       "IP Address": re.compile('^\s*inet addr:(\S+)\s.*$'),
       "IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')
     }
