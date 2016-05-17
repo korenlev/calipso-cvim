@@ -13,8 +13,7 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     self.inv = InventoryMgr()
     self.agents_list = NetworkAgentsList()
 
-  def get(self, id):
-    host_id = id[:-1*len("-vservices")]
+  def get(self, host_id):
     host = self.inv.getSingle(self.get_env(), "host", host_id)
     if host["host_type"] == "Compute node":
       return []
