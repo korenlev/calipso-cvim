@@ -1,4 +1,5 @@
 from mongo_access import MongoAccess
+import bson
 from util import Util
 from datetime import datetime
 from singleton import Singleton
@@ -9,15 +10,22 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   
   def __init__(self):
     super(InventoryMgr, self).__init__()
-    self.inventory_changed = False
+    self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
-  def set_inventory_collection(self, inventory_collection):
-    # do not allow setting inventory collection more than once
-    if not self.inventory_changed:
-      print("using inventory collection: " + inventory_collection)
-      self.inv = MongoAccess.db[inventory_collection]
-      self.inventory_changed = True
+  def set_collection(self, coll_type, collection_name):
+    # do not allow setting the collection more than once
+    if coll_type not in self.coll or not self.coll[coll_type]:
+      print("using " + coll_type +" collection: " + collection_name)
+      name = collection_name if collection_name else coll_type
+      self.coll[coll_type] = MongoAccess.db[name]
+    return self.coll[coll_type]
+
+  def set_inventory_collection(self, inventory_collection = ""):
+    self.inv = self.set_collection("inventory", inventory_collection)
+
+  def set_links_collection(self, links_collection = ""):
+    self.links = self.set_collection("links", links_collection)
 
   # return single match
   def get_by_id(self, environment, item_id):
@@ -85,7 +93,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     return ret[0]
   
   # item must contain properties 'environment', 'type' and 'id'
-  def set(self, item):
+  def set(self, item, fetcher = None):
     # make sure we have environment, type & id
     self.check(item, "environment")
     self.check(item, "type")
@@ -98,15 +106,20 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     obj_name = item["name_path"]
     obj_name = obj_name[obj_name.rindex('/')+1:]
     item["object_name"] = obj_name
-    self.inv.update(
-      {"environment": item["environment"],
-       "type": item["type"], "id": item["id"]},
+    self.set_inventory_collection() # make sure we have it set
+    find_tuple = {"environment": item["environment"],
+       "type": item["type"], "id": item["id"]}
+    update_result = self.inv.update_one(find_tuple,
       {'$set': self.encode_mongo_keys(item)},
       upsert=True)
+    modify_count = update_result.raw_result["n"]
+    if fetcher and modify_count and hasattr(fetcher, "add_links"):
+      # add link if possible
+      doc = self.inv.find_one(find_tuple)
+      if doc:
+        fetcher.add_links(item, doc["_id"])
     if projects:
-      self.inv.update(
-        {"environment": item["environment"],
-         "type": item["type"], "id": item["id"]},
+      self.inv.update_one(find_tuple,
         {'$addToSet': {"projects": {'$each': projects}}},
         upsert=True)
   
@@ -124,3 +137,45 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     for m in matches:
       decoded_matches.append(self.decode_mongo_keys(m))
     return decoded_matches
+
+  # record a link between objects in the inventory, to be used in graphs
+  # parameters -
+  # environment: name of environment
+  # source: node mongo _id
+  # source_id: node id value of source node
+  # target: node mongo _id
+  # target_id: node id value of target node
+  # link_type: string showing types of connected objects, e.g. "instance-vnic"
+  # link_name: label for the link itself
+  # state: up/down
+  # link_weight: integer, position/priority for graph placement
+  # source_label, target_label: labels for the ends of the link (optional)
+  def create_link(self, env, src, source_id, target, target_id,
+      link_type, link_name, state, link_weight,
+      source_label = "", target_label = "",
+      extra_attributes = {}):
+    self.set_links_collection() # make sure we have it set
+    s = bson.ObjectId(src)
+    t = bson.ObjectId(target)
+    link = {
+      "environment": env,
+      "source": s,
+      "source_id": source_id,
+      "target": t,
+      "target_id": target_id,
+      "link_type": link_type,
+      "link_name": link_name,
+      "state": state,
+      "link_weight": link_weight,
+      "source_label": source_label,
+      "target_label": target_label,
+      "attributes": extra_attributes
+    }
+    find_tuple = {
+      "environment": env,
+      "source_id": source_id,
+      "target_id": target_id
+    }
+    self.links.update_one(find_tuple,
+      {'$set': self.encode_mongo_keys(link)},
+      upsert=True)
