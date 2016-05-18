@@ -150,7 +150,7 @@ class Scanner(Util, Fetcher):
           o["projects"] = projects
 
       if "create_object" not in o or o["create_object"]:
-        Scanner.inventory.set(o)
+        Scanner.inventory.set(o, fetcher)
       children.append(o)
       if children_scanner:
         self.queue_for_scan(o, child_id_field, children_scanner)
