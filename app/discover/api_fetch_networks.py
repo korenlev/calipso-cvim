@@ -46,12 +46,15 @@ class ApiFetchNetworks(ApiAccess):
       if project:
         doc["project"] = project["name"]
       subnets_details = {}
+      gateway_ips = []
       for s in doc["subnets"]:
         try:
           subnet = subnets_hash[s]
+          gateway_ips.append(subnet["gateway_ip"])
           subnets_details[subnet["name"]] = subnet
         except KeyError:
           pass
       if subnets_details:
         doc["subnets"] = subnets_details
+        doc["gateway_ips"] = gateway_ips
     return networks

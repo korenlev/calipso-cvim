@@ -15,6 +15,7 @@ class Scanner(Util, Fetcher):
   root_patern = None
   scan_queue = queue.Queue()
   scan_queue_track = {}
+  fetchers_implementing_add_links = {}
   
   def __init__(self, types_to_fetch):
     super(Scanner, self).__init__()
@@ -51,6 +52,9 @@ class Scanner(Util, Fetcher):
         raise ValueError("Object missing " + id_field + " attribute")
     fetcher = type_to_fetch["fetcher"]
     fetcher.set_env(self.get_env())
+    if hasattr(fetcher, "add_links"):
+      fetcher_class_name = type(fetcher).__name__
+      self.fetchers_implementing_add_links[fetcher_class_name] = fetcher
     try:
       children_scanner = type_to_fetch["children_scanner"]
       children_scanner.set_env(self.get_env())
@@ -168,9 +172,24 @@ class Scanner(Util, Fetcher):
     Scanner.scan_queue.put({"object": o,
       "child_id_field": child_id_field, "scanner": children_scanner})
 
+  def run_scan(self, obj, id_field, child_id, child_type):
+    results = self.scan(obj, id_field, child_id, child_type)
+    self.scan_from_queue()
+
+    # scanning of links is run after scanning of inventory objects is completed,
+    # to insure all objects have been found by that time
+    self.scan_links()
+    return results
+
   def scan_from_queue(self):
     while not Scanner.scan_queue.empty():
       item = Scanner.scan_queue.get()
       scanner = item["scanner"]
       scanner.scan(item["object"], item["child_id_field"])
+    print("Scan complete")
+
+  def scan_links(self):
+    for fetcher in self.fetchers_implementing_add_links.values():
+      fetcher.add_links()
+
 

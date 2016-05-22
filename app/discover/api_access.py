@@ -135,7 +135,7 @@ class ApiAccess(Fetcher):
     return self.v2_auth("admin_token", headers, post_body)
   
   
-  def get(id):
+  def get(self, id):
     return nil
   
   

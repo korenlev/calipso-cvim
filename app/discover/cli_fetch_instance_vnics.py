@@ -23,10 +23,10 @@ class CliFetchInstanceVnics(CliAccess):
     # therefore, we will decide whether the instance is the correct one based
     # on comparison of the uuid in the dumpxml output
     for id in virsh_ids:
-      results.extend(self.get_vnics_from_dumpxml(instance, id))
+      results.extend(self.get_vnics_from_dumpxml(id, instance))
     return results
 
-  def get_vnics_from_dumpxml(self, instance, id):
+  def get_vnics_from_dumpxml(self, id, instance):
     xml_string = self.run("virsh dumpxml " + id, instance["host"])
     response = xmltodict.parse(xml_string)
     if instance["uuid"] != response["domain"]["uuid"]:
@@ -43,6 +43,35 @@ class CliFetchInstanceVnics(CliAccess):
       v["id"] =  v["name"]
       v["vnic_type"] = "instance_vnic"
       v["host"] = instance["host"]
+      v["instance_id"] = instance["id"]
+      v["instance_db_id"] = instance["_id"]
       v["mac_address"] = v["mac"]["@address"]
       v["source_bridge"] = v["source"]["@bridge"]
     return vnics
+
+  def add_links(self):
+    vnics = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "vnic",
+      "vnic_type": "instance_vnic"
+    })
+    for v in vnics:
+      self.add_link_for_vnic(v)
+
+  def add_link_for_vnic(self, v):
+    instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
+    source = instance["_id"]
+    source_id = instance["id"]
+    target = v["_id"]
+    target_id = v["id"]
+    link_type = "instance-vnic"
+    # find related network
+    network_name = None
+    for net in instance["network_info"]:
+      if net["devname"] == v["id"]:
+        network_name = net["network"]["label"]
+        break
+    state = "up" # TBD
+    link_weight = 0 # TBD
+    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+      link_type, network_name, state, link_weight)

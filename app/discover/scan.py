@@ -65,18 +65,22 @@ class ScanController:
     return self.prepare_scan_plan(plan)
 
   def get_scan_object_from_cgi(self):
-    object_type = form.getvalue("type", "environment")
-    env = form.getvalue("env", ScanController.default_env)
-    object_id = form.getvalue("id", ScanController.default_env)
-    object_id = form.getvalue("parent_id", "")
-    type_to_scan = form.getvalue("parent_type", "")
-    id_field = form.getvalue("id_field", "id")
-    scan_self = form.getvalue("scan_self", "")
-    inventory_collection = form.getvalue("inventory_collection", "inventory")
+    plan = {
+      object_type: form.getvalue("type", "environment"),
+      env: form.getvalue("env", ScanController.default_env),
+      object_id: form.getvalue("id", ScanController.default_env),
+      object_id: form.getvalue("parent_id", ""),
+      type_to_scan: form.getvalue("parent_type", ""),
+      id_field: form.getvalue("id_field", "id"),
+      scan_self: form.getvalue("scan_self", ""),
+      inventory_collection: form.getvalue("inventory_collection", "inventory")
+    }
     return self.prepare_scan_plan(plan)
 
   def prepare_scan_plan(self, plan):
     self.inv.set_inventory_collection(plan["inventory_collection"])
+    links_col = plan["inventory_collection"].replace("inventory", "links")
+    self.inv.set_links_collection(links_col)
     module = plan["object_type"]
     if not plan["scan_self"]:
       plan["scan_self"] = plan["object_type"] != "environment"
@@ -114,12 +118,11 @@ class ScanController:
     class_ = getattr(module, class_name)
     scanner = class_()
     scanner.set_env(env_name)
-    results = scanner.scan(
+    results = scanner.run_scan(
       scan_plan["obj"],
       scan_plan["id_field"],
       scan_plan["child_id"],
       scan_plan["child_type"])
-    scanner.scan_from_queue()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
     return response
