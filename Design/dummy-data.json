@@ -1,0 +1,1320 @@
+{ 
+    "_id" : ObjectId("573c75a76e68f7124c39f57a"), 
+    "Entities" : [
+        {
+            "attributes" : {
+                "Host" : "host1", 
+                "Project" : "demo", 
+                "Name" : "vm1-host1"
+            }, 
+            "group" : "host1", 
+            "id" : "1", 
+            "label" : "vm1-host1", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host1", 
+            "id" : "2", 
+            "label" : "vNIC1-vm1-host1", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host1", 
+                "Project" : "demo", 
+                "Name" : "vm100-host1"
+            }, 
+            "group" : "host1", 
+            "id" : "101", 
+            "label" : "vm100-host1", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host1", 
+            "id" : "102", 
+            "label" : "vNIC1-vm100-host1", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host1", 
+            "id" : "3", 
+            "label" : "vConnector1-host1", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host1", 
+            "id" : "4", 
+            "label" : "vEdge1-host1", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth0"
+            }, 
+            "group" : "host1", 
+            "id" : "5", 
+            "label" : "pNIC:eth0-host1", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "Network100-segment-VLAN100"
+            }, 
+            "id" : "6", 
+            "label" : "Network100", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "Network200-segment-VLAN120"
+            }, 
+            "id" : "200", 
+            "label" : "Network200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "Network300-segment-VLAN130"
+            }, 
+            "id" : "300", 
+            "label" : "Network300", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host3", 
+                "Project" : "coka-cola", 
+                "Name" : "vm1-host3"
+            }, 
+            "group" : "host3", 
+            "id" : "301", 
+            "label" : "vm1-host3", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host3", 
+            "id" : "302", 
+            "label" : "vNIC1-vm1-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host3", 
+            "id" : "303", 
+            "label" : "vConnector1-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host3", 
+            "id" : "304", 
+            "label" : "vEdge1-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth1"
+            }, 
+            "group" : "host3", 
+            "id" : "305", 
+            "label" : "pNIC:eth1-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC2"
+                }
+            ], 
+            "group" : "host3", 
+            "id" : "3002", 
+            "label" : "vNIC2-vm1-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host3", 
+            "id" : "3003", 
+            "label" : "vConnector2-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host3", 
+            "id" : "3004", 
+            "label" : "vEdge2-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth2"
+            }, 
+            "group" : "host3", 
+            "id" : "3005", 
+            "label" : "pNIC:eth2-host3", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "DHCP-Network100"
+                }
+            ], 
+            "group" : "host8", 
+            "id" : "1002", 
+            "label" : "vService-DHCP-Net100-Host8", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1-host8"
+                }
+            ], 
+            "group" : "host8", 
+            "id" : "1003", 
+            "label" : "DHCP-vNIC1-host8", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge"
+            }, 
+            "group" : "host8", 
+            "id" : "1004", 
+            "label" : "vEdge1-host8", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth1"
+            }, 
+            "group" : "host8", 
+            "id" : "1005", 
+            "label" : "pNIC:eth1-host8", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "Router Net100-to-Net200"
+                }
+            ], 
+            "group" : "host7", 
+            "id" : "1112", 
+            "label" : "vService Router Net100-to-Net200 Host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1-host7"
+                }
+            ], 
+            "group" : "host7", 
+            "id" : "1113", 
+            "label" : "Router-vNIC1-host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host7", 
+            "id" : "1114", 
+            "label" : "vEdge1-host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth1"
+            }, 
+            "group" : "host7", 
+            "id" : "1115", 
+            "label" : "pNIC:eth1-host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC2-host7"
+                }
+            ], 
+            "group" : "host7", 
+            "id" : "1213", 
+            "label" : "Router-vNIC2-host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host7", 
+            "id" : "1214", 
+            "label" : "vEdge2-host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth2"
+            }, 
+            "group" : "host7", 
+            "id" : "1215", 
+            "label" : "pNIC:eth2-host7", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host20", 
+                "Project" : "demo", 
+                "Name" : "DHCP-Network200-host20"
+            }, 
+            "group" : "host20", 
+            "id" : "2001", 
+            "label" : "vService-DHCP-Net200-host20", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "DHCP-Net200-vNIC1"
+                }
+            ], 
+            "group" : "host20", 
+            "id" : "2002", 
+            "label" : "DHCP-Net200-vNIC1", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host20", 
+            "id" : "2003", 
+            "label" : "vConnector209-host20", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host20", 
+            "id" : "2004", 
+            "label" : "vEdge1-host20", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth0"
+            }, 
+            "group" : "host20", 
+            "id" : "2005", 
+            "label" : "pNIC:eth0-host20", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host2", 
+                "Project" : "pepsi", 
+                "Name" : "vm1-host2"
+            }, 
+            "group" : "host2", 
+            "id" : "401", 
+            "label" : "vm1-host2", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host2", 
+            "id" : "402", 
+            "label" : "vNIC1-vm1-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host2", 
+            "id" : "403", 
+            "label" : "vConnector1-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host2", 
+            "id" : "404", 
+            "label" : "vEdge1-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth0"
+            }, 
+            "group" : "host2", 
+            "id" : "405", 
+            "label" : "pNIC:eth0-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host24", 
+                "Project" : "pepsi", 
+                "Name" : "vm4-host24"
+            }, 
+            "group" : "host24", 
+            "id" : "501", 
+            "label" : "vm4-host24", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host24", 
+            "id" : "502", 
+            "label" : "vNIC1-vm4-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host24", 
+            "id" : "503", 
+            "label" : "vConnector1-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host24", 
+            "id" : "504", 
+            "label" : "vEdge1-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth0"
+            }, 
+            "group" : "host24", 
+            "id" : "505", 
+            "label" : "pNIC:eth0-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host24", 
+                "Project" : "pepsi", 
+                "Name" : "vm5-host24"
+            }, 
+            "group" : "host24", 
+            "id" : "601", 
+            "label" : "vm5-host24", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host24", 
+            "id" : "602", 
+            "label" : "vNIC1-vm5-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host24", 
+                "Project" : "pepsi", 
+                "Name" : "vm6-host24"
+            }, 
+            "group" : "host24", 
+            "id" : "701", 
+            "label" : "vm6-host24", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host24", 
+            "id" : "702", 
+            "label" : "vNIC1-vm6-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host24", 
+                "Project" : "pepsi", 
+                "Name" : "vm7-host24"
+            }, 
+            "group" : "host24", 
+            "id" : "801", 
+            "label" : "vm7-host24", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host24", 
+            "id" : "802", 
+            "label" : "vNIC1-vm7-host24", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host100", 
+                "Project" : "OSDNA-ltd", 
+                "Name" : "vm1-host100"
+            }, 
+            "group" : "host100", 
+            "id" : "4001", 
+            "label" : "vm1-host100", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host100", 
+            "id" : "4002", 
+            "label" : "vNIC1-vm1-host100", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host100", 
+            "id" : "4003", 
+            "label" : "vConnector1-host100", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host100", 
+            "id" : "4004", 
+            "label" : "vEdge1-host100", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth0"
+            }, 
+            "group" : "host100", 
+            "id" : "4005", 
+            "label" : "pNIC:eth0-host100", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host200", 
+                "Project" : "OSDNA-ltd", 
+                "Name" : "vm4-host200"
+            }, 
+            "group" : "host200", 
+            "id" : "5001", 
+            "label" : "vm4-host200", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host200", 
+            "id" : "5002", 
+            "label" : "vNIC1-vm4-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge"
+                }
+            ], 
+            "group" : "host200", 
+            "id" : "5003", 
+            "label" : "vConnector1-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS"
+            }, 
+            "group" : "host200", 
+            "id" : "5004", 
+            "label" : "vEdge1-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth0"
+            }, 
+            "group" : "host200", 
+            "id" : "5005", 
+            "label" : "pNIC:eth0-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host200", 
+                "Project" : "OSDNA-ltd", 
+                "Name" : "vm5-host200"
+            }, 
+            "group" : "host200", 
+            "id" : "6001", 
+            "label" : "vm5-host200", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host200", 
+            "id" : "6002", 
+            "label" : "vNIC1-vm5-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host200", 
+                "Project" : "OSDNA-ltd", 
+                "Name" : "vm6-host200"
+            }, 
+            "group" : "host200", 
+            "id" : "7001", 
+            "label" : "vm6-host200", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host200", 
+            "id" : "7002", 
+            "label" : "vNIC1-vm6-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host200", 
+                "Project" : "OSDNA-ltd", 
+                "Name" : "vm7-host200"
+            }, 
+            "group" : "host200", 
+            "id" : "8001", 
+            "label" : "vm7-host200", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host200", 
+            "id" : "8002", 
+            "label" : "vNIC1-vm7-host200", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "Host" : "host200", 
+                "Project" : "OSDNA-ltd", 
+                "Name" : "vm8-host200"
+            }, 
+            "group" : "host200", 
+            "id" : "9001", 
+            "label" : "vm8-host200", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1"
+                }
+            ], 
+            "group" : "host200", 
+            "id" : "9002", 
+            "label" : "vNIC1-vm8-host200", 
+            "level" : NumberInt(1)
+        }
+    ], 
+    "Relations" : [
+        {
+            "attributes" : {
+                "VLAN vid" : "5", 
+                "IP address" : "192.168.77.1", 
+                "Target device" : "tap0ab4edec-71"
+            }, 
+            "from" : "1", 
+            "label" : "vnic-network100", 
+            "to" : "2"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "VirtIO"
+            }, 
+            "from" : "2", 
+            "label" : "vNIC1-network100", 
+            "to" : "3"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "6", 
+                "IP address" : "192.168.77.130", 
+                "Target device" : "tap0ab4edec-13"
+            }, 
+            "from" : "301", 
+            "label" : "vnic-network100", 
+            "to" : "302"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "VirtIO"
+            }, 
+            "from" : "302", 
+            "label" : "vNIC1-network100", 
+            "to" : "303"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-13", 
+                "DL VLAN" : "6", 
+                "bridge outgoing port" : "qvb0ab4edec-13"
+            }, 
+            "from" : "303", 
+            "label" : "bridge-network100", 
+            "to" : "304"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "304", 
+            "label" : "vEdge-eth1", 
+            "to" : "305"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 100"
+            }, 
+            "from" : "305", 
+            "to" : "6", 
+            "label" : "VLAN 100"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "3", 
+                "IP address" : "192.168.113.1", 
+                "Target device" : "tap0ab4edec-33"
+            }, 
+            "from" : "301", 
+            "label" : "vnic-network300", 
+            "to" : "3002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "VirtIO"
+            }, 
+            "from" : "3002", 
+            "label" : "vNIC1-network300", 
+            "to" : "3003"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-33", 
+                "DL VLAN" : "300", 
+                "bridge outgoing port" : "qvb0ab4edec-33"
+            }, 
+            "from" : "3003", 
+            "label" : "bridge-network300", 
+            "to" : "3004"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "3004", 
+            "label" : "vEdge-eth2", 
+            "to" : "3005"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 300"
+            }, 
+            "from" : "3005", 
+            "to" : "300", 
+            "label" : "VLAN 300"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "6", 
+                "IP address" : "192.168.77.2", 
+                "Target device" : "tap0ab4edec-72"
+            }, 
+            "from" : "101", 
+            "label" : "vnic-network100", 
+            "to" : "102"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "102", 
+            "label" : "vNIC1-network100", 
+            "to" : "3"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-74", 
+                "DL VLAN" : "5", 
+                "bridge outgoing port" : "qvb0ab4edec-74"
+            }, 
+            "from" : "3", 
+            "label" : "bridge-network100", 
+            "to" : "4"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "4", 
+            "label" : "vEdge-eth0", 
+            "to" : "5"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 100"
+            }, 
+            "from" : "5", 
+            "to" : "6", 
+            "label" : "VLAN 100"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "VirtIO"
+            }, 
+            "from" : "1002", 
+            "label" : "vNIC1-network100", 
+            "to" : "1003"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-88", 
+                "DL VLAN" : "88", 
+                "bridge outgoing port" : "qvb0ab4edec-88"
+            }, 
+            "from" : "1003", 
+            "label" : "bridge-host8-network100", 
+            "to" : "1004"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "1004", 
+            "label" : "vEdge-eth1", 
+            "to" : "1005"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 100"
+            }, 
+            "from" : "1005", 
+            "to" : "6", 
+            "label" : "VLAN 100"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "VirtIO", 
+                "IP address" : "192.168.77.254"
+            }, 
+            "from" : "1112", 
+            "label" : "vNIC1-network100", 
+            "to" : "1113"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-77", 
+                "DL VLAN" : "100", 
+                "bridge outgoing port" : "qvb0ab4edec-77"
+            }, 
+            "from" : "1113", 
+            "label" : "bridge-host7-network100", 
+            "to" : "1114"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "1114", 
+            "label" : "vEdge-eth1", 
+            "to" : "1115"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 100"
+            }, 
+            "from" : "1115", 
+            "to" : "6", 
+            "label" : "VLAN 100"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "1112", 
+            "label" : "vNIC2-network200", 
+            "to" : "1213"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-92", 
+                "DL VLAN" : "200", 
+                "bridge outgoing port" : "qvb0ab4edec-92"
+            }, 
+            "from" : "1213", 
+            "label" : "bridge-host7-network200", 
+            "to" : "1214"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "1214", 
+            "label" : "vEdge-eth2", 
+            "to" : "1215"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 200"
+            }, 
+            "from" : "1215", 
+            "to" : "200", 
+            "label" : "VLAN 200"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "747", 
+                "IP address" : "192.168.78.1", 
+                "Target device" : "tap0ab4edec-78"
+            }, 
+            "from" : "2001", 
+            "label" : "vNIC1-network200", 
+            "to" : "2002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "2002", 
+            "label" : "vNIC1-network200", 
+            "to" : "2003"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-78", 
+                "DL VLAN" : "200", 
+                "bridge outgoing port" : "qvb0ab4edec-78"
+            }, 
+            "from" : "2003", 
+            "label" : "bridge-network100", 
+            "to" : "2004"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "2004", 
+            "label" : "vEdge-eth0", 
+            "to" : "2005"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 200"
+            }, 
+            "from" : "2005", 
+            "to" : "200", 
+            "label" : "VLAN 200"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "44", 
+                "IP address" : "192.168.98.1", 
+                "Target device" : "tap0ab4edec-49"
+            }, 
+            "from" : "401", 
+            "label" : "vNIC1-network200", 
+            "to" : "402"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "402", 
+            "label" : "vNIC1-network200", 
+            "to" : "403"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-49", 
+                "DL VLAN" : "200", 
+                "bridge outgoing port" : "qvb0ab4edec-49"
+            }, 
+            "from" : "403", 
+            "label" : "bridge-network200", 
+            "to" : "404"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "404", 
+            "label" : "vEdge-eth0", 
+            "to" : "405"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 200"
+            }, 
+            "from" : "405", 
+            "to" : "200", 
+            "label" : "VLAN 200"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "56", 
+                "IP address" : "192.168.98.2", 
+                "Target device" : "tap0ab4edec-50"
+            }, 
+            "from" : "501", 
+            "label" : "vNIC1-network200", 
+            "to" : "502"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "502", 
+            "label" : "vNIC1-network200", 
+            "to" : "503"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-50", 
+                "DL VLAN" : "200", 
+                "bridge outgoing port" : "qvb0ab4edec-50"
+            }, 
+            "from" : "503", 
+            "label" : "bridge-network200", 
+            "to" : "504"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "504", 
+            "label" : "vEdge-eth0", 
+            "to" : "505"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 200"
+            }, 
+            "from" : "505", 
+            "to" : "200", 
+            "label" : "VLAN 200"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "56", 
+                "IP address" : "192.168.98.3", 
+                "Target device" : "tap0ab4edec-51"
+            }, 
+            "from" : "601", 
+            "label" : "vNIC1-network200", 
+            "to" : "602"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "602", 
+            "label" : "vNIC1-network200", 
+            "to" : "503"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "56", 
+                "IP address" : "192.168.98.4", 
+                "Target device" : "tap0ab4edec-91"
+            }, 
+            "from" : "701", 
+            "label" : "vNIC1-network200", 
+            "to" : "702"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "702", 
+            "label" : "vNIC1-network200", 
+            "to" : "503"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "57", 
+                "IP address" : "192.168.98.6", 
+                "Target device" : "tap0ab4edec-92"
+            }, 
+            "from" : "801", 
+            "label" : "vNIC1-network200", 
+            "to" : "802"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "802", 
+            "label" : "vNIC1-network200", 
+            "to" : "503"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "77", 
+                "IP address" : "176.16.98.1", 
+                "Target device" : "tap0ab4edec-63"
+            }, 
+            "from" : "4001", 
+            "label" : "vNIC1-network300", 
+            "to" : "4002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "4002", 
+            "label" : "vNIC1-network300", 
+            "to" : "4003"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-63", 
+                "DL VLAN" : "300", 
+                "bridge outgoing port" : "qvb0ab4edec-63"
+            }, 
+            "from" : "4003", 
+            "label" : "bridge-network300", 
+            "to" : "4004"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "4004", 
+            "label" : "vEdge-eth0", 
+            "to" : "4005"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 300"
+            }, 
+            "from" : "4005", 
+            "to" : "300", 
+            "label" : "VLAN 300"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "56", 
+                "IP address" : "172.16.98.2", 
+                "Target device" : "tap0ab4edec-58"
+            }, 
+            "from" : "5001", 
+            "label" : "vNIC1-network300", 
+            "to" : "5002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "5002", 
+            "label" : "vNIC1-network300", 
+            "to" : "5003"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-58", 
+                "DL VLAN" : "300", 
+                "bridge outgoing port" : "qvb0ab4edec-58"
+            }, 
+            "from" : "5003", 
+            "label" : "bridge-network300", 
+            "to" : "5004"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "5004", 
+            "label" : "vEdge-eth0", 
+            "to" : "5005"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 300"
+            }, 
+            "from" : "5005", 
+            "to" : "300", 
+            "label" : "VLAN 300"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "66", 
+                "IP address" : "172.16.98.3", 
+                "Target device" : "tap0ab4edec-41"
+            }, 
+            "from" : "6001", 
+            "label" : "vNIC1-network300", 
+            "to" : "6002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "6002", 
+            "label" : "vNIC1-network300", 
+            "to" : "5003"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "14", 
+                "IP address" : "172.16.98.4", 
+                "Target device" : "tap0ab4edec-91"
+            }, 
+            "from" : "7001", 
+            "label" : "vNIC1-network300", 
+            "to" : "7002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "7002", 
+            "label" : "vNIC1-network300", 
+            "to" : "5003"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "57", 
+                "IP address" : "172.16.98.6", 
+                "Target device" : "tap0ab4edec-92"
+            }, 
+            "from" : "8001", 
+            "label" : "vNIC1-network300", 
+            "to" : "8002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "8002", 
+            "label" : "vNIC1-network300", 
+            "to" : "5003"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "29", 
+                "IP address" : "172.16.98.7", 
+                "Target device" : "tap0ab4edec-29"
+            }, 
+            "from" : "9001", 
+            "label" : "vNIC1-network300", 
+            "to" : "9002"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "e1000"
+            }, 
+            "from" : "9002", 
+            "label" : "vNIC1-network300", 
+            "to" : "5003"
+        }
+    ], 
+    "environment" : "WebEX-Mirantis@Cisco", 
+    "host" : "node-24", 
+    "id" : "0651bc4f-9c03-4697-85ac-7b72aa9c4530", 
+    "id_path" : "/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-projects/329e0576da594c62a911d0dccb1238a7/RegionOne-availability_zones/WebEx-RTP-Zone/node-24/node-24-instances/0651bc4f-9c03-4697-85ac-7b72aa9c4530", 
+    "name" : "demo-vm-on-shared", 
+    "show_in_tree" : true, 
+    "type" : "instance", 
+    "uuid" : "0651bc4f-9c03-4697-85ac-7b72aa9c4530"
+}
