@@ -44,3 +44,27 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       port["name"] = name
       ports.append(port)
     return ports
+
+  def add_links(self):
+    vedges = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "vedge",
+    })
+    for v in vedges:
+      for p in v["ports"]:
+        self.add_link_for_vedge(v, p)
+
+  def add_link_for_vedge(self, vedge, port):
+    vnic = self.inv.get_by_id(self.get_env(), port["name"])
+    if not vnic:
+      return
+    source = vnic["_id"]
+    source_id = vnic["id"]
+    target = vedge["_id"]
+    target_id = vedge["id"]
+    link_type = "vnic-vedge"
+    link_name = vnic["name"] + "-" + vedge["name"] # TBD
+    state = "up" # TBD
+    link_weight = 0 # TBD
+    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+      link_type, link_name, state, link_weight, source_label = vnic["mac_address"])
