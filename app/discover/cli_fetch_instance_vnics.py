@@ -11,10 +11,9 @@ class CliFetchInstanceVnics(CliAccess):
 
   def get(self, id):
     instance_uuid = id[:id.rindex('-')]
-    self.instance = self.inv.get_by_id(self.get_env(), instance_uuid)
-    if not self.instance:
+    instance = self.inv.get_by_id(self.get_env(), instance_uuid)
+    if not instance:
       return []
-    instance = self.instance
     lines = self.run_fetch_lines("virsh list", instance["host"])
     del lines[:2] # remove header
     virsh_ids = [l.split()[0] for l in lines if l>""]
@@ -24,11 +23,10 @@ class CliFetchInstanceVnics(CliAccess):
     # therefore, we will decide whether the instance is the correct one based
     # on comparison of the uuid in the dumpxml output
     for id in virsh_ids:
-      results.extend(self.get_vnics_from_dumpxml(id))
+      results.extend(self.get_vnics_from_dumpxml(id, instance))
     return results
 
-  def get_vnics_from_dumpxml(self, id):
-    instance = self.instance
+  def get_vnics_from_dumpxml(self, id, instance):
     xml_string = self.run("virsh dumpxml " + id, instance["host"])
     response = xmltodict.parse(xml_string)
     if instance["uuid"] != response["domain"]["uuid"]:
@@ -43,28 +41,34 @@ class CliFetchInstanceVnics(CliAccess):
     for v in vnics:
       v["name"] = v["target"]["@dev"]
       v["id"] =  v["name"]
-      v["vnic_type"] = "instance-vnic"
+      v["vnic_type"] = "instance_vnic"
       v["host"] = instance["host"]
-      v["instance_id"] = instance["uuid"]
+      v["instance_id"] = instance["id"]
+      v["instance_db_id"] = instance["_id"]
       v["mac_address"] = v["mac"]["@address"]
       v["source_bridge"] = v["source"]["@bridge"]
     return vnics
 
-  # handle links creation after writing of vnic to DB
-  def add_links(self, item, doc_id):
-    self.add_instance_vnic_link(item, doc_id)
+  def add_links(self):
+    vnics = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "vnic",
+      "vnic_type": "instance_vnic"
+    })
+    for v in vnics:
+      self.add_link_for_vnic(v)
 
-  def add_instance_vnic_link(self, item, item_mongo_id):
-    instance = self.instance
+  def add_link_for_vnic(self, v):
+    instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
     source = instance["_id"]
     source_id = instance["id"]
-    target = item_mongo_id
-    target_id = item["id"]
+    target = v["_id"]
+    target_id = v["id"]
     link_type = "instance-vnic"
     # find related network
     network_name = None
     for net in instance["network_info"]:
-      if net["devname"] == item["id"]:
+      if net["devname"] == v["id"]:
         network_name = net["network"]["label"]
         break
     state = "up" # TBD
