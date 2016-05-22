@@ -28,17 +28,31 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.links = self.set_collection("links", links_collection)
 
   # return single match
+  def process_results(self, raw_results, get_single=False):
+    ret = []
+    for doc in raw_results:
+      doc["_id"] = str(doc["_id"])
+      doc["children_url"] = self.get_base_url(doc)
+      if get_single:
+        return doc
+      ret.append(doc)
+    return ret
+
+  # return single match
   def get_by_id(self, environment, item_id):
     matches = self.find({
       "environment": environment,
       "id": item_id
     })
-    ret = []
-    for doc in matches:
-      doc["_id"] = str(doc["_id"])
-      doc["children_url"] = self.get_base_url(doc)
-      return doc
-    return ret
+    return self.process_results(matches, True)
+
+  # return matches for ID in list of values
+  def get_by_ids(self, environment, ids_list):
+    matches = self.find({
+      "environment": environment,
+      "id": {"$in": ids_list}
+    })
+    return self.process_results(matches)
 
   def get_by_field(self, environment, item_type, field_name, field_value):
     if field_value and (not isinstance(field_value, str) or field_value > ""):
@@ -52,12 +66,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         "environment": environment,
         "type": item_type
       })
-    ret = []
-    for doc in matches:
-      doc["_id"] = str(doc["_id"])
-      doc["children_url"] = self.get_base_url(doc)
-      ret.append(doc)
-    return ret
+    return self.process_results(matches)
     
   def get(self, environment, item_type, item_id):
     ret = self.get_by_field(environment, item_type, "id", item_id)
@@ -72,28 +81,19 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         matches = self.find({"environment": environment, "type": item_type, "parent_id": parent_id})
       else:
         matches = self.find({"environment": environment, "type": item_type})
-    ret = []
-    for doc in matches:
-      doc["_id"] = str(doc["_id"])
-      doc["children_url"] = self.get_base_url(doc)
-      ret.append(doc)
-    return ret
+    return self.process_results(matches)
   
   def getSingle(self, environment, item_type, item_id):
     matches = self.find({"environment": environment, "type": item_type, "id": item_id})
-    ret = []
-    for doc in matches:
-      doc["_id"] = str(doc["_id"])
-      doc["children_url"] = self.get_base_url(doc)
-      ret.append(doc)
-      if len(ret) > 1:
-        raise ValueError("Found multiple matches for item: type=" + item_type + ", id=" + item_id)
-    if len(ret) == 0:
+    if len(matches) > 1:
+      raise ValueError("Found multiple matches for item: type=" + item_type + ", id=" + item_id)
+    if len(matches) == 0:
       raise ValueError("No matches for item: type=" + item_type + ", id=" + item_id)
+    ret = self.process_results(matches)
     return ret[0]
   
   # item must contain properties 'environment', 'type' and 'id'
-  def set(self, item, fetcher = None):
+  def set(self, item):
     # make sure we have environment, type & id
     self.check(item, "environment")
     self.check(item, "type")
@@ -109,15 +109,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.set_inventory_collection() # make sure we have it set
     find_tuple = {"environment": item["environment"],
        "type": item["type"], "id": item["id"]}
-    update_result = self.inv.update_one(find_tuple,
+    self.inv.update_one(find_tuple,
       {'$set': self.encode_mongo_keys(item)},
       upsert=True)
-    modify_count = update_result.raw_result["n"]
-    if fetcher and modify_count and hasattr(fetcher, "add_links"):
-      # add link if possible
-      doc = self.inv.find_one(find_tuple)
-      if doc:
-        fetcher.add_links(item, doc["_id"])
     if projects:
       self.inv.update_one(find_tuple,
         {'$addToSet': {"projects": {'$each': projects}}},
@@ -131,12 +125,16 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   def get_base_url(self, doc):
     return self.base_url_prefix + "&id=" + str(doc["id"])
 
-  def find(self, search):
+  # note: to use general find, call find_items() which also does process_results
+  def find(self, search, projection = None):
     matches = self.inv.find(search)
     decoded_matches = []
     for m in matches:
       decoded_matches.append(self.decode_mongo_keys(m))
     return decoded_matches
+
+  def find_items(self, search, projection = None):
+    return self.process_results(self.find(search, projection))
 
   # record a link between objects in the inventory, to be used in graphs
   # parameters -
