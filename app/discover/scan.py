@@ -118,12 +118,11 @@ class ScanController:
     class_ = getattr(module, class_name)
     scanner = class_()
     scanner.set_env(env_name)
-    results = scanner.scan(
+    results = scanner.run_scan(
       scan_plan["obj"],
       scan_plan["id_field"],
       scan_plan["child_id"],
       scan_plan["child_type"])
-    scanner.scan_from_queue()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
     return response
