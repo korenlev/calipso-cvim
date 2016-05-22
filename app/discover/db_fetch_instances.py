@@ -12,7 +12,7 @@ class DbFetchInstances(DbAccess):
         JOIN keystone.project p ON p.id = i.project_id
         JOIN nova.instance_info_caches ic ON i.uuid = ic.instance_uuid
         JOIN nova.compute_nodes cn ON i.node = cn.hypervisor_hostname
-      WHERE uuid = %s
+      WHERE i.uuid = %s
     """
     results = self.get_objects_list_for_id(query, "instance", uuid)
     ret = []
