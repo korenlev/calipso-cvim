@@ -78,8 +78,11 @@ class ScanController:
     return self.prepare_scan_plan(plan)
 
   def prepare_scan_plan(self, plan):
-    self.inv.set_inventory_collection(plan["inventory_collection"])
-    links_col = plan["inventory_collection"].replace("inventory", "links")
+    inventory_col = plan["inventory_collection"]
+    self.inv.set_inventory_collection(inventory_col)
+    links_col = inventory_col.replace("inventory", "links") \
+      if inventory_col.startswith("inventory") \
+      else "links_" + inventory_col
     self.inv.set_links_collection(links_col)
     module = plan["object_type"]
     if not plan["scan_self"]:
