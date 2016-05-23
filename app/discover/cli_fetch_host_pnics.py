@@ -6,13 +6,16 @@ class CliFetchHostPnics(CliAccess):
 
   def __init__(self):
     super(CliFetchHostPnics, self).__init__()
-    self.if_header = re.compile('^[-]?(eth\S+)\s+(.*)$')
+    self.if_header = re.compile('^[-]?(eth[0-9]\S*)\s+(.*)$')
     self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
-    self.regexps = {
-      "mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
-      "IP Address": re.compile('^\s*inet addr:(\S+)\s.*$'),
-      "IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')
-    }
+    self.regexps = [
+      {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
+      {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
+      {"IP Address": re.compile('^\s*inet addr:(\S+)\s.*$')},
+      {"IP Address": re.compile('^\s*inet (\S+)\s.*$')},
+      {"IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')},
+      {"IPv6 Address": re.compile('^\s*inet6 \s*(\S+)(\s.*)?$')}
+    ]
 
   def get(self, id):
     host_id = id[:id.rindex("-")]
@@ -34,6 +37,8 @@ class CliFetchHostPnics(CliAccess):
       matches = self.if_header.match(line)
       if matches:
         name = matches.group(1)
+        if name.endswith(":"):
+          name = name[:name.rindex(":")]
         line_remainder = matches.group(2)
         id = interface_name
         interface = {
@@ -43,7 +48,6 @@ class CliFetchHostPnics(CliAccess):
           "lines": []
         }
         self.handle_line(interface, line_remainder)
-        interface["id"] = interface_name + interface["mac_address"]
       else:
         if interface:
           self.handle_line(interface, line)
@@ -51,11 +55,15 @@ class CliFetchHostPnics(CliAccess):
     return interface
 
   def handle_line(self, interface, line):
-    for re_name, re_value in self.regexps.items():
-      matches = re_value.match(line)
-      if matches:
-        matched_value = matches.group(1)
-        interface[re_name] = matched_value
+    for regexp_tuple in self.regexps:
+      for re_name in regexp_tuple.keys():
+        re_value = regexp_tuple[re_name]
+        matches = re_value.match(line)
+        if matches:
+          matched_value = matches.group(1)
+          interface[re_name] = matched_value
+          if re_name == "mac_address":
+            interface["id"] = interface["name"] + "-" + interface["mac_address"]
     interface["lines"].append(line.strip())
 
   def set_interface_data(self, interface):
