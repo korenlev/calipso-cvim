@@ -8,7 +8,7 @@ class CliFetchHostPnics(CliAccess):
   def __init__(self):
     super(CliFetchHostPnics, self).__init__()
     self.inv = InventoryMgr()
-    self.if_header = re.compile('^[-]?(eth[0-9]\S*)\s+(.*)$')
+    self.if_header = re.compile('^[-]?(eth[0-9]\S*|eno\S*)\s+(.*)$')
     self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
     self.regexps = [
       {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
@@ -21,7 +21,10 @@ class CliFetchHostPnics(CliAccess):
 
   def get(self, id):
     host_id = id[:id.rindex("-")]
-    cmd = "ip -d link show | grep '^[0-9]\+: eth' | sed 's/^[^:]*: *//' | sed 's/:.*//'"
+    cmd = "ip -d link show | " + \
+      "grep '^[0-9]\+: \(eth\|eno\)' | " + \
+      "sed 's/^[^:]*: *//' | " + \
+      "sed 's/:.*//'"
     interfaces_names = self.run_fetch_lines(cmd, host_id)
     interfaces = []
     for i in interfaces_names:
@@ -73,7 +76,11 @@ class CliFetchHostPnics(CliAccess):
       return
     interface["data"] = "\n".join(interface["lines"])
     interface.pop("lines", None)
-    cmd = "ethtool " + interface["local_name"]
+    ethtool_ifname = interface["local_name"]
+    if "@" in interface["local_name"]:
+      pos = interface["local_name"].index("@")
+      ethtool_ifname = ethtool_ifname[pos+1:]
+    cmd = "ethtool " + ethtool_ifname
     lines = self.run_fetch_lines(cmd, interface["host"])
     attr = None
     for line in lines[1:]:

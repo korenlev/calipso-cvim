@@ -138,7 +138,7 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       link_type, link_name, state, link_weight, source_label, target_label)
 
   def find_matching_pnic(self, vedge, port):
-    if not port["name"].startswith("eth"):
+    if not port["name"].startswith("eth") and not port["name"].startswith("eno"):
       return
     pnic = self.inv.find_items({
       "environment": self.get_env(),
