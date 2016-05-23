@@ -82,7 +82,7 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
   def add_links(self):
     vedges = self.inv.find_items({
       "environment": self.get_env(),
-      "type": "vedge",
+      "type": "vedge"
     })
     for vedge in vedges:
       ports = vedge["ports"]
@@ -93,13 +93,16 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     vnic = self.inv.get_by_id(self.get_env(), port["name"])
     if not vnic:
       self.find_matching_vconnector(vedge, port)
+      self.find_matching_pnic(vedge, port)
       return
     source = vnic["_id"]
     source_id = vnic["id"]
     target = vedge["_id"]
     target_id = vedge["id"]
     link_type = "vnic-vedge"
-    link_name = vnic["name"] + "-" + vedge["name"] # TBD
+    link_name = vnic["name"] + "-" + vedge["name"]
+    if "tag" in port:
+      link_name += "-" + port["tag"]
     state = "up" # TBD
     link_weight = 0 # TBD
     source_label = vnic["mac_address"]
@@ -123,6 +126,8 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     target_id = vedge["id"]
     link_type = "vconnector-vedge"
     link_name = "port-" + port["id"]
+    if "tag" in port:
+      link_name += "-" + port["tag"]
     state = "up" # TBD
     link_weight = 0 # TBD
     source_label = vconnector_interface_name
@@ -130,3 +135,25 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     self.inv.create_link(self.get_env(), source, source_id, target, target_id,
       link_type, link_name, state, link_weight, source_label, target_label)
 
+  def find_matching_pnic(self, vedge, port):
+    if not port["name"].startswith("eth"):
+      return
+    pnic = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "pnic",
+      "host": vedge["host"],
+      "name": port["name"]
+    })
+    if not pnic:
+      return
+    pnic = pnic[0]
+    source = vedge["_id"]
+    source_id = vedge["id"]
+    target = pnic["_id"]
+    target_id = pnic["id"]
+    link_type = "vedge-pnic"
+    link_name = "Port-" + port["id"]
+    state = "up" if pnic["Link detected"] == "yes" else "down"
+    link_weight = 0 # TBD
+    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+      link_type, link_name, state, link_weight)
