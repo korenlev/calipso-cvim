@@ -60,6 +60,7 @@ class CliFetchInstanceVnics(CliAccess):
 
   def add_link_for_vnic(self, v):
     instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
+    host = instance["host"]
     source = instance["_id"]
     source_id = instance["id"]
     target = v["_id"]
@@ -73,5 +74,5 @@ class CliFetchInstanceVnics(CliAccess):
         break
     state = "up" # TBD
     link_weight = 0 # TBD
-    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+    self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
       link_type, network_name, state, link_weight)

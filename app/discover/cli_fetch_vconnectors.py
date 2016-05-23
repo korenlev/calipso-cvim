@@ -45,6 +45,7 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
       vnic = self.inv.get_by_id(self.get_env(), interface)
       if not vnic:
         return
+      host = vnic["host"]
       source = vnic["_id"]
       source_id = vnic["id"]
       target = vconnector["_id"]
@@ -53,5 +54,5 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
       link_name = vnic["mac_address"]
       state = "up" # TBD
       link_weight = 0 # TBD
-      self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+      self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
         link_type, link_name, state, link_weight)

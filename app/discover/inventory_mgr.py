@@ -139,6 +139,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   # record a link between objects in the inventory, to be used in graphs
   # parameters -
   # environment: name of environment
+  # host: name of host
   # source: node mongo _id
   # source_id: node id value of source node
   # target: node mongo _id
@@ -148,7 +149,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   # state: up/down
   # link_weight: integer, position/priority for graph placement
   # source_label, target_label: labels for the ends of the link (optional)
-  def create_link(self, env, src, source_id, target, target_id,
+  def create_link(self, env, host, src, source_id, target, target_id,
       link_type, link_name, state, link_weight,
       source_label = "", target_label = "",
       extra_attributes = {}):
@@ -157,6 +158,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     t = bson.ObjectId(target)
     link = {
       "environment": env,
+      "host": host,
       "source": s,
       "source_id": source_id,
       "target": t,

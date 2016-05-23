@@ -107,7 +107,8 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     link_weight = 0 # TBD
     source_label = vnic["mac_address"]
     target_label = port["id"]
-    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+    self.inv.create_link(self.get_env(), vedge["host"],
+      source, source_id, target, target_id,
       link_type, link_name, state, link_weight, source_label, target_label)
 
   def find_matching_vconnector(self, vedge, port):
@@ -132,7 +133,8 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     link_weight = 0 # TBD
     source_label = vconnector_interface_name
     target_label = port["name"]
-    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+    self.inv.create_link(self.get_env(), vedge["host"],
+      source, source_id, target, target_id,
       link_type, link_name, state, link_weight, source_label, target_label)
 
   def find_matching_pnic(self, vedge, port):
@@ -155,5 +157,6 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     link_name = "Port-" + port["id"]
     state = "up" if pnic["Link detected"] == "yes" else "down"
     link_weight = 0 # TBD
-    self.inv.create_link(self.get_env(), source, source_id, target, target_id,
+    self.inv.create_link(self.get_env(), vedge["host"],
+      source, source_id, target, target_id,
       link_type, link_name, state, link_weight)
