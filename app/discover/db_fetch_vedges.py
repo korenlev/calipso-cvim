@@ -29,8 +29,14 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     return results
 
   def fetch_ports(self, host):
-    lines = self.run_fetch_lines("ovs-dpctl show", host)
-    ports = []
+    ports = self.fetch_ports_from_dpctl(host)
+    self.fetch_port_tags_from_vsctl(host, ports)
+    return ports
+
+  def fetch_ports_from_dpctl(self, host):
+    cmd = "ovs-dpctl show"
+    lines = self.run_fetch_lines(cmd, host)
+    ports = {}
     for l in lines:
       port_matches = self.port_re.match(l)
       if not port_matches:
@@ -42,7 +48,35 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       port["internal"] = is_internal
       port["id"] = id
       port["name"] = name
-      ports.append(port)
+      ports[name] = port
+    return ports
+
+  # from ovs-vsctl, fetch tags of ports
+  # example format of ovs-vsctl output for a specific port:
+  #        Port "tap9f94d28e-7b"
+  #            tag: 5
+  #            Interface "tap9f94d28e-7b"
+  #                type: internal
+  def fetch_port_tags_from_vsctl(self, host, ports):
+    cmd = "ovs-vsctl show"
+    lines = self.run_fetch_lines(cmd, host)
+    port_line_header_prefix = " " * 8 + "Port "
+    port = None
+    for l in lines:
+      if l.startswith(port_line_header_prefix):
+        port = None
+        port_name = l[len(port_line_header_prefix):]
+        # remove quotes from port name
+        if '"' in port_name:
+          port_name = port_name[1:][:-1]
+        if port_name in ports:
+          port = ports[port_name]
+        continue
+      if not port:
+        continue
+      if l.startswith(" " * 12 + "tag: "):
+        port["tag"] = l[l.index(":")+2:]
+        ports[port["name"]] = port
     return ports
 
   def add_links(self):
@@ -51,7 +85,8 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       "type": "vedge",
     })
     for vedge in vedges:
-      for p in vedge["ports"]:
+      ports = vedge["ports"]
+      for p in ports.values():
         self.add_link_for_vedge(vedge, p)
 
   def add_link_for_vedge(self, vedge, port):
