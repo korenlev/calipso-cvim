@@ -39,6 +39,8 @@ class MongoAccess:
   #     Dictionary with the new keys.
   def change_dict_naming_convention(self, d, convert_function):
     new = {}
+    if not d:
+      return d
     if isinstance(d, str):
       return d
     for k, v in d.items():
