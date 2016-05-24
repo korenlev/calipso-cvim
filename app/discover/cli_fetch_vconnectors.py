@@ -11,6 +11,9 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
   def get(self, id):
     host_id = id[:id.rindex('-')]
     host = self.inv.get_by_id(self.get_env(), host_id)
+    host_types = host["host_type"].keys()
+    if "Network node" not in host_types and "Compute node" not in host_types:
+      return []
     lines = self.run_fetch_lines("brctl show", host_id)
     headers = ["bridge_name", "bridge_id", "stp_enabled", "interfaces"]
     headers_count = len(headers)
@@ -40,6 +43,7 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     for vconnector in vconnectors:
       for interface in vconnector["interfaces"]:
         self.add_vnic_vconnector_link(vconnector, interface)
+        self.add_vconnector_pnic_link(vconnector, interface)
 
   def add_vnic_vconnector_link(self, vconnector, interface):
       vnic = self.inv.get_by_id(self.get_env(), interface)
@@ -56,3 +60,19 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
       link_weight = 0 # TBD
       self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
         link_type, link_name, state, link_weight)
+
+  def add_vconnector_pnic_link(self, vconnector, ifname):
+    if not ifname.startswith("eth") and not ifname.startswith("eno"):
+      return
+    pnic = self.inv.get_by_id(self.get_env(), ifname)
+    host = vnic["host"]
+    source = vnic["_id"]
+    source_id = vnic["id"]
+    target = vconnector["_id"]
+    target_id = vconnector["id"]
+    link_type = "vnic-vconnector"
+    link_name = vnic["mac_address"]
+    state = "up" # TBD
+    link_weight = 0 # TBD
+    self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
+      link_type, link_name, state, link_weight)
