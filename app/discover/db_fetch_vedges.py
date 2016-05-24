@@ -28,17 +28,17 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       doc["ports"] = ports
     return results
 
-  def fetch_ports(self, host):
-    ports = self.fetch_ports_from_dpctl(host)
-    self.fetch_port_tags_from_vsctl(host, ports)
+  def fetch_ports(self, host_id):
+    host = self.inv.get_by_id(self.get_env(), host_id)
+    host_types = host["host_type"]
+    if "Network" not in host_types and "Compute" not in host_types:
+      return []
+    ports = self.fetch_ports_from_dpctl(host_id)
+    self.fetch_port_tags_from_vsctl(host_id, ports)
     return ports
 
   def fetch_ports_from_dpctl(self, host_id):
     cmd = "ovs-dpctl show"
-    host = self.inv.get_by_id(self.get_env(), host_id)
-    host_types = host["host_type"].keys()
-    if "Network node" not in host_types and "Compute node" not in host_types:
-      return []
     lines = self.run_fetch_lines(cmd, host_id)
     ports = {}
     for l in lines:
