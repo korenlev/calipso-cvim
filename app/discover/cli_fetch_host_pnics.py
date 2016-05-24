@@ -26,8 +26,15 @@ class CliFetchHostPnics(CliAccess):
       "sed 's/^[^:]*: *//' | " + \
       "sed 's/:.*//'"
     host = self.inv.get_by_id(self.get_env(), host_id)
-    host_types = host["host_type"].keys()
-    if "Network node" not in host_types and "Compute node" not in host_types:
+    if not host:
+      print("Error: CliFetchHostPnics: host not found: " + host_id)
+      return []
+    if "host_type" not in host:
+      print("Error: host does not have host_type: " + host_id + \
+        ", host: " + str(host))
+      return []
+    host_types = host["host_type"]
+    if "Network" not in host_types and "Compute" not in host_types:
       return []
     interfaces_names = self.run_fetch_lines(cmd, host_id)
     interfaces = []

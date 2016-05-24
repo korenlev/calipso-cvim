@@ -11,8 +11,15 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
   def get(self, id):
     host_id = id[:id.rindex('-')]
     host = self.inv.get_by_id(self.get_env(), host_id)
-    host_types = host["host_type"].keys()
-    if "Network node" not in host_types and "Compute node" not in host_types:
+    if not host:
+      print("Error: CliFetchVconnectors: host not found: " + host_id)
+      return []
+    if "host_type" not in host:
+      print("Error: host does not have host_type: " + host_id + \
+        ", host: " + str(host))
+      return []
+    host_types = host["host_type"]
+    if "Network" not in host_types and "Compute" not in host_types:
       return []
     lines = self.run_fetch_lines("brctl show", host_id)
     headers = ["bridge_name", "bridge_id", "stp_enabled", "interfaces"]
@@ -65,13 +72,13 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     if not ifname.startswith("eth") and not ifname.startswith("eno"):
       return
     pnic = self.inv.get_by_id(self.get_env(), ifname)
-    host = vnic["host"]
-    source = vnic["_id"]
-    source_id = vnic["id"]
+    host = pnic["host"]
+    source = pnic["_id"]
+    source_id = pnic["id"]
     target = vconnector["_id"]
     target_id = vconnector["id"]
-    link_type = "vnic-vconnector"
-    link_name = vnic["mac_address"]
+    link_type = "vconnector-pnic"
+    link_name = pnic["name"]
     state = "up" # TBD
     link_weight = 0 # TBD
     self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
