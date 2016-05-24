@@ -14,6 +14,9 @@ class CliFetchInstanceVnics(CliAccess):
     instance = self.inv.get_by_id(self.get_env(), instance_uuid)
     if not instance:
       return []
+    host = self.inv.get_by_id(self.get_env(), instance["host"])
+    if "Compute node" not in host["host_type"].keys():
+      return []
     lines = self.run_fetch_lines("virsh list", instance["host"])
     del lines[:2] # remove header
     virsh_ids = [l.split()[0] for l in lines if l>""]

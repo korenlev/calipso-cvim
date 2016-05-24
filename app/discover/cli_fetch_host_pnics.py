@@ -25,6 +25,10 @@ class CliFetchHostPnics(CliAccess):
       "grep '^[0-9]\+: \(eth\|eno\)' | " + \
       "sed 's/^[^:]*: *//' | " + \
       "sed 's/:.*//'"
+    host = self.inv.get_by_id(self.get_env(), host_id)
+    host_types = host["host_type"].keys()
+    if "Network node" not in host_types and "Compute node" not in host_types:
+      return []
     interfaces_names = self.run_fetch_lines(cmd, host_id)
     interfaces = []
     for i in interfaces_names:

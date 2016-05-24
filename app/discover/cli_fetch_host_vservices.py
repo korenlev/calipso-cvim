@@ -17,6 +17,7 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     host = self.inv.getSingle(self.get_env(), "host", host_id)
     if "Network node" not in host["host_type"].keys():
       return []
+    host_types = host["host_type"].keys()
     services_ids = self.run_fetch_lines("ip netns", host_id)
     results = [{"local_service_id": s} for s in services_ids if self.type_re.match(s)]
     for r in results:
