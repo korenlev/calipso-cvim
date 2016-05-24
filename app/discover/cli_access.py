@@ -55,7 +55,7 @@ class CliAccess(Fetcher):
     stdin.close()
     err = self.binary2str(stderr.read())
     if err:
-      print("CLI access error: " + err)
+      print("CLI access error: " + err + ",cmd:\n" + cmd)
       return ""
     ret = self.binary2str(stdout.read())
     return ret
