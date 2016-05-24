@@ -26,6 +26,10 @@ class ApiAccess(Fetcher):
   tokens = {}
   admin_endpoint = ""
   auth_response = None
+
+  alternative_services = {
+    "neutron": ["quantum"]
+  }
   
   
   # identitity API v2 version with admin token
@@ -138,11 +142,9 @@ class ApiAccess(Fetcher):
   def get(self, id):
     return nil
   
-  
   def get_rel_url(self, relative_url, headers):
     req_url = ApiAccess.base_url + relative_url
     return self.get_url(req_url, headers)
-  
   
   def get_url(self, req_url, headers):
     method = 'GET'
@@ -160,14 +162,13 @@ class ApiAccess(Fetcher):
     ret = json.loads(content_string)
     return ret
   
-  
   def get_region_url(self, region_name, service):
     if region_name not in self.regions:
       return None
     region = self.regions[region_name]
-    if not service in region["endpoints"]:
+    s = self.get_service_region_endpoints(region, service)
+    if not s:
       return None
-    s = region["endpoints"][service]
     orig_url = s["adminURL"]
     # replace host name with the host found in config
     url = re.sub(r"^([^/]+)//[^:]+", r"\1//" + ApiAccess.host, orig_url)
@@ -176,9 +177,24 @@ class ApiAccess(Fetcher):
   # like get_region_url(), but remove everything starting from the "/v2"
   def get_region_url_nover(self, region, service):
     full_url = self.get_region_url(region, service)
+    if not full_url:
+        print("Error: could not find region URL for region: " + region)
+        exit
     url = re.sub(r":([0-9]+)/v[2-9].*", r":\1", full_url)
     return url
   
   def get_catalog(self, pretty):
     return jsonify(regions, pretty)
   
+  # find the endpoints for a given service name, considering also alternative service names
+  def get_service_region_endpoints(self, region, service):
+    alternatives = [service]
+    endpoints = region["endpoints"]
+    if service in self.alternative_services:
+      alternatives.extend(self.alternative_services[service])
+    for sname in alternatives:
+      if sname in endpoints:
+        return endpoints[sname]
+    return None
+
+
