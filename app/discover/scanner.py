@@ -103,6 +103,7 @@ class Scanner(Util, Fetcher):
            "parent_type": master_parent_type,
            "id": o["parent_id"],
            "id_path": master_parent["id_path"] + "/" + o["parent_id"],
+           "show_in_tree": True,
            "name_path": master_parent["name_path"] + "/" + o["parent_text"],
            "name": o["parent_id"],
            "type": o["parent_type"],
