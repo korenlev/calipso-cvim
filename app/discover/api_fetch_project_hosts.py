@@ -59,9 +59,8 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
             continue
         doc["os_id"] = str(h["id"])
         self.fetch_compute_node_ip_address(doc, hvname)
-    # find hosts without ip_address
-    for doc in [doc for doc in ret if "ip_address" not in doc]:
-      self.fetch_network_node_ip_address(doc)
+    # get more network nodes details
+    self.fetch_network_node_details(ret)
     return ret
 
   def get_hosts_from_az(self, az):
@@ -82,30 +81,33 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       "parent_type": "availability_zone",
       "parent_id": az["zoneName"],
       "services": services,
-      "host_type": {}
+      "host_type": []
     }
     if "nova-conductor" in services:
       s = services["nova-conductor"]
       if s["available"] and s["active"]:
-        doc["host_type"]["Controller node"] = 1
+        self.add_host_type(doc, "Controller")
     if "nova-compute" in services:
       s = services["nova-compute"]
       if s["available"] and s["active"]:
-        doc["host_type"]["Compute node"] = 1
+        self.add_host_type(doc, "Compute")
     return doc
 
-  # fetch ip_address of network nodes from neutron.agents table if possible
-  def fetch_network_node_ip_address(self, doc):
+  # fetch more details of network nodes from neutron.agents table
+  def fetch_network_node_details(self, docs):
+    hosts = {}
+    for doc in docs:
+      hosts[doc["host"]] = doc
     query = """
       SELECT DISTINCT host, host AS id, configurations
       FROM neutron.agents
       WHERE agent_type IN ('Metadata agent', 'DHCP agent', 'L3 agent')
-        AND host = %s
     """
-    results = self.get_objects_list_for_id(query, "", doc["host"])
+    results = self.get_objects_list(query, "")
     for r in results:
-        config = json.loads(r["configurations"])
-        doc["host_type"]["Network node"] = 1
+      host = hosts[r["host"]]
+      host["config"] = json.loads(r["configurations"])
+      self.add_host_type(host, "Network")
 
   # fetch ip_address from nova.compute_nodes table if possible
   def fetch_compute_node_ip_address(self, doc, h):
@@ -118,3 +120,6 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     for db_row in results:
       doc.update(db_row)
 
+  def add_host_type(self, doc, type):
+    if not type in doc["host_type"]:
+      doc["host_type"].append(type)
