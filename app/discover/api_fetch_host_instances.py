@@ -23,7 +23,7 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
     self.get_projects()
     host_name = id.replace("-instances", "")
     host = self.inv.getSingle(self.get_env(), "host", host_name)
-    if "Compute node" not in host["host_type"].keys():
+    if "Compute" not in host["host_type"]:
       return []
     instances_found = []
     for project in self.projects:
