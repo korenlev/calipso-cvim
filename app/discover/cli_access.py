@@ -1,5 +1,6 @@
 import paramiko
 import os
+import logging
 
 from configuration import Configuration
 from fetcher import Fetcher
@@ -9,6 +10,8 @@ class CliAccess(Fetcher):
   config = None
   ssh = None
   ssh_cmd = "ssh -o StrictHostKeyChecking=no "
+  call_count_per_con = 0
+  max_call_count_per_con = 100
   
   def __init__(self):
     super().__init__()
@@ -38,19 +41,29 @@ class CliAccess(Fetcher):
  
   def ssh_connect(self):
     if CliAccess.ssh:
-      return
+      if CliAccess.call_count_per_con < CliAccess.max_call_count_per_con:
+        return
+      logging.info("DbAccess: ****** forcing reconnect, call count: %s ******",
+        CliAccess.call_count_per_con)
+      CliAccess.ssh = None
     CliAccess.ssh = paramiko.SSHClient()
     CliAccess.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     if (self.key):
       k = paramiko.RSAKey.from_private_key_file(self.key)
-      CliAccess.ssh.connect(hostname=self.host, username=self.user, pkey=k)
+      CliAccess.ssh.connect(hostname=self.host, username=self.user, pkey=k,
+        timeout=30)
     else:
-      CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd)
+      CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd,
+        timeout=30)
+    CliAccess.call_count_per_con = 0
   
   def run(self, cmd, ssh_to_host = ""):
     self.ssh_connect()
     if ssh_to_host:
       cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
+    CliAccess.call_count_per_con +=1
+    logging.debug("call count: %s, running call:\n%s\n",
+      str(CliAccess.call_count_per_con), cmd)
     stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
     stdin.close()
     err = self.binary2str(stderr.read())
