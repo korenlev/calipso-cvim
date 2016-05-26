@@ -52,9 +52,7 @@ class CliFetchHostPnics(CliAccess):
     for line in lines:
       matches = self.if_header.match(line)
       if matches:
-        name = matches.group(1)
-        if name.endswith(":"):
-          name = name[:name.rindex(":")]
+        name = matches.group(1).strip(":")
         line_remainder = matches.group(2)
         id = interface_name
         interface = {
