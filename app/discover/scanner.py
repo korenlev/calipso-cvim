@@ -7,6 +7,7 @@ from fetcher import Fetcher
 import queue
 import json
 import re
+import logging
 
 class Scanner(Util, Fetcher):
   
@@ -61,6 +62,11 @@ class Scanner(Util, Fetcher):
     except KeyError:
       children_scanner = None
     escaped_id = fetcher.escape(str(id)) if id else id
+    logging.info("scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
+      type_to_fetch["type"],
+      "environment" if "type" not in parent else parent["type"],
+      "" if "name" not in parent else parent["name"],
+      escaped_id)
     db_results = fetcher.get(escaped_id)
     
     if isinstance(db_results, dict):

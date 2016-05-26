@@ -8,6 +8,7 @@ import cgi
 import sys
 import os
 import argparse
+import logging
 
 from configuration import Configuration
 from inventory_mgr import InventoryMgr
@@ -131,6 +132,8 @@ class ScanController:
     return response
 
 if __name__ == '__main__':
+  logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
+    level=logging.INFO)
   scan_manager = ScanController()
   response = scan_manager.run()
 
