@@ -1,3 +1,5 @@
+import logging
+
 from api_access import ApiAccess
 from db_access import DbAccess
 from db_fetch_instances import DbFetchInstances
@@ -25,13 +27,12 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
     host = self.inv.getSingle(self.get_env(), "host", host_name)
     if "Compute" not in host["host_type"]:
       return []
-    instances_found = []
-    for project in self.projects:
-      instances_found.extend(self.get_instances_for_project(host_name, project))
+    instances_found = self.get_instances_from_api(host_name)
+    self.db_fetcher.get_instance_data(instances_found)
     return instances_found
 
-  def get_instances_for_project(self, host_name, project):
-    token = self.v2_auth_pwd(project)
+  def get_instances_from_api(self, host_name):
+    token = self.v2_auth_pwd("admin")
     if not token:
         return []
     tenant_id = token["tenant"]["id"]
@@ -44,13 +45,10 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
     if not "servers" in response["hypervisors"][0]:
       return []
     for doc in response["hypervisors"][0]["servers"]:
-        doc["id"] = doc["uuid"]
-        doc["host"] = host_name
-        doc["in_project-" + project] = "1"
-        doc["local_name"] = doc.pop("name")
-        db_matches = self.db_fetcher.get_instance(doc["uuid"])
-        if len(db_matches):
-          doc.update(db_matches[0])
-        ret.append(doc)
+      doc["id"] = doc["uuid"]
+      doc["host"] = host_name
+      doc["local_name"] = doc.pop("name")
+      ret.append(doc)
+    logging.info("found %s instances for host: %s", str(len(ret)), host_name)
     return ret
 
