@@ -50,8 +50,11 @@ class ScanController:
       help="type of parent object (when scan_self=true)")
     parser.add_argument("-f", "--id_field", nargs="?", type=str, default="id",
       help="name of ID field (when scan_self=true) \n(default: 'id', use 'name' for projects)")
+    parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
+      help="logging level \n(default: 'INFO'")
     args = parser.parse_args()
     plan = {
+      "loglevel": args.loglevel,
       "object_type": args.type,
       "env": args.env,
       "object_id": args.id,
@@ -115,6 +118,15 @@ class ScanController:
 
   def run(self):
     scan_plan = self.get_scan_plan()
+    # assuming loglevel is bound to the string value obtained from the
+    # command line argument. Convert to upper case to allow the user to
+    # specify --log=DEBUG or --log=debug
+    loglevel = scan_plan["loglevel"]
+    numeric_level = getattr(logging, loglevel.upper(), None)
+    if not isinstance(numeric_level, int):
+      raise ValueError('Invalid log level: %s' % loglevel)
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
+      level=numeric_level)
     env_name = scan_plan["env"]
     self.conf.use_env(env_name)
     class_name = scan_plan["scanner_class"]
@@ -132,8 +144,6 @@ class ScanController:
     return response
 
 if __name__ == '__main__':
-  logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
-    level=logging.INFO)
   scan_manager = ScanController()
   response = scan_manager.run()
 
