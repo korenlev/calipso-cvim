@@ -6,6 +6,7 @@ from inventory_mgr import InventoryMgr
 class DbFetchHostNetworkAgents(DbAccess):
 
   def __init__(self):
+    super().__init__()
     self.inv = InventoryMgr()
 
   def get(self, id):
