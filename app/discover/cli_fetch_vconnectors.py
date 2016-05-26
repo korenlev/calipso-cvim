@@ -36,6 +36,7 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     for doc in results:
       doc["id"] = doc.pop("bridge_id")
       doc["name"] = doc.pop("bridge_name")
+      doc["host"] = host_id
       doc["connector_type"] = "bridge"
       if "interfaces" in doc:
         doc["interfaces"] = doc["interfaces"].split(",")
@@ -71,8 +72,18 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
   def add_vconnector_pnic_link(self, vconnector, ifname):
     if not ifname.startswith("eth") and not ifname.startswith("eno"):
       return
-    pnic = self.inv.get_by_id(self.get_env(), ifname)
-    host = pnic["host"]
+    if "." in ifname:
+      ifname = ifname[:ifname.index(".")]
+    host = vconnector["host"]
+    pnic = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "pnic",
+      "host": vconnector["host"],
+      "name": ifname
+    })
+    if not pnic:
+      return
+    pnic = pnic[0]
     source = pnic["_id"]
     source_id = pnic["id"]
     target = vconnector["_id"]
