@@ -1,4 +1,6 @@
 import mysql.connector
+import logging
+
 from util import Util
 from configuration import Configuration
 from fetcher import Fetcher
@@ -6,6 +8,7 @@ from fetcher import Fetcher
 class DbAccess(Fetcher, Util):
   
   conn = None
+  query_count_per_con = 0
   
   def __init__(self):
     super().__init__()
@@ -18,26 +21,50 @@ class DbAccess(Fetcher, Util):
     if DbAccess.conn:
       return
     DbAccess.conn = mysql.connector.connect(host=_host, port=_port, \
-      user=_user, password=_password, database=_database)
+      # connection timeout set to 30 seconds, due to problems over long connections
+      connection_timeout=30,
+      user=_user, password=_password, database=_database,
+      raise_on_warnings=True)
+    DbAccess.conn.ping(True) # auto-reconnect if necessary
+    DbAccess.query_count_per_con = 0
     if not DbAccess.conn:
-      raise EnvironmentError("failed to connect to MySQL DB")
+      self.critical_error("failed to connect to MySQL DB")
+
   
   
-  def connect_to_db(self):
+  def connect_to_db(self, force = False):
     if DbAccess.conn:
-      return
+      if not force:
+        return
+      logging.info("DbAccess: ****** forcing reconnect, query count: %s ******",
+        DbAccess.query_count_per_con)
+      DbAccess.conn = None
+    self.conf = self.config.get("mysql")
     cnf = self.conf
     self.db_connect(cnf["host"], cnf["port"], cnf["user"], cnf["password"], cnf["schema"])
     
   
   def get_objects_list_for_id(self, query, object_type, id):
-    self.connect_to_db()
+    self.connect_to_db(DbAccess.query_count_per_con >= 25)
+    DbAccess.query_count_per_con+=1
+    logging.debug("query count: %s, running query:\n%s\n",
+      str(DbAccess.query_count_per_con), query)
     
     cursor = DbAccess.conn.cursor(dictionary=True)
-    if id:
-      cursor.execute(query, [str(id)])
-    else:
-      cursor.execute(query)
+    try:
+      if id:
+        cursor.execute(query, [str(id)])
+      else:
+        cursor.execute(query)
+    except (AttributeError, mysql.connector.errors.OperationalError) as e:
+      logging.error(e)
+      self.connect_to_db(True)
+      # try again to run the query
+      cursor = DbAccess.conn.cursor(dictionary=True)
+      if id:
+        cursor.execute(query, [str(id)])
+      else:
+        cursor.execute(query)
       
     rows = []
     for row in cursor:
