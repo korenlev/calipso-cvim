@@ -15,7 +15,7 @@ class CliFetchInstanceVnics(CliAccess):
     if not instance:
       return []
     host = self.inv.get_by_id(self.get_env(), instance["host"])
-    if "Compute node" not in host["host_type"].keys():
+    if "Compute" not in host["host_type"]:
       return []
     lines = self.run_fetch_lines("virsh list", instance["host"])
     del lines[:2] # remove header
@@ -31,6 +31,8 @@ class CliFetchInstanceVnics(CliAccess):
 
   def get_vnics_from_dumpxml(self, id, instance):
     xml_string = self.run("virsh dumpxml " + id, instance["host"])
+    if not xml_string.strip():
+      return []
     response = xmltodict.parse(xml_string)
     if instance["uuid"] != response["domain"]["uuid"]:
       # this is the wrong instance - skip it

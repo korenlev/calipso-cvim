@@ -16,7 +16,14 @@ class CliFetchVserviceVnics(CliAccess):
 
   def get(self, host_id):
     host = self.inv.get_by_id(self.get_env(), host_id)
-    if "Network node" not in host["host_type"].keys():
+    if not host:
+      print("Error: CliFetchVserviceVnics: host not found: " + host_id)
+      return []
+    if "host_type" not in host:
+      print("Error: host does not have host_type: " + host_id + \
+        ", host: " + str(host))
+      return []
+    if "Network" not in host["host_type"]:
       return []
     lines = self.run_fetch_lines("ip netns", host_id)
     ret = []
@@ -25,7 +32,7 @@ class CliFetchVserviceVnics(CliAccess):
     return ret
 
   def handle_service(self, host, service):
-    lines = self.run_fetch_lines("ip netns exec " + service + " ifconfig", host)
+    lines = self.run_fetch_lines("ip netns exec " + service.strip() + " ifconfig", host)
     interfaces = []
     current = None
     for line in lines:
