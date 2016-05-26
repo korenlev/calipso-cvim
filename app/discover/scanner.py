@@ -101,7 +101,7 @@ class Scanner(Util, Fetcher):
          master_parent_id = o["master_parent_id"]
          master_parent = self.inventory.get_by_id(self.get_env(), master_parent_id)
          if not master_parent:
-           print("ERROR: failed to find master parent " + master_parent_id)
+           logging.error("failed to find master parent " + master_parent_id)
            continue
          folder = {
            "environment": parent["environment"],
@@ -193,7 +193,7 @@ class Scanner(Util, Fetcher):
       item = Scanner.scan_queue.get()
       scanner = item["scanner"]
       scanner.scan(item["object"], item["child_id_field"])
-    print("Scan complete")
+    logging.info("Scan complete")
 
   def scan_links(self):
     for fetcher in self.fetchers_implementing_add_links.values():

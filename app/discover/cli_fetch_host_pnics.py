@@ -28,10 +28,10 @@ class CliFetchHostPnics(CliAccess):
       "sed 's/:.*//'"
     host = self.inv.get_by_id(self.get_env(), host_id)
     if not host:
-      print("Error: CliFetchHostPnics: host not found: " + host_id)
+      logging.error("CliFetchHostPnics: host not found: " + host_id)
       return []
     if "host_type" not in host:
-      print("Error: host does not have host_type: " + host_id + \
+      logging.error("host does not have host_type: " + host_id + \
         ", host: " + str(host))
       return []
     host_types = host["host_type"]

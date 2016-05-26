@@ -43,7 +43,7 @@ class CliAccess(Fetcher):
     if CliAccess.ssh:
       if CliAccess.call_count_per_con < CliAccess.max_call_count_per_con:
         return
-      logging.info("DbAccess: ****** forcing reconnect, call count: %s ******",
+      logging.info("CliAccess: ****** forcing reconnect, call count: %s ******",
         CliAccess.call_count_per_con)
       CliAccess.ssh = None
     CliAccess.ssh = paramiko.SSHClient()
@@ -68,7 +68,7 @@ class CliAccess(Fetcher):
     stdin.close()
     err = self.binary2str(stderr.read())
     if err:
-      print("CLI access error: " + err + ",cmd:\n" + cmd)
+      logging.error("CLI access: " + err + ",cmd:\n" + cmd)
       return ""
     ret = self.binary2str(stdout.read())
     return ret

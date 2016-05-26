@@ -1,5 +1,7 @@
-from mongo_access import MongoAccess
 import bson
+import logging
+
+from mongo_access import MongoAccess
 from util import Util
 from datetime import datetime
 from singleton import Singleton
@@ -16,7 +18,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   def set_collection(self, coll_type, collection_name):
     # do not allow setting the collection more than once
     if coll_type not in self.coll or not self.coll[coll_type]:
-      print("using " + coll_type +" collection: " + collection_name)
+      logging.info("using " + coll_type +" collection: " + collection_name)
       name = collection_name if collection_name else coll_type
       self.coll[coll_type] = MongoAccess.db[name]
     return self.coll[coll_type]
