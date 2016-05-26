@@ -8,11 +8,14 @@ class CliFetchVserviceVnics(CliAccess):
     super(CliFetchVserviceVnics, self).__init__()
     self.inv = InventoryMgr()
     self.if_header = re.compile('^[-]?(\S+)\s+(.*)$')
-    self.regexps = {
-      "mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$'),
-      "IP Address": re.compile('^\s*inet addr:(\S+)\s.*$'),
-      "IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')
-    }
+    self.regexps = [
+      {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
+      {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
+      {"IP Address": re.compile('^\s*inet addr:(\S+)\s.*$')},
+      {"IP Address": re.compile('^\s*inet (\S+)\s.*$')},
+      {"IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')},
+      {"IPv6 Address": re.compile('^\s*inet6 \s*(\S+)(\s.*)?$')}
+    ]
 
   def get(self, host_id):
     host = self.inv.get_by_id(self.get_env(), host_id)
@@ -32,7 +35,8 @@ class CliFetchVserviceVnics(CliAccess):
     return ret
 
   def handle_service(self, host, service):
-    lines = self.run_fetch_lines("ip netns exec " + service.strip() + " ifconfig", host)
+    cmd = "ip netns exec " + service.strip() + " ifconfig"
+    lines = self.run_fetch_lines(cmd, host)
     interfaces = []
     current = None
     for line in lines:
@@ -40,7 +44,7 @@ class CliFetchVserviceVnics(CliAccess):
       if matches:
         if current:
           self.set_interface_data(current)
-        name = matches.group(1)
+        name = matches.group(1).strip(":")
         # ignore 'lo' interface
         if name == 'lo':
           current = None
@@ -70,11 +74,13 @@ class CliFetchVserviceVnics(CliAccess):
     return interfaces
 
   def handle_line(self, interface, line):
-    for re_name, re_value in self.regexps.items():
-      matches = re_value.match(line)
-      if matches:
-        matched_value = matches.group(1)
-        interface[re_name] = matched_value
+    for regexp_tuple in self.regexps:
+      for re_name in regexp_tuple.keys():
+        re_value = regexp_tuple[re_name]
+        matches = re_value.match(line)
+        if matches:
+          matched_value = matches.group(1)
+          interface[re_name] = matched_value
     interface["lines"].append(line.strip())
 
   def set_interface_data(self, interface):
