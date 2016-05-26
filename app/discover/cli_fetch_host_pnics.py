@@ -2,6 +2,7 @@ from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 
 import re
+import logging
 
 class CliFetchHostPnics(CliAccess):
 
@@ -115,28 +116,29 @@ class CliFetchHostPnics(CliAccess):
       self.add_pnic_network_links(pnic)
 
   def add_pnic_network_links(self, pnic):
-      host = pnic["host"]
-      # find ports for that host, and fetch just the network ID
-      ports = self.inv.find_items({
-        "environment": self.get_env(),
-        "type": "port",
-        "binding:host_id" : host
-      }, {"network_id": 1})
-      networks = {}
-      for port in ports:
-        networks[port["network_id"]] = 1
-      for network_id in networks.keys():
-        network = self.inv.get_by_id(self.get_env(), network_id)
-        source = pnic["_id"]
-        source_id = pnic["id"]
-        target = network["_id"]
-        target_id = network["id"]
-        link_type = "pnic-network"
-        link_name = "Segment-" + str(network["provider:segmentation_id"])
-        state = "up" if pnic["Link detected"] == "yes" else "down"
-        link_weight = 0 # TBD
-        self.inv.create_link(self.get_env(), host,
-          source, source_id, target, target_id,
-          link_type, link_name, state, link_weight)
+    logging.info("adding links of type: pnic-network")
+    host = pnic["host"]
+    # find ports for that host, and fetch just the network ID
+    ports = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "port",
+      "binding:host_id" : host
+    }, {"network_id": 1})
+    networks = {}
+    for port in ports:
+      networks[port["network_id"]] = 1
+    for network_id in networks.keys():
+      network = self.inv.get_by_id(self.get_env(), network_id)
+      source = pnic["_id"]
+      source_id = pnic["id"]
+      target = network["_id"]
+      target_id = network["id"]
+      link_type = "pnic-network"
+      link_name = "Segment-" + str(network["provider:segmentation_id"])
+      state = "up" if pnic["Link detected"] == "yes" else "down"
+      link_weight = 0 # TBD
+      self.inv.create_link(self.get_env(), host,
+        source, source_id, target, target_id,
+        link_type, link_name, state, link_weight)
 
 

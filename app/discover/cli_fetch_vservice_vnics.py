@@ -1,4 +1,6 @@
 import re
+import logging
+
 from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 
@@ -89,6 +91,7 @@ class CliFetchVserviceVnics(CliAccess):
     interface["data"] = "\n".join(interface.pop("lines", None))
 
   def add_links(self):
+    logging.info("adding links of type: vservice-vnic")
     vnics = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vnic",

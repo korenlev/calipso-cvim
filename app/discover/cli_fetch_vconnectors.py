@@ -2,6 +2,8 @@ from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 from singleton import Singleton
 
+import logging
+
 class CliFetchVconnectors(CliAccess, metaclass=Singleton):
 
   def __init__(self):
@@ -48,6 +50,7 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
       "environment": self.get_env(),
       "type": "vconnector"
     })
+    logging.info("adding links of type: vnic-vconnector, vconnector-pnic")
     for vconnector in vconnectors:
       for interface in vconnector["interfaces"]:
         self.add_vnic_vconnector_link(vconnector, interface)

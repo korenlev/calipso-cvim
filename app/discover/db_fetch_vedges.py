@@ -2,8 +2,10 @@ from db_access import DbAccess
 from cli_access import CliAccess
 from singleton import Singleton
 from inventory_mgr import InventoryMgr
+
 import json
 import re
+import logging
 
 class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
 
@@ -84,6 +86,7 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     return ports
 
   def add_links(self):
+    logging.info("adding link types: vnic-vedge, vconnector-vedge, vedge-pnic")
     vedges = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vedge"
