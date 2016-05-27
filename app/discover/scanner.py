@@ -200,7 +200,7 @@ class Scanner(Util, Fetcher):
     logging.info("scanning for links")
     fetchers_implementing_add_links = [
       CliFetchHostPnics(),
-      CliFetchInstanceVnics()
+      CliFetchInstanceVnics(),
       CliFetchVconnectors(),
       CliFetchVserviceVnics(),
       DbFetchVedges()
