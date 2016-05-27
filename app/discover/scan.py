@@ -51,10 +51,13 @@ class ScanController:
     parser.add_argument("-f", "--id_field", nargs="?", type=str, default="id",
       help="name of ID field (when scan_self=true) \n(default: 'id', use 'name' for projects)")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
-      help="logging level \n(default: 'INFO'")
+      help="logging level \n(default: 'INFO')")
+    parser.add_argument("--links_only", nargs="?", type=bool, default=False,
+      help="do only links creation \n(default: False)")
     args = parser.parse_args()
     plan = {
       "loglevel": args.loglevel,
+      "links_only": args.links_only,
       "object_type": args.type,
       "env": args.env,
       "object_id": args.id,
@@ -134,11 +137,15 @@ class ScanController:
     class_ = getattr(module, class_name)
     scanner = class_()
     scanner.set_env(env_name)
-    results = scanner.run_scan(
-      scan_plan["obj"],
-      scan_plan["id_field"],
-      scan_plan["child_id"],
-      scan_plan["child_type"])
+    if not scan_plan["links_only"]:
+      results = scanner.run_scan(
+        scan_plan["obj"],
+	scan_plan["id_field"],
+	scan_plan["child_id"],
+	scan_plan["child_type"])
+    else:
+      results = []
+      scanner.scan_links()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
     return response

@@ -3,6 +3,11 @@
 from inventory_mgr import InventoryMgr
 from util import Util
 from fetcher import Fetcher
+from cli_fetch_host_pnics import CliFetchHostPnics
+from cli_fetch_instance_vnics import CliFetchInstanceVnics
+from cli_fetch_vconnectors import CliFetchVconnectors
+from cli_fetch_vservice_vnics import CliFetchVserviceVnics
+from db_fetch_vedges import DbFetchVedges
 
 import queue
 import json
@@ -16,7 +21,6 @@ class Scanner(Util, Fetcher):
   root_patern = None
   scan_queue = queue.Queue()
   scan_queue_track = {}
-  fetchers_implementing_add_links = {}
   
   def __init__(self, types_to_fetch):
     super(Scanner, self).__init__()
@@ -53,9 +57,6 @@ class Scanner(Util, Fetcher):
         raise ValueError("Object missing " + id_field + " attribute")
     fetcher = type_to_fetch["fetcher"]
     fetcher.set_env(self.get_env())
-    if hasattr(fetcher, "add_links"):
-      fetcher_class_name = type(fetcher).__name__
-      self.fetchers_implementing_add_links[fetcher_class_name] = fetcher
     try:
       children_scanner = type_to_fetch["children_scanner"]
       children_scanner.set_env(self.get_env())
@@ -196,7 +197,15 @@ class Scanner(Util, Fetcher):
     logging.info("Scan complete")
 
   def scan_links(self):
-    for fetcher in self.fetchers_implementing_add_links.values():
+    logging.info("scanning for links")
+    fetchers_implementing_add_links = [
+      CliFetchHostPnics(),
+      CliFetchInstanceVnics()
+      CliFetchVconnectors(),
+      CliFetchVserviceVnics(),
+      DbFetchVedges()
+    ]
+    for fetcher in fetchers_implementing_add_links:
       fetcher.add_links()
 
 
