@@ -9,9 +9,10 @@ class Configuration(MongoAccess, metaclass=Singleton):
     self.db_client = MongoAccess()
     self.db = MongoAccess.db
     self.collection = self.db["environments_config"]
-  
+    self.log = logging.getLogger("OS-DNA")
+        
   def use_env(self, env_name):
-    logging.info("configuration taken from environment: " + env_name)
+    self.log.info("configuration taken from environment: " + env_name)
     self.env = env_name
     envs = self.collection.find({"name": env_name})
     count = 0

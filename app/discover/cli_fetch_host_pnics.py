@@ -2,7 +2,6 @@ from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 
 import re
-import logging
 
 class CliFetchHostPnics(CliAccess):
 
@@ -28,10 +27,10 @@ class CliFetchHostPnics(CliAccess):
       "sed 's/:.*//'"
     host = self.inv.get_by_id(self.get_env(), host_id)
     if not host:
-      logging.error("CliFetchHostPnics: host not found: " + host_id)
+      self.log.error("CliFetchHostPnics: host not found: " + host_id)
       return []
     if "host_type" not in host:
-      logging.error("host does not have host_type: " + host_id + \
+      self.log.error("host does not have host_type: " + host_id + \
         ", host: " + str(host))
       return []
     host_types = host["host_type"]
@@ -116,7 +115,7 @@ class CliFetchHostPnics(CliAccess):
       self.add_pnic_network_links(pnic)
 
   def add_pnic_network_links(self, pnic):
-    logging.info("adding links of type: pnic-network")
+    self.log.info("adding links of type: pnic-network")
     host = pnic["host"]
     # find ports for that host, and fetch just the network ID
     ports = self.inv.find_items({

@@ -8,13 +8,13 @@ import cgi
 import sys
 import os
 import argparse
-import logging
 
 from configuration import Configuration
 from inventory_mgr import InventoryMgr
 from scan_environment import ScanEnvironment
+from fetcher import Fetcher
 
-class ScanController:
+class ScanController(Fetcher):
 
   default_env = "WebEX-Mirantis@Cisco"
 
@@ -121,15 +121,7 @@ class ScanController:
 
   def run(self):
     scan_plan = self.get_scan_plan()
-    # assuming loglevel is bound to the string value obtained from the
-    # command line argument. Convert to upper case to allow the user to
-    # specify --log=DEBUG or --log=debug
-    loglevel = scan_plan["loglevel"]
-    numeric_level = getattr(logging, loglevel.upper(), None)
-    if not isinstance(numeric_level, int):
-      raise ValueError('Invalid log level: %s' % loglevel)
-    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
-      level=numeric_level)
+    self.set_logger(scan_plan["loglevel"])
     env_name = scan_plan["env"]
     self.conf.use_env(env_name)
     class_name = scan_plan["scanner_class"]
@@ -140,9 +132,9 @@ class ScanController:
     if not scan_plan["links_only"]:
       results = scanner.run_scan(
         scan_plan["obj"],
-	scan_plan["id_field"],
-	scan_plan["child_id"],
-	scan_plan["child_type"])
+        scan_plan["id_field"],
+        scan_plan["child_id"],
+        scan_plan["child_type"])
     else:
       results = []
       scanner.scan_links()

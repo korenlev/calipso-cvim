@@ -49,6 +49,6 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
       doc["host"] = host_name
       doc["local_name"] = doc.pop("name")
       ret.append(doc)
-    logging.info("found %s instances for host: %s", str(len(ret)), host_name)
+    self.log.info("found %s instances for host: %s", str(len(ret)), host_name)
     return ret
 

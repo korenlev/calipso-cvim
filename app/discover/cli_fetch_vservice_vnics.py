@@ -1,6 +1,4 @@
 import re
-import logging
-
 from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 
@@ -22,10 +20,10 @@ class CliFetchVserviceVnics(CliAccess):
   def get(self, host_id):
     host = self.inv.get_by_id(self.get_env(), host_id)
     if not host:
-      logging.error("CliFetchVserviceVnics: host not found: " + host_id)
+      self.log.error("CliFetchVserviceVnics: host not found: " + host_id)
       return []
     if "host_type" not in host:
-      logging.error("host does not have host_type: " + host_id + \
+      self.log.error("host does not have host_type: " + host_id + \
         ", host: " + str(host))
       return []
     if "Network" not in host["host_type"]:
@@ -91,7 +89,7 @@ class CliFetchVserviceVnics(CliAccess):
     interface["data"] = "\n".join(interface.pop("lines", None))
 
   def add_links(self):
-    logging.info("adding links of type: vservice-vnic")
+    self.log.info("adding links of type: vservice-vnic")
     vnics = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vnic",

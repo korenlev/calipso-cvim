@@ -36,7 +36,7 @@ class DbAccess(Fetcher, Util):
     if DbAccess.conn:
       if not force:
         return
-      logging.info("DbAccess: ****** forcing reconnect, query count: %s ******",
+      self.log.info("DbAccess: ****** forcing reconnect, query count: %s ******",
         DbAccess.query_count_per_con)
       DbAccess.conn = None
     self.conf = self.config.get("mysql")
@@ -47,7 +47,7 @@ class DbAccess(Fetcher, Util):
   def get_objects_list_for_id(self, query, object_type, id):
     self.connect_to_db(DbAccess.query_count_per_con >= 25)
     DbAccess.query_count_per_con+=1
-    logging.debug("query count: %s, running query:\n%s\n",
+    self.log.debug("query count: %s, running query:\n%s\n",
       str(DbAccess.query_count_per_con), query)
     
     cursor = DbAccess.conn.cursor(dictionary=True)
@@ -57,7 +57,7 @@ class DbAccess(Fetcher, Util):
       else:
         cursor.execute(query)
     except (AttributeError, mysql.connector.errors.OperationalError) as e:
-      logging.error(e)
+      self.log.error(e)
       self.connect_to_db(True)
       # try again to run the query
       cursor = DbAccess.conn.cursor(dictionary=True)

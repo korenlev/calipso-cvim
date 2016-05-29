@@ -156,7 +156,7 @@ class ApiAccess(Fetcher):
         msg = ", reason: " + response["reason"]
       else:
         msg = ", response: " + str(response)
-      logging.error("req_url:" + req_url + msg)
+      self.log.error("req_url:" + req_url + msg)
       return response
     content_string = content.decode('utf-8')
     ret = json.loads(content_string)
@@ -178,7 +178,7 @@ class ApiAccess(Fetcher):
   def get_region_url_nover(self, region, service):
     full_url = self.get_region_url(region, service)
     if not full_url:
-        logging.error("could not find region URL for region: " + region)
+        self.log.error("could not find region URL for region: " + region)
         exit
     url = re.sub(r":([0-9]+)/v[2-9].*", r":\1", full_url)
     return url

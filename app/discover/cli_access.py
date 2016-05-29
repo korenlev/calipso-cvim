@@ -1,6 +1,5 @@
 import paramiko
 import os
-import logging
 
 from configuration import Configuration
 from fetcher import Fetcher
@@ -43,7 +42,7 @@ class CliAccess(Fetcher):
     if CliAccess.ssh:
       if CliAccess.call_count_per_con < CliAccess.max_call_count_per_con:
         return
-      logging.info("CliAccess: ****** forcing reconnect, call count: %s ******",
+      self.log.info("CliAccess: ****** forcing reconnect, call count: %s ******",
         CliAccess.call_count_per_con)
       CliAccess.ssh = None
     CliAccess.ssh = paramiko.SSHClient()
@@ -62,13 +61,13 @@ class CliAccess(Fetcher):
     if ssh_to_host:
       cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
     CliAccess.call_count_per_con +=1
-    logging.debug("call count: %s, running call:\n%s\n",
+    self.log.debug("call count: %s, running call:\n%s\n",
       str(CliAccess.call_count_per_con), cmd)
     stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
     stdin.close()
     err = self.binary2str(stderr.read())
     if err:
-      logging.error("CLI access: " + err + ",cmd:\n" + cmd)
+      self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
       return ""
     ret = self.binary2str(stdout.read())
     return ret

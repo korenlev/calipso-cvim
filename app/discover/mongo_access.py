@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 
 import re
+import logging
 
 class MongoAccess:
   
@@ -9,6 +10,7 @@ class MongoAccess:
   
   def __init__(self):
     self.mongo_connect()
+    self.log = logging.getLogger("OS-DNA")
   
   def mongo_connect(self):
     if (MongoAccess.client != None):

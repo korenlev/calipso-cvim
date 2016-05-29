@@ -2,8 +2,6 @@ from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
 from singleton import Singleton
 
-import logging
-
 class CliFetchVconnectors(CliAccess, metaclass=Singleton):
 
   def __init__(self):
@@ -14,10 +12,10 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     host_id = id[:id.rindex('-')]
     host = self.inv.get_by_id(self.get_env(), host_id)
     if not host:
-      logging.error("CliFetchVconnectors: host not found: " + host_id)
+      self.log.error("CliFetchVconnectors: host not found: " + host_id)
       return []
     if "host_type" not in host:
-      logging.error("host does not have host_type: " + host_id + \
+      self.log.error("host does not have host_type: " + host_id + \
         ", host: " + str(host))
       return []
     host_types = host["host_type"]
@@ -50,7 +48,7 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
       "environment": self.get_env(),
       "type": "vconnector"
     })
-    logging.info("adding links of type: vnic-vconnector, vconnector-pnic")
+    self.log.info("adding links of type: vnic-vconnector, vconnector-pnic")
     for vconnector in vconnectors:
       for interface in vconnector["interfaces"]:
         self.add_vnic_vconnector_link(vconnector, interface)

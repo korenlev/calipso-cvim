@@ -12,7 +12,6 @@ from db_fetch_vedges import DbFetchVedges
 import queue
 import json
 import re
-import logging
 
 class Scanner(Util, Fetcher):
   
@@ -63,7 +62,7 @@ class Scanner(Util, Fetcher):
     except KeyError:
       children_scanner = None
     escaped_id = fetcher.escape(str(id)) if id else id
-    logging.info("scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
+    self.log.info("scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
       type_to_fetch["type"],
       "environment" if "type" not in parent else parent["type"],
       "" if "name" not in parent else parent["name"],
@@ -102,7 +101,7 @@ class Scanner(Util, Fetcher):
          master_parent_id = o["master_parent_id"]
          master_parent = self.inventory.get_by_id(self.get_env(), master_parent_id)
          if not master_parent:
-           logging.error("failed to find master parent " + master_parent_id)
+           self.log.error("failed to find master parent " + master_parent_id)
            continue
          folder = {
            "environment": parent["environment"],
@@ -194,10 +193,10 @@ class Scanner(Util, Fetcher):
       item = Scanner.scan_queue.get()
       scanner = item["scanner"]
       scanner.scan(item["object"], item["child_id_field"])
-    logging.info("Scan complete")
+    self.log.info("Scan complete")
 
   def scan_links(self):
-    logging.info("scanning for links")
+    self.log.info("scanning for links")
     fetchers_implementing_add_links = [
       CliFetchHostPnics(),
       CliFetchInstanceVnics(),

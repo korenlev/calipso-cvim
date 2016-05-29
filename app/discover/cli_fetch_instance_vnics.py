@@ -1,6 +1,5 @@
 import re
 import xmltodict
-import logging
 
 from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
@@ -57,7 +56,7 @@ class CliFetchInstanceVnics(CliAccess):
     return vnics
 
   def add_links(self):
-    logging.info("adding links of type: instance-vnic")
+    self.log.info("adding links of type: instance-vnic")
     vnics = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vnic",
