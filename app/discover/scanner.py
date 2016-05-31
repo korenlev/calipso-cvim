@@ -207,4 +207,5 @@ class Scanner(Util, Fetcher):
     for fetcher in fetchers_implementing_add_links:
       fetcher.add_links()
 
-
+  def scan_cliques(self):
+    Scanner.inventory.scan_cliques(self.get_env())
