@@ -52,12 +52,15 @@ class ScanController(Fetcher):
       help="name of ID field (when scan_self=true) \n(default: 'id', use 'name' for projects)")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
       help="logging level \n(default: 'INFO')")
-    parser.add_argument("--links_only", nargs="?", type=bool, default=False,
+    parser.add_argument("--links_only", action="store_true",
       help="do only links creation \n(default: False)")
+    parser.add_argument("--cliques_only", action="store_true",
+      help="do only cliques creation \n(default: False)")
     args = parser.parse_args()
     plan = {
       "loglevel": args.loglevel,
       "links_only": args.links_only,
+      "cliques_only": args.cliques_only,
       "object_type": args.type,
       "env": args.env,
       "object_id": args.id,
@@ -87,10 +90,6 @@ class ScanController(Fetcher):
   def prepare_scan_plan(self, plan):
     inventory_col = plan["inventory_collection"]
     self.inv.set_inventory_collection(inventory_col)
-    links_col = inventory_col.replace("inventory", "links") \
-      if inventory_col.startswith("inventory") \
-      else "links_" + inventory_col
-    self.inv.set_links_collection(links_col)
     module = plan["object_type"]
     if not plan["scan_self"]:
       plan["scan_self"] = plan["object_type"] != "environment"
@@ -129,15 +128,19 @@ class ScanController(Fetcher):
     class_ = getattr(module, class_name)
     scanner = class_()
     scanner.set_env(env_name)
-    if not scan_plan["links_only"]:
+    links_only = scan_plan["links_only"]
+    cliques_only = scan_plan["cliques_only"]
+    results = []
+    if not links_only and not cliques_only:
       results = scanner.run_scan(
         scan_plan["obj"],
         scan_plan["id_field"],
         scan_plan["child_id"],
         scan_plan["child_type"])
-    else:
-      results = []
+    if links_only:
       scanner.scan_links()
+    if cliques_only:
+      scanner.scan_cliques()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
     return response

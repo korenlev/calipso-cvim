@@ -4,6 +4,7 @@ from mongo_access import MongoAccess
 from util import Util
 from datetime import datetime
 from singleton import Singleton
+from clique_finder import CliqueFinder
 
 class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   
@@ -14,19 +15,29 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
-  def set_collection(self, coll_type, collection_name):
+  def set_collection(self, coll_type, collection_name = ""):
+    if coll_type != "inventory":
+      collection_name = self.get_coll_name(coll_type)
     # do not allow setting the collection more than once
     if coll_type not in self.coll or not self.coll[coll_type]:
       self.log.info("using " + coll_type +" collection: " + collection_name)
       name = collection_name if collection_name else coll_type
       self.coll[coll_type] = MongoAccess.db[name]
+      if coll_type == "inventory":
+        self.inventory_col = name
     return self.coll[coll_type]
+
+  def get_coll_name(self, coll_name):
+    return self.inventory_col.replace("inventory", coll_name) \
+      if self.inventory_col.startswith("inventory") \
+      else self.inventory_col + "_" + coll_name
 
   def set_inventory_collection(self, inventory_collection = ""):
     self.inv = self.set_collection("inventory", inventory_collection)
-
-  def set_links_collection(self, links_collection = ""):
-    self.links = self.set_collection("links", links_collection)
+    self.links = self.set_collection("links")
+    self.set_collection("link_types")
+    self.set_collection("clique_types")
+    self.set_collection("cliques")
 
   # return single match
   def process_results(self, raw_results, get_single=False):
@@ -154,7 +165,6 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       link_type, link_name, state, link_weight,
       source_label = "", target_label = "",
       extra_attributes = {}):
-    self.set_links_collection() # make sure we have it set
     s = bson.ObjectId(src)
     t = bson.ObjectId(target)
     link = {
@@ -180,3 +190,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.links.update_one(find_tuple,
       {'$set': self.encode_mongo_keys(link)},
       upsert=True)
+
+  def scan_cliques(self, environment):
+    clique_scanner = CliqueFinder(self.inv, self.links,
+      self.coll["clique_types"], self.coll["cliques"])
+    clique_scanner.find_cliques()
