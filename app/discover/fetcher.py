@@ -2,18 +2,14 @@ import json
 import re
 import logging
 
-from inventory_mgr import InventoryMgr
-
 class Fetcher:
-  
-  inventory = None
-  
+
+  env = None
+
   def __init__(self):
     super().__init__()
     self.prettify = False
     self.environment = ""
-    if not Fetcher.inventory:
-      Fetcher.inventory = InventoryMgr()
     self.log = logging.getLogger("OS-DNA")
   
   def escape(self, string):
@@ -26,10 +22,10 @@ class Fetcher:
     return self.prettify
   
   def set_env(self, env):
-    self.environment = env
+    Fetcher.env = env
 
   def get_env(self):
-    return self.environment
+    return Fetcher.env
 
   def jsonify(self, obj):
     if self.prettify:
