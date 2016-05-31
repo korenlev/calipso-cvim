@@ -2,6 +2,7 @@ from pymongo import MongoClient
 
 import re
 import logging
+from bson.objectid import ObjectId
 
 class MongoAccess:
   
@@ -44,6 +45,8 @@ class MongoAccess:
     if not d:
       return d
     if isinstance(d, str):
+      return d
+    if isinstance(d, ObjectId):
       return d
     for k, v in d.items():
       new_v = v
