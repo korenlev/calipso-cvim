@@ -34,7 +34,7 @@ class CliAccess(Fetcher):
     try:
       self.pwd = self.conf['pwd']
     except KeyError:
-      pass
+      self.pwd = None
     if self.key == None and self.pwd == None:
       raise ValueError('Must specify key or password for CLI access')
  
@@ -50,9 +50,9 @@ class CliAccess(Fetcher):
     if (self.key):
       k = paramiko.RSAKey.from_private_key_file(self.key)
       CliAccess.ssh.connect(hostname=self.host, username=self.user, pkey=k,
-        timeout=30)
+        password=self.pwd,timeout=30)
     else:
-      CliAccess.ssh.connect(self.host, username=self.user,  password=self.pwd,
+      CliAccess.ssh.connect(self.host, username=self.user, password=self.pwd,
         timeout=30)
     CliAccess.call_count_per_con = 0
   
