@@ -31,11 +31,11 @@ class CliqueFinder(Fetcher, MongoAccess):
     # keep a hash of nodes in clique that were visited for each type
     # start from the focal point
     nodes_of_type = {o["type"]: {str(o["_id"]): 1}}
-    links_used = []
     clique = {
       "environment": self.env,
       "focal_point": o["_id"],
-      "focal_point_type": o["type"]
+      "focal_point_type": o["type"],
+      "links": []
     }
     for link_type in clique_type["links"]:
       from_type = link_type[:link_type.index("-")]
@@ -50,21 +50,19 @@ class CliqueFinder(Fetcher, MongoAccess):
         })
         for link in matches:
           id = link["_id"]
-          if str(id) in links_used:
+          if id in clique["links"]:
             continue
-          links_used.append(str(id))
+          clique["links"].append(id)
           to_point = str(link["target"])
           if to_type not in nodes_of_type:
             nodes_of_type[to_type] = {}
           nodes_of_type[to_type][to_point] = 1
 
-          self.cliques.update_one(
-            {
-              "environment": self.get_env(),
-              "focal_point": clique["focal_point"],
-              "type": link_type,
-              "link_id": id,
-              "name": link["link_name"]
-            },
-            {'$set': self.encode_mongo_keys(clique)},
-            upsert=True)
+    # after adding the links to the clique, create/update the clique
+    self.cliques.update_one(
+      {
+        "environment": self.get_env(),
+        "focal_point": clique["focal_point"]
+      },
+      {'$set': clique},
+      upsert=True)
