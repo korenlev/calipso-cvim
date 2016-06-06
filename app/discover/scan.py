@@ -131,15 +131,16 @@ class ScanController(Fetcher):
     links_only = scan_plan["links_only"]
     cliques_only = scan_plan["cliques_only"]
     results = []
-    if not links_only and not cliques_only:
+    run_all = not links_only and not cliques_only
+    if run_all:
       results = scanner.run_scan(
         scan_plan["obj"],
         scan_plan["id_field"],
         scan_plan["child_id"],
         scan_plan["child_type"])
-    if links_only:
+    if links_only or run_all:
       scanner.scan_links()
-    if cliques_only:
+    if cliques_only or run_all:
       scanner.scan_cliques()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}
