@@ -133,7 +133,9 @@ class CliFetchHostPnics(CliAccess):
       target = network["_id"]
       target_id = network["id"]
       link_type = "pnic-network"
-      link_name = "Segment-" + str(network["provider:segmentation_id"])
+      link_name = "Segment-" + str(network["provider:segmentation_id"]) \
+        if "provider:segmentation_id" in network \
+        else "Segment-None"
       state = "up" if pnic["Link detected"] == "yes" else "down"
       link_weight = 0 # TBD
       self.inv.create_link(self.get_env(), host,
