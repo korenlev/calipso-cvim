@@ -2,6 +2,7 @@
 
 from inventory_mgr import InventoryMgr
 from util import Util
+from configuration import Configuration
 from fetcher import Fetcher
 from cli_fetch_host_pnics import CliFetchHostPnics
 from cli_fetch_instance_vnics import CliFetchInstanceVnics
@@ -17,6 +18,7 @@ class Scanner(Util, Fetcher):
   
   inventory = None
   environment = None
+  env = None
   root_patern = None
   scan_queue = queue.Queue()
   scan_queue_track = {}
@@ -26,7 +28,8 @@ class Scanner(Util, Fetcher):
     self.types_to_fetch = types_to_fetch
     if not Scanner.inventory:
       Scanner.inventory = InventoryMgr()
-  
+    self.config = Configuration()
+
   def scan(self, obj, id_field = "id",
       limit_to_child_id = None, limit_to_child_type = None):
     ret = True
@@ -46,8 +49,34 @@ class Scanner(Util, Fetcher):
       children = t["children"]
       return children[0]
     return obj
-  
+
+  def check_type_env(self, type_to_fetch):
+    # check if type is to be run in this environment
+    if "environment_condition" not in type_to_fetch:
+      return True
+    env_cond = type_to_fetch["environment_condition"]
+    conf = self.config.get_env_config()
+
+    for attr, required_val in env_cond.items():
+      if attr == "network_plugins":
+        continue
+      if attr not in conf or conf[attr] != required_val:
+        return False
+
+    # check network plugins
+    if "network_plugins" in env_cond:
+      if "network_plugins" not in conf:
+        return False
+      if env_cond["network_plugins"] not in conf["network_plugins"]:
+        return False
+
+    return True
+
   def scan_type(self, type_to_fetch, parent, id_field):
+    # check if type is to be run in this environment
+    if not self.check_type_env(type_to_fetch):
+      return []
+
     if not parent:
       id = None
     else:
