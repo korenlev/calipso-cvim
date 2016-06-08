@@ -41,6 +41,8 @@ class Scanner(Util, Fetcher):
         children = self.scan_type(t, obj, id_field)
         if limit_to_child_id:
           children = [c for c in children if c[id_field] == limit_to_child_id]
+          if not children:
+            continue
         types_children.append({"type": t["type"], "children": children})
     except ValueError as e:
       return False
@@ -96,8 +98,17 @@ class Scanner(Util, Fetcher):
       "environment" if "type" not in parent else parent["type"],
       "" if "name" not in parent else parent["name"],
       escaped_id)
-    db_results = fetcher.get(escaped_id)
-    
+    try:
+      db_results = fetcher.get(escaped_id)
+    except Exception as e:
+      self.log.error("Error while scanning : " +
+        "type=%s, parent: (type=%s, name=%s, id=%s), error: %s",
+        type_to_fetch["type"],
+        "environment" if "type" not in parent else parent["type"],
+        "" if "name" not in parent else parent["name"],
+        escaped_id,
+        e)
+      return []
     if isinstance(db_results, dict):
       results = db_results["rows"] if db_results["rows"] else [db_results]
     elif isinstance(db_results, str):
