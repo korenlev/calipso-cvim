@@ -39,8 +39,8 @@ class ScanController(Fetcher):
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
       default="inventory",
       help="name of inventory collection \n(default: 'inventory')")
-    parser.add_argument("-s", "--scan_self", nargs="?", type=bool, default=False,
-      help="scan changes to a specific object \n(default: false)")
+    parser.add_argument("-s", "--scan_self", action="store_true",
+      help="scan changes to a specific object \n(default: False)")
     parser.add_argument("-i", "--id", nargs="?", type=str,
       default=ScanController.default_env,
       help="ID of object to scan (when scan_self=true)")
@@ -93,17 +93,16 @@ class ScanController(Fetcher):
     module = plan["object_type"]
     if not plan["scan_self"]:
       plan["scan_self"] = plan["object_type"] != "environment"
-    plan["child_type"] = None
 
     plan["object_type"] = plan["object_type"].title().replace("_", "")
     if plan["scan_self"]:
       child_id = plan["object_id"]
-      plan["child_type"] = plan["type_to_scan"]
       if plan["type_to_scan"].endswith("_object_type"):
         module = plan["child_type"] + "s_root"
       else:
         module = plan["type_to_scan"]
       plan["object_type"] = module.title().replace("_", "")
+      plan["object_id"] = plan["parent_id"]
     if module == "environment":
       plan["obj"] = {"id": plan["env"]}
     else:
