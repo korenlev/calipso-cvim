@@ -1,6 +1,7 @@
 # base class for scanners
 
 from inventory_mgr import InventoryMgr
+from configuration import Configuration
 from util import Util
 from configuration import Configuration
 from fetcher import Fetcher
@@ -17,6 +18,7 @@ import re
 class Scanner(Util, Fetcher):
   
   inventory = None
+  config = None
   environment = None
   env = None
   root_patern = None
