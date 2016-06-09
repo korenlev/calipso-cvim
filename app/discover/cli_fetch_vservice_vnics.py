@@ -110,7 +110,7 @@ class CliFetchVserviceVnics(CliAccess):
     # set link name by network name
     # for DHCP, fetch the network ID from the vservice ID
     if source_id.startswith("qdhcp"):
-      network_id = source_id[source_id.index('-')+1:]
+      network_id = source_id[source_id.index('-')+1:].strip()
       network = self.inv.get_by_id(self.get_env(), network_id)
       link_name = network["name"]
     else:
