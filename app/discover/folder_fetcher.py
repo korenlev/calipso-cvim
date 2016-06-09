@@ -20,7 +20,7 @@ class FolderFetcher(Fetcher):
       "create_object": self.create_folder,
       "name": oid,
       "text": self.text,
-      "type": self.parent_type + "_object_type",
+      "type": self.types_name + "_folder",
       "parent_id": id,
       "parent_type": self.parent_type
     }

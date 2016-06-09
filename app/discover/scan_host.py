@@ -20,7 +20,7 @@ class ScanHost(Scanner, metaclass=Singleton):
       # this is necessary to allow fetch of vServices to happen
       # before fetch of vService vNICs
       {
-        "type": "host_object_type",
+        "type": "vservices_folder",
         "fetcher": FolderFetcher("vservices", "host"),
         "children_scanner": ScanInstancesRoot()
       },
@@ -34,27 +34,27 @@ class ScanHost(Scanner, metaclass=Singleton):
         "fetcher": CliFetchVserviceVnics()
       },
       {
-        "type": "host_object_type",
+        "type": "instances_folder",
         "fetcher": FolderFetcher("instances", "host"),
         "children_scanner": ScanInstancesRoot()
       },
       {
-        "type": "host_object_type",
+        "type": "pnics_folder",
         "fetcher": FolderFetcher("pnics", "host", "pNICs"),
         "children_scanner": ScanPnicsRoot()
       },
       {
-        "type": "host_object_type",
+        "type": "vconnectors_folder",
         "fetcher": FolderFetcher("vconnectors", "host", "vConnectors"),
         "children_scanner": ScanVconnectorsRoot()
       },
       {
-        "type": "host_object_type",
+        "type": "vedges_folder",
         "fetcher": FolderFetcher("vedges", "host", "vEdges"),
         "children_scanner": ScanVedgesRoot()
       },
       {
-        "type": "host_object_type",
+        "type": "network_agents_folder",
         "fetcher": FolderFetcher("network_agents", "host",
           "Network agents"),
         "children_scanner": ScanHostNetworkAgentsRoot()

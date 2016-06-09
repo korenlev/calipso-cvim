@@ -38,7 +38,7 @@ class ApiFetchAvailabilityZones(ApiAccess):
       doc["name"] = doc.pop("zoneName")
       doc["master_parent_type"] = "region"
       doc["master_parent_id"] = region
-      doc["parent_type"] = "region_object_type"
+      doc["parent_type"] = "availability_zones_folder"
       doc["parent_id"] = region + "-availability_zones"
       doc["parent_text"] = "Availability Zones"
       doc["available"] = doc["zoneState"]["available"]

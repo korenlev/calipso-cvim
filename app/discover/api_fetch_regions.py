@@ -27,7 +27,7 @@ class ApiFetchRegions(ApiAccess):
             "endpoints": {}
           }
           ApiAccess.regions[region_name] = region
-        region["parent_type"] = "environment_object_type"
+        region["parent_type"] = "regions_folder"
         region["parent_id"] = env + "-regions"
         e["service_type"] = service["type"]
         region["endpoints"][service["name"]] = e
