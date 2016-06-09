@@ -1,5 +1,6 @@
 import paramiko
 import os
+import time
 
 from configuration import Configuration
 from fetcher import Fetcher
@@ -14,6 +15,10 @@ class CliAccess(Fetcher):
   
   def __init__(self):
     super().__init__()
+
+    self.cached_commands = {}
+    self.cache_lifetime = 60 # no. of seconds to cache results
+
     self.config = Configuration()
     self.conf = self.config.get('CLI')
     try:
@@ -60,6 +65,19 @@ class CliAccess(Fetcher):
     self.ssh_connect()
     if ssh_to_host:
       cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
+    curr_time = time.time()
+    if cmd in self.cached_commands:
+      # try to re-use output from last call
+      cached = self.cached_commands[cmd]
+      if cached["timestamp"] + self.cache_lifetime < curr_time:
+        # result expired
+        self.cached_commands.pop(cmd, None)
+      else:
+        # result is good to use - skip the SSH call
+        self.log.info("CliAccess: ****** using cached result, cmd: %s ******",
+          cmd)
+        return cached["result"]
+
     CliAccess.call_count_per_con +=1
     self.log.debug("call count: %s, running call:\n%s\n",
       str(CliAccess.call_count_per_con), cmd)
@@ -70,6 +88,7 @@ class CliAccess(Fetcher):
       self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
       return ""
     ret = self.binary2str(stdout.read())
+    self.cached_commands[cmd] = {"timestamp": curr_time, "result": ret}
     return ret
   
   def run_fetch_lines(self, cmd, ssh_to_host = ""):
