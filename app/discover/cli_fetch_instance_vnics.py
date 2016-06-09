@@ -67,6 +67,10 @@ class CliFetchInstanceVnics(CliAccess):
 
   def add_link_for_vnic(self, v):
     instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
+    if "network_info" not in instance:
+      self.log.warn("add_link_for_vnic: network_info missing in instance: %s ",
+        instance["id"])
+      return
     host = instance["host"]
     source = instance["_id"]
     source_id = instance["id"]
