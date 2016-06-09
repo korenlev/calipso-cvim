@@ -38,7 +38,7 @@ class ApiFetchNetworks(ApiAccess):
     for doc in networks:
       doc["master_parent_type"] = "project"
       doc["master_parent_id"] = doc["tenant_id"]
-      doc["parent_type"] = "project_object_type"
+      doc["parent_type"] = "networks_folder"
       doc["parent_id"] = doc["tenant_id"] + "-networks"
       doc["parent_text"] = "Networks"
       # get the project name

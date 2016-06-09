@@ -13,7 +13,7 @@ class ScanRegion(Scanner, metaclass=Singleton):
   def __init__(self):
     super(ScanRegion, self).__init__([
       {
-        "type": "region_object_type",
+        "type": "aggregates_folder",
         "fetcher": FolderFetcher("aggregates", "region"),
         "children_scanner": ScanAggregatesRoot()
       },

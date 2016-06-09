@@ -38,7 +38,7 @@ class DbFetchOteps(DbAccess, metaclass=Singleton):
       doc["ports"] = vedge["tunnel_ports"] if "tunnel_ports" in vedge else []
       doc["master_parent_type"] = "vedge"
       doc["master_parent_id"] = id
-      doc["parent_type"]= "vedge_object_type"
+      doc["parent_type"]= "oteps_folder"
       doc["parent_id"] = id + "-oteps"
       doc["parent_text"] = "OTEPs"
       if "udp_port" not in doc:

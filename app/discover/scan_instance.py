@@ -10,7 +10,7 @@ class ScanInstance(Scanner, metaclass=Singleton):
   def __init__(self):
     super(ScanInstance, self).__init__([
       {
-        "type": "instance_object_type",
+        "type": "vnics_folder",
         "fetcher": FolderFetcher("vnics", "instance", "vNICs"),
         "children_scanner": ScanVnicsRoot()
       }
