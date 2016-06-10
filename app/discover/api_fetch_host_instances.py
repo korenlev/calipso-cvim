@@ -23,7 +23,7 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
   
   def get(self, id):
     self.get_projects()
-    host_name = id.replace("-instances", "")
+    host_name = id[:id.rindex("-")]
     host = self.inv.getSingle(self.get_env(), "host", host_name)
     if "Compute" not in host["host_type"]:
       return []
