@@ -1,0 +1,1 @@
+{"head":"","body":"","js":"\nTemplate.__checkName(\"d3plusgraph\");\nTemplate[\"d3plusgraph\"] = new Template(\"Template.d3plusgraph\", (function() {\n  var view = this;\n  return HTML.Raw('<div id=\"viz\">Hello</div>');\n}));\n","bodyAttrs":{}}

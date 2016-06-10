@@ -1,0 +1,4 @@
+Template.project.rendered = function(){
+
+
+}

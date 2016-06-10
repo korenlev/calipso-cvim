@@ -1,0 +1,1 @@
+{"head":"","body":"","js":"\nTemplate.__checkName(\"alarmIcons\");\nTemplate[\"alarmIcons\"] = new Template(\"Template.alarmIcons\", (function() {\n  var view = this;\n  return \"\";\n}));\n","bodyAttrs":{}}

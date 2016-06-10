@@ -1,0 +1,4 @@
+Template.region.rendered = function(){
+
+
+}
