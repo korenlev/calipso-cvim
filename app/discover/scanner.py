@@ -10,6 +10,7 @@ from cli_fetch_instance_vnics import CliFetchInstanceVnics
 from cli_fetch_vconnectors import CliFetchVconnectors
 from cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from db_fetch_vedges import DbFetchVedges
+from db_fetch_oteps import DbFetchOteps
 
 import queue
 import json
@@ -104,7 +105,9 @@ class Scanner(Util, Fetcher):
       db_results = fetcher.get(escaped_id)
     except Exception as e:
       self.log.error("Error while scanning : " +
+	"fetcher=%s, " +
         "type=%s, parent: (type=%s, name=%s, id=%s), error: %s",
+	fetcher.__class__.__name__,
         type_to_fetch["type"],
         "environment" if "type" not in parent else parent["type"],
         "" if "name" not in parent else parent["name"],
@@ -244,7 +247,8 @@ class Scanner(Util, Fetcher):
       CliFetchInstanceVnics(),
       CliFetchVconnectors(),
       CliFetchVserviceVnics(),
-      DbFetchVedges()
+      DbFetchVedges(),
+      DbFetchOteps()
     ]
     for fetcher in fetchers_implementing_add_links:
       fetcher.add_links()
