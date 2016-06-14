@@ -1,1 +1,0 @@
-{"head":"","body":"","js":"\nTemplate.__checkName(\"threeTest\");\nTemplate[\"threeTest\"] = new Template(\"Template.threeTest\", (function() {\n  var view = this;\n  return HTML.Raw('<div id=\"threeGraph\"></div>');\n}));\n","bodyAttrs":{}}
