@@ -62,10 +62,20 @@ class CliqueFinder(Fetcher, MongoAccess):
     # after adding the links to the clique, create/update the clique
     if not clique["links"]:
       return
+    focal_point_obj = self.inv.find({"_id": clique["focal_point"]})
+    if not focal_point_obj:
+      return
+    focal_point_obj = focal_point_obj[0]
+    focal_point_obj["clique"] = True
+    focal_point_obj.pop("_id", None)
     self.cliques.update_one(
       {
         "environment": self.get_env(),
         "focal_point": clique["focal_point"]
       },
       {'$set': clique},
+      upsert=True)
+    self.inv.update_one(
+      {"_id": clique["focal_point"]},
+      {'$set': focal_point_obj},
       upsert=True)
