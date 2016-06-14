@@ -63,13 +63,14 @@ class CliFetchHostVservices(CliAccess, DbAccess):
   # dynamically create sub-folder for vService by type
   def set_agent_type(self, o):
     o["master_parent_id"] = o["host"] + "-vservices"
-    o["master_parent_type"] = "host_object_type"
+    o["master_parent_type"] = "vservices_folder"
     atype = o["service_type"]
     agent = self.agents_list.get_type(atype)
-    o["parent_type"] = "vservice_object_type"
     try:
       o["parent_id"] = o["master_parent_id"] + "-" + agent["type"] + "s"
+      o["parent_type"] = "vservice_" + agent["type"] + "s_folder"
       o["parent_text"] = agent["folder_text"]
     except KeyError:
       o["parent_id"] = o["master_parent_id"] + "-" + "miscellenaous"
+      o["parent_type"] = "vservice_miscellenaous_folder"
       o["parent_text"] = "Misc. services"
