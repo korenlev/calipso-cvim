@@ -24,7 +24,11 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       """,
       "vedge", host_id)
     vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host_id)
-    ports = self.fetch_ports(host_id, vsctl_lines)
+    host = self.inv.get_by_id(self.get_env(), host_id)
+    if not host:
+      self.log.error("unable to find host in inventory: %s", host_id)
+      return []
+    ports = self.fetch_ports(host, vsctl_lines)
     for doc in results:
       doc["name"] = doc["host"] + "-OVS"
       doc["configurations"] = json.loads(doc["configurations"])
@@ -32,15 +36,11 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       doc["tunnel_ports"] = self.get_overlay_tunnels(doc, vsctl_lines)
     return results
 
-  def fetch_ports(self, host_id, vsctl_lines):
-    host = self.inv.get_by_id(self.get_env(), host_id)
-    if not host:
-      self.log.error("unable to find host in inventory: %s", host_id)
-      return {}
+  def fetch_ports(self, host, vsctl_lines):
     host_types = host["host_type"]
     if "Network" not in host_types and "Compute" not in host_types:
       return {}
-    ports = self.fetch_ports_from_dpctl(host_id)
+    ports = self.fetch_ports_from_dpctl(host["id"])
     self.fetch_port_tags_from_vsctl(vsctl_lines, ports)
     return ports
 
@@ -89,11 +89,12 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
 
   def get_overlay_tunnels(self, doc, vsctl_lines):
     if doc["agent_type"] != "Open vSwitch agent":
-      return []
+      return {}
     if "tunneling_ip" not in doc["configurations"]:
-      return []
+      return {}
     if not doc["configurations"]["tunneling_ip"]:
-      return []
+      self.get_bridge_pnic(doc)
+      return {}
 
     # read the 'br-tun' interface ports
     # this will be used later in the OTEP
@@ -133,6 +134,23 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     if port:
       tunnel_ports[port["name"]] = port
     return tunnel_ports
+
+  def get_bridge_pnic(self, doc):
+    conf = doc["configurations"]
+    if "bridge_mappings" not in conf or not conf["bridge_mappings"]:
+      return
+    for v in conf["bridge_mappings"].values(): br = v
+    ifaces_list_lines = self.run_fetch_lines("ovs-vsctl list-ifaces " + br,
+      doc["host"])
+    br_pnic_postfix = br + "--br-"
+    interface = ""
+    for l in ifaces_list_lines:
+      if l.startswith(br_pnic_postfix):
+        interface = l[len(br_pnic_postfix):]
+        break
+    if not interface:
+      return
+    doc["pnic"] = interface
 
   def add_links(self):
     self.log.info("adding link types: vnic-vedge, vconnector-vedge, vedge-pnic")
@@ -194,13 +212,17 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       link_type, link_name, state, link_weight, source_label, target_label)
 
   def find_matching_pnic(self, vedge, port):
-    if not port["name"].startswith("eth") and not port["name"].startswith("eno"):
+    pname = port["name"]
+    if "pnic" in vedge:
+      if pname != vedge["pnic"]:
+        return
+    elif not pname.startswith("eth") and not pname.startswith("eno"):
       return
     pnic = self.inv.find_items({
       "environment": self.get_env(),
       "type": "pnic",
       "host": vedge["host"],
-      "name": port["name"]
+      "name": pname
     })
     if not pnic:
       return
