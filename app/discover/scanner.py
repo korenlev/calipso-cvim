@@ -15,6 +15,7 @@ from db_fetch_oteps import DbFetchOteps
 import queue
 import json
 import re
+import traceback
 
 class Scanner(Util, Fetcher):
   
@@ -105,14 +106,15 @@ class Scanner(Util, Fetcher):
       db_results = fetcher.get(escaped_id)
     except Exception as e:
       self.log.error("Error while scanning : " +
-	"fetcher=%s, " +
+        "fetcher=%s, " +
         "type=%s, parent: (type=%s, name=%s, id=%s), error: %s",
-	fetcher.__class__.__name__,
+        fetcher.__class__.__name__,
         type_to_fetch["type"],
         "environment" if "type" not in parent else parent["type"],
         "" if "name" not in parent else parent["name"],
         escaped_id,
         e)
+      traceback.print_exc()
       return []
     if isinstance(db_results, dict):
       results = db_results["rows"] if db_results["rows"] else [db_results]
