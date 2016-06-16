@@ -106,6 +106,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   
   # item must contain properties 'environment', 'type' and 'id'
   def set(self, item):
+    if "_id" in item:
+      item.pop("_id", None)
+
     # make sure we have environment, type & id
     self.check(item, "environment")
     self.check(item, "type")
