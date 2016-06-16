@@ -151,6 +151,19 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     if not interface:
       return
     doc["pnic"] = interface
+    # add port ID to pNIC
+    pnic = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "pnic",
+      "host": doc["host"],
+      "name": interface
+    })
+    if not pnic:
+      return
+    pnic = pnic[0]
+    port = doc["ports"][interface]
+    pnic["port_id"] = port["id"]
+    self.inv.set(pnic)
 
   def add_links(self):
     self.log.info("adding link types: vnic-vedge, vconnector-vedge, vedge-pnic")
