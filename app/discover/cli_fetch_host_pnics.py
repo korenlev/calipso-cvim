@@ -122,7 +122,7 @@ class CliFetchHostPnics(CliAccess):
       "environment": self.get_env(),
       "type": "port",
       "binding:host_id" : host
-    }, {"network_id": 1})
+    }, {"network_id": 1, "id": 1})
     networks = {}
     for port in ports:
       networks[port["network_id"]] = 1
