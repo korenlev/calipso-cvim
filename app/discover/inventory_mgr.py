@@ -66,7 +66,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     })
     return self.process_results(matches)
 
-  def get_by_field(self, environment, item_type, field_name, field_value):
+  def get_by_field(self, environment, item_type, field_name, field_value,
+      get_single=False):
     if field_value and (not isinstance(field_value, str) or field_value > ""):
       matches = self.find({
         "environment": environment,
@@ -78,10 +79,11 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         "environment": environment,
         "type": item_type
       })
-    return self.process_results(matches)
+    return self.process_results(matches, get_single=get_single)
     
-  def get(self, environment, item_type, item_id):
-    ret = self.get_by_field(environment, item_type, "id", item_id)
+  def get(self, environment, item_type, item_id, get_single=False):
+    ret = self.get_by_field(environment, item_type, "id", item_id,
+      get_single=get_single)
     return ret
   
   def get_children(self, environment, item_type, parent_id):
@@ -95,7 +97,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         matches = self.find({"environment": environment, "type": item_type})
     return self.process_results(matches)
   
-  def getSingle(self, environment, item_type, item_id):
+  def get_single(self, environment, item_type, item_id):
     matches = self.find({"environment": environment, "type": item_type, "id": item_id})
     if len(matches) > 1:
       raise ValueError("Found multiple matches for item: type=" + item_type + ", id=" + item_id)
@@ -141,15 +143,16 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     return self.base_url_prefix + "&id=" + str(doc["id"])
 
   # note: to use general find, call find_items() which also does process_results
-  def find(self, search, projection = None):
-    matches = self.inv.find(search)
+  def find(self, search, projection = None, get_single=False):
+    matches = self.inv.find(search, projection=projection)
     decoded_matches = []
     for m in matches:
       decoded_matches.append(self.decode_mongo_keys(m))
     return decoded_matches
 
-  def find_items(self, search, projection = None):
-    return self.process_results(self.find(search, projection))
+  def find_items(self, search, projection = None, get_single=False):
+    results = self.find(search, projection)
+    return self.process_results(results, get_single=get_single)
 
   # record a link between objects in the inventory, to be used in graphs
   # parameters -
