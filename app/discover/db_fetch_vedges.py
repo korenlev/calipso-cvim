@@ -157,10 +157,9 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       "type": "pnic",
       "host": doc["host"],
       "name": interface
-    })
+    }, get_single=True)
     if not pnic:
       return
-    pnic = pnic[0]
     port = doc["ports"][interface]
     pnic["port_id"] = port["id"]
     self.inv.set(pnic)
@@ -204,10 +203,9 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
     base_id = port["name"][3:]
     vconnector_interface_name = "qvb" + base_id
     vconnector = self.inv.get_by_field(self.get_env(), "vconnector",
-      "interfaces", vconnector_interface_name)
+      "interfaces", vconnector_interface_name, get_single=True)
     if not vconnector:
       return
-    vconnector = vconnector[0]
     source = vconnector["_id"]
     source_id = vconnector["id"]
     target = vedge["_id"]
@@ -236,10 +234,9 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       "type": "pnic",
       "host": vedge["host"],
       "name": pname
-    })
+    }, get_single=True)
     if not pnic:
       return
-    pnic = pnic[0]
     source = vedge["_id"]
     source_id = vedge["id"]
     target = pnic["_id"]

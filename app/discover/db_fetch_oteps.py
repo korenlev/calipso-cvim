@@ -104,10 +104,9 @@ class DbFetchOteps(DbAccess, CliAccess, metaclass=Singleton):
       "type": "vconnector",
       "host": otep["host"],
       "name": otep["vconnector"]
-    })
-    if len(vconnector) == 0:
+    }, get_single=True)
+    if not vconnector:
       return
-    vconnector = vconnector[0]
     source = otep["_id"]
     source_id = otep["id"]
     target = vconnector["_id"]
