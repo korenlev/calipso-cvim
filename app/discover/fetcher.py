@@ -34,12 +34,12 @@ class Fetcher:
       return json.dumps(obj)
   
   def binary2str(self, txt):
+    if not isinstance(txt, bytes):
+      return str(txt)
     try:
-      s = txt.decode("utf-8")
+      s = txt.decode("ascii")
     except TypeError:
       s = str(txt)
-    s = re.sub(r"^b.", "", s)
-    s = re.sub(r"'$", "", s)
     return s
     
   def set_logger(self, loglevel):

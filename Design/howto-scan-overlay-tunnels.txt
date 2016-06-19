@@ -1,0 +1,18 @@
+if in vedge the 'tunneling_ip' or "tunnel_types" is null (empty) then read the 'bridge_mappings'.
+for example in WebEX-Mirantis@Cisco environment it is "physnet2" : "br-prv".
+
+issue this on every host in that environment : ovs-vsctl list-ifaces br-prv    , 
+if any pnic name exist in the list output then we have that specific vedge-pnic and pnic-network links (excluding all others!)
+
+
+if in vedge the 'tunneling_ip' and "tunnel_types" is not null (not empty) and bridge_mappings is null (empty) then read the 'tunneling_ip' IP address.
+
+use this ip address to find then associated vedge port , from ovs-vsctl show - for example 'local_ip="192.168.2.2"' and add that port
+to the vedge list of ports, for example Port "vxlan-c0a80203" on node-4 in Mirantis-Liberty.
+run ifconfig | grep -B 2 192.168.2.2 on that host to find the pNIC making these tunnels, if that is br-[] or []-br type of pNIC make further command:
+brctl show juju-br0 (in thundercloud)- to find the associated pNIC (under interfaces) - eth6
+brctl show br-mesh (in Mirantis-Liberty) - to find the associated pNIC (under interfaces) - eno33554952.103
+
+if in vedge the 'tunneling_ip' and "tunnel_types" is not null (not empty) and bridge_mappings is not null (not empty) then also read the 'bridge_mappings'
+and for each value map the associated other pNICs from sudo ovs-vsctl list-ifaces br-provider1 (in thundercloud).
+

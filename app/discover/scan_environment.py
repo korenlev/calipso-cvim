@@ -12,12 +12,12 @@ class ScanEnvironment(Scanner, metaclass=Singleton):
   def __init__(self):
     super(ScanEnvironment, self).__init__([
       {
-        "type": "environment_object_type",
+        "type": "regions_folder",
         "fetcher": FolderFetcher("regions", "environment"),
         "children_scanner": ScanRegionsRoot()
       },
       {
-        "type": "environment_object_type",
+        "type": "projects_folder",
         "fetcher": FolderFetcher("projects", "environment"),
         "children_scanner": ScanProjectsRoot()
       }

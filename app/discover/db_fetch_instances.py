@@ -32,7 +32,7 @@ class DbFetchInstances(DbAccess):
     result["network_info"] = json.loads(network_info_str)
 
     result["type"] = "instance"
-    result["parent_type"] = "host_object_type";
+    result["parent_type"] = "instances_folder";
     result["parent_id"] = result["host"] + "-instances";
     result["in_project-" + result.pop("project", None)] = "1"
   

@@ -23,7 +23,6 @@ class ScanController(Fetcher):
     self.inv = InventoryMgr()
 
   def get_scan_plan(self):
-    form = cgi.FieldStorage()
     if "REQUEST_METHOD" in os.environ:
       return self.get_scan_object_from_cgi()
     # try to read scan plan from command line parameters
@@ -39,8 +38,8 @@ class ScanController(Fetcher):
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
       default="inventory",
       help="name of inventory collection \n(default: 'inventory')")
-    parser.add_argument("-s", "--scan_self", nargs="?", type=bool, default=False,
-      help="scan changes to a specific object \n(default: false)")
+    parser.add_argument("-s", "--scan_self", action="store_true",
+      help="scan changes to a specific object \n(default: False)")
     parser.add_argument("-i", "--id", nargs="?", type=str,
       default=ScanController.default_env,
       help="ID of object to scan (when scan_self=true)")
@@ -68,22 +67,23 @@ class ScanController(Fetcher):
       "type_to_scan": args.parent_type,
       "id_field": args.id_field,
       "scan_self": args.scan_self,
-      "child_type": None,
+      "child_type": args.type,
       "child_id": None,
       "inventory_collection": args.inventory
     }
     return self.prepare_scan_plan(plan)
 
   def get_scan_object_from_cgi(self):
+    form = cgi.FieldStorage()
     plan = {
-      object_type: form.getvalue("type", "environment"),
-      env: form.getvalue("env", ScanController.default_env),
-      object_id: form.getvalue("id", ScanController.default_env),
-      object_id: form.getvalue("parent_id", ""),
-      type_to_scan: form.getvalue("parent_type", ""),
-      id_field: form.getvalue("id_field", "id"),
-      scan_self: form.getvalue("scan_self", ""),
-      inventory_collection: form.getvalue("inventory_collection", "inventory")
+      "object_type": form.getvalue("type", "environment"),
+      "env": form.getvalue("env", ScanController.default_env),
+      "object_id": form.getvalue("id", ScanController.default_env),
+      "object_id": form.getvalue("parent_id", ""),
+      "type_to_scan": form.getvalue("parent_type", ""),
+      "id_field": form.getvalue("id_field", "id"),
+      "scan_self": form.getvalue("scan_self", ""),
+      "inventory_collection": form.getvalue("inventory_collection", "inventory")
     }
     return self.prepare_scan_plan(plan)
 
@@ -93,17 +93,18 @@ class ScanController(Fetcher):
     module = plan["object_type"]
     if not plan["scan_self"]:
       plan["scan_self"] = plan["object_type"] != "environment"
-    plan["child_type"] = None
 
     plan["object_type"] = plan["object_type"].title().replace("_", "")
+    plan["child_type"] = None if not plan["scan_self"] else plan["child_type"]
     if plan["scan_self"]:
-      child_id = plan["object_id"]
-      plan["child_type"] = plan["type_to_scan"]
-      if plan["type_to_scan"].endswith("_object_type"):
+      plan["child_id"] = plan["object_id"]
+      plan["object_id"] = plan["parent_id"]
+      if plan["type_to_scan"].endswith("_folder"):
         module = plan["child_type"] + "s_root"
       else:
         module = plan["type_to_scan"]
       plan["object_type"] = module.title().replace("_", "")
+      plan["object_id"] = plan["parent_id"]
     if module == "environment":
       plan["obj"] = {"id": plan["env"]}
     else:
@@ -131,15 +132,16 @@ class ScanController(Fetcher):
     links_only = scan_plan["links_only"]
     cliques_only = scan_plan["cliques_only"]
     results = []
-    if not links_only and not cliques_only:
+    run_all = not links_only and not cliques_only
+    if run_all:
       results = scanner.run_scan(
         scan_plan["obj"],
         scan_plan["id_field"],
         scan_plan["child_id"],
         scan_plan["child_type"])
-    if links_only:
+    if links_only or run_all:
       scanner.scan_links()
-    if cliques_only:
+    if cliques_only or run_all:
       scanner.scan_cliques()
     response = {"success": not isinstance(results, bool),
                 "results": [] if isinstance(results, bool) else results}

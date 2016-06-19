@@ -18,12 +18,19 @@ class Configuration(MongoAccess, metaclass=Singleton):
     count = 0
     for e in envs:
       count += 1
+      self.env_config = e
       self.config = e["configuration"]
       if count > 1:
         raise ValueError("set_env: found multiple matching environments")
     if count == 0:
       raise ValueError("set_env: could not find matching environment")
-  
+
+  def get_env_config(self):
+    return self.env_config
+
+  def get_config(self):
+    return self.config
+
   def get_env(self):
     return self.env
   

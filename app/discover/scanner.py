@@ -1,22 +1,28 @@
 # base class for scanners
 
 from inventory_mgr import InventoryMgr
+from configuration import Configuration
 from util import Util
+from configuration import Configuration
 from fetcher import Fetcher
 from cli_fetch_host_pnics import CliFetchHostPnics
 from cli_fetch_instance_vnics import CliFetchInstanceVnics
 from cli_fetch_vconnectors import CliFetchVconnectors
 from cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from db_fetch_vedges import DbFetchVedges
+from db_fetch_oteps import DbFetchOteps
 
 import queue
 import json
 import re
+import traceback
 
 class Scanner(Util, Fetcher):
   
   inventory = None
+  config = None
   environment = None
+  env = None
   root_patern = None
   scan_queue = queue.Queue()
   scan_queue_track = {}
@@ -26,7 +32,8 @@ class Scanner(Util, Fetcher):
     self.types_to_fetch = types_to_fetch
     if not Scanner.inventory:
       Scanner.inventory = InventoryMgr()
-  
+    self.config = Configuration()
+
   def scan(self, obj, id_field = "id",
       limit_to_child_id = None, limit_to_child_type = None):
     ret = True
@@ -38,6 +45,8 @@ class Scanner(Util, Fetcher):
         children = self.scan_type(t, obj, id_field)
         if limit_to_child_id:
           children = [c for c in children if c[id_field] == limit_to_child_id]
+          if not children:
+            continue
         types_children.append({"type": t["type"], "children": children})
     except ValueError as e:
       return False
@@ -46,8 +55,34 @@ class Scanner(Util, Fetcher):
       children = t["children"]
       return children[0]
     return obj
-  
+
+  def check_type_env(self, type_to_fetch):
+    # check if type is to be run in this environment
+    if "environment_condition" not in type_to_fetch:
+      return True
+    env_cond = type_to_fetch["environment_condition"]
+    conf = self.config.get_env_config()
+
+    for attr, required_val in env_cond.items():
+      if attr == "network_plugins":
+        continue
+      if attr not in conf or conf[attr] != required_val:
+        return False
+
+    # check network plugins
+    if "network_plugins" in env_cond:
+      if "network_plugins" not in conf:
+        return False
+      if env_cond["network_plugins"] not in conf["network_plugins"]:
+        return False
+
+    return True
+
   def scan_type(self, type_to_fetch, parent, id_field):
+    # check if type is to be run in this environment
+    if not self.check_type_env(type_to_fetch):
+      return []
+
     if not parent:
       id = None
     else:
@@ -67,8 +102,20 @@ class Scanner(Util, Fetcher):
       "environment" if "type" not in parent else parent["type"],
       "" if "name" not in parent else parent["name"],
       escaped_id)
-    db_results = fetcher.get(escaped_id)
-    
+    try:
+      db_results = fetcher.get(escaped_id)
+    except Exception as e:
+      self.log.error("Error while scanning : " +
+        "fetcher=%s, " +
+        "type=%s, parent: (type=%s, name=%s, id=%s), error: %s",
+        fetcher.__class__.__name__,
+        type_to_fetch["type"],
+        "environment" if "type" not in parent else parent["type"],
+        "" if "name" not in parent else parent["name"],
+        escaped_id,
+        e)
+      traceback.print_exc()
+      return []
     if isinstance(db_results, dict):
       results = db_results["rows"] if db_results["rows"] else [db_results]
     elif isinstance(db_results, str):
@@ -202,7 +249,8 @@ class Scanner(Util, Fetcher):
       CliFetchInstanceVnics(),
       CliFetchVconnectors(),
       CliFetchVserviceVnics(),
-      DbFetchVedges()
+      DbFetchVedges(),
+      DbFetchOteps()
     ]
     for fetcher in fetchers_implementing_add_links:
       fetcher.add_links()
