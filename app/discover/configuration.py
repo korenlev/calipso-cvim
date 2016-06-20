@@ -5,8 +5,8 @@ import logging
 
 class Configuration(MongoAccess, metaclass=Singleton):
   
-  def __init__(self):
-    self.db_client = MongoAccess()
+  def __init__(self, mongo_config=""):
+    self.db_client = MongoAccess(mongo_config)
     self.db = MongoAccess.db
     self.collection = self.db["environments_config"]
     self.log = logging.getLogger("OS-DNA")
