@@ -1,21 +1,35 @@
-from kombu import Connection
-import sys
+from kombu.mixins import ConsumerMixin
+from kombu.log import get_logger
+from kombu import Queue, Exchange
 
-def consume():
-  with Connection('amqp://nova:btE6JPF9@10.56.20.83:5672//') as conn:
-    simple_queue = conn.SimpleQueue('simple_queue')
-    try:
-      message = simple_queue.get(block=True, timeout=1)
-    except Exception as e:
-      if not e or not str(e).strip():
-        print("No message")
-      else:
-        print(e)
-      sys.exit(1)
-    print("Received: %s" % message.payload)
-    message.ack()
-    simple_queue.close()
+logger = get_logger(__name__)
+
+
+class Worker(ConsumerMixin):
+    task_queue = Queue('notifications.info', Exchange('nova', 'topic', durable=False), durable=False)
+
+    def __init__(self, connection):
+        self.connection = connection
+
+    def get_consumers(self, Consumer, channel):
+        return [Consumer(queues=[self.task_queue],
+                         accept=['json'],
+                         callbacks=[self.process_task])]
+
+    def process_task(self, body, message):
+        print("RECEIVED MESSAGE: %r" % (body, ))
+        message.ack()
 
 if __name__ == '__main__':
-  consume()
+    from kombu import Connection
+    from kombu.utils.debug import setup_logging
+    # setup root logger
+    setup_logging(loglevel='DEBUG', loggers=[''])
 
+    with Connection('amqp://nova:btE6JPF9@10.56.20.83:5672//') as conn:
+        try:
+            print(conn)
+            worker = Worker(conn)
+            worker.run()
+        except KeyboardInterrupt:
+            print('Stopped')
