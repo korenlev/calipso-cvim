@@ -229,10 +229,6 @@ class Scanner(Util, Fetcher):
   def run_scan(self, obj, id_field, child_id, child_type):
     results = self.scan(obj, id_field, child_id, child_type)
     self.scan_from_queue()
-
-    # scanning of links is run after scanning of inventory objects is completed,
-    # to insure all objects have been found by that time
-    self.scan_links()
     return results
 
   def scan_from_queue(self):
