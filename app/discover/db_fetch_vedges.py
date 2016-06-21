@@ -23,11 +23,14 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
         WHERE host = %s AND agent_type = 'Open vSwitch agent'
       """,
       "vedge", host_id)
-    vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host_id)
     host = self.inv.get_by_id(self.get_env(), host_id)
     if not host:
       self.log.error("unable to find host in inventory: %s", host_id)
       return []
+    host_types = host["host_type"]
+    if "Network" not in host_types:
+      return []
+    vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host["id"])
     ports = self.fetch_ports(host, vsctl_lines)
     for doc in results:
       doc["name"] = doc["host"] + "-OVS"
