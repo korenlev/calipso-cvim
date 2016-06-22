@@ -99,6 +99,9 @@ class CliFetchVserviceVnics(CliAccess):
       self.add_link_for_vnic(v)
 
   def add_link_for_vnic(self, v):
+    host = self.inv.get_by_id(self.get_env(), v["host"])
+    if "Network" not in host["host_type"]:
+      return
     vservice_id = v["parent_id"]
     vservice_id = vservice_id[:vservice_id.rindex('-')]
     vservice = self.inv.get_by_id(self.get_env(), vservice_id)
