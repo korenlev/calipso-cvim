@@ -1,3 +1,4 @@
+import sys
 import re
 from cli_access import CliAccess
 from inventory_mgr import InventoryMgr
@@ -11,10 +12,11 @@ class CliFetchVserviceVnics(CliAccess):
     self.regexps = [
       {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
       {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
+      {"netmask": re.compile('^.*\sMask:\s?([0-9.]+)(\s.*)?$')},
       {"IP Address": re.compile('^\s*inet addr:(\S+)\s.*$')},
-      {"IP Address": re.compile('^\s*inet (\S+)\s.*$')},
-      {"IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')},
-      {"IPv6 Address": re.compile('^\s*inet6 \s*(\S+)(\s.*)?$')}
+      {"IP Address": re.compile('^\s*inet ([0-9.]+)\s.*$')},
+      {"IPv6 Address": re.compile('^\s*inet6 addr: ?\s*([0-9a-f:/]+)(\s.*)?$')},
+      {"IPv6 Address": re.compile('^\s*inet6 \s*([0-9a-f:/]+)(\s.*)?$')}
     ]
 
   def get(self, host_id):
@@ -87,6 +89,7 @@ class CliFetchVserviceVnics(CliAccess):
     if not interface:
       return
     interface["data"] = "\n".join(interface.pop("lines", None))
+    interface["cidr"] = self.get_cidr_for_vnic(interface)
 
   def add_links(self):
     self.log.info("adding links of type: vservice-vnic")
@@ -118,12 +121,8 @@ class CliFetchVserviceVnics(CliAccess):
       link_name = network["name"]
     else:
       # for router: match the vNIC IP address to the network gateway IP
-      ip_addr = v["IP Address"]
-      #gateway_ip = ip_addr[:ip_addr.rindex('.')] + ".1"
-      # XXX TBD - we only check for exact equality, missing qg* routers
-      gateway_ip = ip_addr
-      network = self.inv.get_by_field(self.get_env(), "network", "gateway_ips",
-        gateway_ip)
+      cidr = v["cidr"]
+      network = self.inv.get_by_field(self.get_env(), "network", "cidrs", cidr)
       if not network:
         return
       link_name = network[0]["name"]
@@ -131,3 +130,23 @@ class CliFetchVserviceVnics(CliAccess):
     link_weight = 0 # TBD
     self.inv.create_link(self.get_env(), v["host"], source, source_id,
       target, target_id, link_type, link_name, state, link_weight)
+
+  def get_net_size(self, netmask):
+    binary_str = ''
+    for octet in netmask:
+      binary_str += bin(int(octet))[2:].zfill(8)
+    return str(len(binary_str.rstrip('0')))
+
+  # find CIDR string by IP address and netmask
+  def get_cidr_for_vnic(self, vnic):
+    ipaddr = vnic["IP Address"].split('.')
+    netmask = vnic["netmask"].split('.')
+
+    # calculate network start
+    net_start = []
+    for pos in range(0,4):
+      net_start.append(str(int(ipaddr[pos]) & int(netmask[pos])))
+
+    cidr_string = '.'.join(net_start) + '/'
+    cidr_string = cidr_string + self.get_net_size(netmask)
+    return cidr_string
