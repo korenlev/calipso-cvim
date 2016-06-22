@@ -141,6 +141,7 @@ class CliFetchHostPnics(CliAccess):
       source_label = "port-" + pnic["port_id"] if "port_id" in pnic else ""
       self.inv.create_link(self.get_env(), host,
         source, source_id, target, target_id,
-        link_type, link_name, state, link_weight, source_label)
+        link_type, link_name, state, link_weight, source_label,
+        extra_attributes={"network": target_id})
 
 
