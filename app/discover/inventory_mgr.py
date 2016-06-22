@@ -37,6 +37,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.links = self.set_collection("links")
     self.set_collection("link_types")
     self.set_collection("clique_types")
+    self.set_collection("clique_constraints")
     self.set_collection("cliques")
 
   # return single match
@@ -199,5 +200,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
   def scan_cliques(self, environment):
     clique_scanner = CliqueFinder(self.inv, self.links,
-      self.coll["clique_types"], self.coll["cliques"])
+      self.coll["clique_types"],
+      self.coll["clique_constraints"],
+      self.coll["cliques"])
     clique_scanner.find_cliques()
