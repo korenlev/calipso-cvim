@@ -71,7 +71,10 @@ class CliFetchInstanceVnics(CliAccess):
       self.log.warn("add_link_for_vnic: network_info missing in instance: %s ",
         instance["id"])
       return
-    host = instance["host"]
+    host = self.inv.get_by_id(self.get_env(), instance["host"])
+    host_types = host["host_type"]
+    if "Network" not in host_types:
+      return []
     source = instance["_id"]
     source_id = instance["id"]
     target = v["_id"]
@@ -85,5 +88,6 @@ class CliFetchInstanceVnics(CliAccess):
         break
     state = "up" # TBD
     link_weight = 0 # TBD
-    self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
+    self.inv.create_link(self.get_env(), host["name"],
+      source, source_id, target, target_id,
       link_type, network_name, state, link_weight)

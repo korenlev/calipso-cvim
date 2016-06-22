@@ -11,9 +11,10 @@ class DbFetchInstances(DbAccess):
     query = """
       SELECT DISTINCT i.uuid AS id, i.display_name AS name,
         i.host AS host, host_ip AS ip_address,
-        network_info, project_id, p.name AS project
+        network_info, project_id,
+        IF(p.name IS NULL, "Unknown", p.name) AS project
       FROM nova.instances i
-        JOIN keystone.project p ON p.id = i.project_id
+        LEFT JOIN keystone.project p ON p.id = i.project_id
         JOIN nova.instance_info_caches ic ON i.uuid = ic.instance_uuid
         JOIN nova.compute_nodes cn ON i.node = cn.hypervisor_hostname
       WHERE i.deleted = 0

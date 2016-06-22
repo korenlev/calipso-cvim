@@ -122,7 +122,7 @@ class CliFetchHostPnics(CliAccess):
       "environment": self.get_env(),
       "type": "port",
       "binding:host_id" : host
-    }, {"network_id": 1})
+    }, {"network_id": 1, "id": 1})
     networks = {}
     for port in ports:
       networks[port["network_id"]] = 1
@@ -138,8 +138,9 @@ class CliFetchHostPnics(CliAccess):
         else "Segment-None"
       state = "up" if pnic["Link detected"] == "yes" else "down"
       link_weight = 0 # TBD
+      source_label = "port-" + pnic["port_id"] if "port_id" in pnic else ""
       self.inv.create_link(self.get_env(), host,
         source, source_id, target, target_id,
-        link_type, link_name, state, link_weight)
+        link_type, link_name, state, link_weight, source_label)
 
 

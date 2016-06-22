@@ -1,22 +1,57 @@
 from pymongo import MongoClient
 
+import os
 import re
 import logging
 from bson.objectid import ObjectId
+
+# Provides access to MongoDB using PyMongo library
+#
+# Notes on authentication:
+# default config file is /etc/osdna/mongo.conf
+# you can also specify name of file from CLI with --mongo_config
 
 class MongoAccess:
   
   client = None
   db = None
-  
-  def __init__(self):
-    self.mongo_connect()
+  default_conf_file = "/etc/osdna/mongo.conf"
+
+  def __init__(self, config_file=""):
     self.log = logging.getLogger("OS-DNA")
-  
-  def mongo_connect(self):
+    self.mongo_connect(config_file)
+
+  def mongo_connect(self, config_file=""):
     if (MongoAccess.client != None):
       return
-    MongoAccess.client = MongoClient('localhost', 27017)
+    self.connect_params = {
+      "server": "localhost",
+      "port": 27017
+    }
+    if not config_file and os.path.isfile(self.default_conf_file):
+      config_file = self.default_conf_file
+    if config_file:
+      # read connection parameters from file
+      try:
+        with open(config_file) as f:
+          for line in f:
+            l = line.strip()
+            if " " not in l:
+              continue
+            pos = l.index(" ")
+            attr = l[:pos]
+            if attr.startswith("#"):
+              continue # skip comments
+            val = l[pos+1:].strip()
+            if val:
+              self.connect_params[attr] = val
+      except Exception as e:
+        logging.error("failed to open config file: " + config_file)
+        raise
+    MongoAccess.client = MongoClient(
+      self.connect_params["server"],
+      self.connect_params["port"]
+    )
     MongoAccess.db = MongoAccess.client.osdna
 
   def encode_dots(self, s):

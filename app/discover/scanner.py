@@ -10,10 +10,12 @@ from cli_fetch_instance_vnics import CliFetchInstanceVnics
 from cli_fetch_vconnectors import CliFetchVconnectors
 from cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from db_fetch_vedges import DbFetchVedges
+from db_fetch_oteps import DbFetchOteps
 
 import queue
 import json
 import re
+import traceback
 
 class Scanner(Util, Fetcher):
   
@@ -104,12 +106,15 @@ class Scanner(Util, Fetcher):
       db_results = fetcher.get(escaped_id)
     except Exception as e:
       self.log.error("Error while scanning : " +
+        "fetcher=%s, " +
         "type=%s, parent: (type=%s, name=%s, id=%s), error: %s",
+        fetcher.__class__.__name__,
         type_to_fetch["type"],
         "environment" if "type" not in parent else parent["type"],
         "" if "name" not in parent else parent["name"],
         escaped_id,
         e)
+      traceback.print_exc()
       return []
     if isinstance(db_results, dict):
       results = db_results["rows"] if db_results["rows"] else [db_results]
@@ -224,10 +229,6 @@ class Scanner(Util, Fetcher):
   def run_scan(self, obj, id_field, child_id, child_type):
     results = self.scan(obj, id_field, child_id, child_type)
     self.scan_from_queue()
-
-    # scanning of links is run after scanning of inventory objects is completed,
-    # to insure all objects have been found by that time
-    self.scan_links()
     return results
 
   def scan_from_queue(self):
@@ -244,7 +245,8 @@ class Scanner(Util, Fetcher):
       CliFetchInstanceVnics(),
       CliFetchVconnectors(),
       CliFetchVserviceVnics(),
-      DbFetchVedges()
+      DbFetchVedges(),
+      DbFetchOteps()
     ]
     for fetcher in fetchers_implementing_add_links:
       fetcher.add_links()

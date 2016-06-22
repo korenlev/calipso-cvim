@@ -19,16 +19,16 @@ class ScanController(Fetcher):
   default_env = "WebEX-Mirantis@Cisco"
 
   def __init__(self):
-    self.conf = Configuration()
-    self.inv = InventoryMgr()
+    pass
 
-  def get_scan_plan(self):
-    if "REQUEST_METHOD" in os.environ:
-      return self.get_scan_object_from_cgi()
+  def get_args(self):
     # try to read scan plan from command line parameters
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--cgi", nargs="?", type=bool, default=False,
       help="read argument from CGI (true/false) \n(default: false)")
+    parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
+      default="",
+      help="name of config file with MongoDB servr access details")
     parser.add_argument("-e", "--env", nargs="?", type=str,
       default=self.default_env,
       help="name of environment to scan \n(default: " + self.default_env + ")")
@@ -51,13 +51,22 @@ class ScanController(Fetcher):
       help="name of ID field (when scan_self=true) \n(default: 'id', use 'name' for projects)")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
       help="logging level \n(default: 'INFO')")
+    parser.add_argument("--inventory_only", action="store_true",
+      help="do only scan to inventory\n(default: False)")
     parser.add_argument("--links_only", action="store_true",
       help="do only links creation \n(default: False)")
     parser.add_argument("--cliques_only", action="store_true",
       help="do only cliques creation \n(default: False)")
     args = parser.parse_args()
+    return args
+
+  def get_scan_plan(self, args):
+    if "REQUEST_METHOD" in os.environ:
+      return self.get_scan_object_from_cgi()
     plan = {
+      "cgi": False,
       "loglevel": args.loglevel,
+      "inventory_only": args.inventory_only,
       "links_only": args.links_only,
       "cliques_only": args.cliques_only,
       "object_type": args.type,
@@ -68,28 +77,25 @@ class ScanController(Fetcher):
       "id_field": args.id_field,
       "scan_self": args.scan_self,
       "child_type": args.type,
-      "child_id": None,
-      "inventory_collection": args.inventory
+      "child_id": None
     }
     return self.prepare_scan_plan(plan)
 
   def get_scan_object_from_cgi(self):
     form = cgi.FieldStorage()
     plan = {
+      "cgi": True,
       "object_type": form.getvalue("type", "environment"),
       "env": form.getvalue("env", ScanController.default_env),
       "object_id": form.getvalue("id", ScanController.default_env),
       "object_id": form.getvalue("parent_id", ""),
       "type_to_scan": form.getvalue("parent_type", ""),
       "id_field": form.getvalue("id_field", "id"),
-      "scan_self": form.getvalue("scan_self", ""),
-      "inventory_collection": form.getvalue("inventory_collection", "inventory")
+      "scan_self": form.getvalue("scan_self", "")
     }
     return self.prepare_scan_plan(plan)
 
   def prepare_scan_plan(self, plan):
-    inventory_col = plan["inventory_collection"]
-    self.inv.set_inventory_collection(inventory_col)
     module = plan["object_type"]
     if not plan["scan_self"]:
       plan["scan_self"] = plan["object_type"] != "environment"
@@ -120,7 +126,14 @@ class ScanController(Fetcher):
 
 
   def run(self):
-    scan_plan = self.get_scan_plan()
+    args = self.get_args()
+    try:
+      self.conf = Configuration(args.mongo_config)
+      self.inv = InventoryMgr()
+      self.inv.set_inventory_collection(args.inventory)
+    except FileNotFoundError:
+      sys.exit(1)
+    scan_plan = self.get_scan_plan(args)
     self.set_logger(scan_plan["loglevel"])
     env_name = scan_plan["env"]
     self.conf.use_env(env_name)
@@ -129,11 +142,12 @@ class ScanController(Fetcher):
     class_ = getattr(module, class_name)
     scanner = class_()
     scanner.set_env(env_name)
+    inventory_only = scan_plan["inventory_only"]
     links_only = scan_plan["links_only"]
     cliques_only = scan_plan["cliques_only"]
     results = []
-    run_all = not links_only and not cliques_only
-    if run_all:
+    run_all = False if inventory_only or links_only or cliques_only else True
+    if inventory_only or run_all:
       results = scanner.run_scan(
         scan_plan["obj"],
         scan_plan["id_field"],
@@ -143,14 +157,14 @@ class ScanController(Fetcher):
       scanner.scan_links()
     if cliques_only or run_all:
       scanner.scan_cliques()
-    response = {"success": not isinstance(results, bool),
-                "results": [] if isinstance(results, bool) else results}
-    return response
+    if scan_plan["cgi"]:
+      response = {"success": not isinstance(results, bool),
+        "results": [] if isinstance(results, bool) else results}
+
+      print("Content-type: application/json\n\n")
+      print(response)
+      print("\n")
 
 if __name__ == '__main__':
   scan_manager = ScanController()
-  response = scan_manager.run()
-
-  print("Content-type: application/json\n\n")
-  print(response)
-  print("\n")
+  scan_manager.run()

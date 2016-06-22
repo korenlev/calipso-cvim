@@ -1,1 +1,0 @@
-{"head":"","body":"","js":"\nTemplate.__checkName(\"getStarted\");\nTemplate[\"getStarted\"] = new Template(\"Template.getStarted\", (function() {\n  var view = this;\n  return \"\";\n}));\n","bodyAttrs":{}}

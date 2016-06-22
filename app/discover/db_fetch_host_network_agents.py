@@ -15,7 +15,7 @@ class DbFetchHostNetworkAgents(DbAccess):
       WHERE host = %s
     """
     host_id = id[:-1*len("-network_agents")]
-    host = self.inv.getSingle(self.get_env(), "host", host_id)
+    host = self.inv.get_single(self.get_env(), "host", host_id)
     results = self.get_objects_list_for_id(query, "network_agent", host_id)
     for o in results:
       o["configurations"] = json.loads(o["configurations"])

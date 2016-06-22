@@ -14,7 +14,7 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     self.agents_list = NetworkAgentsList()
 
   def get(self, host_id):
-    host = self.inv.getSingle(self.get_env(), "host", host_id)
+    host = self.inv.get_single(self.get_env(), "host", host_id)
     if "Network" not in host["host_type"]:
       return []
     host_types = host["host_type"]

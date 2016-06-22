@@ -1,4 +1,0 @@
-Template.region.rendered = function(){
-
-
-}
