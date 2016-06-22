@@ -28,7 +28,7 @@ class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
       self.log.error("unable to find host in inventory: %s", host_id)
       return []
     host_types = host["host_type"]
-    if "Network" not in host_types:
+    if "Network" not in host_types and "Compute" not in host_types:
       return []
     vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host["id"])
     ports = self.fetch_ports(host, vsctl_lines)

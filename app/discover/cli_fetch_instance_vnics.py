@@ -73,7 +73,7 @@ class CliFetchInstanceVnics(CliAccess):
       return
     host = self.inv.get_by_id(self.get_env(), instance["host"])
     host_types = host["host_type"]
-    if "Network" not in host_types:
+    if "Network" not in host_types and "Compute" not in host_types:
       return []
     source = instance["_id"]
     source_id = instance["id"]

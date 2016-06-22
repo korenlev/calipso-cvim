@@ -32,6 +32,14 @@ class DbFetchInstances(DbAccess):
     network_info_str = result.pop("network_info", None)
     result["network_info"] = json.loads(network_info_str)
 
+    # add network as an array to allow constraint checking when building clique
+    networks = []
+    for net in result["network_info"]:
+      if "network" not in net or "id" not in net["network"]:
+        continue
+      networks.append(net["network"]["id"])
+    result["network"] = networks
+
     result["type"] = "instance"
     result["parent_type"] = "instances_folder";
     result["parent_id"] = result["host"] + "-instances";
