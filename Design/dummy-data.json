@@ -1,11 +1,12 @@
 { 
-    "_id" : ObjectId("573c75a76e68f7124c39f57a"), 
+    "_id" : ObjectId("574dfbc29db3a71c102ef675"), 
     "Entities" : [
         {
             "attributes" : {
                 "Host" : "host1", 
                 "Project" : "demo", 
-                "Name" : "vm1-host1"
+                "Name" : "vm1-host1", 
+                "type" : "instance"
             }, 
             "group" : "host1", 
             "id" : "1", 
@@ -15,7 +16,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host1", 
@@ -27,7 +29,8 @@
             "attributes" : {
                 "Host" : "host1", 
                 "Project" : "demo", 
-                "Name" : "vm100-host1"
+                "Name" : "vm100-host1", 
+                "type" : "instance"
             }, 
             "group" : "host1", 
             "id" : "101", 
@@ -37,7 +40,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host1", 
@@ -48,7 +52,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host1", 
@@ -58,7 +63,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host1", 
             "id" : "4", 
@@ -67,7 +73,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth0"
+                "ID" : "pNIC-eth0", 
+                "type" : "pnic"
             }, 
             "group" : "host1", 
             "id" : "5", 
@@ -76,7 +83,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "Network100-segment-VLAN100"
+                "ID" : "Network100-segment-VLAN100", 
+                "type" : "network"
             }, 
             "id" : "6", 
             "label" : "Network100", 
@@ -84,7 +92,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "Network200-segment-VLAN120"
+                "ID" : "Network200-segment-VLAN120", 
+                "type" : "network"
             }, 
             "id" : "200", 
             "label" : "Network200", 
@@ -92,7 +101,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "Network300-segment-VLAN130"
+                "ID" : "Network300-segment-VLAN130", 
+                "type" : "network"
             }, 
             "id" : "300", 
             "label" : "Network300", 
@@ -102,7 +112,8 @@
             "attributes" : {
                 "Host" : "host3", 
                 "Project" : "coka-cola", 
-                "Name" : "vm1-host3"
+                "Name" : "vm1-host3", 
+                "type" : "instance"
             }, 
             "group" : "host3", 
             "id" : "301", 
@@ -112,7 +123,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host3", 
@@ -123,7 +135,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host3", 
@@ -133,7 +146,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host3", 
             "id" : "304", 
@@ -142,7 +156,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth1"
+                "ID" : "pNIC-eth1", 
+                "type" : "pnic"
             }, 
             "group" : "host3", 
             "id" : "305", 
@@ -152,7 +167,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC2"
+                    "id" : "vNIC2", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host3", 
@@ -163,7 +179,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host3", 
@@ -173,7 +190,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host3", 
             "id" : "3004", 
@@ -182,7 +200,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth2"
+                "ID" : "pNIC-eth2", 
+                "type" : "pnic"
             }, 
             "group" : "host3", 
             "id" : "3005", 
@@ -192,7 +211,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "DHCP-Network100"
+                    "id" : "DHCP-Network100", 
+                    "type" : "vservice"
                 }
             ], 
             "group" : "host8", 
@@ -203,7 +223,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1-host8"
+                    "id" : "vNIC1-host8", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host8", 
@@ -213,7 +234,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge"
+                "ID" : "vEdge", 
+                "type" : "vedge"
             }, 
             "group" : "host8", 
             "id" : "1004", 
@@ -222,7 +244,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth1"
+                "ID" : "pNIC-eth1", 
+                "type" : "pnic"
             }, 
             "group" : "host8", 
             "id" : "1005", 
@@ -232,7 +255,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "Router Net100-to-Net200"
+                    "id" : "Router Net100-to-Net200", 
+                    "type" : "vservice"
                 }
             ], 
             "group" : "host7", 
@@ -243,7 +267,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1-host7"
+                    "id" : "vNIC1-host7", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host7", 
@@ -253,7 +278,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host7", 
             "id" : "1114", 
@@ -262,7 +288,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth1"
+                "ID" : "pNIC-eth1", 
+                "type" : "pnic"
             }, 
             "group" : "host7", 
             "id" : "1115", 
@@ -272,7 +299,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC2-host7"
+                    "id" : "vNIC2-host7", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host7", 
@@ -282,7 +310,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host7", 
             "id" : "1214", 
@@ -291,7 +320,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth2"
+                "ID" : "pNIC-eth2", 
+                "type" : "pnic"
             }, 
             "group" : "host7", 
             "id" : "1215", 
@@ -302,7 +332,8 @@
             "attributes" : {
                 "Host" : "host20", 
                 "Project" : "demo", 
-                "Name" : "DHCP-Network200-host20"
+                "Name" : "DHCP-Network200-host20", 
+                "type" : "vservice"
             }, 
             "group" : "host20", 
             "id" : "2001", 
@@ -312,7 +343,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "DHCP-Net200-vNIC1"
+                    "id" : "DHCP-Net200-vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host20", 
@@ -323,7 +355,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host20", 
@@ -333,7 +366,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host20", 
             "id" : "2004", 
@@ -342,7 +376,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth0"
+                "ID" : "pNIC-eth0", 
+                "type" : "pnic"
             }, 
             "group" : "host20", 
             "id" : "2005", 
@@ -353,7 +388,8 @@
             "attributes" : {
                 "Host" : "host2", 
                 "Project" : "pepsi", 
-                "Name" : "vm1-host2"
+                "Name" : "vm1-host2", 
+                "type" : "instance"
             }, 
             "group" : "host2", 
             "id" : "401", 
@@ -363,7 +399,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host2", 
@@ -374,7 +411,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host2", 
@@ -384,7 +422,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host2", 
             "id" : "404", 
@@ -393,7 +432,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth0"
+                "ID" : "pNIC-eth0", 
+                "type" : "pnic"
             }, 
             "group" : "host2", 
             "id" : "405", 
@@ -402,9 +442,66 @@
         }, 
         {
             "attributes" : {
+                "Host" : "host2", 
+                "Project" : "coke", 
+                "Name" : "vm7-host2", 
+                "type" : "instance"
+            }, 
+            "group" : "host2", 
+            "id" : "421", 
+            "label" : "vm7-host2", 
+            "level" : NumberInt(7)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
+                }
+            ], 
+            "group" : "host2", 
+            "id" : "422", 
+            "label" : "vNIC1-vm7-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : [
+                {
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
+                }
+            ], 
+            "group" : "host2", 
+            "id" : "423", 
+            "label" : "vConnector2-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
+            }, 
+            "group" : "host2", 
+            "id" : "424", 
+            "label" : "vEdge1-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
+                "ID" : "pNIC-eth1", 
+                "type" : "pnic"
+            }, 
+            "group" : "host2", 
+            "id" : "425", 
+            "label" : "pNIC:eth1-host2", 
+            "level" : NumberInt(1)
+        }, 
+        {
+            "attributes" : {
                 "Host" : "host24", 
                 "Project" : "pepsi", 
-                "Name" : "vm4-host24"
+                "Name" : "vm4-host24", 
+                "type" : "instance"
             }, 
             "group" : "host24", 
             "id" : "501", 
@@ -414,7 +511,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host24", 
@@ -425,7 +523,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host24", 
@@ -435,7 +534,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host24", 
             "id" : "504", 
@@ -444,7 +544,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth0"
+                "ID" : "pNIC-eth0", 
+                "type" : "pnic"
             }, 
             "group" : "host24", 
             "id" : "505", 
@@ -455,7 +556,8 @@
             "attributes" : {
                 "Host" : "host24", 
                 "Project" : "pepsi", 
-                "Name" : "vm5-host24"
+                "Name" : "vm5-host24", 
+                "type" : "instance"
             }, 
             "group" : "host24", 
             "id" : "601", 
@@ -465,7 +567,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host24", 
@@ -477,7 +580,8 @@
             "attributes" : {
                 "Host" : "host24", 
                 "Project" : "pepsi", 
-                "Name" : "vm6-host24"
+                "Name" : "vm6-host24", 
+                "type" : "instance"
             }, 
             "group" : "host24", 
             "id" : "701", 
@@ -487,7 +591,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host24", 
@@ -499,7 +604,8 @@
             "attributes" : {
                 "Host" : "host24", 
                 "Project" : "pepsi", 
-                "Name" : "vm7-host24"
+                "Name" : "vm7-host24", 
+                "type" : "instance"
             }, 
             "group" : "host24", 
             "id" : "801", 
@@ -509,7 +615,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host24", 
@@ -521,7 +628,8 @@
             "attributes" : {
                 "Host" : "host100", 
                 "Project" : "OSDNA-ltd", 
-                "Name" : "vm1-host100"
+                "Name" : "vm1-host100", 
+                "type" : "instance"
             }, 
             "group" : "host100", 
             "id" : "4001", 
@@ -531,7 +639,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host100", 
@@ -542,7 +651,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host100", 
@@ -552,7 +662,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host100", 
             "id" : "4004", 
@@ -561,7 +672,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth0"
+                "ID" : "pNIC-eth0", 
+                "type" : "pnic"
             }, 
             "group" : "host100", 
             "id" : "4005", 
@@ -572,7 +684,8 @@
             "attributes" : {
                 "Host" : "host200", 
                 "Project" : "OSDNA-ltd", 
-                "Name" : "vm4-host200"
+                "Name" : "vm4-host200", 
+                "type" : "instance"
             }, 
             "group" : "host200", 
             "id" : "5001", 
@@ -582,7 +695,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host200", 
@@ -593,7 +707,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vConnector-Bridge"
+                    "id" : "vConnector-Bridge", 
+                    "type" : "vconnector"
                 }
             ], 
             "group" : "host200", 
@@ -603,7 +718,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "vEdge-OVS"
+                "ID" : "vEdge-OVS", 
+                "type" : "vedge"
             }, 
             "group" : "host200", 
             "id" : "5004", 
@@ -612,7 +728,8 @@
         }, 
         {
             "attributes" : {
-                "ID" : "pNIC-eth0"
+                "ID" : "pNIC-eth0", 
+                "type" : "pnic"
             }, 
             "group" : "host200", 
             "id" : "5005", 
@@ -623,7 +740,8 @@
             "attributes" : {
                 "Host" : "host200", 
                 "Project" : "OSDNA-ltd", 
-                "Name" : "vm5-host200"
+                "Name" : "vm5-host200", 
+                "type" : "instance"
             }, 
             "group" : "host200", 
             "id" : "6001", 
@@ -633,7 +751,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host200", 
@@ -645,7 +764,8 @@
             "attributes" : {
                 "Host" : "host200", 
                 "Project" : "OSDNA-ltd", 
-                "Name" : "vm6-host200"
+                "Name" : "vm6-host200", 
+                "type" : "instance"
             }, 
             "group" : "host200", 
             "id" : "7001", 
@@ -655,7 +775,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host200", 
@@ -667,7 +788,8 @@
             "attributes" : {
                 "Host" : "host200", 
                 "Project" : "OSDNA-ltd", 
-                "Name" : "vm7-host200"
+                "Name" : "vm7-host200", 
+                "type" : "instance"
             }, 
             "group" : "host200", 
             "id" : "8001", 
@@ -677,7 +799,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host200", 
@@ -689,7 +812,8 @@
             "attributes" : {
                 "Host" : "host200", 
                 "Project" : "OSDNA-ltd", 
-                "Name" : "vm8-host200"
+                "Name" : "vm8-host200", 
+                "type" : "instance"
             }, 
             "group" : "host200", 
             "id" : "9001", 
@@ -699,7 +823,8 @@
         {
             "attributes" : [
                 {
-                    "id" : "vNIC1"
+                    "id" : "vNIC1", 
+                    "type" : "vnic"
                 }
             ], 
             "group" : "host200", 
@@ -1041,6 +1166,50 @@
             "from" : "404", 
             "label" : "vEdge-eth0", 
             "to" : "405"
+        }, 
+        {
+            "attributes" : {
+                "VLAN vid" : "93", 
+                "IP address" : "192.168.78.10", 
+                "Target device" : "tap0ab4edec-10"
+            }, 
+            "from" : "421", 
+            "label" : "vNIC1-network100", 
+            "to" : "422"
+        }, 
+        {
+            "attributes" : {
+                "Model type" : "virtIO"
+            }, 
+            "from" : "422", 
+            "label" : "vNIC1-network100", 
+            "to" : "423"
+        }, 
+        {
+            "attributes" : {
+                "OVS incoming port" : "qvo0ab4edec-10", 
+                "DL VLAN" : "100", 
+                "bridge outgoing port" : "qvb0ab4edec-10"
+            }, 
+            "from" : "423", 
+            "label" : "bridge-network100", 
+            "to" : "424"
+        }, 
+        {
+            "attributes" : {
+                "Network Type: " : "VLAN Trunk"
+            }, 
+            "from" : "424", 
+            "label" : "vEdge-eth1", 
+            "to" : "425"
+        }, 
+        {
+            "attributes" : {
+                "Segment: " : "VLAN 100"
+            }, 
+            "from" : "425", 
+            "to" : "6", 
+            "label" : "VLAN 100"
         }, 
         {
             "attributes" : {
