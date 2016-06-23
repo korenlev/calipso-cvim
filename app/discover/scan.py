@@ -71,6 +71,7 @@ class ScanController(Fetcher):
       "inventory_only": args.inventory_only,
       "links_only": args.links_only,
       "cliques_only": args.cliques_only,
+      "clear": args.clear,
       "object_type": args.type,
       "env": args.env,
       "object_id": args.id,
@@ -87,6 +88,11 @@ class ScanController(Fetcher):
     form = cgi.FieldStorage()
     plan = {
       "cgi": True,
+      "loglevel": form.getvalue("loglevel", "INFO"),
+      "inventory_only": form.getvalue("inventory_only", ""),
+      "links_only": form.getvalue("links_only", ""),
+      "cliques_only": form.getvalue("cliques_only", ""),
+      "clear": form.getvalue("clear", ""),
       "object_type": form.getvalue("type", "environment"),
       "env": form.getvalue("env", ScanController.default_env),
       "object_id": form.getvalue("id", ScanController.default_env),
@@ -132,10 +138,12 @@ class ScanController(Fetcher):
     try:
       self.conf = Configuration(args.mongo_config)
       self.inv = InventoryMgr()
-      self.inv.set_inventory_collection(args.inventory, args.clear)
+      self.inv.set_inventory_collection(args.inventory)
     except FileNotFoundError:
       sys.exit(1)
     scan_plan = self.get_scan_plan(args)
+    if scan_plan["clear"]:
+      self.inv.clear(scan_plan)
     self.set_logger(scan_plan["loglevel"])
     env_name = scan_plan["env"]
     self.conf.use_env(env_name)

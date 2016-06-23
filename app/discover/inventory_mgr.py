@@ -34,15 +34,22 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       if self.inventory_col.startswith("inventory") \
       else self.inventory_col + "_" + coll_name
 
-  def set_inventory_collection(self, inventory_collection = "", clear=False):
+  def set_inventory_collection(self, inventory_collection = ""):
     self.inv = self.set_collection("inventory", inventory_collection)
     self.links = self.set_collection("links")
     self.set_collection("link_types")
     self.set_collection("clique_types")
     self.set_collection("clique_constraints")
     self.set_collection("cliques")
-    if clear:
+
+  def clear(self, scan_plan):
       col_to_skip = ["link_types", "clique_types", "clique_constraints"]
+      if scan_plan["links_only"] or scan_plan["cliques_only"]:
+        col_to_skip.append("inventory")
+      if scan_plan["inventory_only"] or scan_plan["cliques_only"]:
+        col_to_skip.append("links")
+      if scan_plan["inventory_only"] or scan_plan["links_only"]:
+        col_to_skip.append("cliques")
       for c in [c for c in self.coll if c not in col_to_skip]:
         col = self.coll[c]
         self.log.info("clearing collection: " + col.full_name)
