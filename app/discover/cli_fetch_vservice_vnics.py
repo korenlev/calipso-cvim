@@ -90,6 +90,14 @@ class CliFetchVserviceVnics(CliAccess):
       return
     interface["data"] = "\n".join(interface.pop("lines", None))
     interface["cidr"] = self.get_cidr_for_vnic(interface)
+    network = self.inv.get_by_field(self.get_env(), "network", "cidrs",
+      interface["cidr"])
+    network = network[0]
+    interface["network"] = network["id"]
+    # set network for the vservice, to check network on clique creation
+    vservice = self.inv.get_by_id(self.get_env(), interface["master_parent_id"])
+    vservice["network"] = network["id"]
+    self.inv.set(vservice)
 
   def add_links(self):
     self.log.info("adding links of type: vservice-vnic")
@@ -105,6 +113,8 @@ class CliFetchVserviceVnics(CliAccess):
     host = self.inv.get_by_id(self.get_env(), v["host"])
     if "Network" not in host["host_type"]:
       return
+    cidr = v["cidr"]
+    network = self.inv.get_by_id(self.get_env(), v["network"])
     vservice_id = v["parent_id"]
     vservice_id = vservice_id[:vservice_id.rindex('-')]
     vservice = self.inv.get_by_id(self.get_env(), vservice_id)
@@ -113,19 +123,7 @@ class CliFetchVserviceVnics(CliAccess):
     target = v["_id"]
     target_id = v["id"]
     link_type = "vservice-vnic"
-    # set link name by network name
-    # for DHCP, fetch the network ID from the vservice ID
-    if source_id.startswith("qdhcp"):
-      network_id = source_id[source_id.index('-')+1:].strip()
-      network = self.inv.get_by_id(self.get_env(), network_id)
-      link_name = network["name"]
-    else:
-      # for router: match the vNIC IP address to the network gateway IP
-      cidr = v["cidr"]
-      network = self.inv.get_by_field(self.get_env(), "network", "cidrs", cidr)
-      if not network:
-        return
-      link_name = network[0]["name"]
+    link_name = network["name"]
     state = "up" # TBD
     link_weight = 0 # TBD
     self.inv.create_link(self.get_env(), v["host"], source, source_id,
