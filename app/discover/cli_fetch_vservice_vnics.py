@@ -96,7 +96,11 @@ class CliFetchVserviceVnics(CliAccess):
     interface["network"] = network["id"]
     # set network for the vservice, to check network on clique creation
     vservice = self.inv.get_by_id(self.get_env(), interface["master_parent_id"])
-    vservice["network"] = network["id"]
+    if "network" not in vservice:
+      vservice["network"] = [network["id"]]
+    else:
+      if network["id"] not in vservice["network"]:
+        vservice["network"].append(network["id"])
     self.inv.set(vservice)
 
   def add_links(self):
