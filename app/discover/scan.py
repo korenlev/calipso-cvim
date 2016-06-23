@@ -57,6 +57,8 @@ class ScanController(Fetcher):
       help="do only links creation \n(default: False)")
     parser.add_argument("--cliques_only", action="store_true",
       help="do only cliques creation \n(default: False)")
+    parser.add_argument("--clear", action="store_true",
+      help="clear all data prior to scanning\n(default: False)")
     args = parser.parse_args()
     return args
 
@@ -130,7 +132,7 @@ class ScanController(Fetcher):
     try:
       self.conf = Configuration(args.mongo_config)
       self.inv = InventoryMgr()
-      self.inv.set_inventory_collection(args.inventory)
+      self.inv.set_inventory_collection(args.inventory, args.clear)
     except FileNotFoundError:
       sys.exit(1)
     scan_plan = self.get_scan_plan(args)

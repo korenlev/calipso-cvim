@@ -1,4 +1,5 @@
 import bson
+import logging
 
 from mongo_access import MongoAccess
 from util import Util
@@ -14,6 +15,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     super(InventoryMgr, self).__init__()
     self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
+    self.log = logging.getLogger("OS-DNA")
 
   def set_collection(self, coll_type, collection_name = ""):
     if coll_type != "inventory":
@@ -32,13 +34,19 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       if self.inventory_col.startswith("inventory") \
       else self.inventory_col + "_" + coll_name
 
-  def set_inventory_collection(self, inventory_collection = ""):
+  def set_inventory_collection(self, inventory_collection = "", clear=False):
     self.inv = self.set_collection("inventory", inventory_collection)
     self.links = self.set_collection("links")
     self.set_collection("link_types")
     self.set_collection("clique_types")
     self.set_collection("clique_constraints")
     self.set_collection("cliques")
+    if clear:
+      col_to_skip = ["link_types", "clique_types", "clique_constraints"]
+      for c in [c for c in self.coll if c not in col_to_skip]:
+        col = self.coll[c]
+        self.log.info("clearing collection: " + col.full_name)
+        col.delete_many({}) # delete all documents from the collection
 
   # return single match
   def process_results(self, raw_results, get_single=False):
