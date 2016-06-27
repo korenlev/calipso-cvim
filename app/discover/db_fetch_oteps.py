@@ -73,7 +73,7 @@ class DbFetchOteps(DbAccess, CliAccess, metaclass=Singleton):
       doc["vconnector"] = vconnector
 
   def add_links(self):
-    self.log.info("adding link types: vedge-otep, otep-vconnector")
+    self.log.info("adding link types: vedge-otep, otep-vconnector, otep-pnic")
     oteps = self.inv.find_items({
       "environment": self.get_env(),
       "type": "otep"
@@ -81,6 +81,7 @@ class DbFetchOteps(DbAccess, CliAccess, metaclass=Singleton):
     for otep in oteps:
       self.add_vedge_otep_link(otep)
       self.add_otep_vconnector_link(otep)
+      self.add_otep_pnic_link(otep)
 
   def add_vedge_otep_link(self, otep):
     vedge = self.inv.get_by_id(self.get_env(), otep["parent_id"])
@@ -113,6 +114,27 @@ class DbFetchOteps(DbAccess, CliAccess, metaclass=Singleton):
     target_id = vconnector["id"]
     link_type = "otep-vconnector"
     link_name = otep["name"] + otep["vconnector"]
+    state = "up" # TBD
+    link_weight = 0 # TBD
+    self.inv.create_link(self.get_env(), otep["host"],
+      source, source_id, target, target_id,
+      link_type, link_name, state, link_weight)
+
+  def add_otep_pnic_link(self, otep):
+    pnic = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "pnic",
+      "host": otep["host"],
+      "IP Address": otep["ip_address"]
+    }, get_single=True)
+    if not pnic:
+      return
+    source = otep["_id"]
+    source_id = otep["id"]
+    target = pnic["_id"]
+    target_id = pnic["id"]
+    link_type = "otep-pnic"
+    link_name = otep["host"] + "pnic" + pnic["name"]
     state = "up" # TBD
     link_weight = 0 # TBD
     self.inv.create_link(self.get_env(), otep["host"],
