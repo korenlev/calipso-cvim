@@ -84,10 +84,10 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     }, get_single=True)
     if not pnic:
       return
-    source = pnic["_id"]
-    source_id = pnic["id"]
-    target = vconnector["_id"]
-    target_id = vconnector["id"]
+    source = vconnector["_id"]
+    source_id = vconnector["id"]
+    target = pnic["_id"]
+    target_id = pnic["id"]
     link_type = "vconnector-pnic"
     link_name = pnic["name"]
     state = "up" # TBD
