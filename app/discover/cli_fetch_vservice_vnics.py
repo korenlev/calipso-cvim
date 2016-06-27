@@ -13,6 +13,7 @@ class CliFetchVserviceVnics(CliAccess):
       {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
       {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
       {"netmask": re.compile('^.*\sMask:\s?([0-9.]+)(\s.*)?$')},
+      {"netmask": re.compile('^.*\snetmask\s([0-9.]+)(\s.*)?$')},
       {"IP Address": re.compile('^\s*inet addr:(\S+)\s.*$')},
       {"IP Address": re.compile('^\s*inet ([0-9.]+)\s.*$')},
       {"IPv6 Address": re.compile('^\s*inet6 addr: ?\s*([0-9a-f:/]+)(\s.*)?$')},
