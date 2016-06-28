@@ -4,6 +4,7 @@ from singleton import Singleton
 class Configuration(MongoAccess, metaclass=Singleton):
   
   def __init__(self, mongo_config=""):
+    super().__init__()
     self.db_client = MongoAccess(mongo_config)
     self.db = MongoAccess.db
     self.collection = self.db["environments_config"]
