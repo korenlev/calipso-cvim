@@ -2,7 +2,8 @@ from pymongo import MongoClient
 
 import os
 import re
-import logging
+
+from logger import Logger
 from bson.objectid import ObjectId
 
 # Provides access to MongoDB using PyMongo library
@@ -11,14 +12,14 @@ from bson.objectid import ObjectId
 # default config file is /etc/osdna/mongo.conf
 # you can also specify name of file from CLI with --mongo_config
 
-class MongoAccess:
+class MongoAccess(Logger):
   
   client = None
   db = None
   default_conf_file = "/etc/osdna/mongo.conf"
 
   def __init__(self, config_file=""):
-    self.log = logging.getLogger("OS-DNA")
+    super().__init__()
     self.mongo_connect(config_file)
 
   def mongo_connect(self, config_file=""):

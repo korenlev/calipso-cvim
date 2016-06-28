@@ -1,5 +1,4 @@
 import bson
-import logging
 
 from mongo_access import MongoAccess
 from util import Util
@@ -12,10 +11,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   prettify = False
   
   def __init__(self):
-    super(InventoryMgr, self).__init__()
+    super().__init__()
     self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
-    self.log = logging.getLogger("OS-DNA")
 
   def set_collection(self, coll_type, collection_name = ""):
     if coll_type != "inventory":
