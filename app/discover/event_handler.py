@@ -1,3 +1,4 @@
+import re
 from logger import Logger
 from inventory_mgr import InventoryMgr
 
@@ -27,6 +28,11 @@ class EventHandler(Logger):
     name_path = instance['name_path']
     instance['name_path'] = name_path[:name_path.rindex('/') + 1] + name
     # TBD: fix name_path for descendants
+    if (name_path != instance['name_path']):
+      self.inv.values_replace({
+        "environment": self.env,
+        "name_path": {"$regex": r"^" + re.escape(name_path + '/')}},
+        {"name_path": {"from": name_path, "to": instance['name_path']}})
     self.inv.set(instance)
 
   def instance_down(self, notification):
