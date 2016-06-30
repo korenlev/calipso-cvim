@@ -1,21 +1,29 @@
 from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu import Queue, Exchange
+import argparse
 
 from event_handler import EventHandler
+from configuration import Configuration
 
 logger = get_logger(__name__)
 
 
 class Worker(ConsumerMixin):
   event_queues = [
-    Queue('notifications.info', Exchange('nova', 'topic', durable=False), durable=False),
-    Queue('notifications.info', Exchange('neutron', 'topic', durable=False), durable=False)
+    Queue('nova',
+      Exchange('nova', 'topic', durable=False),
+      durable=False, routing_key='#')
+#    Queue('notifications.neutron',
+#      Exchange('neutron', 'topic', durable=False),
+#      durable=False, routing_key='#')
   ]
 
   def __init__(self, connection):
     self.connection = connection
-    self.handler = EventHandler()
+
+  def set_env(self, env, inventory_collection):
+    self.handler = EventHandler(env, inventory_collection)
     self.notification_responses = {
       "compute.instance.create.end": self.handler.instance_add,
       "compute.instance.delete.end": self.handler.instance_delete,
@@ -38,13 +46,33 @@ class Worker(ConsumerMixin):
       callbacks=[self.process_task])]
 
   def process_task(self, body, message):
-    self.handle_event(body["event_type"], body)
+    if "event_type" in body:
+      self.handle_event(body["event_type"], body)
     message.ack()
 
   def handle_event(self, type, notification):
-    if type not in self.notifications_to_catch:
+    print("got notification, event_type: " + type + '\n' + str(notification))
+    if type not in self.notification_responses.keys():
       return ""
     return self.notification_responses[type](notification)
+
+def get_args():
+  # try to read scan plan from command line parameters
+  parser = argparse.ArgumentParser()
+  default_env = "Mirantis-Liberty"
+  parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
+    default="",
+    help="name of config file with MongoDB servr access details")
+  parser.add_argument("-e", "--env", nargs="?", type=str,
+    default=default_env,
+    help="name of environment to scan \n(default: " + default_env + ")")
+  parser.add_argument("-y", "--inventory", nargs="?", type=str,
+    default="inventory",
+    help="name of inventory collection \n(default: 'inventory')")
+  parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
+    help="logging level \n(default: 'INFO')")
+  args = parser.parse_args()
+  return args
 
 if __name__ == '__main__':
   from kombu import Connection
@@ -52,10 +80,21 @@ if __name__ == '__main__':
   # setup root logger
   setup_logging(loglevel='DEBUG', loggers=[''])
 
-  with Connection('amqp://nova:btE6JPF9@10.56.20.83:5672//') as conn:
+  args = get_args()
+  conf = Configuration(args.mongo_config)
+  env = args.env
+  conf.use_env(env)
+  amqp_config = conf.get("AMQP")
+  host = amqp_config["host"]
+  port = amqp_config["port"]
+  user = amqp_config["user"]
+  pwd = amqp_config["password"]
+  connect_url = 'amqp://' + user + ':' + pwd + '@' + host + ':' + port + '//'
+  with Connection(connect_url) as conn:
     try:
       print(conn)
       worker = Worker(conn)
+      worker.set_env(env, args.inventory)
       worker.run()
     except KeyboardInterrupt:
       print('Stopped')
