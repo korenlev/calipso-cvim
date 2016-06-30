@@ -1,16 +1,14 @@
 from mongo_access import MongoAccess
 from singleton import Singleton
 
-import logging
-
 class Configuration(MongoAccess, metaclass=Singleton):
   
   def __init__(self, mongo_config=""):
+    super().__init__(mongo_config)
     self.db_client = MongoAccess(mongo_config)
     self.db = MongoAccess.db
     self.collection = self.db["environments_config"]
-    self.log = logging.getLogger("OS-DNA")
-        
+
   def use_env(self, env_name):
     self.log.info("configuration taken from environment: " + env_name)
     self.env = env_name

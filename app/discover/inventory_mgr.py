@@ -1,5 +1,4 @@
 import bson
-import logging
 
 from mongo_access import MongoAccess
 from util import Util
@@ -12,10 +11,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   prettify = False
   
   def __init__(self):
-    super(InventoryMgr, self).__init__()
+    super().__init__()
     self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
-    self.log = logging.getLogger("OS-DNA")
 
   def set_collection(self, coll_type, collection_name = ""):
     if coll_type != "inventory":
@@ -138,7 +136,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       projects = []
     obj_name = item["name_path"]
     obj_name = obj_name[obj_name.rindex('/')+1:]
-    item["object_name"] = obj_name
+    item['object_name'] = item['object_name'] if 'object_name' in item \
+      else obj_name
     self.set_inventory_collection() # make sure we have it set
     find_tuple = {"environment": item["environment"],
        "type": item["type"], "id": item["id"]}
@@ -219,3 +218,23 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       self.coll["clique_constraints"],
       self.coll["cliques"])
     clique_scanner.find_cliques()
+
+  def values_replace_in_object(self, o, values_replacement):
+    for k in values_replacement.keys():
+      if k not in o:
+        continue
+      repl = values_replacement[k]
+      if 'from' not in repl or 'to' not in repl:
+        continue
+      o[k] = o[k].replace(repl['from'], repl['to'])
+      self.set(o)
+
+  # perform replacement of substring in values of objects in the inventory
+  # input:
+  # - search: dict with search parametes
+  # - values_replacement: dict,
+  #     - keys: names of keys for which to replace the values
+  #     - values: dict with "from" (value to be replaced) and "to" (new value)
+  def values_replace(self, search, values_replacement):
+    for doc in self.inv.find(search):
+      self.values_replace_in_object(doc, values_replacement)
