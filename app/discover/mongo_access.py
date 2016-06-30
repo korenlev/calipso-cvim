@@ -47,7 +47,7 @@ class MongoAccess(Logger):
             if val:
               self.connect_params[attr] = val
       except Exception as e:
-        logging.error("failed to open config file: " + config_file)
+        self.log.error("failed to open config file: " + config_file)
         raise
     MongoAccess.client = MongoClient(
       self.connect_params["server"],
