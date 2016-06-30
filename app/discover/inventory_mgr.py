@@ -136,7 +136,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       projects = []
     obj_name = item["name_path"]
     obj_name = obj_name[obj_name.rindex('/')+1:]
-    item["object_name"] = obj_name
+    item['object_name'] = item['object_name'] if 'object_name' in item \
+      else obj_name
     self.set_inventory_collection() # make sure we have it set
     find_tuple = {"environment": item["environment"],
        "type": item["type"], "id": item["id"]}
@@ -217,3 +218,4 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       self.coll["clique_constraints"],
       self.coll["cliques"])
     clique_scanner.find_cliques()
+
