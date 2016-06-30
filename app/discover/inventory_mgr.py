@@ -219,3 +219,22 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       self.coll["cliques"])
     clique_scanner.find_cliques()
 
+  def values_replace_in_object(self, o, values_replacement):
+    for k in values_replacement.keys():
+      if k not in o:
+        continue
+      repl = values_replacement[k]
+      if 'from' not in repl or 'to' not in repl:
+        continue
+      o[k] = o[k].replace(repl['from'], repl['to'])
+      self.set(o)
+
+  # perform replacement of substring in values of objects in the inventory
+  # input:
+  # - search: dict with search parametes
+  # - values_replacement: dict,
+  #     - keys: names of keys for which to replace the values
+  #     - values: dict with "from" (value to be replaced) and "to" (new value)
+  def values_replace(self, search, values_replacement):
+    for doc in self.inv.find(search):
+      self.values_replace_in_object(doc, values_replacement)
