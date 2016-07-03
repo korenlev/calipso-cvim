@@ -11,7 +11,7 @@ class ScanRegionsRoot(Scanner, metaclass=Singleton):
     super(ScanRegionsRoot, self).__init__([
       {
         "type": "region",
-        "fetcher": ApiFetchRegions(),
-        "children_scanner": ScanRegion()
+        "fetcher": "ApiFetchRegions",
+        "children_scanner": "ScanRegion"
       }
     ])

@@ -11,7 +11,7 @@ class ScanAggregatesRoot(Scanner, metaclass=Singleton):
     super(ScanAggregatesRoot, self).__init__([
       {
         "type": "aggregate",
-        "fetcher": DbFetchAggregates(),
-        "children_scanner": ScanAggregate()
+        "fetcher": "DbFetchAggregates",
+        "children_scanner": "ScanAggregate"
       }
     ])

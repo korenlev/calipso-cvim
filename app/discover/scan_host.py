@@ -22,41 +22,41 @@ class ScanHost(Scanner, metaclass=Singleton):
       {
         "type": "vservices_folder",
         "fetcher": FolderFetcher("vservices", "host"),
-        "children_scanner": ScanInstancesRoot()
+        "children_scanner": "ScanInstancesRoot"
       },
       {
         "type": "vservice",
-        "fetcher": CliFetchHostVservices()
+        "fetcher": "CliFetchHostVservices"
       },
       # fetching of vService vNICs is done from host for efficiency
       {
         "type": "vnic",
-        "fetcher": CliFetchVserviceVnics()
+        "fetcher": "CliFetchVserviceVnics"
       },
       {
         "type": "instances_folder",
         "fetcher": FolderFetcher("instances", "host"),
-        "children_scanner": ScanInstancesRoot()
+        "children_scanner": "ScanInstancesRoot"
       },
       {
         "type": "pnics_folder",
         "fetcher": FolderFetcher("pnics", "host", "pNICs"),
-        "children_scanner": ScanPnicsRoot()
+        "children_scanner": "ScanPnicsRoot"
       },
       {
         "type": "vconnectors_folder",
         "fetcher": FolderFetcher("vconnectors", "host", "vConnectors"),
-        "children_scanner": ScanVconnectorsRoot()
+        "children_scanner": "ScanVconnectorsRoot"
       },
       {
         "type": "vedges_folder",
         "fetcher": FolderFetcher("vedges", "host", "vEdges"),
-        "children_scanner": ScanVedgesRoot()
+        "children_scanner": "ScanVedgesRoot"
       },
       {
         "type": "network_agents_folder",
         "fetcher": FolderFetcher("network_agents", "host",
           "Network agents"),
-        "children_scanner": ScanHostNetworkAgentsRoot()
+        "children_scanner": "ScanHostNetworkAgentsRoot"
       }
     ])

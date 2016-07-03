@@ -9,6 +9,6 @@ class ScanHostNetworkAgentsRoot(Scanner, metaclass=Singleton):
     super(ScanHostNetworkAgentsRoot, self).__init__([
       {
         "type": "network_agent",
-        "fetcher": DbFetchHostNetworkAgents()
+        "fetcher": "DbFetchHostNetworkAgents"
       }
     ])

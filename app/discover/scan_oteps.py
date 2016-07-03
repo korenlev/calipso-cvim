@@ -8,6 +8,6 @@ class ScanOteps(Scanner, metaclass=Singleton):
     super().__init__([
       {
         "type": "otep",
-        "fetcher": DbFetchOteps()
+        "fetcher": "DbFetchOteps"
       }
     ])

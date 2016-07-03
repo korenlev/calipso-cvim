@@ -8,6 +8,6 @@ class ScanVnicsRoot(Scanner, metaclass=Singleton):
     super(ScanVnicsRoot, self).__init__([
       {
         "type": "vnic",
-        "fetcher": CliFetchInstanceVnics()
+        "fetcher": "CliFetchInstanceVnics"
       }
     ])

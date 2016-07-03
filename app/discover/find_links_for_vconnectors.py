@@ -1,0 +1,60 @@
+from inventory_mgr import InventoryMgr
+from fetcher import Fetcher
+
+class FindLinksForVconnectors(Fetcher):
+
+  def __init__(self):
+    super().__init__()
+    self.inv = InventoryMgr()
+
+  def add_links(self):
+    vconnectors = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "vconnector"
+    })
+    self.log.info("adding links of type: vnic-vconnector, vconnector-pnic")
+    for vconnector in vconnectors:
+      for interface in vconnector["interfaces"]:
+        self.add_vnic_vconnector_link(vconnector, interface)
+        self.add_vconnector_pnic_link(vconnector, interface)
+
+  def add_vnic_vconnector_link(self, vconnector, interface):
+      vnic = self.inv.get_by_id(self.get_env(), interface)
+      if not vnic:
+        return
+      host = vnic["host"]
+      source = vnic["_id"]
+      source_id = vnic["id"]
+      target = vconnector["_id"]
+      target_id = vconnector["id"]
+      link_type = "vnic-vconnector"
+      link_name = vnic["mac_address"]
+      state = "up" # TBD
+      link_weight = 0 # TBD
+      self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
+        link_type, link_name, state, link_weight)
+
+  def add_vconnector_pnic_link(self, vconnector, ifname):
+    if not ifname.startswith("eth") and not ifname.startswith("eno"):
+      return
+    if "." in ifname:
+      ifname = ifname[:ifname.index(".")]
+    host = vconnector["host"]
+    pnic = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "pnic",
+      "host": vconnector["host"],
+      "name": ifname
+    }, get_single=True)
+    if not pnic:
+      return
+    source = vconnector["_id"]
+    source_id = vconnector["id"]
+    target = pnic["_id"]
+    target_id = pnic["id"]
+    link_type = "vconnector-pnic"
+    link_name = pnic["name"]
+    state = "up" # TBD
+    link_weight = 0 # TBD
+    self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
+      link_type, link_name, state, link_weight)

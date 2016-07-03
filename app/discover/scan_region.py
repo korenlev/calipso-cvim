@@ -15,15 +15,15 @@ class ScanRegion(Scanner, metaclass=Singleton):
       {
         "type": "aggregates_folder",
         "fetcher": FolderFetcher("aggregates", "region"),
-        "children_scanner": ScanAggregatesRoot()
+        "children_scanner": "ScanAggregatesRoot"
       },
       {
         "type": "network",
-        "fetcher": ApiFetchNetworks(),
-        "children_scanner": ScanNetwork()
+        "fetcher": "ApiFetchNetworks",
+        "children_scanner": "ScanNetwork"
       },
       {
         "type": "port",
-        "fetcher": ApiFetchPorts()
+        "fetcher": "ApiFetchPorts"
       }
     ])

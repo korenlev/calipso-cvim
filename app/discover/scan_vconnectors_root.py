@@ -8,6 +8,6 @@ class ScanVconnectorsRoot(Scanner, metaclass=Singleton):
     super(ScanVconnectorsRoot, self).__init__([
       {
         "type": "vconnector",
-        "fetcher": CliFetchVconnectors()
+        "fetcher": "CliFetchVconnectors"
       }
     ])

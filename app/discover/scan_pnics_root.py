@@ -8,6 +8,6 @@ class ScanPnicsRoot(Scanner, metaclass=Singleton):
     super(ScanPnicsRoot, self).__init__([
       {
         "type": "pnic",
-        "fetcher": CliFetchHostPnics()
+        "fetcher": "CliFetchHostPnics"
       }
     ])

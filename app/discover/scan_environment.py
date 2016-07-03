@@ -14,11 +14,11 @@ class ScanEnvironment(Scanner, metaclass=Singleton):
       {
         "type": "regions_folder",
         "fetcher": FolderFetcher("regions", "environment"),
-        "children_scanner": ScanRegionsRoot()
+        "children_scanner": "ScanRegionsRoot"
       },
       {
         "type": "projects_folder",
         "fetcher": FolderFetcher("projects", "environment"),
-        "children_scanner": ScanProjectsRoot()
+        "children_scanner": "ScanProjectsRoot"
       }
     ])

@@ -12,6 +12,6 @@ class ScanInstance(Scanner, metaclass=Singleton):
       {
         "type": "vnics_folder",
         "fetcher": FolderFetcher("vnics", "instance", "vNICs"),
-        "children_scanner": ScanVnicsRoot()
+        "children_scanner": "ScanVnicsRoot"
       }
     ])

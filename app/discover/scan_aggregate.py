@@ -11,6 +11,6 @@ class ScanAggregate(Scanner, metaclass=Singleton):
     super(ScanAggregate, self).__init__([
       {
         "type": "host_ref",
-        "fetcher": DbFetchAggregateHosts()
+        "fetcher": "DbFetchAggregateHosts"
       }
     ])

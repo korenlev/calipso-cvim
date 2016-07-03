@@ -9,7 +9,7 @@ class ScanInstancesRoot(Scanner, metaclass=Singleton):
     super(ScanInstancesRoot, self).__init__([
       {
         "type": "instance",
-        "fetcher": ApiFetchHostInstances(),
-        "children_scanner": ScanInstance()
+        "fetcher": "ApiFetchHostInstances",
+        "children_scanner": "ScanInstance"
       }
     ])

@@ -12,8 +12,8 @@ class ScanProjectsRoot(Scanner, metaclass=Singleton):
     super(ScanProjectsRoot, self).__init__([
       {
         "type": "project",
-        "fetcher": ApiFetchProjects(),
+        "fetcher": "ApiFetchProjects",
         "object_id_to_use_in_child": "name",
-        "children_scanner": ScanProject()
+        "children_scanner": "ScanProject"
       }
     ])

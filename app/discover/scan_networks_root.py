@@ -10,11 +10,11 @@ class ScanNetworksRoot(Scanner, metaclass=Singleton):
     super(ScanNetworksRoot, self).__init__([
       {
         "type": "network",
-        "fetcher": ApiFetchNetworks(),
-        "children_scanner": ScanNetwork()
+        "fetcher": "ApiFetchNetworks",
+        "children_scanner": "ScanNetwork"
       },
       {
         "type": "port",
-        "fetcher": ApiFetchPorts()
+        "fetcher": "ApiFetchPorts"
       }
     ])

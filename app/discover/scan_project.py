@@ -13,11 +13,11 @@ class ScanProject(Scanner, metaclass=Singleton):
     super(ScanProject, self).__init__([
       {
         "type": "availability_zone",
-        "fetcher": ApiFetchAvailabilityZones()
+        "fetcher": "ApiFetchAvailabilityZones"
       },
       {
         "type": "host",
-        "fetcher": ApiFetchProjectHosts(),
-        "children_scanner": ScanHost()
+        "fetcher": "ApiFetchProjectHosts",
+        "children_scanner": "ScanHost"
       }
     ])
