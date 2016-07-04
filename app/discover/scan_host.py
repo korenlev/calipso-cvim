@@ -1,13 +1,6 @@
 from singleton import Singleton
 from folder_fetcher import FolderFetcher
 from scanner import Scanner
-from scan_instances_root import ScanInstancesRoot
-from scan_pnics_root import ScanPnicsRoot
-from scan_host_network_agents_root import ScanHostNetworkAgentsRoot
-from scan_vconnectors_root import ScanVconnectorsRoot
-from scan_vedges_root import ScanVedgesRoot
-from cli_fetch_host_vservices import CliFetchHostVservices
-from cli_fetch_vservice_vnics import CliFetchVserviceVnics
 
 class ScanHost(Scanner, metaclass=Singleton):
   

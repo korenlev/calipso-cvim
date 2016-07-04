@@ -1,9 +1,7 @@
 # scan a region for availability zones and aggregates
 
 from singleton import Singleton
-from db_fetch_aggregates import DbFetchAggregates
 from scanner import Scanner
-from scan_aggregate import ScanAggregate
 
 class ScanAggregatesRoot(Scanner, metaclass=Singleton):
   

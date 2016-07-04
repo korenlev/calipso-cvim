@@ -11,7 +11,6 @@ import argparse
 
 from configuration import Configuration
 from inventory_mgr import InventoryMgr
-from scan_environment import ScanEnvironment
 from fetcher import Fetcher
 
 class ScanController(Fetcher):
