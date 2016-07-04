@@ -3,8 +3,6 @@
 
 from singleton import Singleton
 from scanner import Scanner
-from api_fetch_projects import ApiFetchProjects
-from scan_project import ScanProject
 
 class ScanProjectsRoot(Scanner, metaclass=Singleton):
   
