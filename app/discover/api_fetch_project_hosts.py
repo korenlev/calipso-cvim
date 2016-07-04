@@ -35,9 +35,12 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     az_info = response["availabilityZoneInfo"]
     hosts = {}
     for doc in az_info:
-      ret.extend(self.get_hosts_from_az(doc))
-    for h in ret:
-      hosts[h["name"]] = h
+      az_hosts = self.get_hosts_from_az(doc)
+      for h in az_hosts:
+        if h["name"] in hosts:
+          continue
+        hosts[h["name"]] = h
+        ret.append(h)
     # get os_id for hosts using the os-hypervisors API call
     req_url = endpoint + "/os-hypervisors"
     response = self.get_url(req_url, headers)
@@ -47,7 +50,6 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       return ret
     for h in response["hypervisors"]:
         hvname = h["hypervisor_hostname"]
-        dot_pos = hvname.index('.')
         if '.' in hvname and hvname not in hosts:
           hostname = hvname[:hvname.index('.')]
         else:
