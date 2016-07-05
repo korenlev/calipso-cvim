@@ -42,17 +42,3 @@ class FindLinksForVserviceVnics(Fetcher):
     for octet in netmask:
       binary_str += bin(int(octet))[2:].zfill(8)
     return str(len(binary_str.rstrip('0')))
-
-  # find CIDR string by IP address and netmask
-  def get_cidr_for_vnic(self, vnic):
-    ipaddr = vnic["IP Address"].split('.')
-    netmask = vnic["netmask"].split('.')
-
-    # calculate network start
-    net_start = []
-    for pos in range(0,4):
-      net_start.append(str(int(ipaddr[pos]) & int(netmask[pos])))
-
-    cidr_string = '.'.join(net_start) + '/'
-    cidr_string = cidr_string + self.get_net_size(netmask)
-    return cidr_string
