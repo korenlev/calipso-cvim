@@ -34,11 +34,13 @@ class CliFetchVserviceVnics(CliAccess):
     lines = self.run_fetch_lines("ip netns", host_id)
     ret = []
     for l in [l for l in lines if l.startswith("qdhcp") or l.startswith("qrouter")]:
-      ret.extend(self.handle_service(host_id, l))
+      service = l.strip()
+      service = service if ' ' not in service else service[:service.index(' ')]
+      ret.extend(self.handle_service(host_id, service))
     return ret
 
   def handle_service(self, host, service):
-    cmd = "ip netns exec " + service.strip() + " ifconfig"
+    cmd = "ip netns exec " + service + " ifconfig"
     lines = self.run_fetch_lines(cmd, host)
     interfaces = []
     current = None
