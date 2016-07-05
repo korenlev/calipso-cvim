@@ -117,3 +117,9 @@ class CliFetchVserviceVnics(CliAccess):
     cidr_string = '.'.join(net_start) + '/'
     cidr_string = cidr_string + self.get_net_size(netmask)
     return cidr_string
+
+  def get_net_size(self, netmask):
+    binary_str = ''
+    for octet in netmask:
+      binary_str += bin(int(octet))[2:].zfill(8)
+    return str(len(binary_str.rstrip('0')))
