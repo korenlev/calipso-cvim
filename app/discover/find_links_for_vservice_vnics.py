@@ -37,8 +37,3 @@ class FindLinksForVserviceVnics(Fetcher):
     self.inv.create_link(self.get_env(), v["host"], source, source_id,
       target, target_id, link_type, link_name, state, link_weight)
 
-  def get_net_size(self, netmask):
-    binary_str = ''
-    for octet in netmask:
-      binary_str += bin(int(octet))[2:].zfill(8)
-    return str(len(binary_str.rstrip('0')))
