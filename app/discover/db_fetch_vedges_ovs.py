@@ -6,7 +6,7 @@ from inventory_mgr import InventoryMgr
 import json
 import re
 
-class DbFetchVedges(DbAccess, CliAccess, metaclass=Singleton):
+class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
 
   def __init__(self):
     super().__init__()

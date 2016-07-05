@@ -7,7 +7,7 @@ class ScanVedgesRoot(Scanner, metaclass=Singleton):
     super(ScanVedgesRoot, self).__init__([
       {
         "type": "vedge",
-        "fetcher": "DbFetchVedges",
+        "fetcher": "DbFetchVedgesOvs",
         "children_scanner": "ScanOteps"
       }
     ])
