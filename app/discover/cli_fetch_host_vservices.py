@@ -18,7 +18,7 @@ class CliFetchHostVservices(CliAccess, DbAccess):
     if "Network" not in host["host_type"]:
       return []
     host_types = host["host_type"]
-    services_ids = [l[:l.index(' ')]
+    services_ids = [l[:l.index(' ')] if ' ' in l else l
       for l in self.run_fetch_lines("ip netns", host_id)]
     results = [{"local_service_id": s} for s in services_ids if self.type_re.match(s)]
     for r in results:

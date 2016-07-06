@@ -24,7 +24,13 @@ class ScanHost(Scanner, metaclass=Singleton):
       # fetching of vService vNICs is done from host for efficiency
       {
         "type": "vnic",
-        "fetcher": "CliFetchVserviceVnics"
+        "environment_condition": {"network_plugins": "OVS"},
+        "fetcher": "CliFetchVserviceVnicsOvs"
+      },
+      {
+        "type": "vnic",
+        "environment_condition": {"network_plugins": "VPP"},
+        "fetcher": "CliFetchVserviceVnicsVpp"
       },
       {
         "type": "instances_folder",
