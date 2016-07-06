@@ -10,7 +10,6 @@ class Fetcher(Logger):
   def __init__(self):
     super().__init__()
     self.prettify = False
-    self.environment = ""
 
   def escape(self, string):
     return string
