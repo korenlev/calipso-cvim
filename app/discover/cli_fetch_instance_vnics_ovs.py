@@ -9,3 +9,6 @@ class CliFetchInstanceVnicsOvs(CliFetchInstanceVnics):
     super().set_vnic_properties(v, instance)
     v["source_bridge"] = v["source"]["@bridge"]
 
+  def get_vnic_name(self, v, instance):
+    return v["target"]["@dev"]
+
