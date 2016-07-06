@@ -38,9 +38,13 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       az_hosts = self.get_hosts_from_az(doc)
       for h in az_hosts:
         if h["name"] in hosts:
-          continue
-        hosts[h["name"]] = h
-        ret.append(h)
+          # merge host_type data between AZs
+          existing_entry = hosts[h["name"]]
+          for t in h["host_type"]:
+            self.add_host_type(existing_entry, t)
+        else:
+          hosts[h["name"]] = h
+          ret.append(h)
     # get os_id for hosts using the os-hypervisors API call
     req_url = endpoint + "/os-hypervisors"
     response = self.get_url(req_url, headers)
