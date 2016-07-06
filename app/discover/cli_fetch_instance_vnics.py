@@ -45,13 +45,14 @@ class CliFetchInstanceVnics(CliAccess):
     if isinstance(vnics, dict):
       vnics = [vnics]
     for v in vnics:
-      v["name"] = v["target"]["@dev"]
-      v["id"] =  v["name"]
-      v["vnic_type"] = "instance_vnic"
-      v["host"] = instance["host"]
-      v["instance_id"] = instance["id"]
-      v["instance_db_id"] = instance["_id"]
-      v["mac_address"] = v["mac"]["@address"]
-      v["source_bridge"] = v["source"]["@bridge"]
+      self.set_vnic_properties(v, instance)
     return vnics
 
+  def set_vnic_properties(self, v, instance):
+    v["name"] = self.get_vnic_name(v, instance)
+    v["id"] =  v["name"]
+    v["vnic_type"] = "instance_vnic"
+    v["host"] = instance["host"]
+    v["instance_id"] = instance["id"]
+    v["instance_db_id"] = instance["_id"]
+    v["mac_address"] = v["mac"]["@address"]
