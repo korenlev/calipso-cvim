@@ -42,8 +42,7 @@ class FindLinksForVedges(Fetcher):
       link_type, link_name, state, link_weight, source_label, target_label)
 
   def find_matching_vconnector(self, vedge, port):
-    config = Configuration()
-    if config.has_network_plugin('VPP'):
+    if self.configuration.has_network_plugin('VPP'):
       vconnector_interface_name = port['name']
       interfaces_field = 'interfaces.name'
     else:
@@ -77,6 +76,8 @@ class FindLinksForVedges(Fetcher):
     if "pnic" in vedge:
       if pname != vedge["pnic"]:
         return
+    elif self.configuration.has_network_plugin('VPP'):
+      pass
     elif not pname.startswith("eth") and not pname.startswith("eno"):
       return
     pnic = self.inv.find_items({
