@@ -1,11 +1,15 @@
 import json
 import re
 
+import configuration
+from configuration import Configuration
+
 from logger import Logger
 
 class Fetcher(Logger):
 
   env = None
+  configuration = None
 
   def __init__(self):
     super().__init__()
@@ -22,6 +26,7 @@ class Fetcher(Logger):
   
   def set_env(self, env):
     Fetcher.env = env
+    Fetcher.configuration = Configuration()
 
   def get_env(self):
     return Fetcher.env
