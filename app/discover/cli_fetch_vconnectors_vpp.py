@@ -22,6 +22,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
     vconnector = {
       "host": host['id'],
       "id": host['id'] + '-vconnector-' + bd_id,
+      "bd_id": bd_id,
       "name": "bridge-domain-" + bd_id
     }
     # find vconnector interfaces
