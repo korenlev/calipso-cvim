@@ -1,5 +1,6 @@
 from inventory_mgr import InventoryMgr
 from fetcher import Fetcher
+from configuration import Configuration
 
 class FindLinksForVedges(Fetcher):
 
@@ -41,12 +42,18 @@ class FindLinksForVedges(Fetcher):
       link_type, link_name, state, link_weight, source_label, target_label)
 
   def find_matching_vconnector(self, vedge, port):
-    if not port["name"].startswith("qv"):
-      return
-    base_id = port["name"][3:]
-    vconnector_interface_name = "qvb" + base_id
+    config = Configuration()
+    if config.has_network_plugin('VPP'):
+      vconnector_interface_name = port['name']
+      interfaces_field = 'interfaces.name'
+    else:
+      if not port["name"].startswith("qv"):
+        return
+      base_id = port["name"][3:]
+      vconnector_interface_name = "qvb" + base_id
+      interfaces_field = 'interfaces'
     vconnector = self.inv.get_by_field(self.get_env(), "vconnector",
-      "interfaces", vconnector_interface_name, get_single=True)
+      interfaces_field, vconnector_interface_name, get_single=True)
     if not vconnector:
       return
     source = vconnector["_id"]
