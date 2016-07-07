@@ -7,6 +7,12 @@ class ScanPnicsRoot(Scanner, metaclass=Singleton):
     super(ScanPnicsRoot, self).__init__([
       {
         "type": "pnic",
-        "fetcher": "CliFetchHostPnics"
+        "environment_condition": {"network_plugins": "OVS"},
+        "fetcher": "CliFetchHostPnicsOvs"
+      },
+      {
+        "type": "pnic",
+        "environment_condition": {"network_plugins": "VPP"},
+        "fetcher": "CliFetchHostPnicsVpp"
       }
     ])
