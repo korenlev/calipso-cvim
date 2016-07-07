@@ -7,47 +7,48 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
   def get_vconnectors(self, host):
     lines = self.run_fetch_lines("sudo vppctl show mode", host['id'])
-    ret = []
+    vconnectors = {}
     for l in lines:
       if not l.startswith('l2 bridge'):
         continue
       line_parts = l.split(' ')
       name = line_parts[2]
       bd_id = line_parts[4]
-      v = self.get_vconnector(host, name, bd_id)
-      ret.append(v)
-    return ret
+      if bd_id in vconnectors:
+        vconnector = vconnectors[bd_id]
+      else:
+        vconnector = {
+          'host': host['id'],
+          'id': host['id'] + '-vconnector-' + bd_id,
+          'bd_id': bd_id,
+          'name': "bridge-domain-" + bd_id,
+          'interfaces': []
+        }
+        vconnectors[bd_id] = vconnector
+      interface = self.get_interface_details(host, name)
+      if interface:
+        vconnector["interfaces"].append(interface)
+    return vconnectors.values()
 
-  def get_vconnector(self, host, name, bd_id):
-    vconnector = {
-      "host": host['id'],
-      "id": host['id'] + '-vconnector-' + bd_id,
-      "bd_id": bd_id,
-      "name": "bridge-domain-" + bd_id
-    }
+  def get_interface_details(self, host, name):
     # find vconnector interfaces
-    lines = self.run_fetch_lines("sudo vppctl show hardware-int " + name)
+    cmd = "sudo vppctl show hardware-int " + name
+    interface_lines = self.run_fetch_lines(cmd, host['id'])
     # remove header line
-    lines.pop(0)
+    interface_lines.pop(0)
     interface = None
-    vconnector['interfaces'] = []
-    for l in lines:
+    for l in interface_lines:
       if not l.strip():
         continue # ignore empty lines
       if not l.startswith(' '):
-        if interface:
-          vconnector['interfaces'].append(interface)
-        line_parts = l.split()
+        details = l.split()
         interface = {
-          "name": line_parts[0],
-          "hardware": line_parts[3],
-          "state": line_parts[2],
-          "id": line_parts[1],
+          "name": details[0],
+          "hardware": details[3],
+          "state": details[2],
+          "id": details[1],
         }
       elif l.startswith('  Ethernet address '):
         interface['mac_address'] = l[l.rindex(' ')+1:]
-    if interface:
-      vconnector['interfaces'].append(interface)
-
-    return vconnector
+    return interface
 
