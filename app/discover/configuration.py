@@ -41,3 +41,10 @@ class Configuration(MongoAccess, metaclass=Singleton):
     if len(matches) > 1:
       raise IndexError("Found multiple matches for configuration component: " + component)
     return matches[0]
+
+  def has_network_plugin(self, name):
+    if 'network_plugins' not in self.env_config:
+      self.log.error('Environment missing network_plugins definition: ' +
+        self.env_config['name'])
+    network_plugins = self.env_config['network_plugins']
+    return name in network_plugins
