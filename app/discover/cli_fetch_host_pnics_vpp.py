@@ -9,7 +9,11 @@ class CliFetchHostPnicsVpp(Fetcher):
 
   def get(self, id):
     host_id = id[:id.rindex("-")]
-    vedges = self.inv.get(self.get_env(), "vedge", "")
+    vedges = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "vedge",
+      "host": host_id
+    })
     ret = []
     for vedge in vedges:
       pnic_ports = vedge['ports']
