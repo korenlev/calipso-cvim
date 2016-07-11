@@ -56,3 +56,5 @@ class CliFetchInstanceVnics(CliAccess):
     v["instance_id"] = instance["id"]
     v["instance_db_id"] = instance["_id"]
     v["mac_address"] = v["mac"]["@address"]
+    instance["mac_address"] = v["mac_address"]
+    self.inv.set(instance)
