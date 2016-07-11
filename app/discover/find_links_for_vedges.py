@@ -44,15 +44,19 @@ class FindLinksForVedges(Fetcher):
   def find_matching_vconnector(self, vedge, port):
     if self.configuration.has_network_plugin('VPP'):
       vconnector_interface_name = port['name']
-      interfaces_field = 'interfaces.name'
+      interfaces_field = "interfaces.name"
     else:
       if not port["name"].startswith("qv"):
         return
       base_id = port["name"][3:]
       vconnector_interface_name = "qvb" + base_id
-      interfaces_field = 'interfaces'
-    vconnector = self.inv.get_by_field(self.get_env(), "vconnector",
-      interfaces_field, vconnector_interface_name, get_single=True)
+      interfaces_field = "interfaces"
+    vconnector = self.inv.find_items({
+      "environment": self.get_env(),
+      "type": "vconnector",
+      "host": vedge['host'],
+      interfaces_field: vconnector_interface_name},
+      get_single=True)
     if not vconnector:
       return
     source = vconnector["_id"]
@@ -67,14 +71,17 @@ class FindLinksForVedges(Fetcher):
     link_weight = 0 # TBD
     source_label = vconnector_interface_name
     target_label = port["name"]
-    if port['name'] in vconnector['interfaces']:
-      interfaces = vconnector['interfaces']
-      interface = interfaces[port['name']]
+    mac_address = "Unknown"
+    for interface in vconnector['interfaces']:
+      if port['name'] != interface['name']:
+        continue
+      if 'mac_address' not in interface:
+        continue
       mac_address = interface['mac_address']
     self.inv.create_link(self.get_env(), vedge["host"],
       source, source_id, target, target_id,
       link_type, link_name, state, link_weight, source_label, target_label,
-      attributes={'mac_address': mac_address})
+      {'mac_address': mac_address})
 
   def find_matching_pnic(self, vedge, port):
     pname = port["name"]
