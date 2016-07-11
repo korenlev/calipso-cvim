@@ -9,10 +9,4 @@ class ScanPnicsRoot(Scanner, metaclass=Singleton):
         "type": "pnic",
         "environment_condition": {"network_plugins": "OVS"},
         "fetcher": "CliFetchHostPnicsOvs"
-      },
-      {
-        "type": "pnic",
-        "environment_condition": {"network_plugins": "VPP"},
-        "fetcher": "CliFetchHostPnicsVpp"
       }
-    ])

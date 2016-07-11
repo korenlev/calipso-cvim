@@ -1,5 +1,6 @@
 from singleton import Singleton
 from scanner import Scanner
+from folder_fetcher import FolderFetcher
 
 class ScanVedgesRoot(Scanner, metaclass=Singleton):
   
@@ -10,8 +11,8 @@ class ScanVedgesRoot(Scanner, metaclass=Singleton):
         "fetcher": "DbFetchVedgesOvs",
         "environment_condition": {"network_plugins": "OVS"},
         "children_scanner": "ScanOteps"
-      }
-      {V
+      },
+      {
         "type": "vedge",
         "fetcher": "DbFetchVedgesVpp",
         "environment_condition": {"network_plugins": "VPP"},
