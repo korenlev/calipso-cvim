@@ -40,6 +40,7 @@ class ScanHost(Scanner, metaclass=Singleton):
       {
         "type": "pnics_folder",
         "fetcher": FolderFetcher("pnics", "host", "pNICs"),
+        "environment_condition": {"network_plugins": "OVS"},
         "children_scanner": "ScanPnicsRoot"
       },
       {
