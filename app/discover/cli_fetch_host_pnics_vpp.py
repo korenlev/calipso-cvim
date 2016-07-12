@@ -9,6 +9,7 @@ class CliFetchHostPnicsVpp(Fetcher):
 
   def get(self, id):
     host_id = id[:id.rindex("-")]
+    host_id = id[:host_id.rindex("-")]
     vedges = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vedge",
