@@ -122,8 +122,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   
   # item must contain properties 'environment', 'type' and 'id'
   def set(self, item):
+    mongo_id = None
     if "_id" in item:
-      item.pop("_id", None)
+      mongo_id = item.pop("_id", None)
 
     # make sure we have environment, type & id
     self.check(item, "environment")
@@ -144,6 +145,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.inv.update_one(find_tuple,
       {'$set': self.encode_mongo_keys(item)},
       upsert=True)
+    if mongo_id:
+      # restore original mongo ID of document, in case we need to use it
+      item['_id'] = mongo_id
     if projects:
       self.inv.update_one(find_tuple,
         {'$addToSet': {"projects": {'$each': projects}}},
