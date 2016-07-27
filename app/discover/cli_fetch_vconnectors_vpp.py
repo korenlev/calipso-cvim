@@ -28,7 +28,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
       interface = self.get_interface_details(host, name)
       if interface:
         vconnector["interfaces"].append(interface)
-    return vconnectors.values()
+    return list(vconnectors.values())
 
   def get_interface_details(self, host, name):
     # find vconnector interfaces
