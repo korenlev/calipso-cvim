@@ -19,7 +19,7 @@ class CliAccess(Fetcher):
 
   def run(self, cmd, ssh_to_host = ""):
     ssh_conn = SshConn(ssh_to_host)
-    if ssh_to_host:
+    if ssh_to_host and ssh_to_host != ssh_conn.get_host():
       cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
     curr_time = time.time()
     if cmd in self.cached_commands:
