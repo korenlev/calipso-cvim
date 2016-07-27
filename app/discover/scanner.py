@@ -11,6 +11,7 @@ from find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from find_links_for_vconnectors import FindLinksForVconnectors
 from find_links_for_vedges import FindLinksForVedges
 from find_links_for_oteps import FindLinksForOteps
+from ssh_conn import SshConn
 
 import queue
 import json
@@ -233,6 +234,7 @@ class Scanner(Util, Fetcher):
   def run_scan(self, obj, id_field, child_id, child_type):
     results = self.scan(obj, id_field, child_id, child_type)
     self.scan_from_queue()
+    SshConn.disconnect_all()
     return results
 
   def scan_from_queue(self):
