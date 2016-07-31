@@ -131,3 +131,4 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       doc["host_type"].append(type)
       if type == 'Compute':
         doc['zone'] = zone
+        doc['parent_id'] = zone
