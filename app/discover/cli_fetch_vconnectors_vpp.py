@@ -6,7 +6,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
     super().__init__()
 
   def get_vconnectors(self, host):
-    lines = self.run_fetch_lines("sudo vppctl show mode", host['id'])
+    lines = self.run_fetch_lines("vppctl show mode", host['id'])
     vconnectors = {}
     for l in lines:
       if not l.startswith('l2 bridge'):
@@ -32,7 +32,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
   def get_interface_details(self, host, name):
     # find vconnector interfaces
-    cmd = "sudo vppctl show hardware-int " + name
+    cmd = "vppctl show hardware-int " + name
     interface_lines = self.run_fetch_lines(cmd, host['id'])
     # remove header line
     interface_lines.pop(0)

@@ -20,7 +20,7 @@ class DbFetchVedgesVpp(DbAccess, CliAccess, metaclass=Singleton):
       'name': 'VPP-' + host_id,
       'agent_type': 'VPP'
     }
-    ver = self.run_fetch_lines('sudo vppctl show ver', host_id)
+    ver = self.run_fetch_lines('vppctl show ver', host_id)
     if ver:
       ver = ver[0]
       vedge['binary'] = ver[:ver.index(' ', ver.index(' ') + 1)]
@@ -31,7 +31,7 @@ class DbFetchVedgesVpp(DbAccess, CliAccess, metaclass=Singleton):
     host_types = host["host_type"]
     if "Network" not in host_types and "Compute" not in host_types:
       return []
-    interfaces = self.run_fetch_lines('sudo vppctl show int', host_id)
+    interfaces = self.run_fetch_lines('vppctl show int', host_id)
     vedge['ports'] = self.fetch_ports(interfaces)
     return [vedge]
 
