@@ -98,10 +98,13 @@ class SshConn(Fetcher):
     stdin.close()
     err = self.binary2str(stderr.read())
     if err:
-      self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
-      stderr.close()
-      stdout.close()
-      return ""
+      # ignore messages about loading plugin
+      err_lines = [l for l in err.splitlines() if 'Loaded plugin: ' not in l]
+      if err_lines:
+        self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
+        stderr.close()
+        stdout.close()
+        return ""
     ret = self.binary2str(stdout.read())
     stderr.close()
     stdout.close()
