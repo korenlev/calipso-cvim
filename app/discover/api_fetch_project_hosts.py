@@ -41,7 +41,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
           # merge host_type data between AZs
           existing_entry = hosts[h["name"]]
           for t in h["host_type"]:
-            self.add_host_type(existing_entry, t)
+            self.add_host_type(existing_entry, t, doc['zoneName'])
         else:
           hosts[h["name"]] = h
           ret.append(h)
@@ -92,11 +92,11 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     if "nova-conductor" in services:
       s = services["nova-conductor"]
       if s["available"] and s["active"]:
-        self.add_host_type(doc, "Controller")
+        self.add_host_type(doc, "Controller", az['zoneName'])
     if "nova-compute" in services:
       s = services["nova-compute"]
       if s["available"] and s["active"]:
-        self.add_host_type(doc, "Compute")
+        self.add_host_type(doc, "Compute", az['zoneName'])
     return doc
 
   # fetch more details of network nodes from neutron.agents table
@@ -113,7 +113,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     for r in results:
       host = hosts[r["host"]]
       host["config"] = json.loads(r["configurations"])
-      self.add_host_type(host, "Network")
+      self.add_host_type(host, "Network", '')
 
   # fetch ip_address from nova.compute_nodes table if possible
   def fetch_compute_node_ip_address(self, doc, h):
@@ -126,6 +126,8 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     for db_row in results:
       doc.update(db_row)
 
-  def add_host_type(self, doc, type):
+  def add_host_type(self, doc, type, zone):
     if not type in doc["host_type"]:
       doc["host_type"].append(type)
+      if type == 'Compute':
+        doc['zone'] = zone
