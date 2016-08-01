@@ -42,5 +42,6 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
           interface = {'name': interface_name, 'mac_address': mac_address}
           interfaces[interface_name] = interface
         doc["interfaces"] = interfaces
+        doc['interfaces_names'] = list(interfaces.keys())
         ret.append(doc)
     return ret

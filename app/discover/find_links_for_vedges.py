@@ -50,7 +50,7 @@ class FindLinksForVedges(Fetcher):
         return
       base_id = port["name"][3:]
       vconnector_interface_name = "qvb" + base_id
-      interfaces_field = "interfaces"
+      interfaces_field = "interfaces_names"
     vconnector = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vconnector",
@@ -72,7 +72,7 @@ class FindLinksForVedges(Fetcher):
     source_label = vconnector_interface_name
     target_label = port["name"]
     mac_address = "Unknown"
-    for interface in vconnector['interfaces']:
+    for interface in vconnector['interfaces'].values():
       if port['name'] != interface['name']:
         continue
       if 'mac_address' not in interface:
