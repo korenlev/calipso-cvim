@@ -22,12 +22,14 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
           'id': host['id'] + '-vconnector-' + bd_id,
           'bd_id': bd_id,
           'name': "bridge-domain-" + bd_id,
-          'interfaces': []
+          'interfaces': {},
+          'interfaces_names': []
         }
         vconnectors[bd_id] = vconnector
       interface = self.get_interface_details(host, name)
       if interface:
-        vconnector["interfaces"].append(interface)
+        vconnector['interfaces']['name'] = interface
+        vconnector['interfaces_names'].append(name)
     return list(vconnectors.values())
 
   def get_interface_details(self, host, name):

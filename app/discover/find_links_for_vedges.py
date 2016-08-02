@@ -44,18 +44,16 @@ class FindLinksForVedges(Fetcher):
   def find_matching_vconnector(self, vedge, port):
     if self.configuration.has_network_plugin('VPP'):
       vconnector_interface_name = port['name']
-      interfaces_field = "interfaces.name"
     else:
       if not port["name"].startswith("qv"):
         return
       base_id = port["name"][3:]
       vconnector_interface_name = "qvb" + base_id
-      interfaces_field = "interfaces_names"
     vconnector = self.inv.find_items({
       "environment": self.get_env(),
       "type": "vconnector",
       "host": vedge['host'],
-      interfaces_field: vconnector_interface_name},
+      'interfaces_names': vconnector_interface_name},
       get_single=True)
     if not vconnector:
       return

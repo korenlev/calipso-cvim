@@ -14,7 +14,7 @@ class FindLinksForVconnectors(Fetcher):
     })
     self.log.info("adding links of type: vnic-vconnector, vconnector-pnic")
     for vconnector in vconnectors:
-      for interface in vconnector["interfaces"]:
+      for interface in vconnector["interfaces"].values():
         self.add_vnic_vconnector_link(vconnector, interface)
         self.add_vconnector_pnic_link(vconnector, interface)
 
