@@ -48,15 +48,30 @@ class CliqueFinder(Fetcher, MongoAccess):
       val = o[c] if c in o else None
       clique["constraints"][c] = val
     for link_type in clique_type["link_types"]:
+      # check if it's backwards
+      link_type_parts = link_type.split('-')
+      link_type_parts.reverse()
+      link_type_reversed = '-'.join(link_type_parts)
+      matches = self.links.find_one({
+        "environment": self.env,
+        "link_type": link_type_reversed
+      })
+      reversed = True if matches else False
+      if reversed:
+        link_type = link_type_reversed
       from_type = link_type[:link_type.index("-")]
       to_type = link_type[link_type.index("-")+1:]
-      if from_type not in nodes_of_type.keys():
+      side_to_match = 'target' if reversed else 'source'
+      other_side = 'target' if not reversed else 'source'
+      match_type = to_type if reversed else from_type
+      if match_type not in nodes_of_type.keys():
         continue
-      for from_point in nodes_of_type[from_type].keys():
+      other_side_type = to_type if not reversed else from_type
+      for match_point in nodes_of_type[match_type].keys():
         matches = self.links.find({
           "environment": self.env,
           "link_type": link_type,
-          "source": ObjectId(from_point)
+          side_to_match: ObjectId(match_point)
         })
         for link in matches:
           id = link["_id"]
@@ -66,10 +81,10 @@ class CliqueFinder(Fetcher, MongoAccess):
             continue
           clique["links"].append(id)
           clique["links_detailed"].append(link)
-          to_point = str(link["target"])
-          if to_type not in nodes_of_type:
-            nodes_of_type[to_type] = {}
-          nodes_of_type[to_type][to_point] = 1
+          other_side_point = str(link[other_side])
+          if other_side_type not in nodes_of_type:
+            nodes_of_type[other_side_type] = {}
+          nodes_of_type[other_side_type][other_side_point] = 1
 
     # after adding the links to the clique, create/update the clique
     if not clique["links"]:
