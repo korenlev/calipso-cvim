@@ -49,15 +49,10 @@ class MongoAccess(Logger):
       except Exception as e:
         self.log.error("failed to open config file: " + config_file)
         raise
-    server = self.connect_params["server"]
-    port = self.connect_params["port"]
-    domain = server + ':' + str(port)
-    if 'password' in self.connect_params:
-      username = self.connect_params['user']
-      password = self.connect_params['password']
-      domain = username + ':' + password + '@' + domain
-    db_conn_str = 'mongodb://' + domain + '/'
-    MongoAccess.client = MongoClient(db_conn_str)
+    MongoAccess.client = MongoClient(
+      self.connect_params["server"],
+      self.connect_params["port"]
+    )
     MongoAccess.db = MongoAccess.client.osdna
 
   def encode_dots(self, s):
