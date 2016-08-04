@@ -34,12 +34,17 @@ class FindLinksForInstanceVnics(Fetcher):
     link_type = "instance-vnic"
     # find related network
     network_name = None
+    network_id = None
     for net in instance["network_info"]:
       if net["devname"] == v["id"]:
         network_name = net["network"]["label"]
+        network_id = net['network']['id']
+        v['network'] = network_id
+        self.inv.set(v)
         break
     state = "up" # TBD
     link_weight = 0 # TBD
+    attributes = {} if not network_id else {'network': network_id}
     self.inv.create_link(self.get_env(), host["name"],
       source, source_id, target, target_id,
-      link_type, network_name, state, link_weight)
+      link_type, network_name, state, link_weight, extra_attributes=attributes)

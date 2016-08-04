@@ -40,8 +40,14 @@ class FindLinksForVconnectors(Fetcher):
       link_name = vnic["mac_address"]
       state = "up" # TBD
       link_weight = 0 # TBD
-      self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
-        link_type, link_name, state, link_weight)
+      attributes = {}
+      if 'network' in vnic:
+        attributes = {'network': vnic['network']}
+        vconnector['network'] = vnic['network']
+        self.inv.set(vconnector)
+      self.inv.create_link(self.get_env(), host,
+        source, source_id, target, target_id,
+        link_type, link_name, state, link_weight, extra_attributes=attributes)
 
   def add_vconnector_pnic_link(self, vconnector, interface):
     ifname = interface['name'] if isinstance(interface, dict) else interface
