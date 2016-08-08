@@ -10,15 +10,33 @@ class CliqueFinder(Fetcher, MongoAccess):
     self.inv = inventory
     self.links = links
     self.clique_types = clique_types
+    self.clique_types_by_type = {}
     self.clique_constraints = constraints
     self.cliques = cliques
 
+  def find_cliques_by_link(self, links_list):
+    return self.links.find({'links': {'$in': links_list}})
+
+  def find_links_by_source(self, db_id):
+    return self.links.find({'source': db_id})
+
+  def find_links_by_target(self, db_id):
+    return self.links.find({'target': db_id})
+
   def find_cliques(self):
     self.log.info("scanning for cliques")
-    clique_types = self.clique_types.find({"environment": self.get_env()})
+    clique_types = self.get_clique_types().values()
     for clique_type in clique_types:
       self.find_cliques_for_type(clique_type)
     self.log.info("finished scanning for cliques")
+
+  def get_clique_types(self):
+    if not self.clique_types_by_type:
+      clique_types = self.clique_types.find({"environment": self.get_env()})
+      for clique_type in clique_types:
+        focal_point_type = clique_type['focal_point_type']
+        self.clique_types_by_type[focal_point_type] = clique_type
+      return self.clique_types_by_type
 
   def find_cliques_for_type(self, clique_type):
     type = clique_type["focal_point_type"]
@@ -31,7 +49,18 @@ class CliqueFinder(Fetcher, MongoAccess):
     })
     for o in objects_for_focal_point_type:
       self.construct_clique_for_focal_point(o, clique_type, constraints)
-  
+
+  def rebuild_clique(self, clique):
+    focal_point_db_id = clique['focal_point']
+    constraint = self.clique_constraints.find_one({"focal_point_type" : type})
+    constraints = [] if not constraint else constraint["constraints"]
+    clique_types = self.get_clique_types()
+    clique_type = clique_types[o['type']]
+    o = self.inv.find_one({'_id': focal_point_db_id})
+    new_clique = self.construct_clique_for_focal_point(o, clique_type, constraints)
+    if not new_clique:
+      self.cliques.delete({'_id': clique['_id']})
+
   def construct_clique_for_focal_point(self, o, clique_type, constraints):
     # keep a hash of nodes in clique that were visited for each type
     # start from the focal point
@@ -88,10 +117,10 @@ class CliqueFinder(Fetcher, MongoAccess):
 
     # after adding the links to the clique, create/update the clique
     if not clique["links"]:
-      return
+      return None
     focal_point_obj = self.inv.find({"_id": clique["focal_point"]})
     if not focal_point_obj:
-      return
+      return None
     focal_point_obj = focal_point_obj[0]
     focal_point_obj["clique"] = True
     focal_point_obj.pop("_id", None)
@@ -102,10 +131,11 @@ class CliqueFinder(Fetcher, MongoAccess):
       },
       {'$set': clique},
       upsert=True)
-    self.inv.update_one(
+    clique_document = self.inv.update_one(
       {"_id": clique["focal_point"]},
       {'$set': focal_point_obj},
       upsert=True)
+    return clique_document
 
   def check_constraints(self, clique, link):
     if "attributes" not in link:
@@ -123,3 +153,4 @@ class CliqueFinder(Fetcher, MongoAccess):
       elif link_val != constraints[c]:
         return False
     return True
+
