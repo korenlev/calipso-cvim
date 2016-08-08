@@ -14,6 +14,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     super().__init__()
     self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
+    self.clique_scanner = None
 
   def set_collection(self, coll_type, collection_name = ""):
     if coll_type != "inventory":
@@ -216,11 +217,16 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       {'$set': self.encode_mongo_keys(link)},
       upsert=True)
 
+  def get_clique_finder(self):
+    if not self.clique_scanner:
+      self.clique_scanner = CliqueFinder(self.inv, self.links,
+        self.coll["clique_types"],
+        self.coll["clique_constraints"],
+        self.coll["cliques"])
+    return self.clique_scanner
+
   def scan_cliques(self, environment):
-    clique_scanner = CliqueFinder(self.inv, self.links,
-      self.coll["clique_types"],
-      self.coll["clique_constraints"],
-      self.coll["cliques"])
+    clique_scanner = self.get_clique_finder()
     clique_scanner.find_cliques()
 
   def values_replace_in_object(self, o, values_replacement):
@@ -242,3 +248,15 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   def values_replace(self, search, values_replacement):
     for doc in self.inv.find(search):
       self.values_replace_in_object(doc, values_replacement)
+
+  def delete(self, coll, filter):
+    collection = self.coll[coll]
+    if not collection:
+      self.log.warn('delete(): collection not found - ' + coll)
+      return
+    result = collection.delete_many(filter)
+    count = result.deleted_count
+    self.log.info('delete(): ' + ('deleted ' + str(count) + ' documents'
+      if count else 'no matching documents'))
+    return count
+
