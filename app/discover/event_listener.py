@@ -5,6 +5,7 @@ import argparse
 
 from event_handler import EventHandler
 from configuration import Configuration
+from inventory_mgr import InventoryMgr
 
 logger = get_logger(__name__)
 
@@ -23,6 +24,8 @@ class Worker(ConsumerMixin):
     self.connection = connection
 
   def set_env(self, env, inventory_collection):
+    inv = InventoryMgr()
+    inv.set_inventory_collection(inventory_collection)
     self.handler = EventHandler(env, inventory_collection)
     self.notification_responses = {
       "compute.instance.create.end": self.handler.instance_add,
