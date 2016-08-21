@@ -1,0 +1,37 @@
+nrpe daemon in 'remote host':
+installed in 10.56.20.239 (our Mirantis-Liberty controler node).
+it runs, listen on 5666 and allowing korlev-osdna-devtest server to connect to it ...
+in that remote host in /usr/local/nagios/etc there is nrpe.cfg file , example cfg file here:
+https://github.com/NagiosEnterprises/nrpe/blob/master/sample-config/nrpe.cfg.in
+
+
+nagios core and nagios nrpe is installed on the korlev-osdna-devtest server (our 'nagios host')
+
+in /usr/local/nagios/libexec/  on the nagios host you have many 'check_' scripts 
+one of them is check_nrpe :
+/usr/local/nagios/libexec/check_nrpe -H 10.56.20.239
+returns : NRPE v2.15
+
+
+
+Configuring Things On The Nagios Host:
+
+Examples for configuring the nrpe daemon are found in the sample nrpe.cfg file included in this distribution. That config file resides on the remote host(s) along with the nrpe daemon. The check_nrpe plugin gets installed on the Nagios host. In order to use the check_nrpe plugin from within Nagios, you will have to define a few things in the host config file. An example command definition for the check_nrpe plugin would look like this:
+
+define command{
+    command_name    check_nrpe
+    command_line    /usr/local/nagios/libexec/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
+    }
+
+In any service definitions that use the nrpe plugin/daemon to get their results, you would set the service check command portion of the definition to something like this (sample service definition is simplified for this example):
+
+define service{
+    host_name           someremotehost
+    service_description someremoteservice
+    check_command       check_nrpe!yourcommand
+    ... etc ...
+    }
+
+where yourcommand is a name of a command that you define in your nrpe.cfg file on the remote host (see the docs in the sample nrpe.cfg file for more information).
+
+
