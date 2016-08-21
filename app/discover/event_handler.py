@@ -2,6 +2,7 @@ import re
 from fetcher import Fetcher
 from inventory_mgr import InventoryMgr
 from events.event_instance_delete import EventInstanceDelete
+from events.event_instance_add import EventInstanceAdd
 
 class EventHandler(Fetcher):
 
@@ -13,6 +14,8 @@ class EventHandler(Fetcher):
 
   def instance_add(self, vals):
     print("instance_add")
+    handler = EventInstanceAdd()
+    handler.handle(self.env, vals)
 
   def instance_delete(self, vals):
     print("instance_delete")
