@@ -227,6 +227,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
   def scan_cliques(self, environment):
     clique_scanner = self.get_clique_finder()
+    clique_scanner.set_env(environment)
     clique_scanner.find_cliques()
 
   def values_replace_in_object(self, o, values_replacement):
