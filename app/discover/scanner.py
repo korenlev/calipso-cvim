@@ -39,9 +39,13 @@ class Scanner(Util, Fetcher):
       limit_to_child_id = None, limit_to_child_type = None):
     ret = True
     types_children = []
+    if not limit_to_child_type:
+      limit_to_child_type = []
+    elif isinstance(limit_to_child_type, str):
+      limit_to_child_type = [limit_to_child_type]
     try:
       for t in self.types_to_fetch:
-        if limit_to_child_type and t["type"] != limit_to_child_type:
+        if limit_to_child_type and t["type"] not in limit_to_child_type:
           continue
         children = self.scan_type(t, obj, id_field)
         if limit_to_child_id:
@@ -51,7 +55,7 @@ class Scanner(Util, Fetcher):
         types_children.append({"type": t["type"], "children": children})
     except ValueError as e:
       return False
-    if limit_to_child_id:
+    if limit_to_child_id and len(types_children) > 0:
       t = types_children[0]
       children = t["children"]
       return children[0]
@@ -241,6 +245,9 @@ class Scanner(Util, Fetcher):
     while not Scanner.scan_queue.empty():
       item = Scanner.scan_queue.get()
       scanner = item["scanner"]
+      if isinstance(scanner, str):
+        # got name of scanner class - create an instance of it
+        scanner = self.get_instance_of_class(scanner)
       scanner.scan(item["object"], item["child_id_field"])
     self.log.info("Scan complete")
 
