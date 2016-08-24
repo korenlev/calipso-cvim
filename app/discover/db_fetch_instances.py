@@ -37,7 +37,10 @@ class DbFetchInstances(DbAccess):
     for net in result["network_info"]:
       if "network" not in net or "id" not in net["network"]:
         continue
-      networks.append(net["network"]["id"])
+      network_id = net["network"]["id"]
+      if network_id in networks:
+        continue
+      networks.append(network_id)
     result["network"] = networks
 
     result["type"] = "instance"

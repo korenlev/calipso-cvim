@@ -1,6 +1,5 @@
 from singleton import Singleton
 from scanner import Scanner
-from cli_fetch_instance_vnics import CliFetchInstanceVnics
 
 class ScanVnicsRoot(Scanner, metaclass=Singleton):
   
@@ -8,6 +7,12 @@ class ScanVnicsRoot(Scanner, metaclass=Singleton):
     super(ScanVnicsRoot, self).__init__([
       {
         "type": "vnic",
-        "fetcher": CliFetchInstanceVnics()
+        "environment_condition": {"network_plugins": "OVS"},
+        "fetcher": "CliFetchInstanceVnicsOvs"
+      },
+      {
+        "type": "vnic",
+        "environment_condition": {"network_plugins": "VPP"},
+        "fetcher": "CliFetchInstanceVnicsVpp"
       }
     ])

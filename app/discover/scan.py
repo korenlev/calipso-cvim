@@ -11,7 +11,6 @@ import argparse
 
 from configuration import Configuration
 from inventory_mgr import InventoryMgr
-from scan_environment import ScanEnvironment
 from fetcher import Fetcher
 
 class ScanController(Fetcher):
@@ -57,6 +56,8 @@ class ScanController(Fetcher):
       help="do only links creation \n(default: False)")
     parser.add_argument("--cliques_only", action="store_true",
       help="do only cliques creation \n(default: False)")
+    parser.add_argument("--clear", action="store_true",
+      help="clear all data prior to scanning\n(default: False)")
     args = parser.parse_args()
     return args
 
@@ -69,6 +70,7 @@ class ScanController(Fetcher):
       "inventory_only": args.inventory_only,
       "links_only": args.links_only,
       "cliques_only": args.cliques_only,
+      "clear": args.clear,
       "object_type": args.type,
       "env": args.env,
       "object_id": args.id,
@@ -85,6 +87,11 @@ class ScanController(Fetcher):
     form = cgi.FieldStorage()
     plan = {
       "cgi": True,
+      "loglevel": form.getvalue("loglevel", "INFO"),
+      "inventory_only": form.getvalue("inventory_only", ""),
+      "links_only": form.getvalue("links_only", ""),
+      "cliques_only": form.getvalue("cliques_only", ""),
+      "clear": form.getvalue("clear", ""),
       "object_type": form.getvalue("type", "environment"),
       "env": form.getvalue("env", ScanController.default_env),
       "object_id": form.getvalue("id", ScanController.default_env),
@@ -134,7 +141,9 @@ class ScanController(Fetcher):
     except FileNotFoundError:
       sys.exit(1)
     scan_plan = self.get_scan_plan(args)
-    self.set_logger(scan_plan["loglevel"])
+    if scan_plan["clear"]:
+      self.inv.clear(scan_plan)
+    self.conf.set_loglevel(scan_plan["loglevel"])
     env_name = scan_plan["env"]
     self.conf.use_env(env_name)
     class_name = scan_plan["scanner_class"]

@@ -3,7 +3,6 @@
 from singleton import Singleton
 from scanner import Scanner
 from folder_fetcher import FolderFetcher
-from scan_vnics_root import ScanVnicsRoot
 
 class ScanInstance(Scanner, metaclass=Singleton):
   
@@ -12,6 +11,6 @@ class ScanInstance(Scanner, metaclass=Singleton):
       {
         "type": "vnics_folder",
         "fetcher": FolderFetcher("vnics", "instance", "vNICs"),
-        "children_scanner": ScanVnicsRoot()
+        "children_scanner": "ScanVnicsRoot"
       }
     ])

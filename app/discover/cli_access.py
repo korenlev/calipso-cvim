@@ -1,69 +1,25 @@
 import paramiko
-import os
 import time
 
-from configuration import Configuration
+from ssh_conn import SshConn
 from fetcher import Fetcher
 
 class CliAccess(Fetcher):
 
   config = None
-  ssh = None
+  connections = {}
   ssh_cmd = "ssh -o StrictHostKeyChecking=no "
-  call_count_per_con = 0
+  call_count_per_con = {}
   max_call_count_per_con = 100
-  
+  cache_lifetime = 60 # no. of seconds to cache results
+  cached_commands = {}
+
   def __init__(self):
     super().__init__()
 
-    self.cached_commands = {}
-    self.cache_lifetime = 60 # no. of seconds to cache results
-
-    self.config = Configuration()
-    self.conf = self.config.get('CLI')
-    try:
-      self.host = self.conf['host']
-    except KeyError:
-      raise ValueError('Missing definition of host for CLI access')
-    try:
-      self.user = self.conf['user']
-    except KeyError:
-      raise ValueError('Missing definition of user for CLI access')
-    self.key = None
-    try:
-      self.key = self.conf['key']
-      if self.key and not os.path.exists(self.key):
-        raise ValueError('Key file not found: ' + self.key)
-    except KeyError:
-      pass
-    try:
-      self.pwd = self.conf['pwd']
-    except KeyError:
-      self.pwd = None
-    if self.key == None and self.pwd == None:
-      raise ValueError('Must specify key or password for CLI access')
- 
-  def ssh_connect(self):
-    if CliAccess.ssh:
-      if CliAccess.call_count_per_con < CliAccess.max_call_count_per_con:
-        return
-      self.log.info("CliAccess: ****** forcing reconnect, call count: %s ******",
-        CliAccess.call_count_per_con)
-      CliAccess.ssh = None
-    CliAccess.ssh = paramiko.SSHClient()
-    CliAccess.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    if (self.key):
-      k = paramiko.RSAKey.from_private_key_file(self.key)
-      CliAccess.ssh.connect(hostname=self.host, username=self.user, pkey=k,
-        password=self.pwd,timeout=30)
-    else:
-      CliAccess.ssh.connect(self.host, username=self.user, password=self.pwd,
-        timeout=30)
-    CliAccess.call_count_per_con = 0
-  
   def run(self, cmd, ssh_to_host = ""):
-    self.ssh_connect()
-    if ssh_to_host:
+    ssh_conn = SshConn(ssh_to_host)
+    if ssh_to_host and ssh_to_host != ssh_conn.get_host():
       cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
     curr_time = time.time()
     if cmd in self.cached_commands:
@@ -78,16 +34,7 @@ class CliAccess(Fetcher):
           cmd)
         return cached["result"]
 
-    CliAccess.call_count_per_con +=1
-    self.log.debug("call count: %s, running call:\n%s\n",
-      str(CliAccess.call_count_per_con), cmd)
-    stdin, stdout, stderr = CliAccess.ssh.exec_command(cmd)
-    stdin.close()
-    err = self.binary2str(stderr.read())
-    if err:
-      self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
-      return ""
-    ret = self.binary2str(stdout.read())
+    ret = ssh_conn.exec(cmd)
     self.cached_commands[cmd] = {"timestamp": curr_time, "result": ret}
     return ret
   

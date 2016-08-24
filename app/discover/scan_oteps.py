@@ -1,6 +1,5 @@
 from singleton import Singleton
 from scanner import Scanner
-from db_fetch_oteps import DbFetchOteps
 
 class ScanOteps(Scanner, metaclass=Singleton):
   
@@ -8,6 +7,6 @@ class ScanOteps(Scanner, metaclass=Singleton):
     super().__init__([
       {
         "type": "otep",
-        "fetcher": DbFetchOteps()
+        "fetcher": "DbFetchOteps"
       }
     ])

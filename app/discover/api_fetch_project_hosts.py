@@ -35,9 +35,16 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     az_info = response["availabilityZoneInfo"]
     hosts = {}
     for doc in az_info:
-      ret.extend(self.get_hosts_from_az(doc))
-    for h in ret:
-      hosts[h["name"]] = h
+      az_hosts = self.get_hosts_from_az(doc)
+      for h in az_hosts:
+        if h["name"] in hosts:
+          # merge host_type data between AZs
+          existing_entry = hosts[h["name"]]
+          for t in h["host_type"]:
+            self.add_host_type(existing_entry, t, doc['zoneName'])
+        else:
+          hosts[h["name"]] = h
+          ret.append(h)
     # get os_id for hosts using the os-hypervisors API call
     req_url = endpoint + "/os-hypervisors"
     response = self.get_url(req_url, headers)
@@ -47,7 +54,6 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
       return ret
     for h in response["hypervisors"]:
         hvname = h["hypervisor_hostname"]
-        dot_pos = hvname.index('.')
         if '.' in hvname and hvname not in hosts:
           hostname = hvname[:hvname.index('.')]
         else:
@@ -86,11 +92,11 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     if "nova-conductor" in services:
       s = services["nova-conductor"]
       if s["available"] and s["active"]:
-        self.add_host_type(doc, "Controller")
+        self.add_host_type(doc, "Controller", az['zoneName'])
     if "nova-compute" in services:
       s = services["nova-compute"]
       if s["available"] and s["active"]:
-        self.add_host_type(doc, "Compute")
+        self.add_host_type(doc, "Compute", az['zoneName'])
     return doc
 
   # fetch more details of network nodes from neutron.agents table
@@ -107,7 +113,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     for r in results:
       host = hosts[r["host"]]
       host["config"] = json.loads(r["configurations"])
-      self.add_host_type(host, "Network")
+      self.add_host_type(host, "Network", '')
 
   # fetch ip_address from nova.compute_nodes table if possible
   def fetch_compute_node_ip_address(self, doc, h):
@@ -120,6 +126,9 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     for db_row in results:
       doc.update(db_row)
 
-  def add_host_type(self, doc, type):
+  def add_host_type(self, doc, type, zone):
     if not type in doc["host_type"]:
       doc["host_type"].append(type)
+      if type == 'Compute':
+        doc['zone'] = zone
+        doc['parent_id'] = zone

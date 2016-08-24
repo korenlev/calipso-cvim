@@ -11,7 +11,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   prettify = False
   
   def __init__(self):
-    super(InventoryMgr, self).__init__()
+    super().__init__()
     self.coll = {}
     self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
 
@@ -39,6 +39,19 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     self.set_collection("clique_types")
     self.set_collection("clique_constraints")
     self.set_collection("cliques")
+
+  def clear(self, scan_plan):
+      col_to_skip = ["link_types", "clique_types", "clique_constraints"]
+      if scan_plan["links_only"] or scan_plan["cliques_only"]:
+        col_to_skip.append("inventory")
+      if scan_plan["inventory_only"] or scan_plan["cliques_only"]:
+        col_to_skip.append("links")
+      if scan_plan["inventory_only"] or scan_plan["links_only"]:
+        col_to_skip.append("cliques")
+      for c in [c for c in self.coll if c not in col_to_skip]:
+        col = self.coll[c]
+        self.log.info("clearing collection: " + col.full_name)
+        col.delete_many({}) # delete all documents from the collection
 
   # return single match
   def process_results(self, raw_results, get_single=False):
@@ -109,8 +122,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
   
   # item must contain properties 'environment', 'type' and 'id'
   def set(self, item):
+    mongo_id = None
     if "_id" in item:
-      item.pop("_id", None)
+      mongo_id = item.pop("_id", None)
 
     # make sure we have environment, type & id
     self.check(item, "environment")
@@ -123,13 +137,17 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       projects = []
     obj_name = item["name_path"]
     obj_name = obj_name[obj_name.rindex('/')+1:]
-    item["object_name"] = obj_name
+    item['object_name'] = item['object_name'] if 'object_name' in item \
+      else obj_name
     self.set_inventory_collection() # make sure we have it set
     find_tuple = {"environment": item["environment"],
        "type": item["type"], "id": item["id"]}
     self.inv.update_one(find_tuple,
       {'$set': self.encode_mongo_keys(item)},
       upsert=True)
+    if mongo_id:
+      # restore original mongo ID of document, in case we need to use it
+      item['_id'] = mongo_id
     if projects:
       self.inv.update_one(find_tuple,
         {'$addToSet': {"projects": {'$each': projects}}},
@@ -204,3 +222,23 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
       self.coll["clique_constraints"],
       self.coll["cliques"])
     clique_scanner.find_cliques()
+
+  def values_replace_in_object(self, o, values_replacement):
+    for k in values_replacement.keys():
+      if k not in o:
+        continue
+      repl = values_replacement[k]
+      if 'from' not in repl or 'to' not in repl:
+        continue
+      o[k] = o[k].replace(repl['from'], repl['to'])
+      self.set(o)
+
+  # perform replacement of substring in values of objects in the inventory
+  # input:
+  # - search: dict with search parametes
+  # - values_replacement: dict,
+  #     - keys: names of keys for which to replace the values
+  #     - values: dict with "from" (value to be replaced) and "to" (new value)
+  def values_replace(self, search, values_replacement):
+    for doc in self.inv.find(search):
+      self.values_replace_in_object(doc, values_replacement)

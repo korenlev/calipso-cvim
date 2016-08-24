@@ -13,6 +13,7 @@ class CliFetchVserviceVnics(CliAccess):
       {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
       {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
       {"netmask": re.compile('^.*\sMask:\s?([0-9.]+)(\s.*)?$')},
+      {"netmask": re.compile('^.*\snetmask\s([0-9.]+)(\s.*)?$')},
       {"IP Address": re.compile('^\s*inet addr:(\S+)\s.*$')},
       {"IP Address": re.compile('^\s*inet ([0-9.]+)\s.*$')},
       {"IPv6 Address": re.compile('^\s*inet6 addr: ?\s*([0-9a-f:/]+)(\s.*)?$')},
@@ -33,11 +34,13 @@ class CliFetchVserviceVnics(CliAccess):
     lines = self.run_fetch_lines("ip netns", host_id)
     ret = []
     for l in [l for l in lines if l.startswith("qdhcp") or l.startswith("qrouter")]:
-      ret.extend(self.handle_service(host_id, l))
+      service = l.strip()
+      service = service if ' ' not in service else service[:service.index(' ')]
+      ret.extend(self.handle_service(host_id, service))
     return ret
 
   def handle_service(self, host, service):
-    cmd = "ip netns exec " + service.strip() + " ifconfig"
+    cmd = "ip netns exec " + service + " ifconfig"
     lines = self.run_fetch_lines(cmd, host)
     interfaces = []
     current = None
@@ -96,44 +99,12 @@ class CliFetchVserviceVnics(CliAccess):
     interface["network"] = network["id"]
     # set network for the vservice, to check network on clique creation
     vservice = self.inv.get_by_id(self.get_env(), interface["master_parent_id"])
-    vservice["network"] = network["id"]
+    if "network" not in vservice:
+      vservice["network"] = [network["id"]]
+    else:
+      if network["id"] not in vservice["network"]:
+        vservice["network"].append(network["id"])
     self.inv.set(vservice)
-
-  def add_links(self):
-    self.log.info("adding links of type: vservice-vnic")
-    vnics = self.inv.find_items({
-      "environment": self.get_env(),
-      "type": "vnic",
-      "vnic_type": "vservice_vnic"
-    })
-    for v in vnics:
-      self.add_link_for_vnic(v)
-
-  def add_link_for_vnic(self, v):
-    host = self.inv.get_by_id(self.get_env(), v["host"])
-    if "Network" not in host["host_type"]:
-      return
-    cidr = v["cidr"]
-    network = self.inv.get_by_id(self.get_env(), v["network"])
-    vservice_id = v["parent_id"]
-    vservice_id = vservice_id[:vservice_id.rindex('-')]
-    vservice = self.inv.get_by_id(self.get_env(), vservice_id)
-    source = vservice["_id"]
-    source_id = vservice_id
-    target = v["_id"]
-    target_id = v["id"]
-    link_type = "vservice-vnic"
-    link_name = network["name"]
-    state = "up" # TBD
-    link_weight = 0 # TBD
-    self.inv.create_link(self.get_env(), v["host"], source, source_id,
-      target, target_id, link_type, link_name, state, link_weight)
-
-  def get_net_size(self, netmask):
-    binary_str = ''
-    for octet in netmask:
-      binary_str += bin(int(octet))[2:].zfill(8)
-    return str(len(binary_str.rstrip('0')))
 
   # find CIDR string by IP address and netmask
   def get_cidr_for_vnic(self, vnic):
@@ -148,3 +119,9 @@ class CliFetchVserviceVnics(CliAccess):
     cidr_string = '.'.join(net_start) + '/'
     cidr_string = cidr_string + self.get_net_size(netmask)
     return cidr_string
+
+  def get_net_size(self, netmask):
+    binary_str = ''
+    for octet in netmask:
+      binary_str += bin(int(octet))[2:].zfill(8)
+    return str(len(binary_str.rstrip('0')))

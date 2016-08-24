@@ -1,16 +1,14 @@
 from mongo_access import MongoAccess
 from singleton import Singleton
 
-import logging
-
 class Configuration(MongoAccess, metaclass=Singleton):
   
   def __init__(self, mongo_config=""):
+    super().__init__(mongo_config)
     self.db_client = MongoAccess(mongo_config)
     self.db = MongoAccess.db
     self.collection = self.db["environments_config"]
-    self.log = logging.getLogger("OS-DNA")
-        
+
   def use_env(self, env_name):
     self.log.info("configuration taken from environment: " + env_name)
     self.env = env_name
@@ -43,3 +41,10 @@ class Configuration(MongoAccess, metaclass=Singleton):
     if len(matches) > 1:
       raise IndexError("Found multiple matches for configuration component: " + component)
     return matches[0]
+
+  def has_network_plugin(self, name):
+    if 'network_plugins' not in self.env_config:
+      self.log.error('Environment missing network_plugins definition: ' +
+        self.env_config['name'])
+    network_plugins = self.env_config['network_plugins']
+    return name in network_plugins

@@ -21,11 +21,6 @@ class FetchHostObjectTypes(Fetcher):
           "text": "Networks"
         },
         {
-          "id": "pnics_root",
-          "type": "pnics_folder",
-          "text": "pNICs"
-        },
-        {
           "id": "vservices_root",
           "type": "vservices_folder",
           "text": "vServices"

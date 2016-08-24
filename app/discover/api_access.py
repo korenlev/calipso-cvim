@@ -91,6 +91,11 @@ class ApiAccess(Fetcher):
     response, content = h.request(req_url, method, request_body, headers)
     content_string = content.decode('utf-8')
     ApiAccess.auth_response = json.loads(content_string)
+    if 'error' in self.auth_response:
+      e = self.auth_response['error']
+      self.log.error(str(e['code']) + ' ' + e['title'] + ': ' + e['message'] + \
+        ", URL: " + req_url)
+      return None
     try:
         token_details = ApiAccess.auth_response["access"]["token"]
     except KeyError:

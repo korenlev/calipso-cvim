@@ -1,7 +1,5 @@
 from singleton import Singleton
 from scanner import Scanner
-from db_fetch_vedges import DbFetchVedges
-from scan_oteps import ScanOteps
 
 class ScanVedgesRoot(Scanner, metaclass=Singleton):
   
@@ -9,7 +7,14 @@ class ScanVedgesRoot(Scanner, metaclass=Singleton):
     super(ScanVedgesRoot, self).__init__([
       {
         "type": "vedge",
-        "fetcher": DbFetchVedges(),
-        "children_scanner": ScanOteps()
+        "fetcher": "DbFetchVedgesOvs",
+        "environment_condition": {"network_plugins": "OVS"},
+        "children_scanner": "ScanOteps"
+      },
+      {
+        "type": "vedge",
+        "fetcher": "DbFetchVedgesVpp",
+        "environment_condition": {"network_plugins": "VPP"},
+        "children_scanner": "ScanVedgePnicsRoot"
       }
     ])

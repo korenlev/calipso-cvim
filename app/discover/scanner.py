@@ -5,12 +5,13 @@ from configuration import Configuration
 from util import Util
 from configuration import Configuration
 from fetcher import Fetcher
-from cli_fetch_host_pnics import CliFetchHostPnics
-from cli_fetch_instance_vnics import CliFetchInstanceVnics
-from cli_fetch_vconnectors import CliFetchVconnectors
-from cli_fetch_vservice_vnics import CliFetchVserviceVnics
-from db_fetch_vedges import DbFetchVedges
-from db_fetch_oteps import DbFetchOteps
+from find_links_for_pnics import FindLinksForPnics
+from find_links_for_instance_vnics import FindLinksForInstanceVnics
+from find_links_for_vservice_vnics import FindLinksForVserviceVnics
+from find_links_for_vconnectors import FindLinksForVconnectors
+from find_links_for_vedges import FindLinksForVedges
+from find_links_for_oteps import FindLinksForOteps
+from ssh_conn import SshConn
 
 import queue
 import json
@@ -90,9 +91,13 @@ class Scanner(Util, Fetcher):
       if id == None or not id.rstrip():
         raise ValueError("Object missing " + id_field + " attribute")
     fetcher = type_to_fetch["fetcher"]
+    if isinstance(fetcher, str):
+      fetcher_class = type_to_fetch["fetcher"]
+      fetcher = self.get_instance_of_class(fetcher_class)
     fetcher.set_env(self.get_env())
     try:
-      children_scanner = type_to_fetch["children_scanner"]
+      children_scanner_class = type_to_fetch["children_scanner"]
+      children_scanner = self.get_instance_of_class(children_scanner_class)
       children_scanner.set_env(self.get_env())
     except KeyError:
       children_scanner = None
@@ -229,6 +234,7 @@ class Scanner(Util, Fetcher):
   def run_scan(self, obj, id_field, child_id, child_type):
     results = self.scan(obj, id_field, child_id, child_type)
     self.scan_from_queue()
+    SshConn.disconnect_all()
     return results
 
   def scan_from_queue(self):
@@ -241,12 +247,12 @@ class Scanner(Util, Fetcher):
   def scan_links(self):
     self.log.info("scanning for links")
     fetchers_implementing_add_links = [
-      CliFetchHostPnics(),
-      CliFetchInstanceVnics(),
-      CliFetchVconnectors(),
-      CliFetchVserviceVnics(),
-      DbFetchVedges(),
-      DbFetchOteps()
+      FindLinksForPnics(),
+      FindLinksForInstanceVnics(),
+      FindLinksForVserviceVnics(),
+      FindLinksForVconnectors(),
+      FindLinksForVedges(),
+      FindLinksForOteps()
     ]
     for fetcher in fetchers_implementing_add_links:
       fetcher.add_links()

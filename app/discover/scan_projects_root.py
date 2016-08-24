@@ -3,8 +3,6 @@
 
 from singleton import Singleton
 from scanner import Scanner
-from api_fetch_projects import ApiFetchProjects
-from scan_project import ScanProject
 
 class ScanProjectsRoot(Scanner, metaclass=Singleton):
   
@@ -12,8 +10,8 @@ class ScanProjectsRoot(Scanner, metaclass=Singleton):
     super(ScanProjectsRoot, self).__init__([
       {
         "type": "project",
-        "fetcher": ApiFetchProjects(),
+        "fetcher": "ApiFetchProjects",
         "object_id_to_use_in_child": "name",
-        "children_scanner": ScanProject()
+        "children_scanner": "ScanProject"
       }
     ])
