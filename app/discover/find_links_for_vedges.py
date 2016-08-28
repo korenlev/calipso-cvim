@@ -72,11 +72,13 @@ class FindLinksForVedges(Fetcher):
     mac_address = "Unknown"
     attributes = {'mac_address': mac_address}
     for interface in vconnector['interfaces'].values():
-      if port['name'] != interface['name']:
+      if vconnector_interface_name != interface['name']:
         continue
       if 'mac_address' not in interface:
         continue
       mac_address = interface['mac_address']
+      attributes['mac_address'] = mac_address
+      break
     if 'network' in vconnector:
       attributes['network'] = vconnector['network']
     self.inv.create_link(self.get_env(), vedge["host"],
