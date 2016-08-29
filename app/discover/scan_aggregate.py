@@ -1,14 +1,14 @@
 # scan a host aggregate for hosts
 
-from singleton import Singleton
 from scanner import Scanner
+from singleton import Singleton
+
 
 class ScanAggregate(Scanner, metaclass=Singleton):
-  
-  def __init__(self):
-    super(ScanAggregate, self).__init__([
-      {
-        "type": "host_ref",
-        "fetcher": "DbFetchAggregateHosts"
-      }
-    ])
+    def __init__(self):
+        super(ScanAggregate, self).__init__([
+            {
+                "type": "host_ref",
+                "fetcher": "DbFetchAggregateHosts"
+            }
+        ])
