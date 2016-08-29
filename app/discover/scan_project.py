@@ -1,21 +1,19 @@
 # scan a project for endpoints and regions
 
-from singleton import Singleton
-from api_fetch_project_hosts import ApiFetchProjectHosts
-from api_fetch_availability_zones import ApiFetchAvailabilityZones
 from scanner import Scanner
+from singleton import Singleton
+
 
 class ScanProject(Scanner, metaclass=Singleton):
-  
-  def __init__(self):
-    super(ScanProject, self).__init__([
-      {
-        "type": "availability_zone",
-        "fetcher": "ApiFetchAvailabilityZones"
-      },
-      {
-        "type": "host",
-        "fetcher": "ApiFetchProjectHosts",
-        "children_scanner": "ScanHost"
-      }
-    ])
+    def __init__(self):
+        super(ScanProject, self).__init__([
+            {
+                "type": "availability_zone",
+                "fetcher": "ApiFetchAvailabilityZones"
+            },
+            {
+                "type": "host",
+                "fetcher": "ApiFetchProjectHosts",
+                "children_scanner": "ScanHost"
+            }
+        ])
