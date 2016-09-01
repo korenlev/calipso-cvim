@@ -1,13 +1,13 @@
-from singleton import Singleton
 from scanner import Scanner
+from singleton import Singleton
+
 
 class ScanInstancesRoot(Scanner, metaclass=Singleton):
-  
-  def __init__(self):
-    super(ScanInstancesRoot, self).__init__([
-      {
-        "type": "instance",
-        "fetcher": "ApiFetchHostInstances",
-        "children_scanner": "ScanInstance"
-      }
-    ])
+    def __init__(self):
+        super(ScanInstancesRoot, self).__init__([
+            {
+                "type": "instance",
+                "fetcher": "ApiFetchHostInstances",
+                "children_scanner": "ScanInstance"
+            }
+        ])
