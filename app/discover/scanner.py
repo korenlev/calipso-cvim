@@ -105,23 +105,31 @@ class Scanner(Util, Fetcher):
             id = str(parent[id_field])
             if id == None or not id.rstrip():
                 raise ValueError("Object missing " + id_field + " attribute")
+
+        # get Fetcher instance
         fetcher = type_to_fetch["fetcher"]
         if isinstance(fetcher, str):
             fetcher_class = type_to_fetch["fetcher"]
             fetcher = self.get_instance_of_class(fetcher_class)
         fetcher.set_env(self.get_env())
+
+        # get children_scanner instance
         try:
             children_scanner_class = type_to_fetch["children_scanner"]
             children_scanner = self.get_instance_of_class(children_scanner_class)
             children_scanner.set_env(self.get_env())
         except KeyError:
             children_scanner = None
+
         escaped_id = fetcher.escape(str(id)) if id else id
         self.log.info("scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
                       type_to_fetch["type"],
                       "environment" if "type" not in parent else parent["type"],
                       "" if "name" not in parent else parent["name"],
                       escaped_id)
+
+        # fetch data from environment by CLI, API or MySQL
+        # It depends on the Fetcher's config.
         try:
             db_results = fetcher.get(escaped_id)
         except Exception as e:
@@ -136,18 +144,24 @@ class Scanner(Util, Fetcher):
                            e)
             traceback.print_exc()
             return []
+
+        # format results
         if isinstance(db_results, dict):
             results = db_results["rows"] if db_results["rows"] else [db_results]
         elif isinstance(db_results, str):
             results = json.loads(db_results)
         else:
             results = db_results
+
+        # get child_id_field
         try:
             child_id_field = type_to_fetch["object_id_to_use_in_child"]
         except KeyError:
             child_id_field = "id"
+
         environment = self.get_env()
         children = []
+
         for o in results:
             o["id"] = str(o["id"])
             o["environment"] = environment
@@ -156,12 +170,14 @@ class Scanner(Util, Fetcher):
                 o["show_in_tree"] = type_to_fetch["show_in_tree"]
             except KeyError:
                 o["show_in_tree"] = True
+
             try:
                 parent_id_path = parent["id_path"]
                 parent_name_path = parent["name_path"]
             except KeyError:
                 parent_id_path = "/" + environment
                 parent_name_path = "/" + environment
+
             try:
                 # case of dynamic folder added by need
                 master_parent_type = o["master_parent_type"]
@@ -229,7 +245,11 @@ class Scanner(Util, Fetcher):
 
             if "create_object" not in o or o["create_object"]:
                 Scanner.inventory.set(o)
+
+            # add objects into children list.
             children.append(o)
+
+            # put children scanner into queue
             if children_scanner:
                 self.queue_for_scan(o, child_id_field, children_scanner)
         return children
@@ -248,6 +268,8 @@ class Scanner(Util, Fetcher):
 
     def run_scan(self, obj, id_field, child_id, child_type):
         results = self.scan(obj, id_field, child_id, child_type)
+
+        # run children scanner from queue.
         self.scan_from_queue()
         SshConn.disconnect_all()
         return results
@@ -259,6 +281,8 @@ class Scanner(Util, Fetcher):
             if isinstance(scanner, str):
                 # got name of scanner class - create an instance of it
                 scanner = self.get_instance_of_class(scanner)
+
+            # run scan recursively
             scanner.scan(item["object"], item["child_id_field"])
         self.log.info("Scan complete")
 
