@@ -95,7 +95,7 @@ class ScanController(Fetcher):
             "object_type": form.getvalue("type", "environment"),
             "env": form.getvalue("env", ScanController.default_env),
             "object_id": form.getvalue("id", ScanController.default_env),
-            "object_id": form.getvalue("parent_id", ""),
+            "parent_id": form.getvalue("parent_id", ""),
             "type_to_scan": form.getvalue("parent_type", ""),
             "id_field": form.getvalue("id_field", "id"),
             "scan_self": form.getvalue("scan_self", "")
