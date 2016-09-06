@@ -8,6 +8,10 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
         super().__init__()
         self.inv = InventoryMgr()
 
+    def get_vconnectors(self, host):
+        # Inherited classes need to overwrite this method.
+        return host
+
     def get(self, id):
         host_id = id[:id.rindex('-')]
         host = self.inv.get_by_id(self.get_env(), host_id)
