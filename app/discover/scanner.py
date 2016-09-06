@@ -27,6 +27,19 @@ class Scanner(Util, Fetcher):
     scan_queue_track = {}
 
     def __init__(self, types_to_fetch):
+        """
+        Scanner is the base class for scanners.
+        :param types_to_fetch:  types_to_fetch is a list,
+        which contains many dictionaries.
+        Each dictionary has some key:value pairs like:
+        {
+            "type": "project",
+            "fetcher": "ApiFetchProjects",
+            "object_id_to_use_in_child": "name",
+            "children_scanner": "ScanProject"
+        }
+        The key:value pairs indicate that which data should be scanned.
+        """
         super(Scanner, self).__init__()
         self.types_to_fetch = types_to_fetch
         if not Scanner.inventory:
