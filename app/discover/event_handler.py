@@ -2,6 +2,7 @@ import re
 
 from events.event_instance_add import EventInstanceAdd
 from events.event_instance_delete import EventInstanceDelete
+from events.event_instance_update import EventInstanceUpdate
 from fetcher import Fetcher
 from inventory_mgr import InventoryMgr
 
@@ -14,46 +15,19 @@ class EventHandler(Fetcher):
         self.env = env
 
     def instance_add(self, vals):
-        print("instance_add")
+        self.log.info("instance_add")
         handler = EventInstanceAdd()
         handler.handle(self.env, vals)
 
     def instance_delete(self, vals):
-        print("instance_delete")
+        self.log.info("instance_delete")
         handler = EventInstanceDelete()
         handler.handle(self.env, vals)
 
-    def instance_update(self, notification):
-        vals = notification['payload']
-        id = vals['instance_id']
-        state = vals['state']
-        old_state = vals['old_state']
-        if state == 'building':
-            return
-
-        if state == 'active' and old_state == 'building':
-            self.instance_add(vals)
-            return
-
-        if state == 'deleted' and old_state == 'active':
-            self.instance_delete(vals)
-            return
-
-        name = vals['display_name']
-        instance = self.inv.get_by_id(self.env, id)
-        if not instance:
-            return
-        instance['name'] = name
-        instance['object_name'] = name
-        name_path = instance['name_path']
-        instance['name_path'] = name_path[:name_path.rindex('/') + 1] + name
-        # TBD: fix name_path for descendants
-        if (name_path != instance['name_path']):
-            self.inv.values_replace({
-                "environment": self.env,
-                "name_path": {"$regex": r"^" + re.escape(name_path + '/')}},
-                {"name_path": {"from": name_path, "to": instance['name_path']}})
-        self.inv.set(instance)
+    def instance_update(self, vals):
+        self.log.info("instance_update")
+        handler = EventInstanceUpdate()
+        handler.handle(self.env, vals)
 
     def instance_down(self, notification):
         pass
