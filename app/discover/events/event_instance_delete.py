@@ -24,17 +24,20 @@ class EventInstanceDelete(Fetcher):
         self.inv.delete('cliques', {'focal_point': db_id})
 
         # keep related links to do rebuild of cliques using them
-        matches = clique_finder.find_links_by_source(db_id)
         links_using_object = []
-        for l in matches:
+
+        matched_links = clique_finder.find_links_by_source(db_id)
+        for l in matched_links:
             links_using_object.append(l['_id'])
-        matches = clique_finder.find_links_by_target(db_id)
-        for l in matches:
+
+        matched_links = clique_finder.find_links_by_target(db_id)
+        for l in matched_links:
             links_using_object.append(l['_id'])
+
         # find cliques using these links
-        matches = clique_finder.find_cliques_by_link({'links': {'$in': links_using_object}})
+        matched_cliques = clique_finder.find_cliques_by_link({'links': {'$in': links_using_object}})
         # find cliques using these links and rebuild them
-        for clique in matches:
+        for clique in matched_cliques:
             clique_finder.rebuild_clique(clique)
 
         # remove all related links
