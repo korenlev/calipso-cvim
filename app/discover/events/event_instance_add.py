@@ -17,11 +17,15 @@ class EventInstanceAdd(Fetcher):
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
             return None
+
+        # scan instance
         instances_scanner = ScanInstancesRoot()
         instances_scanner.set_env(env)
         instances_scanner.scan(instances_root,
                                limit_to_child_id=instance_id, limit_to_child_type='instance')
         instances_scanner.scan_from_queue()
+
+        # scan host
         host = self.inv.get_by_id(env, host_id)
         host_scanner = ScanHost()
         host_scanner.scan(host,
