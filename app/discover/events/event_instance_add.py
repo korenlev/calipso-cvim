@@ -16,6 +16,7 @@ class EventInstanceAdd(Fetcher):
         instances_root_id = host_id + '-instances'
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
+            self.log.info('not instances root')
             return None
 
         # scan instance

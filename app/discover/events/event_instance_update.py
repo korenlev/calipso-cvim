@@ -34,7 +34,9 @@ class EventInstanceUpdate(Fetcher):
         name = values['display_name']
         instance = self.inv.get_by_id(env, id)
         if not instance:
+            self.log.info('instance not found')
             return
+
         instance['name'] = name
         instance['object_name'] = name
         name_path = instance['name_path']
