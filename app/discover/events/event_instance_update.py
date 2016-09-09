@@ -13,25 +13,25 @@ class EventInstanceUpdate(Fetcher):
 
     def handle(self, env, values):
         # find the host, to serve as parent
-        values = values['payload']
-        id = values['instance_id']
-        state = values['state']
-        old_state = values['old_state']
+        payload = values['payload']
+        id = payload['instance_id']
+        state = payload['state']
+        old_state = payload['old_state']
 
         if state == 'building':
             return
 
         if state == 'active' and old_state == 'building':
             handler = EventInstanceAdd()
-            handler.handle(env, values)
+            handler.handle(env, payload)
             return
 
         if state == 'deleted' and old_state == 'active':
             handler = EventInstanceDelete()
-            handler.handle(env, values)
+            handler.handle(env, payload)
             return
 
-        name = values['display_name']
+        name = payload['display_name']
         instance = self.inv.get_by_id(env, id)
         if not instance:
             self.log.info('instance not found')
