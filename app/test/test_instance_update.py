@@ -136,8 +136,6 @@ class TestInstanceUpdate(unittest.TestCase):
         self.assertEqual(instance['name_path'], new_name_path)
     """
 if __name__  == '__main__':
-    import sys
-    sys.path.append('/Users/chengli2/OSDNA/app/discover')
     unittest.main()
 
 
