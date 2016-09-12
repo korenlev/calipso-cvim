@@ -74,7 +74,7 @@ class TestInstanceUpdate(unittest.TestCase):
 
         self.conf = Configuration(self.args.mongo_config)
         self.conf.use_env(self.args.env)
-        self.Handler = EventHandler(self.args.env, self.args.inventory)
+        self.handler = EventHandler(self.args.env, self.args.inventory)
         self.values = test_json_name_change
 
     def test_handle_normal_situation(self):
@@ -83,15 +83,15 @@ class TestInstanceUpdate(unittest.TestCase):
         new_name = payload['display_name']
 
         # get instance document
-        instance = self.Handler.inv.get_by_id(self.args.env, id)
+        instance = self.handler.inv.get_by_id(self.args.env, id)
         name_path = instance['name_path']
         new_name_path = name_path[:name_path.rindex('/') + 1] + new_name
 
         # update instance document
-        self.Handler.instance_update(self.values)
+        self.handler.instance_update(self.values)
 
         # get new document
-        instance = self.Handler.inv.get_by_id(self.args.env, id)
+        instance = self.handler.inv.get_by_id(self.args.env, id)
 
         # check update result.
         self.assertEqual(instance['name'], new_name)
