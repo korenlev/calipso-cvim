@@ -16,6 +16,7 @@ class EventInstanceDelete(Fetcher):
         id = values['instance_id']
         item = self.inv.get_by_id(env, id)
         if not item:
+            self.log.info('instance document not found, aborting instance delete')
             return None
         db_id = ObjectId(item['_id'])
         id_path = item['id_path'] + '/'
