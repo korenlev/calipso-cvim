@@ -34,7 +34,7 @@ class EventInstanceUpdate(Fetcher):
         name = payload['display_name']
         instance = self.inv.get_by_id(env, id)
         if not instance:
-            self.log.info('instance not found')
+            self.log.info('instance document not found, aborting instance update')
             return
 
         instance['name'] = name
