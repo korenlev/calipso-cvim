@@ -1,4 +1,4 @@
-from fetcher import Fetcher
+from discover.fetcher import Fetcher
 
 
 class FetchHostObjectTypes(Fetcher):

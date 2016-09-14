@@ -1,4 +1,4 @@
-from api_access import ApiAccess
+from discover.api_access import ApiAccess
 
 
 class ApiFetchRegions(ApiAccess):

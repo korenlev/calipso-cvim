@@ -1,7 +1,7 @@
 import json
 
-from configuration import Configuration
-from logger import Logger
+from discover.configuration import Configuration
+from discover.logger import Logger
 
 
 class Fetcher(Logger):

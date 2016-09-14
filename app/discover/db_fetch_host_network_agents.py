@@ -1,7 +1,7 @@
 import json
 
-from db_access import DbAccess
-from inventory_mgr import InventoryMgr
+from discover.db_access import DbAccess
+from discover.inventory_mgr import InventoryMgr
 
 
 class DbFetchHostNetworkAgents(DbAccess):

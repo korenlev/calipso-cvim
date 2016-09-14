@@ -1,5 +1,5 @@
-from mongo_access import MongoAccess
-from singleton import Singleton
+from discover.mongo_access import MongoAccess
+from discover.singleton import Singleton
 
 
 class Configuration(MongoAccess, metaclass=Singleton):

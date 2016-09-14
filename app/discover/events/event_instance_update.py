@@ -1,9 +1,9 @@
 import re
 
-from events.event_instance_add import EventInstanceAdd
-from events.event_instance_delete import EventInstanceDelete
-from fetcher import Fetcher
-from inventory_mgr import InventoryMgr
+from discover.events.event_instance_add import EventInstanceAdd
+from discover.events.event_instance_delete import EventInstanceDelete
+from discover.fetcher import Fetcher
+from discover.inventory_mgr import InventoryMgr
 
 
 class EventInstanceUpdate(Fetcher):

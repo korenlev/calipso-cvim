@@ -1,7 +1,7 @@
 import xmltodict
 
-from cli_access import CliAccess
-from inventory_mgr import InventoryMgr
+from discover.cli_access import CliAccess
+from discover.inventory_mgr import InventoryMgr
 
 
 class CliFetchInstanceVnics(CliAccess):

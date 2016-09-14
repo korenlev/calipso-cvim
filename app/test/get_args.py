@@ -1,7 +1,7 @@
 # This module use to parse arguments.
 import argparse
 
-from logger import Logger
+from discover.logger import Logger
 
 
 class GetArgs(Logger):

@@ -2,8 +2,8 @@ import re
 
 from bson.objectid import ObjectId
 
-from fetcher import Fetcher
-from inventory_mgr import InventoryMgr
+from discover.fetcher import Fetcher
+from discover.inventory_mgr import InventoryMgr
 
 
 class EventInstanceDelete(Fetcher):

@@ -1,7 +1,7 @@
 import json
 
-from api_access import ApiAccess
-from db_access import DbAccess
+from discover.api_access import ApiAccess
+from discover.db_access import DbAccess
 
 
 class ApiFetchProjectHosts(ApiAccess, DbAccess):
