@@ -79,18 +79,19 @@ class TestInstanceAdd(unittest.TestCase):
 
     def test_handle_instance_add(self):
         payload = self.values['payload']
-        id = payload['instance_id']
+        _id = payload['instance_id']
+        host_id = payload['host']
 
         # add instance into database
         self.handler.instance_add(payload)
 
         # check instance document
-        instance = self.handler.inv.get_by_id(self.args.env, id)
-        self.assertisNot(instance, [])
+        instance = self.handler.inv.get_by_id(self.args.env, _id)
+        self.assertIsNot(instance, [])
 
         # check host document
-
-
+        host = self.handler.inv.get_by_id(self.args.env, host_id)
+        self.assertIsNot(host, [])
 
 
 if __name__ == '__main__':
