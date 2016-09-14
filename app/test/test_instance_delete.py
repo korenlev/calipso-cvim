@@ -30,11 +30,11 @@ class TestInstanceDelete(unittest.TestCase):
         # delete instance
         self.handler.instance_delete(payload)
 
-        # check delete result.
+        # check instance delete result.
         instance = self.handler.inv.get_by_id(self.args.env, id)
         self.assertEqual(instance, [])
 
-        # keep related links to do rebuild of cliques using them
+        # check links
         links_using_object = []
 
         matched_links = clique_finder.find_links_by_source(db_id)
@@ -46,12 +46,9 @@ class TestInstanceDelete(unittest.TestCase):
             links_using_object.append(l['_id'])
 
         self.assertEqual(links_using_object, [])
-        # find cliques using these links and check it
-        matched_cliques = clique_finder.find_cliques_by_link({'links': {'$in': links_using_object}})
-        print(matched_children.__dict__)
-        # self.assertEqual(matched_cliques, [])
 
-        matched_children = self.handler.inv.get_children(self.env, 'instance', db_id)
+        # check children
+        matched_children = self.handler.inv.get_children(self.args.env, None, id)
         self.assertEqual(matched_children, [])
 
 
