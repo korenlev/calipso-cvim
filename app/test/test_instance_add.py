@@ -20,11 +20,11 @@ class TestInstanceAdd(TestEvent):
 
         # check instance document
         instance = self.handler.inv.get_by_id(self.args.env, _id)
-        self.assertIsNot(instance, [])
+        self.assertNotEqual(instance, [])
 
         # check host document
         host = self.handler.inv.get_by_id(self.args.env, host_id)
-        self.assertIsNot(host, [])
+        self.assertNotEqual(host, [])
 
 
 if __name__ == '__main__':

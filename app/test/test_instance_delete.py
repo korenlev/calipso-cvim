@@ -26,11 +26,10 @@ class TestInstanceDelete(TestEvent):
         self.assertEqual(instance, [])
 
         # check links
-        matched_links = clique_finder.find_links_by_source(db_id)
+        matched_links_source = clique_finder.find_links_by_source(db_id)
         matched_links_target = clique_finder.find_links_by_target(db_id)
-        links_using_object = [l['_id'] for l in matched_links].extend([l['_id'] for l in matched_links_target])
-
-        self.assertEqual(links_using_object, [])
+        links_using_object = [l['_id'] for l in matched_links_source].extend([l['_id'] for l in matched_links_target])
+        self.assertIs(links_using_object, None)
 
         # check children
         matched_children = self.handler.inv.get_children(self.args.env, None, id)
