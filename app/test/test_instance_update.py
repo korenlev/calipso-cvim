@@ -12,7 +12,7 @@ class TestInstanceUpdate(TestEvent):
         new_name = payload['display_name']
 
         # get instance document
-        instance = self.handler.inv.get_by_id(self.args.env, id)
+        instance = self.handler.inv.get_by_id(self.env, id)
         self.assertNotEqual(instance, [])
 
         name_path = instance['name_path']
@@ -22,7 +22,7 @@ class TestInstanceUpdate(TestEvent):
         self.handler.instance_update(self.values)
 
         # get new document
-        instance = self.handler.inv.get_by_id(self.args.env, id)
+        instance = self.handler.inv.get_by_id(self.env, id)
 
         # check update result.
         self.assertEqual(instance['name'], new_name)

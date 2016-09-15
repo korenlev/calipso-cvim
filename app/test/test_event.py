@@ -2,14 +2,15 @@ import unittest
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
-from test.get_args import GetArgs
+from test.config.local_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 
 
 class TestEvent(unittest.TestCase):
     def setUp(self):
-        self.arg_getter = GetArgs()
-        self.args = self.arg_getter.get_args()
+        self.mongo_config = MONGODB_CONFIG
+        self.env = ENV_CONFIG
+        self.collection = COLLECTION_CONFIG
 
-        self.conf = Configuration(self.args.mongo_config)
-        self.conf.use_env(self.args.env)
-        self.handler = EventHandler(self.args.env, self.args.inventory)
+        self.conf = Configuration(self.mongo_config)
+        self.conf.use_env(self.env)
+        self.handler = EventHandler(ENV_CONFIG , self.collection)

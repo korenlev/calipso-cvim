@@ -10,7 +10,7 @@ class TestInstanceDelete(TestEvent):
         self.values = EVENT_PAYLOAD_INSTANCE_DELETE
         payload = self.values['payload']
         id = payload['instance_id']
-        item = self.handler.inv.get_by_id(self.args.env, id)
+        item = self.handler.inv.get_by_id(self.env, id)
         if not item:
             self.handler.log.info('instance document not found, aborting instance delete')
             return None
@@ -22,7 +22,7 @@ class TestInstanceDelete(TestEvent):
         self.handler.instance_delete(payload)
 
         # check instance delete result.
-        instance = self.handler.inv.get_by_id(self.args.env, id)
+        instance = self.handler.inv.get_by_id(self.env, id)
         self.assertEqual(instance, [])
 
         # check links
@@ -32,7 +32,7 @@ class TestInstanceDelete(TestEvent):
         self.assertIs(links_using_object, None)
 
         # check children
-        matched_children = self.handler.inv.get_children(self.args.env, None, id)
+        matched_children = self.handler.inv.get_children(self.env, None, id)
         self.assertEqual(matched_children, [])
 
 

@@ -12,18 +12,18 @@ class TestInstanceAdd(TestEvent):
         host_id = payload['host']
 
         # check instance document
-        instance = self.handler.inv.get_by_id(self.args.env, _id)
+        instance = self.handler.inv.get_by_id(self.env, _id)
         self.assertEqual(instance, [])
 
         # add instance into database
         self.handler.instance_add(payload)
 
         # check instance document
-        instance = self.handler.inv.get_by_id(self.args.env, _id)
+        instance = self.handler.inv.get_by_id(self.env, _id)
         self.assertNotEqual(instance, [])
 
         # check host document
-        host = self.handler.inv.get_by_id(self.args.env, host_id)
+        host = self.handler.inv.get_by_id(self.env, host_id)
         self.assertNotEqual(host, [])
 
 
