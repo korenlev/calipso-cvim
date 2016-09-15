@@ -35,15 +35,8 @@ class TestInstanceDelete(unittest.TestCase):
         self.assertEqual(instance, [])
 
         # check links
-        links_using_object = []
-
-        matched_links = clique_finder.find_links_by_source(db_id)
-        for l in matched_links:
-            links_using_object.append(l['_id'])
-
-        matched_links = clique_finder.find_links_by_target(db_id)
-        for l in matched_links:
-            links_using_object.append(l['_id'])
+        matched_links = clique_finder.find_links_by_source(db_id) + clique_finder.find_links_by_target(db_id)
+        links_using_object = [l['_id'] for l in matched_links]
 
         self.assertEqual(links_using_object, [])
 
