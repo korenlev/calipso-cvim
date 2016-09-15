@@ -1,22 +1,13 @@
 import unittest
 from bson import ObjectId
-from discover.configuration import Configuration
-from discover.event_handler import EventHandler
-from test.get_args import GetArgs
 from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE
+from test.test_event import TestEvent
 
 
-class TestInstanceDelete(unittest.TestCase):
-    def setUp(self):
-        self.arg_getter = GetArgs()
-        self.args = self.arg_getter.get_args()
-
-        self.conf = Configuration(self.args.mongo_config)
-        self.conf.use_env(self.args.env)
-        self.handler = EventHandler(self.args.env, self.args.inventory)
-        self.values = EVENT_PAYLOAD_INSTANCE_DELETE
+class TestInstanceDelete(TestEvent):
 
     def test_handle_instance_delete(self):
+        self.values = EVENT_PAYLOAD_INSTANCE_DELETE
         payload = self.values['payload']
         id = payload['instance_id']
         item = self.handler.inv.get_by_id(self.args.env, id)

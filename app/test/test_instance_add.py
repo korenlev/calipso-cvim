@@ -1,21 +1,12 @@
 import unittest
-from discover.configuration import Configuration
-from discover.event_handler import EventHandler
-from test.get_args import GetArgs
 from test.test_data.event_payload_instance_add import EVENT_PAYLOAD_INSTANCE_ADD
+from test.test_event import TestEvent
 
 
-class TestInstanceAdd(unittest.TestCase):
-    def setUp(self):
-        self.arg_getter = GetArgs()
-        self.args = self.arg_getter.get_args()
-
-        self.conf = Configuration(self.args.mongo_config)
-        self.conf.use_env(self.args.env)
-        self.handler = EventHandler(self.args.env, self.args.inventory)
-        self.values = EVENT_PAYLOAD_INSTANCE_ADD
+class TestInstanceAdd(TestEvent):
 
     def test_handle_instance_add(self):
+        self.values = EVENT_PAYLOAD_INSTANCE_ADD
         payload = self.values['payload']
         _id = payload['instance_id']
         host_id = payload['host']
