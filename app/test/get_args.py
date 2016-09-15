@@ -1,4 +1,4 @@
-# This module use to parse arguments.
+# This module is used to parse arguments.
 import argparse
 
 from discover.logger import Logger
