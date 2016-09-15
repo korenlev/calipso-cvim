@@ -3,7 +3,7 @@ from bson import ObjectId
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from test.get_args import GetArgs
-from test.test_jsons import test_json_instance_delete
+from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE
 
 
 class TestInstanceDelete(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestInstanceDelete(unittest.TestCase):
         self.conf = Configuration(self.args.mongo_config)
         self.conf.use_env(self.args.env)
         self.handler = EventHandler(self.args.env, self.args.inventory)
-        self.values = test_json_instance_delete
+        self.values = EVENT_PAYLOAD_INSTANCE_DELETE
 
     def test_handle_instance_delete(self):
         payload = self.values['payload']

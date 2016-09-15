@@ -2,7 +2,7 @@ import unittest
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from test.get_args import GetArgs
-from test.test_jsons import test_json_instance_add
+from test.test_data.event_payload_instance_add import EVENT_PAYLOAD_INSTANCE_ADD
 
 
 class TestInstanceAdd(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestInstanceAdd(unittest.TestCase):
         self.conf = Configuration(self.args.mongo_config)
         self.conf.use_env(self.args.env)
         self.handler = EventHandler(self.args.env, self.args.inventory)
-        self.values = test_json_instance_add
+        self.values = EVENT_PAYLOAD_INSTANCE_ADD
 
     def test_handle_instance_add(self):
         payload = self.values['payload']

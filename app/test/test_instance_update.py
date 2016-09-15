@@ -2,7 +2,7 @@ import unittest
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from test.get_args import GetArgs
-from test.test_jsons import test_json_name_change
+from test.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE
 
 
 class TestInstanceUpdate(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestInstanceUpdate(unittest.TestCase):
         self.conf = Configuration(self.args.mongo_config)
         self.conf.use_env(self.args.env)
         self.handler = EventHandler(self.args.env, self.args.inventory)
-        self.values = test_json_name_change
+        self.values = EVENT_PAYLOAD_INSTANCE_UPDATE
 
     def test_handle_normal_situation(self):
         payload = self.values['payload']
