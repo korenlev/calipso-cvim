@@ -1,5 +1,5 @@
-from scanner import Scanner
-from singleton import Singleton
+from discover.scanner import Scanner
+from discover.singleton import Singleton
 
 
 class ScanVconnectorsRoot(Scanner, metaclass=Singleton):

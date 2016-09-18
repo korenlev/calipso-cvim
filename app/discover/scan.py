@@ -9,9 +9,9 @@ import cgi
 import os
 import sys
 
-from configuration import Configuration
-from fetcher import Fetcher
-from inventory_mgr import InventoryMgr
+from discover.configuration import Configuration
+from discover.fetcher import Fetcher
+from discover.inventory_mgr import InventoryMgr
 
 
 class ScanController(Fetcher):
@@ -95,7 +95,7 @@ class ScanController(Fetcher):
             "object_type": form.getvalue("type", "environment"),
             "env": form.getvalue("env", ScanController.default_env),
             "object_id": form.getvalue("id", ScanController.default_env),
-            "object_id": form.getvalue("parent_id", ""),
+            "parent_id": form.getvalue("parent_id", ""),
             "type_to_scan": form.getvalue("parent_type", ""),
             "id_field": form.getvalue("id_field", "id"),
             "scan_self": form.getvalue("scan_self", "")
@@ -132,6 +132,7 @@ class ScanController(Fetcher):
         return plan
 
     def run(self):
+        # get arguments and parsing arguments.
         args = self.get_args()
         try:
             self.conf = Configuration(args.mongo_config)
@@ -139,22 +140,30 @@ class ScanController(Fetcher):
             self.inv.set_inventory_collection(args.inventory)
         except FileNotFoundError:
             sys.exit(1)
+
         scan_plan = self.get_scan_plan(args)
         if scan_plan["clear"]:
             self.inv.clear(scan_plan)
         self.conf.set_loglevel(scan_plan["loglevel"])
+
         env_name = scan_plan["env"]
         self.conf.use_env(env_name)
+
+        # generate ScanObject Class and instance.
         class_name = scan_plan["scanner_class"]
         module = __import__(scan_plan["module_file"])
         class_ = getattr(module, class_name)
         scanner = class_()
         scanner.set_env(env_name)
+
+        # decide what scanning operations to do
         inventory_only = scan_plan["inventory_only"]
         links_only = scan_plan["links_only"]
         cliques_only = scan_plan["cliques_only"]
         results = []
         run_all = False if inventory_only or links_only or cliques_only else True
+
+        # do the actual scanning
         if inventory_only or run_all:
             results = scanner.run_scan(
                 scan_plan["obj"],

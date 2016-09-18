@@ -1,4 +1,4 @@
-from db_access import DbAccess
+from discover.db_access import DbAccess
 
 
 class DbFetchAggregateHosts(DbAccess):

@@ -1,8 +1,7 @@
 # scan a host for instances
-
-from folder_fetcher import FolderFetcher
-from scanner import Scanner
-from singleton import Singleton
+from discover.folder_fetcher import FolderFetcher
+from discover.scanner import Scanner
+from discover.singleton import Singleton
 
 
 class ScanInstance(Scanner, metaclass=Singleton):

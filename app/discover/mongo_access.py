@@ -2,8 +2,7 @@ import os
 
 from bson.objectid import ObjectId
 from pymongo import MongoClient
-
-from logger import Logger
+from discover.logger import Logger
 
 
 # Provides access to MongoDB using PyMongo library
@@ -11,6 +10,7 @@ from logger import Logger
 # Notes on authentication:
 # default config file is /etc/osdna/mongo.conf
 # you can also specify name of file from CLI with --mongo_config
+
 
 class MongoAccess(Logger):
     client = None

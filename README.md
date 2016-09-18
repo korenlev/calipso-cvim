@@ -52,7 +52,5 @@ see under /Architecture
 ### Contacts
 * Koren Lev (korlev)
 * Yaron Yogev (yayogev)
-* Amit Kumar (amikumar)
 * Stas Isakov (sisakov)
 * Ofir Ashery (oashery)
-* Amit Saha (amisaha)

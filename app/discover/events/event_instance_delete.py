@@ -2,8 +2,8 @@ import re
 
 from bson.objectid import ObjectId
 
-from fetcher import Fetcher
-from inventory_mgr import InventoryMgr
+from discover.fetcher import Fetcher
+from discover.inventory_mgr import InventoryMgr
 
 
 class EventInstanceDelete(Fetcher):
@@ -16,6 +16,7 @@ class EventInstanceDelete(Fetcher):
         id = values['instance_id']
         item = self.inv.get_by_id(env, id)
         if not item:
+            self.log.info('instance document not found, aborting instance delete')
             return None
         db_id = ObjectId(item['_id'])
         id_path = item['id_path'] + '/'
@@ -24,17 +25,14 @@ class EventInstanceDelete(Fetcher):
         self.inv.delete('cliques', {'focal_point': db_id})
 
         # keep related links to do rebuild of cliques using them
-        matches = clique_finder.find_links_by_source(db_id)
-        links_using_object = []
-        for l in matches:
-            links_using_object.append(l['_id'])
-        matches = clique_finder.find_links_by_target(db_id)
-        for l in matches:
-            links_using_object.append(l['_id'])
+        matched_links_source = clique_finder.find_links_by_source(db_id)
+        matched_links_target = clique_finder.find_links_by_target(db_id)
+        links_using_object = [l['_id'] for l in matched_links_source].extend([l['_id'] for l in matched_links_target])
+
         # find cliques using these links
-        matches = clique_finder.find_cliques_by_link({'links': {'$in': links_using_object}})
+        matched_cliques = clique_finder.find_cliques_by_link({'links': {'$in': links_using_object}})
         # find cliques using these links and rebuild them
-        for clique in matches:
+        for clique in matched_cliques:
             clique_finder.rebuild_clique(clique)
 
         # remove all related links

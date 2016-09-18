@@ -2,10 +2,10 @@ from datetime import datetime
 
 import bson
 
-from clique_finder import CliqueFinder
-from mongo_access import MongoAccess
-from singleton import Singleton
-from util import Util
+from discover.clique_finder import CliqueFinder
+from discover.mongo_access import MongoAccess
+from discover.singleton import Singleton
+from discover.util import Util
 
 
 class InventoryMgr(MongoAccess, Util, metaclass=Singleton):

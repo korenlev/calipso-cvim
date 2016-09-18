@@ -1,7 +1,6 @@
 # scan a host aggregate for hosts
-
-from scanner import Scanner
-from singleton import Singleton
+from discover.scanner import Scanner
+from discover.singleton import Singleton
 
 
 class ScanAggregate(Scanner, metaclass=Singleton):
