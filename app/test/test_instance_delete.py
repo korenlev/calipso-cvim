@@ -34,9 +34,3 @@ class TestInstanceDelete(TestEvent):
         # check children
         matched_children = self.handler.inv.get_children(self.env, None, id)
         self.assertEqual(matched_children, [])
-
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    itersuite = unittest.TestLoader().loadTestsFromTestCase(TestInstanceDelete)
-    runner.run(itersuite)

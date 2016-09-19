@@ -29,9 +29,3 @@ class TestInstanceUpdate(TestEvent):
         # check update result.
         self.assertEqual(instance['name'], new_name)
         self.assertEqual(instance['name_path'], new_name_path)
-
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    itersuite = unittest.TestLoader().loadTestsFromTestCase(TestInstanceUpdate)
-    runner.run(itersuite)

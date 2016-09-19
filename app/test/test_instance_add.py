@@ -27,9 +27,3 @@ class TestInstanceAdd(TestEvent):
         # check host document
         host = self.handler.inv.get_by_id(self.env, host_id)
         self.assertNotEqual(host, [])
-
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    itersuite = unittest.TestLoader().loadTestsFromTestCase(TestInstanceAdd)
-    runner.run(itersuite)
