@@ -13,7 +13,9 @@ class TestInstanceUpdate(TestEvent):
 
         # get instance document
         instance = self.handler.inv.get_by_id(self.env, id)
-        self.assertNotEqual(instance, [])
+        if not instance:
+            self.handler.instance_update(self.values)
+            return
 
         name_path = instance['name_path']
         new_name_path = name_path[:name_path.rindex('/') + 1] + new_name
