@@ -1,4 +1,3 @@
-import unittest
 from test.test_data.event_payload_instance_add import EVENT_PAYLOAD_INSTANCE_ADD
 from test.test_event import TestEvent
 

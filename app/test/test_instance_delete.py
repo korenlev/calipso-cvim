@@ -1,4 +1,3 @@
-import unittest
 from bson import ObjectId
 from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE
 from test.test_event import TestEvent
