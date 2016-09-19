@@ -13,7 +13,9 @@ class TestInstanceAdd(TestEvent):
 
         # check instance document
         instance = self.handler.inv.get_by_id(self.env, _id)
-        self.assertEqual(instance, [])
+        if instance:
+            self.handler.log.info('instance document existed, aborting instance add.')
+            return
 
         # add instance into database
         self.handler.instance_add(payload)
