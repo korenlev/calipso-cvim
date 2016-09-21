@@ -26,3 +26,6 @@ class TestInstanceAdd(TestEvent):
         # check host document
         host = self.handler.inv.get_by_id(self.env, host_id)
         self.assertNotEqual(host, [])
+
+        # Delete the document after test.
+        self.handler.instance_delete(payload)

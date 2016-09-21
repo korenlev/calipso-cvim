@@ -38,3 +38,6 @@ class TestInstanceUpdate(TestEvent):
         # check update result.
         self.assertEqual(instance['name'], new_name)
         self.assertEqual(instance['name_path'], new_name_path)
+
+        # Delete the document after test.
+        self.handler.instance_delete(payload)
