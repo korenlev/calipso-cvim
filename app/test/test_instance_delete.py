@@ -38,3 +38,8 @@ class TestInstanceDelete(TestEvent):
         # check children
         matched_children = self.handler.inv.get_children(self.env, None, id)
         self.assertEqual(matched_children, [])
+
+        # delete document in case failure of test.
+        self.handler.inv.delete('inventory', {'id': id})
+        instance = self.handler.inv.get_by_id(self.env, id)
+        self.assertEqual(instance, [])
