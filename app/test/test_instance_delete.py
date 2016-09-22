@@ -1,8 +1,6 @@
-import copy
-
 from bson import ObjectId
 
-from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE
+from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE, INSTANCE_DOCUMENT
 from test.test_event import TestEvent
 
 
@@ -16,13 +14,10 @@ class TestInstanceDelete(TestEvent):
         if not instance:
             self.handler.log.info('instance document is not found, add document for deleting.')
 
-            # build instance adding payload.
-            add_payload = copy.deepcopy(payload)
-            add_payload['old_state'] = 'building'
-            add_payload['state'] = 'active'
-
-            self.handler.instance_add(add_payload)
+            # add instance document for deleting.
+            self.handler.inv.set(INSTANCE_DOCUMENT)
             instance = self.handler.inv.get_by_id(self.env, id)
+            self.assertNotEqual(instance, [])
 
         db_id = ObjectId(instance['_id'])
         clique_finder = self.handler.inv.get_clique_finder()
