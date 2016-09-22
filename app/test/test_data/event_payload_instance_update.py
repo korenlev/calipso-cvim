@@ -1,5 +1,6 @@
 from test.config.local_config import ENV_CONFIG
 
+
 EVENT_PAYLOAD_INSTANCE_UPDATE = {'publisher_id': 'compute.node-6.cisco.com', '_context_resource_uuid': None,
                                  '_context_instance_lock_checked': False,
                                  '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
@@ -68,6 +69,7 @@ EVENT_PAYLOAD_INSTANCE_UPDATE = {'publisher_id': 'compute.node-6.cisco.com', '_c
                          VGsEJvy4KRcNIGlVRdmGyXBYm3kEuakQXTsXLxvyQeTtgZ9UgnLLXhQvMLbA2gwaimVpyRljq92R7Y7CwnNFLjibhOiYs
                          NlvBqitJkaRaQa4sg4xCN2tBj32Re-jRu6dR_sIA-haT''',
                                  '_context_user_name': 'admin'}
+
 
 INSTANCE_DOCUMENT = {
     'projects': ['OSDNA-project'],
