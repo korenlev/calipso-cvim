@@ -37,3 +37,5 @@ class TestInstanceUpdate(TestEvent):
 
         # Delete the document after test.
         self.handler.inv.delete('inventory', {'id': id})
+        instance = self.handler.inv.get_by_id(self.env, id)
+        self.assertEqual(instance, [])
