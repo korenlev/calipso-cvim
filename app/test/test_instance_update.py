@@ -12,7 +12,7 @@ class TestInstanceUpdate(TestEvent):
         id = payload['instance_id']
         new_name = payload['display_name']
 
-        # get instance document
+        # preparing instance to be updated
         instance = self.handler.inv.get_by_id(self.env, id)
         if not instance:
             self.handler.log.info("instance document is not found, add document for updating")
