@@ -1,6 +1,4 @@
-import copy
-
-from test.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE
+from test.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE, INSTANCE_DOCUMENT
 from test.test_event import TestEvent
 
 
@@ -17,14 +15,12 @@ class TestInstanceUpdate(TestEvent):
         if not instance:
             self.handler.log.info("instance document is not found, add document for updating")
 
-            # build instance adding payload.
-            add_payload = copy.deepcopy(payload)
-            add_payload['old_state'] = 'building'
-            add_payload['state'] = 'active'
-            add_payload['display_name'] = 'test_update'
+            # add instance document for updating
+            self.handler.inv.set(INSTANCE_DOCUMENT)
 
-            self.handler.instance_add(add_payload)
             instance = self.handler.inv.get_by_id(self.env, id)
+            self.assertNotEqual(instance, [])
+            self.assertEqual(instance['name'], INSTANCE_DOCUMENT['name'])
 
         name_path = instance['name_path']
         new_name_path = name_path[:name_path.rindex('/') + 1] + new_name
@@ -40,4 +36,4 @@ class TestInstanceUpdate(TestEvent):
         self.assertEqual(instance['name_path'], new_name_path)
 
         # Delete the document after test.
-        self.handler.instance_delete(payload)
+        self.handler.inv.delete('inventory', {'id': id})
