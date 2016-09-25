@@ -8,6 +8,9 @@ class CliFetchVconnectors(CliAccess, metaclass=Singleton):
         super().__init__()
         self.inv = InventoryMgr()
 
+    def get_vconnectors(self):
+        raise NotImplementedError("Subclass must override get_vconnectors()")
+
     def get(self, id):
         host_id = id[:id.rindex('-')]
         host = self.inv.get_by_id(self.get_env(), host_id)

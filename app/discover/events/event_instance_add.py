@@ -16,7 +16,7 @@ class EventInstanceAdd(Fetcher):
         instances_root_id = host_id + '-instances'
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
-            self.log.info('instances root not found, instance update aborted')
+            self.log.info('instances root not found, aborting instance add')
             return None
 
         # scan instance

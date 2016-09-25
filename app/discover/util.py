@@ -32,7 +32,7 @@ class Util(object):
         if class_name in self.class_instances:
             return self.class_instances[class_name]
         module_file = self.get_module_file_by_class_name(class_name)
-        module = __import__(module_file)
+        module = __import__(module_file, globals(), level=1)
         class_ = getattr(module, class_name)
         instance = class_()
         self.class_instances[class_name] = instance

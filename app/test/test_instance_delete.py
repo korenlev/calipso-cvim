@@ -1,6 +1,6 @@
-import unittest
 from bson import ObjectId
-from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE
+
+from test.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE, INSTANCE_DOCUMENT
 from test.test_event import TestEvent
 
 
@@ -10,12 +10,16 @@ class TestInstanceDelete(TestEvent):
         self.values = EVENT_PAYLOAD_INSTANCE_DELETE
         payload = self.values['payload']
         id = payload['instance_id']
-        item = self.handler.inv.get_by_id(self.env, id)
-        if not item:
-            self.handler.log.info('instance document not found, aborting instance delete')
-            return None
+        instance = self.handler.inv.get_by_id(self.env, id)
+        if not instance:
+            self.handler.log.info('instance document is not found, add document for deleting.')
 
-        db_id = ObjectId(item['_id'])
+            # add instance document for deleting.
+            self.handler.inv.set(INSTANCE_DOCUMENT)
+            instance = self.handler.inv.get_by_id(self.env, id)
+            self.assertNotEqual(instance, [])
+
+        db_id = ObjectId(instance['_id'])
         clique_finder = self.handler.inv.get_clique_finder()
 
         # delete instance
@@ -35,8 +39,7 @@ class TestInstanceDelete(TestEvent):
         matched_children = self.handler.inv.get_children(self.env, None, id)
         self.assertEqual(matched_children, [])
 
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    itersuite = unittest.TestLoader().loadTestsFromTestCase(TestInstanceDelete)
-    runner.run(itersuite)
+        # delete document in case failure of test.
+        self.handler.inv.delete('inventory', {'id': id})
+        instance = self.handler.inv.get_by_id(self.env, id)
+        self.assertEqual(instance, [])

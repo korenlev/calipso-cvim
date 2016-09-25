@@ -1,5 +1,4 @@
-import unittest
-from test.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE
+from test.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE, INSTANCE_DOCUMENT
 from test.test_event import TestEvent
 
 
@@ -11,9 +10,17 @@ class TestInstanceUpdate(TestEvent):
         id = payload['instance_id']
         new_name = payload['display_name']
 
-        # get instance document
+        # preparing instance to be updated
         instance = self.handler.inv.get_by_id(self.env, id)
-        self.assertNotEqual(instance, [])
+        if not instance:
+            self.handler.log.info("instance document is not found, add document for updating")
+
+            # add instance document for updating
+            self.handler.inv.set(INSTANCE_DOCUMENT)
+
+            instance = self.handler.inv.get_by_id(self.env, id)
+            self.assertNotEqual(instance, [])
+            self.assertEqual(instance['name'], INSTANCE_DOCUMENT['name'])
 
         name_path = instance['name_path']
         new_name_path = name_path[:name_path.rindex('/') + 1] + new_name
@@ -28,8 +35,7 @@ class TestInstanceUpdate(TestEvent):
         self.assertEqual(instance['name'], new_name)
         self.assertEqual(instance['name_path'], new_name_path)
 
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    itersuite = unittest.TestLoader().loadTestsFromTestCase(TestInstanceUpdate)
-    runner.run(itersuite)
+        # Delete the document after test.
+        self.handler.inv.delete('inventory', {'id': id})
+        instance = self.handler.inv.get_by_id(self.env, id)
+        self.assertEqual(instance, [])
