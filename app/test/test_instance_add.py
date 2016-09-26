@@ -1,4 +1,5 @@
-from test.test_data.event_payload_instance_add import EVENT_PAYLOAD_INSTANCE_ADD
+from test.test_data.event_payload_instance_add \
+  import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT
 from test.test_event import TestEvent
 
 
@@ -9,6 +10,9 @@ class TestInstanceAdd(TestEvent):
         payload = self.values['payload']
         id = payload['instance_id']
         host_id = payload['host']
+
+        # prepare instances root, in case it's not there
+        self.handler.inv.set(INSTANCES_ROOT)
 
         # check instance document
         instance = self.handler.inv.get_by_id(self.env, id)
@@ -34,3 +38,7 @@ class TestInstanceAdd(TestEvent):
         self.handler.inv.delete('inventory', {'id': id})
         instance = self.handler.inv.get_by_id(self.env, id)
         self.assertEqual(instance, [])
+
+        self.handler.inv.delete('inventory', {'id': INSTANCES_ROOT['id']})
+        root = self.handler.inv.get_by_id(self.env, INSTANCES_ROOT['id'])
+        self.assertEqual(root, [])
