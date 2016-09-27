@@ -7,18 +7,18 @@ class TestInstanceUpdate(TestEvent):
     def test_handle_normal_situation(self):
         self.values = EVENT_PAYLOAD_INSTANCE_UPDATE
         payload = self.values['payload']
-        id = payload['instance_id']
+        self.instance_id = payload['instance_id']
         new_name = payload['display_name']
 
         # preparing instance to be updated
-        instance = self.handler.inv.get_by_id(self.env, id)
+        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
         if not instance:
             self.handler.log.info("instance document is not found, add document for updating")
 
             # add instance document for updating
             self.handler.inv.set(INSTANCE_DOCUMENT)
 
-            instance = self.handler.inv.get_by_id(self.env, id)
+            instance = self.handler.inv.get_by_id(self.env, self.instance_id)
             self.assertNotEqual(instance, [])
             self.assertEqual(instance['name'], INSTANCE_DOCUMENT['name'])
 
@@ -29,13 +29,14 @@ class TestInstanceUpdate(TestEvent):
         self.handler.instance_update(self.values)
 
         # get new document
-        instance = self.handler.inv.get_by_id(self.env, id)
+        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
 
         # check update result.
         self.assertEqual(instance['name'], new_name)
         self.assertEqual(instance['name_path'], new_name_path)
 
-        # Delete the document after test.
-        self.handler.inv.delete('inventory', {'id': id})
-        instance = self.handler.inv.get_by_id(self.env, id)
+    # Delete the document after test.
+    def tearDown(self):
+        self.handler.inv.delete('inventory', {'id': self.instance_id})
+        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
         self.assertEqual(instance, [])
