@@ -1,5 +1,5 @@
-from api_access import ApiAccess
-from inventory_mgr import InventoryMgr
+from discover.api_access import ApiAccess
+from discover.inventory_mgr import InventoryMgr
 
 
 class ApiFetchNetworks(ApiAccess):

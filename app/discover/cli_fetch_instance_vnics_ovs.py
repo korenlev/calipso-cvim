@@ -1,4 +1,4 @@
-from cli_fetch_instance_vnics import CliFetchInstanceVnics
+from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
 
 
 class CliFetchInstanceVnicsOvs(CliFetchInstanceVnics):

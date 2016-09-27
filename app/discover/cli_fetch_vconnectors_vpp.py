@@ -1,4 +1,4 @@
-from cli_fetch_vconnectors import CliFetchVconnectors
+from discover.cli_fetch_vconnectors import CliFetchVconnectors
 
 
 class CliFetchVconnectorsVpp(CliFetchVconnectors):

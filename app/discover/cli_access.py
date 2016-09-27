@@ -1,7 +1,7 @@
 import time
 
-from fetcher import Fetcher
-from ssh_conn import SshConn
+from discover.fetcher import Fetcher
+from discover.ssh_conn import SshConn
 
 
 class CliAccess(Fetcher):

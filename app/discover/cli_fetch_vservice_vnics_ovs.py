@@ -1,4 +1,4 @@
-from cli_fetch_vservice_vnics import CliFetchVserviceVnics
+from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 
 
 class CliFetchVserviceVnicsOvs(CliFetchVserviceVnics):

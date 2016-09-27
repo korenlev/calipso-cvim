@@ -1,10 +1,10 @@
 import json
 import re
 
-from cli_access import CliAccess
-from db_access import DbAccess
-from inventory_mgr import InventoryMgr
-from singleton import Singleton
+from discover.cli_access import CliAccess
+from discover.db_access import DbAccess
+from discover.inventory_mgr import InventoryMgr
+from discover.singleton import Singleton
 
 
 class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):

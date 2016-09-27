@@ -4,17 +4,17 @@ import json
 import queue
 import traceback
 
-from configuration import Configuration
-from fetcher import Fetcher
-from find_links_for_instance_vnics import FindLinksForInstanceVnics
-from find_links_for_oteps import FindLinksForOteps
-from find_links_for_pnics import FindLinksForPnics
-from find_links_for_vconnectors import FindLinksForVconnectors
-from find_links_for_vedges import FindLinksForVedges
-from find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from inventory_mgr import InventoryMgr
-from ssh_conn import SshConn
-from util import Util
+from discover.configuration import Configuration
+from discover.fetcher import Fetcher
+from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
+from discover.find_links_for_oteps import FindLinksForOteps
+from discover.find_links_for_pnics import FindLinksForPnics
+from discover.find_links_for_vconnectors import FindLinksForVconnectors
+from discover.find_links_for_vedges import FindLinksForVedges
+from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
+from discover.inventory_mgr import InventoryMgr
+from discover.ssh_conn import SshConn
+from discover.util import Util
 
 
 class Scanner(Util, Fetcher):
