@@ -90,6 +90,6 @@ HOST = {
     'type': 'host', 'environment': ENV_CONFIG, 'host': 'node-5.cisco.com', 'id': 'node-5.cisco.com',
     'ip_address': '192.168.0.4', 'name': 'node-5.cisco.com', 'host_type': ['Compute'],
     'services': {'nova-compute': {'updated_at': '2016-09-26T22:47:09.000000', 'active': True, 'available': True}},
-    'show_in_tree': True, 'zone': 'osdna-zone', '_id': '57e9a5b94a0a8a3fbe3bd709', 'os_id': '1',
+    'show_in_tree': True, 'zone': 'osdna-zone', 'os_id': '1',
     'parent_type': 'availability_zone', 'parent_id': 'osdna-zone'
 }
