@@ -20,9 +20,6 @@ name = check_result['name']
 status = check_result['status']
 object_id = name[:name.index('_')]
 port_id = name[name.index('_')+1:]
-print(name)
-print(object_id)
-print(port_id)
 logger = Logger()
 logger.set_loglevel('WARN')
 inv = InventoryMgr()
@@ -37,6 +34,15 @@ if not port:
 port['status'] = STATUS_LABEL[status] # if status in range(0, 2) else 'Unknown'
 port['status_value'] = status
 port['status_text'] = check_result['output']
+
+# set object status based on overall state of ports
+status_list = [p['status'] for p in ports.values() if 'status' in p]
+doc['status'] = \
+    'Critical' if 'OK' not in status_list \
+    else 'Warning' if 'Critical' in status_list or 'Warning' in status_list \
+    else 'OK'
+
+# set timestamp
 check_time = gmtime(check_result['executed'])
 port['status_timestamp'] = strftime(TIME_FORMAT, check_time)
 inv.set(doc)
