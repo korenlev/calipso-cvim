@@ -84,6 +84,6 @@ INSTANCE_DOCUMENT = {
     'parent_id': 'node-5.cisco.com-instances', 'project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne/Availability Zones/osdna-zone/node-5.cisco.com/Instances/test8',
     'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
-    'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '''-regions/RegionOne/RegionOne-availability_zones/
-    osdna-zone/node-5.cisco.com/node-5.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7''',
+    'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/osdna-zone/'+
+               'node-5.cisco.com/node-5.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
     'show_in_tree': True}
