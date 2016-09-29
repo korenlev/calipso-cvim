@@ -5,8 +5,8 @@ import time
 
 import httplib2 as http
 
-from configuration import Configuration
-from fetcher import Fetcher
+from discover.configuration import Configuration
+from discover.fetcher import Fetcher
 
 try:
     from urlparse import urlparse

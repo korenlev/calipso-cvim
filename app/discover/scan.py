@@ -9,9 +9,9 @@ import cgi
 import os
 import sys
 
-from configuration import Configuration
-from fetcher import Fetcher
-from inventory_mgr import InventoryMgr
+from discover.configuration import Configuration
+from discover.fetcher import Fetcher
+from discover.inventory_mgr import InventoryMgr
 
 
 class ScanController(Fetcher):

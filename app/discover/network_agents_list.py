@@ -1,4 +1,4 @@
-from mongo_access import MongoAccess
+from discover.mongo_access import MongoAccess
 
 
 class NetworkAgentsList(MongoAccess):

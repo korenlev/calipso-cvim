@@ -2,8 +2,8 @@ import os
 
 import paramiko
 
-from configuration import Configuration
-from fetcher import Fetcher
+from discover.configuration import Configuration
+from discover.fetcher import Fetcher
 
 
 class SshConn(Fetcher):

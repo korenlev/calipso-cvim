@@ -4,9 +4,9 @@ from kombu import Queue, Exchange
 from kombu.log import get_logger
 from kombu.mixins import ConsumerMixin
 
-from configuration import Configuration
-from event_handler import EventHandler
-from inventory_mgr import InventoryMgr
+from discover.configuration import Configuration
+from discover.event_handler import EventHandler
+from discover.inventory_mgr import InventoryMgr
 
 logger = get_logger(__name__)
 
