@@ -13,12 +13,12 @@ logger = get_logger(__name__)
 
 class Worker(ConsumerMixin):
     event_queues = [
-        Queue('nova',
+        Queue('notification.nova',
               Exchange('nova', 'topic', durable=False),
+              durable=False, routing_key='#'),
+        Queue('notifications.neutron',
+              Exchange('neutron', 'topic', durable=False),
               durable=False, routing_key='#')
-        #    Queue('notifications.neutron',
-        #      Exchange('neutron', 'topic', durable=False),
-        #      durable=False, routing_key='#')
     ]
 
     def __init__(self, connection):
@@ -33,10 +33,12 @@ class Worker(ConsumerMixin):
             "compute.instance.delete.end": self.handler.instance_delete,
             "compute.instance.rebuild.end": self.handler.instance_update,
             "compute.instance.update": self.handler.instance_update,
+
             "servergroup.create": self.handler.region_add,
             "servergroup.delete": self.handler.region_delete,
             "servergroup.update": self.handler.region_update,
             "servergroup.addmember": self.handler.region_update,
+
             "compute.instance.shutdown.start": self.handler.instance_down,
             "compute.instance.power_off.start": self.handler.instance_down,
             "compute.instance.power_on.end": self.handler.instance_up,
