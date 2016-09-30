@@ -43,7 +43,25 @@ class Worker(ConsumerMixin):
             "compute.instance.power_off.start": self.handler.instance_down,
             "compute.instance.power_on.end": self.handler.instance_up,
             "compute.instance.suspend.start": self.handler.instance_down,
-            "compute.instance.suspend.end": self.handler.instance_up
+            "compute.instance.suspend.end": self.handler.instance_up,
+
+            "network.create.end": self.handler.network_create,
+            "network.delete.end": self.handler.network_delete,
+
+            "subnet.create.end": self.handler.subnet_create,
+            "subnet.delete.end": self.handler.subnet_delete,
+
+            "port.create.end": self.handler.port_create,
+            "port.delete.end": self.handler.port_delete,
+
+            "router.create.end": self.handler.router_create,
+
+            "router.update.end": self.handler.router_update,
+
+            "router.delete.end": self.handler.router_delete,
+
+            "router.interface.create": self.handler.router_interface_create,
+            "router.interface.delete": self.handler.router_interface_delete,
         }
 
     def get_consumers(self, Consumer, channel):
