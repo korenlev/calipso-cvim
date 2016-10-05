@@ -18,7 +18,10 @@ class Worker(ConsumerMixin):
               durable=False, routing_key='#'),
         Queue('notifications.neutron',
               Exchange('neutron', 'topic', durable=False),
-              durable=False, routing_key='#')
+              durable=False, routing_key='#'),
+        Queue('notifications.neutron',
+              Exchange('openstack', 'topic', durable=False),
+              durable=False, routing_key='notification.info')
     ]
 
     def __init__(self, connection):
