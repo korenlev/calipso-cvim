@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "bcrypt": "^0.8.7",
     "cola": "tgdwyer/WebCola#master",
     "meteor-node-stubs": "^0.2.1"
   },
