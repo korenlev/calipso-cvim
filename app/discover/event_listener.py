@@ -20,8 +20,8 @@ class Worker(ConsumerMixin):
               Exchange('neutron', 'topic', durable=False),
               durable=False, routing_key='#'),
         Queue('notifications.neutron',
-              Exchange('openstack', 'topic', durable=False),
-              durable=False, routing_key='notification.info')
+              Exchange('dhcp_agent', 'topic', durable=False),
+              durable=False, routing_key='#')
     ]
 
     def __init__(self, connection):
