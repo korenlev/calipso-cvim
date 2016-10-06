@@ -32,7 +32,7 @@ class EventNetworkAdd(Fetcher):
 
         network_document = self.inv.get_by_id(env, network_id)
         if network_document:
-            self.log.info('network has existed, aborting network add')
+            self.log.info('network already existed, aborting network add')
             return None
 
         self.inv.set(network)
