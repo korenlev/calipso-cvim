@@ -1,0 +1,231 @@
+<template name="eventModals">
+  
+  <!-- Modal -->
+  <div class="modal fade" id="notification" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label
+          ="Close"><span aria-hidden="true">&times;</span></button>
+          <i class="material-icons">notifications</i>
+        </div>
+        <div class="modal-body">
+          <h5 class="modal-title" id="myModalLabel">List of Notifications</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Timestamp</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody>
+            {{#each messagesNotifications}}
+              <tr>
+                <td>{{message}}</td>
+                <td>{{timestamp}}</td>
+                  <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
+              </tr>
+            {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="mdl-button mdl-js-button" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="issue" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header green-text">
+          <button type="button" class="close" data-dismiss="modal" aria-label
+          ="Close"><span aria-hidden="true">&times;</span></button>
+          <i class="material-icons">warning</i>
+        </div>
+        <div class="modal-body">
+          <h5 class="modal-title" id="myModalLabel">List of issues</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Timestamp</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody>
+            {{#each messagesWarnings}}
+                <tr>
+                    <td>{{message}}</td>
+                    <td>{{timestamp}}</td>
+                    <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
+                </tr>
+            {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="mdl-button mdl-js-button" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="error" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label
+          ="Close"><span aria-hidden="true">&times;</span></button>
+          <i class="material-icons">error</i>
+        </div>
+        <div class="modal-body">
+          <h5 class="modal-title" id="myModalLabel">List of errors</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Timestamp</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody>
+            {{#each messagesErrors}}
+                <tr>
+                    <td>{{message}}</td>
+                    <td>{{timestamp}}</td>
+                    <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
+                </tr>
+            {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="mdl-button mdl-js-button" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!--Globals Start-->
+    <!-- Modal -->
+    <div class="modal fade" id="notificationGlobal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label
+                            ="Close"><span aria-hidden="true">&times;</span></button>
+                    <i class="material-icons">notifications</i>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title" id="myModalLabel">List of Notifications</h5>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Timestamp</th>
+                            <th>Environment</th>
+                            <th>Link</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#each messagesNotificationsGlobal}}
+                            <tr>
+                                <td>{{message}}</td>
+                                <td>{{timestamp}}</td>
+                                <td>{{environment}}</td>
+                                <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
+                            </tr>
+                        {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdl-button mdl-js-button" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="issueGlobal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header green-text">
+                    <button type="button" class="close" data-dismiss="modal" aria-label
+                            ="Close"><span aria-hidden="true">&times;</span></button>
+                    <i class="material-icons">warning</i>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title" id="myModalLabel">List of warnings</h5>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Timestamp</th>
+                            <th>Environment</th>
+                            <th>Link</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#each messagesWarningsGlobal}}
+                            <tr>
+                                <td>{{message}}</td>
+                                <td>{{timestamp}}</td>
+                                <td>{{environment}}</td>
+                                <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
+                            </tr>
+                        {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdl-button mdl-js-button" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="errorGlobal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label
+                            ="Close"><span aria-hidden="true">&times;</span></button>
+                    <i class="material-icons">error</i>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title" id="myModalLabel">List of errors</h5>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Timestamp</th>
+                            <th>Environment</th>
+                            <th>Link</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#each messagesErrorsGlobal}}
+                            <tr>
+                                <td>{{message}}</td>
+                                <td>{{timestamp}}</td>
+                                <td>{{environment}}</td>
+                                <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
+                            </tr>
+                        {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="mdl-button mdl-js-button" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--Globals End-->
+</template>

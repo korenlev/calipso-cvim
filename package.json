@@ -1,0 +1,15 @@
+{
+  "name": "osdna_new",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "cola": "tgdwyer/WebCola#master",
+    "meteor-node-stubs": "^0.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

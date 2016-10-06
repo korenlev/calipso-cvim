@@ -1,0 +1,233 @@
+<template name="wizard">
+    <!-- modals template for issue modal  -->
+    {{> eventModals}}
+
+  <div class="main-layout-no-nav cards white">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#maininfo" aria-controls="maininfo" role="tab" data-toggle="tab">Main Info</a></li>
+      <li role="presentation"><a href="#endpoin-panel" aria-controls="endpoin-panel" role="tab" data-toggle="tab">OS API Endpoint</a></li>
+      <li role="presentation"><a href="#db-credentials" aria-controls="db-credentials" role="tab" data-toggle="tab">OpenStack DB Credentials</a></li>
+      <li role="presentation"><a href="#master-host" aria-controls="master-host" role="tab" data-toggle="tab">Master Host Credentials</a></li>
+      <li role="presentation"><a href="#nfv" aria-controls="nfv" role="tab" data-toggle="tab">NFV Credentials</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <!-- main info -->
+      <div role="tabpanel" class="tab-pane active" id="maininfo">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="inputEmail" class="col-sm-2 control-label">Owner</label>
+            <div class="col-sm-3">
+              <input type="email" class="form-control" id="inputEmail" placeholder="Email" value="{{user}}">
+            </div>
+            <div class="col-sm-4">
+              <p>Admin name, owner of project</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEnvName" class="col-sm-2 control-label">Enviroment name</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="inputEnvName" placeholder="Enviroment name" value="WebEX-Mirantis@Cisco_new">
+            </div>
+            <div class="col-sm-4">
+              <p>Enter name of your project, it could be anything you want</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+              <button type="button" class="mdl-button mdl-js-button btnNext">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- os api endpoint -->
+      <div role="tabpanel" class="tab-pane fade" id="endpoin-panel">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="apiHost" class="col-sm-2 control-label">API host</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="apiHost" placeholder="API Host" value="10.56.20.83">
+            </div>
+            <div class="col-sm-4">
+              <p>This is API</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="adminToken" class="col-sm-2 control-label">Admin Token</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="adminToken" placeholder="Admin Token" value="vIhNb1l2">
+            </div>
+            <div class="col-sm-4">
+              <p>You can find token ..</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="Username" class="col-sm-2 control-label">Username</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="Username" placeholder="Username" value="admin">
+            </div>
+            <div class="col-sm-4">
+              <p>You can find username ..</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="apiPassword" class="col-sm-2 control-label">Password</label>
+            <div class="col-sm-3">
+              <input type="password" class="form-control" id="apiPassword" placeholder="Password" value="admin">
+            </div>
+            <div class="col-sm-4">
+              <p>Enter you password</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-2">
+              <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored toast">Test connection</button>
+            </div>
+            <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+              <button type="button" class="mdl-button mdl-js-button btnNext">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- db credentials -->
+      <div role="tabpanel" class="tab-pane fade" id="db-credentials">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="dbHost" class="col-sm-2 control-label">DB Host</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="dbHost" placeholder="DB Host" value="10.56.20.83">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dbPort" class="col-sm-2 control-label">DB port</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="dbPort" placeholder="DB port" value="3306.0">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dbUsername" class="col-sm-2 control-label">DB Username</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="dbUsername" placeholder="DB Username" value="root">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dbPassword" class="col-sm-2 control-label">Password</label>
+            <div class="col-sm-3">
+              <input type="password" class="form-control" id="dbPassword" placeholder="Password" value="BsfYNGxi">
+            </div>
+            <div class="col-sm-4">
+              <p>Enter you password</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-2">
+              <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored toast">Test connection</button>
+            </div>
+            <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+              <button type="button" class="mdl-button mdl-js-button btnNext">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- master host -->
+      <div role="tabpanel" class="tab-pane fade" id="master-host">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="sshKey" class="col-sm-2 control-label">SSH Key</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="sshKey" placeholder="SSH Key" value="/home/yarony/.ssh/id_rsa">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mhUsername" class="col-sm-2 control-label">Master Host Username</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="mhUsername" placeholder="Master Host Username" value="root">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mhPassword" class="col-sm-2 control-label">Master Host Password</label>
+            <div class="col-sm-3">
+              <input type="password" class="form-control" id="mhPassword" placeholder="Master Host Password" value="">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-2">
+              <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored toast">Test connection</button>
+            </div>
+            <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+              <button type="button" class="mdl-button mdl-js-button btnNext">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- nfv -->
+      <div role="tabpanel" class="tab-pane fade" id="nfv">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="nfvProvider" class="col-sm-2 control-label">NFV provider</label>
+            <div class="col-sm-3">
+              <select class="form-control">
+                <option>APIC</option>
+                <option>Some other</option>
+              </select>
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mhUsername" class="col-sm-2 control-label">Master Host Username</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="mhUsername" placeholder="Master Host Username">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mhPassword" class="col-sm-2 control-label">Master Host Password</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="mhPassword" placeholder="Master Host Password">
+            </div>
+            <div class="col-sm-4">
+              <p>Some help info</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored toast">Test connection</button>
+            </div>
+            <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+              <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</template>
