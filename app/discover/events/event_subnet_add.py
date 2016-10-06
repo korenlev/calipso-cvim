@@ -1,7 +1,8 @@
+from discover.api_access import ApiAccess
 from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
-from discover.scan_network import ScanNetwork
 from discover.scan_networks_root import ScanNetworksRoot
+from discover.scan_regions_root import ScanRegionsRoot
 
 
 class EventSubnetAdd(Fetcher):
@@ -20,16 +21,34 @@ class EventSubnetAdd(Fetcher):
 
         # Check DHCP enable, if true, scan network.
         if subnet['enable_dhcp'] == True:
-            network_scanner = ScanNetwork()
+            # scan network
+            network_scanner = ScanNetworksRoot()
             network_scanner.set_env(env)
-            # network_root_doc = self.inv.get_by_id(env, network_document['parent_id'])
-            # print(network_root_doc)
-            network_scanner.scan(network_document)
-            network_scanner.scan_from_queue()
-            network_scanner.scan_links()
-            network_scanner.scan_cliques()
+
+            if len(ApiAccess.regions) == 0:
+                # regions info doesn't exist, scan region.
+                self.log.info("Scan regions for adding regions data.")
+                regions_root_scanner = ScanRegionsRoot()
+                regions_root_scanner.set_env(env)
+                regions_root_doc = self.inv.get_by_id(env, env + "-regions")
+                if len(regions_root_doc) == 0:
+                    self.log.info("Regions_folder is not found.")
+                    return None
+                else:
+                    regions_root_scanner.scan(regions_root_doc)
+                    regions_root_scanner.scan_from_queue()
+            else:
+                # scan new network.
+                self.log.info("Scan new network.")
+                network_root_doc = self.inv.get_by_id(env, network_document['parent_id'])
+                network_scanner.scan(network_root_doc, limit_to_child_id=network_id, limit_to_child_type="network")
+                network_scanner.scan_from_queue()
+
+                network_scanner.scan_links()
+                network_scanner.scan_cliques()
         else:
             # build subnet document for adding network
+            self.log.info("Only update network document.")
             subnet_name = subnet['name']
             subnet_document = {subnet_name: subnet}
             network_document['cidrs'] = [subnet['cidr']]
