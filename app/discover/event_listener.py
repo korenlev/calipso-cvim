@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 class Worker(ConsumerMixin):
     event_queues = [
-        Queue('notification.nova',
+        Queue('notifications.nova',
               Exchange('nova', 'topic', durable=False),
               durable=False, routing_key='#'),
         Queue('notifications.neutron',
