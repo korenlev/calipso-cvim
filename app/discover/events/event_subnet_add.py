@@ -49,10 +49,8 @@ class EventSubnetAdd(Fetcher):
         else:
             # build subnet document for adding network
             self.log.info("Only update network document.")
-            subnet_name = subnet['name']
-            subnet_document = {subnet_name: subnet}
-            network_document['cidrs'] = [subnet['cidr']]
-            network_document['subnets'] = subnet_document
+            network_document['cidrs'].append(subnet['cidr'])
+            network_document['subnets'][subnet['name']]= subnet
 
             # update network document.
             self.inv.set(network_document)
