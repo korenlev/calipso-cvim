@@ -163,23 +163,30 @@
       var openState  = instance.state.get("openState");
 			var nextState = openState;
 
-			switch (openState) {
-				case "open":
-					nextState = "closing";
-					break;
-			
-				case "opening":	
-					break;
+			if (hasChildren(instance.data)) {
+				switch (openState) {
+					case "open":
+						nextState = "closing";
+						break;
+				
+					case "opening":	
+						break;
 
-				case "close":
-					nextState = "opening";
-					break;	
+					case "close":
+						nextState = "opening";
+						break;	
 
-				case "closing":
-					break;
+					case "closing":
+						break;
+				}
+
+				instance.state.set("openState", nextState);
+
+			} else { 
+				console.log("click on leaf");
+				var $element = instance.$(instance.firstNode);
+        window.location.href = $element.children("a").attr("href");
 			}
-
-      instance.state.set("openState", nextState);
     },
   });
 
