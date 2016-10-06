@@ -186,6 +186,18 @@
 				console.log("click on leaf");
 				var $element = instance.$(instance.firstNode);
         window.location.href = $element.children("a").attr("href");
+        if (instance.data.treeItem.clique) {
+          console.log("click on clique item");
+
+          var objId = instance.data.treeItem._id._str;
+          // todo: component way, not jquery
+          $('.mainContentData').hide();
+          $('#dgraphid').show();
+          Session.set('currNodeId', objId);
+
+          var graphData = d3Graph.getGraphDataByClique(objId);
+          d3Graph.updateNetworkGraph(graphData);
+        }
 			}
     },
   });
