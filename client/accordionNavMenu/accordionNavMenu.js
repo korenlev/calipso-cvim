@@ -202,11 +202,25 @@ Template.accordionNavMenuTree.helpers({
     var envName = controller.state.get('envName');
     return Inventory.find({environment: envName,parent_id: envName,show_in_tree:true});
   },
+
   getNodeItems: function(nodeId){
     //console.log(nodeId);
     //console.log(Inventory.find({parent_id: nodeId}));
     return Inventory.find({parent_id: nodeId});
   },
+
+  createTreeNodeArgs: function(node) {
+    var instance = Template.instance();
+    return {
+      treeItem: node,
+      onClose(childNode) {
+        console.log("child node on close");
+      },
+      onOpen(childNode) {
+        console.log("child node on open");
+      }
+    };
+  }
 });
 
 // refactored to accordionTreeNode 

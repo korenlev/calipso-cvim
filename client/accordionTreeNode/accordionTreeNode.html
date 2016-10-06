@@ -12,12 +12,15 @@
 					{{#if hasChildren }}   
 						<span class='submenu-indicator'>+</span>
 					{{/if }}
+					<span>open fam: {{ openedFamilyNodeId }}</span>
 				</a>
+
+				{{#if closeWhenNeeded openedFamilyNodeId }}{{/if }}
   
-				{{#if isOpen }}
+				{{#if isNotClose }}
 					<ul class="submenu">       
 							{{#each childItem in children }}
-									{{> accordionTreeNode treeItem=childItem }}
+									{{> accordionTreeNode (createTreeNodeArgs childItem openedChildNodeId) }}
 							{{/each }}
 					</ul>
 				{{/if }}

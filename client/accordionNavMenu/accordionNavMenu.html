@@ -22,7 +22,8 @@
 
 <template name="accordionNavMenuTree">
     {{#each treeItem in treeItems }}
-        {{> accordionTreeNode treeItem=treeItem }}
+        {{> accordionTreeNode (createTreeNodeArgs treeItem)
+				}}
     {{/each }}
 </template>
 
