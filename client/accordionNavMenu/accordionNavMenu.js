@@ -23,7 +23,8 @@ Template.accordionNavMenu.rendered = function () {
       this.settings = $.extend({}, defaults, options);
       this._defaults = defaults;
       this._name = pluginName;
-      this.init();
+      // todo: refactor remove all plugin. moved to components internal operation.
+      // this.init();
     }
     $.extend(Plugin.prototype, {
       init: function() {
@@ -57,11 +58,19 @@ Template.accordionNavMenu.rendered = function () {
           window.location.href = $(this).children("a").attr("href");
         });
       },
+
       submenuIndicators: function() {
-        if ($(this.element).find("." + defaults.subMenu).length > 0) {
-          $(this.element).find("." + defaults.subMenu).siblings("a").append("<span class='submenu-indicator'>+</span>");
+        if ($(this.element)
+              .find("." + defaults.subMenu)
+                .length > 0) {
+
+          $(this.element)
+            .find("." + defaults.subMenu)
+            .siblings("a")
+              .append("<span class='submenu-indicator'>+</span>");
         }
       },
+
       addClickEffect: function() {
         var ink, d, x, y;
         $(this.element).find("a").bind("click touchstart", function(e) {
@@ -200,6 +209,8 @@ Template.accordionNavMenuTree.helpers({
   },
 });
 
+// refactored to accordionTreeNode 
+/*
 Template.accordionNavMenuTreeNodeTemplate.helpers({
   hasClique: function(){
     var controller = Iron.controller();
@@ -224,6 +235,7 @@ Template.accordionNavMenuTreeNodeTemplate.helpers({
     return Inventory.find({parent_id: this.id ,parent_type:this.type,environment: envName,show_in_tree:true});
   }
 });
+*/
 
 Template.d3graph.rendered = function () {
   d3Graph.creategraphdata();

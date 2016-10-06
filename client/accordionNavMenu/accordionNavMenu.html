@@ -21,12 +21,13 @@
 </template>
 
 <template name="accordionNavMenuTree">
-    {{#each treeItems }}
-        {{> accordionNavMenuTreeNodeTemplate}}
+    {{#each treeItem in treeItems }}
+        {{> accordionTreeNode treeItem=treeItem }}
     {{/each }}
 </template>
 
-<template name="accordionNavMenuTreeNodeTemplate" >
+<!-- refactored to accorionTreeNode -->
+<!--template name="accordionNavMenuTreeNodeTemplate" >
     <li class="{{#if clique}}genGraphClick{{/if}}" id="{{id}}" title="{{name}}" type="{{type}}" clique="{{clique}}" objId="{{_id._str}}">
         <a href="#"><i class="fa"></i>{{object_name}}</a>
         {{#if hasChildren}}
@@ -37,4 +38,4 @@
             </ul>
         {{/if}}
     </li>
-</template>
+</template-->
