@@ -11,6 +11,7 @@ class ApiFetchNetworks(ApiAccess):
         # use project admin credentials, to be able to fetch all networks
         token = self.v2_auth_pwd("admin")
         if not token:
+            self.log.info("Token doesn't exist.")
             return []
         ret = []
         for region in self.regions:
