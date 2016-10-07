@@ -9,19 +9,19 @@
         <a class="js-item-link {{#if isOpen }}submenu-indicator-minus{{/if}}" href="#">
 					<i class="fa"></i>
 				  {{ treeItem.object_name }}
-					{{#if hasChildren }}   
+          {{#if showNow }}
+            {{#if hasChildren }}   
 						<span class='submenu-indicator'>+</span>
-					{{/if }}
+            {{/if }}
+          {{/if }}
 				</a>
 
-				{{#if closeWhenNeeded openedFamilyNodeId }}{{/if }}
+        {{#if needClosing }}
+            {{ closeWhenNeeded }}
+        {{/if }}
   
 				{{#if isNotClose }}
-					<ul class="submenu">       
-							{{#each childItem in children }}
-									{{> accordionTreeNode (createTreeNodeArgs childItem openedChildNodeId) }}
-							{{/each }}
-					</ul>
+          {{> accordionTreeNodeChildren (createTreeNodeChildrenArgs treeItem isNeedChildrenClosing) }}
 				{{/if }}
     </li>                      
 </template> 
