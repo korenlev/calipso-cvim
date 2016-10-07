@@ -197,7 +197,17 @@
 
           var graphData = d3Graph.getGraphDataByClique(objId);
           d3Graph.updateNetworkGraph(graphData);
+
+        } else if (instance.data.treeItem.id === 
+                     "aggregate-WebEx-RTP-SSD-Aggregate-node-24") {
+
+            $('.mainContentData').hide();
+            $('#dgraphid').show();
+            Session.set('currNodeId','node-24');
+            var graphData = d3Graph.getGraphData('node-24');
+            d3Graph.updateNetworkGraph(graphData);
         }
+
 			}
     },
   });
