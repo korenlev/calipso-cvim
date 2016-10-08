@@ -1,3 +1,25 @@
+/*
+ * Template Component: envForm
+ */
+
+(function () {
+
+/*
+ * Lifecycle methods
+ */
+
+Template.envForm.onCreated(function () {
+  var instance = this;
+
+  instance.autorun(function() {
+    instance.subscribe("environments_config");
+  });
+});
+
+/*
+ * Events
+ */  
+
 Template.envForm.events = {
     // "change #envList": function(event,template){
     //     //console.log(event.target.value);
@@ -24,15 +46,21 @@ Template.envForm.events = {
     //},
 };
 
+/*
+ * Helpers
+ */   
+
 Template.envForm.helpers({
-    envName: function(){
+    envName: function () {
         var controller = Iron.controller();
         var envName = controller.state.get('envName') || "My Environments";
 
         return envName;
     },
-    envList:function(){
+    envList: function () {
         //return Environments.find({type:"environment"});
         return Environments.find({});
     },
 });
+
+})();
