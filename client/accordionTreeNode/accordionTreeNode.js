@@ -21,7 +21,7 @@
       instance.subscribe("inventory.first-child",
         instance.data.treeItem.id);
 
-      if (! hasChildren(instance.data)) {
+      if (instance.data.treeItem.clique) {
 
         if (instance.data.treeItem.id === "aggregate-WebEx-RTP-SSD-Aggregate-node-24") {
           let objId = 'node-24' 
@@ -207,9 +207,15 @@
 
 				instance.state.set("openState", nextState);
 
-			} else { 
+			}
+
+      if (instance.data.treeItem.clique ||
+          instance.data.treeItem.id === 
+            "aggregate-WebEx-RTP-SSD-Aggregate-node-24") {
+
 				var $element = instance.$(instance.firstNode);
         window.location.href = $element.children("a").attr("href");
+
         if (instance.data.treeItem.clique) {
 
           var objId = instance.data.treeItem._id._str;
