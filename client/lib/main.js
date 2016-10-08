@@ -1,3 +1,7 @@
+/*
+ * File: main.js
+ */
+
 d3Graph = {
     color:'',
     zoomer:function(){
@@ -73,7 +77,7 @@ d3Graph = {
         var cliquesLinks = [];
         var nodes = [];
         var edges_new = [];
-        //debugger;
+        debugger; // eyaltask debug open
         cliques[0].links.forEach(function(n){
             cliquesLinks.push(n);
         });

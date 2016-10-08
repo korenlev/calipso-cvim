@@ -17,9 +17,40 @@
       showNow: false
     });
 
-    this.autorun(function () {
+    instance.autorun(function () {
       instance.subscribe("inventory.first-child",
         instance.data.treeItem.id);
+
+      if (! hasChildren(instance.data)) {
+
+        if (instance.data.treeItem.id === "aggregate-WebEx-RTP-SSD-Aggregate-node-24") {
+          let objId = 'node-24' 
+          instance.subscribe("inventory?type+host", "instance", objId);   
+
+        } else {
+          let objId = instance.data.treeItem._id._str;
+          instance.subscribe("cliques?focal_point", objId);
+
+          Cliques.find({ 
+            focal_point: new Mongo.ObjectID(objId) 
+          })
+          .forEach(
+            function (cliqueItem) { 
+              instance.subscribe("links?_id-in", cliqueItem.links);
+
+              Links.find({ _id: {$in: cliqueItem.links} })
+              .forEach(function(linkItem) {
+                let idsList = [ linkItem["source"], linkItem["target"] ]; 
+                instance.subscribe("inventory?_id-in", idsList); 
+
+                Inventory.find({ _id: { $in: idsList } })
+                .forEach(function (invItem) {
+                  instance.subscribe("attributes_for_hover_on_data?type", invItem.type); 
+                });
+              });
+            });
+        }
+      }
     });
 
   });

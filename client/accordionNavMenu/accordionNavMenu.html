@@ -11,7 +11,7 @@
         <li><a class="toggleGraph" href="#"><i class="material-icons">share</i>Toggle Graph</a></li>
         <li><a href="{{pathFor route='dashboard'}}"><i class="material-icons">home</i>Dashboard</a></li>
 
-        {{>accordionNavMenuTree}}
+        {{>accordionNavMenuTree }}
         
         <li><a href="#"><i class="fa fa-envelope"> </i> Contact</a></li>
       </ul>
@@ -19,24 +19,3 @@
     </div>
   </nav>
 </template>
-
-<template name="accordionNavMenuTree">
-    {{#each treeItem in treeItems }}
-        {{> accordionTreeNode (createTreeNodeArgs treeItem)
-				}}
-    {{/each }}
-</template>
-
-<!-- refactored to accorionTreeNode -->
-<!--template name="accordionNavMenuTreeNodeTemplate" >
-    <li class="{{#if clique}}genGraphClick{{/if}}" id="{{id}}" title="{{name}}" type="{{type}}" clique="{{clique}}" objId="{{_id._str}}">
-        <a href="#"><i class="fa"></i>{{object_name}}</a>
-        {{#if hasChildren}}
-            <ul class="submenu">
-                {{#each children}}
-                    {{> accordionNavMenuTreeNodeTemplate}}
-                {{/each}}
-            </ul>
-        {{/if}}
-    </li>
-</template-->

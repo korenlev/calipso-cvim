@@ -1,9 +1,9 @@
 /*
- 
+  Template Component: accordionNavMenu
  */
-Template.accordionNavMenu.onRendered(function(){
 
-});
+(function () {
+
 Template.accordionNavMenu.rendered = function () {
   /* accordion menu plugin*/
   ;(function($, window, document, undefined) {
@@ -107,11 +107,16 @@ Template.accordionNavMenu.rendered = function () {
   })(jQuery, window, document);
 
   jQuery(document).ready(function($) {
-    $("#left-nav-menu").accordion();
+    // refactored to component
+    //$("#left-nav-menu").accordion();
+
     $(".toggleGraph").click(function() {
       $('.mainContentData').toggle();
       $('#dgraphid').toggle();
     });
+
+    /* refactord to component
+
     $("#aggregate-WebEx-RTP-SSD-Aggregate-node-24").click(function() {
       $('.mainContentData').hide();
       $('#dgraphid').show();
@@ -123,6 +128,7 @@ Template.accordionNavMenu.rendered = function () {
       d3Graph.updateNetworkGraph(graphData);
       //$("body").scrollTop(0);
     });
+    
     $(".genGraphClick").click(function() {
       //console.log($(this).attr('objid'));
       $('.mainContentData').hide();
@@ -133,6 +139,8 @@ Template.accordionNavMenu.rendered = function () {
       var graphData = d3Graph.getGraphDataByClique($(this).attr('objid'));
       d3Graph.updateNetworkGraph(graphData);
     });
+    */
+
     $(".colors a").click(function() {
       if ($(this).attr("class") != "default") {
         $("#left-nav-menu").removeClass();
@@ -161,6 +169,11 @@ Template.accordionNavMenu.rendered = function () {
 */
 
 };
+
+/* 
+ * Events
+ */
+
 Template.accordionNavMenu.events({
   "click .test": function(event,template){
     console.log("HERE!!!!");
@@ -177,53 +190,8 @@ Template.accordionNavMenu.helpers({
     console.log("HERE!!!!");
   }
 });
-/*
-Template.accordionNavMenuTree.onCreated(function() {
-  var controller = Iron.controller();
-  var envName = controller.state.get('envName');
-  Meteor.subscribe('inventoryByEnv',envName);
-});
-*/
 
-/*
-Template.accordionNavMenuTree.onCreated(function() {
-  var self = this;
-  self.autorun(function() {
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    self.subscribe('inventoryByEnvTest', envName);
-  });
-});
-*/
-
-Template.accordionNavMenuTree.helpers({
-  treeItems: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    return Inventory.find({environment: envName,parent_id: envName,show_in_tree:true});
-  },
-
-  getNodeItems: function(nodeId){
-    //console.log(nodeId);
-    //console.log(Inventory.find({parent_id: nodeId}));
-    return Inventory.find({parent_id: nodeId});
-  },
-
-  createTreeNodeArgs: function(node) {
-    var instance = Template.instance();
-    return {
-      treeItem: node,
-      onClose(childNode) {
-        console.log("child node on close");
-      },
-      onOpen(childNode) {
-        console.log("child node on open");
-      }
-    };
-  }
-});
-
-// refactored to accordionTreeNode 
+// refactored to accordionTreeNode
 /*
 Template.accordionNavMenuTreeNodeTemplate.helpers({
   hasClique: function(){
@@ -269,3 +237,5 @@ Template.d3graph.rendered = function () {
   });
 
 };
+
+})();

@@ -1,3 +1,13 @@
+/*
+ * Template Component: d3plusgraph
+ */
+
+(function () {
+
+/*
+ * Lifecycle methods
+ */
+
 Template.d3plusgraph.rendered = function () {
     var sample_data = [
         {"name": "alpha", "size": 10},
@@ -47,3 +57,5 @@ Template.d3plusgraph.rendered = function () {
         .id("id")
         .draw();
 };
+
+})();  
