@@ -16,22 +16,22 @@
         
         <!-- this flex box for enviroment cards -->
         <div class="flex-box-3 flex-box flex-col">
-          {{#each envList}}
+          {{#each envItem in envList}}
             <div class="cards-flex-col-h500 white flex-box-1 ">
               <div class="flex-box justify-content-between">
                 <div class="flex-box-1">
                   <i class="material-icons">view_carousel</i>
                 </div>
                 <div class="flex-box-3">
-                  <h3>Enviroment name: {{name}}</h3>
+                  <h3>Enviroment name: {{ envItem.name }}</h3>
                   <table class="table table-striped">
                     <tbody>
                       <tr>
                         <th>Distribution</th>
-                        <td> {{distribution}} </td>
+                        <td> {{ envItem.distribution }} </td>
                       </tr>
                       <tr>
-                        <th>Number of regions: {{regoinsCount}}</th>
+                        <th>Number of regions: {{ regoinsCount (envItem.name) }}</th>
                         <td>
                             <div class="dropdown">
                                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -39,15 +39,15 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    {{#each regoins}}
-                                        <li><a href="{{pathFor route='region' query='regionName='}}{{object_name}}">{{object_name}}</a></li>
+                                    {{#each regionItem in regoins (envItem.name) }}
+                                        <li><a href="{{pathFor route='region' query='regionName='}}{{ regionItem.object_name }}">{{ regionItem.object_name }}</a></li>
                                     {{/each}}
                                 </ul>
                             </div>
                         </td>
                       </tr>
                       <tr>
-                        <th>Number of projects: {{projectsCount}}</th>
+                        <th>Number of projects: {{ projectsCount (envItem.name) }}</th>
                         <td>
                             <div class="dropdown">
                                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -55,8 +55,8 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    {{#each projects}}
-                                        <li><a href="{{pathFor route='project' query='projectName='}}{{object_name}}">{{object_name}}</a></li>
+                                    {{#each projectItem in projects (envItem.name) }}
+                                        <li><a href="{{pathFor route='project' query='projectName='}}{{ projectItem.object_name }}">{{ projectItem.object_name }}</a></li>
                                     {{/each}}
                                 </ul>
                             </div>
@@ -73,7 +73,7 @@
                           <i class="fa fa-desktop"></i>
                         </div>
                         <div class="flex-box-3">
-                        <p>Number of instances {{instancesCount}}</p>
+                        <p>Number of instances {{ instancesCount (envItem.name)}}</p>
                         </div>
                       </div>
                     </div>
@@ -83,7 +83,7 @@
                           <i class="fa fa-object-group"></i>
                         </div>
                         <div class="flex-box-3">
-                        <p>Number of vServices {{vservicesCount}}</p>
+                        <p>Number of vServices {{ vservicesCount (envItem.name) }}</p>
                         </div>
                       </div>
                     </div>
@@ -95,7 +95,7 @@
                           <i class="fa fa-compress"></i>
                         </div>
                         <div class="flex-box-3">
-                        <p>Number of vConnectors {{vconnectorsCount}}</p>
+                        <p>Number of vConnectors {{ vconnectorsCount (envItem.name) }}</p>
                         </div>
                       </div>
                     </div>
@@ -105,7 +105,7 @@
                           <i class="fa fa-server" aria-hidden="true"></i>
                         </div>
                         <div class="flex-box-3">
-                        <p>Number of hosts {{hostsCount}}</p>
+                        <p>Number of hosts {{ hostsCount (envItem.name) }}</p>
                         </div>
                       </div>
                     </div>
@@ -113,7 +113,7 @@
                 </div>
               </div>
             </div>
-          {{/each}}
+        {{/each}} <!-- envItem in envList -->
 
         </div> <!-- flex box for enviroment cards -->
         

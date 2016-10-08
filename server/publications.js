@@ -5,6 +5,22 @@ Meteor.publish("messages", function () {
     return Messages.find({});
 });
 
+Meteor.publish("messages?level", function (level) {
+    var query = {
+      level: level
+    };
+
+    var counterName = "messages?level!counter?" +
+      "level=" + level;
+
+    console.log("server subscription to: " + counterName);
+    Counts.publish(this, counterName, Messages.find(query));
+
+    console.log("server subscribtion to: messages?level");
+    console.log("- level: " + level);
+    return Messages.find(query);
+});
+
 Meteor.publish("messages?env+level", function (env, level) {
     var query = {
       environment: env,

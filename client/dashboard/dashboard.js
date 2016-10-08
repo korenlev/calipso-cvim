@@ -1,57 +1,32 @@
-Template.dashboard.helpers({
-
-  envList:function(){
-      //return Environments.find({type:"environment"});
-      return Environments.find({});
-  },
-    instancesCount: function(){
-        return Inventory.find({environment: this.name,type:'instance'}).count();
-    },
-    vservicesCount: function(){
-        return Inventory.find({environment: this.name,type:'vservice'}).count();
-    },
-    hostsCount: function(){
-        return Inventory.find({environment: this.name,type:'host'}).count();
-    },
-    vconnectorsCount: function(){
-        return Inventory.find({environment: this.name,type:'vconnector'}).count();
-    },
-    projectsCount: function(){
-        return Inventory.find({environment: this.name,type:'project'}).count();
-    },
-    regoinsCount: function(){
-        return Inventory.find({environment: this.name,type:'region'}).count();
-    },
-    regoins: function(){
-        return Inventory.find({environment: this.name,type:'region'});
-    },
-    projects: function(){
-        return Inventory.find({environment: this.name,type:'project'});
-    },
-
-    notificationsCount: function(){
-        return Messages.find({level:'notify'}).count();
-    },
-    warningsCount: function(){
-        return Messages.find({level:'warn'}).count();
-    },
-    errorsCount: function(){
-        return Messages.find({level:'error'}).count();
-    },
-
 /*
-    notificationsTimestamp: function(){
-        var msgTimestamp = Messages.findOne({state:'added'},{fields: {'timestamp': 1} });
-        return msgTimestamp.timestamp;
-    },
-    warnings: function(){
-        return Messages.findOne({state:'warn'});
-    },
-    errors: function(){
-        return Messages.findOne({state:'down'});
-    },
-*/
+ * Template Component: dashboard
+ */
 
+(function () {
+
+/* 
+ * Lifecycle methods
+ */
+
+Template.dashboard.onCreated(function () {
+  var instance = this;
+
+  instance.autorun(function () {
+    instance.subscribe("environments_config");
+
+    Environments.find({}).forEach(function (envItem) {
+      instance.subscribe("inventory?env+type", envItem.name, 'instance');
+      instance.subscribe("inventory?env+type", envItem.name, 'vservice');
+      instance.subscribe("inventory?env+type", envItem.name, 'host');
+      instance.subscribe("inventory?env+type", envItem.name, 'vconnector');
+      instance.subscribe("inventory?env+type", envItem.name, 'project');
+      instance.subscribe("inventory?env+type", envItem.name, 'region');
+    });
+
+    instance.subscribe("messages?level", 'notify');
+    instance.subscribe("messages?level", 'warn');
+    instance.subscribe("messages?level", 'error');
+  });
 });
 
 Template.dashboard.rendered = function(){
@@ -94,3 +69,92 @@ Template.dashboard.rendered = function(){
   });
 
 }
+/*
+ * Helpers
+ */
+
+Template.dashboard.helpers({
+
+    envList:function(){
+        //return Environments.find({type:"environment"});
+        return Environments.find({});
+    },
+
+    instancesCount: function (envName){
+        //return Inventory.find({environment: envName, type:'instance'}).count();
+        return Counts.get("inventory?env+type!counter?env=" +
+          envName + "&type=" + 'instance'); 
+    },
+
+    vservicesCount: function (envName) {
+        //return Inventory.find({environment: envName, type:'vservice'}).count();
+        return Counts.get("inventory?env+type!counter?env=" +
+          envName + "&type=" + 'vservice'); 
+    },
+
+    hostsCount: function (envName) {
+        //return Inventory.find({environment: envName, type:'host'}).count();
+        return Counts.get("inventory?env+type!counter?env=" +
+          envName + "&type=" + 'host'); 
+    },
+
+    vconnectorsCount: function(envName){
+        //return Inventory.find({environment: envName, type:'vconnector'}).count();
+        return Counts.get("inventory?env+type!counter?env=" +
+          envName + "&type=" + 'vconnector'); 
+    },
+
+    projectsCount: function (envName){
+        //return Inventory.find({environment: envName, type:'project'}).count();
+        return Counts.get("inventory?env+type!counter?env=" +
+          envName + "&type=" + 'project'); 
+    },
+
+    regoinsCount: function (envName){
+        //return Inventory.find({environment: envName, type:'region'}).count();
+        return Counts.get("inventory?env+type!counter?env=" +
+          envName + "&type=" + 'region'); 
+    },
+
+    regoins: function (envName) {
+        return Inventory.find({environment: envName, type:'region'});
+    },
+
+    projects: function (envName){
+        return Inventory.find({environment: envName, type:'project'});
+    },
+
+    notificationsCount: function(){
+        //return Messages.find({level:'notify'}).count();
+        return Counts.get("messages?level!counter?" +
+          "level=" + 'notify');
+    },
+
+    warningsCount: function(){
+        //return Messages.find({level:'warn'}).count();
+        return Counts.get("messages?level!counter?" +
+          "level=" + 'warn');
+    },
+
+    errorsCount: function(){
+        //return Messages.find({level:'error'}).count();
+        return Counts.get("messages?level!counter?" +
+          "level=" + 'error');
+    },
+
+/*
+    notificationsTimestamp: function(){
+        var msgTimestamp = Messages.findOne({state:'added'},{fields: {'timestamp': 1} });
+        return msgTimestamp.timestamp;
+    },
+    warnings: function(){
+        return Messages.findOne({state:'warn'});
+    },
+    errors: function(){
+        return Messages.findOne({state:'down'});
+    },
+*/
+
+});
+
+})();  
