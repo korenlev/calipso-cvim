@@ -97,10 +97,10 @@
           </div>
         </div>
       </div>
-      
+
       <!-- flex box for regions and projects -->
       <div class="mainContentData flex-box justify-content-between">
-        
+
         <div class="cards-450 white flex-box-1">
           <div class="flex-box ">
             <div class="flex-box-1">
@@ -112,7 +112,7 @@
               <tbody>
                 <tr>
                   <th>Last Scanning</th>
-                  <td> {{regionslastScanned}} </td>
+                  <td> {{ regionItem.last_scanned }} </td>
                 </tr>
                 <tr>
                   <th>Number of Regions:</th>
@@ -138,7 +138,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="cards-450 white flex-box-1">
           <div class="flex-box ">
             <div class="flex-box-1">
@@ -150,7 +150,7 @@
               <tbody>
                 <tr>
                   <th>Last Scanning</th>
-                  <td> {{projectslastScanned}} </td>
+                  <td> {{ projectItem.last_scanned }} </td>
                 </tr>
                 <tr>
                   <th>Number of Projects:</th>

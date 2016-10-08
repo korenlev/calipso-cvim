@@ -1,9 +1,38 @@
+/*
+ * Tempalte Component: environment
+ */
+
+/*
+ * Lifecycles methods
+ */
+
+(function() {
+
+Template.enviroment.onCreated(function () {
+  var instance = this;
+
+  this.autorun(function () {
+    var controller = Iron.controller();
+    var envName = controller.state.get('envName');
+
+    instance.subscribe("inventory?env+type", envName, 'instance');
+    instance.subscribe("inventory?env+type", envName, 'vservice');
+    instance.subscribe("inventory?env+type", envName, 'host');
+    instance.subscribe("inventory?env+type", envName, 'vconnector');
+    instance.subscribe("inventory?env+type", envName, 'project');
+    instance.subscribe("inventory?env+type", envName, 'region');
+    instance.subscribe("messages?env+level", envName, 'notify');
+    instance.subscribe("messages?env+level", envName, 'warn');
+    instance.subscribe("messages?env+level", envName, 'error');
+  });
+});
+
 Template.enviroment.rendered = function(){
 
   $.getScript('https://www.gstatic.com/charts/loader.js', function() {
     google.charts.load('current', {'packages':['gauge', 'line']});
   google.charts.setOnLoadCallback(drawLine);
-    
+
 
   function drawLine() {
       var data = new google.visualization.DataTable();
@@ -38,77 +67,122 @@ Template.enviroment.rendered = function(){
   });
 
 }
+
+/*
+ * Helpers
+ */
+
 Template.enviroment.helpers({
     envName: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
         return envName;
     },
+
     instancesCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.find({environment: envName,type:'instance'}).count();
+        var counterName = "inventory?env+type!counter?env=" + 
+          envName + "&type=" + "instance";
+        //return Inventory.find({environment: envName,type:'instance'}).count();
+        return Counts.get(counterName);
     },
+
     vservicesCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.find({environment: envName,type:'vservice'}).count();
+        var counterName = "inventory?env+type!counter?env=" + 
+          envName + "&type=" + "vservice";
+        //return Inventory.find({environment: envName,type:'vservice'}).count();
+        return Counts.get(counterName);
     },
+
     hostsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.find({environment: envName,type:'host'}).count();
+        var counterName = "inventory?env+type!counter?env=" + 
+          envName + "&type=" + "host";
+        //return Inventory.find({environment: envName,type:'host'}).count();
+        return Counts.get(counterName);
     },
+
     vconnectorsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.find({environment: envName,type:'vconnector'}).count();
+        var counterName = "inventory?env+type!counter?env=" + 
+          envName + "&type=" + "vconnector";
+        //return Inventory.find({environment: envName,type: 'vconnector'}).count();
+        return Counts.get(counterName);
     },
+
     projectsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.find({environment: envName,type:'project'}).count();
+        var counterName = "inventory?env+type!counter?env=" + 
+          envName + "&type=" + "project";
+        //return Inventory.find({environment: envName,type: 'project'}).count();
+        return Counts.get(counterName);
     },
+
     regoinsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.find({environment: envName,type:'region'}).count();
+        var counterName = "inventory?env+type!counter?env=" + 
+          envName + "&type=" + "region";
+        //return Inventory.find({environment: envName,type: 'region'}).count();
+        return Counts.get(counterName);
     },
+
     regoins: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
         return Inventory.find({environment: envName,type:'region'});
     },
+
     projects: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
         return Inventory.find({environment: envName,type:'project'});
     },
 
-    regionslastScanned: function(){
+    regionItem: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.findOne({environment: envName,type:'region'}).last_scanned;
+        //return Inventory.findOne({environment: envName,type:'region'}).last_scanned;
+        return Inventory.findOne({environment: envName,type:'region'});
     },
-    projectslastScanned: function(){
+
+    projectItem: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Inventory.findOne({environment: envName,type:'project'}).last_scanned;
+        //return Inventory.findOne({environment: envName,type:'project'}).last_scanned;
+        return Inventory.findOne({environment: envName,type:'project'});
     },
+
     notificationsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Messages.find({environment: envName,level:'notify'}).count();
+        //return Messages.find({environment: envName,level:'notify'}).count();
+        return Counts.get("messages?env+level!counter?env=" + 
+           envName + "&level=" + 'notify');
     },
+
     warningsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Messages.find({environment: envName,level:'warn'}).count();
+        //return Messages.find({environment: envName,level:'warn'}).count();
+        return Counts.get("messages?env+level!counter?env=" + 
+           envName + "&level=" + 'warn');
     },
+
     errorsCount: function(){
         var controller = Iron.controller();
         var envName = controller.state.get('envName');
-        return Messages.find({environment: envName,level:'error'}).count();
+        //return Messages.find({environment: envName,level:'error'}).count();
+        return Counts.get("messages?env+level!counter?env=" + 
+           envName + "&level=" + 'error');
     },
 
 });
+
+})();
