@@ -77,7 +77,7 @@ d3Graph = {
         var cliquesLinks = [];
         var nodes = [];
         var edges_new = [];
-        debugger; // eyaltask debug open
+        
         cliques[0].links.forEach(function(n){
             cliquesLinks.push(n);
         });
