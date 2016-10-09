@@ -4,12 +4,20 @@
 
 (function () {
 
+let singleOpenOption = true;
+
 /*
  * Lifecycle methods
  */
 
 Template.accordionNavMenuTree.onCreated(function () {
   let instance = this;
+
+  this.state = new ReactiveDict();
+  this.state.setDefault({
+    needChildrenClosing: false,
+    openedChildId: null
+  });
 
   instance.autorun(function () {
     let controller = Iron.controller();
@@ -61,18 +69,30 @@ Template.accordionNavMenuTree.helpers({
   },
   */
 
-  createTreeNodeArgs: function(node) {
+  createTreeNodeArgs: function(node, needChildrenClosing) {
     var instance = Template.instance();
     return {
       treeItem: node,
-      onClose(childNode) {
-        console.log("child node on close");
+      onClose(childNodeId) {
       },
-      onOpen(childNode) {
-        console.log("child node on open");
-      }
+      onOpen(childNodeId) {
+        if (singleOpenOption) {
+          instance.state.set("openedChildId", childNodeId);
+          instance.state.set("needChildrenClosing", true);
+          setTimeout(function () { 
+            instance.state.set("needChildrenClosing", false);
+          }, 10);
+        }
+      },
+      needClosing: needChildrenClosing,
+      openedFamilyId: instance.state.get("openedChildId")
     };
-  }
+  },
+
+  isNeedChildrenClosing: function () {
+    var instance = Template.instance();
+    return instance.state.get("needChildrenClosing");
+  },
 });
 
 })();
