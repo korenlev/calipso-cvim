@@ -2,31 +2,57 @@
 
 # handle monitoring events
 
+import argparse
 import json
 import sys
 from time import gmtime, strftime
 
-from inventory_mgr import InventoryMgr
-from logger import Logger
+from discover.inventory_mgr import InventoryMgr
+from discover.logger import Logger
 
 ENV = 'Mirantis-Liberty'
 INVENTORY_COLLECTION = 'Mirantis-Liberty'
 STATUS_LABEL = ['OK', 'Warning', 'Critical']
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
 
-check_result = json.loads(sys.stdin.read())
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--inputfile', nargs='?', type=str,
+        default='',
+        help="read input from the specifed file \n(default: from stdin)")
+    args = parser.parse_args()
+    return args
+
+input = None
+args = get_args()
+if args.inputfile:
+    try:
+        with open(args.inputfile, 'r') as input_file:
+            input = input_file.read()
+    except Exception as e:
+        raise FileNotFoundError("failed to open input file: " + args.inputfile)
+        exit(1)
+else:
+    input = sys.stdin.read()
+    if not input:
+        raise InputError("No input provided on stdin")
+        exit(1)
+
+check_result = json.loads(input)
 check_result = check_result['check']
 name = check_result['name']
 status = check_result['status']
-object_id = name[:name.index('_')]
-port_id = name[name.index('_')+1:]
+object_type = name[:name.index('_')]
+object_id = name[name.index('_')+1:]
+port_id = object_id[object_id.index('_')+1:]
+object_id = object_id[:object_id.index('_')]
 logger = Logger()
 logger.set_loglevel('WARN')
 inv = InventoryMgr()
 inv.set_inventory_collection(INVENTORY_COLLECTION)
 doc = inv.get_by_id(ENV, object_id)
 if not doc:
-    loggger.log.warn('No matching object found with ID: ' + object_id)
+    logger.log.warn('No matching object found with ID: ' + object_id)
 ports = doc['ports']
 port = ports[port_id]
 if not port:
