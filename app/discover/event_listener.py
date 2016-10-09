@@ -1,14 +1,12 @@
 import argparse
 
 from kombu import Queue, Exchange
-from kombu.log import get_logger
 from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.inventory_mgr import InventoryMgr
-
-logger = get_logger(__name__)
+from discover.logger import Logger
 
 
 class Worker(ConsumerMixin):
@@ -104,12 +102,9 @@ def get_args():
 
 
 if __name__ == '__main__':
+    logger = Logger()
+    logger.set_loglevel('INFO')
     from kombu import Connection
-    from kombu.utils.debug import setup_logging
-
-    # setup root logger
-    setup_logging(loglevel='DEBUG', loggers=[''])
-
     args = get_args()
     conf = Configuration(args.mongo_config)
     env = args.env
