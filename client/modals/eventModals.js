@@ -1,3 +1,29 @@
+/*
+ * Template Component: eventModals
+ */
+
+(function () {
+
+/*
+ * Lifecycle
+ */
+
+Template.eventModals.onCreated(function () {
+  let instance = this;
+
+  instance.autorun(function () {
+    // global messages
+    instance.subscribe('messages?level', 'notify');
+    instance.subscribe('messages?level', 'warn');
+    instance.subscribe('messages?level', 'error');
+    // per environment messages: since we have global, no need.
+  });
+});
+
+/*
+ * Helpers
+ */
+
 Template.eventModals.helpers({
     messagesNotifications : function(){
         var controller = Iron.controller();
@@ -30,3 +56,5 @@ Template.eventModals.helpers({
         return Messages.find({level:'error'});
     },
 });
+
+})();
