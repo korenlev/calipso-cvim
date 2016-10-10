@@ -18,13 +18,30 @@
 			return getChildren(this);
 		},
 
-		createTreeNodeArgs: function(node, needChildrenClosing) {
+		createTreeNodeArgs: function(node, needChildrenClosing, childNodeRequested) {
+
 			var instance = Template.instance();
+
+      var firstChildRequested = null
+      var nextChildNodeRequested = null;  
+
+      if (childNodeRequested && childNodeRequested.length > 0) {
+        // todo: remove console
+        console.log("childnode requested: " + childNodeRequested.toString());
+        firstChildRequested = childNodeRequested[0];
+        nextChildNodeRequested = childNodeRequested.slice(1);
+      }
+
 			return {
 				treeItem: node,
         onClose: instance.data.onClose,
         onOpen: instance.data.onOpen,
         needClosing: needChildrenClosing,
+        childNodeRequested: 
+          (firstChildRequested === node.id) ? 
+            nextChildNodeRequested : null,
+        startAsClicked: 
+          (firstChildRequested === node.id) ? true : false,
 				openedFamilyId: instance.data.openedChildId
 			};
 		},

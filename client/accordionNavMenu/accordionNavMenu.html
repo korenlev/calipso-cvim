@@ -11,7 +11,7 @@
         <li><a class="toggleGraph" href="#"><i class="material-icons">share</i>Toggle Graph</a></li>
         <li><a href="{{pathFor route='dashboard'}}"><i class="material-icons">home</i>Dashboard</a></li>
 
-        {{>accordionNavMenuTree }}
+        {{>accordionNavMenuTree (createNavMenuTreeArgs childNodeRequested)}}
         
         <li><a href="#"><i class="fa fa-envelope"> </i> Contact</a></li>
       </ul>

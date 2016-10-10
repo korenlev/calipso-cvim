@@ -11,8 +11,24 @@
 Template.enviroment.onCreated(function () {
   var instance = this;
 
-  this.autorun(function () {
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    childNodeRequested: null
+  });
+
+  instance.autorun(function () {
     var controller = Iron.controller();
+    var params = controller.getParams();
+    var query = params.query;
+
+    if (query.graph) {
+      let stringPath = "WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24";
+      let paths = stringPath.split("/");
+
+      let newPaths = paths.slice(1);
+      instance.state.set("childNodeRequested", newPaths);
+    }
+
     var envName = controller.state.get('envName');
 
     instance.subscribe("inventory?env+type", envName, 'instance');
@@ -182,6 +198,17 @@ Template.enviroment.helpers({
         return Counts.get("messages?env+level!counter?env=" + 
            envName + "&level=" + 'error');
     },
+
+    childNodeRequested: function () {
+      let instance = Template.instance();
+      return instance.state.get("childNodeRequested");
+    },
+
+    createNavMenuArgs: function (childNodeRequested) {
+      return {
+        childNodeRequested: childNodeRequested
+      };
+    }
 
 });
 

@@ -14,7 +14,8 @@
 			openState: "close",
       needChildrenClosing: false,
 			openedChildId: null,
-      showNow: false
+      showNow: false,
+      startAsClickedState: "not_done"
     });
 
     instance.autorun(function () {
@@ -136,8 +137,9 @@
 			return (openState !== "close");
     },
 
-		createTreeNodeChildrenArgs: function(treeItem, needChildrenClosing) {
+		createTreeNodeChildrenArgs: function(treeItem, needChildrenClosing, childNodeRequested) {
 			var instance = Template.instance();
+
 			return {
         treeItem: treeItem,
 				onClose(childNodeId) {
@@ -152,6 +154,7 @@
 					}
 				},
         needChildrenClosing: needChildrenClosing,
+        childNodeRequested: childNodeRequested,
         openedChildId: instance.state.get("openedChildId")
 			};
 		},
@@ -176,6 +179,19 @@
     showNow: function () {
 			var instance = Template.instance();
       return instance.state.get("showNow");
+    },
+
+    whenStartAsClicked: function (startAsClicked) {
+      if (startAsClicked) {
+        let instance = Template.instance();
+        if (instance.state.get("openState") !== 'open' &&
+            instance.state.get("startAsClickedState") == "not_done") {
+          instance.state.set("startAsClickedState", "done");
+          setTimeout(function () {
+            instance.$('a').click();
+          }, 50);
+        }
+      }
     }
 
   });

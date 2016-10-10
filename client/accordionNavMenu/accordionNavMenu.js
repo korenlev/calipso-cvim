@@ -4,6 +4,16 @@
 
 (function () {
 
+Template.accordionNavMenu.onCreated(function () {
+  let instance = this;
+  
+  instance.state = new ReactiveDict();
+  instance.state.setDefault ({
+    childNodeRequested: null
+  });
+  
+});
+
 Template.accordionNavMenu.rendered = function () {
   /* accordion menu plugin*/
   ;(function($, window, document, undefined) {
@@ -151,12 +161,14 @@ Template.accordionNavMenu.rendered = function () {
       }
     });
 
+    /* refactored to component environment
     if(Session.get('envGraph')=="true"){
       Meteor.setTimeout(function(){
         $("#aggregate-WebEx-RTP-SSD-Aggregate-node-24").click();
       },1000);
 
     }
+    */
   });
 /*
   Meteor.setTimeout(function(){
@@ -186,8 +198,15 @@ Template.accordionNavMenu.helpers({
     var envName = controller.state.get('envName');
     return envName;
   },
+
   test: function(){
     console.log("HERE!!!!");
+  },
+
+  createNavMenuTreeArgs: function (childNodeRequested) {
+    return {
+      childNodeRequested: childNodeRequested
+    };
   }
 });
 

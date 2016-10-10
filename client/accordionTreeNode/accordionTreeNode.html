@@ -21,7 +21,9 @@
         {{/if }}
   
 				{{#if isNotClose }}
-          {{> accordionTreeNodeChildren (createTreeNodeChildrenArgs treeItem isNeedChildrenClosing) }}
+          {{> accordionTreeNodeChildren (createTreeNodeChildrenArgs treeItem isNeedChildrenClosing childNodeRequested) }}
 				{{/if }}
     </li>                      
+
+    {{ whenStartAsClicked(startAsClicked) }}
 </template> 

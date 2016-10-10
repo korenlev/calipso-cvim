@@ -69,7 +69,18 @@ Template.accordionNavMenuTree.helpers({
   },
   */
 
-  createTreeNodeArgs: function(node, needChildrenClosing) {
+  createTreeNodeArgs: function(node, needChildrenClosing, childNodeRequested) {
+
+    var firstChildRequested = null
+    var nextChildNodeRequested = null;  
+
+    if (childNodeRequested && childNodeRequested.length > 0) {
+      // todo: remove console
+      console.log("childnode requested: " + childNodeRequested.toString());
+      firstChildRequested = childNodeRequested[0];
+      nextChildNodeRequested = childNodeRequested.slice(1);
+    }
+
     var instance = Template.instance();
     return {
       treeItem: node,
@@ -85,6 +96,11 @@ Template.accordionNavMenuTree.helpers({
         }
       },
       needClosing: needChildrenClosing,
+      childNodeRequested: 
+        (firstChildRequested === node.id) ? 
+          nextChildNodeRequested : null,
+      startAsClicked: 
+        (firstChildRequested === node.id) ? true : false,
       openedFamilyId: instance.state.get("openedChildId")
     };
   },
