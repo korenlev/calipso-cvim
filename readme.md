@@ -12,6 +12,11 @@
 meteor build --architecture=os.linux.x86_64 ./
 ```
   
+### Soruce Build
+
+```bash
+tar --exclude='./.meteor/local' --exclude='./node_modules' --exclude='./.git' -zcvf ../osdna-source-$(date +%Y-%m-%d).tar.gz .
+```
 ## Testing - Build with Docker 
   
 Testing on staging
