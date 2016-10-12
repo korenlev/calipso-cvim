@@ -8,12 +8,17 @@ class EventNetworkAdd(Fetcher):
         self.inv = InventoryMgr()
 
     def handle(self, env, notification):
+        network = notification['payload']['network']
+        network_id = network['id']
+        network_document = self.inv.get_by_id(env, network_id)
+        if network_document:
+            self.log.info('network already existed, aborting network add')
+            return None
+
         # build network document for adding network
         project_name = notification['_context_project_name']
         project_id = notification['_context_project_id']
         parent_id = project_id + '-networks'
-        network = notification['payload']['network']
-        network_id = network['id']
         network_name = network['name']
 
         network['environment']  = env
@@ -29,10 +34,6 @@ class EventNetworkAdd(Fetcher):
         network['parent_type'] = "networks_folder"
         network['project'] = project_name
         network["show_in_tree"] = True
-
-        network_document = self.inv.get_by_id(env, network_id)
-        if network_document:
-            self.log.info('network already existed, aborting network add')
-            return None
+        network['subnet'] = {}
 
         self.inv.set(network)
