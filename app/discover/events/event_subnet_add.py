@@ -47,7 +47,7 @@ class EventSubnetAdd(Fetcher):
             'name_path': "/%s/Projects/%s/Networks/%s/Ports" % (env, project_id, network_name),
             "show_in_tree": True,
             "last_scanned": datetime.datetime.utcnow(),
-            "Object_name": "Ports",
+            "object_name": "Ports",
         }
 
         self.inv.set(port_folder)
