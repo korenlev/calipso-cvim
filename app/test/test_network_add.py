@@ -12,7 +12,7 @@ class TestNetworkAdd(TestEvent):
 
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
         if network_document:
-            self.handler.log.info('network document existed already, delete it first.')
+            self.handler.log.info('network document existed already, deleting it first.')
             self.handler.inv.delete('inventory', {'id': self.network_id})
 
             network_document = self.handler.inv.get_by_id(self.env, self.network_id)
