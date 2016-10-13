@@ -1,4 +1,6 @@
-from test.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD, EVENT_PAYLOAD_NETWORK_ADD
+from discover.api_access import ApiAccess
+from test.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD, EVENT_PAYLOAD_NETWORK_ADD, \
+    EVENT_PAYLOAD_REGION
 from test.test_event import TestEvent
 
 
@@ -23,6 +25,10 @@ class TestSubnetAdd(TestEvent):
             # check network document
             network_document = self.handler.inv.get_by_id(self.env, self.network_id)
             self.assertNotEqual(network_document, [])
+
+        # check region data.
+        if len(ApiAccess.regions) == 0:
+            ApiAccess.regions = EVENT_PAYLOAD_REGION
 
         # add subnet document for updating network
         self.handler.subnet_create(self.values)
