@@ -1,7 +1,9 @@
 import datetime
+
 from discover.api_access import ApiAccess
-from discover.api_fetch_ports import ApiFetchPorts
+from discover.api_fetch_port import ApiFetchPort
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
+from discover.db_fetch_port import DbFetchPort
 from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
 from discover.scan_regions_root import ScanRegionsRoot
@@ -12,15 +14,11 @@ class EventSubnetAdd(Fetcher):
         super().__init__()
         self.inv = InventoryMgr()
 
-    def ports_filter(self, ports, network_id):
-        target_ports = []
-        for p in ports:
-            if network_id == p['network_id']:
-                target_ports.append(p)
-        return target_ports
+    def add_port_document(self, env, project_id, network_id, network_name, port_id):
+        fetcher = ApiFetchPort()
+        fetcher.set_env(env)
+        ports = fetcher.get(port_id)
 
-    def add_port_documents(self, env, project_id, network_id, network_name, ports):
-        ports = self.ports_filter(ports, network_id)
         for doc in ports:
             doc['type'] = "port"
             doc['environment'] = env
@@ -169,10 +167,12 @@ class EventSubnetAdd(Fetcher):
                 self.add_ports_folder(env, project_id, network_id, network_name)
 
                 # get ports data.
-                ports_fetcher = ApiFetchPorts()
-                ports = ports_fetcher.get(0)
+                ports_fetcher = DbFetchPort()
+                ports_fetcher.set_env(env)
+                port = ports_fetcher.get(network_id)[0]
+
                 # add specific ports documents.
-                self.add_port_documents(env, project_id, network_id, network_name, ports)
+                self.add_port_document(env, project_id, network_id, network_name, port['id'])
 
                 # add network_services_folder document.
                 self.add_network_services_folder(env, project_id, network_id, network_name)
@@ -188,6 +188,6 @@ class EventSubnetAdd(Fetcher):
 
                 # add vnic docuemnt.
                 self.add_vnic_document(env, host["id"], host["id_path"], host["name_path"],
-                                       network_id, network_name, "qdhcp-"+network_id)
+                                       network_id, network_name, "qdhcp-" + network_id)
 
         self.log.info("Finished subnet added.")
