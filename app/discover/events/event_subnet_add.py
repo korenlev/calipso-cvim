@@ -166,13 +166,12 @@ class EventSubnetAdd(Fetcher):
                 # generate port folder data.
                 self.add_ports_folder(env, project_id, network_id, network_name)
 
-                # get ports data.
+                # get ports ID.
                 ports_fetcher = DbFetchPort()
-                ports_fetcher.set_env(env)
-                port = ports_fetcher.get(network_id)[0]
+                port_id = ports_fetcher.get_id(network_id)
 
                 # add specific ports documents.
-                self.add_port_document(env, project_id, network_id, network_name, port['id'])
+                self.add_port_document(env, project_id, network_id, network_name, port_id)
 
                 # add network_services_folder document.
                 self.add_network_services_folder(env, project_id, network_id, network_name)
