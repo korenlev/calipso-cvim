@@ -16,4 +16,5 @@ class DbFetchPort(DbAccess):
 
     def get_id(self, id=None):
         query = """SELECT id FROM neutron.ports where network_id = %s"""
-        return self.get_objects_list_for_id(query, "port", id)[0]['id']
+        result = self.get_objects_list_for_id(query, "port", id)
+        return result[0]['id'] if result != [] else None
