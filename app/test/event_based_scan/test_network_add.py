@@ -1,5 +1,5 @@
 from test.event_based_scan.test_data.event_payload_network_add import EVENT_PAYLOAD_NETWORK_ADD
-from test.test_event import TestEvent
+from test.event_based_scan.test_event import TestEvent
 
 
 class TestNetworkAdd(TestEvent):

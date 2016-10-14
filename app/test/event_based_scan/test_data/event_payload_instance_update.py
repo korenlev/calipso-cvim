@@ -1,4 +1,4 @@
-from test.event_based_scan.config import ENV_CONFIG
+from test.event_based_scan.config.local_config import ENV_CONFIG
 
 
 EVENT_PAYLOAD_INSTANCE_UPDATE = {

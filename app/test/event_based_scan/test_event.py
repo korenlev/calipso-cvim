@@ -2,7 +2,7 @@ import unittest
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
-from test.event_based_scan.config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+from test.event_based_scan.config.local_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 
 
 class TestEvent(unittest.TestCase):
