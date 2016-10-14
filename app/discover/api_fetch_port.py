@@ -8,6 +8,9 @@ class ApiFetchPort(ApiAccess):
         self.inv = InventoryMgr()
 
     def get(self, id):
+        if id == None:
+            self.log.info("Get method needs ID parameter")
+            return []
         # use project admin credentials, to be able to fetch all ports
         token = self.v2_auth_pwd("admin")
         if not token:
