@@ -5,7 +5,10 @@ from discover.api_fetch_port import ApiFetchPort
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from discover.db_fetch_port import DbFetchPort
 from discover.fetcher import Fetcher
+from discover.find_links_for_pnics import FindLinksForPnics
+from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.inventory_mgr import InventoryMgr
+from discover.scan_network import ScanNetwork
 from discover.scan_regions_root import ScanRegionsRoot
 
 
@@ -188,5 +191,17 @@ class EventSubnetAdd(Fetcher):
                 # add vnic docuemnt.
                 self.add_vnic_document(env, host["id"], host["id_path"], host["name_path"],
                                        network_id, network_name, "qdhcp-" + network_id)
+
+        # scan links and cliques
+        self.log.info("scanning for links")
+        fetchers_implementing_add_links = [
+            FindLinksForPnics(),
+            FindLinksForVserviceVnics(),
+        ]
+        for fetcher in fetchers_implementing_add_links:
+            fetcher.add_links()
+
+        network_scanner = ScanNetwork()
+        network_scanner.scan_cliques()
 
         self.log.info("Finished subnet added.")
