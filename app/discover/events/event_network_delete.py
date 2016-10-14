@@ -1,46 +1,12 @@
-import re
-from bson.objectid import ObjectId
-from discover.fetcher import Fetcher
+from discover.events.event_delete_base import EventDeleteBase
 from discover.inventory_mgr import InventoryMgr
 
 
-class EventNetworkDelete(Fetcher):
+class EventNetworkDelete(EventDeleteBase):
     def __init__(self):
-        super().__init__()
+        super(EventDeleteBase).__init__()
         self.inv = InventoryMgr()
 
     def handle(self, env, notification):
         network_id = notification['payload']['network_id']
-        network_document = self.inv.get_by_id(env, network_id)
-        if not network_document:
-            self.log.info('instance document is not found, aborting instance delete')
-            return None
-
-        db_id = ObjectId(network_document['_id'])
-        id_path = network_document['id_path'] + '/'
-
-        # remove related clique
-        clique_finder = self.inv.get_clique_finder()
-        self.inv.delete('cliques', {'focal_point': db_id})
-
-        # keep related links to do rebuild of cliques using them
-        matched_links_source = clique_finder.find_links_by_source(db_id)
-        matched_links_target = clique_finder.find_links_by_target(db_id)
-        links_using_object = [l['_id'] for l in matched_links_source].extend([l['_id'] for l in matched_links_target])
-
-        # find cliques using these links
-        matched_cliques = clique_finder.find_cliques_by_link({'links': {'$in': links_using_object}})
-        # find cliques using these links and rebuild them
-        for clique in matched_cliques:
-            clique_finder.rebuild_clique(clique)
-
-        # remove all related links
-        self.inv.delete('links', {'source': db_id})
-        self.inv.delete('links', {'target': db_id})
-
-        # remove object itself
-        self.inv.delete('inventory', {'_id': db_id})
-
-        # remove objects under the object
-        regexp = re.compile('^' + id_path)
-        self.inv.delete('inventory', {'id_path': {'$regex': regexp}})
+        self.delete_handler(env, network_id, "network")
