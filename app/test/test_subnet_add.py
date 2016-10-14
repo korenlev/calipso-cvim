@@ -26,6 +26,8 @@ class TestSubnetAdd(TestEvent):
             network_document = self.handler.inv.get_by_id(self.env, self.network_id)
             self.assertNotEqual(network_document, [])
 
+            # todo add port data to the OpenStack DB. To create dhcp namespace as well.
+
         # check region data.
         if len(ApiAccess.regions) == 0:
             ApiAccess.regions = EVENT_PAYLOAD_REGION
