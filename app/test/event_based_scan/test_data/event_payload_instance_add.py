@@ -1,4 +1,4 @@
-from test.config.local_config import ENV_CONFIG
+from test.event_based_scan.config import ENV_CONFIG
 
 EVENT_PAYLOAD_INSTANCE_ADD = {
     'publisher_id': 'compute.node-6.cisco.com', '_context_resource_uuid': None,

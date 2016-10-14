@@ -1,5 +1,5 @@
 from discover.api_access import ApiAccess
-from test.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD, EVENT_PAYLOAD_NETWORK_ADD, \
+from test.event_based_scan.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD, EVENT_PAYLOAD_NETWORK_ADD, \
     EVENT_PAYLOAD_REGION
 from test.test_event import TestEvent
 

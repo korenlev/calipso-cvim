@@ -1,4 +1,4 @@
-from test.test_data.event_payload_network_add import EVENT_PAYLOAD_NETWORK_ADD
+from test.event_based_scan.test_data.event_payload_network_add import EVENT_PAYLOAD_NETWORK_ADD
 from test.test_event import TestEvent
 
 

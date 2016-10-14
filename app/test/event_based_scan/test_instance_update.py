@@ -1,4 +1,4 @@
-from test.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE, INSTANCE_DOCUMENT
+from test.event_based_scan.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE, INSTANCE_DOCUMENT
 from test.test_event import TestEvent
 
 
