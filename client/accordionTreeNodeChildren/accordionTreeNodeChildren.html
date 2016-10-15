@@ -1,8 +1,0 @@
-<template name="accordionTreeNodeChildren" >
-<ul class="submenu">       
-    {{#each childItem in children }}
-        {{> accordionTreeNode (createTreeNodeArgs childItem needChildrenClosing childNodeRequested) }}
-    {{/each }}
-</ul>
-</template>
-

@@ -2,6 +2,19 @@
   Template Component: accordionNavMenu
  */
 
+/* eslint indent: "off" */
+
+import * as R from 'ramda';
+import { Template } from 'meteor/templating';
+import { ReactiveDict } from 'meteor/reactive-dict';
+import { Tracker } from 'meteor/tracker';
+import { Session } from 'meteor/session';
+
+import '/client/imports/accordionTreeNode/accordionTreeNode';
+ 
+import { store } from '/client/imports/store';
+import { setCurrentNodeFromTreeControl } from '/client/imports/actions/navigation';
+
 (function () {
 
 Template.accordionNavMenu.onCreated(function () {
@@ -9,15 +22,35 @@ Template.accordionNavMenu.onCreated(function () {
   
   instance.state = new ReactiveDict();
   instance.state.setDefault ({
-    childNodeRequested: null
+    selectedNode: null
+  });
+
+  instance.autorun(function () {
+    let controller = Iron.controller();
+    let envName = controller.state.get('envName');
+
+    instance.subscribe('inventory?id', envName);
+  });
+
+  instance.storeUnsubscribe = store.subscribe(() => {
+    let nodeChain = store.getState();
+    let selectedNode = null;
+    if (nodeChain.length > 1) {
+      selectedNode = R.slice(1, Infinity, nodeChain);
+    }
+    instance.state.set('selectedNode', selectedNode); 
   });
   
+  let selectedNode = R.slice(1, Infinity, store.getState());
+  instance.state.set('selectedNode', selectedNode); 
 });
+
 
 Template.accordionNavMenu.rendered = function () {
   /* accordion menu plugin*/
-  ;(function($, window, document, undefined) {
-    var pluginName = "accordion";
+  (function($, window//, document//, undefined
+  ) {
+    var pluginName = 'accordion';
     var defaults = {
       speed: 200,
       showDelay: 0,
@@ -45,51 +78,51 @@ Template.accordionNavMenu.rendered = function () {
         }
       },
       openSubmenu: function() {
-        $(this.element).children("ul").find("li").bind(defaults.event, function(e) {
+        $(this.element).children('ul').find('li').bind(defaults.event, function(e) {
           e.stopPropagation();
           e.preventDefault();
-          var $subMenus = $(this).children("." + defaults.subMenu);
-          var $allSubMenus = $(this).find("." + defaults.subMenu);
+          var $subMenus = $(this).children('.' + defaults.subMenu);
+          var $allSubMenus = $(this).find('.' + defaults.subMenu);
           if ($subMenus.length > 0) {
-            if ($subMenus.css("display") == "none") {
-              $subMenus.slideDown(defaults.speed).siblings("a").addClass(defaults.indicator);
+            if ($subMenus.css('display') == 'none') {
+              $subMenus.slideDown(defaults.speed).siblings('a').addClass(defaults.indicator);
               if (defaults.singleOpen) {
-                $(this).siblings().find("." + defaults.subMenu).slideUp(defaults.speed)
-                    .end().find("a").removeClass(defaults.indicator);
+                $(this).siblings().find('.' + defaults.subMenu).slideUp(defaults.speed)
+                    .end().find('a').removeClass(defaults.indicator);
               }
               return false;
             } else {
-              $(this).find("." + defaults.subMenu).delay(defaults.hideDelay).slideUp(defaults.speed);
+              $(this).find('.' + defaults.subMenu).delay(defaults.hideDelay).slideUp(defaults.speed);
             }
-            if ($allSubMenus.siblings("a").hasClass(defaults.indicator)) {
-              $allSubMenus.siblings("a").removeClass(defaults.indicator);
+            if ($allSubMenus.siblings('a').hasClass(defaults.indicator)) {
+              $allSubMenus.siblings('a').removeClass(defaults.indicator);
             }
           }
-          window.location.href = $(this).children("a").attr("href");
+          window.location.href = $(this).children('a').attr('href');
         });
       },
 
       submenuIndicators: function() {
         if ($(this.element)
-              .find("." + defaults.subMenu)
+              .find('.' + defaults.subMenu)
                 .length > 0) {
 
           $(this.element)
-            .find("." + defaults.subMenu)
-            .siblings("a")
-              .append("<span class='submenu-indicator'>+</span>");
+            .find('.' + defaults.subMenu)
+            .siblings('a')
+              .append('<span class="submenu-indicator">+</span>');
         }
       },
 
       addClickEffect: function() {
         var ink, d, x, y;
-        $(this.element).find("a").bind("click touchstart", function(e) {
-          $(".ink").remove();
-          if ($(this).children(".ink").length === 0) {
-            $(this).prepend("<span class='ink'></span>");
+        $(this.element).find('a').bind('click touchstart', function(e) {
+          $('.ink').remove();
+          if ($(this).children('.ink').length === 0) {
+            $(this).prepend('<span class="ink"></span>');
           }
-          ink = $(this).find(".ink");
-          ink.removeClass("animate-ink");
+          ink = $(this).find('.ink');
+          ink.removeClass('animate-ink');
           if (!ink.height() && !ink.width()) {
             d = Math.max($(this).outerWidth(), $(this).outerHeight());
             ink.css({
@@ -102,14 +135,14 @@ Template.accordionNavMenu.rendered = function () {
           ink.css({
             top: y + 'px',
             left: x + 'px'
-          }).addClass("animate-ink");
+          }).addClass('animate-ink');
         });
       }
     });
     $.fn[pluginName] = function(options) {
       this.each(function() {
-        if (!$.data(this, "plugin_" + pluginName)) {
-          $.data(this, "plugin_" + pluginName, new Plugin(this, options));
+        if (!$.data(this, 'plugin_' + pluginName)) {
+          $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
         }
       });
       return this;
@@ -120,7 +153,7 @@ Template.accordionNavMenu.rendered = function () {
     // refactored to component
     //$("#left-nav-menu").accordion();
 
-    $(".toggleGraph").click(function() {
+    $('.toggleGraph').click(function() {
       $('.mainContentData').toggle();
       $('#dgraphid').toggle();
     });
@@ -151,13 +184,13 @@ Template.accordionNavMenu.rendered = function () {
     });
     */
 
-    $(".colors a").click(function() {
-      if ($(this).attr("class") != "default") {
-        $("#left-nav-menu").removeClass();
-        $("#left-nav-menu").addClass("menu").addClass($(this).attr("class"));
+    $('.colors a').click(function() {
+      if ($(this).attr('class') != 'default') {
+        $('#left-nav-menu').removeClass();
+        $('#left-nav-menu').addClass('menu').addClass($(this).attr('class'));
       } else {
-        $("#left-nav-menu").removeClass();
-        $("#left-nav-menu").addClass("menu");
+        $('#left-nav-menu').removeClass();
+        $('#left-nav-menu').addClass('menu');
       }
     });
 
@@ -187,11 +220,12 @@ Template.accordionNavMenu.rendered = function () {
  */
 
 Template.accordionNavMenu.events({
-  "click .test": function(event,template){
-    console.log("HERE!!!!");
-    console.log(event.target.innerText);
-  },
 });
+
+/*
+ * Helpers
+ */
+
 Template.accordionNavMenu.helpers({
   envName: function(){
     var controller = Iron.controller();
@@ -199,13 +233,35 @@ Template.accordionNavMenu.helpers({
     return envName;
   },
 
-  test: function(){
-    console.log("HERE!!!!");
+  rootNode: function () {
+    var controller = Iron.controller();
+    var envName = controller.state.get('envName');
+
+    return {
+      id: envName,
+      type: 'environment',
+      name: envName
+    };
+    //return Inventory.findOne({ id: envName });
   },
 
-  createNavMenuTreeArgs: function (childNodeRequested) {
+  createNodeArgs: function (node) {
+    let instance = Template.instance();
+    let selectedNode = instance.state.get('selectedNode');
+
     return {
-      childNodeRequested: childNodeRequested
+      node: node,
+      showOpen: true,
+      selectedNode: selectedNode, 
+      onClick: function (childNode) {
+        // todo: remove console
+        console.log('on click');
+        console.log(childNode);
+
+        store.dispatch(setCurrentNodeFromTreeControl(
+          childNode.id_path,
+          childNode.name_path));
+        },
     };
   }
 });

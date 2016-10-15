@@ -46,6 +46,11 @@ Meteor.publish("inventory", function () {
     return Inventory.find({});
 });
 
+Meteor.publish("inventory?id", function (id) {
+    console.log("server subscribtion to: inventory?id");
+    return Inventory.find({id: id});
+});
+
 Meteor.publish("inventory?_id-in", function (idsList) {
     var query = {
       _id: { $in: idsList }

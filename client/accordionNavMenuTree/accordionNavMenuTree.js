@@ -75,10 +75,8 @@ Template.accordionNavMenuTree.helpers({
     var nextChildNodeRequested = null;  
 
     if (childNodeRequested && childNodeRequested.length > 0) {
-      // todo: remove console
-      console.log("childnode requested: " + childNodeRequested.toString());
       firstChildRequested = childNodeRequested[0];
-      nextChildNodeRequested = childNodeRequested.slice(1);
+      nextChildNodeRequested = childNodeRequested.slice(1); // todo: ramda slice
     }
 
     var instance = Template.instance();
@@ -97,10 +95,10 @@ Template.accordionNavMenuTree.helpers({
       },
       needClosing: needChildrenClosing,
       childNodeRequested: 
-        (firstChildRequested === node.id) ? 
+        (firstChildRequested && firstChildRequested.id === node.id) ? 
           nextChildNodeRequested : null,
       startAsClicked: 
-        (firstChildRequested === node.id) ? true : false,
+        (firstChildRequested && firstChildRequested.id === node.id) ? true : false,
       openedFamilyId: instance.state.get("openedChildId")
     };
   },

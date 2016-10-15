@@ -5,7 +5,9 @@
   "dependencies": {
     "bcrypt": "^0.8.7",
     "cola": "tgdwyer/WebCola#master",
-    "meteor-node-stubs": "^0.2.1"
+    "meteor-node-stubs": "^0.2.1",
+    "ramda": "^0.22.1",
+    "redux": "^3.6.0"
   },
   "devDependencies": {},
   "scripts": {

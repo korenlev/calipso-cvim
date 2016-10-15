@@ -1,6 +1,10 @@
 <template name="alarmIcons">
-    <div class="alarm-icons">
+  <div class="os-alarm-icons">
 
+    {{> breadcrumb }}
+
+    <div class="alarm-icons">
+       
         <div class="dropdown">
             <div class="material-icons mdl-badge mdl-badge--overlap dropdown-toggle" data-badge="{{notificationsCount}}" type="button" id="dropdownMenu1" data-toggle="modal" data-target="#notificationGlobal">notifications</div>
 <!--
@@ -44,4 +48,5 @@
         </div>
 
     </div>
+  </div>
 </template>

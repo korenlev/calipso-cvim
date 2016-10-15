@@ -2,6 +2,8 @@
  * Template Component: alarmIcons
  */
 
+import '/client/imports/breadcrumb/breadcrumb';
+
 (function () {
 
 /*

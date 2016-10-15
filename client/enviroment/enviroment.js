@@ -6,6 +6,12 @@
  * Lifecycles methods
  */
 
+import { Template } from 'meteor/templating';
+import { ReactiveDict } from 'meteor/reactive-dict';
+
+import { store } from '/client/imports/store';
+import { setCurrentNode } from '/client/imports/actions/navigation';
+
 (function() {
 
 Template.enviroment.onCreated(function () {
@@ -22,11 +28,12 @@ Template.enviroment.onCreated(function () {
     var query = params.query;
 
     if (query.graph) {
-      let stringPath = "WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24";
-      let paths = stringPath.split("/");
+      let node24IdPath = 
+        '/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24';
+      let node24NamePath = 
+        '/WebEX-Mirantis@Cisco/Regions/RegionOne/Aggregates/WebEx-RTP-SSD-Aggregate/node-24';
 
-      let newPaths = paths.slice(1);
-      instance.state.set("childNodeRequested", newPaths);
+      store.dispatch(setCurrentNode(node24IdPath, node24NamePath));
     }
 
     var envName = controller.state.get('envName');
@@ -41,6 +48,12 @@ Template.enviroment.onCreated(function () {
     instance.subscribe("messages?env+level", envName, 'warn');
     instance.subscribe("messages?env+level", envName, 'error');
   });
+
+});
+
+Template.enviroment.onDestroyed(function () {
+  let instance = this;
+  instance.storeUnsubscribe();
 });
 
 Template.enviroment.rendered = function(){

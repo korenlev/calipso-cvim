@@ -1,0 +1,7 @@
+<template name="breadcrumb" >
+  <ol class="breadcrumb">
+    {{#each nodeItem in nodeItemList }}
+      {{> breadcrumbNode node=nodeItem }}
+    {{/each }}
+  </ol>
+</template>
