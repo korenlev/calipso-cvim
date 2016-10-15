@@ -3,7 +3,7 @@ import * as R from 'ramda';
 
 import * as actions from '/client/imports/actions/navigation';
 
-function navigation(state = null, action) {
+function navigation(state = [], action) {
   switch (action.type) {
   case actions.SET_CURRENT_NODE:
     console.log(action.payload.nodeChain);

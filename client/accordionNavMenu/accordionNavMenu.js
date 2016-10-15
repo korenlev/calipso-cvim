@@ -41,7 +41,14 @@ Template.accordionNavMenu.onCreated(function () {
     instance.state.set('selectedNode', selectedNode); 
   });
   
-  let selectedNode = R.slice(1, Infinity, store.getState());
+  let selectedNode = null;
+  let nodeChain = store.getState();
+  if (nodeChain.length > 1) {
+      selectedNode = R.slice(1, Infinity, nodeChain);
+  } else {
+    selectedNode = null;
+  }
+
   instance.state.set('selectedNode', selectedNode); 
 });
 
