@@ -27,6 +27,8 @@ Template.enviroment.onCreated(function () {
     var params = controller.getParams();
     var query = params.query;
 
+    var envName = controller.state.get('envName');
+
     if (query.graph) {
       let node24IdPath = 
         '/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24';
@@ -34,9 +36,9 @@ Template.enviroment.onCreated(function () {
         '/WebEX-Mirantis@Cisco/Regions/RegionOne/Aggregates/WebEx-RTP-SSD-Aggregate/node-24';
 
       store.dispatch(setCurrentNode(node24IdPath, node24NamePath));
+    } else {
+      store.dispatch(setCurrentNode('/' + envName, '/' + envName));
     }
-
-    var envName = controller.state.get('envName');
 
     instance.subscribe("inventory?env+type", envName, 'instance');
     instance.subscribe("inventory?env+type", envName, 'vservice');
