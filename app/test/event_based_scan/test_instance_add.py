@@ -1,6 +1,6 @@
-from test.test_data.event_payload_instance_add \
-  import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT, HOST
-from test.test_event import TestEvent
+from test.event_based_scan.test_data.event_payload_instance_add \
+    import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT, HOST
+from test.event_based_scan.test_event import TestEvent
 
 
 class TestInstanceAdd(TestEvent):

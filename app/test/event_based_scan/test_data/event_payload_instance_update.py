@@ -1,7 +1,7 @@
-from test.config.local_config import ENV_CONFIG
+from test.event_based_scan.config.local_config import ENV_CONFIG
 
 
-EVENT_PAYLOAD_INSTANCE_DELETE = {
+EVENT_PAYLOAD_INSTANCE_UPDATE = {
     'publisher_id': 'compute.node-6.cisco.com', '_context_resource_uuid': None,
     '_context_instance_lock_checked': False,
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
@@ -14,20 +14,21 @@ EVENT_PAYLOAD_INSTANCE_DELETE = {
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9',
     '_context_project_name': 'OSDNA-project',
     '_context_project_domain': None, 'event_type': 'compute.instance.update',
-    '_context_service_catalog': [{'endpoints': [
-     {'internalURL': 'http://192.168.0.2:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
-      'publicURL': 'http://172.16.0.3:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
-      'adminURL': 'http://192.168.0.2:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
-      'region': 'RegionOne'}],
-     'type': 'volumev2',
-     'name': 'cinderv2'},
-     {'endpoints': [{
-         'internalURL': 'http://192.168.0.2:8776/v1/75c0eb79ff4a42b0ae4973c8375ddf40',
-         'publicURL': 'http://172.16.0.3:8776/v1/75c0eb79ff4a42b0ae4973c8375ddf40',
-         'adminURL': 'http://192.168.0.2:8776/v1/75c0eb79ff4a42b0ae4973c8375ddf40',
-         'region': 'RegionOne'}],
-         'type': 'volume',
-         'name': 'cinder'}],
+    '_context_service_catalog': [
+         {'endpoints': [
+         {'internalURL': 'http://192.168.0.2:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
+          'publicURL': 'http://172.16.0.3:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
+          'adminURL': 'http://192.168.0.2:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
+          'region': 'RegionOne'}],
+         'type': 'volumev2',
+         'name': 'cinderv2'},
+         {'endpoints': [{
+             'internalURL': 'http://192.168.0.2:8776/v1/75c0eb79ff4a42b0ae4973c8375ddf40',
+             'publicURL': 'http://172.16.0.3:8776/v1/75c0eb79ff4a42b0ae4973c8375ddf40',
+             'adminURL': 'http://192.168.0.2:8776/v1/75c0eb79ff4a42b0ae4973c8375ddf40',
+             'region': 'RegionOne'}],
+             'type': 'volume',
+             'name': 'cinder'}],
     'payload': {'instance_type': 'm1.micro', 'progress': '', 'display_name': 'test8',
              'kernel_id': '',
              'new_task_state': None, 'old_display_name': 'name-change',
@@ -51,7 +52,7 @@ EVENT_PAYLOAD_INSTANCE_DELETE = {
              'availability_zone': 'osdna-zone',
              'instance_id': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'deleted_at': '',
              'image_ref_url': 'http://172.16.0.4:9292/images/c6f490c4-3656-43c6-8d03-b4e66bd249f9',
-             'host': 'node-5.cisco.com', 'vcpus': 1, 'state': 'deleted',
+             'host': 'node-5.cisco.com', 'vcpus': 1, 'state': 'active',
              'old_task_state': None,
              'architecture': None,
              'terminated_at': '', 'root_gb': 0,
@@ -78,12 +79,13 @@ INSTANCE_DOCUMENT = {
     'host': 'node-5.cisco.com', 'parent_type': 'instances_folder',
     'children_url': '/osdna_dev/discover.py?type=tree&id=27a87908-bc1b-45cc-9238-09ad1ae686a7',
     '_id': '57e421194a0a8a3fbe3bd2d0', 'mac_address': 'fa:16:3e:5e:9e:db', 'type': 'instance',
-    'name': 'test8',
+    'name': 'name-change',
     'uuid': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'environment': ENV_CONFIG,
-    'ip_address': '192.168.0.4', 'local_name': 'instance-00000020', 'object_name': 'test8',
+    'ip_address': '192.168.0.4', 'local_name': 'instance-00000020', 'object_name': 'name-change',
     'parent_id': 'node-5.cisco.com-instances', 'project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-    'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne/Availability Zones/osdna-zone/node-5.cisco.com/Instances/test8',
+    'name_path': '/'+ENV_CONFIG+'/Regions/RegionOne/Availability Zones' +
+                 '/osdna-zone/node-5.cisco.com/Instances/name-change',
     'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
-    'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/osdna-zone/'+
-               'node-5.cisco.com/node-5.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
+    'id_path': '/'+ENV_CONFIG+'/'+ENV_CONFIG+'-CL-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+               '/node-5.cisco.com/node-5.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
     'show_in_tree': True}

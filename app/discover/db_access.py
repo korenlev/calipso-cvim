@@ -95,3 +95,27 @@ class DbAccess(Fetcher, Util):
             }
         }
         return jsonify(ret)
+
+    def exec(self, query, table, field, values):
+        try:
+            cursor = DbAccess.conn.cursor(dictionary=True)
+            cursor.execute(query, [table, field, values])
+        except (AttributeError, mysql.connector.errors.OperationalError) as e:
+            self.log.error(e)
+            self.connect_to_db(True)
+            # try again to run the query
+            cursor = DbAccess.conn.cursor(dictionary=True)
+            cursor.execute(query, [table, field, values])
+
+        rows = []
+        for row in cursor:
+            rows.append(row)
+        return rows
+
+    def set(self, table, field, values):
+        query = """INSERT INTO %s %s VALUES %s"""
+        return self.exec(query, table, field, values)
+
+    def delete(self, table, field, values):
+        query = """DELETE FROM %s WHERE %s=%s"""
+        return self.exec(query, table, field, values)
