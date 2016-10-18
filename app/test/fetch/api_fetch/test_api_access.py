@@ -24,8 +24,6 @@ class TestApiAccess(TestFetch):
         service_name = list(region['endpoints'].keys())[0]
         region_url = api_access.get_region_url(region_name, service_name)
 
-        print(region_url)
-
         self.assertNotEqual(region_url, None, "Can't get region url")
 
     def test_region_url_nover(self):
