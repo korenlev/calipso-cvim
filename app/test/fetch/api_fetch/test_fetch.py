@@ -9,7 +9,6 @@ from test.fetch.test_data.regions import REGIONS
 class TestFetch(unittest.TestCase):
 
     def setUp(self):
-        # use local database as test database
         self.mongo_config = MONGODB_CONFIG
         self.env = ENV_CONFIG
         self.inv = COLLECTION_CONFIG
