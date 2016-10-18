@@ -125,6 +125,47 @@ class EventSubnetAdd(Fetcher):
 
             self.inv.set(doc)
 
+    def scan_regions(self, env):
+        # regions info doesn't exist, scan region.
+        self.log.info("Scan regions for adding regions data.")
+        regions_root_scanner = ScanRegionsRoot()
+        regions_root_scanner.set_env(env)
+        regions_root_doc = self.inv.get_by_id(env, env + "-regions")
+        if len(regions_root_doc) == 0:
+            self.log.info("Regions_folder is not found.")
+            return None
+        else:
+            regions_root_scanner.scan(regions_root_doc)
+            regions_root_scanner.scan_from_queue()
+
+    def add_children_documents(self, env, notification, project_id, network_id, network_name):
+        # generate port folder data.
+        self.add_ports_folder(env, project_id, network_id, network_name)
+
+        # get ports ID.
+        ports_fetcher = DbFetchPort()
+        port_id = ports_fetcher.get_id(network_id)
+
+        # add specific ports documents.
+        self.add_port_document(env, project_id, network_id, network_name, port_id)
+
+        # add network_services_folder document.
+        self.add_network_services_folder(env, project_id, network_id, network_name)
+
+        # add dhcp vservice document.
+        host_id = notification["publisher_id"].replace("network.", "", 1)
+        host = self.inv.get_by_id(env, host_id)
+
+        self.add_dhcp_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+
+        # add vnics folder.
+        self.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+
+        # add vnic docuemnt.
+        self.add_vnic_document(env, host["id"], host["id_path"], host["name_path"],
+                               network_id, network_name, "qdhcp-" + network_id)
+
+
     def handle(self, env, notification):
         # check for network document.
         subnet = notification['payload']['subnet']
@@ -151,57 +192,17 @@ class EventSubnetAdd(Fetcher):
         if subnet['enable_dhcp'] == True:
             # scan network
             if len(ApiAccess.regions) == 0:
-                # regions info doesn't exist, scan region.
-                self.log.info("Scan regions for adding regions data.")
-                regions_root_scanner = ScanRegionsRoot()
-                regions_root_scanner.set_env(env)
-                regions_root_doc = self.inv.get_by_id(env, env + "-regions")
-                if len(regions_root_doc) == 0:
-                    self.log.info("Regions_folder is not found.")
-                    return None
-                else:
-                    regions_root_scanner.scan(regions_root_doc)
-                    regions_root_scanner.scan_from_queue()
+                self.scan_regions(env)
             else:
                 # scan new network.
                 self.log.info("Scan new network.")
-
-                # generate port folder data.
-                self.add_ports_folder(env, project_id, network_id, network_name)
-
-                # get ports ID.
-                ports_fetcher = DbFetchPort()
-                port_id = ports_fetcher.get_id(network_id)
-
-                # add specific ports documents.
-                self.add_port_document(env, project_id, network_id, network_name, port_id)
-
-                # add network_services_folder document.
-                self.add_network_services_folder(env, project_id, network_id, network_name)
-
-                # add dhcp vservice document.
-                host_id = notification["publisher_id"].replace("network.", "", 1)
-                host = self.inv.get_by_id(env, host_id)
-
-                self.add_dhcp_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
-
-                # add vnics folder.
-                self.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
-
-                # add vnic docuemnt.
-                self.add_vnic_document(env, host["id"], host["id_path"], host["name_path"],
-                                       network_id, network_name, "qdhcp-" + network_id)
+                self.add_children_documents(env, notification, project_id, network_id, network_name)
 
         # scan links and cliques
         self.log.info("scanning for links")
-        fetchers_implementing_add_links = [
-            FindLinksForPnics(),
-            FindLinksForVserviceVnics(),
-        ]
-        for fetcher in fetchers_implementing_add_links:
+        for fetcher in [FindLinksForPnics(),FindLinksForVserviceVnics()]:
             fetcher.add_links()
 
         network_scanner = ScanNetwork()
         network_scanner.scan_cliques()
-
         self.log.info("Finished subnet added.")
