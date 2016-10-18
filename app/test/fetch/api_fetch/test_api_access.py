@@ -29,6 +29,8 @@ class TestApiAccess(TestFetch):
     def test_region_url_nover(self):
         api_access = ApiAccess()
 
+        self.set_regions_for_fetcher(api_access)
+
         region_name = list(REGIONS.keys())[0]
         region = REGIONS[region_name]
 
