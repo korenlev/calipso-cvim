@@ -8,6 +8,16 @@ import { Template } from 'meteor/templating';
 
 import './environment-wizard.html';
 
+import '/client/imports/env-main-info/env-main-info';
+import '/client/imports/os-api-endpoint-info/os-api-endpoint-info';
+import '/client/imports/open-stack-db-credentials-info/open-stack-db-credentials-info';
+import '/client/imports/env-master-host-credentials-info/env-master-host-credentials-info';
+import '/client/imports/env-nfv-info/env-nfv-info';
+
+/*
+ * Lifecycles
+ */
+
 Template.EnvironmentWizard.rendered = function(){
   
   // todo: refactor to use component - not jquery click
@@ -30,6 +40,7 @@ Template.EnvironmentWizard.helpers({
   updateRecipeId : function () {
     return this._id;
   },
+
   user : function () {
     return Meteor.user().username;
   },
@@ -37,9 +48,23 @@ Template.EnvironmentWizard.helpers({
   tabs: function () {
     return [{
       label: 'Main Info',
-       
+      localLink: 'maininfo'  
+    }, {
+      label: 'OS API Endpoint',
+      localLink: 'endpoin-panel'
+    }, {
+      label: 'OpenStack DB Credentials',
+      localLink: 'db-credentials'
+    }, {
+      label: 'Master Host Credentials',
+      localLink: 'master-host'
+    }, {
+      label: 'NFV Credentials',
+      localLink: 'nfv'
     }];
-  }
+  },
+
+  // todo: default active tab. 'class="active"'
 });
 
 /*

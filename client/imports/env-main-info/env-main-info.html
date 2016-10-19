@@ -1,0 +1,47 @@
+<template name="EnvMainInfo">
+    <div class="form-horizontal">
+
+      <div class="form-group">
+        <label for="inputEmail" 
+          class="col-sm-2 control-label"
+          >Owner</label>
+
+        <div class="col-sm-3">
+          <input type="email" 
+            class="form-control" 
+            id="inputEmail" 
+            placeholder="Email" 
+            value="{{user}}">
+        </div>
+
+        <div class="col-sm-4">
+          <p>Admin name, owner of project</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputEnvName" 
+          class="col-sm-2 control-label"
+          >Enviroment name</label>
+
+        <div class="col-sm-3">
+          <input type="text" 
+            class="form-control" 
+            id="inputEnvName" 
+            placeholder="Enviroment name" 
+            value="WebEX-Mirantis@Cisco_new">
+        </div>
+        <div class="col-sm-4">
+          <p>Enter name of your project, it could be anything you want</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+          <button type="button" 
+            class="mdl-button mdl-js-button btnNext"
+            >Next</button>
+        </div>
+      </div>
+    </div>
+</template>
