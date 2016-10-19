@@ -27,7 +27,7 @@ class TestInstanceAdd(TestEvent):
             self.assertEqual(instance, [])
 
         # add instance into database
-        self.handler.instance_add(payload)
+        self.handler.instance_add(self.values)
 
         # check instance document
         instance = self.handler.inv.get_by_id(self.env, self.instance_id)
