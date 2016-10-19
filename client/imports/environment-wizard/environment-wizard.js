@@ -9,8 +9,8 @@ import { Template } from 'meteor/templating';
 import './environment-wizard.html';
 
 import '/client/imports/env-main-info/env-main-info';
-import '/client/imports/os-api-endpoint-info/os-api-endpoint-info';
-import '/client/imports/open-stack-db-credentials-info/open-stack-db-credentials-info';
+import '/client/imports/env-os-api-endpoint-info/env-os-api-endpoint-info';
+import '/client/imports/env-open-stack-db-credentials-info/env-open-stack-db-credentials-info';
 import '/client/imports/env-master-host-credentials-info/env-master-host-credentials-info';
 import '/client/imports/env-nfv-info/env-nfv-info';
 
