@@ -9,6 +9,7 @@ class TestNetworkAdd(TestEvent):
         self.payload = self.values['payload']
         self.network = self.payload['network']
         self.network_id = self.network['id']
+        self.item_id = self.network_id
 
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
         if network_document:
@@ -34,8 +35,3 @@ class TestNetworkAdd(TestEvent):
         self.assertEqual(network_document["parent_id"], parent_id)
         self.assertEqual(network_document["name"], network_name)
 
-    # Delete the document after test.
-    def tearDown(self):
-        self.handler.inv.delete('inventory', {'id': self.network_id})
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-        self.assertEqual(network_document, [])

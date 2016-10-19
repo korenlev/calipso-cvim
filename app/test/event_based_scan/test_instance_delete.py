@@ -10,6 +10,7 @@ class TestInstanceDelete(TestEvent):
         self.values = EVENT_PAYLOAD_INSTANCE_DELETE
         payload = self.values['payload']
         self.instance_id = payload['instance_id']
+        self.item_id = self.instance_id
         instance = self.handler.inv.get_by_id(self.env, self.instance_id)
         if not instance:
             self.handler.log.info('instance document is not found, add document for deleting.')
@@ -38,9 +39,3 @@ class TestInstanceDelete(TestEvent):
         # check children
         matched_children = self.handler.inv.get_children(self.env, None, self.instance_id)
         self.assertEqual(matched_children, [])
-
-    # delete document in case failure of test.
-    def tearDown(self):
-        self.handler.inv.delete('inventory', {'id': self.instance_id})
-        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
-        self.assertEqual(instance, [])
