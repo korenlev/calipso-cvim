@@ -31,6 +31,7 @@ module.exports = {
     "globals": {
         "Iron": true,
         "jQuery": true,
-        "d3Graph": true
+        "d3Graph": true,
+        "$": true
     }
 };
