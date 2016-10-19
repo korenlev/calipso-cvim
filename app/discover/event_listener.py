@@ -49,6 +49,7 @@ class Worker(ConsumerMixin):
             "compute.instance.suspend.end": self.handler.instance_up,
 
             "network.create.end": self.handler.network_create,
+            "network.update.end": self.handler.network_update,
             "network.delete.end": self.handler.network_delete,
 
             "subnet.create.end": self.handler.subnet_create,

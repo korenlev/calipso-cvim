@@ -3,6 +3,7 @@ from discover.events.event_instance_delete import EventInstanceDelete
 from discover.events.event_instance_update import EventInstanceUpdate
 from discover.events.event_network_add import EventNetworkAdd
 from discover.events.event_network_delete import EventNetworkDelete
+from discover.events.event_network_update import EventNetworkUpdate
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
@@ -48,6 +49,11 @@ class EventHandler(Fetcher):
     def network_create(self, notification):
         self.log.info("network_add")
         handler = EventNetworkAdd()
+        handler.handle(self.env, notification)
+
+    def network_update(self, notification):
+        self.log.info("network_update")
+        handler = EventNetworkUpdate()
         handler.handle(self.env, notification)
 
     def network_delete(self, notification):
