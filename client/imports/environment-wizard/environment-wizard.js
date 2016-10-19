@@ -22,6 +22,9 @@ Template.EnvironmentWizard.rendered = function(){
   
 };
 
+/*
+ * Helpers
+ */
 
 Template.EnvironmentWizard.helpers({
   updateRecipeId : function () {
@@ -29,8 +32,19 @@ Template.EnvironmentWizard.helpers({
   },
   user : function () {
     return Meteor.user().username;
+  },
+
+  tabs: function () {
+    return [{
+      label: 'Main Info',
+       
+    }];
   }
 });
+
+/*
+ * Events
+ */
 
 Template.EnvironmentWizard.events({
   'click .toast' : function () {

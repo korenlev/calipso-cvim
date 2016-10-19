@@ -32,6 +32,7 @@ module.exports = {
         "Iron": true,
         "jQuery": true,
         "d3Graph": true,
-        "$": true
+        "$": true,
+        "toastr": true
     }
 };

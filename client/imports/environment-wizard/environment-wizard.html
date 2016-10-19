@@ -5,6 +5,13 @@
   <div class="main-layout-no-nav cards white">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
+      {{#each tab in tabs }}
+        <li>
+          <a
+             >{{tab.label}} 
+          </a>
+        </li>
+      {{/each}}
       <li role="presentation" class="active"><a href="#maininfo" aria-controls="maininfo" role="tab" data-toggle="tab">Main Info</a></li>
       <li role="presentation"><a href="#endpoin-panel" aria-controls="endpoin-panel" role="tab" data-toggle="tab">OS API Endpoint</a></li>
       <li role="presentation"><a href="#db-credentials" aria-controls="db-credentials" role="tab" data-toggle="tab">OpenStack DB Credentials</a></li>
