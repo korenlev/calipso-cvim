@@ -2,6 +2,8 @@
  * Template Component: accordionNavMenuTree
  */
 
+import { Inventory } from '/imports/api/inventories/inventories';
+
 (function () {
 
 let singleOpenOption = true;

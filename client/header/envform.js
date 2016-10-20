@@ -2,6 +2,8 @@
  * Template Component: envForm
  */
 
+import { Environments } from '/imports/api/environments/environments';
+
 (function () {
 
 /*

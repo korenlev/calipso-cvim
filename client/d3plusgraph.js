@@ -2,6 +2,8 @@
  * Template Component: d3plusgraph
  */
 
+import { Inventory } from '/imports/api/inventories/inventories';
+
 (function () {
 
 /*

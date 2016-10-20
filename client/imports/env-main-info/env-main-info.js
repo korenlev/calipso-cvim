@@ -12,6 +12,10 @@ import './env-main-info.html';
  * Lifecycles
  */
 
+Template.EnvMainInfo.onCreated(function () {
+
+});
+
 /*
 Template.EnvironmentWizard.rendered = function(){
 };
@@ -28,5 +32,9 @@ Template.EnvMainInfo.helpers({
  * Events
  */
 
-Template.EnvironmentWizard.events({
+Template.EnvMainInfo.events({
+  'click .sm-next-button': function () {
+    let instance = Template.instance();
+    instance.data.onNextRequested(); 
+  }
 });

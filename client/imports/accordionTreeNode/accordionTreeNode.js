@@ -7,6 +7,7 @@
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 
+import { Inventory } from '/imports/api/inventories/inventories';
 //import { store } from '/client/imports/store';
 //import { setCurrentNode } from '/client/imports/actions/navigation';
 import '/client/imports/accordionTreeNodeChildren/accordionTreeNodeChildren';

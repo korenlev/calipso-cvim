@@ -7,6 +7,8 @@
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 
+import { Inventory } from '/imports/api/inventories/inventories';
+
 import './accordionTreeNodeChildren.html';
 
 Template.accordionTreeNodeChildren.onCreated(function () {

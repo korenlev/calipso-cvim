@@ -2,6 +2,9 @@
  * Template Component: dashboard
  */
 
+import { Environments } from '/imports/api/environments/environments';
+import { Inventory } from '/imports/api/inventories/inventories';
+
 (function () {
 
 /* 
@@ -12,20 +15,20 @@ Template.dashboard.onCreated(function () {
   var instance = this;
 
   instance.autorun(function () {
-    instance.subscribe("environments_config");
+    instance.subscribe('environments_config');
 
     Environments.find({}).forEach(function (envItem) {
-      instance.subscribe("inventory?env+type", envItem.name, 'instance');
-      instance.subscribe("inventory?env+type", envItem.name, 'vservice');
-      instance.subscribe("inventory?env+type", envItem.name, 'host');
-      instance.subscribe("inventory?env+type", envItem.name, 'vconnector');
-      instance.subscribe("inventory?env+type", envItem.name, 'project');
-      instance.subscribe("inventory?env+type", envItem.name, 'region');
+      instance.subscribe('inventory?env+type', envItem.name, 'instance');
+      instance.subscribe('inventory?env+type', envItem.name, 'vservice');
+      instance.subscribe('inventory?env+type', envItem.name, 'host');
+      instance.subscribe('inventory?env+type', envItem.name, 'vconnector');
+      instance.subscribe('inventory?env+type', envItem.name, 'project');
+      instance.subscribe('inventory?env+type', envItem.name, 'region');
     });
 
-    instance.subscribe("messages?level", 'notify');
-    instance.subscribe("messages?level", 'warn');
-    instance.subscribe("messages?level", 'error');
+    instance.subscribe('messages?level', 'notify');
+    instance.subscribe('messages?level', 'warn');
+    instance.subscribe('messages?level', 'error');
   });
 });
 
@@ -76,44 +79,44 @@ Template.dashboard.rendered = function(){
 Template.dashboard.helpers({
 
     envList:function(){
-        //return Environments.find({type:"environment"});
+        //return Environments.find({type:'environment'});
         return Environments.find({});
     },
 
     instancesCount: function (envName){
         //return Inventory.find({environment: envName, type:'instance'}).count();
-        return Counts.get("inventory?env+type!counter?env=" +
-          envName + "&type=" + 'instance'); 
+        return Counts.get('inventory?env+type!counter?env=' +
+          envName + '&type=' + 'instance'); 
     },
 
     vservicesCount: function (envName) {
         //return Inventory.find({environment: envName, type:'vservice'}).count();
-        return Counts.get("inventory?env+type!counter?env=" +
-          envName + "&type=" + 'vservice'); 
+        return Counts.get('inventory?env+type!counter?env=' +
+          envName + '&type=' + 'vservice'); 
     },
 
     hostsCount: function (envName) {
         //return Inventory.find({environment: envName, type:'host'}).count();
-        return Counts.get("inventory?env+type!counter?env=" +
-          envName + "&type=" + 'host'); 
+        return Counts.get('inventory?env+type!counter?env=' +
+          envName + '&type=' + 'host'); 
     },
 
     vconnectorsCount: function(envName){
         //return Inventory.find({environment: envName, type:'vconnector'}).count();
-        return Counts.get("inventory?env+type!counter?env=" +
-          envName + "&type=" + 'vconnector'); 
+        return Counts.get('inventory?env+type!counter?env=' +
+          envName + '&type=' + 'vconnector'); 
     },
 
     projectsCount: function (envName){
         //return Inventory.find({environment: envName, type:'project'}).count();
-        return Counts.get("inventory?env+type!counter?env=" +
-          envName + "&type=" + 'project'); 
+        return Counts.get('inventory?env+type!counter?env=' +
+          envName + '&type=' + 'project'); 
     },
 
     regoinsCount: function (envName){
         //return Inventory.find({environment: envName, type:'region'}).count();
-        return Counts.get("inventory?env+type!counter?env=" +
-          envName + "&type=" + 'region'); 
+        return Counts.get('inventory?env+type!counter?env=' +
+          envName + '&type=' + 'region'); 
     },
 
     regoins: function (envName) {
@@ -126,20 +129,20 @@ Template.dashboard.helpers({
 
     notificationsCount: function(){
         //return Messages.find({level:'notify'}).count();
-        return Counts.get("messages?level!counter?" +
-          "level=" + 'notify');
+        return Counts.get('messages?level!counter?' +
+          'level=' + 'notify');
     },
 
     warningsCount: function(){
         //return Messages.find({level:'warn'}).count();
-        return Counts.get("messages?level!counter?" +
-          "level=" + 'warn');
+        return Counts.get('messages?level!counter?' +
+          'level=' + 'warn');
     },
 
     errorsCount: function(){
         //return Messages.find({level:'error'}).count();
-        return Counts.get("messages?level!counter?" +
-          "level=" + 'error');
+        return Counts.get('messages?level!counter?' +
+          'level=' + 'error');
     },
 
 /*

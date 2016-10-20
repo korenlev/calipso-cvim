@@ -1,5 +1,5 @@
 /*
- * Tempalte Component: environment
+ * Tempalte Component: Environment
  */
 
 /*
@@ -10,17 +10,24 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
+import { Inventory } from '/imports/api/inventories/inventories';
+
 import { store } from '/client/imports/store';
 import { setCurrentNode } from '/client/imports/actions/navigation';
 
-import './enviroment.html';
+import './environment.html';
 
-Template.enviroment.onCreated(function () {
+/*
+ * Lifecycles
+ */
+
+Template.Environment.onCreated(function () {
   var instance = this;
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    childNodeRequested: null
+    childNodeRequested: null,
+    envName: null
   });
 
   instance.autorun(function () {
@@ -29,6 +36,7 @@ Template.enviroment.onCreated(function () {
     var query = params.query;
 
     var envName = controller.state.get('envName');
+    instance.state.set('envName', envName);
 
     if (query.graph) {
       let node24IdPath = 
@@ -54,12 +62,12 @@ Template.enviroment.onCreated(function () {
 
 });
 
-Template.enviroment.onDestroyed(function () {
-  let instance = this;
-  instance.storeUnsubscribe();
+/*
+Template.Environment.onDestroyed(function () {
 });
+*/
 
-Template.enviroment.rendered = function(){
+Template.Environment.rendered = function(){
 
   $.getScript('https://www.gstatic.com/charts/loader.js', function() {
     google.charts.load('current', {'packages':['gauge', 'line']});
@@ -104,7 +112,7 @@ Template.enviroment.rendered = function(){
  * Helpers
  */
 
-Template.enviroment.helpers({
+Template.Environment.helpers({
   envName: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
@@ -226,4 +234,12 @@ Template.enviroment.helpers({
     };
   }
 
+});
+
+
+Template.Environment.events({
+  'click .sm-edit-button': function (event, instance) {
+    let envName = instance.state.get('envName');
+    Router.go('/wizard/' + envName,{},{});
+  }
 });

@@ -25,6 +25,10 @@ Template.EnvMasterHostCredentialsInfo.rendered = function() {
  */
 
 Template.EnvMasterHostCredentialsInfo.events({
+  'click .sm-next-button': function () {
+    let instance = Template.instance();
+    instance.data.onNextRequested(); 
+  }
 });
    
 /*  

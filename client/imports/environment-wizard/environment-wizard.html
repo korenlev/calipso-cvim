@@ -11,6 +11,7 @@
              aria-controls="{{ tab.localLink }}"
              role="tab"
              data-toggle="tab"
+             id="link-{{ tab.localLink }}"
              >{{tab.label}}</a>
         </li>
       {{/each}}
@@ -21,28 +22,32 @@
       <!-- main info -->
       <div role="tabpanel" class="tab-pane active" 
           id="maininfo">
-        {{>EnvMainInfo }}
+        {{>EnvMainInfo (createTabArgs environment 
+          'endpoin-panel') }}
       </div>
       
       <!-- os api endpoint -->
       <div role="tabpanel" class="tab-pane fade" 
         id="endpoin-panel">
-        {{>EnvOsApiEndpointInfo }}
+        {{>EnvOsApiEndpointInfo (createTabArgs environment
+          'db-credentials') }}
       </div>
 
       <!-- db credentials -->
       <div role="tabpanel" class="tab-pane fade" id="db-credentials">
-        {{>EnvOpenStackDbCredentialsInfo }}
+        {{>EnvOpenStackDbCredentialsInfo (createTabArgs 
+           environment 'master-host') }}
       </div>
 
       <!-- master host -->
       <div role="tabpanel" class="tab-pane fade" id="master-host">
-        {{>EnvMasterHostCredentialsInfo }}
+        {{>EnvMasterHostCredentialsInfo (createTabArgs
+           environment 'nfv') }}
       </div>
 
       <!-- nfv -->
       <div role="tabpanel" class="tab-pane fade" id="nfv">
-        {{>EnvNfvInfo }}
+        {{>EnvNfvInfo (createTabArgs environment) }}
       </div>
 
     </div>

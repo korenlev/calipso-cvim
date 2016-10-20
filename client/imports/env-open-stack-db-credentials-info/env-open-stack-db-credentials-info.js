@@ -25,6 +25,10 @@ Template.EnvOpenStackDbCredentialsInfo.rendered = function() {
  */
 
 Template.EnvOpenStackDbCredentialsInfo.events({
+  'click .sm-next-button': function () {
+    let instance = Template.instance();
+    instance.data.onNextRequested(); 
+  }
 });
    
 /*  

@@ -2,6 +2,8 @@
  * File: main.js
  */
 
+import { Inventory } from '/imports/api/inventories/inventories';
+
 d3Graph = {
     color:'',
     zoomer:function(){
