@@ -1,5 +1,6 @@
 <template name="EnvOsApiEndpointInfo">
 <div class="form-horizontal">
+  <!-- Host -->
   <div class="form-group">
     <label for="apiHost" 
       class="col-sm-2 control-label">API host</label>
@@ -12,6 +13,25 @@
 
     <div class="col-sm-4">
       <p>This is API</p>
+    </div>
+  </div>
+
+
+  <!-- Port -->
+  <div class="form-group">
+    <label for="dbPort" 
+      class="col-sm-2 control-label"
+      >DB port</label>
+
+    <div class="col-sm-3">
+      <input type="text" class="form-control" 
+        id="dbPort" 
+        placeholder="DB port" 
+        value="3306.0">
+    </div>
+
+    <div class="col-sm-4">
+      <p>Some help info</p>
     </div>
   </div>
 

@@ -34,6 +34,7 @@ module.exports = {
         "jQuery": true,
         "d3Graph": true,
         "$": true,
-        "toastr": true
+        "toastr": true,
+        "google": true
     }
 };
