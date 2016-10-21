@@ -48,7 +48,6 @@ class Scanner(Util, Fetcher):
 
     def scan(self, obj, id_field="id",
              limit_to_child_id=None, limit_to_child_type=None):
-        ret = True
         types_children = []
         if not limit_to_child_type:
             limit_to_child_type = []
