@@ -182,10 +182,9 @@ class EventSubnetAdd(Fetcher):
         network_document['cidrs'].append(subnet['cidr'])
         if network_document['subnets'] == []:
             network_document['subnets'] = {}
-            network_document['subnets'][subnet['name']] = subnet
-        else:
-            network_document['subnets'][subnet['name']] = subnet
 
+        network_document['subnets'][subnet['name']] = subnet
+        network_document['subnets_id'].append(subnet['id'])
         self.inv.set(network_document)
 
         # Check DHCP enable, if true, scan network.
