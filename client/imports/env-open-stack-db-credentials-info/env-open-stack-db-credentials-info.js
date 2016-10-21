@@ -6,6 +6,8 @@
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
         
+import { createInputArgs } from '/imports/ui/lib/input-model';
+
 import './env-open-stack-db-credentials-info.html';     
     
 /*  
@@ -36,6 +38,7 @@ Template.EnvOpenStackDbCredentialsInfo.events({
  */
 
 Template.EnvOpenStackDbCredentialsInfo.helpers({    
+  createInputArgs: createInputArgs
 });
 
 

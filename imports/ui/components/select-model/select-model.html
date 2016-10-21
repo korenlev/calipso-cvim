@@ -1,0 +1,10 @@
+<template name="SelectModel">
+  <select class="js-select form-control"
+          multiple="{{ multi }}" >
+    {{#each option in options }}
+    <option value="{{ option.value }}"
+      selected="{{ isSelected option.label }}" 
+      >{{ option.label }}</option>
+    {{/each }}
+	</select>
+</template>

@@ -6,6 +6,8 @@
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
         
+import { createInputArgs } from '/imports/ui/lib/input-model';
+
 import './env-os-api-endpoint-info.html';     
     
 /*  
@@ -36,6 +38,7 @@ Template.EnvOsApiEndpointInfo.events({
  */
 
 Template.EnvOsApiEndpointInfo.helpers({    
+  createInputArgs: createInputArgs
 });
 
 

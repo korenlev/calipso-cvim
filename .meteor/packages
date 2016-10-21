@@ -38,3 +38,4 @@ reactive-dict@1.1.8
 tmeasday:publish-counts
 modules
 aldeed:simple-schema
+mdg:validated-method

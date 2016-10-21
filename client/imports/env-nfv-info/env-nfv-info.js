@@ -28,7 +28,12 @@ Template.EnvNfvInfo.events({
   'click .sm-next-button': function () {
     let instance = Template.instance();
     instance.data.onNextRequested(); 
-  }
+  },
+
+  'click .sm-submit-button': function () {
+    let instance = Template.instance();
+    instance.data.onSubmitRequested(); 
+  },
 });
    
 /*  

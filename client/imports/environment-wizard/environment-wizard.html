@@ -2,55 +2,65 @@
     <!-- modals template for issue modal  -->
     {{> eventModals}}
 
-  <div class="main-layout-no-nav cards white">
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
-      {{#each tab in tabs }}
-        <li role="presentation">
-          <a href="#{{ tab.localLink }}"
-             aria-controls="{{ tab.localLink }}"
-             role="tab"
-             data-toggle="tab"
-             id="link-{{ tab.localLink }}"
-             >{{tab.label}}</a>
-        </li>
-      {{/each}}
-    </ul>
+  <form class="sm-environment-form">
 
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <!-- main info -->
-      <div role="tabpanel" class="tab-pane active" 
-          id="maininfo">
-        {{>EnvMainInfo (createTabArgs environment 
-          'endpoin-panel') }}
-      </div>
-      
-      <!-- os api endpoint -->
-      <div role="tabpanel" class="tab-pane fade" 
-        id="endpoin-panel">
-        {{>EnvOsApiEndpointInfo (createTabArgs environment
-          'db-credentials') }}
-      </div>
+    <div class="main-layout-no-nav cards white">
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist">
+        {{#each tab in tabs }}
+          <li role="presentation">
+            <a href="#{{ tab.localLink }}"
+               aria-controls="{{ tab.localLink }}"
+               role="tab"
+               data-toggle="tab"
+               id="link-{{ tab.localLink }}"
+               >{{tab.label}}</a>
+          </li>
+        {{/each}}
+      </ul>
 
-      <!-- db credentials -->
-      <div role="tabpanel" class="tab-pane fade" id="db-credentials">
-        {{>EnvOpenStackDbCredentialsInfo (createTabArgs 
-           environment 'master-host') }}
-      </div>
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <!-- main info -->
+        <div role="tabpanel" class="tab-pane active" 
+            id="maininfo">
+          {{>EnvMainInfo (createTabArgs '' environment 
+            'endpoin-panel') }}
+        </div>
+        
+        <!-- os api endpoint -->
+        <div role="tabpanel" class="tab-pane fade" 
+          id="endpoin-panel">
+          {{>EnvOsApiEndpointInfo (createTabArgs '#configuration-OpenStack' (getConfSection 'OpenStack' environment) 'db-credentials') }}
+        </div>
 
-      <!-- master host -->
-      <div role="tabpanel" class="tab-pane fade" id="master-host">
-        {{>EnvMasterHostCredentialsInfo (createTabArgs
-           environment 'nfv') }}
-      </div>
+        <!-- db credentials -->
+        <div role="tabpanel" class="tab-pane fade" id="db-credentials">
+          {{>EnvOpenStackDbCredentialsInfo (createTabArgs '#configuration-mysql'
+             (getConfSection 'mysql' environment) 'master-host') }}
+        </div>
 
-      <!-- nfv -->
-      <div role="tabpanel" class="tab-pane fade" id="nfv">
-        {{>EnvNfvInfo (createTabArgs environment) }}
-      </div>
+        <!-- master host -->
+        <div role="tabpanel" class="tab-pane fade" id="master-host">
+          {{>EnvMasterHostCredentialsInfo (createTabArgs '#configuration-CLI'
+             (getConfSection 'CLI' environment) 'amqp') }}
+        </div>
 
+        <!-- amqp  -->
+        <div role="tabpanel" class="tab-pane fade" id="amqp">
+          {{>EnvAmqpCredentialsInfo (createTabArgs '#configuration-AMQP'
+             (getConfSection 'AMQP' environment) 'nfv') }}
+        </div>
+
+        <!-- nfv -->
+        <div role="tabpanel" class="tab-pane fade" id="nfv">
+          {{>EnvNfvInfo (createTabArgs '#configuration-orchestrator' 
+             (getConfSection 'orchestrator' environment) '') }}
+        </div>
+
+      </div>
     </div>
-  </div>
+    
+  </form>   
 
 </template>

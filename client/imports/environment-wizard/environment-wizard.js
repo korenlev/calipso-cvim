@@ -16,6 +16,12 @@ import '/client/imports/env-os-api-endpoint-info/env-os-api-endpoint-info';
 import '/client/imports/env-open-stack-db-credentials-info/env-open-stack-db-credentials-info';
 import '/client/imports/env-master-host-credentials-info/env-master-host-credentials-info';
 import '/client/imports/env-nfv-info/env-nfv-info';
+import '/imports/ui/components/env-amqp-credentials-info/env-amqp-credentials-info';
+
+import { 
+  insert,
+  update 
+} from '/imports/api/environments/methods';
 
 /*
  * Lifecycles
@@ -37,7 +43,7 @@ Template.EnvironmentWizard.onCreated(function(){
     if (envName) {
       instance.subscribe('environments?name', envName);
 
-      instance.state.set('action', 'edit');
+      instance.state.set('action', 'update');
       Environments.find({'name': envName})
       .forEach(function (envItem) {
         instance.state.set('environment', R.clone(envItem));
@@ -45,7 +51,7 @@ Template.EnvironmentWizard.onCreated(function(){
 
     } else {
       instance.state.set('action', 'insert');
-      instance.state.set('environment', generateNewEnv());
+      instance.environmentModel = generateNewEnv();
     }
   });
 });
@@ -87,11 +93,14 @@ Template.EnvironmentWizard.helpers({
       label: 'OS API Endpoint',
       localLink: 'endpoin-panel'
     }, {
-      label: 'OpenStack DB Credentials',
+      label: 'OS DB Credentials',
       localLink: 'db-credentials'
     }, {
       label: 'Master Host Credentials',
       localLink: 'master-host'
+    }, {
+      label: 'AMQP Credentials',
+      localLink: 'amqp'
     }, {
       label: 'NFV Credentials',
       localLink: 'nfv'
@@ -103,20 +112,70 @@ Template.EnvironmentWizard.helpers({
     return instance.state.get('environment');
   },
 
-  createTabArgs: function (environment, nextTabId) {
+  createTabArgs: function (key, model, nextTabId) {
     let instance = Template.instance();
 
     return {
-      environment: environment,
+      key: key,
+      model: model,
+      setModel: function (subKey, value) {
+        let mainModel = instance.state.get('environment');
+        let calcKey = R.isEmpty(key) ? subKey : key;
+        let newMainModel;
+
+        if (R.isEmpty(calcKey)) { 
+          newMainModel = value; 
+        } else {
+          newMainModel = setModelByKey(calcKey, value, mainModel); 
+        }
+        instance.state.set('environment', newMainModel);
+      },
       onNextRequested: function () {
         if (nextTabId) {
-          console.log('next requested to: ' + nextTabId);
           instance.$('#link-' + nextTabId).tab('show');
+        }
+      },
+      onSubmitRequested: function () {
+        console.log('onSubmitRequested');
+        console.log(model);
+
+        let action = instance.state.get('action');
+        let environment = instance.state.get('environment');
+
+        switch (action) {
+        case 'insert':
+          insert.call({
+            configuration: environment.configuration,
+            distribution: environment.distribution,
+            name: environment.name,
+            network_plugins: environment.network_plugins,
+          }, processActionResult);
+          break;
+
+        case 'update':
+          update.call({
+            itemId: environment._id,
+            configuration: environment.configuration,
+            distribution: environment.distribution,
+            name: environment.name,
+            network_plugins: environment.network_plugins,
+          }, processActionResult);
+          break;
+
+        default:
+          // todo
+          break;
         }
       }
     };
-  }
+  },
 
+  getConfSection: function(sectionName, environment) {
+    if (R.isNil(environment)) { return null; }
+    let section = R.find(R.propEq('name', sectionName), 
+      environment.configuration);
+    return section;
+  }
 
   // todo: default active tab. 'class="active"'
 });
@@ -140,4 +199,33 @@ function generateNewEnv() {
     user: '',
     name: ''
   };
+}
+
+function processActionResult(error) {
+  if (error) {
+    alert(error);
+  }
+}
+
+function setModelByKey(key, value, model) {
+  let newModel;
+
+  if (typeof key !== 'string') { 
+    throw 'malformed key';
+  }
+
+  if (R.test(/^#configuration-/, key)) {
+    let sectionName = (/^#configuration-(.*$)/.exec(key))[1];
+
+    let sectionIndex = R.findIndex(R.propEq('name', sectionName), 
+      model.configuration);
+
+    let configuration = R.update(sectionIndex, value, model.configuration); 
+    newModel = R.assoc('configuration', configuration, model);
+
+  } else {
+    newModel =R.assoc(key, value, model);
+  }
+
+  return newModel;
 }

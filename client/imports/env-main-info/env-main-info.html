@@ -7,11 +7,12 @@
           >Owner</label>
 
         <div class="col-sm-3">
-          <input type="email" 
-            class="form-control" 
-            id="inputEmail" 
-            placeholder="Email" 
-            value="{{ environment.user }}">
+          {{> InputModel(createInputArgs
+                context=model 
+                key="user"
+                type="email"
+                placeholder="Email")
+          }}
         </div>
 
         <div class="col-sm-4">
@@ -25,14 +26,50 @@
           >Enviroment name</label>
 
         <div class="col-sm-3">
-          <input type="text" 
-            class="form-control" 
-            id="inputEnvName" 
-            placeholder="Enviroment name" 
-            value="{{ environment.name }}">
+          {{> InputModel(createInputArgs
+                context=model 
+                key="name"
+                type="text"
+                placeholder="Name")
+          }}
         </div>
         <div class="col-sm-4">
           <p>Enter name of your project, it could be anything you want</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="" 
+          class="col-sm-2 control-label"
+          >Distribution</label>
+
+        <div class="col-sm-3">
+          {{> SelectModel(createSelectArgs
+                context=model 
+                key="distribution"
+                options=distributionOptions)
+          }}
+        </div>
+        <div class="col-sm-4">
+          <p>Enter name of the distribution</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="" 
+          class="col-sm-2 control-label"
+          >Network Plugins</label>
+
+        <div class="col-sm-3">
+          {{> SelectModel(createSelectArgs
+                context=model 
+                key="network_plugins"
+                options=networkOptions
+                multi=true)
+          }}
+        </div>
+        <div class="col-sm-4">
+          <p>Enter networks</p>
         </div>
       </div>
 

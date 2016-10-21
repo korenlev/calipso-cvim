@@ -1,5 +1,5 @@
 /*
- * Template Component: EnvMasterHostCredentialsInfo 
+ * Template Component: EnvAmqpCredentialsInfo 
  */
     
 //import { Meteor } from 'meteor/meteor'; 
@@ -8,17 +8,17 @@ import { Template } from 'meteor/templating';
         
 import { createInputArgs } from '/imports/ui/lib/input-model';
 
-import './env-master-host-credentials-info.html';     
+import './env-amqp-credentials-info.html';     
     
 /*  
  * Lifecycles
  */   
   
-Template.EnvMasterHostCredentialsInfo.onCreated(function() {
+Template.EnvAmqpCredentialsInfo.onCreated(function() {
 });  
 
 /*
-Template.EnvMasterHostCredentialsInfo.rendered = function() {
+Template.EnvAmqpCredentialsInfo.rendered = function() {
 };  
 */
 
@@ -26,7 +26,7 @@ Template.EnvMasterHostCredentialsInfo.rendered = function() {
  * Events
  */
 
-Template.EnvMasterHostCredentialsInfo.events({
+Template.EnvAmqpCredentialsInfo.events({
   'click .sm-next-button': function () {
     let instance = Template.instance();
     instance.data.onNextRequested(); 
@@ -37,7 +37,7 @@ Template.EnvMasterHostCredentialsInfo.events({
  * Helpers
  */
 
-Template.EnvMasterHostCredentialsInfo.helpers({    
+Template.EnvAmqpCredentialsInfo.helpers({    
   createInputArgs: createInputArgs
 });
 
