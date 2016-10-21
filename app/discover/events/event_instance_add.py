@@ -34,3 +34,4 @@ class EventInstanceAdd(Fetcher):
         host_scanner.scan_from_queue()
         host_scanner.scan_links()
         host_scanner.scan_cliques()
+        return True
