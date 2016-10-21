@@ -44,4 +44,4 @@ class TestSubnetAdd(TestEvent):
         self.assertIn(self.subnet['cidr'], network_document['cidrs'])
         self.assertIn(self.subnet['name'], network_document['subnets'])
 
-        #tearDown method has been deployed in class testEvent.
+        #tearDown method has been implemented in class testEvent.
