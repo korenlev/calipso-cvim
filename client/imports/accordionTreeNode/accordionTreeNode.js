@@ -184,10 +184,6 @@ Template.accordionTreeNode.helpers({
       node: parentNode,
       selectedNode: selectedNode,
       onClick(childNode) {
-        // todo: remove console
-        console.log('on click fron child node');
-        console.log(childNode);
-
         instance.data.onClick(childNode);
       },
     };

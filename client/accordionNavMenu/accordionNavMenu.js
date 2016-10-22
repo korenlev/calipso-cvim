@@ -11,7 +11,7 @@ import { Tracker } from 'meteor/tracker';
 import { Session } from 'meteor/session';
 
 import '/client/imports/accordionTreeNode/accordionTreeNode';
- 
+
 import { store } from '/client/imports/store';
 import { setCurrentNodeFromTreeControl } from '/client/imports/actions/navigation';
 
@@ -19,7 +19,7 @@ import { setCurrentNodeFromTreeControl } from '/client/imports/actions/navigatio
 
 Template.accordionNavMenu.onCreated(function () {
   let instance = this;
-  
+
   instance.state = new ReactiveDict();
   instance.state.setDefault ({
     selectedNode: null
@@ -39,9 +39,9 @@ Template.accordionNavMenu.onCreated(function () {
     if (nodeChain.length > 1) {
       selectedNode = R.slice(1, Infinity, nodeChain);
     }
-    instance.state.set('selectedNode', selectedNode); 
+    instance.state.set('selectedNode', selectedNode);
   });
-  
+
   let selectedNode = null;
   let state = store.getState();
   let nodeChain = state.api.navigation.current;
@@ -51,7 +51,7 @@ Template.accordionNavMenu.onCreated(function () {
     selectedNode = null;
   }
 
-  instance.state.set('selectedNode', selectedNode); 
+  instance.state.set('selectedNode', selectedNode);
 });
 
 
@@ -180,7 +180,7 @@ Template.accordionNavMenu.rendered = function () {
       d3Graph.updateNetworkGraph(graphData);
       //$("body").scrollTop(0);
     });
-    
+
     $(".genGraphClick").click(function() {
       //console.log($(this).attr('objid'));
       $('.mainContentData').hide();
@@ -230,7 +230,7 @@ Template.accordionNavMenu.onDestroyed(function () {
   instance.storeUnsubscribe();
 });
 
-/* 
+/*
  * Events
  */
 
@@ -267,15 +267,9 @@ Template.accordionNavMenu.helpers({
     return {
       node: node,
       showOpen: true,
-      selectedNode: selectedNode, 
+      selectedNode: selectedNode,
       onClick: function (childNode) {
-        // todo: remove console
-        console.log('on click');
-        console.log(childNode);
-
-        store.dispatch(setCurrentNodeFromTreeControl(
-          childNode.id_path,
-          childNode.name_path));
+        store.dispatch(setCurrentNodeFromTreeControl(childNode));
         },
     };
   }

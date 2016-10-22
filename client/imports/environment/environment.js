@@ -44,9 +44,15 @@ Template.Environment.onCreated(function () {
       let node24NamePath = 
         '/WebEX-Mirantis@Cisco/Regions/RegionOne/Aggregates/WebEx-RTP-SSD-Aggregate/node-24';
 
-      store.dispatch(setCurrentNode(node24IdPath, node24NamePath));
+      store.dispatch(setCurrentNode({
+        id_path: node24IdPath, 
+        name_path: node24NamePath
+      }));
     } else {
-      store.dispatch(setCurrentNode('/' + envName, '/' + envName));
+      store.dispatch(setCurrentNode({
+        id_path: '/' + envName, 
+        name_path: '/' + envName
+      }));
     }
 
     instance.subscribe('inventory?env+type', envName, 'instance');

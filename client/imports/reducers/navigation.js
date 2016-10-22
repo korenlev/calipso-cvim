@@ -2,19 +2,36 @@ import * as R from 'ramda';
 
 import * as actions from '/client/imports/actions/navigation';
 
-function navigation(state = { current: [], lastActionable: [] }, action) {
+const defaultState = { current: [], lastActionable: [] };
+
+function reducer(state = defaultState, action) {
+  let lastActionable = null;
+
   switch (action.type) {
   case actions.SET_CURRENT_NODE:
-    return R.assoc('current', action.payload.nodeChain, state); 
+    lastActionable = isActionable(action.payload.nodeChain) ? action.payload.nodeChain :
+        state.lastActionable;
+
+    return R.merge(state, {
+      current: action.payload.nodeChain,
+      lastActionable: lastActionable
+    }); 
 
   case actions.SET_CURRENT_NODE_FROM_TREE_CONTROL:
-    if (contains(action.payload.nodeChain, state)) {
+    lastActionable = isActionable(action.payload.nodeChain) ? action.payload.nodeChain :
+        state.lastActionable;
+
+    if (contains(action.payload.nodeChain, state.current)) {
       let equalLastIndex = findEqualLastIndex(action.payload.nodeChain, state.current);
-      return R.assoc('current', 
-        R.slice(0, equalLastIndex, action.payload.nodeChain),
-        state);  
+      return R.merge(state, { 
+        current: R.slice(0, equalLastIndex, action.payload.nodeChain),
+        lastActionable: lastActionable
+      });
     } else {
-      return R.assoc('current', action.payload.nodeChain, state);
+      return R.merge(state, {
+        current: action.payload.nodeChain,
+        lastActionable: lastActionable
+      });
     }
 
   default:
@@ -38,8 +55,8 @@ function contains(subArray, array) {
 function findEqualLastIndex (arrayA, arrayB) {
   let indexResult = -1;
 
-  for (let i = 0; i < arrayA.length; i++) {
-    if (R.equals(arrayA[i], arrayB[i])) {
+  for (let i = 0; (i < arrayA.length) && (i < arrayB.length); i++) {
+    if (equalsNodes(arrayA[i], arrayB[i])) {
       indexResult = i;
     } else {
       break;
@@ -49,4 +66,26 @@ function findEqualLastIndex (arrayA, arrayB) {
   return indexResult;
 }
 
-export default navigation;
+function equalsNodes(nodeA, nodeB) {
+  if (nodeA.fullIdPath !== nodeB.fullIdPath) { return false; }
+  if (nodeA.fullNamePath !== nodeB.fullNamePath) { return false; }
+
+  return true;
+}
+
+function isActionable(nodeChain) {
+  let last = R.last(nodeChain);
+
+  if (R.isNil(last)) { return false; }
+  if (R.isNil(last.item)) { return false; }
+
+  if (! R.isNil(last.item.clique)) { return true; } 
+
+  if (last.item.id === 'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
+    return true;
+  }
+
+  return false;
+}
+
+export const navigation = reducer;

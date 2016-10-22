@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 
-import navigation from './navigation';
+import { navigation } from './navigation';
 
 const osdnaApp = combineReducers({
   api: combineReducers({
-    navigation,
+    navigation: navigation,
   })
 });
 

@@ -1,7 +1,7 @@
 <template name="breadcrumb" >
   <ol class="breadcrumb">
     {{#each nodeItem in nodeItemList }}
-      {{> breadcrumbNode node=nodeItem }}
+      {{> breadcrumbNode (createNodeArgs nodeItem) }}
     {{/each }}
   </ol>
 </template>

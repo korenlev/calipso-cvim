@@ -3,8 +3,10 @@ import * as R from 'ramda';
 const SET_CURRENT_NODE = 'SET_CURRENT_NODE';
 const SET_CURRENT_NODE_FROM_TREE_CONTROL = 'SET_CURRENT_NODE_FROM_TREE_CONTROL';
 
-function setCurrentNode(idPath, namePath) {
-  let nodeChain = convertToNodeChain(idPath, namePath);
+function setCurrentNode(item) {
+
+  let nodeChain = convertToNodeChain(item.id_path, item.name_path);
+  R.last(nodeChain).item = item;
 
   return {
     type: SET_CURRENT_NODE,
@@ -14,8 +16,9 @@ function setCurrentNode(idPath, namePath) {
   };
 }
 
-function setCurrentNodeFromTreeControl (idPath, namePath) {
-  let nodeChain = convertToNodeChain(idPath, namePath);
+function setCurrentNodeFromTreeControl (item) {
+  let nodeChain = convertToNodeChain(item.id_path, item.name_path);
+  R.last(nodeChain).item = item;
 
   return {
     type: SET_CURRENT_NODE_FROM_TREE_CONTROL,
