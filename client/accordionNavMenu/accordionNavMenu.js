@@ -7,10 +7,11 @@
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-import { Tracker } from 'meteor/tracker';
-import { Session } from 'meteor/session';
+//import { Tracker } from 'meteor/tracker';
+//import { Session } from 'meteor/session';
 
 import '/client/imports/accordionTreeNode/accordionTreeNode';
+import '/imports/ui/components/d3graph/d3graph';
 
 import { store } from '/client/imports/store';
 import { setCurrentNodeFromTreeControl } from '/client/imports/actions/navigation';
@@ -302,24 +303,5 @@ Template.accordionNavMenuTreeNodeTemplate.helpers({
   }
 });
 */
-
-Template.d3graph.rendered = function () {
-  d3Graph.creategraphdata();
-  //var graphData = getGraphData("node-25");
-  //updateNetworkGraph(graphData);
-  var initgraph = true;
-  Tracker.autorun(function () {
-    var nodeId = Session.get('currNodeId');
-    if(nodeId){
-      var graphData = d3Graph.getGraphDataByClique(nodeId);
-      if(!initgraph){
-        //d3Graph.start();
-        d3Graph.updateNetworkGraph(graphData);
-      }
-    }
-    initgraph = false;
-  });
-
-};
 
 })();

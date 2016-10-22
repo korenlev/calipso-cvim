@@ -2,7 +2,7 @@
  * Template Component: alarmIcons
  */
 
-import '/client/imports/breadcrumb/breadcrumb';
+import '/imports/ui/components/breadcrumb/breadcrumb';
 
 (function () {
 

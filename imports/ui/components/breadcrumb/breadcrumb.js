@@ -8,7 +8,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { store } from '/client/imports/store';
 import { setCurrentNode } from '/client/imports/actions/navigation';
 
-import '/client/imports/breadcrumbNode/breadcrumbNode';
+import '../breadcrumbNode/breadcrumbNode';
 import './breadcrumb.html';
 
 Template.breadcrumb.onCreated(function () {

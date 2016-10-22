@@ -7,18 +7,23 @@
     <div class="flex-box-1 site-sidenav">
       {{> accordionNavMenu (createNavMenuArgs childNodeRequested) }}
     </div>
-    <div class="flex-box-3 main-layout-no-nav">
-        {{>d3graph}}
 
-    <div class="mainContentData flex">
-        <div class="sm-env-header-line cards white title">
-          <div class="sm-env-header-name-cmp">
-            <h4>Enviroment name: {{ envName }}</h4>
-          </div>
-          <a class="sm-edit-button btn btn-app"
-            ><i class="fa fa-fw fa-edit"></i></a>
+    <div class="flex-box-3 main-layout-no-nav">
+        <div class="sp-breadcrumb-segment">
+          {{> breadcrumb }}
         </div>
-    </div>
+
+        {{> d3graph}}
+
+      <div class="mainContentData flex">
+          <div class="sm-env-header-line cards white title">
+            <div class="sm-env-header-name-cmp">
+              <h4>Enviroment name: {{ envName }}</h4>
+            </div>
+            <a class="sm-edit-button btn btn-app"
+              ><i class="fa fa-fw fa-edit"></i></a>
+          </div>
+      </div>
 
       <div class="mainContentData flex-box justify-content-between">
         <div class="cards-w250 white blue-text flex-box-1">
