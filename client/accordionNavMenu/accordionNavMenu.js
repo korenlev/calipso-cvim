@@ -222,6 +222,12 @@ Template.accordionNavMenu.rendered = function () {
 
 };
 
+
+Template.accordionNavMenu.onDestroyed(function () {
+  let instance = this;
+  instance.storeUnsubscribe();
+});
+
 /* 
  * Events
  */
