@@ -33,7 +33,8 @@ Template.accordionNavMenu.onCreated(function () {
   });
 
   instance.storeUnsubscribe = store.subscribe(() => {
-    let nodeChain = store.getState();
+    let state = store.getState();
+    let nodeChain = state.api.navigation.current;
     let selectedNode = null;
     if (nodeChain.length > 1) {
       selectedNode = R.slice(1, Infinity, nodeChain);
@@ -42,7 +43,8 @@ Template.accordionNavMenu.onCreated(function () {
   });
   
   let selectedNode = null;
-  let nodeChain = store.getState();
+  let state = store.getState();
+  let nodeChain = state.api.navigation.current;
   if (nodeChain.length > 1) {
       selectedNode = R.slice(1, Infinity, nodeChain);
   } else {

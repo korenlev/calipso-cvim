@@ -2,18 +2,19 @@ import * as R from 'ramda';
 
 import * as actions from '/client/imports/actions/navigation';
 
-function navigation(state = [], action) {
+function navigation(state = { current: [], lastActionable: [] }, action) {
   switch (action.type) {
   case actions.SET_CURRENT_NODE:
-    console.log(action.payload.nodeChain);
-    return action.payload.nodeChain; 
+    return R.assoc('current', action.payload.nodeChain, state); 
 
   case actions.SET_CURRENT_NODE_FROM_TREE_CONTROL:
     if (contains(action.payload.nodeChain, state)) {
-      let equalLastIndex = findEqualLastIndex(action.payload.nodeChain, state);
-      return R.slice(0, equalLastIndex, action.payload.nodeChain);  
+      let equalLastIndex = findEqualLastIndex(action.payload.nodeChain, state.current);
+      return R.assoc('current', 
+        R.slice(0, equalLastIndex, action.payload.nodeChain),
+        state);  
     } else {
-      return action.payload.nodeChain;
+      return R.assoc('current', action.payload.nodeChain, state);
     }
 
   default:

@@ -14,7 +14,7 @@ Template.breadcrumb.onCreated(function () {
   instance.state = new ReactiveDict();
 
   instance.storeUnsubscribe = store.subscribe(() => {
-    instance.state.set('nodeItemList', store.getState());   
+    instance.state.set('nodeItemList', store.getState().api.navigation.current);   
   });
 });
 

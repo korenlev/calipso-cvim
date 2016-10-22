@@ -1,9 +1,8 @@
 import { createStore } from 'redux';
-import navigation from '/client/imports/reducers/navigation';
+import osdnaApp from '/client/imports/reducers/index';
 
-// Create global store for access in blaze components. Like collections.
-let store = createStore(navigation);
+const store = createStore(osdnaApp);
 
 export {
-  store
+  store,
 };
