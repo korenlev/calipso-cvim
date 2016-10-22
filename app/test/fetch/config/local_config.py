@@ -3,6 +3,6 @@
 
 MONGODB_CONFIG = "/Users/xiaocdon/Dev/OSDNA/app/config/osdna_mongo_access.conf"
 
-ENV_CONFIG = 'WebEX-Mirantis@Cisco'
+ENV_CONFIG = 'Mirantis-Liberty-Xiaocong'
 
-COLLECTION_CONFIG = ''
+COLLECTION_CONFIG = 'Mirantis-Liberty-UT'
