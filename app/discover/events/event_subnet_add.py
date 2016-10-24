@@ -74,7 +74,7 @@ class EventSubnetAdd(Fetcher):
 
     def add_dhcp_document(self, env, host_id, host_id_path, host_name_path, network_id, network_name):
         dhcp_document = {
-            "children_url": "/osdna_dev/discover.py?type=tree&id=qdhcp-99941aaa-7f98-45cc-919d-99bf60936bb1",
+            "children_url": "/osdna_dev/discover.py?type=tree&id=qdhcp-"+network_id,
             "environment": env,
             "host": host_id,
             "id": "qdhcp-" + network_id,
