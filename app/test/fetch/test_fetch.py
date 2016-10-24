@@ -3,8 +3,8 @@ import unittest
 from discover.configuration import Configuration
 from discover.inventory_mgr import InventoryMgr
 from test.fetch.config.local_config import ENV_CONFIG, MONGODB_CONFIG, COLLECTION_CONFIG
-from test_data.regions import REGIONS
-from test_data.configurations import CONFIGURATIONS
+from test.fetch.regions import REGIONS
+from test.fetch.configurations import CONFIGURATIONS
 
 
 class TestFetch(unittest.TestCase):

@@ -1,9 +1,10 @@
+from unittest.mock import MagicMock
+
+from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from test.fetch.test_fetch import TestFetch
-from unittest.mock import MagicMock
+from test.fetch.token import TOKEN
 from test_data.api_fetch_regions import *
-from test_data.token import TOKEN
-from discover.api_access import ApiAccess
 
 
 class TestApiFetchRegions(TestFetch):
