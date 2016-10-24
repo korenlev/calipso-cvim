@@ -81,6 +81,7 @@ COMPUTE_HOST = {
 }
 
 COMMAND = "virsh list"
+CACHED_COMMAND = "ssh -o StrictHostKeyChecking=no " + COMPUTE_HOST['id'] + " sudo " + COMMAND
 
 RUN_RESULT = " Id    Name                           State\n----------------------------------------------------\n 2     instance-00000002              running\n 27    instance-0000001c              running\n 38    instance-00000026              running"
 
