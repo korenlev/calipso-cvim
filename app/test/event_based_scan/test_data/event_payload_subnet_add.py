@@ -1,7 +1,7 @@
 import datetime
 
 NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnets_id': [], 'parent_type': 'networks_folder',
- 'parent_id': '75c0eb79ff4a42b0ae4973c8375ddf40-networks', 'parent_text': 'Networks', 'subnets': [],
+ 'parent_id': '75c0eb79ff4a42b0ae4973c8375ddf40-networks', 'parent_text': 'Networks', 'subnets': {},
  'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
  'name_path': '/Mirantis-Liberty-CL/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,
  'provider:physical_network': None,
@@ -9,7 +9,7 @@ NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnets_id': 
             'ae4973c8375ddf40-networks/0bb0ba6c-6863-4121-ac89-93f81a9da2b0',
  'object_name': 'testsubnetadd', 'provider:segmentation_id': 46, 'provider:network_type': 'vxlan',
  'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'environment': 'Mirantis-Liberty-CL', 'name': 'testsubnetadd',
- 'last_scanned': '2016-10-13 00:20:59.280329', 'id': '0bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'cidrs': [], 'subnet': {},
+ 'last_scanned': '2016-10-13 00:20:59.280329', 'id': '0bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'cidrs': [],
  'type': 'network', 'network': '0bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'shared': False, 'mtu': 1400}
 
 
