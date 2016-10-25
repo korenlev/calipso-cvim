@@ -5,6 +5,7 @@ from discover.events.event_network_add import EventNetworkAdd
 from discover.events.event_network_delete import EventNetworkDelete
 from discover.events.event_network_update import EventNetworkUpdate
 from discover.events.event_port_add import EventPortAdd
+from discover.events.event_port_update import EventPortUpdate
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.events.event_subnet_delete import EventSubnetDelete
 from discover.events.event_subnet_update import EventSubnetUpdate
@@ -82,6 +83,11 @@ class EventHandler(Fetcher):
     def port_create(self, notification):
         self.log.info("port_add")
         handler = EventPortAdd()
+        handler.handle(self.env, notification)
+
+    def port_update(self, notification):
+        self.log.info("port_update")
+        handler = EventPortUpdate()
         handler.handle(self.env, notification)
 
     def port_delete(self, notification):
