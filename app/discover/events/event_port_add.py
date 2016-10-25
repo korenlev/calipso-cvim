@@ -118,7 +118,6 @@ class EventPortAdd(Fetcher):
             "text": "vNICs",
             "type": "vnics_folder"
         }
-        print("vnics folder", vnics_folder)
         self.inv.set(vnics_folder)
 
     def add_vnic_document(self, env, host_id, host_id_path, host_name_path, network_id, network_name,
@@ -138,7 +137,6 @@ class EventPortAdd(Fetcher):
                                                 (type_map[type][0],type_map[type][1], doc["id"])
 
             self.inv.set(doc)
-            print("vnic", doc)
 
     def handle_dhcp_device(self, env, notification, network_id, network_name):
         # add dhcp vservice document.
