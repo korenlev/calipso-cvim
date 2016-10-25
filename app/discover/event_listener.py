@@ -53,6 +53,7 @@ class Worker(ConsumerMixin):
             "network.delete.end": self.handler.network_delete,
 
             "subnet.create.end": self.handler.subnet_create,
+            "subnet.update.end": self.handler.subnet_update,
             "subnet.delete.end": self.handler.subnet_delete,
 
             "port.create.end": self.handler.port_create,

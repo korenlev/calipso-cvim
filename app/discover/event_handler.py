@@ -7,6 +7,7 @@ from discover.events.event_network_update import EventNetworkUpdate
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.events.event_subnet_delete import EventSubnetDelete
+from discover.events.event_subnet_update import EventSubnetUpdate
 from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
 
@@ -66,6 +67,11 @@ class EventHandler(Fetcher):
     def subnet_create(self, notification):
         self.log.info("subnet_add")
         handler = EventSubnetAdd()
+        handler.handle(self.env, notification)
+
+    def subnet_update(self, notification):
+        self.log.info("subnet_update")
+        handler = EventSubnetUpdate()
         handler.handle(self.env, notification)
 
     def subnet_delete(self, notification):
