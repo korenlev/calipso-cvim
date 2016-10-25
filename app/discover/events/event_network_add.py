@@ -35,6 +35,6 @@ class EventNetworkAdd(Fetcher):
         network['parent_type'] = "networks_folder"
         network['project'] = project_name
         network["show_in_tree"] = True
-        network['subnet'] = {}
+        network['subnets'] = {}
 
         self.inv.set(network)
