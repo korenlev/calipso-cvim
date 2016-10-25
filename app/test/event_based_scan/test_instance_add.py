@@ -1,4 +1,7 @@
+from unittest.mock import MagicMock
+
 from discover.events.event_instance_add import EventInstanceAdd
+from discover.scan_host import ScanHost
 from test.event_based_scan.test_data.event_payload_instance_add \
     import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT, HOST
 from test.event_based_scan.test_event import TestEvent
@@ -29,6 +32,7 @@ class TestInstanceAdd(TestEvent):
 
         # check the return of instance handler.
         handler = EventInstanceAdd()
+        ScanHost.scan_links = MagicMock()
         ret  = handler.handle(self.env, self.values)
         self.assertEqual(ret, True)
 

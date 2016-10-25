@@ -1,6 +1,8 @@
 from unittest.mock import MagicMock
 from discover.api_access import ApiAccess
 from discover.events.event_subnet_add import EventSubnetAdd
+from discover.find_links_for_pnics import FindLinksForPnics
+from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from test.event_based_scan.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD, EVENT_PAYLOAD_NETWORK_ADD, \
     EVENT_PAYLOAD_REGION
 from test.event_based_scan.test_event import TestEvent
@@ -37,6 +39,8 @@ class TestSubnetAdd(TestEvent):
         # add subnet document for updating network
         handler = EventSubnetAdd()
         handler.add_children_documents = MagicMock()
+        FindLinksForPnics.add_links = MagicMock()
+        FindLinksForVserviceVnics.add_links = MagicMock()
         handler.handle(self.env, self.values)
 
         # check network document
