@@ -3,8 +3,8 @@ from discover.api_access import ApiAccess
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from test.event_based_scan.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD, EVENT_PAYLOAD_NETWORK_ADD, \
-    EVENT_PAYLOAD_REGION
+from test.event_based_scan.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD,\
+    EVENT_PAYLOAD_REGION, NETWORK_DOC
 from test.event_based_scan.test_event import TestEvent
 
 
@@ -12,8 +12,6 @@ class TestSubnetAdd(TestEvent):
 
     def test_handle_subnet_add(self):
         self.values = EVENT_PAYLOAD_SUBNET_ADD
-        self.network_notification = EVENT_PAYLOAD_NETWORK_ADD
-
         self.payload = self.values['payload']
         self.subnet = self.payload['subnet']
         self.subnet_id = self.subnet['id']
@@ -26,7 +24,7 @@ class TestSubnetAdd(TestEvent):
             self.assertNotIn(self.subnet['cidr'], network_document['cidrs'])
         else:
             self.handler.log.info("network document is not found, add it first.")
-            self.handler.network_create(self.network_notification)
+            self.handler.inv.set(NETWORK_DOC)
             # check network document
             network_document = self.handler.inv.get_by_id(self.env, self.network_id)
             self.assertNotEqual(network_document, [])
