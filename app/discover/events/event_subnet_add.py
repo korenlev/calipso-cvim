@@ -2,7 +2,6 @@ import datetime
 
 from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
-from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from discover.db_fetch_port import DbFetchPort
 from discover.events.event_port_add import EventPortAdd
 from discover.fetcher import Fetcher
