@@ -1,23 +1,27 @@
 from discover.cli_fetch_instance_vnics_ovs import CliFetchInstanceVnicsOvs
 from test.fetch.test_fetch import TestFetch
-from test.fetch.test_data.vnics_folder import VNICS_FOLDER
+from test.fetch.cli_fetch.test_data.cli_fetch_instance_vnics import *
+from unittest.mock import MagicMock
 
 
 class TestCliFetchInstanceVnicsOvs(TestFetch):
 
-    def test_get(self):
-        fetcher = CliFetchInstanceVnicsOvs()
-        fetcher.set_env(self.env)
+    def setUp(self):
+        self.configure_environment()
+        self.fetcher = CliFetchInstanceVnicsOvs()
+        self.fetcher.set_env(self.env)
 
-        vnics_folder = self.inventory.get_by_id(self.env, VNICS_FOLDER['id'])
-        if not vnics_folder:
-            vnics_folder = self.get_test_data({'type': 'vnics_folder'})
-            if not vnics_folder:
-                self.fail("No testing vnics folder in the database")
+    def test_set_vnic_properties(self):
+        # store original method
+        original_set = self.fetcher.inv.set
+        self.fetcher.inv.set = MagicMock()
 
-        result = fetcher.get(vnics_folder['id'])
+        self.fetcher.set_vnic_properties(VNIC, INSATNCE)
+        # reset method
+        self.fetcher.inv.set = original_set
 
-        self.assertNotEqual(result, [], "Can't get vnics info with instance vnics_folder id")
-        # print(json.dumps(result,sort_keys=True, indent=4))
+        self.assertIn("source_bridge", VNIC, "Can't set source_bridge for ovs vnic")
 
-
+    def test_get_vnic_name(self):
+        name = self.fetcher.get_vnic_name(VNIC, INSATNCE)
+        self.assertNotEqual(name, None, "Can't get vnic name")

@@ -22,49 +22,49 @@ class TestFetch(unittest.TestCase):
     def set_regions_for_fetcher(self, fetcher):
         fetcher.regions = REGIONS
 
-    # def get_test_data(self, filter):
-    #     # get inventory collection from database
-    #     inventory = self.inventory.coll['inventory']
-    #
-    #     filter.update({'environment': self.env})
-    #
-    #     if "type" in filter:
-    #         if filter['type'] == "instances_folder":
-    #             excluded_folders = []
-    #             while True:
-    #                 filter.update({'id': {'$nin': excluded_folders}})
-    #                 instance_folder = inventory.find_one(filter)
-    #                 if not instance_folder:
-    #                     return None
-    #                 id = instance_folder['id']
-    #                 host_id = id[:id.rindex("-")]
-    #                 host = self.inventory.get_by_id(self.env, host_id)
-    #                 if "Compute" not in host["host_type"]:
-    #                     excluded_folders.append(id)
-    #                 else:
-    #                     return instance_folder
-    #         elif filter['type'] == "vnics_folder":
-    #             excluded_folders = []
-    #             while True:
-    #                 filter.update({'id': {'$nin': excluded_folders}})
-    #                 vnics_folder = inventory.find_one(filter)
-    #                 if not vnics_folder:
-    #                     return None
-    #                 id = vnics_folder['id']
-    #                 instance_uuid = id[:id.rindex('-')]
-    #                 instance = self.inventory.get_by_id(self.env, instance_uuid)
-    #                 if not instance:
-    #                     return None
-    #                 host = self.inventory.get_by_id(self.env, instance["host"])
-    #                 if "Compute" not in host["host_type"]:
-    #                     excluded_folders.append(id)
-    #                 else:
-    #                     return vnics_folder
-    #
-    #     # get test data from inventory collection
-    #     result = inventory.find_one(filter)
-    #
-    #     return result
+    def get_test_data(self, filter):
+        # get inventory collection from database
+        inventory = self.inventory.coll['inventory']
+
+        filter.update({'environment': self.env})
+
+        if "type" in filter:
+            if filter['type'] == "instances_folder":
+                excluded_folders = []
+                while True:
+                    filter.update({'id': {'$nin': excluded_folders}})
+                    instance_folder = inventory.find_one(filter)
+                    if not instance_folder:
+                        return None
+                    id = instance_folder['id']
+                    host_id = id[:id.rindex("-")]
+                    host = self.inventory.get_by_id(self.env, host_id)
+                    if "Compute" not in host["host_type"]:
+                        excluded_folders.append(id)
+                    else:
+                        return instance_folder
+            elif filter['type'] == "vnics_folder":
+                excluded_folders = []
+                while True:
+                    filter.update({'id': {'$nin': excluded_folders}})
+                    vnics_folder = inventory.find_one(filter)
+                    if not vnics_folder:
+                        return None
+                    id = vnics_folder['id']
+                    instance_uuid = id[:id.rindex('-')]
+                    instance = self.inventory.get_by_id(self.env, instance_uuid)
+                    if not instance:
+                        return None
+                    host = self.inventory.get_by_id(self.env, instance["host"])
+                    if "Compute" not in host["host_type"]:
+                        excluded_folders.append(id)
+                    else:
+                        return vnics_folder
+
+        # get test data from inventory collection
+        result = inventory.find_one(filter)
+
+        return result
 
     # def test_get(self):
     #     # self.set_regions_for_fetcher(fetcher="a")

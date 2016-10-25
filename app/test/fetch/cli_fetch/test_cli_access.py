@@ -21,14 +21,13 @@ class TestCliAccess(TestFetch):
 
         # clear the cached command
         self.cli_access.cached_commands = {}
-        print(result)
         self.assertNotEqual(result, "", "Can't get ip configuration from command line")
 
     @patch("discover.ssh_conn.SshConn.exec")
     def test_run_with_valid_cached_result(self, ssh_conn_exec):
         # add command and command result to cached commands
         curr_time = time.time()
-        self.cli_access.cached_commands[COMMAND] = {
+        self.cli_access.cached_commands[CACHED_COMMAND] = {
             "timestamp": curr_time,
             "result": RUN_RESULT
         }
