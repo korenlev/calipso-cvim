@@ -26,7 +26,7 @@ if args.inputfile:
 else:
     input = sys.stdin.read()
     if not input:
-        raise InputError("No input provided on stdin")
+        raise ValueError("No input provided on stdin")
         exit(1)
 
 check_result = json.loads(input)
