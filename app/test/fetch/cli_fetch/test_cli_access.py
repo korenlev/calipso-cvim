@@ -80,3 +80,15 @@ class TestCliAccess(TestFetch):
         self.cli_access.run = original_run
 
         self.assertEqual(result, [], "Can't get empty array when the command result is empty")
+
+    def test_merge_ws_spillover_lines(self):
+        fixed_lines = self.cli_access.merge_ws_spillover_lines(LINES_FOR_FIX)
+        self.assertEqual(fixed_lines, FIXED_LINES)
+
+    def test_parse_line_with_ws(self):
+        parse_line = self.cli_access.parse_line_with_ws(LINE_FOR_PARSE, HEADERS)
+        self.assertEqual(parse_line, PARSED_LINE, "Can't parse the line with ws")
+
+    def test_parse_cmd_result_with_whitespace(self):
+        result = self.cli_access.parse_cmd_result_with_whitespace(FIXED_LINES, HEADERS, remove_first=False)
+        self.assertNotEqual(result, [], "Can't parse the cmd result with whitespace")

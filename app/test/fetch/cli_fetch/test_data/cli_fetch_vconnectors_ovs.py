@@ -68,6 +68,47 @@ BRIDGE_RESULT = [
     "br-storage\t\t8000.005056ace897\tno\t\teno16777728.102"
 ]
 
+FIXED_LINES = [
+    "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952,p_ff798dba-0,v_public,v_vrouter_pub",
+    "br-fw-admin\t\t8000.005056ace897\tno\t\teno16777728",
+    "br-mesh\t\t8000.005056acc9a2\tno\t\teno33554952.103",
+    "br-mgmt\t\t8000.005056ace897\tno\t\teno16777728.101,mgmt-conntrd,v_management,v_vrouter",
+    "br-storage\t\t8000.005056ace897\tno\t\teno16777728.102"
+]
+
+PARSE_CM_RESULTS = [
+    {
+        "bridge_id": "8000.005056acc9a2",
+        "bridge_name": "br-ex",
+        "interfaces": "eno33554952,p_ff798dba-0,v_public,v_vrouter_pub",
+        "stp_enabled": "no"
+    },
+    {
+        "bridge_id": "8000.005056ace897",
+        "bridge_name": "br-fw-admin",
+        "interfaces": "eno16777728",
+        "stp_enabled": "no"
+    },
+    {
+        "bridge_id": "8000.005056acc9a2",
+        "bridge_name": "br-mesh",
+        "interfaces": "eno33554952.103",
+        "stp_enabled": "no"
+    },
+    {
+        "bridge_id": "8000.005056ace897",
+        "bridge_name": "br-mgmt",
+        "interfaces": "eno16777728.101,mgmt-conntrd,v_management,v_vrouter",
+        "stp_enabled": "no"
+    },
+    {
+        "bridge_id": "8000.005056ace897",
+        "bridge_name": "br-storage",
+        "interfaces": "eno16777728.102",
+        "stp_enabled": "no"
+    }
+]
+
 # functional test
 INPUT = "node-6.cisco.com"
 OUPUT = [
