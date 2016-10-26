@@ -45,6 +45,3 @@ class Fetcher(Logger):
 
     def set_logger(self, loglevel):
         self.log.set_level(loglevel)
-
-    def print_json(self, result):
-        print(json.dumps(result, sort_keys=True, indent=4))
