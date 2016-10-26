@@ -35,35 +35,36 @@ Template.EnvironmentWizard.onCreated(function(){
     action: null
   });
 
-  instance.autorun(function () {
-    let controller = Iron.controller();
-    let params = controller.getParams();
 
-    let envName = params.env;
+
+  instance.autorun(function () {
+
+    //let controller = Iron.controller();
+    //let params = controller.getParams();
+
+    //let envName = params.env;
+    let envName = Session.get('wizardEnv');
     if (envName) {
       instance.subscribe('environments?name', envName);
-
       instance.state.set('action', 'update');
+
+    } else {
+      instance.state.set('action', 'insert');
+    }
+
+    let action = instance.state.get('action');
+    if (action === 'update') {
       Environments.find({'name': envName})
       .forEach(function (envItem) {
         instance.state.set('environment', R.clone(envItem));
       });
-
-    } else {
-      instance.state.set('action', 'insert');
+    } else if (action === 'insert') {
       instance.environmentModel = generateNewEnv();
     }
   });
 });
 
 Template.EnvironmentWizard.rendered = function(){
-
-  // todo: refactor to use component - not jquery click
-  /*
-  $('.btnNext').click(function(){
-    $('.nav-tabs > .active').next('li').find('a').trigger('click');
-  });
-  */
 
   // todo: refactor to use component - not jquery click
   $('.btnPrevious').click(function(){

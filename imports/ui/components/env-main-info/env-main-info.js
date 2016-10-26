@@ -10,6 +10,8 @@ import '/imports/ui/components/input-model/input-model';
 import '/imports/ui/components/select-model/select-model';
 import { createInputArgs } from '/imports/ui/lib/input-model';
 import { createSelectArgs } from '/imports/ui/lib/select-model';
+import { Distributions } from '/imports/api/environments/environments';
+import { NetworkPlugins } from '/imports/api/environments/environments';
 
 import './env-main-info.html';
 
@@ -47,48 +49,11 @@ Template.EnvMainInfo.helpers({
   createSelectArgs: createSelectArgs,
 
   distributionOptions: function () {
-    return [{
-      label: 'Mirantis-6.0',
-    }, {
-      label: 'Mirantis-7.0',
-    }, {
-      label: 'Mirantis-8.0',
-    }, {
-      label: 'Mirantis-9.0',
-    }, { 
-      label: 'RDO-Mitaka',
-    }, {
-      label: 'RDO-Liberty',
-    }, {
-      label: 'RDO-Juno',
-    }, {
-      label: 'RDO-kilo',
-    }, {
-      label: 'devstack-liberty',
-    }, {
-      label: 'Canonical-icehouse', 
-    }, {
-      label: 'Canonical-juno',
-    }, {
-      label: 'Canonical-liberty',
-    }, {
-      label: 'Canonical-mitaka',
-    }, {
-      label: 'Apex-Mitaka',
-    }, {
-      label: 'Devstack-Mitaka',
-    }, {
-      label: 'packstack-7.0.0-0.10.dev1682'
-    }
-    ];
+    return Distributions;
   },
 
   networkOptions: function () {
-    return [{
-      label: 'OSV',
-    }, {
-      label: 'VPP',
-    }];
+    return NetworkPlugins;
   },
  
 });
