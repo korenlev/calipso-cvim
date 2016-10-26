@@ -1,24 +1,25 @@
 import argparse
 
 from kombu import Queue, Exchange
-from kombu.log import get_logger
 from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.inventory_mgr import InventoryMgr
-
-logger = get_logger(__name__)
+from discover.logger import Logger
 
 
 class Worker(ConsumerMixin):
     event_queues = [
-        Queue('nova',
+        Queue('notifications.nova',
               Exchange('nova', 'topic', durable=False),
+              durable=False, routing_key='#'),
+        Queue('notifications.neutron',
+              Exchange('neutron', 'topic', durable=False),
+              durable=False, routing_key='#'),
+        Queue('notifications.neutron',
+              Exchange('dhcp_agent', 'topic', durable=False),
               durable=False, routing_key='#')
-        #    Queue('notifications.neutron',
-        #      Exchange('neutron', 'topic', durable=False),
-        #      durable=False, routing_key='#')
     ]
 
     def __init__(self, connection):
@@ -33,15 +34,38 @@ class Worker(ConsumerMixin):
             "compute.instance.delete.end": self.handler.instance_delete,
             "compute.instance.rebuild.end": self.handler.instance_update,
             "compute.instance.update": self.handler.instance_update,
+
             "servergroup.create": self.handler.region_add,
             "servergroup.delete": self.handler.region_delete,
             "servergroup.update": self.handler.region_update,
             "servergroup.addmember": self.handler.region_update,
+
             "compute.instance.shutdown.start": self.handler.instance_down,
             "compute.instance.power_off.start": self.handler.instance_down,
             "compute.instance.power_on.end": self.handler.instance_up,
             "compute.instance.suspend.start": self.handler.instance_down,
-            "compute.instance.suspend.end": self.handler.instance_up
+            "compute.instance.suspend.end": self.handler.instance_up,
+
+            "network.create.end": self.handler.network_create,
+            "network.update.end": self.handler.network_update,
+            "network.delete.end": self.handler.network_delete,
+
+            "subnet.create.end": self.handler.subnet_create,
+            "subnet.update.end": self.handler.subnet_update,
+            "subnet.delete.end": self.handler.subnet_delete,
+
+            "port.create.end": self.handler.port_create,
+            "port.update.end": self.handler.port_update,
+            "port.delete.end": self.handler.port_delete,
+
+            "router.create.end": self.handler.router_create,
+
+            "router.update.end": self.handler.router_update,
+
+            "router.delete.end": self.handler.router_delete,
+
+            "router.interface.create": self.handler.router_interface_create,
+            "router.interface.delete": self.handler.router_interface_delete,
         }
 
     def get_consumers(self, Consumer, channel):
@@ -81,12 +105,9 @@ def get_args():
 
 
 if __name__ == '__main__':
+    logger = Logger()
+    logger.set_loglevel('INFO')
     from kombu import Connection
-    from kombu.utils.debug import setup_logging
-
-    # setup root logger
-    setup_logging(loglevel='DEBUG', loggers=[''])
-
     args = get_args()
     conf = Configuration(args.mongo_config)
     env = args.env
