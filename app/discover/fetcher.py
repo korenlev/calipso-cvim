@@ -1,5 +1,6 @@
 import json
 
+from utils.binary_converter import BinaryConverter
 from discover.configuration import Configuration
 from discover.logger import Logger
 
@@ -33,15 +34,6 @@ class Fetcher(Logger):
             return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
         else:
             return json.dumps(obj)
-
-    def binary2str(self, txt):
-        if not isinstance(txt, bytes):
-            return str(txt)
-        try:
-            s = txt.decode("ascii")
-        except TypeError:
-            s = str(txt)
-        return s
 
     def set_logger(self, loglevel):
         self.log.set_level(loglevel)
