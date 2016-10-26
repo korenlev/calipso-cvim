@@ -3,10 +3,10 @@ import os
 import paramiko
 
 from discover.configuration import Configuration
-from discover.fetcher import Fetcher
+from utils.binary_converter import BinaryConverter
 
 
-class SshConn(Fetcher):
+class SshConn(BinaryConverter):
     config = None
     ssh = None
     connections = {}
