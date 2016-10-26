@@ -2,9 +2,9 @@ from discover.api_access import ApiAccess
 from discover.inventory_mgr import InventoryMgr
 
 
-class ApiFetchNetworks(ApiAccess):
+class ApiFetchNetwork(ApiAccess):
     def __init__(self):
-        super(ApiFetchNetworks, self).__init__()
+        super(ApiFetchNetwork, self).__init__()
         self.inv = InventoryMgr()
 
     def get(self, id):
@@ -14,18 +14,18 @@ class ApiFetchNetworks(ApiAccess):
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(region, token))
+            ret.extend(self.get_for_region(region, token, id))
         return ret
 
-    def get_for_region(self, region, token):
+    def get_for_region(self, region, token, id):
         endpoint = self.get_region_url_nover(region, "neutron")
-        req_url = endpoint + "/v2.0/networks"
+        req_url = endpoint + "/v2.0/networks/" + id
         headers = {
             "X-Auth-Project-Id": "admin",
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)
-        if not "networks" in response:
+        if not "network" in response:
             return []
         networks = response["networks"]
         req_url = endpoint + "/v2.0/subnets"
@@ -51,17 +51,15 @@ class ApiFetchNetworks(ApiAccess):
                 doc["project"] = project["name"]
             subnets_details = {}
             cidrs = []
-            subnets_id = []
             for s in doc["subnets"]:
                 try:
                     subnet = subnets_hash[s]
                     cidrs.append(subnet["cidr"])
-                    subnets_id.append(subnet["id"])
                     subnets_details[subnet["name"]] = subnet
                 except KeyError:
                     pass
             if subnets_details:
                 doc["subnets"] = subnets_details
                 doc["cidrs"] = cidrs
-                doc["subnets_id"] = subnets_id
         return networks
+

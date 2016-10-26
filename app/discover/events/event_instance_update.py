@@ -23,12 +23,12 @@ class EventInstanceUpdate(Fetcher):
 
         if state == 'active' and old_state == 'building':
             handler = EventInstanceAdd()
-            handler.handle(env, payload)
+            handler.handle(env, values)
             return
 
         if state == 'deleted' and old_state == 'active':
             handler = EventInstanceDelete()
-            handler.handle(env, payload)
+            handler.handle(env, values)
             return
 
         name = payload['display_name']

@@ -11,8 +11,8 @@ class EventInstanceAdd(Fetcher):
 
     def handle(self, env, values):
         # find the host, to serve as parent
-        instance_id = values['instance_id']
-        host_id = values['host']
+        instance_id = values['payload']['instance_id']
+        host_id = values['payload']['host']
         instances_root_id = host_id + '-instances'
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
@@ -34,3 +34,4 @@ class EventInstanceAdd(Fetcher):
         host_scanner.scan_from_queue()
         host_scanner.scan_links()
         host_scanner.scan_cliques()
+        return True

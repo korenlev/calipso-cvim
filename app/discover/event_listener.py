@@ -11,15 +11,15 @@ from discover.logger import Logger
 
 class Worker(ConsumerMixin):
     event_queues = [
-        Queue('notification.nova',
+        Queue('notifications.nova',
               Exchange('nova', 'topic', durable=False),
               durable=False, routing_key='#'),
         Queue('notifications.neutron',
               Exchange('neutron', 'topic', durable=False),
               durable=False, routing_key='#'),
         Queue('notifications.neutron',
-              Exchange('openstack', 'topic', durable=False),
-              durable=False, routing_key='notification.info')
+              Exchange('dhcp_agent', 'topic', durable=False),
+              durable=False, routing_key='#')
     ]
 
     def __init__(self, connection):
@@ -47,12 +47,15 @@ class Worker(ConsumerMixin):
             "compute.instance.suspend.end": self.handler.instance_up,
 
             "network.create.end": self.handler.network_create,
+            "network.update.end": self.handler.network_update,
             "network.delete.end": self.handler.network_delete,
 
             "subnet.create.end": self.handler.subnet_create,
+            "subnet.update.end": self.handler.subnet_update,
             "subnet.delete.end": self.handler.subnet_delete,
 
             "port.create.end": self.handler.port_create,
+            "port.update.end": self.handler.port_update,
             "port.delete.end": self.handler.port_delete,
 
             "router.create.end": self.handler.router_create,
