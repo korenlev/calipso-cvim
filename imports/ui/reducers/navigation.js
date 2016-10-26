@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 
-import * as actions from '/client/imports/actions/navigation';
+import * as actions from '/imports/ui/actions/navigation';
 
 const defaultState = { current: [], lastActionable: [] };
 
@@ -15,7 +15,7 @@ function reducer(state = defaultState, action) {
     return R.merge(state, {
       current: action.payload.nodeChain,
       lastActionable: lastActionable
-    }); 
+    });
 
   case actions.SET_CURRENT_NODE_FROM_TREE_CONTROL:
     lastActionable = isActionable(action.payload.nodeChain) ? action.payload.nodeChain :
@@ -23,7 +23,7 @@ function reducer(state = defaultState, action) {
 
     if (contains(action.payload.nodeChain, state.current)) {
       let equalLastIndex = findEqualLastIndex(action.payload.nodeChain, state.current);
-      return R.merge(state, { 
+      return R.merge(state, {
         current: R.slice(0, equalLastIndex, action.payload.nodeChain),
         lastActionable: lastActionable
       });
@@ -79,7 +79,7 @@ function isActionable(nodeChain) {
   if (R.isNil(last)) { return false; }
   if (R.isNil(last.item)) { return false; }
 
-  if (! R.isNil(last.item.clique)) { return true; } 
+  if (! R.isNil(last.item.clique)) { return true; }
 
   if (last.item.id === 'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
     return true;

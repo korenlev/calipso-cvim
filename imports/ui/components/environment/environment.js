@@ -12,8 +12,8 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
 
 import { Inventory } from '/imports/api/inventories/inventories';
 
-import { store } from '/client/imports/store';
-import { setCurrentNode } from '/client/imports/actions/navigation';
+import { store } from '/imports/ui/store/store';
+import { setCurrentNode } from '/imports/ui/actions/navigation';
 
 import './environment.html';
 
@@ -39,18 +39,18 @@ Template.Environment.onCreated(function () {
     instance.state.set('envName', envName);
 
     if (query.graph) {
-      let node24IdPath = 
+      let node24IdPath =
         '/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24';
-      let node24NamePath = 
+      let node24NamePath =
         '/WebEX-Mirantis@Cisco/Regions/RegionOne/Aggregates/WebEx-RTP-SSD-Aggregate/node-24';
 
       store.dispatch(setCurrentNode({
-        id_path: node24IdPath, 
+        id_path: node24IdPath,
         name_path: node24NamePath
       }));
     } else {
       store.dispatch(setCurrentNode({
-        id_path: '/' + envName, 
+        id_path: '/' + envName,
         name_path: '/' + envName
       }));
     }
@@ -128,7 +128,7 @@ Template.Environment.helpers({
   instancesCount: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' + 
+    var counterName = 'inventory?env+type!counter?env=' +
       envName + '&type=' + 'instance';
     //return Inventory.find({environment: envName,type:'instance'}).count();
     return Counts.get(counterName);
@@ -137,7 +137,7 @@ Template.Environment.helpers({
   vservicesCount: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' + 
+    var counterName = 'inventory?env+type!counter?env=' +
       envName + '&type=' + 'vservice';
     //return Inventory.find({environment: envName,type:'vservice'}).count();
     return Counts.get(counterName);
@@ -146,7 +146,7 @@ Template.Environment.helpers({
   hostsCount: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' + 
+    var counterName = 'inventory?env+type!counter?env=' +
       envName + '&type=' + 'host';
     //return Inventory.find({environment: envName,type:'host'}).count();
     return Counts.get(counterName);
@@ -155,7 +155,7 @@ Template.Environment.helpers({
   vconnectorsCount: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' + 
+    var counterName = 'inventory?env+type!counter?env=' +
       envName + '&type=' + 'vconnector';
     //return Inventory.find({environment: envName,type: 'vconnector'}).count();
     return Counts.get(counterName);
@@ -164,7 +164,7 @@ Template.Environment.helpers({
   projectsCount: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' + 
+    var counterName = 'inventory?env+type!counter?env=' +
       envName + '&type=' + 'project';
     //return Inventory.find({environment: envName,type: 'project'}).count();
     return Counts.get(counterName);
@@ -173,7 +173,7 @@ Template.Environment.helpers({
   regoinsCount: function(){
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' + 
+    var counterName = 'inventory?env+type!counter?env=' +
       envName + '&type=' + 'region';
     //return Inventory.find({environment: envName,type: 'region'}).count();
     return Counts.get(counterName);
@@ -209,7 +209,7 @@ Template.Environment.helpers({
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
     //return Messages.find({environment: envName,level:'notify'}).count();
-    return Counts.get('messages?env+level!counter?env=' + 
+    return Counts.get('messages?env+level!counter?env=' +
      envName + '&level=' + 'notify');
   },
 
@@ -217,7 +217,7 @@ Template.Environment.helpers({
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
     //return Messages.find({environment: envName,level:'warn'}).count();
-    return Counts.get('messages?env+level!counter?env=' + 
+    return Counts.get('messages?env+level!counter?env=' +
      envName + '&level=' + 'warn');
   },
 
@@ -225,7 +225,7 @@ Template.Environment.helpers({
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
     //return Messages.find({environment: envName,level:'error'}).count();
-    return Counts.get('messages?env+level!counter?env=' + 
+    return Counts.get('messages?env+level!counter?env=' +
        envName + '&level=' + 'error');
   },
 

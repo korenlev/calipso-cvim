@@ -1,5 +1,5 @@
 /*
- * Template Component: accordionTreeNode
+ * Template Component: EnvironmentWizard
  */
 
 import { Meteor } from 'meteor/meteor';
@@ -11,16 +11,16 @@ import { Environments } from '/imports/api/environments/environments';
 
 import './environment-wizard.html';
 
-import '/client/imports/env-main-info/env-main-info';
-import '/client/imports/env-os-api-endpoint-info/env-os-api-endpoint-info';
-import '/client/imports/env-open-stack-db-credentials-info/env-open-stack-db-credentials-info';
-import '/client/imports/env-master-host-credentials-info/env-master-host-credentials-info';
-import '/client/imports/env-nfv-info/env-nfv-info';
+import '/imports/ui/components/env-main-info/env-main-info';
+import '/imports/ui/components/env-os-api-endpoint-info/env-os-api-endpoint-info';
+import '/imports/ui/components/env-open-stack-db-credentials-info/env-open-stack-db-credentials-info';
+import '/imports/ui/components/env-master-host-credentials-info/env-master-host-credentials-info';
+import '/imports/ui/components/env-nfv-info/env-nfv-info';
 import '/imports/ui/components/env-amqp-credentials-info/env-amqp-credentials-info';
 
-import { 
+import {
   insert,
-  update 
+  update
 } from '/imports/api/environments/methods';
 
 /*
@@ -57,7 +57,7 @@ Template.EnvironmentWizard.onCreated(function(){
 });
 
 Template.EnvironmentWizard.rendered = function(){
-  
+
   // todo: refactor to use component - not jquery click
   /*
   $('.btnNext').click(function(){
@@ -69,7 +69,7 @@ Template.EnvironmentWizard.rendered = function(){
   $('.btnPrevious').click(function(){
     $('.nav-tabs > .active').prev('li').find('a').trigger('click');
   });
-  
+
 };
 
 /*
@@ -88,7 +88,7 @@ Template.EnvironmentWizard.helpers({
   tabs: function () {
     return [{
       label: 'Main Info',
-      localLink: 'maininfo'  
+      localLink: 'maininfo'
     }, {
       label: 'OS API Endpoint',
       localLink: 'endpoin-panel'
@@ -123,10 +123,10 @@ Template.EnvironmentWizard.helpers({
         let calcKey = R.isEmpty(key) ? subKey : key;
         let newMainModel;
 
-        if (R.isEmpty(calcKey)) { 
-          newMainModel = value; 
+        if (R.isEmpty(calcKey)) {
+          newMainModel = value;
         } else {
-          newMainModel = setModelByKey(calcKey, value, mainModel); 
+          newMainModel = setModelByKey(calcKey, value, mainModel);
         }
         instance.state.set('environment', newMainModel);
       },
@@ -172,7 +172,7 @@ Template.EnvironmentWizard.helpers({
 
   getConfSection: function(sectionName, environment) {
     if (R.isNil(environment)) { return null; }
-    let section = R.find(R.propEq('name', sectionName), 
+    let section = R.find(R.propEq('name', sectionName),
       environment.configuration);
     return section;
   }
@@ -188,7 +188,7 @@ Template.EnvironmentWizard.events({
   'click .toast' : function () {
     toastr.success('Have fun storming the castle!', 'Open Stack server says');
   },
-  // todo: research: seems not implemented 
+  // todo: research: seems not implemented
   'click .fa-trash' : function () {
     Meteor.call('deleteRecipe', this._id);
   }
@@ -210,17 +210,17 @@ function processActionResult(error) {
 function setModelByKey(key, value, model) {
   let newModel;
 
-  if (typeof key !== 'string') { 
+  if (typeof key !== 'string') {
     throw 'malformed key';
   }
 
   if (R.test(/^#configuration-/, key)) {
     let sectionName = (/^#configuration-(.*$)/.exec(key))[1];
 
-    let sectionIndex = R.findIndex(R.propEq('name', sectionName), 
+    let sectionIndex = R.findIndex(R.propEq('name', sectionName),
       model.configuration);
 
-    let configuration = R.update(sectionIndex, value, model.configuration); 
+    let configuration = R.update(sectionIndex, value, model.configuration);
     newModel = R.assoc('configuration', configuration, model);
 
   } else {

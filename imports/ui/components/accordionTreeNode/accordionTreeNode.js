@@ -10,7 +10,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { Inventory } from '/imports/api/inventories/inventories';
 //import { store } from '/client/imports/store';
 //import { setCurrentNode } from '/client/imports/actions/navigation';
-import '/client/imports/accordionTreeNodeChildren/accordionTreeNodeChildren';
+import '/imports/ui/components/accordionTreeNodeChildren/accordionTreeNodeChildren';
 import './accordionTreeNode.html';
 
 var subMenuClass = 'submenu';
@@ -35,27 +35,27 @@ Template.accordionTreeNode.onCreated(function () {
 
       if (instance.data.node.id === 'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
         let objId = 'node-24';
-        instance.subscribe('inventory?type+host', 'instance', objId);   
+        instance.subscribe('inventory?type+host', 'instance', objId);
 
       } else {
         let objId = instance.data.node._id._str;
         instance.subscribe('cliques?focal_point', objId);
 
-        Cliques.find({ 
-          focal_point: new Mongo.ObjectID(objId) 
+        Cliques.find({
+          focal_point: new Mongo.ObjectID(objId)
         })
         .forEach(
-          function (cliqueItem) { 
+          function (cliqueItem) {
             instance.subscribe('links?_id-in', cliqueItem.links);
 
             Links.find({ _id: {$in: cliqueItem.links} })
             .forEach(function(linkItem) {
-              let idsList = [ linkItem['source'], linkItem['target'] ]; 
-              instance.subscribe('inventory?_id-in', idsList); 
+              let idsList = [ linkItem['source'], linkItem['target'] ];
+              instance.subscribe('inventory?_id-in', idsList);
 
               Inventory.find({ _id: { $in: idsList } })
               .forEach(function (invItem) {
-                instance.subscribe('attributes_for_hover_on_data?type', invItem.type); 
+                instance.subscribe('attributes_for_hover_on_data?type', invItem.type);
               });
             });
           });
@@ -66,16 +66,16 @@ Template.accordionTreeNode.onCreated(function () {
 });
 
 Template.accordionTreeNode.rendered = function () {
-  var instance = this;       
+  var instance = this;
 
   setTimeout(function () {
     instance.state.set('showNow', true);
   }, 50);
 
   instance.autorun(function () {
-    var openState = instance.state.get('openState');	
+    var openState = instance.state.get('openState');
     switch (openState) {
-    case 'opening': 
+    case 'opening':
       // Blaze arcitecture bug: in render the children are not it rendered.
       // There for we need to wait until children are rendered to do the animation.
       instance.state.set('openState', 'open');
@@ -85,7 +85,7 @@ Template.accordionTreeNode.rendered = function () {
       }, 10);
       break;
 
-    case 'closing': 
+    case 'closing':
 
       animateClosing(instance.$(instance.firstNode));
       setTimeout(function () {
@@ -109,14 +109,14 @@ Template.accordionTreeNode.helpers({
     let instance = Template.instance();
     let openState = instance.state.get('openState');
     let nextOpenState = null;
-    
+
     if (showOpen === false) {
-      if (openState === 'open' || 
+      if (openState === 'open' ||
           openState === 'opening') {
         nextOpenState = 'closing';
-      } 
+      }
     } else if (showOpen === true) {
-      if (openState === 'close' || 
+      if (openState === 'close' ||
           openState === 'closing') {
         nextOpenState = 'opening';
       }
@@ -175,7 +175,7 @@ Template.accordionTreeNode.helpers({
   },
 
   createChildrenArgs: function(
-    parentNode, 
+    parentNode,
     selectedNode
     ) {
 
@@ -202,7 +202,7 @@ Template.accordionTreeNode.helpers({
     if (! instance.data.openedFamilyId) { return; }
     if (openState !== 'open') { return; }
     if (instance.data.node.id === instance.data.openedFamilyId) { return; }
-    
+
     instance.state.set('openState', 'closing');
   },
 
@@ -233,13 +233,13 @@ Template.accordionTreeNode.events({
       case 'open':
         nextState = 'closing';
         break;
-    
-      case 'opening':	
+
+      case 'opening':
         break;
 
       case 'close':
         nextState = 'opening';
-        break;	
+        break;
 
       case 'closing':
         break;
@@ -249,14 +249,14 @@ Template.accordionTreeNode.events({
 
     }
 
-    
+
     */
   },
 });
 
 function activateNodeAction (instance) {
   if (instance.data.node.clique ||
-      instance.data.node.id === 
+      instance.data.node.id ===
         'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
 
     var $element = instance.$(instance.firstNode);
@@ -273,7 +273,7 @@ function activateNodeAction (instance) {
       let graphData = d3Graph.getGraphDataByClique(objId);
       d3Graph.updateNetworkGraph(graphData);
 
-    } else if (instance.data.node.id === 
+    } else if (instance.data.node.id ===
                  'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
 
       $('.mainContentData').hide();

@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import osdnaApp from '/client/imports/reducers/index';
+import osdnaApp from '/imports/ui/reducers/index';
 
 const store = createStore(osdnaApp);
 

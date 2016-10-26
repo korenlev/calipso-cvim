@@ -5,8 +5,8 @@
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 
-import { store } from '/client/imports/store';
-import { setCurrentNode } from '/client/imports/actions/navigation';
+import { store } from '/imports/ui/store/store';
+import { setCurrentNode } from '/imports/ui/actions/navigation';
 
 import '../breadcrumbNode/breadcrumbNode';
 import './breadcrumb.html';
@@ -17,14 +17,14 @@ Template.breadcrumb.onCreated(function () {
 
   instance.storeUnsubscribe = store.subscribe(() => {
     let lastActionable = store.getState().api.navigation.lastActionable;
-    instance.state.set('nodeItemList', lastActionable);   
+    instance.state.set('nodeItemList', lastActionable);
   });
 });
 
 Template.breadcrumb.onDestroyed(function () {
   let instance = this;
   instance.storeUnsubscribe();
-  
+
 });
 
 Template.breadcrumb.helpers({

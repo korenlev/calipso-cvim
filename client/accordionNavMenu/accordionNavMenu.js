@@ -10,11 +10,11 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 //import { Tracker } from 'meteor/tracker';
 //import { Session } from 'meteor/session';
 
-import '/client/imports/accordionTreeNode/accordionTreeNode';
+import '/imports/ui/components/accordionTreeNode/accordionTreeNode';
 import '/imports/ui/components/d3graph/d3graph';
 
-import { store } from '/client/imports/store';
-import { setCurrentNodeFromTreeControl } from '/client/imports/actions/navigation';
+import { store } from '/imports/ui/store/store';
+import { setCurrentNodeFromTreeControl } from '/imports/ui/actions/navigation';
 
 (function () {
 
