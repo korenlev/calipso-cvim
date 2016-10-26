@@ -2,7 +2,10 @@ import datetime
 
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from discover.fetcher import Fetcher
+from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
+from discover.find_links_for_vedges import FindLinksForVedges
 from discover.inventory_mgr import InventoryMgr
+from discover.scan_instances_root import ScanInstancesRoot
 
 
 class EventPortAdd(Fetcher):
@@ -163,20 +166,52 @@ class EventPortAdd(Fetcher):
         self.port_id = self.port['id']
 
         # check ports folder document.
-        ports_folder = self.inv.get_by_id(self.env, self.port_id+'-ports')
+        ports_folder = self.inv.get_by_id(env, self.network_id+'-ports')
         if not ports_folder:
             print("not folder")
-            self.add_ports_folder(self.env, self.project_id, self.network_id, self.network_name)
-        self.add_port_document(self.env, self.project, self.project_id, self.network_name, self.network_id, self.port)
+            self.add_ports_folder(env, self.project_id, self.network_id, self.network_name)
+        self.add_port_document(env, self.project, self.project_id, self.network_name, self.network_id, self.port)
 
         port_device_owner_handler = {
-            "network:router_gateway": None,
-            "network:floatingip": None,
-            "network:dhcp": self.handle_dhcp_device,
-            "network:router_interface": None,
+            #"router_gateway": None,
+            #"floatingip": None,
+            "dhcp": self.handle_dhcp_device,
+            #"router_interface": None,
             # other type will be handled by instance scanning.
         }
+        device_owner = self.port['device_owner'].split(":")
+        print(device_owner)
+        if device_owner[0] == 'compute':
+            host_id  = self.port['binding:host_id']
+            instance_id = self.port['device_id']
+            instances_root_id = host_id + '-instances'
+            instances_root = self.inv.get_by_id(env, instances_root_id)
+            if not instances_root:
+                self.log.info('instance document not found, aborting port adding')
+                return None
 
-        if self.port['device_owner']:pass
+            # scan instance
+            instances_scanner = ScanInstancesRoot()
+            instances_scanner.set_env(env)
+            instances_scanner.scan(instances_root,
+                                   limit_to_child_id=instance_id, limit_to_child_type='instance')
+            instances_scanner.scan_from_queue()
 
+            # do we need to scan host?
+            self.log.info("scanning for links")
+            fetchers_implementing_add_links = [
+                FindLinksForInstanceVnics(),
+                FindLinksForVedges(),
+            ]
+            for fetcher in fetchers_implementing_add_links:
+                fetcher.add_links()
+            instances_scanner.scan_cliques()
+            return True
+
+        if device_owner[0] == 'neutron':
+            handler = port_device_owner_handler.get(device_owner)
+            if handler:
+                handler(env, notification, self.network_id, self.network_name)
+
+        # port of interface should be done after router.
         print("\n Todo: add port for network")
