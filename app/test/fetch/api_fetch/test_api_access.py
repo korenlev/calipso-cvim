@@ -1,9 +1,8 @@
 from unittest.mock import patch, MagicMock
-
 from discover.api_access import ApiAccess
-from test.fetch.regions import REGIONS
+from test.fetch.api_fetch.test_data.api_access import *
 from test.fetch.test_fetch import TestFetch
-from test_data.api_access import *
+from test.fetch.api_fetch.test_data.regions import REGIONS
 
 
 class TestApiAccess(TestFetch):

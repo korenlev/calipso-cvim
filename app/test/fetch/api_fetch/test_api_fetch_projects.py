@@ -1,7 +1,7 @@
+from unittest.mock import MagicMock
 from discover.api_fetch_projects import ApiFetchProjects
 from test.fetch.test_fetch import TestFetch
-from unittest.mock import MagicMock
-from test_data.api_fetch_projects import *
+from test.fetch.api_fetch.test_data.api_fetch_projects import *
 
 
 class TestApiFetchProjects(TestFetch):

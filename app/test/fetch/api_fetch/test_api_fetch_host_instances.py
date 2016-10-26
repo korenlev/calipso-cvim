@@ -1,9 +1,8 @@
-from unittest.mock import MagicMock
-
 from discover.api_fetch_host_instances import ApiFetchHostInstances
 from test.fetch.test_fetch import TestFetch
-from test.fetch.token import TOKEN
 from test_data.api_fetch_host_instances import *
+from test_data.token import TOKEN
+from unittest.mock import MagicMock
 
 
 class TestApiFetchHostInstances(TestFetch):

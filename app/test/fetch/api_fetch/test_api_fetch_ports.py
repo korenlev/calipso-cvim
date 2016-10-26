@@ -1,9 +1,8 @@
 from unittest.mock import MagicMock
-
 from discover.api_fetch_ports import ApiFetchPorts
 from test.fetch.test_fetch import TestFetch
-from test.fetch.token import *
-from test_data.api_fetch_ports import *
+from test.fetch.api_fetch.test_data.api_fetch_ports import *
+from test.fetch.api_fetch.test_data.token import TOKEN
 
 
 class TestApiFetchPorts(TestFetch):
