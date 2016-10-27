@@ -89,15 +89,37 @@ Template.EnvironmentWizard.helpers({
   },
 
   tabs: function () {
+    let instance = Template.instance();
+    let environmentModel = instance.state.get('environmentModel');
+    let activateNextTab = function (nextTabId) {
+      instance.$('#link-' + nextTabId).tab('show');
+    };
+
     return [{
       label: 'Main Info',
       localLink: 'maininfo',
       templateName: 'EnvMainInfo',
       defaultTab: true,
+      templateData: {
+        model: environmentModel, 
+        setModel: function (newModel) {
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'endpoint-panel'),
+      }
     }, {
       label: 'OS API Endpoint',
-      localLink: 'endpoin-panel',
+      localLink: 'endpoint-panel',
       templateName: 'EnvOsApiEndpointInfo',
+      templateData: {
+        model: getGroupInArray('OpenStack', environmentModel.configuration),
+        setModel: function (newSubModel) {
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('OpenStack', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'db-credentials'),
+      }
     }, {
       label: 'OS DB Credentials',
       localLink: 'db-credentials',
@@ -124,9 +146,6 @@ Template.EnvironmentWizard.helpers({
   environment: function () {
     let instance = Template.instance();
     return instance.state.get('environment');
-  },
-
-  createTabArgsV2: function () {
   },
 
   createTabArgs: function (key, model, nextTabId) {
@@ -243,3 +262,19 @@ function setModelByKey(key, value, model) {
 
   return newModel;
 }
+
+function getGroupInArray(groupName, array) {
+  return R.find(R.propEq('name', groupName), array);
+}
+
+function removeGroupInArray(groupName, array) {
+  return R.reject(R.propEq('name', groupName), array);
+}
+
+function setConfigurationGroup(groupName, group, model) {
+  let tempConfiguration = removeGroupInArray(groupName, model.configuration);
+  let newConfiguration = R.append(group, tempConfiguration);
+  let newModel = R.assoc('configuration', newConfiguration, model);
+  return newModel;
+}
+

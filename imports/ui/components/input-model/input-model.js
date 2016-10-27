@@ -28,9 +28,7 @@ Template.InputModel.rendered = function() {
 Template.InputModel.events({
   'input .inputField': function (event) {
     let instance = Template.instance();
-    instance.data.setModel(instance.data.key, 
-      event.target.value);
-    //setModel(instance, event.target.value);
+    instance.data.setModel(event.target.value);
   }
 });
    
@@ -58,30 +56,4 @@ Template.InputModel.helpers({
 
     return instance.data.placeholder;
   },
-
-  calcValue: function () {
-    let instance = Template.instance();
-    return getModel(instance);
-  }
 });
-
-function getModel(instance) {
-  let key = instance.data.key;
-  let context = instance.data.context;
-
-  if (R.isNil(context)) { return null; }
-
-  return context[key];
-}
-
-function setModel(instance, value) {
-  /*
-  let modelName = instance.data.modelName;
-  let context = instance.data.context;
-
-  if (R.isNil(context)) { return null; }
-
-  context[modelName] =  value;
-  */
-
-}

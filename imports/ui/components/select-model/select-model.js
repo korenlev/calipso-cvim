@@ -31,14 +31,17 @@ Template.SelectModel.events({
     event.preventDefault();
 
     let instance = Template.instance();
-    let selectedValues = R.map(function (optionEl) {
+    // Extract string values from select element's attribute.
+    let elementSelectedValues = R.map(function (optionEl) {
       return optionEl.value;
     }, event.target.selectedOptions);
 
-    selectedValues = instance.data.multi ? selectedValues : 
-      selectedValues[0];
-    instance.data.setModel(instance.data.key, selectedValues);
-    //setModel(instance, event.target.value);
+    let selectedValues = instance.data.multi ? elementSelectedValues : 
+      elementSelectedValues[0];
+
+    if (instance.data.setModel) {
+      instance.data.setModel(selectedValues);
+    }
   }
 });
    
@@ -49,11 +52,9 @@ Template.SelectModel.events({
 Template.SelectModel.helpers({    
   isSelected: function (optionValue) {
     let instance = Template.instance();
-    let key = instance.data.key;
-    let context = instance.data.context;
-    if (R.isNil(context)) { return false; }
+    let selectedValues = instance.data.values;
 
-    return context[key] === optionValue;
+    return R.contains(optionValue, selectedValues);
   },
 });
 

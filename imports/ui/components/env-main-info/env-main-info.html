@@ -8,7 +8,7 @@
 
         <div class="col-sm-3">
           {{> InputModel(createInputArgs
-                context=model 
+                value=model.user 
                 key="user"
                 type="email"
                 placeholder="Email")
@@ -27,8 +27,8 @@
 
         <div class="col-sm-3">
           {{> InputModel(createInputArgs
-                context=model 
-                key="name"
+                value=model.name
+                key='name'
                 type="text"
                 placeholder="Name")
           }}
@@ -45,7 +45,7 @@
 
         <div class="col-sm-3">
           {{> SelectModel(createSelectArgs
-                context=model 
+                values=model.distribution 
                 key="distribution"
                 options=distributionOptions)
           }}
@@ -62,7 +62,7 @@
 
         <div class="col-sm-3">
           {{> SelectModel(createSelectArgs
-                context=model 
+                values=model.network_plugins 
                 key="network_plugins"
                 options=networkOptions
                 multi=true)

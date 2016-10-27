@@ -2,15 +2,17 @@ import * as R from 'ramda';
 
 export const createInputArgs = function (params) {
   let instance = Template.instance();
+
   return {
-    context: params.hash.context,
-    key: params.hash.key,
+    value: params.hash.value,
     type: params.hash.type,
     placeholder: params.hash.placeholder,
-    setModel: function (key, value) {
+    setModel: function (value) {
       let mainModel = instance.data.model; 
-      let newMainModel = R.assoc(key, value, mainModel);
-      instance.data.setModel(instance.data.key, newMainModel); 
+      let newMainModel = R.assoc(params.hash.key, value, mainModel);
+      if (instance.data.setModel) {
+        instance.data.setModel(newMainModel); 
+      }
     },
   };
 };

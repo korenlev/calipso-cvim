@@ -111,7 +111,7 @@ Environments.schema = new SimpleSchema({
     allowedValues: Distributions
   }, 
   last_scanned: { type: String },
-  name: { type: String },
+  name: { type: String, defaultValue: 'Env Name' },
   network_plugins: { 
     type: [Object],
     allowedValues: NetworkPlugins
