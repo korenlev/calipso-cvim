@@ -57,7 +57,8 @@ Environments.schema = new SimpleSchema({
         'mysql',
         'OpenStack',
         'CLI',
-        'AMQP'
+        'AMQP',
+        'NFV provider',
       ];
 
       let invalidResult = R.find(function(groupName) {
@@ -103,6 +104,13 @@ Environments.schema = new SimpleSchema({
       port: '5673',
       user: 'User',
       password: 'abcd1234'
+    }, {
+      name: 'NFV provider',
+      host: '10.0.0.1',
+      admin_token: 'abcdefg1234',
+      port: '5000',
+      user: 'admin',
+      pwd: 'admin',
     }
     ]
   },
@@ -155,6 +163,15 @@ export const AMQPSchema = new SimpleSchema({
   password: { type: String },
 });
 
+export const NfvProviderSchema = new SimpleSchema({
+  name: { type: String, autoValue: function () { return 'NFV provider'; } },
+  host: { type: String },
+  admin_token: { type: String },
+  port: { type: String },
+  user: { type: String },
+  pwd: { type: String },
+});
+
 function getSchemaForGroupName(groupName) {
   switch (groupName) {
   case 'mysql': 
@@ -165,6 +182,8 @@ function getSchemaForGroupName(groupName) {
     return CLISchema;
   case 'AMQPSchema':
     return AMQPSchema;
+  case 'NFV provider':
+    return NfvProviderSchema; 
   default:
     throw 'not implemented';
   }

@@ -162,6 +162,14 @@ Template.EnvironmentWizard.helpers({
       label: 'NFV Credentials',
       localLink: 'nfv',
       templateName: 'EnvNfvInfo',
+      templateData: {
+        model: getGroupInArray('NFV provider', environmentModel.configuration),
+        setModel: function (newSubModel) {
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('NFV provider', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+      }
     }];
   },
 
@@ -174,29 +182,10 @@ Template.EnvironmentWizard.helpers({
     return instance.state.get('environment');
   },
 
-  createTabArgs: function (key, model, nextTabId) {
+  createTabArgs: function (key, model) {
     let instance = Template.instance();
 
     return {
-      key: key,
-      model: model,
-      setModel: function (subKey, value) {
-        let mainModel = instance.state.get('environment');
-        let calcKey = R.isEmpty(key) ? subKey : key;
-        let newMainModel;
-
-        if (R.isEmpty(calcKey)) {
-          newMainModel = value;
-        } else {
-          newMainModel = setModelByKey(calcKey, value, mainModel);
-        }
-        instance.state.set('environment', newMainModel);
-      },
-      onNextRequested: function () {
-        if (nextTabId) {
-          instance.$('#link-' + nextTabId).tab('show');
-        }
-      },
       onSubmitRequested: function () {
         console.log('onSubmitRequested');
         console.log(model);
@@ -264,29 +253,6 @@ function processActionResult(error) {
   if (error) {
     alert(error);
   }
-}
-
-function setModelByKey(key, value, model) {
-  let newModel;
-
-  if (typeof key !== 'string') {
-    throw 'malformed key';
-  }
-
-  if (R.test(/^#configuration-/, key)) {
-    let sectionName = (/^#configuration-(.*$)/.exec(key))[1];
-
-    let sectionIndex = R.findIndex(R.propEq('name', sectionName),
-      model.configuration);
-
-    let configuration = R.update(sectionIndex, value, model.configuration);
-    newModel = R.assoc('configuration', configuration, model);
-
-  } else {
-    newModel =R.assoc(key, value, model);
-  }
-
-  return newModel;
 }
 
 function getGroupInArray(groupName, array) {

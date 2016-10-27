@@ -6,6 +6,8 @@
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
         
+import { createInputArgs } from '/imports/ui/lib/input-model';
+
 import './env-nfv-info.html';     
     
 /*  
@@ -25,11 +27,6 @@ Template.EnvNfvInfo.rendered = function() {
  */
 
 Template.EnvNfvInfo.events({
-  'click .sm-next-button': function () {
-    let instance = Template.instance();
-    instance.data.onNextRequested(); 
-  },
-
   'click .sm-submit-button': function () {
     let instance = Template.instance();
     instance.data.onSubmitRequested(); 
@@ -41,6 +38,7 @@ Template.EnvNfvInfo.events({
  */
 
 Template.EnvNfvInfo.helpers({    
+  createInputArgs: createInputArgs
 });
 
 
