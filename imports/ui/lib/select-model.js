@@ -9,6 +9,7 @@ export const createSelectArgs = function (params) {
     placeholder: params.hash.placeholder,
     options: params.hash.options,
     multi: params.hash.multi ? params.hash.multi : false, 
+    disabled: params.hash.disabled,
     setModel: function (values) {
       let model = instance.data.model; 
       let newModel = R.assoc(params.hash.key, values, model);

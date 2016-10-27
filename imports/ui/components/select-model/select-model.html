@@ -1,6 +1,8 @@
 <template name="SelectModel">
   <select class="js-select form-control"
-          multiple="{{ multi }}" >
+          multiple="{{ multi }}" 
+          {{ markIfDisabled }} 
+          >
     {{#each option in options }}
     <option value="{{ option.value }}"
       selected="{{ isSelected option.label }}" 

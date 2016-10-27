@@ -45,10 +45,60 @@ export const NetworkPlugins = [{
   label: 'VPP',
 }];
 
+let defaultGroups = [{
+  name: 'mysql',
+  host: '10.0.0.1',
+  password: 'abcdefg123456',
+  port: '3307.0',
+  user: 'user',
+  schema: '',
+}, {
+  name: 'OpenStack',
+  host: '10.0.0.1',
+  admin_token: 'abcd1234',
+  port: '5000',
+  user: 'admin',
+  pwd: 'admin',
+}, {
+  name: 'CLI',
+  host: '10.0.0.1',
+  key: '',
+  pwd: '',
+  user: '',
+}, {
+  name: 'AMQP',
+  host: '10.0.0.1',
+  port: '5673',
+  user: 'User',
+  password: 'abcd1234'
+}, {
+  name: 'NFV provider',
+  host: '10.0.0.1',
+  admin_token: 'abcdefg1234',
+  port: '5000',
+  user: 'admin',
+  pwd: 'admin',
+}
+    ];
+
 Environments.schema = new SimpleSchema({
-  _id: { type: String, regEx: SimpleSchema.RegEx.Id },
+  _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
   configuration: { 
     type: [Object],
+    blackbox: true,
+    autoValue: function () {
+      let that = this;
+      if (that.isSet) {
+        let newValue = R.map(function(confGroup) {
+          let schema = getSchemaForGroupName(confGroup.name);
+          return schema.clean(confGroup);
+        }, that.value);
+
+        return newValue;
+      } else {
+        return defaultGroups;
+      }
+    },
     custom: function () {
       let that = this;
       let configurationGroups = that.value;
@@ -61,12 +111,24 @@ Environments.schema = new SimpleSchema({
         'NFV provider',
       ];
 
+      let invalidResultMessageCode = 'confGroupInvalid';
+      let invalidResultMessage = null; 
       let invalidResult = R.find(function(groupName) {
         let confGroup = R.find(R.propEq('name', groupName), configurationGroups); 
-        if (R.isNil(confGroup)) { return true; }
+        if (R.isNil(confGroup)) { 
+          console.log('validation error  - conf group missing - ' + groupName);
+          return true; 
+        }
 
         let validationContext = getSchemaForGroupName(groupName).newContext();
         if (! validationContext.validate(confGroup)) {
+          invalidResultMessage = R.reduce(function (acc, invalidField) {
+            return acc + '- ' +
+            validationContext.keyErrorMessage(invalidField.name) + '\n';
+          }, '', validationContext.invalidKeys());
+
+          console.log('validation error for: conf group - ' + groupName);
+          console.log(invalidResultMessage);
           return true; 
         }
 
@@ -74,74 +136,65 @@ Environments.schema = new SimpleSchema({
       }, requiredGroups);
 
       if (! R.isNil(invalidResult)) {
-        return 'keyNotISchema';
-        // todo: return custom message.
+        return invalidResultMessageCode; 
       }
     },
-    defaultValue: [{
-      name: 'mysql',
-      host: '10.0.0.1',
-      password: 'abcdefg123456',
-      port: '3307.0',
-      user: 'user',
-      schema: '',
-    }, {
-      name: 'OpenStack',
-      host: '10.0.0.1',
-      admin_token: 'abcd1234',
-      port: '5000',
-      user: 'admin',
-      password: 'admin',
-    }, {
-      name: 'CLI',
-      host: '10.0.0.1',
-      key: '',
-      pwd: '',
-      user: '',
-    }, {
-      name: 'AMQP',
-      host: '10.0.0.1',
-      port: '5673',
-      user: 'User',
-      password: 'abcd1234'
-    }, {
-      name: 'NFV provider',
-      host: '10.0.0.1',
-      admin_token: 'abcdefg1234',
-      port: '5000',
-      user: 'admin',
-      pwd: 'admin',
-    }
-    ]
+
   },
   distribution: { 
     type: String, 
-    allowedValues: Distributions
+    allowedValues: R.map(R.prop('label'), Distributions),
+    defaultValue: null,
   }, 
-  last_scanned: { type: String },
-  name: { type: String, defaultValue: 'Env Name' },
-  network_plugins: { 
-    type: [Object],
-    allowedValues: NetworkPlugins
+  last_scanned: { type: String, defaultValue: '' },
+  name: { 
+    type: String, 
+    defaultValue: null,
+    min: 6,
   },
-  operational: { type: String },
-  scanned: { type: Boolean },
-  type: { type: String }
+  network_plugins: { 
+    type: [String],
+    allowedValues: R.map(R.prop('label'), NetworkPlugins),
+    defaultValue: [],
+  },
+  operational: { 
+    type: String, 
+    allowedValues: ['yes', 'no'],
+    defaultValue: 'no'
+  },
+  scanned: { type: Boolean, defaultValue: false },
+  type: { 
+    type: String, 
+    autoValue: function () {
+      return 'environment';
+    },
+  }
 });
+
+// Bug in simple schema. cant add custom message to instance specific
+// schema.
+// https://github.com/aldeed/meteor-simple-schema/issues/559
+// Version 2 fixes it but it is rc.
+//Environments.schema.messages({ 
+SimpleSchema.messages({
+  confGroupInvalid: 'Configuration group is invalid.'  
+});
+
+Environments.attachSchema(Environments.schema);
 
 export const MysqlSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'mysql'; } },
   host: { type: String },
   password: { type: String },
   port: { type: String },
-  user: { type: String },
+  user: { type: String, min: 3 },
   schema: { type: String },
 });
 
 export const OpenStackSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'OpenStack'; } },
   host: { type: String },
-  asmin_token: { type: String },
+  admin_token: { type: String },
   port: { type: String },
   user: { type: String },
   pwd: { type: String },
@@ -180,11 +233,16 @@ function getSchemaForGroupName(groupName) {
     return OpenStackSchema;
   case 'CLI':
     return CLISchema;
-  case 'AMQPSchema':
+  case 'AMQP':
     return AMQPSchema;
   case 'NFV provider':
     return NfvProviderSchema; 
   default:
     throw 'not implemented';
   }
+}
+
+export function createNewConfGroup(groupName) {
+  let schema = getSchemaForGroupName(groupName);
+  return schema.clean({});
 }

@@ -57,6 +57,15 @@ Template.SelectModel.helpers({
     if (R.isNil(selectedValues)) { return false; }
     return R.contains(optionValue, selectedValues);
   },
+  markIfDisabled: function () {
+    let instance = Template.instance();
+    let attrs = {};
+    if (instance.data.disabled) {
+      attrs = R.assoc('disabled', true, attrs);
+    }
+
+    return attrs;
+  }
 });
 
 

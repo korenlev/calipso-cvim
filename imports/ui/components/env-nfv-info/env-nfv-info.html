@@ -10,6 +10,7 @@
             value=model.host 
             key="host"
             type="text"
+            disabled=disabled
             placeholder="Host")
       }}
     </div>
@@ -29,6 +30,7 @@
             value=model.admin_token 
             key="admin_token"
             type="text"
+            disabled=disabled
             placeholder="Admin token")
       }}
     </div>
@@ -48,6 +50,7 @@
             value=model.port 
             key="port"
             type="text"
+            disabled=disabled
             placeholder="Port")
       }}
     </div>
@@ -67,6 +70,7 @@
             value=model.user 
             key="user"
             type="text"
+            disabled=disabled
             placeholder="User")
       }}
     </div>
@@ -86,6 +90,7 @@
             value=model.pwd 
             key="pwd"
             type="text"
+            disabled=disabled
             placeholder="Password")
       }}
     </div>
@@ -105,6 +110,7 @@
     <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
       <button type="button" 
         class="sm-submit-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"
+        {{ markIfDisabled }}
         >Submit</button>
     </div>
 

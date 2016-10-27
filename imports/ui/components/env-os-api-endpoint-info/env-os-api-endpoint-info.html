@@ -10,6 +10,7 @@
             value=model.host 
             key="host"
             type="text"
+            disabled=disabled
             placeholder="API Host")
       }}
     </div>
@@ -30,6 +31,7 @@
             value=model.port 
             key="port"
             type="text"
+            disabled=disabled
             placeholder="Port")
       }}
     </div>
@@ -46,9 +48,10 @@
 
     <div class="col-sm-3">
       {{> InputModel(createInputArgs
-            context=model 
+            value=model.admin_token 
             key="admin_token"
             type="text"
+            disabled=disabled
             placeholder="Admin Token")
       }}
     </div>
@@ -65,9 +68,10 @@
 
     <div class="col-sm-3">
       {{> InputModel(createInputArgs
-            context=model 
+            value=model.user 
             key="user"
             type="text"
+            disabled=disabled
             placeholder="Username")
       }}
     </div>
@@ -83,9 +87,10 @@
 
     <div class="col-sm-3">
       {{> InputModel(createInputArgs
-            context=model 
+            value=model.pwd 
             key="pwd"
             type="password"
+            disabled=disabled
             placeholder="Password")
       }}
     </div>

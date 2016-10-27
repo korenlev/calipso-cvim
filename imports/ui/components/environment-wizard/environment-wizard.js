@@ -7,6 +7,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
 
 import { Environments } from '/imports/api/environments/environments';
+import { createNewConfGroup } from '/imports/api/environments/environments';
 
 import './environment-wizard.html';
 
@@ -31,10 +32,13 @@ Template.EnvironmentWizard.onCreated(function(){
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     environment: null,
-    action: null
+    action: null,
+    isError: false,
+    isSuccess: false,
+    isMessage: false,
+    message: null,
+    disabled: false,
   });
-
-
 
   instance.autorun(function () {
 
@@ -90,9 +94,14 @@ Template.EnvironmentWizard.helpers({
   tabs: function () {
     let instance = Template.instance();
     let environmentModel = instance.state.get('environmentModel');
+    let disabled = instance.state.get('disabled');
     let activateNextTab = function (nextTabId) {
       instance.$('#link-' + nextTabId).tab('show');
     };
+
+    if (R.isNil(environmentModel)) {
+      return [];
+    }
 
     return [{
       label: 'Main Info',
@@ -101,6 +110,7 @@ Template.EnvironmentWizard.helpers({
       defaultTab: true,
       templateData: {
         model: environmentModel, 
+        disabled: disabled,
         setModel: function (newModel) {
           instance.state.set('environmentModel', newModel);
         },
@@ -112,6 +122,7 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvOsApiEndpointInfo',
       templateData: {
         model: getGroupInArray('OpenStack', environmentModel.configuration),
+        disabled: disabled,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('OpenStack', newSubModel, model);
@@ -125,6 +136,7 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvOpenStackDbCredentialsInfo',
       templateData: {
         model: getGroupInArray('mysql', environmentModel.configuration),
+        disabled: disabled,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('mysql', newSubModel, model);
@@ -138,6 +150,7 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvMasterHostCredentialsInfo',
       templateData: {
         model: getGroupInArray('CLI', environmentModel.configuration),
+        disabled: disabled,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('CLI', newSubModel, model);
@@ -151,6 +164,7 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvAmqpCredentialsInfo',
       templateData: {
         model: getGroupInArray('AMQP', environmentModel.configuration),
+        disabled: disabled,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('AMQP', newSubModel, model);
@@ -164,11 +178,46 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvNfvInfo',
       templateData: {
         model: getGroupInArray('NFV provider', environmentModel.configuration),
+        disabled: disabled,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('NFV provider', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
+        onSubmitRequested: function () {
+          let action = instance.state.get('action');
+          let environment = instance.state.get('environmentModel');
+
+          instance.state.set('isError', false);  
+          instance.state.set('isSuccess', false);  
+          instance.state.set('isMessage', false);  
+          instance.state.set('message', null);  
+
+          switch (action) {
+          case 'insert':
+            insert.call({
+              configuration: environment.configuration,
+              distribution: environment.distribution,
+              name: environment.name,
+              network_plugins: environment.network_plugins,
+            }, processActionResult.bind(null, instance));
+            break;
+
+          case 'update':
+            update.call({
+              _id: environment._id,
+              configuration: environment.configuration,
+              distribution: environment.distribution,
+              name: environment.name,
+              network_plugins: environment.network_plugins,
+            }, processActionResult.bind(null, instance));
+            break;
+
+          default:
+            // todo
+            break;
+          }
+        }
       }
     }];
   },
@@ -182,53 +231,17 @@ Template.EnvironmentWizard.helpers({
     return instance.state.get('environment');
   },
 
-  createTabArgs: function (key, model) {
-    let instance = Template.instance();
-
-    return {
-      onSubmitRequested: function () {
-        console.log('onSubmitRequested');
-        console.log(model);
-
-        let action = instance.state.get('action');
-        let environment = instance.state.get('environment');
-
-        switch (action) {
-        case 'insert':
-          insert.call({
-            configuration: environment.configuration,
-            distribution: environment.distribution,
-            name: environment.name,
-            network_plugins: environment.network_plugins,
-          }, processActionResult);
-          break;
-
-        case 'update':
-          update.call({
-            itemId: environment._id,
-            configuration: environment.configuration,
-            distribution: environment.distribution,
-            name: environment.name,
-            network_plugins: environment.network_plugins,
-          }, processActionResult);
-          break;
-
-        default:
-          // todo
-          break;
-        }
-      }
-    };
-  },
-
   getConfSection: function(sectionName, environment) {
     if (R.isNil(environment)) { return null; }
     let section = R.find(R.propEq('name', sectionName),
       environment.configuration);
     return section;
-  }
+  },
 
-  // todo: default active tab. 'class="active"'
+  getState: function (key) {
+    let instance = Template.instance();
+    return instance.state.get(key); 
+  },
 });
 
 /*
@@ -249,14 +262,37 @@ function generateNewEnv() {
   return Environments.schema.clean({});
 }
 
-function processActionResult(error) {
+function processActionResult(instance, error) {
+  let action = instance.state.get('action');
+
   if (error) {
-    alert(error);
+    instance.state.set('isError', true);
+    instance.state.set('isSuccess', false);
+    instance.state.set('isMessage', true);  
+
+    if (typeof error === 'string') {
+      instance.state.set('message', error);
+    } else {
+      instance.state.set('message', error.message);
+    }
+
+  } else {
+    instance.state.set('isError', false);
+    instance.state.set('isSuccess', true);
+    instance.state.set('isMessage', true);  
+
+    if (action === 'insert') {
+      instance.state.set('message', 'Record had been added successfully');
+      instance.state.set('disabled', true);
+    } else if (action === 'update') {
+      instance.state.set('message', 'Record had been updated successfully');
+    }
   }
 }
 
 function getGroupInArray(groupName, array) {
-  return R.find(R.propEq('name', groupName), array);
+  let group = R.find(R.propEq('name', groupName), array);
+  return group ? group : createNewConfGroup(groupName);
 }
 
 function removeGroupInArray(groupName, array) {

@@ -56,4 +56,14 @@ Template.InputModel.helpers({
 
     return instance.data.placeholder;
   },
+
+  markIfDisabled: function () {
+    let instance = Template.instance();
+    let attrs = {};
+    if (instance.data.disabled) {
+      attrs = R.assoc('disabled', true, attrs);
+    }
+
+    return attrs;
+  }
 });

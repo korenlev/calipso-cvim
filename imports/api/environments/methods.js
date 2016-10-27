@@ -1,5 +1,5 @@
 //import { Meteor } from 'meteor/meteor';
-//import * as R from 'ramda';
+import * as R from 'ramda';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 
 //import { SimpleSchema } from 'meteor/aldeed:simple-schema';
@@ -8,20 +8,27 @@ import { Environments } from './environments';
 
 export const insert = new ValidatedMethod({
   name: 'environments.insert',
-  validate: null,
+  validate: Environments.simpleSchema()
+    .pick([
+      'configuration', 'configuration.$', 
+      'distribution', 'name', 
+      'network_plugins', 'network_plugins.$'
+    ]).validator({ clean: true, filter: false }), 
+  //validate: null, 
   run({
     configuration,
     distribution,
     name,
     network_plugins,
   }) {
-    const environment = {
+    // todo: create clean object instance.
+    let environment = Environments.schema.clean({});
+    environment = R.merge(environment, {
       configuration,
       distribution,
       name,
       network_plugins,
-      type: 'environment'
-    };
+    });
 
     Environments.insert(environment);
   },
@@ -29,9 +36,14 @@ export const insert = new ValidatedMethod({
 
 export const update = new ValidatedMethod({
   name: 'environments.update',
-  validate: null,
+  validate: Environments.simpleSchema().pick([
+    '_id',
+    'configuration', 'configuration.$', 
+    'distribution', 'name', 
+    'network_plugins', 'network_plugins.$'
+  ]).validator({ clean: true, filter: false }),
   run({
-    itemId,
+    _id,
     configuration,
     distribution,
     name,
@@ -39,7 +51,7 @@ export const update = new ValidatedMethod({
   }) {
     //const environment = Environments.findOne(environmentId);
 
-    Environments.update(itemId, {
+    Environments.update(_id, {
       $set: {
         configuration: configuration,
         distribution: distribution,
