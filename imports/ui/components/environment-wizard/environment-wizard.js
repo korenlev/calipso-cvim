@@ -56,10 +56,10 @@ Template.EnvironmentWizard.onCreated(function(){
     if (action === 'update') {
       Environments.find({'name': envName})
       .forEach(function (envItem) {
-        instance.state.set('environment', R.clone(envItem));
+        instance.state.set('environmentModel', R.clone(envItem));
       });
     } else if (action === 'insert') {
-      instance.environmentModel = generateNewEnv();
+      instance.state.set('environmentModel', generateNewEnv());
     }
   });
 });
@@ -78,10 +78,12 @@ Template.EnvironmentWizard.rendered = function(){
  */
 
 Template.EnvironmentWizard.helpers({
+  // todo: check absolete
   updateRecipeId : function () {
     return this._id;
   },
 
+  // todo: check absolete
   user : function () {
     return Meteor.user().username;
   },
@@ -89,28 +91,42 @@ Template.EnvironmentWizard.helpers({
   tabs: function () {
     return [{
       label: 'Main Info',
-      localLink: 'maininfo'
+      localLink: 'maininfo',
+      templateName: 'EnvMainInfo',
+      defaultTab: true,
     }, {
       label: 'OS API Endpoint',
-      localLink: 'endpoin-panel'
+      localLink: 'endpoin-panel',
+      templateName: 'EnvOsApiEndpointInfo',
     }, {
       label: 'OS DB Credentials',
-      localLink: 'db-credentials'
+      localLink: 'db-credentials',
+      templateName: 'EnvOpenStackDbCredentialsInfo',
     }, {
       label: 'Master Host Credentials',
-      localLink: 'master-host'
+      localLink: 'master-host',
+      templateName: 'EnvMasterHostCredentialsInfo',
     }, {
       label: 'AMQP Credentials',
-      localLink: 'amqp'
+      localLink: 'amqp',
+      templateName: 'EnvAmqpCredentialsInfo',
     }, {
       label: 'NFV Credentials',
-      localLink: 'nfv'
+      localLink: 'nfv',
+      templateName: 'EnvNfvInfo',
     }];
+  },
+
+  isDefaultTab: function (tab) {
+    return tab.defaultTab;
   },
 
   environment: function () {
     let instance = Template.instance();
     return instance.state.get('environment');
+  },
+
+  createTabArgsV2: function () {
   },
 
   createTabArgs: function (key, model, nextTabId) {
@@ -196,10 +212,7 @@ Template.EnvironmentWizard.events({
 });
 
 function generateNewEnv() {
-  return {
-    user: '',
-    name: ''
-  };
+  return Environments.schema.clean({});
 }
 
 function processActionResult(error) {

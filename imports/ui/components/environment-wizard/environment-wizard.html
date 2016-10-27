@@ -8,7 +8,8 @@
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
         {{#each tab in tabs }}
-          <li role="presentation">
+          <li role="presentation"
+              class="{{#if tab.defaultTab }}active{{/if}}">
             <a href="#{{ tab.localLink }}"
                aria-controls="{{ tab.localLink }}"
                role="tab"
@@ -21,43 +22,13 @@
 
       <!-- Tab panes -->
       <div class="tab-content">
-        <!-- main info -->
-        <div role="tabpanel" class="tab-pane active" 
-            id="maininfo">
-          {{>EnvMainInfo (createTabArgs '' environment 
-            'endpoin-panel') }}
+        {{#each tab in tabs }}
+        <div role="tabpanel" 
+             class="tab-pane fade {{#if tab.defaultTab }}in active{{/if}}" 
+             id="{{ tab.localLink }}">
+          {{> Template.dynamic template=tab.templateName }}
         </div>
-        
-        <!-- os api endpoint -->
-        <div role="tabpanel" class="tab-pane fade" 
-          id="endpoin-panel">
-          {{>EnvOsApiEndpointInfo (createTabArgs '#configuration-OpenStack' (getConfSection 'OpenStack' environment) 'db-credentials') }}
-        </div>
-
-        <!-- db credentials -->
-        <div role="tabpanel" class="tab-pane fade" id="db-credentials">
-          {{>EnvOpenStackDbCredentialsInfo (createTabArgs '#configuration-mysql'
-             (getConfSection 'mysql' environment) 'master-host') }}
-        </div>
-
-        <!-- master host -->
-        <div role="tabpanel" class="tab-pane fade" id="master-host">
-          {{>EnvMasterHostCredentialsInfo (createTabArgs '#configuration-CLI'
-             (getConfSection 'CLI' environment) 'amqp') }}
-        </div>
-
-        <!-- amqp  -->
-        <div role="tabpanel" class="tab-pane fade" id="amqp">
-          {{>EnvAmqpCredentialsInfo (createTabArgs '#configuration-AMQP'
-             (getConfSection 'AMQP' environment) 'nfv') }}
-        </div>
-
-        <!-- nfv -->
-        <div role="tabpanel" class="tab-pane fade" id="nfv">
-          {{>EnvNfvInfo (createTabArgs '#configuration-orchestrator' 
-             (getConfSection 'orchestrator' environment) '') }}
-        </div>
-
+        {{/each }}
       </div>
     </div>
     
