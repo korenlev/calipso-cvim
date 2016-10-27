@@ -101,8 +101,8 @@ Environments.schema = new SimpleSchema({
       name: 'AMQP',
       host: '10.0.0.1',
       port: '5673',
-      user: '',
-      password: ''
+      user: 'User',
+      password: 'abcd1234'
     }
     ]
   },

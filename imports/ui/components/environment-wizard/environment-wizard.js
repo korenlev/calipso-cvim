@@ -1,5 +1,4 @@
 /*
- * Template Component: EnvironmentWizard
  */
 
 import { Meteor } from 'meteor/meteor';
@@ -124,14 +123,41 @@ Template.EnvironmentWizard.helpers({
       label: 'OS DB Credentials',
       localLink: 'db-credentials',
       templateName: 'EnvOpenStackDbCredentialsInfo',
+      templateData: {
+        model: getGroupInArray('mysql', environmentModel.configuration),
+        setModel: function (newSubModel) {
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('mysql', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'master-host'),
+      }
     }, {
       label: 'Master Host Credentials',
       localLink: 'master-host',
       templateName: 'EnvMasterHostCredentialsInfo',
+      templateData: {
+        model: getGroupInArray('CLI', environmentModel.configuration),
+        setModel: function (newSubModel) {
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('CLI', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'amqp'),
+      }
     }, {
       label: 'AMQP Credentials',
       localLink: 'amqp',
       templateName: 'EnvAmqpCredentialsInfo',
+      templateData: {
+        model: getGroupInArray('AMQP', environmentModel.configuration),
+        setModel: function (newSubModel) {
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('AMQP', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'nfv'),
+      }
     }, {
       label: 'NFV Credentials',
       localLink: 'nfv',

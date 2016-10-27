@@ -54,6 +54,7 @@ Template.SelectModel.helpers({
     let instance = Template.instance();
     let selectedValues = instance.data.values;
 
+    if (R.isNil(selectedValues)) { return false; }
     return R.contains(optionValue, selectedValues);
   },
 });
