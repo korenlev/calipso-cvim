@@ -2,6 +2,7 @@ import datetime
 
 from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
+from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
 from discover.events.event_port_add import EventPortAdd
 from discover.fetcher import Fetcher
@@ -52,19 +53,6 @@ class EventSubnetAdd(Fetcher):
         }
 
         self.inv.set(port_folder)
-
-    def scan_regions(self, env):
-        # regions info doesn't exist, scan region.
-        self.log.info("Scan regions for adding regions data.")
-        regions_root_scanner = ScanRegionsRoot()
-        regions_root_scanner.set_env(env)
-        regions_root_doc = self.inv.get_by_id(env, env + "-regions")
-        if len(regions_root_doc) == 0:
-            self.log.info("Regions_folder is not found.")
-            return None
-        else:
-            regions_root_scanner.scan(regions_root_doc)
-            regions_root_scanner.scan_from_queue()
 
     def add_children_documents(self, env, notification, project_id, network_id, network_name):
         # generate port folder data.
@@ -120,11 +108,13 @@ class EventSubnetAdd(Fetcher):
         if subnet['enable_dhcp'] == True:
             # scan network
             if len(ApiAccess.regions) == 0:
-                self.scan_regions(env)
-            else:
-                # scan new network.
-                self.log.info("Scan new network.")
-                self.add_children_documents(env, notification, project_id, network_id, network_name)
+                fetcher = ApiFetchRegions()
+                fetcher.set_env(env)
+                fetcher.get(None)
+
+            # scan new network.
+            self.log.info("Scan new network.")
+            self.add_children_documents(env, notification, project_id, network_id, network_name)
 
         # scan links and cliques
         self.log.info("scanning for links")
