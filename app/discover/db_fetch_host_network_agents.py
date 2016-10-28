@@ -16,7 +16,6 @@ class DbFetchHostNetworkAgents(DbAccess):
       WHERE host = %s
     """
         host_id = id[:-1 * len("-network_agents")]
-        host = self.inv.get_single(self.get_env(), "host", host_id)
         results = self.get_objects_list_for_id(query, "network_agent", host_id)
         network_plugins = self.env_config['network_plugins']
         id_prefix = network_plugins[0] if network_plugins else 'network_agent'
