@@ -6,6 +6,7 @@ from discover.events.event_network_delete import EventNetworkDelete
 from discover.events.event_network_update import EventNetworkUpdate
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_update import EventPortUpdate
+from discover.events.event_router_add import EventRouterAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.events.event_subnet_delete import EventSubnetDelete
 from discover.events.event_subnet_update import EventSubnetUpdate
@@ -94,7 +95,9 @@ class EventHandler(Fetcher):
         pass
 
     def router_create(self, notification):
-        pass
+        self.log.info("router_add")
+        handler = EventRouterAdd()
+        handler.handle(self.env, notification)
 
     def router_update(self, notification):
         pass

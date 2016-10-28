@@ -59,9 +59,7 @@ class Worker(ConsumerMixin):
             "port.delete.end": self.handler.port_delete,
 
             "router.create.end": self.handler.router_create,
-
             "router.update.end": self.handler.router_update,
-
             "router.delete.end": self.handler.router_delete,
 
             "router.interface.create": self.handler.router_interface_create,
