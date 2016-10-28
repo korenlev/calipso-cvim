@@ -4,7 +4,9 @@ from discover.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.fetcher import Fetcher
+from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.inventory_mgr import InventoryMgr
+from discover.scan_network import ScanNetwork
 
 
 class EventRouterAdd(Fetcher):
@@ -39,7 +41,9 @@ class EventRouterAdd(Fetcher):
 
         self.inv.set(router_doc)
 
-        # add children documents of port and vnic.
+        # Add children documents of port and vnic.
+        # after creating a router, a namespace should be created, but it does not.
+        # But we still write down the right logic here.
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
 
@@ -59,3 +63,13 @@ class EventRouterAdd(Fetcher):
         # add vnic docuemnt.
         port_handler.add_vnic_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name,
                                        type="router", router_name=router_doc['name'])
+
+
+        # scan links and cliques
+        self.log.info("scanning links")
+        for fetcher in [FindLinksForVserviceVnics()]:
+            fetcher.add_links()
+
+        scanner = ScanNetwork()
+        scanner.scan_cliques()
+        self.log.info("Finished router added.")
