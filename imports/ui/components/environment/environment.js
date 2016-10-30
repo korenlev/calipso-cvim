@@ -247,5 +247,10 @@ Template.Environment.events({
   'click .sm-edit-button': function (event, instance) {
     let envName = instance.state.get('envName');
     Router.go('/wizard/' + envName,{},{});
-  }
+  },
+
+  'click .sm-scan-button': function (event, instance) {
+    let envName = instance.state.get('envName');
+    Router.go('/scanning-request',{},{ query: 'env=' + envName });
+  },
 });
