@@ -251,6 +251,6 @@ Template.Environment.events({
 
   'click .sm-scan-button': function (event, instance) {
     let envName = instance.state.get('envName');
-    Router.go('/scanning-request',{},{ query: 'env=' + envName });
+    Router.go('scanning-request.insert',{},{ query: 'env=' + envName });
   },
 });
