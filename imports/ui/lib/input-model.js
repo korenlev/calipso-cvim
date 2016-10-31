@@ -1,3 +1,7 @@
+/*
+ * file: input-model.js
+ */
+
 import * as R from 'ramda'; 
 
 export const createInputArgs = function (params) {

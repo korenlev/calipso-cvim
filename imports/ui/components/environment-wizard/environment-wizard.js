@@ -32,7 +32,7 @@ Template.EnvironmentWizard.onCreated(function(){
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     environment: null,
-    action: null,
+    action: 'insert',
     isError: false,
     isSuccess: false,
     isMessage: false,

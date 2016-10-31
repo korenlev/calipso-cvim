@@ -1,3 +1,43 @@
 <template name="ScanningRequest">
-  <h1>Test Component ScanningRequest !!!</h1>
+  <div class="os-scanning-request cards white">
+    <h3>New Scanning Reuqest</h3>
+    <div class="sm-form-container">
+      <form role="form" class="form-horizontal">
+
+        {{#each commandOption in commandOptions }}
+
+        <div class="form-group">
+          <label class="col-sm-2 control-label">{{ commandOption.info.label }}</label>
+          <div class="col-sm-3">
+            {{> InputModel(createInputArgs
+                  value=(getModelKeyValue commandOption.name)
+                  key=commandOption.name
+                  type=(calcInputType commandOption.info)
+                  )
+            }}
+          </div>
+          <div class="col-sm-5">
+            {{ commandOption.info.description }}
+          </div>
+        </div>
+
+        {{/each }}
+
+        <button type="button" 
+          class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
+            mdl-js-ripple-effect mdl-button--colored"
+            >Submit</button>
+
+      </form>
+
+      {{#if (getState 'isMessage') }}
+      <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
+          {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
+          role="alert">
+        {{ getState 'message' }}
+      </div>
+      {{/if }}
+
+    </div>
+  </div>
 </template>

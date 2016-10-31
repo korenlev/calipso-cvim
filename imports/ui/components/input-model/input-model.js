@@ -29,6 +29,12 @@ Template.InputModel.events({
   'input .inputField': function (event) {
     let instance = Template.instance();
     instance.data.setModel(event.target.value);
+  },
+  'click .inputField': function (event, instance) {
+    if (instance.data.type === 'checkbox') {
+      let element = instance.$('.inputField')[0];
+      instance.data.setModel(element.checked);
+    } 
   }
 });
    
@@ -37,7 +43,24 @@ Template.InputModel.events({
  */
 
 Template.InputModel.helpers({    
+  calcAttrs: function () {
+    let instance = Template.instance();
+    let attrs = {};
+
+    if (instance.data.type === 'checkbox') {
+      if (instance.data.value) {
+        attrs.checked = true;
+      } 
+    } else {
+      attrs.value = instance.data.value;
+    }
+
+    return attrs;
+  },
+
   calcType: function () {
+    let instance = Template.instance();
+    return instance.data.type; 
   },
 
   calcId: function () {
@@ -47,7 +70,12 @@ Template.InputModel.helpers({
   },
 
   calcClass: function () {
-    return 'form-control';
+    let instance = Template.instance();
+    if (R.isNil(instance.data.classes)) {
+      return 'form-control';
+    } else {
+      return instance.data.classes;
+    }
   },
 
   calcPlaceholder: function () {
