@@ -1,10 +1,11 @@
 import xmltodict
 
 from discover.cli_access import CliAccess
+from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
 
 
-class CliFetchInstanceVnics(CliAccess):
+class CliFetchInstanceVnics(Fetcher, CliAccess):
     def __init__(self):
         super(CliFetchInstanceVnics, self).__init__()
         self.inv = InventoryMgr()
