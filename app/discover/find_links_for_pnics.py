@@ -29,6 +29,8 @@ class FindLinksForPnics(Fetcher):
             networks[port["network_id"]] = 1
         for network_id in networks.keys():
             network = self.inv.get_by_id(self.get_env(), network_id)
+            if network == []:
+                return
             source = pnic["_id"]
             source_id = pnic["id"]
             target = network["_id"]

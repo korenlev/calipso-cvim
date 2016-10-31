@@ -23,6 +23,8 @@ class FindLinksForVserviceVnics(Fetcher):
             return
         cidr = v["cidr"]
         network = self.inv.get_by_id(self.get_env(), v["network"])
+        if network == []:
+            return
         vservice_id = v["parent_id"]
         vservice_id = vservice_id[:vservice_id.rindex('-')]
         vservice = self.inv.get_by_id(self.get_env(), vservice_id)
