@@ -106,14 +106,13 @@ class EventSubnetAdd(Fetcher):
 
         # Check DHCP enable, if true, scan network.
         if subnet['enable_dhcp'] == True:
-            # scan network
+            # update network
             if len(ApiAccess.regions) == 0:
                 fetcher = ApiFetchRegions()
                 fetcher.set_env(env)
                 fetcher.get(None)
 
-            # scan new network.
-            self.log.info("Scan new network.")
+            self.log.info("add new subnet.")
             self.add_children_documents(env, notification, project_id, network_id, network_name)
 
         # scan links and cliques
