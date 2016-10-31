@@ -18,13 +18,16 @@ class FindLinksForVconnectors(Fetcher):
                 self.add_vnic_vconnector_link(vconnector, interface)
                 self.add_vconnector_pnic_link(vconnector, interface)
 
-    def add_vnic_vconnector_link(self, vconnector, interface):
-        if isinstance(interface, str):
+    def add_vnic_vconnector_link(self, vconnector, interface_name):
+        network_plugins = self.configuration.env_config['network_plugins']
+        is_ovs = network_plugins and network_plugins[0] == 'OVS'
+        if is_ovs:
             # interface ID for OVS
-            vnic = self.inv.get_by_id(self.get_env(), interface)
+            vnic = self.inv.get_by_id(self.get_env(), interface_name)
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC address
-            if 'mac_address' not in interface:
+            interface = vconnector['interfaces'][interface_name]
+            if not interface or 'mac_address' not in interface:
                 return
             vnic_mac = interface['mac_address']
             vnic = self.inv.get_by_field(self.get_env(), 'vnic',
