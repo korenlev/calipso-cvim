@@ -32,11 +32,10 @@
       </div>
 
       {{#if (getState 'isMessage') }}
-      <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
-          {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
-          role="alert">
-        {{ getState 'message' }}
-      </div>
+        <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
+            {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
+            role="alert"
+            >{{ getState 'message' }}</div>
       {{/if }}
 
     </div>

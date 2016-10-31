@@ -40,7 +40,7 @@ export const Distributions = [{
 ]; 
 
 export const NetworkPlugins = [{
-  label: 'OSV',
+  label: 'OVS',
 }, {
   label: 'VPP',
 }];
@@ -111,8 +111,8 @@ Environments.schema = new SimpleSchema({
         'NFV provider',
       ];
 
-      let invalidResultMessageCode = 'confGroupInvalid';
-      let invalidResultMessage = null; 
+      let subErrors = null;
+
       let invalidResult = R.find(function(groupName) {
         let confGroup = R.find(R.propEq('name', groupName), configurationGroups); 
         if (R.isNil(confGroup)) { 
@@ -121,14 +121,16 @@ Environments.schema = new SimpleSchema({
         }
 
         let validationContext = getSchemaForGroupName(groupName).newContext();
-        if (! validationContext.validate(confGroup)) {
-          invalidResultMessage = R.reduce(function (acc, invalidField) {
-            return acc + '- ' +
-            validationContext.keyErrorMessage(invalidField.name) + '\n';
-          }, '', validationContext.invalidKeys());
 
-          console.log('validation error for: conf group - ' + groupName);
-          console.log(invalidResultMessage);
+        if (! validationContext.validate(confGroup)) {
+          subErrors = R.reduce(function (acc, invalidField) {
+            return R.append({
+              field: invalidField,
+              group: groupName,
+              message: validationContext.keyErrorMessage(invalidField.name),
+            }, acc);
+          }, [], validationContext.invalidKeys());
+
           return true; 
         }
 
@@ -136,7 +138,12 @@ Environments.schema = new SimpleSchema({
       }, requiredGroups);
 
       if (! R.isNil(invalidResult)) {
-        return invalidResultMessageCode; 
+        throw {
+          isError: true,
+          type: 'subGroupError',
+          data: subErrors,
+          message: constructSubGroupErrorMessage(subErrors)
+        };
       }
     },
 
@@ -240,6 +247,15 @@ function getSchemaForGroupName(groupName) {
   default:
     throw 'not implemented';
   }
+}
+
+function constructSubGroupErrorMessage(errors) {
+  let message = 'Validation errors on sub groups:'; 
+  message = message + R.reduce((acc, item) => {
+    return acc + '\n- ' + item.group + ': ' + item.message;  
+  }, '', errors);
+
+  return message;
 }
 
 export function createNewConfGroup(groupName) {
