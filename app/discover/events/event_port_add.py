@@ -129,6 +129,7 @@ class EventPortAdd(Fetcher):
                     "router": ('Gateways', router_name)}
 
         fetcher = CliFetchVserviceVnics()
+        fetcher.set_env(env)
         namespace = 'q%s-%s' % (type, network_id)
         vnic_document = fetcher.handle_service(host_id, namespace)
 
@@ -168,7 +169,7 @@ class EventPortAdd(Fetcher):
         # check ports folder document.
         ports_folder = self.inv.get_by_id(env, self.network_id+'-ports')
         if not ports_folder:
-            print("not folder")
+            print("ports folder not found.")
             self.add_ports_folder(env, self.project_id, self.network_id, self.network_name)
         self.add_port_document(env, self.project, self.project_id, self.network_name, self.network_id, self.port)
 
@@ -208,7 +209,7 @@ class EventPortAdd(Fetcher):
             instances_scanner.scan_cliques()
             return True
 
-        if device_owner[0] == 'neutron':
+        if device_owner[0] == '':
             handler = port_device_owner_handler.get(device_owner)
             if handler:
                 handler(env, notification, self.network_id, self.network_name)
