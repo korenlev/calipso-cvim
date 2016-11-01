@@ -275,7 +275,13 @@ function processActionResult(instance, error) {
     if (typeof error === 'string') {
       instance.state.set('message', error);
     } else {
-      instance.state.set('message', error.message);
+      let message = error.message;
+      if (error.errors) {
+        message = R.reduce((acc, errorItem) => {
+          return acc + '\n- ' + errorItem.name;
+        }, message, error.errors);
+      }
+      instance.state.set('message', message);
     }
 
   } else {

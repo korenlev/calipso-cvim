@@ -164,6 +164,7 @@ Environments.schema = new SimpleSchema({
     type: [String],
     allowedValues: R.map(R.prop('label'), NetworkPlugins),
     defaultValue: [],
+    minCount: 1,
   },
   operational: { 
     type: String, 
