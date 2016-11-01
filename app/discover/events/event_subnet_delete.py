@@ -19,7 +19,7 @@ class EventSubnetDelete(EventDeleteBase):
 
     def handle(self, env, notification):
         subnet_id = notification['payload']['subnet_id']
-        network_document = self.inv.get_by_field(self.env, "network", "subnets_id", subnet_id, get_single=True)
+        network_document = self.inv.get_by_field(env, "network", "subnets_id", subnet_id, get_single=True)
         if len(network_document) == 0:
             self.log.info("network document not found, aborting subnet deleting")
             return
