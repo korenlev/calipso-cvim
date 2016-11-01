@@ -3,10 +3,11 @@ import os
 import paramiko
 
 from discover.configuration import Configuration
+from discover.logger import Logger
 from utils.binary_converter import BinaryConverter
 
 
-class SshConn(BinaryConverter):
+class SshConn(BinaryConverter, Logger):
     config = None
     ssh = None
     connections = {}
