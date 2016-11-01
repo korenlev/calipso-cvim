@@ -5,13 +5,13 @@
 //import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
+import * as R from 'ramda';
 
 import '/imports/ui/components/input-model/input-model';
 import '/imports/ui/components/select-model/select-model';
 import { createInputArgs } from '/imports/ui/lib/input-model';
 import { createSelectArgs } from '/imports/ui/lib/select-model';
-import { Distributions } from '/imports/api/environments/environments';
-import { NetworkPlugins } from '/imports/api/environments/environments';
+import { Constants } from '/imports/api/constants/constants';
 
 import './env-main-info.html';
 
@@ -20,6 +20,11 @@ import './env-main-info.html';
  */
 
 Template.EnvMainInfo.onCreated(function () {
+  let instance = this;
+
+  instance.autorun(function () {
+    instance.subscribe('constants');
+  });
 
 });
 
@@ -49,11 +54,29 @@ Template.EnvMainInfo.helpers({
   createSelectArgs: createSelectArgs,
 
   distributionOptions: function () {
-    return Distributions;
+    let item = Constants.findOne({ name: 'distributions' });
+    if (R.isNil(item)) { return []; }
+    return item.data;
   },
 
+  /* depracated 
   networkOptions: function () {
-    return NetworkPlugins;
+    let item = Constants.findOne({ name: 'network_plugins' });
+    if (R.isNil(item))  { return []; }
+    return item.data;
+  },
+  */
+ 
+  typeDriversOptions: function () {
+    let item = Constants.findOne({ name: 'type_drivers' });
+    if (R.isNil(item))  { return []; }
+    return item.data;
+  },
+ 
+  mechanismDriversOptions: function () {
+    let item = Constants.findOne({ name: 'mechanism_drivers' });
+    if (R.isNil(item))  { return []; }
+    return item.data;
   },
  
 });

@@ -200,7 +200,8 @@ Template.EnvironmentWizard.helpers({
               user: environment.user,
               distribution: environment.distribution,
               name: environment.name,
-              network_plugins: environment.network_plugins,
+              type_drivers: environment.type_drivers,
+              mechanism_drivers: environment.mechanism_drivers,
             }, processActionResult.bind(null, instance));
             break;
 
@@ -211,7 +212,8 @@ Template.EnvironmentWizard.helpers({
               user: environment.user,
               distribution: environment.distribution,
               name: environment.name,
-              network_plugins: environment.network_plugins,
+              type_drivers: environment.type_drivers,
+              mechanism_drivers: environment.mechanism_drivers,
             }, processActionResult.bind(null, instance));
             break;
 

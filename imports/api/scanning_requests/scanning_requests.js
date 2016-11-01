@@ -3,7 +3,6 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 
 export const ScanningRequests = new Mongo.Collection('scanning_requests');
-console.log('creating collection: scanning_requests');
 
 ScanningRequests.schemaRelated = {
   environment_name: {

@@ -17,7 +17,7 @@
         </div>
 
         <div class="col-sm-4">
-          <p>Admin name, owner of project</p>
+          <p>Owner of environment</p>
         </div>
       </div>
 
@@ -36,7 +36,7 @@
           }}
         </div>
         <div class="col-sm-4">
-          <p>Enter name of your project, it could be anything you want</p>
+          <p>Enter name of your encironment, it could be anything you want</p>
         </div>
       </div>
 
@@ -54,26 +54,45 @@
           }}
         </div>
         <div class="col-sm-4">
-          <p>Enter name of the distribution</p>
+          <p>Enter type of the distribution</p>
         </div>
       </div>
 
       <div class="form-group">
         <label for="" 
           class="col-sm-2 control-label"
-          >Network Plugins</label>
+          >Type Drivers</label>
 
         <div class="col-sm-3">
           {{> SelectModel(createSelectArgs
-                values=model.network_plugins 
-                key="network_plugins"
-                options=networkOptions
+                values=model.type_drivers 
+                key="type_drivers"
+                options=typeDriversOptions
+                disabled=disabled
+                multi=false)
+          }}
+        </div>
+        <div class="col-sm-4">
+          <p>Enter type driver</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="" 
+          class="col-sm-2 control-label"
+          >Mechanism Drivers</label>
+
+        <div class="col-sm-3">
+          {{> SelectModel(createSelectArgs
+                values=model.mechanism_drivers 
+                key="mechanism_drivers"
+                options=mechanismDriversOptions
                 disabled=disabled
                 multi=true)
           }}
         </div>
         <div class="col-sm-4">
-          <p>Enter networks</p>
+          <p>Enter mechanism drivers</p>
         </div>
       </div>
 

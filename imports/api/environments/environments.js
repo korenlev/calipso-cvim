@@ -1,49 +1,11 @@
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
+import { Constants } from '/imports/api/constants/constants';
+
+let portRegEx = /^0*(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$/;
 
 export const Environments = new Mongo.Collection('environments_config');
-
-export const Distributions = [{
-  label: 'Mirantis-6.0',
-}, {
-  label: 'Mirantis-7.0',
-}, {
-  label: 'Mirantis-8.0',
-}, {
-  label: 'Mirantis-9.0',
-}, { 
-  label: 'RDO-Mitaka',
-}, {
-  label: 'RDO-Liberty',
-}, {
-  label: 'RDO-Juno',
-}, {
-  label: 'RDO-kilo',
-}, {
-  label: 'devstack-liberty',
-}, {
-  label: 'Canonical-icehouse', 
-}, {
-  label: 'Canonical-juno',
-}, {
-  label: 'Canonical-liberty',
-}, {
-  label: 'Canonical-mitaka',
-}, {
-  label: 'Apex-Mitaka',
-}, {
-  label: 'Devstack-Mitaka',
-}, {
-  label: 'packstack-7.0.0-0.10.dev1682'
-}
-]; 
-
-export const NetworkPlugins = [{
-  label: 'OVS',
-}, {
-  label: 'VPP',
-}];
 
 let defaultGroups = [{
   name: 'mysql',
@@ -51,7 +13,6 @@ let defaultGroups = [{
   password: 'abcdefg123456',
   port: '3307.0',
   user: 'user',
-  schema: '',
 }, {
   name: 'OpenStack',
   host: '10.0.0.1',
@@ -108,34 +69,22 @@ Environments.schema = new SimpleSchema({
         'OpenStack',
         'CLI',
         'AMQP',
-        'NFV_provider',
       ];
 
-      let subErrors = null;
+      let subErrors = [];
 
       let invalidResult = R.find(function(groupName) {
-        let confGroup = R.find(R.propEq('name', groupName), configurationGroups); 
-        if (R.isNil(confGroup)) { 
-          console.log('validation error  - conf group missing - ' + groupName);
-          return true; 
-        }
-
-        let validationContext = getSchemaForGroupName(groupName).newContext();
-
-        if (! validationContext.validate(confGroup)) {
-          subErrors = R.reduce(function (acc, invalidField) {
-            return R.append({
-              field: invalidField,
-              group: groupName,
-              message: validationContext.keyErrorMessage(invalidField.name),
-            }, acc);
-          }, [], validationContext.invalidKeys());
-
-          return true; 
-        }
-
+        subErrors = checkGroup(groupName, configurationGroups, true);
+        if (subErrors.length > 0) { return true; } 
         return false;
       }, requiredGroups);
+
+      if (R.isNil(invalidResult)) {
+        subErrors = checkGroup('NFV_provider', configurationGroups, false);
+        if (subErrors.length > 0) {
+          invalidResult = {};
+        }
+      }
 
       if (! R.isNil(invalidResult)) {
         throw {
@@ -151,8 +100,18 @@ Environments.schema = new SimpleSchema({
   user: { type: String }, 
   distribution: { 
     type: String, 
-    allowedValues: R.map(R.prop('label'), Distributions),
     defaultValue: null,
+    custom: function () {
+      let that = this;
+      let constsDist = Constants.findOne({ name: 'distributions' });
+
+      if (R.isNil(constsDist.data)) { return 'notAllowed'; } 
+      let distributions = constsDist.data;
+
+      if (R.isNil(R.find(R.propEq('value', that.value), distributions))) {
+        return 'notAllowed';
+      }
+    },
   }, 
   last_scanned: { type: String, defaultValue: '' },
   name: { 
@@ -160,11 +119,42 @@ Environments.schema = new SimpleSchema({
     defaultValue: null,
     min: 6,
   },
-  network_plugins: { 
+  type_drivers: { 
+    type: String, 
+    defaultValue: null,
+    custom: function () {
+      let that = this;
+      let TypeDriversRec = Constants.findOne({ name: 'type_drivers' });
+
+      if (R.isNil(TypeDriversRec.data)) { return 'notAllowed'; } 
+      let TypeDrivers = TypeDriversRec.data;
+
+      if (R.isNil(R.find(R.propEq('value', that.value), TypeDrivers))) {
+        return 'notAllowed';
+      }
+    },
+  }, 
+  mechanism_drivers: { 
     type: [String],
-    allowedValues: R.map(R.prop('label'), NetworkPlugins),
     defaultValue: [],
     minCount: 1,
+    custom: function () {
+      let that = this;
+      let consts = Constants.findOne({ name: 'mechanism_drivers' });
+
+      if (R.isNil(consts.data)) { return 'notAllowed'; } 
+      let mechanismDrivers = consts.data;
+
+      let result = R.find((driver) => {
+        if (R.find(R.propEq('value', driver), mechanismDrivers)) {
+          return false;
+        }
+        return true;
+      }, that.value);
+
+      if (result) { return 'notAllowed'; }
+
+    },
   },
   operational: { 
     type: String, 
@@ -193,18 +183,29 @@ Environments.attachSchema(Environments.schema);
 
 export const MysqlSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'mysql'; } },
-  host: { type: String },
+  host: { 
+    type: String,
+    regEx: SimpleSchema.RegEx.IP,
+  },
   password: { type: String },
-  port: { type: String },
+  port: { 
+    type: String,
+    regEx: portRegEx
+  },
   user: { type: String, min: 3 },
-  schema: { type: String },
 });
 
 export const OpenStackSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'OpenStack'; } },
-  host: { type: String },
+  host: { 
+    type: String,
+    regEx: SimpleSchema.RegEx.IP,
+  },
   admin_token: { type: String },
-  port: { type: String },
+  port: { 
+    type: String, 
+    regEx: portRegEx
+  },
   user: { type: String },
   pwd: { type: String },
 });
@@ -219,17 +220,29 @@ export const CLISchema = new SimpleSchema({
 
 export const AMQPSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'AMQP'; } },
-  host: { type: String },
-  port: { type: String },
+  host: { 
+    type: String,
+    regEx: SimpleSchema.RegEx.IP,
+  },
+  port: { 
+    type: String, 
+    regEx: portRegEx
+  },
   user: { type: String },
   password: { type: String },
 });
 
 export const NfvProviderSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'NFV_provider'; } },
-  host: { type: String },
+  host: { 
+    type: String,
+    regEx: SimpleSchema.RegEx.IP,
+  },
   admin_token: { type: String },
-  port: { type: String },
+  port: { 
+    type: String, 
+    regEx: portRegEx
+  },
   user: { type: String },
   pwd: { type: String },
 });
@@ -258,6 +271,38 @@ function constructSubGroupErrorMessage(errors) {
   }, '', errors);
 
   return message;
+}
+
+function checkGroup(groupName, configurationGroups, groupRequired) {
+  let subErrors = [];
+  let confGroup = R.find(R.propEq('name', groupName), configurationGroups); 
+  
+  if (R.isNil(confGroup)) { 
+    if (groupRequired) { 
+      subErrors = R.append({
+        field: 'configuration',
+        group: groupName, 
+        message: 'group ' + groupName + ' is required'
+      }, subErrors);
+    }
+    return subErrors;
+  }
+
+  let validationContext = getSchemaForGroupName(groupName).newContext();
+
+  if (! validationContext.validate(confGroup)) {
+    subErrors = R.reduce(function (acc, invalidField) {
+      return R.append({
+        field: invalidField,
+        group: groupName,
+        message: validationContext.keyErrorMessage(invalidField.name),
+      }, acc);
+    }, [], validationContext.invalidKeys());
+
+    return subErrors; 
+  }
+
+  return subErrors;
 }
 
 export function createNewConfGroup(groupName) {

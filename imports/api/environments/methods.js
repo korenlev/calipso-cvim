@@ -20,7 +20,8 @@ export const insert = new ValidatedMethod({
     user,
     distribution,
     name,
-    network_plugins,
+    type_drivers,
+    mechanism_drivers,
   }) {
     // todo: create clean object instance.
     let environment = Environments.schema.clean({});
@@ -29,7 +30,8 @@ export const insert = new ValidatedMethod({
       user,
       distribution,
       name,
-      network_plugins,
+      type_drivers,
+      mechanism_drivers,
     });
 
     Environments.insert(environment);
@@ -40,9 +42,14 @@ export const update = new ValidatedMethod({
   name: 'environments.update',
   validate: Environments.simpleSchema().pick([
     '_id',
-    'configuration', 'configuration.$', 
-    'user', 'distribution', 'name', 
-    'network_plugins', 'network_plugins.$'
+    'configuration', 
+    'configuration.$', 
+    'user', 
+    'distribution', 
+    'name', 
+    'type_drivers', 
+    'mechanism_drivers', 
+    'mechanism_drivers.$'
   ]).validator({ clean: true, filter: false }),
   run({
     _id,
@@ -50,7 +57,8 @@ export const update = new ValidatedMethod({
     user,
     distribution,
     name,
-    network_plugins,
+    type_drivers,
+    mechanism_drivers
   }) {
     //const environment = Environments.findOne(environmentId);
 
@@ -60,7 +68,8 @@ export const update = new ValidatedMethod({
         user: user,
         distribution: distribution,
         name: name,
-        network_plugins: network_plugins,
+        type_drivers,
+        mechanism_drivers,
       },
     });
   }
