@@ -72,7 +72,7 @@ let defaultGroups = [{
   user: 'User',
   password: 'abcd1234'
 }, {
-  name: 'NFV provider',
+  name: 'NFV_provider',
   host: '10.0.0.1',
   admin_token: 'abcdefg1234',
   port: '5000',
@@ -108,7 +108,7 @@ Environments.schema = new SimpleSchema({
         'OpenStack',
         'CLI',
         'AMQP',
-        'NFV provider',
+        'NFV_provider',
       ];
 
       let subErrors = null;
@@ -148,6 +148,7 @@ Environments.schema = new SimpleSchema({
     },
 
   },
+  user: { type: String }, 
   distribution: { 
     type: String, 
     allowedValues: R.map(R.prop('label'), Distributions),
@@ -224,7 +225,7 @@ export const AMQPSchema = new SimpleSchema({
 });
 
 export const NfvProviderSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'NFV provider'; } },
+  name: { type: String, autoValue: function () { return 'NFV_provider'; } },
   host: { type: String },
   admin_token: { type: String },
   port: { type: String },
@@ -242,10 +243,10 @@ function getSchemaForGroupName(groupName) {
     return CLISchema;
   case 'AMQP':
     return AMQPSchema;
-  case 'NFV provider':
+  case 'NFV_provider':
     return NfvProviderSchema; 
   default:
-    throw 'not implemented';
+    throw 'group name is not recognized. group: ' + groupName;
   }
 }
 

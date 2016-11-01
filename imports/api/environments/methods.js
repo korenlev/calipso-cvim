@@ -11,12 +11,13 @@ export const insert = new ValidatedMethod({
   validate: Environments.simpleSchema()
     .pick([
       'configuration', 'configuration.$', 
-      'distribution', 'name', 
+      'user', 'distribution', 'name', 
       'network_plugins', 'network_plugins.$'
     ]).validator({ clean: true, filter: false }), 
   //validate: null, 
   run({
     configuration,
+    user,
     distribution,
     name,
     network_plugins,
@@ -25,6 +26,7 @@ export const insert = new ValidatedMethod({
     let environment = Environments.schema.clean({});
     environment = R.merge(environment, {
       configuration,
+      user,
       distribution,
       name,
       network_plugins,
@@ -39,12 +41,13 @@ export const update = new ValidatedMethod({
   validate: Environments.simpleSchema().pick([
     '_id',
     'configuration', 'configuration.$', 
-    'distribution', 'name', 
+    'user', 'distribution', 'name', 
     'network_plugins', 'network_plugins.$'
   ]).validator({ clean: true, filter: false }),
   run({
     _id,
     configuration,
+    user,
     distribution,
     name,
     network_plugins,
@@ -54,6 +57,7 @@ export const update = new ValidatedMethod({
     Environments.update(_id, {
       $set: {
         configuration: configuration,
+        user: user,
         distribution: distribution,
         name: name,
         network_plugins: network_plugins,

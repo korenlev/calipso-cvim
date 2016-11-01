@@ -177,11 +177,11 @@ Template.EnvironmentWizard.helpers({
       localLink: 'nfv',
       templateName: 'EnvNfvInfo',
       templateData: {
-        model: getGroupInArray('NFV provider', environmentModel.configuration),
+        model: getGroupInArray('NFV_provider', environmentModel.configuration),
         disabled: disabled,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
-          let newModel = setConfigurationGroup('NFV provider', newSubModel, model);
+          let newModel = setConfigurationGroup('NFV_provider', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
         onSubmitRequested: function () {
@@ -197,6 +197,7 @@ Template.EnvironmentWizard.helpers({
           case 'insert':
             insert.call({
               configuration: environment.configuration,
+              user: environment.user,
               distribution: environment.distribution,
               name: environment.name,
               network_plugins: environment.network_plugins,
@@ -207,6 +208,7 @@ Template.EnvironmentWizard.helpers({
             update.call({
               _id: environment._id,
               configuration: environment.configuration,
+              user: environment.user,
               distribution: environment.distribution,
               name: environment.name,
               network_plugins: environment.network_plugins,
