@@ -5,6 +5,8 @@ import { Constants } from '/imports/api/constants/constants';
 
 let portRegEx = /^0*(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$/;
 
+let pathRegEx = /^(\/){1}([^\/\0]+(\/)?)+$/;
+
 export const Environments = new Mongo.Collection('environments_config');
 
 let defaultGroups = [{
@@ -213,9 +215,31 @@ export const OpenStackSchema = new SimpleSchema({
 export const CLISchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'CLI'; } },
   host: { type: String },
-  key: { type: String },
+  key: { 
+    type: String,
+    regEx: pathRegEx,
+    optional: true
+  },
   user: { type: String },
-  pwd: { type: String },
+  pwd: { 
+    type: String,
+    optional: true
+  },
+});
+
+CLISchema.addValidator(function () {
+  let that = this;
+  let password = that.field('password');
+  let key = that.field('key');
+
+  if (key.value || password.value) { return; }
+
+  throw {
+    isError: true,
+    type: 'subGroupError',
+    data: [],
+    message: 'Master Host Group: At least one required: key or password'
+  };
 });
 
 export const AMQPSchema = new SimpleSchema({

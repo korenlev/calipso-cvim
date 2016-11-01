@@ -4,7 +4,7 @@
 
   <form class="sm-environment-form">
 
-    <div class="main-layout-no-nav cards white">
+    <div class="sm-main-layout-no-nav cards white">
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
         {{#each tab in tabs }}
@@ -29,14 +29,29 @@
           {{> Template.dynamic template=tab.templateName data=tab.templateData }}
         </div>
         {{/each }}
+
       </div>
 
-      {{#if (getState 'isMessage') }}
-        <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
-            {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
-            role="alert"
-            >{{ getState 'message' }}</div>
-      {{/if }}
+      <div class="row">
+        <div class="row">
+          <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
+            <button type="button" 
+              class="sm-submit-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"
+              {{ markIfDisabled }}
+              >Submit</button>
+          </div>
+        </div>
+
+        {{#if (getState 'isMessage') }}
+        <div class="row">
+          <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
+              {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
+              role="alert"
+              >{{ getState 'message' }}</div>
+        </div>
+        {{/if }}
+
+      </div>
 
     </div>
 

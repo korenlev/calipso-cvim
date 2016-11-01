@@ -28,10 +28,6 @@ Template.EnvNfvInfo.rendered = function() {
  */
 
 Template.EnvNfvInfo.events({
-  'click .sm-submit-button': function () {
-    let instance = Template.instance();
-    instance.data.onSubmitRequested(); 
-  },
 });
    
 /*  

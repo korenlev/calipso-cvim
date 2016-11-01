@@ -184,44 +184,6 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('NFV_provider', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onSubmitRequested: function () {
-          let action = instance.state.get('action');
-          let environment = instance.state.get('environmentModel');
-
-          instance.state.set('isError', false);  
-          instance.state.set('isSuccess', false);  
-          instance.state.set('isMessage', false);  
-          instance.state.set('message', null);  
-
-          switch (action) {
-          case 'insert':
-            insert.call({
-              configuration: environment.configuration,
-              user: environment.user,
-              distribution: environment.distribution,
-              name: environment.name,
-              type_drivers: environment.type_drivers,
-              mechanism_drivers: environment.mechanism_drivers,
-            }, processActionResult.bind(null, instance));
-            break;
-
-          case 'update':
-            update.call({
-              _id: environment._id,
-              configuration: environment.configuration,
-              user: environment.user,
-              distribution: environment.distribution,
-              name: environment.name,
-              type_drivers: environment.type_drivers,
-              mechanism_drivers: environment.mechanism_drivers,
-            }, processActionResult.bind(null, instance));
-            break;
-
-          default:
-            // todo
-            break;
-          }
-        }
       }
     }];
   },
@@ -256,10 +218,16 @@ Template.EnvironmentWizard.events({
   'click .toast' : function () {
     toastr.success('Have fun storming the castle!', 'Open Stack server says');
   },
+
   // todo: research: seems not implemented
   'click .fa-trash' : function () {
     Meteor.call('deleteRecipe', this._id);
-  }
+  },
+
+  'click .sm-submit-button': function () {
+    let instance = Template.instance();
+    doSubmit(instance);
+  },
 });
 
 function generateNewEnv() {
@@ -316,3 +284,42 @@ function setConfigurationGroup(groupName, group, model) {
   return newModel;
 }
 
+function doSubmit(instance) {
+  let action = instance.state.get('action');
+  let environment = instance.state.get(
+    'environmentModel');
+
+  instance.state.set('isError', false);  
+  instance.state.set('isSuccess', false);  
+  instance.state.set('isMessage', false);  
+  instance.state.set('message', null);  
+
+  switch (action) {
+  case 'insert':
+    insert.call({
+      configuration: environment.configuration,
+      user: environment.user,
+      distribution: environment.distribution,
+      name: environment.name,
+      type_drivers: environment.type_drivers,
+      mechanism_drivers: environment.mechanism_drivers,
+    }, processActionResult.bind(null, instance));
+    break;
+
+  case 'update':
+    update.call({
+      _id: environment._id,
+      configuration: environment.configuration,
+      user: environment.user,
+      distribution: environment.distribution,
+      name: environment.name,
+      type_drivers: environment.type_drivers,
+      mechanism_drivers: environment.mechanism_drivers,
+    }, processActionResult.bind(null, instance));
+    break;
+
+  default:
+    // todo
+    break;
+  }
+}
