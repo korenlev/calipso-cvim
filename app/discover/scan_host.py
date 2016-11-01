@@ -24,12 +24,12 @@ class ScanHost(Scanner, metaclass=Singleton):
             # fetching of vService vNICs is done from host for efficiency
             {
                 "type": "vnic",
-                "environment_condition": {"network_plugins": "OVS"},
+                "environment_condition": {"mechanism_drivers": "OVS"},
                 "fetcher": "CliFetchVserviceVnicsOvs"
             },
             {
                 "type": "vnic",
-                "environment_condition": {"network_plugins": "VPP"},
+                "environment_condition": {"mechanism_drivers": "VPP"},
                 "fetcher": "CliFetchVserviceVnicsVpp"
             },
             {
@@ -40,7 +40,7 @@ class ScanHost(Scanner, metaclass=Singleton):
             {
                 "type": "pnics_folder",
                 "fetcher": FolderFetcher("pnics", "host", "pNICs"),
-                "environment_condition": {"network_plugins": "OVS"},
+                "environment_condition": {"mechanism_drivers": "OVS"},
                 "children_scanner": "ScanPnicsRoot"
             },
             {

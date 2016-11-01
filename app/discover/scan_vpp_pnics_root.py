@@ -8,7 +8,7 @@ class ScanVppPnicsRoot(Scanner, metaclass=Singleton):
             {
                 "type": "pnic",
                 "fetcher": "CliFetchHostPnicsVpp",
-                "environment_condition": {"network_plugins": "VPP"},
+                "environment_condition": {"mechanism_drivers": "VPP"},
                 "children_scanner": "ScanOteps"
             }
         ])
