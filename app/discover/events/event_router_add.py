@@ -75,3 +75,5 @@ class EventRouterAdd(Fetcher):
             # scan links and cliques
             self.update_links_and_cliques([FindLinksForVserviceVnics()], ScanNetwork())
             self.log.info("Finished router added.")
+
+        self.add_router_document(env, None, router_doc, host)
