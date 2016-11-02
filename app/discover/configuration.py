@@ -43,8 +43,8 @@ class Configuration(MongoAccess, metaclass=Singleton):
         return matches[0]
 
     def has_network_plugin(self, name):
-        if 'network_plugins' not in self.env_config:
-            self.log.error('Environment missing network_plugins definition: ' +
+        if 'mechanism_drivers' not in self.env_config:
+            self.log.error('Environment missing mechanism_drivers definition: ' +
                            self.env_config['name'])
-        network_plugins = self.env_config['network_plugins']
-        return name in network_plugins
+        mechanism_drivers = self.env_config['mechanism_drivers']
+        return name in mechanism_drivers

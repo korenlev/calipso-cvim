@@ -19,8 +19,8 @@ class FindLinksForVconnectors(Fetcher):
                 self.add_vconnector_pnic_link(vconnector, interface)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
-        network_plugins = self.configuration.env_config['network_plugins']
-        is_ovs = network_plugins and network_plugins[0] == 'OVS'
+        mechanism_drivers = self.configuration.env_config['mechanism_drivers']
+        is_ovs = mechanism_drivers and mechanism_drivers[0] == 'OVS'
         if is_ovs:
             # interface ID for OVS
             vnic = self.inv.get_by_id(self.get_env(), interface_name)

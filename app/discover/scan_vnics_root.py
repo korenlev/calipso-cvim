@@ -7,12 +7,12 @@ class ScanVnicsRoot(Scanner, metaclass=Singleton):
         super(ScanVnicsRoot, self).__init__([
             {
                 "type": "vnic",
-                "environment_condition": {"network_plugins": "OVS"},
+                "environment_condition": {"mechanism_drivers": "OVS"},
                 "fetcher": "CliFetchInstanceVnicsOvs"
             },
             {
                 "type": "vnic",
-                "environment_condition": {"network_plugins": "VPP"},
+                "environment_condition": {"mechanism_drivers": "VPP"},
                 "fetcher": "CliFetchInstanceVnicsVpp"
             }
         ])
