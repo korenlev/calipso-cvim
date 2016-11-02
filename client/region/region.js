@@ -1,3 +1,5 @@
+import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+
 Template.region.rendered = function(){
 
 

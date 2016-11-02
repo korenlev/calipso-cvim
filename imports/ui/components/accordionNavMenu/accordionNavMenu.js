@@ -16,7 +16,7 @@ import '/imports/ui/components/d3graph/d3graph';
 import { store } from '/imports/ui/store/store';
 import { setCurrentNodeFromTreeControl } from '/imports/ui/actions/navigation';
 
-(function () {
+import './accordionNavMenu.html';
 
 Template.accordionNavMenu.onCreated(function () {
   let instance = this;
@@ -303,5 +303,3 @@ Template.accordionNavMenuTreeNodeTemplate.helpers({
   }
 });
 */
-
-})();

@@ -15,6 +15,8 @@ import { Inventory } from '/imports/api/inventories/inventories';
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
 
+import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+
 import './environment.html';
 
 /*
