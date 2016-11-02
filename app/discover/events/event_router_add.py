@@ -14,6 +14,21 @@ class EventRouterAdd(Fetcher):
         super().__init__()
         self.inv = InventoryMgr()
 
+    def add_router_document(self, env, network_id, router_doc, host):
+        router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id=%s" % router_doc['id']
+        router_doc["environment"] = env
+        router_doc["id_path"] = host['id_path']+"/%s-vservices/%s-vservices-routers/%s" % (host['id'], host['id'],
+                                                                                           router_doc['id'])
+        router_doc['last_scanned'] = datetime.datetime.utcnow()
+        router_doc['name_path'] = host['name_path'] + "/Vservices/Gateways/%s" % router_doc['name']
+        router_doc['network'] = [network_id]
+        router_doc['object_name'] = router_doc['name']
+        router_doc['parent_id'] = host['id'] + "-vservices-routers"
+        router_doc['show_in_tree'] = True
+        router_doc['type'] = "vservice"
+
+        self.inv.set(router_doc)
+
     def handle(self, env, values):
         router = values['payload']['router']
         host_id = values["publisher_id"].replace("network.", "", 1)
@@ -27,19 +42,7 @@ class EventRouterAdd(Fetcher):
         router_doc = fetcher.get_vservice(host_id, router_id)
         network_id = router['external_gateway_info']['network_id']
         port_id = router_doc['gw_port_id']
-
-        router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id=%s" % router_id
-        router_doc["environment"] = env
-        router_doc["id_path"] = host['id_path']+"/%s-vservices/%s-vservices-routers/%s" % (host_id, host_id, router_id)
-        router_doc['last_scanned'] = datetime.datetime.utcnow()
-        router_doc['name_path'] = host['name_path'] + "/Vservices/Gateways/router-%s" % router['name']
-        router_doc['network'] = [network_id]
-        router_doc['object_name'] = 'router-' + router['name']
-        router_doc['parent_id'] = host_id + "-vservices-routers"
-        router_doc['show_in_tree'] = True
-        router_doc['type'] = "vservice"
-
-        self.inv.set(router_doc)
+        self.add_router_document(env, network_id, router_doc, host)
 
         # Add children documents of port and vnic.
         # after creating a router, a namespace should be created, but it does not.
@@ -47,7 +50,7 @@ class EventRouterAdd(Fetcher):
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
 
-        # add port
+        # add port for binding to vservice:router
         subnet_handler = EventSubnetAdd()
         ports_folder = self.inv.get_by_id(env, network_id+ '-ports')
         if not ports_folder:
@@ -57,11 +60,11 @@ class EventRouterAdd(Fetcher):
 
         # add vnics folder
         port_handler = EventPortAdd()
-        port_handler.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name,
-                                      type="router", router_name=router_doc['name'])
+        port_handler.add_vnics_folder(env, host, network_id, network_name, type="router",
+                                      router_name=router_doc['name'])
 
         # add vnic docuemnt.
-        port_handler.add_vnic_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name,
+        port_handler.add_vnic_document(env, host, network_id, network_name,
                                        type="router", router_name=router_doc['name'])
 
 

@@ -73,13 +73,13 @@ class EventSubnetAdd(Fetcher):
         host_id = notification["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
 
-        port_handler.add_dhcp_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        port_handler.add_dhcp_document(env, host, network_id, network_name)
 
         # add vnics folder.
-        port_handler.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        port_handler.add_vnics_folder(env, host, network_id, network_name)
 
         # add vnic docuemnt.
-        port_handler.add_vnic_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        port_handler.add_vnic_document(env, host, network_id, network_name)
 
 
     def handle(self, env, notification):

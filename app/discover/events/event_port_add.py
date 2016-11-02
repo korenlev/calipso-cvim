@@ -79,20 +79,20 @@ class EventPortAdd(Fetcher):
         }
         self.inv.set(network_services_folder)
 
-    def add_dhcp_document(self, env, host_id, host_id_path, host_name_path, network_id, network_name):
+    def add_dhcp_document(self, env, host, network_id, network_name):
         dhcp_document = {
             "children_url": "/osdna_dev/discover.py?type=tree&id=qdhcp-"+network_id,
             "environment": env,
-            "host": host_id,
+            "host": host['id'],
             "id": "qdhcp-" + network_id,
-            "id_path": host_id_path + "/%s-vservices/%s-vservices-dhcps/qdhcp-%s" % (host_id, host_id, network_id),
+            "id_path": host['id_path'] + "/%s-vservices/%s-vservices-dhcps/qdhcp-%s" % (host['id'], host['id'], network_id),
             "last_scanned": datetime.datetime.utcnow(),
             "local_service_id": "qdhcp-" + network_id,
             "name": "dhcp-" + network_name,
-            "name_path": host_name_path + "/Vservices/DHCP servers/dhcp-" + network_name,
+            "name_path": host['name_path'] + "/Vservices/DHCP servers/dhcp-" + network_name,
             "network": [network_id],
             "object_name": "dhcp-" + network_name,
-            "parent_id": host_id + "-vservices-dhcps",
+            "parent_id": host['id'] + "-vservices-dhcps",
             "parent_text": "DHCP servers",
             "parent_type": "vservice_dhcps_folder",
             "service_type": "dhcp",
@@ -101,19 +101,18 @@ class EventPortAdd(Fetcher):
         }
         self.inv.set(dhcp_document)
 
-    def add_vnics_folder(self, env, host_id, host_id_path, host_name_path,
-                         network_id, network_name, type="dhcp", router_name=''):
+    def add_vnics_folder(self, env, host, network_id, network_name, type="dhcp", router_name=''):
         type_map = {"dhcp": ('DHCP servers', 'dhcp-'+network_name),
                     "router": ('Gateways', router_name)}
 
         vnics_folder = {
             "environment": env,
             "id": "q%s-%s-vnics" % (type, network_id),
-            "id_path": host_id_path + "/%s-vservices/%s-vservices-%ss/q%s-%s/q%s-%s-vnics" %
-                                      (host_id, host_id, type, type, network_id, type, network_id),
+            "id_path": host['id_path'] + "/%s-vservices/%s-vservices-%ss/q%s-%s/q%s-%s-vnics" %
+                                      (host['id'], host['id'], type, type, network_id, type, network_id),
             "last_scanned": datetime.datetime.utcnow(),
             "name": "q%s-%s-vnics" % (type, network_id),
-            "name_path": host_name_path + "/Vservices/%s/%s/vNICs" % (type_map[type][0], type_map[type][1]),
+            "name_path": host['name_path'] + "/Vservices/%s/%s/vNICs" % (type_map[type][0], type_map[type][1]),
             "object_name": "vNICs",
             "parent_id": "q%s-%s" %(type, network_id),
             "parent_type": "vservice",
@@ -123,21 +122,20 @@ class EventPortAdd(Fetcher):
         }
         self.inv.set(vnics_folder)
 
-    def add_vnic_document(self, env, host_id, host_id_path, host_name_path, network_id, network_name,
-                          type='dhcp', router_name=''):
+    def add_vnic_document(self, env, host, network_id, network_name, type='dhcp', router_name=''):
         type_map = {"dhcp": ('DHCP servers', 'dhcp-'+network_name),
                     "router": ('Gateways', router_name)}
 
         fetcher = CliFetchVserviceVnics()
         fetcher.set_env(env)
         namespace = 'q%s-%s' % (type, network_id)
-        vnic_document = fetcher.handle_service(host_id, namespace)
+        vnic_document = fetcher.handle_service(host['id'], namespace)
 
         for doc in vnic_document:
             doc["environment"] = env
-            doc["id_path"] = host_id_path + "/%s-vservices/%s-vservices-%ss/%s/%s-vnics/%s" % \
-                             (host_id, host_id, type, namespace, namespace, doc["id"]),
-            doc["name_path"] = host_name_path + "/Vservices/%s/%s/vNICs/%s" %\
+            doc["id_path"] = host['id_path'] + "/%s-vservices/%s-vservices-%ss/%s/%s-vnics/%s" % \
+                             (host['id'], host['id'], type, namespace, namespace, doc["id"]),
+            doc["name_path"] = host['name_path'] + "/Vservices/%s/%s/vNICs/%s" %\
                                                 (type_map[type][0],type_map[type][1], doc["id"])
 
             self.inv.set(doc)
@@ -147,13 +145,13 @@ class EventPortAdd(Fetcher):
         host_id = notification["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
 
-        self.add_dhcp_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        self.add_dhcp_document(env, host, network_id, network_name)
 
         # add vnics folder.
-        self.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        self.add_vnics_folder(env, host, network_id, network_name)
 
         # add vnic docuemnt.
-        self.add_vnic_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        self.add_vnic_document(env, host, network_id, network_name)
 
 
     def handle(self, env, notification):
