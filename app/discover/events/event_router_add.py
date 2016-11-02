@@ -66,10 +66,12 @@ class EventRouterAdd(Fetcher):
         fetcher.set_env(env)
 
         router_doc = fetcher.get_vservice(host_id, router_id)
-        network_id = router['external_gateway_info']['network_id']
-        self.add_router_document(env, network_id, router_doc, host)
-        self.add_children_documents(env, project_id, network_id, host, router_doc)
+        gateway_info = router['external_gateway_info']
+        if gateway_info:
+            network_id = router['external_gateway_info']['network_id']
+            self.add_router_document(env, network_id, router_doc, host)
+            self.add_children_documents(env, project_id, network_id, host, router_doc)
 
-        # scan links and cliques
-        self.update_links_and_cliques([FindLinksForVserviceVnics()], ScanNetwork())
-        self.log.info("Finished router added.")
+            # scan links and cliques
+            self.update_links_and_cliques([FindLinksForVserviceVnics()], ScanNetwork())
+            self.log.info("Finished router added.")
