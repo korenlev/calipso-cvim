@@ -91,6 +91,12 @@ Template.EnvironmentWizard.helpers({
     return Meteor.user().username;
   },
 
+  model: function () {
+    let instance = Template.instance();
+    let environmentModel = instance.state.get('environmentModel');
+    return environmentModel;
+  },
+
   tabs: function () {
     let instance = Template.instance();
     let environmentModel = instance.state.get('environmentModel');
