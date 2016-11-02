@@ -1,10 +1,9 @@
 from discover.cli_access import CliAccess
-from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
 from discover.singleton import Singleton
 
 
-class CliFetchVconnectors(Fetcher, CliAccess, metaclass=Singleton):
+class CliFetchVconnectors(CliAccess, metaclass=Singleton):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
