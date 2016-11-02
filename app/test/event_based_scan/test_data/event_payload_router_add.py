@@ -1,3 +1,5 @@
+import datetime
+
 EVENT_PAYLOAD_ROUTER_ADD = {
     '_context_show_deleted': False, '_context_domain': None,
     '_context_user': '13baa553aae44adca6615e711fd2f6d9',
@@ -33,72 +35,131 @@ EVENT_PAYLOAD_ROUTER_ADD = {
     'publisher_id': 'network.node-6.cisco.com', '_context_is_admin': True,
     '_context_user_name': 'admin', '_context_resource_uuid': None}
 
-a = [{'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-test',
-      'id': 'qrouter-740f129a-8857-4c78-b8d1-86a17fdb33e8',
-      'local_service_id': 'qrouter-740f129a-8857-4c78-b8d1-86a17fdb33e8',
-      'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE', 'master_parent_type': 'vservices_folder',
-      'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1, 'parent_text': 'Gateways',
-      'gw_port_id': 'e2f31c24-d0f9-499e-a8b1-883941543aa4', 'master_parent_id': 'node-6.cisco.com-vservices',
-      'parent_id': 'node-6.cisco.com-vservices-routers'},
+ROUTER_DOCUMENT = {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-test-router-add',
+                   'id': 'qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
+                   'local_service_id': 'qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
+                   'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE',
+                   'master_parent_type': 'vservices_folder',
+                   'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1,
+                   'parent_text': 'Gateways',
+                   'gw_port_id': 'e2f31c24-d0f9-499e-a8b1-883941543aa4',
+                   'master_parent_id': 'node-6.cisco.com-vservices',
+                   'parent_id': 'node-6.cisco.com-vservices-routers'}
 
-     {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-router1',
-      'id': 'qrouter-1d84eae5-70d6-456a-b568-707b67898138',
-      'local_service_id': 'qrouter-1d84eae5-70d6-456a-b568-707b67898138',
-      'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE', 'master_parent_type': 'vservices_folder',
-      'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1, 'parent_text': 'Gateways',
-      'gw_port_id': '2a1a5710-f404-439b-a90f-8cadffbe3a4b', 'master_parent_id': 'node-6.cisco.com-vservices',
-      'parent_id': 'node-6.cisco.com-vservices-routers'},
-     {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-test_router',
-      'id': 'qrouter-c57216ca-c1c4-430d-a045-32851ca879e3',
-      'local_service_id': 'qrouter-c57216ca-c1c4-430d-a045-32851ca879e3',
-      'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE', 'master_parent_type': 'vservices_folder',
-      'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1, 'parent_text': 'Gateways',
-      'gw_port_id': 'be833afe-d585-469e-8df8-05b8bb78815f', 'master_parent_id': 'node-6.cisco.com-vservices',
-      'parent_id': 'node-6.cisco.com-vservices-routers'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp', 'name': 'dhcp-aaaa',
-      'id': 'qdhcp-95d2a3bb-16b9-4241-ab51-449482fcb9b9', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-95d2a3bb-16b9-4241-ab51-449482fcb9b9', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp', 'name': 'dhcp-abcs',
-      'id': 'qdhcp-241e2900-6e4f-4fdf-b8b2-52e3462274ee', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-241e2900-6e4f-4fdf-b8b2-52e3462274ee', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp',
-      'name': 'dhcp-123456', 'id': 'qdhcp-2e3b85f4-756c-49d9-b34c-f3db13212dbc', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-2e3b85f4-756c-49d9-b34c-f3db13212dbc', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp',
-      'name': 'dhcp-osdna-met4', 'id': 'qdhcp-b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp',
-      'name': 'dhcp-osdna-net3', 'id': 'qdhcp-eb276a62-15a9-4616-a192-11466fdd147f', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-eb276a62-15a9-4616-a192-11466fdd147f', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp',
-      'name': 'dhcp-osdna-net1', 'id': 'qdhcp-7e59b726-d6f4-451a-a574-c67a920ff627', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-7e59b726-d6f4-451a-a574-c67a920ff627', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp',
-      'name': 'dhcp-osdna-net2', 'id': 'qdhcp-a55ff1e8-3821-4e5f-bcfd-07df93720a4f', 'parent_text': 'DHCP servers',
-      'local_service_id': 'qdhcp-a55ff1e8-3821-4e5f-bcfd-07df93720a4f', 'parent_id': 'node-6.cisco.com-vservices-dhcps',
-      'master_parent_id': 'node-6.cisco.com-vservices', 'parent_type': 'vservice_dhcps_folder'},
-     {'master_parent_type': 'vservices_folder', 'host': 'node-6.cisco.com', 'service_type': 'dhcp',
-      'name': 'dhcp-admin_internal_net', 'id': 'qdhcp-6504fcf7-41d7-40bb-aeb1-6a7658c105fc',
-      'parent_text': 'DHCP servers', 'local_service_id': 'qdhcp-6504fcf7-41d7-40bb-aeb1-6a7658c105fc',
-      'parent_id': 'node-6.cisco.com-vservices-dhcps', 'master_parent_id': 'node-6.cisco.com-vservices',
-      'parent_type': 'vservice_dhcps_folder'},
-     {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-osdna-router',
-      'id': 'qrouter-9ec3d703-0725-47e3-8f48-02b16236caf9',
-      'local_service_id': 'qrouter-9ec3d703-0725-47e3-8f48-02b16236caf9',
-      'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE', 'master_parent_type': 'vservices_folder',
-      'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1, 'parent_text': 'Gateways',
-      'gw_port_id': '63489f34-af99-44f4-81de-9a2eb1c1941f', 'master_parent_id': 'node-6.cisco.com-vservices',
-      'parent_id': 'node-6.cisco.com-vservices-routers'},
-     {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-router04',
-      'id': 'qrouter-49ac7716-06da-49ed-b388-f8ba60e8a0e6',
-      'local_service_id': 'qrouter-49ac7716-06da-49ed-b388-f8ba60e8a0e6',
-      'tenant_id': '8c1751e0ce714736a63fee3c776164da', 'status': 'ACTIVE', 'master_parent_type': 'vservices_folder',
-      'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1, 'parent_text': 'Gateways',
-      'gw_port_id': '57e65d34-3d87-4751-8e95-fc78847a3070', 'master_parent_id': 'node-6.cisco.com-vservices',
-      'parent_id': 'node-6.cisco.com-vservices-routers'}]
+HOST_DOC = {
+    "config": {
+        "gateway_external_network_id": "",
+        "router_id": "",
+        "handle_internal_only_routers": True,
+        "agent_mode": "legacy",
+        "ex_gw_ports": 4,
+        "floating_ips": 1,
+        "external_network_bridge": "",
+        "interfaces": 1,
+        "log_agent_heartbeats": False,
+        "use_namespaces": True,
+        "interface_driver": "neutron.agent.linux.interface.OVSInterfaceDriver",
+        "routers": 4
+    },
+    "environment": "Mirantis-Liberty-CL",
+    "host": "node-6.cisco.com",
+    "host_type": [
+        "Controller",
+        "Network"
+    ],
+    "id": "node-6.cisco.com",
+    "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne/RegionOne-availability_zones" +
+               "/internal/node-6.cisco.com",
+    "last_scanned": datetime.datetime.utcnow(),
+    "name": "node-6.cisco.com",
+    "name_path": "/Mirantis-Liberty-CL/Regions/RegionOne/Availability Zones/internal/node-6.cisco.com",
+    "object_name": "node-6.cisco.com",
+    "parent_id": "internal",
+    "parent_type": "availability_zone",
+    "services": {
+        "nova-scheduler": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:47.000000"
+        },
+        "nova-consoleauth": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:48.000000"
+        },
+        "nova-cert": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:41.000000"
+        },
+        "nova-conductor": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:52.000000"
+        }
+    },
+    "show_in_tree": True,
+    "type": "host",
+    "zone": "internal"
+}
+
+NETWORK_DOC = {
+    "admin_state_up": True,
+    "cidrs": [
+        "172.16.0.0/24"
+    ],
+    "environment": "Mirantis-Liberty-CL",
+    "id": "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+    "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-projects/8c1751e0ce714736a63fee3c776164da/8c1751e0ce71"+
+               "4736a63fee3c776164da-networks/c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+    "last_scanned": datetime.datetime.utcnow(),
+    "mtu": 1500,
+    "name": "admin_floating_net",
+    "name_path": "/Mirantis-Liberty-CL/Projects/admin/Networks/admin_floating_net",
+    "network": "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+    "object_name": "admin_floating_net",
+    "parent_id": "8c1751e0ce714736a63fee3c776164da-networks",
+    "parent_text": "Networks",
+    "parent_type": "networks_folder",
+    "port_security_enabled": True,
+    "project": "admin",
+    "provider:network_type": "flat",
+    "provider:physical_network": "physnet1",
+    "provider:segmentation_id": None,
+    "router:external": True,
+    "shared": False,
+    "show_in_tree": True,
+    "status": "ACTIVE",
+    "subnets": {
+        "admin_floating_net__subnet": {
+            "allocation_pools": [
+                {
+                    "end": "172.16.0.254",
+                    "start": "172.16.0.130"
+                }
+            ],
+            "id": "a5336853-cbc0-49e8-8401-a093e8bab7bb",
+            "network_id": "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+            "ipv6_ra_mode": None,
+            "ipv6_address_mode": None,
+            "ip_version": 4,
+            "tenant_id": "8c1751e0ce714736a63fee3c776164da",
+            "cidr": "172.16.0.0/24",
+            "dns_nameservers": [
+
+            ],
+            "name": "admin_floating_net__subnet",
+            "subnetpool_id": None,
+            "gateway_ip": "172.16.0.1",
+            "host_routes": [
+
+            ],
+            "enable_dhcp": False,
+        }
+    },
+    "subnets_id": [
+        "a5336853-cbc0-49e8-8401-a093e8bab7bb"
+    ],
+    "tenant_id": "8c1751e0ce714736a63fee3c776164da",
+    "type": "network"
+}
