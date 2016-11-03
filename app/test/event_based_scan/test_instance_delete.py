@@ -1,5 +1,3 @@
-from bson import ObjectId
-
 from test.event_based_scan.test_data.event_payload_instance_delete import EVENT_PAYLOAD_INSTANCE_DELETE, INSTANCE_DOCUMENT
 from test.event_based_scan.test_event import TestEvent
 
