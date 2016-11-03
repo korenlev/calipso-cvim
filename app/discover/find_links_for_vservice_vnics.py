@@ -7,13 +7,11 @@ class FindLinksForVserviceVnics(Fetcher):
         super().__init__()
         self.inv = InventoryMgr()
 
-    def add_links(self):
+    def add_links(self, search={"type": "vnic", "vnic_type": "vservice_vnic"}):
         self.log.info("adding links of type: vservice-vnic")
-        vnics = self.inv.find_items({
-            "environment": self.get_env(),
-            "type": "vnic",
-            "vnic_type": "vservice_vnic"
-        })
+        search["environment"] =  self.get_env()
+        vnics = self.inv.find_items(search)
+
         for v in vnics:
             self.add_link_for_vnic(v)
 
