@@ -54,11 +54,6 @@ class EventRouterAdd(Fetcher):
         port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name, type="router",
                                        router_name=router_doc['name'])
 
-    def update_links_and_cliques(self, fetchers, scanner):
-        for fetcher in fetchers:
-            fetcher.add_links()
-        scanner.scan_cliques()
-
     def handle(self, env, values):
         router = values['payload']['router']
         host_id = values["publisher_id"].replace("network.", "", 1)
@@ -78,5 +73,9 @@ class EventRouterAdd(Fetcher):
         self.add_router_document(env, None, router_doc, host)
 
         # scan links and cliques
-        self.update_links_and_cliques([FindLinksForVserviceVnics()], ScanNetwork())
+        fetcher = FindLinksForVserviceVnics()
+        fetcher.add_links(search={"parent_id": router_id})
+
+        scanner = ScanNetwork()
+        scanner.scan_cliques()
         self.log.info("Finished router added.")
