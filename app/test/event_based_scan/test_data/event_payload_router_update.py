@@ -19,12 +19,23 @@ EVENT_PAYLOAD_ROUTER_UPDATE = {
     '_context_show_deleted': False, '_context_tenant_name': 'OSDNA-project', 'publisher_id': 'network.node-6.cisco.com',
     'timestamp': '2016-10-28 20:29:39.986161'}
 
+ROUTER_VSERVICE = {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': '1234',
+                   'id': 'qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
+                   'local_service_id': 'qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
+                   'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE',
+                   'master_parent_type': 'vservices_folder',
+                   'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1,
+                   'parent_text': 'Gateways',
+                   'gw_port_id': 'e2f31c24-d0f9-499e-a8b1-883941543aa4',
+                   'master_parent_id': 'node-6.cisco.com-vservices',
+                   'parent_id': 'node-6.cisco.com-vservices-routers'}
+
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
     "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": "Mirantis-Liberty-CL",
-    "gw_port_id": None,
+    "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
     "host": "node-6.cisco.com",
     "id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne/RegionOne-availability_zones/internal" +

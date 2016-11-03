@@ -1,11 +1,14 @@
+from unittest.mock import MagicMock
+
+from discover.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.events.event_router_update import EventRouterUpdate
 from test.event_based_scan.test_data.event_payload_router_update import EVENT_PAYLOAD_ROUTER_UPDATE, ROUTER_DOCUMENT, \
-    EVENT_PAYLOAD_ROUTER_SET_GATEWAY, EVENT_PAYLOAD_ROUTER_DEL_GATEWAY
+    EVENT_PAYLOAD_ROUTER_SET_GATEWAY, EVENT_PAYLOAD_ROUTER_DEL_GATEWAY, ROUTER_VSERVICE
 from test.event_based_scan.test_event import TestEvent
 
 
 class TestRouterUpdate(TestEvent):
-    def test_handle_router_add(self):
+    def test_handle_router_update(self):
         for values in [EVENT_PAYLOAD_ROUTER_UPDATE, EVENT_PAYLOAD_ROUTER_SET_GATEWAY, EVENT_PAYLOAD_ROUTER_DEL_GATEWAY]:
             self.values = values
             self.payload = self.values['payload']
@@ -16,6 +19,8 @@ class TestRouterUpdate(TestEvent):
             # add document for testing
             self.handler.inv.set(ROUTER_DOCUMENT)
 
+            # mock the router document.
+            CliFetchHostVservice.get_vservice = MagicMock(return_value=ROUTER_VSERVICE)
             handler = EventRouterUpdate()
             handler.handle(self.env, self.values)
             self.gw_port_id = ROUTER_DOCUMENT['gw_port_id']
