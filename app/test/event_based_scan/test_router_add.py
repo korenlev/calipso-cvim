@@ -9,7 +9,7 @@ from test.event_based_scan.test_data.event_payload_router_add import EVENT_PAYLO
 from test.event_based_scan.test_event import TestEvent
 
 
-class TestRouter(TestEvent):
+class TestRouterAdd(TestEvent):
     def test_handle_router_add(self):
         self.values = EVENT_PAYLOAD_ROUTER_ADD
         self.payload = self.values['payload']
