@@ -33,6 +33,7 @@ class EventRouterAdd(Fetcher):
 
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
+        router_id = router_doc['id'].replace("qrouter-", "", 1)
 
         # add port for binding to vservice:router
         subnet_handler = EventSubnetAdd()
@@ -44,10 +45,10 @@ class EventRouterAdd(Fetcher):
 
         # add vnics folder and vnic document
         port_handler = EventPortAdd()
-        port_handler.add_vnics_folder(env, host, network_id, network_name, type="router",
+        port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name, type="router",
                                       router_name=router_doc['name'])
 
-        port_handler.add_vnic_document(env, host, network_id, network_name, type="router",
+        port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name, type="router",
                                        router_name=router_doc['name'])
 
     def update_links_and_cliques(self, fetchers, scanner):
