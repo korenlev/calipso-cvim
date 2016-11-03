@@ -1,4 +1,3 @@
-
 EVENT_PAYLOAD_ROUTER_UPDATE = {
     '_context_request_id': 'req-da45908c-0765-4f8a-9fac-79246901de41', '_unique_id': '80723cc09a4748c6b13214dcb867719e',
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_user': '13baa553aae44adca6615e711fd2f6d9',
@@ -20,7 +19,6 @@ EVENT_PAYLOAD_ROUTER_UPDATE = {
     '_context_show_deleted': False, '_context_tenant_name': 'OSDNA-project', 'publisher_id': 'network.node-6.cisco.com',
     'timestamp': '2016-10-28 20:29:39.986161'}
 
-
 EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
     'publisher_id': 'network.node-6.cisco.com',
     '_context_request_id': 'req-79d53b65-47b8-46b2-9a72-3f4031e2d605',
@@ -34,8 +32,8 @@ EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
                 'network_id': 'c64adb76-ad9d-4605-9f5e-bd6dbe325cfb',
                 'enable_snat': True}}},
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_read_only': False,
-    '_context_auth_token': 'gAAAAABYGlU6mEqntx5E9Nss203DIKH352JKSZP0RsJrAJQ_PfjyZEAzYcFvMh4FYVRDRWLvu0cSDsvUk1ILu'+
-                           'nHkpNF28pwcvkBgVModV2Xd2_BW2QbBa2csCOXYiN0LE2uOo3BkrLDEcblvJVT0XTJdDhrBldfyCH0_xSfJ7_'+
+    '_context_auth_token': 'gAAAAABYGlU6mEqntx5E9Nss203DIKH352JKSZP0RsJrAJQ_PfjyZEAzYcFvMh4FYVRDRWLvu0cSDsvUk1ILu' +
+                           'nHkpNF28pwcvkBgVModV2Xd2_BW2QbBa2csCOXYiN0LE2uOo3BkrLDEcblvJVT0XTJdDhrBldfyCH0_xSfJ7_' +
                            'wzdy8bB34HwHq2w0S3Okp8Tk_Zx_-xpIqB',
     'priority': 'INFO', 'timestamp': '2016-11-02 21:44:35.627776',
     '_context_roles': ['_member_', 'admin'], '_context_resource_uuid': None,
@@ -48,3 +46,25 @@ EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
     '_unique_id': '9e6ab72c5901451f81748e0aa654ae25',
     '_context_tenant_name': 'OSDNA-project', '_context_is_admin': True,
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_domain': None}
+
+EVENT_PAYLOAD_ROUTER_DEL_GATEWAY = {
+    '_context_show_deleted': False, '_context_timestamp': '2016-11-03 18:48:40.420170', '_context_read_only': False,
+    'publisher_id': 'network.node-6.cisco.com',
+    '_context_auth_token': 'gAAAAABYG4UUGbe9bykUJUPY0lKye578aF0RrMCc7nA21eLbhpwcsh5pWWqz6hnOi7suUCUtr1DPTbqF1M8CVJ' +
+                           '9FT2EevbqiahcyphrV2VbmP5_tebOcIHIPJ_f_K3KYJM1C6zgcWgdf9KFu_8t_G99wd1MwWBrZyUUElXgSNv48' +
+                           'W4uaCKcbYclnZW78lgXVik5x6WLT_j5V',
+    '_context_user_name': 'admin',
+    '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
+    '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40',
+    '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_unique_id': '266f2bb0ab2c4a328ae0759d01b0035b',
+    'timestamp': '2016-11-03 18:48:41.634214', '_context_roles': ['_member_', 'admin'],
+    'event_type': 'router.update.end',
+    '_context_user_domain': None, '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_is_admin': True,
+    '_context_tenant_name': 'OSDNA-project', '_context_project_domain': None, '_context_domain': None,
+    'priority': 'INFO',
+    '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'message_id': '5272cd90-7151-4d13-8c1f-e8ff2db773a1',
+    '_context_project_name': 'OSDNA-project', '_context_resource_uuid': None, 'payload': {
+        'router': {'id': 'ed49f502-3b90-4104-8d3c-b1a3025a7627', 'external_gateway_info': None, 'distributed': False,
+                   'name': 'TEST_AAA', 'routes': [], 'ha': False, 'admin_state_up': True,
+                   'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE'}},
+    '_context_request_id': 'req-d7e73189-4709-4234-8b4c-fb6b4dc2017b'}
