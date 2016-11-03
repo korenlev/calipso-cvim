@@ -44,7 +44,7 @@ class EventRouterUpdate(Fetcher):
 
             # rescan the vnic links.
             fetcher = FindLinksForVserviceVnics()
-            fetcher.add_links(search={"type": "vnic", "vnic_type": "vservice_vnic", 'parent_id': router_id + '-vnics'})
+            fetcher.add_links(search={'parent_id': router_id + '-vnics'})
 
         self.inv.set(router_doc)
 
