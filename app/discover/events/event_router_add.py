@@ -21,7 +21,10 @@ class EventRouterAdd(Fetcher):
                                                                                              router_doc['id'])
         router_doc['last_scanned'] = datetime.datetime.utcnow()
         router_doc['name_path'] = host['name_path'] + "/Vservices/Gateways/%s" % router_doc['name']
-        router_doc['network'] = [network_id]
+        router_doc['network'] = []
+        if network_id != None:
+            router_doc['network'] = [network_id]
+
         router_doc['object_name'] = router_doc['name']
         router_doc['parent_id'] = host['id'] + "-vservices-routers"
         router_doc['show_in_tree'] = True
