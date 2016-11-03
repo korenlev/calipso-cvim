@@ -40,7 +40,6 @@ class EventRouterUpdate(Fetcher):
             fetcher = CliFetchHostVservice()
             fetcher.set_env(env)
             router_vservice = fetcher.get_vservice(host_id, router_id)
-            print(router_vservice)
             router_doc['gw_port_id'] = router_vservice['gw_port_id']
 
             # rescan the vnic links.
