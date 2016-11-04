@@ -116,8 +116,10 @@ class EventSubnetAdd(Fetcher):
 
         # scan links and cliques
         self.log.info("scanning for links")
-        for fetcher in [FindLinksForPnics(),FindLinksForVserviceVnics()]:
-            fetcher.add_links()
+        fetcher = FindLinksForPnics()
+        fetcher.add_links()
+        fetcher = FindLinksForVserviceVnics()
+        fetcher.add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
 
         network_scanner = ScanNetwork()
         network_scanner.scan_cliques()
