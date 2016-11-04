@@ -7,7 +7,7 @@ class ApiFetchNetworks(ApiAccess):
         super(ApiFetchNetworks, self).__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id):
+    def get(self, id=None):
         # use project admin credentials, to be able to fetch all networks
         token = self.v2_auth_pwd("admin")
         if not token:
