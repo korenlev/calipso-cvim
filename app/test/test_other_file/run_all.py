@@ -14,6 +14,7 @@ from test.test_other_file import test_fetch_region_object_types
 from test.test_other_file import test_fetch_host_object_types
 from test.test_other_file import test_event_listener
 from test.test_other_file import test_configuration
+from test.test_other_file import test_clique_finder
         
 def suite():
         
@@ -31,6 +32,7 @@ def suite():
     suite.addTest(unittest.makeSuite(test_fetch_region_object_types.TestFetchRegionObjectTypes))
     suite.addTest(unittest.makeSuite(test_event_listener.TestWorker))
     suite.addTest(unittest.makeSuite(test_configuration.TestConfiguration))
+    suite.addTest(unittest.makeSuite(test_clique_finder.TestCliqueFinder))
     return suite
     
   

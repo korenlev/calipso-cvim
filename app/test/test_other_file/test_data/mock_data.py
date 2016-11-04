@@ -2,6 +2,14 @@ network_agent_list_type = 'firewall'
 
 network_agent_false_list_type = 'firewall1'
 
+inventory = 'inventory'
+
+links='links'
+
+clique_types = 'clique_types'
+
+constraints ='constraints'
+
 mongo_table = 'inventory'
 
 mongo_table_false = 'xxxxx'
@@ -72,6 +80,16 @@ inventory_dummy_id = '329e0576da594c62a911d0dccb1238a7'
 
 inventory_type = 'projects_folder'
 
+clique_constraints =[ {
+    "focal_point_type" : "instance",
+    "focal_point" : "instance",
+    "constraints" : [
+        "network"
+    ]
+}]
+
+clique_clique_type = 'instance'
+
 inventory_items={
 
     "environment" : "WebEX-Mirantis@Cisco",
@@ -96,6 +114,10 @@ inv_create = {'env' : 'WebEX-Mirantis@Cisco',
                     'source_label':"", 'target_label':"",'extra_attributes':{}
             }
 
+clique_finder_link = {'attributes':'test'}
+
+clique_finder_link_not_attributes = {'attributes':'test'}
+
 inv_delete_coll ='links'
 inv_del_filter = {'type':'vnic1'}
 
@@ -114,10 +136,13 @@ inv_check_filed = 'type'
 
 inv_find_inv = [{'environment': 'Devstack-VPP-2', 'name': 'Projects', 'id_path': '/Devstack-VPP-2/Devstack-VPP-2-projects', 'id': 'Devstack-VPP-2-projects', 'show_in_tree': True, 'object_name': 'Projects', 'parent_type': 'environment', 'create_object': True, 'parent_id': 'Devstack-VPP-2', 'name_path': '/Devstack-VPP-2/Projects', 'text': 'Projects', '_id': '57c54fac4a0a8a3fbe3bb53e', 'type': 'projects_folder'}]
 
+clique_types_find = [{'environment': 'Devstack-VPP-2', 'name': 'Projects', 'id_path': '/Devstack-VPP-2/Devstack-VPP-2-projects', 'id': 'Devstack-VPP-2-projects', 'show_in_tree': True, 'object_name': 'Projects', 'parent_type': 'environment', 'create_object': True, 'parent_id': 'Devstack-VPP-2', 'name_path': '/Devstack-VPP-2/Projects', 'text': 'Projects', '_id': '57c54fac4a0a8a3fbe3bb53e', 'type': 'projects_folder'}]
+
 inv_finds_inv = [{'name': 'Projects', '_id': '57c54fac4a0a8a3fbe3bb53e', 'name_path': '/Devstack-VPP-2/Projects', 'id': 'Devstack-VPP-2-projects', 'parent_id': 'Devstack-VPP-2', 'text': 'Projects', 'object_name': 'Projects', 'parent_type': 'environment', 'environment': 'Devstack-VPP-2', 'show_in_tree': True, 'type': 'projects_folder', 'create_object': True, 'id_path': '/Devstack-VPP-2/Devstack-VPP-2-projects'}]
 
 inv_set= {'id_path': '/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-projects', 'environment': 'WebEX-Mirantis@Cisco', 'show_in_tree': True, 'type': 'projects_folder', 'name_path': '/WebEX-Mirantis@Cisco/Projects', 'create_object': True, 'id': 'WebEX-Mirantis@Cisco-projects_muruga', 'text': 'Projects', 'name': 'Projects', 'parent_id': 'WebEX-Mirantis@Cisco', 'parent_type': 'environment'}
 
+clique_finder_find =  [{'environment': 'Devstack-VPP-2', 'name': 'Projects', 'id_path': '/Devstack-VPP-2/Devstack-VPP-2-projects', 'id': 'Devstack-VPP-2-projects', 'show_in_tree': True, 'object_name': 'Projects', 'parent_type': 'environment', 'create_object': True, 'parent_id': 'Devstack-VPP-2', 'name_path': '/Devstack-VPP-2/Projects', 'text': 'Projects', '_id': '57c54fac4a0a8a3fbe3bb53e', 'type': 'projects_folder'}]
 
 EVENT_PAYLOAD_INSTANCE_ADD = {
     'publisher_id': 'compute.node-6.cisco.com', '_context_resource_uuid': None,
