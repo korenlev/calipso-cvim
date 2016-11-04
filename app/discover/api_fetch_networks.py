@@ -14,10 +14,10 @@ class ApiFetchNetworks(ApiAccess):
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(region, token))
+            ret.extend(self.get_networks(region, token))
         return ret
 
-    def get_for_region(self, region, token):
+    def get_networks(self, region, token):
         endpoint = self.get_region_url_nover(region, "neutron")
         req_url = endpoint + "/v2.0/networks"
         headers = {
