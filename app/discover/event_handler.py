@@ -1,6 +1,7 @@
 from discover.events.event_instance_add import EventInstanceAdd
 from discover.events.event_instance_delete import EventInstanceDelete
 from discover.events.event_instance_update import EventInstanceUpdate
+from discover.events.event_interface_add import EventInterfaceAdd
 from discover.events.event_network_add import EventNetworkAdd
 from discover.events.event_network_delete import EventNetworkDelete
 from discover.events.event_network_update import EventNetworkUpdate
@@ -112,7 +113,9 @@ class EventHandler(Fetcher):
         handler.handle(self.env, notification)
 
     def router_interface_create(self, notification):
-        pass
+        self.log.info("router_interface_add")
+        handler = EventInterfaceAdd()
+        handler.handle(self.env, notification)
 
     def router_interface_delete(self, notification):
         pass
