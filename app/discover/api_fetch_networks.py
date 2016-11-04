@@ -60,8 +60,8 @@ class ApiFetchNetworks(ApiAccess):
                     subnets_details[subnet["name"]] = subnet
                 except KeyError:
                     pass
-            if subnets_details:
-                doc["subnets"] = subnets_details
-                doc["cidrs"] = cidrs
-                doc["subnet_ids"] = subnet_ids
+
+            doc["subnets"] = subnets_details
+            doc["cidrs"] = cidrs
+            doc["subnet_ids"] = subnet_ids
         return networks
