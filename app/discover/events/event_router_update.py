@@ -35,7 +35,8 @@ class EventRouterUpdate(Fetcher):
                     router_doc['network'].append(gateway_info['network_id'])
             else:
                 router_doc['network'] = [gateway_info['network_id']]
-
+            # update static route
+            router_doc['routes'] = router['routes']
             # add gw_port_id
             fetcher = CliFetchHostVservice()
             fetcher.set_env(env)
