@@ -1,6 +1,6 @@
 import datetime
 
-NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnets_id': [], 'parent_type': 'networks_folder',
+NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnet_ids': [], 'parent_type': 'networks_folder',
  'parent_id': '75c0eb79ff4a42b0ae4973c8375ddf40-networks', 'parent_text': 'Networks', 'subnets': {},
  'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
  'name_path': '/Mirantis-Liberty-CL/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,

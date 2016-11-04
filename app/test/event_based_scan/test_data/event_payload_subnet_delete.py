@@ -79,7 +79,7 @@ EVENT_PAYLOAD_NETWORK = {
             "cidr": "172.16.10.0/25"
         }
     },
-    "subnets_id": [
+    "subnet_ids": [
         "88442b4a-e62d-4d72-9d18-b8d6973eb3da"
     ],
     "tenant_id": "75c0eb79ff4a42b0ae4973c8375ddf40",

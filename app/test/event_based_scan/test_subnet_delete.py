@@ -30,7 +30,7 @@ class TestSubnetDelete(TestEvent):
         self.handler.subnet_delete(self.values)
 
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-        self.assertNotIn(self.subnet_id, network_document['subnets_id'])
+        self.assertNotIn(self.subnet_id, network_document['subnet_ids'])
         self.assertNotIn(self.cidr, network_document['cidrs'])
         self.assertNotIn(self.subnet_name, network_document['subnets'])
 

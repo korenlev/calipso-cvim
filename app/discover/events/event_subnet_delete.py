@@ -19,13 +19,13 @@ class EventSubnetDelete(EventDeleteBase):
 
     def handle(self, env, notification):
         subnet_id = notification['payload']['subnet_id']
-        network_document = self.inv.get_by_field(env, "network", "subnets_id", subnet_id, get_single=True)
+        network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if len(network_document) == 0:
             self.log.info("network document not found, aborting subnet deleting")
             return
 
         # remove subnet_id from subnet_ids array
-        network_document["subnets_id"].remove(subnet_id)
+        network_document["subnet_ids"].remove(subnet_id)
 
         # remove cidr from cidrs and delete subnet document.
         for subnet in network_document['subnets'].values():
@@ -38,6 +38,6 @@ class EventSubnetDelete(EventDeleteBase):
         self.inv.set(network_document)
 
         # when network does not have any subnet, delete vservice DHCP, port and vnic documents.
-        if len(network_document["subnets_id"]) == 0:
+        if len(network_document["subnet_ids"]) == 0:
             vservice_dhcp_id = 'qdhcp-' + network_document['id']
             self.delete_children_documents(env, vservice_dhcp_id)

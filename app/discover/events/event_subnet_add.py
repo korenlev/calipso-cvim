@@ -100,7 +100,7 @@ class EventSubnetAdd(Fetcher):
             network_document['subnets'] = {}
 
         network_document['subnets'][subnet['name']] = subnet
-        network_document['subnets_id'].append(subnet['id'])
+        network_document['subnet_ids'].append(subnet['id'])
         self.inv.set(network_document)
 
         # Check DHCP enable, if true, scan network.

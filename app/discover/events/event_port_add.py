@@ -211,6 +211,7 @@ class EventPortAdd(Fetcher):
             return True
 
         if device_owner[0] == '':
+            return
             handler = port_device_owner_handler.get(device_owner)
             if handler:
                 handler(env, notification, self.network_id, self.network_name)
