@@ -17,10 +17,10 @@ class ApiFetchPort(ApiAccess):
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_ports_for_region(region, token, id))
+            ret.extend(self.get_port(region, token, id))
         return ret
 
-    def get_ports_for_region(self, region, token, id):
+    def get_port(self, region, token, id):
         endpoint = self.get_region_url_nover(region, "neutron")
         req_url = endpoint + "/v2.0/ports/" + id
         headers = {
