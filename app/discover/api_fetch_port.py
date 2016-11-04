@@ -17,7 +17,7 @@ class ApiFetchPort(ApiAccess):
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_port(region, token, id))
+            ret.append(self.get_port(region, token, id))
         return ret
 
     def get_port(self, region, token, id):

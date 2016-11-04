@@ -20,17 +20,18 @@ class EventSubnetAdd(Fetcher):
     def add_port_document(self, env, project_id, network_id, network_name, port_id):
         fetcher = ApiFetchPort()
         fetcher.set_env(env)
-        port = fetcher.get(port_id)
+        ports = fetcher.get(port_id)
 
-        port['type'] = "port"
-        port['environment'] = env
-        port_id = port['id']
-        port['id_path'] = "%s/%s-projects/%s/%s-networks/%s/%s-ports/%s" % \
-                         (env, env, project_id, project_id, network_id, network_id, port_id)
-        port['last_scanned'] = datetime.datetime.utcnow()
-        port['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
-                           (env, port['project'], network_name, port_id)
-        self.inv.set(port)
+        for port in ports:
+            port['type'] = "port"
+            port['environment'] = env
+            port_id = port['id']
+            port['id_path'] = "%s/%s-projects/%s/%s-networks/%s/%s-ports/%s" % \
+                             (env, env, project_id, project_id, network_id, network_id, port_id)
+            port['last_scanned'] = datetime.datetime.utcnow()
+            port['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
+                               (env, port['project'], network_name, port_id)
+            self.inv.set(port)
 
     def add_ports_folder(self, env, project_id, network_id, network_name):
         port_folder = {
