@@ -26,19 +26,19 @@ EVENT_PAYLOAD_SUBNET_DELETE = {
 
 EVENT_PAYLOAD_NETWORK = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=921c727b-6376-4a86-a5a8-793dfe7a8ef3",
+    "children_url": "/osdna_dev/discover.py?type=tree&id=121c727b-6376-4a86-a5a8-793dfe7a8ef4",
     "cidrs": [
         "172.16.10.0/25"
     ],
     "environment": ENV_CONFIG,
-    "id": "921c727b-6376-4a86-a5a8-793dfe7a8ef3",
+    "id": "121c727b-6376-4a86-a5a8-793dfe7a8ef4",
     "id_path": "/"+ENV_CONFIG+"/"+ENV_CONFIG+"-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a" +
-               "42b0ae4973c8375ddf40-networks/921c727b-6376-4a86-a5a8-793dfe7a8ef3",
+               "42b0ae4973c8375ddf40-networks/121c727b-6376-4a86-a5a8-793dfe7a8ef4",
     "last_scanned": 0,
     "mtu": 1400,
     "name": "asad",
     "name_path": "/"+ENV_CONFIG+"/Projects/OSDNA-project/Networks/asad",
-    "network": "921c727b-6376-4a86-a5a8-793dfe7a8ef3",
+    "network": "121c727b-6376-4a86-a5a8-793dfe7a8ef4",
     "object_name": "asad",
     "parent_id": "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
     "parent_text": "Networks",
@@ -64,7 +64,7 @@ EVENT_PAYLOAD_NETWORK = {
             "ipv6_address_mode": None,
             "ip_version": 4,
             "gateway_ip": "172.16.10.1",
-            "network_id": "921c727b-6376-4a86-a5a8-793dfe7a8ef3",
+            "network_id": "121c727b-6376-4a86-a5a8-793dfe7a8ef4",
             "tenant_id": "75c0eb79ff4a42b0ae4973c8375ddf40",
             "allocation_pools": [
                 {

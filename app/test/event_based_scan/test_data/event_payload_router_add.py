@@ -24,7 +24,7 @@ EVENT_PAYLOAD_ROUTER_ADD = {
                        'external_fixed_ips': [{
                            'ip_address': '172.16.0.137',
                            'subnet_id': 'a5336853-cbc0-49e8-8401-a093e8bab7bb'}],
-                       'network_id': 'c64adb76-ad9d-4605-9f5e-bd6dbe325cfb'},
+                       'network_id': 'c64adb76-ad9d-4605-9f5e-123456781234'},
                    'admin_state_up': True,
                    'distributed': False,
                    'routes': [], 'ha': False,
@@ -32,10 +32,10 @@ EVENT_PAYLOAD_ROUTER_ADD = {
                    'status': 'ACTIVE',
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40'}},
     '_context_timestamp': '2016-10-28 19:00:34.395521', '_context_project_domain': None,
-    'publisher_id': 'network.node-6.cisco.com', '_context_is_admin': True,
+    'publisher_id': 'network.node-250.cisco.com', '_context_is_admin': True,
     '_context_user_name': 'admin', '_context_resource_uuid': None}
 
-ROUTER_DOCUMENT = {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': 'router-test-router-add',
+ROUTER_DOCUMENT = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name': 'router-test-router-add',
                    'id': 'qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
                    'local_service_id': 'qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE',
@@ -43,8 +43,8 @@ ROUTER_DOCUMENT = {'host': 'node-6.cisco.com', 'service_type': 'router', 'name':
                    'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1,
                    'parent_text': 'Gateways',
                    'gw_port_id': 'e2f31c24-d0f9-499e-a8b1-883941543aa4',
-                   'master_parent_id': 'node-6.cisco.com-vservices',
-                   'parent_id': 'node-6.cisco.com-vservices-routers'}
+                   'master_parent_id': 'node-250.cisco.com-vservices',
+                   'parent_id': 'node-250.cisco.com-vservices-routers'}
 
 HOST_DOC = {
     "config": {
@@ -62,18 +62,18 @@ HOST_DOC = {
         "routers": 4
     },
     "environment": "Mirantis-Liberty-CL",
-    "host": "node-6.cisco.com",
+    "host": "node-250.cisco.com",
     "host_type": [
         "Controller",
         "Network"
     ],
-    "id": "node-6.cisco.com",
+    "id": "node-250.cisco.com",
     "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne/RegionOne-availability_zones" +
-               "/internal/node-6.cisco.com",
+               "/internal/node-250.cisco.com",
     "last_scanned": datetime.datetime.utcnow(),
-    "name": "node-6.cisco.com",
-    "name_path": "/Mirantis-Liberty-CL/Regions/RegionOne/Availability Zones/internal/node-6.cisco.com",
-    "object_name": "node-6.cisco.com",
+    "name": "node-250.cisco.com",
+    "name_path": "/Mirantis-Liberty-CL/Regions/RegionOne/Availability Zones/internal/node-250.cisco.com",
+    "object_name": "node-250.cisco.com",
     "parent_id": "internal",
     "parent_type": "availability_zone",
     "services": {
@@ -109,14 +109,14 @@ NETWORK_DOC = {
         "172.16.0.0/24"
     ],
     "environment": "Mirantis-Liberty-CL",
-    "id": "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+    "id": "c64adb76-ad9d-4605-9f5e-123456781234",
     "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-projects/8c1751e0ce714736a63fee3c776164da/8c1751e0ce71"+
-               "4736a63fee3c776164da-networks/c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+               "4736a63fee3c776164da-networks/c64adb76-ad9d-4605-9f5e-123456781234",
     "last_scanned": datetime.datetime.utcnow(),
     "mtu": 1500,
     "name": "admin_floating_net",
     "name_path": "/Mirantis-Liberty-CL/Projects/admin/Networks/admin_floating_net",
-    "network": "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+    "network": "c64adb76-ad9d-4605-9f5e-123456781234",
     "object_name": "admin_floating_net",
     "parent_id": "8c1751e0ce714736a63fee3c776164da-networks",
     "parent_text": "Networks",
@@ -139,7 +139,7 @@ NETWORK_DOC = {
                 }
             ],
             "id": "a5336853-cbc0-49e8-8401-a093e8bab7bb",
-            "network_id": "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb",
+            "network_id": "c64adb76-ad9d-4605-9f5e-123456781234",
             "ipv6_ra_mode": None,
             "ipv6_address_mode": None,
             "ip_version": 4,

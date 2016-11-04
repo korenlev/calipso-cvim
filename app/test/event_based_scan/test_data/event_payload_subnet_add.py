@@ -6,18 +6,18 @@ NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnets_id': 
  'name_path': '/Mirantis-Liberty-CL/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,
  'provider:physical_network': None,
  'id_path': '/Mirantis-Liberty-CL/Mirantis-Liberty-CL-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0'+
-            'ae4973c8375ddf40-networks/0bb0ba6c-6863-4121-ac89-93f81a9da2b0',
+            'ae4973c8375ddf40-networks/1bb0ba6c-6863-4121-ac89-93f81a9da2b0',
  'object_name': 'testsubnetadd', 'provider:segmentation_id': 46, 'provider:network_type': 'vxlan',
  'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'environment': 'Mirantis-Liberty-CL', 'name': 'testsubnetadd',
- 'last_scanned': '2016-10-13 00:20:59.280329', 'id': '0bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'cidrs': [],
- 'type': 'network', 'network': '0bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'shared': False, 'mtu': 1400}
+ 'last_scanned': '2016-10-13 00:20:59.280329', 'id': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'cidrs': [],
+ 'type': 'network', 'network': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'shared': False, 'mtu': 1400}
 
 
 EVENT_PAYLOAD_SUBNET_ADD = {
     'payload': {
         'subnet': {'dns_nameservers': [], 'ipv6_address_mode': None, 'ipv6_ra_mode': None, 'gateway_ip': '172.16.10.1',
                    'allocation_pools': [{'start': '172.16.10.2', 'end': '172.16.10.126'}], 'enable_dhcp': True,
-                   'id': 'e950055d-231c-4380-983c-a258ea958d58', 'network_id': '0bb0ba6c-6863-4121-ac89-93f81a9da2b0',
+                   'id': 'e950055d-231c-4380-983c-a258ea958d58', 'network_id': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0',
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'ip_version': 4, 'cidr': '172.16.10.0/25',
                    'subnetpool_id': None, 'name': 'testsubnetadd', 'host_routes': []}}, '_context_domain': None,
     'timestamp': '2016-10-13 00:20:59.776358', '_context_project_domain': None, '_context_user_domain': None,
