@@ -46,4 +46,4 @@ class ApiFetchPort(ApiAccess):
         project = self.inv.get_by_id(self.get_env(), doc["tenant_id"])
         if project:
             doc["project"] = project["name"]
-        return [doc]
+        return doc
