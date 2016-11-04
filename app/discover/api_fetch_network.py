@@ -56,6 +56,7 @@ class ApiFetchNetwork(ApiAccess):
                 try:
                     subnet = subnets_hash[s]
                     cidrs.append(subnet["cidr"])
+                    subnet_ids.append(subnet["id"])
                     subnets_details[subnet["name"]] = subnet
                 except KeyError:
                     pass
