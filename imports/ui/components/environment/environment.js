@@ -9,6 +9,7 @@
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { Counts } from 'meteor/tmeasday:publish-counts';
+//import * as R from 'ramda';
 
 import { Inventory } from '/imports/api/inventories/inventories';
 
@@ -31,7 +32,8 @@ Template.Environment.onCreated(function () {
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     childNodeRequested: null,
-    envName: null
+    envName: null,
+    searchTerm: null
   });
 
   instance.autorun(function () {
@@ -44,7 +46,11 @@ Template.Environment.onCreated(function () {
 
     let onSearchRequested = (searchTerm) => {
       console.log(`search requested for: ${searchTerm}`);
+      instance.subscribe('inventory?env+name', envName, searchTerm);
+      instance.state.set('searchTerm', null);
+      instance.state.set('searchTerm', searchTerm);
     };
+
     instance.onSearchRequested = onSearchRequested;
     store.dispatch(addSearchInterestedParty(onSearchRequested));
 
@@ -74,6 +80,18 @@ Template.Environment.onCreated(function () {
     instance.subscribe('messages?env+level', envName, 'notify');
     instance.subscribe('messages?env+level', envName, 'warn');
     instance.subscribe('messages?env+level', envName, 'error');
+  });
+
+  instance.autorun(function () {
+    var controller = Iron.controller();
+    let envName = controller.state.get('envName');
+    let searchTerm = instance.state.get('searchTerm');
+    if (searchTerm) {
+      Inventory.find({ environment: envName, name: searchTerm })
+      .forEach(function (resultNode) { // todo: one result only ?
+        store.dispatch(setCurrentNode(resultNode));
+      });
+    }
   });
 
 });
