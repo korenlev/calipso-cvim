@@ -33,6 +33,7 @@ module.exports = {
         "Iron": true,
         "jQuery": true,
         "d3Graph": true,
+        "d3": true,
         "$": true,
         "toastr": true,
         "google": true

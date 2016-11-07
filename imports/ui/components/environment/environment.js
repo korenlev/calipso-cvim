@@ -14,6 +14,8 @@ import { Inventory } from '/imports/api/inventories/inventories';
 
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
+import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
+import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 
@@ -39,6 +41,12 @@ Template.Environment.onCreated(function () {
 
     var envName = controller.state.get('envName');
     instance.state.set('envName', envName);
+
+    let onSearchRequested = (searchTerm) => {
+      console.log(`search requested for: ${searchTerm}`);
+    };
+    instance.onSearchRequested = onSearchRequested;
+    store.dispatch(addSearchInterestedParty(onSearchRequested));
 
     if (query.graph) {
       let node24IdPath =
@@ -70,10 +78,10 @@ Template.Environment.onCreated(function () {
 
 });
 
-/*
 Template.Environment.onDestroyed(function () {
+  let instance = this;
+  store.dispatch(removeSearchInterestedParty(instance.onSearchRequested));
 });
-*/
 
 Template.Environment.rendered = function(){
 
