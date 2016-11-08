@@ -79,16 +79,16 @@ class Scanner(Util, Fetcher):
         conf = self.config.get_env_config()
 
         for attr, required_val in env_cond.items():
-            if attr == "network_plugins":
+            if attr == "mechanism_drivers":
                 continue
             if attr not in conf or conf[attr] != required_val:
                 return False
 
         # check network plugins
-        if "network_plugins" in env_cond:
-            if "network_plugins" not in conf:
+        if "mechanism_drivers" in env_cond:
+            if "mechanism_drivers" not in conf:
                 return False
-            if env_cond["network_plugins"] not in conf["network_plugins"]:
+            if env_cond["mechanism_drivers"] not in conf["mechanism_drivers"]:
                 return False
 
         return True

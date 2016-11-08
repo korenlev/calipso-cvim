@@ -7,12 +7,12 @@ class ScanVconnectorsRoot(Scanner, metaclass=Singleton):
         super(ScanVconnectorsRoot, self).__init__([
             {
                 "type": "vconnector",
-                "environment_condition": {"network_plugins": "OVS"},
+                "environment_condition": {"mechanism_drivers": "OVS"},
                 "fetcher": "CliFetchVconnectorsOvs"
             },
             {
                 "type": "vconnector",
-                "environment_condition": {"network_plugins": "VPP"},
+                "environment_condition": {"mechanism_drivers": "VPP"},
                 "fetcher": "CliFetchVconnectorsVpp"
             }
         ])

@@ -8,13 +8,13 @@ class ScanVedgesRoot(Scanner, metaclass=Singleton):
             {
                 "type": "vedge",
                 "fetcher": "DbFetchVedgesOvs",
-                "environment_condition": {"network_plugins": "OVS"},
+                "environment_condition": {"mechanism_drivers": "OVS"},
                 "children_scanner": "ScanOteps"
             },
             {
                 "type": "vedge",
                 "fetcher": "DbFetchVedgesVpp",
-                "environment_condition": {"network_plugins": "VPP"},
+                "environment_condition": {"mechanism_drivers": "VPP"},
                 "children_scanner": "ScanVedgePnicsRoot"
             }
         ])

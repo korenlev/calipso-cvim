@@ -9,7 +9,7 @@ class ScanVedgePnicsRoot(Scanner, metaclass=Singleton):
             {
                 "type": "pnics_folder",
                 "fetcher": FolderFetcher("pnics", "vedge", "pNICs"),
-                "environment_condition": {"network_plugins": "VPP"},
+                "environment_condition": {"mechanism_drivers": "VPP"},
                 "children_scanner": "ScanVppPnicsRoot"
             }
         ])
