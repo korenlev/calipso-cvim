@@ -1,4 +1,0 @@
-pNIC list  - ifconfig | grep eth
-pNIC details - ethtool -i eth0  , ethtool -k eth0, ethtool -S eth0, ip link show eth0
-
-which bridge for pNIC -   brctl show | grep eth0 
