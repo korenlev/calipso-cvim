@@ -1,1 +1,0 @@
-get agent-list : get id, agent_type , binary , topic , host , state, configurations 

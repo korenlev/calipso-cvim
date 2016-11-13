@@ -1,1 +1,0 @@
-get lbaas_loadbalancers
