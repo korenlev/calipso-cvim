@@ -1,7 +1,0 @@
-GET instances  , all data, NOT deleted ones(not deleted = 0)
-GET instances_extra , all data
-GET instance_faults , all data
-GET instance_info_caches
-
-for future events:
-GET instance_actions, instance_actions_events
