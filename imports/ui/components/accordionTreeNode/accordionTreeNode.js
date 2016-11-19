@@ -24,10 +24,13 @@ Template.accordionTreeNode.onCreated(function () {
     needChildrenClosing: false,
     openedChildId: null,
     showNow: false,
-    startAsClickedState: 'not_done'
+    startAsClickedState: 'not_done',
+    data: null,
   });
 
   instance.autorun(function () {
+    var tempData = instance.state.get('data');
+
     instance.subscribe('inventory.first-child',
       instance.data.node.id);
 
@@ -82,7 +85,7 @@ Template.accordionTreeNode.rendered = function () {
       activateNodeAction(instance);
       setTimeout(function () {
         animateOpening(instance.$(instance.firstNode));
-      }, 10);
+      }, 65);
       break;
 
     case 'closing':
@@ -127,6 +130,11 @@ Template.accordionTreeNode.helpers({
         instance.state.set('openState', nextOpenState);
       }, 10);
     }
+  },
+
+  reactOnNewData: function (node) {
+    let instance = Template.instance();
+    instance.state.set('data', { node: node }); 
   },
 
   isNot: function (condition) {

@@ -13,8 +13,14 @@ import './accordionTreeNodeChildren.html';
 
 Template.accordionTreeNodeChildren.onCreated(function () {
   var instance = this;
+  this.state = new ReactiveDict();
+  this.state.setDefault({
+    data: null,
+  });
 
-  this.autorun(function () {
+  instance.autorun(function () {
+    var tempData = instance.state.get('data');
+    var node = instance.data.node;
     instance.subscribe('inventory.children',
       instance.data.node.id);
   });
@@ -22,8 +28,17 @@ Template.accordionTreeNodeChildren.onCreated(function () {
 });
 
 Template.accordionTreeNodeChildren.helpers({
+  reactOnNewData: function (node) {
+    let instance = Template.instance();
+    instance.state.set('data', { node: node });
+  },
+
   children: function () {
-    return getChildren(this);
+    var instance = Template.instance();
+    var controller = Iron.controller();
+    var envName = controller.state.get('envName');
+
+    return getChildrenQuery(instance.data.node, envName);
   },
 
   createTreeNodeArgs: function(
@@ -60,12 +75,14 @@ Template.accordionTreeNodeChildren.helpers({
 Template.accordionTreeNodeChildren.events({
 });
 
+/*
 function getChildren(instance) {
   var controller = Iron.controller();
   var envName = controller.state.get('envName');
 
   return getChildrenQuery(instance.node, envName);
 }
+*/
 
 function getChildrenQuery(node, envName) {
   return Inventory.find({
