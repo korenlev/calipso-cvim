@@ -26,7 +26,13 @@ try:
         shell=True)
     out = binary2str(out)
     lines = out.splitlines()
-    state_match = re.match('^\W+([A-Z]+)', lines[1])
+    line_number = 1
+    while line_number < len(lines):
+      line = lines[line_number]
+      if ' BROADCAST ' in line:
+        break
+      line_number+=1
+    state_match = re.match('^\W+([A-Z]+)', line)
     if not state_match:
         rc = 2
         print('Error: failed to find status in ifconfig output: ' + out)
