@@ -43,6 +43,9 @@ if object_type == 'otep':
 if object_type == 'pnic':
     from monitoring.handlers.handle_pnic import HandlePnic
     handler = HandlePnic()
+if object_type == 'link':
+    from monitoring.handlers.handle_link import HandleLink
+    handler = HandleLink()
 if handler:
     handler.handle(object_id, check_result)
 
