@@ -124,13 +124,13 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
     # item must contain properties 'environment', 'type' and 'id'
     def set(self, item, collection=None):
-        col = collection if collection else self.coll['inventory']
+        col = collection
         mongo_id = None
         projects = None
         if "_id" in item:
             mongo_id = item.pop("_id", None)
 
-        if collection == self.coll['inventory']:
+        if not collection or collection == self.coll['inventory']:
             # make sure we have environment, type & id
             self.check(item, "environment")
             self.check(item, "type")
@@ -145,6 +145,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             item['object_name'] = item['object_name'] if 'object_name' in item \
                 else obj_name
             self.set_inventory_collection()  # make sure we have it set
+            col = col if col else self.coll['inventory']
             find_tuple = {"environment": item["environment"],
                           "type": item["type"], "id": item["id"]}
         else:
