@@ -41,11 +41,14 @@ else:
         exit(1)
 
 check_result = json.loads(input)
+check_client = check_result['client']
 check_result = check_result['check']
 name = check_result['name']
 status = check_result['status']
 object_type = name[:name.index('_')]
 object_id = name[name.index('_')+1:]
+if 'environment' in check_client:
+  args.env = check_client['environment']
 
 handler = None
 if object_type == 'otep':
