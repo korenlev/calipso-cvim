@@ -123,37 +123,43 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         return ret[0]
 
     # item must contain properties 'environment', 'type' and 'id'
-    def set(self, item):
+    def set(self, item, collection=None):
+        col = collection if collection else self.coll['inventory']
         mongo_id = None
+        projects = None
         if "_id" in item:
             mongo_id = item.pop("_id", None)
 
-        # make sure we have environment, type & id
-        self.check(item, "environment")
-        self.check(item, "type")
-        self.check(item, "id")
-        item["last_scanned"] = datetime.now()
-        try:
-            projects = item.pop("projects")
-        except KeyError:
-            projects = []
-        obj_name = item["name_path"]
-        obj_name = obj_name[obj_name.rindex('/') + 1:]
-        item['object_name'] = item['object_name'] if 'object_name' in item \
-            else obj_name
-        self.set_inventory_collection()  # make sure we have it set
-        find_tuple = {"environment": item["environment"],
-                      "type": item["type"], "id": item["id"]}
-        self.inv.update_one(find_tuple,
-                            {'$set': self.encode_mongo_keys(item)},
-                            upsert=True)
+        if collection == self.coll['inventory']:
+            # make sure we have environment, type & id
+            self.check(item, "environment")
+            self.check(item, "type")
+            self.check(item, "id")
+            item["last_scanned"] = datetime.now()
+            try:
+                projects = item.pop("projects")
+            except KeyError:
+                projects = []
+            obj_name = item["name_path"]
+            obj_name = obj_name[obj_name.rindex('/') + 1:]
+            item['object_name'] = item['object_name'] if 'object_name' in item \
+                else obj_name
+            self.set_inventory_collection()  # make sure we have it set
+            find_tuple = {"environment": item["environment"],
+                          "type": item["type"], "id": item["id"]}
+        else:
+            find_tuple = {'_id': mongo_id}
+
+        col.update_one(find_tuple,
+            {'$set': self.encode_mongo_keys(item)},
+            upsert=True)
         if mongo_id:
             # restore original mongo ID of document, in case we need to use it
             item['_id'] = mongo_id
         if projects:
-            self.inv.update_one(find_tuple,
-                                {'$addToSet': {"projects": {'$each': projects}}},
-                                upsert=True)
+            col.update_one(find_tuple,
+                {'$addToSet': {"projects": {'$each': projects}}},
+                upsert=True)
 
     def check(self, obj, field_name):
         arg = obj[field_name]
