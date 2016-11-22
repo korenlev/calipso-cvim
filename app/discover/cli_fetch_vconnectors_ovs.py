@@ -22,8 +22,8 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
         results = self.parse_cmd_result_with_whitespace(fixed_lines, headers, False)
         ret = []
         for doc in results:
-            doc["id"] = doc.pop("bridge_id")
             doc["name"] = doc.pop("bridge_name")
+            doc["id"] = doc["name"] + "-" +  doc.pop("bridge_id")
             doc["host"] = host_id
             doc["connector_type"] = "bridge"
             if "interfaces" in doc:
