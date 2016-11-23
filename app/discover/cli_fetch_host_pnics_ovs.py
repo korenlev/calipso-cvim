@@ -23,9 +23,7 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
     def get(self, id):
         host_id = id[:id.rindex("-")]
         cmd = "ip -d link show | " + \
-              "grep '^[0-9]\+: \(eth\|eno\)' | " + \
-              "sed 's/^[^:]*: *//' | " + \
-              "sed 's/:.*//'"
+              "grep '^[0-9]\+: \(eth\|eno\)'"
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
             self.log.error("CliFetchHostPnics: host not found: " + host_id)
@@ -37,13 +35,18 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
         host_types = host["host_type"]
         if "Network" not in host_types and "Compute" not in host_types:
             return []
-        interfaces_names = self.run_fetch_lines(cmd, host_id)
+        lines = self.run_fetch_lines(cmd, host_id)
         interfaces = []
-        for i in interfaces_names:
+        for line in lines:
             # run ifconfig with specific interface name,
             # since running it with no name yields a list without inactive pNICs
-            interface = self.find_interface_details(host_id, i)
+            interface_name = line[line.index(': ')+2:]
+            interface_name = interface_name[:interface_name.index(': ')]
+            interface = self.find_interface_details(host_id, interface_name)
             if interface:
+                state = line[line.index(' state ')+len(' state '):]
+                state = state[:state.index(' ')]
+                interface['state'] = state
                 interfaces.append(interface)
         return interfaces
 
