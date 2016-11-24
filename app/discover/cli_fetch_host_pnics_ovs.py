@@ -22,8 +22,7 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
 
     def get(self, id):
         host_id = id[:id.rindex("-")]
-        cmd = "ip -d link show | " + \
-              "grep '^[0-9]\+: \(eth\|eno\)'"
+        cmd = 'ls -l /sys/class/net | grep ^l | grep -v "/virtual/"'
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
             self.log.error("CliFetchHostPnics: host not found: " + host_id)
@@ -35,25 +34,26 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
         host_types = host["host_type"]
         if "Network" not in host_types and "Compute" not in host_types:
             return []
-        lines = self.run_fetch_lines(cmd, host_id)
+        interface_lines = self.run_fetch_lines(cmd, host_id)
         interfaces = []
-        for line in lines:
+        for line in interface_lines:
+            interface_name = line[line.rindex('/')+1:]
             # run ifconfig with specific interface name,
             # since running it with no name yields a list without inactive pNICs
-            interface_name = line[line.index(': ')+2:]
-            interface_name = interface_name[:interface_name.index(': ')]
             interface = self.find_interface_details(host_id, interface_name)
             if interface:
-                state = line[line.index(' state ')+len(' state '):]
-                state = state[:state.index(' ')]
-                interface['state'] = state
                 interfaces.append(interface)
         return interfaces
 
     def find_interface_details(self, host_id, interface_name):
         lines = self.run_fetch_lines("ifconfig " + interface_name, host_id)
         interface = None
+        status_up = None
         for line in lines:
+            if status_up == None:
+                tokens = line.split()
+                if 'BROADCAST' in tokens:
+                    status_up = 'UP' in tokens
             matches = self.if_header.match(line)
             if matches:
                 name = matches.group(1).strip(":")
@@ -70,6 +70,7 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
                 if interface:
                     self.handle_line(interface, line)
         self.set_interface_data(interface)
+        interface['state'] = 'UP' if status_up else 'DOWN'
         return interface
 
     def handle_line(self, interface, line):
