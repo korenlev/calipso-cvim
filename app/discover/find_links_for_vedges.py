@@ -92,8 +92,6 @@ class FindLinksForVedges(Fetcher):
                 return
         elif self.configuration.has_network_plugin('VPP'):
             pass
-        elif not pname.startswith("eth") and not pname.startswith("eno"):
-            return
         pnic = self.inv.find_items({
             "environment": self.get_env(),
             "type": "pnic",

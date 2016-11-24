@@ -54,8 +54,6 @@ class FindLinksForVconnectors(Fetcher):
 
     def add_vconnector_pnic_link(self, vconnector, interface):
         ifname = interface['name'] if isinstance(interface, dict) else interface
-        if not ifname.startswith("eth") and not ifname.startswith("eno"):
-            return
         if "." in ifname:
             ifname = ifname[:ifname.index(".")]
         host = vconnector["host"]
