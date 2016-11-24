@@ -9,7 +9,6 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
-        self.if_header = re.compile('^[-]?(eth[0-9]\S*|eno\S*)\s+(.*)$')
         self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
         self.regexps = [
             {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
@@ -50,27 +49,34 @@ class CliFetchHostPnicsOvs(Fetcher, CliAccess):
         interface = None
         status_up = None
         for line in lines:
-            if status_up == None:
+            tokens = None
+            matches = False
+            if interface == None:
                 tokens = line.split()
+                name = tokens[0].strip('- :')
+                if name == interface_name:
+                    line_remainder = line.strip('-')[len(interface_name)+2:]
+                    line_remainder = line_remainder.strip(' :')
+                    id = interface_name
+                    interface = {
+                        "host": host_id,
+                        "name": id,
+                        "local_name": interface_name,
+                        "lines": []
+                    }
+                    self.handle_line(interface, line_remainder)
+            if status_up == None:
+                if tokens == None:
+                    tokens = line.split()
                 if 'BROADCAST' in tokens:
                     status_up = 'UP' in tokens
-            matches = self.if_header.match(line)
-            if matches:
-                name = matches.group(1).strip(":")
-                line_remainder = matches.group(2)
-                id = interface_name
-                interface = {
-                    "host": host_id,
-                    "name": id,
-                    "local_name": interface_name,
-                    "lines": []
-                }
-                self.handle_line(interface, line_remainder)
             else:
                 if interface:
                     self.handle_line(interface, line)
         self.set_interface_data(interface)
         interface['state'] = 'UP' if status_up else 'DOWN'
+        if 'id' not in interface:
+            interface['id'] = interface_name + '-unknown_mac'
         return interface
 
     def handle_line(self, interface, line):
