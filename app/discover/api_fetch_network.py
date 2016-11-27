@@ -17,8 +17,10 @@ class ApiFetchNetwork(ApiAccess):
             ret.extend(self.get_for_region(region, token, id))
         return ret
 
-    def get_for_region(self, region, token, id):
+    def get_network(self, region, token, id):
         endpoint = self.get_region_url_nover(region, "neutron")
+
+        # get target network network document
         req_url = endpoint + "/v2.0/networks/" + id
         headers = {
             "X-Auth-Project-Id": "admin",
@@ -27,39 +29,38 @@ class ApiFetchNetwork(ApiAccess):
         response = self.get_url(req_url, headers)
         if not "network" in response:
             return []
-        networks = response["networks"]
-        req_url = endpoint + "/v2.0/subnets"
-        response = self.get_url(req_url, headers)
-        subnets_hash = {}
-        if "subnets" in response:
-            # create a hash subnets, to allow easy locating of subnets
-            subnets = response["subnets"]
-            for s in subnets:
-                subnets_hash[s["id"]] = s
-        for doc in networks:
-            doc["master_parent_type"] = "project"
-            doc["master_parent_id"] = doc["tenant_id"]
-            doc["parent_type"] = "networks_folder"
-            doc["parent_id"] = doc["tenant_id"] + "-networks"
-            doc["parent_text"] = "Networks"
-            # set the 'network' attribute for network objects to the name of network,
-            # to allow setting constraint on network when creating network clique
-            doc['network'] = doc["id"]
-            # get the project name
-            project = self.inv.get_by_id(self.get_env(), doc["tenant_id"])
-            if project:
-                doc["project"] = project["name"]
-            subnets_details = {}
-            cidrs = []
-            for s in doc["subnets"]:
-                try:
-                    subnet = subnets_hash[s]
-                    cidrs.append(subnet["cidr"])
-                    subnets_details[subnet["name"]] = subnet
-                except KeyError:
-                    pass
-            if subnets_details:
-                doc["subnets"] = subnets_details
-                doc["cidrs"] = cidrs
-        return networks
+        network = response["network"]
+        subnets = network['subnets']
 
+        # get subnets documents.
+        subnets_hash = {}
+        cidrs = []
+        subnet_ids = []
+        for id in subnets:
+            req_url = endpoint + "/v2.0/subnets/" + id
+            response = self.get_url(req_url, headers)
+            if "subnet" in response:
+                # create a hash subnets, to allow easy locating of subnets
+                subnet = response["subnet"]
+                subnets_hash[subnet["name"]] = subnet
+                cidrs.append(subnet["cidr"])
+                subnet_ids.append(subnet["id"])
+
+        network["subnets"] = subnets_hash
+        network["cidrs"] = cidrs
+        network["subnet_ids"] = subnet_ids
+
+        network["master_parent_type"] = "project"
+        network["master_parent_id"] = network["tenant_id"]
+        network["parent_type"] = "networks_folder"
+        network["parent_id"] = network["tenant_id"] + "-networks"
+        network["parent_text"] = "Networks"
+        # set the 'network' attribute for network objects to the name of network,
+        # to allow setting constraint on network when creating network clique
+        network['network'] = network["id"]
+        # get the project name
+        project = self.inv.get_by_id(self.get_env(), network["tenant_id"])
+        if project:
+            network["project"] = project["name"]
+
+        return network

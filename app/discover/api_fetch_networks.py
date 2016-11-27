@@ -7,17 +7,17 @@ class ApiFetchNetworks(ApiAccess):
         super(ApiFetchNetworks, self).__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id):
+    def get(self, id=None):
         # use project admin credentials, to be able to fetch all networks
         token = self.v2_auth_pwd("admin")
         if not token:
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(region, token))
+            ret.extend(self.get_networks(region, token))
         return ret
 
-    def get_for_region(self, region, token):
+    def get_networks(self, region, token):
         endpoint = self.get_region_url_nover(region, "neutron")
         req_url = endpoint + "/v2.0/networks"
         headers = {
@@ -51,17 +51,17 @@ class ApiFetchNetworks(ApiAccess):
                 doc["project"] = project["name"]
             subnets_details = {}
             cidrs = []
-            subnets_id = []
+            subnet_ids = []
             for s in doc["subnets"]:
                 try:
                     subnet = subnets_hash[s]
                     cidrs.append(subnet["cidr"])
-                    subnets_id.append(subnet["id"])
+                    subnet_ids.append(subnet["id"])
                     subnets_details[subnet["name"]] = subnet
                 except KeyError:
                     pass
-            if subnets_details:
-                doc["subnets"] = subnets_details
-                doc["cidrs"] = cidrs
-                doc["subnets_id"] = subnets_id
+
+            doc["subnets"] = subnets_details
+            doc["cidrs"] = cidrs
+            doc["subnet_ids"] = subnet_ids
         return networks

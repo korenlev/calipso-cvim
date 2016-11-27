@@ -7,7 +7,6 @@ class ApiFetchRegions(ApiAccess):
         self.endpoint = ApiAccess.base_url
 
     def get(self, id):
-        project = id
         token = self.v2_auth_pwd("admin")
         if not token:
             return []

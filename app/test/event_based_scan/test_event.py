@@ -21,6 +21,8 @@ class TestEvent(unittest.TestCase):
     def handle_delete(self, handler, values, type, document=[]):
         payload = values['payload']
         self.item_id = payload['%s_id' % type]
+        if type == 'router':
+            self.item_id = "q%s-%s" % (type, self.item_id)
         item = self.handler.inv.get_by_id(self.env, self.item_id)
         if not item:
             self.handler.log.info('%s document is not found, add document for deleting.' % type)
