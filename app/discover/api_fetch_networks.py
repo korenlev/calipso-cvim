@@ -38,7 +38,17 @@ class ApiFetchNetworks(ApiAccess):
                 subnets_hash[s["id"]] = s
         for doc in networks:
             doc["master_parent_type"] = "project"
-            doc["master_parent_id"] = doc["tenant_id"]
+            project_id = doc["tenant_id"]
+            if not project_id:
+                # find project ID of admin project
+                project = self.inv.get_by_field(self.get_env(),
+                    "project", "name",
+                    self.admin_project,
+                    get_single=True)
+                if not project:
+                    self.log.error("failed to find admin project in DB")
+                project_id = project["id"]
+            doc["master_parent_id"] = project_id
             doc["parent_type"] = "networks_folder"
             doc["parent_id"] = doc["tenant_id"] + "-networks"
             doc["parent_text"] = "Networks"
