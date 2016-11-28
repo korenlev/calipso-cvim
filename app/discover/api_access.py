@@ -46,9 +46,12 @@ class ApiAccess(Fetcher):
             raise ValueError("Missing definition of host or port for OpenStack API access")
         ApiAccess.base_url = "http://" + host + ":" + port
         ApiAccess.admin_token = ApiAccess.api_config["admin_token"]
+        ApiAccess.admin_project = ApiAccess.api_config["admin_project"] \
+	    if "admin_project" in ApiAccess.api_config \
+	    else self.admin_project
         ApiAccess.admin_endpoint = "http://" + host + ":" + "35357"
 
-        self.v2_auth_pwd("admin")
+        self.v2_auth_pwd(ApiAccess.admin_project)
         initialized = True
 
     def parse_time(self, time_str):

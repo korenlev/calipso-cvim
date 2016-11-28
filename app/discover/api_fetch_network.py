@@ -9,7 +9,7 @@ class ApiFetchNetwork(ApiAccess):
 
     def get(self, id):
         # use project admin credentials, to be able to fetch all networks
-        token = self.v2_auth_pwd("admin")
+        token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
         ret = []
@@ -23,7 +23,7 @@ class ApiFetchNetwork(ApiAccess):
         # get target network network document
         req_url = endpoint + "/v2.0/networks/" + id
         headers = {
-            "X-Auth-Project-Id": "admin",
+            "X-Auth-Project-Id": self.admin_project,
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)

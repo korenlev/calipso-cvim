@@ -9,10 +9,10 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
         super(ApiFetchProjectHosts, self).__init__()
 
     def get(self, id):
-        if id != "admin":
+        if id != self.admin_project:
             # do not scan hosts except under project 'admin'
             return []
-        token = self.v2_auth_pwd("admin")
+        token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
         ret = []
@@ -27,7 +27,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
             return []
         req_url = endpoint + "/os-availability-zone/detail"
         headers = {
-            "X-Auth-Project-Id": "admin",
+            "X-Auth-Project-Id": self.admin_project,
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)

@@ -12,7 +12,7 @@ class ApiFetchPort(ApiAccess):
             self.log.info("Get method needs ID parameter")
             return []
         # use project admin credentials, to be able to fetch all ports
-        token = self.v2_auth_pwd("admin")
+        token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
         ret = []
@@ -26,7 +26,7 @@ class ApiFetchPort(ApiAccess):
         endpoint = self.get_region_url_nover(region, "neutron")
         req_url = endpoint + "/v2.0/ports/" + id
         headers = {
-            "X-Auth-Project-Id": "admin",
+            "X-Auth-Project-Id": self.admin_project,
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)

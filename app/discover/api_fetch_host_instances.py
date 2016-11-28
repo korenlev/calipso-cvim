@@ -29,7 +29,7 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
         return instances_found
 
     def get_instances_from_api(self, host_name):
-        token = self.v2_auth_pwd("admin")
+        token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
         tenant_id = token["tenant"]["id"]
