@@ -106,10 +106,10 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
         for doc in docs:
             hosts[doc["host"]] = doc
         query = """
-      SELECT DISTINCT host, host AS id, configurations
-      FROM neutron.agents
-      WHERE agent_type IN ('Metadata agent', 'DHCP agent', 'L3 agent')
-    """
+          SELECT DISTINCT host, host AS id, configurations
+          FROM {}.agents
+          WHERE agent_type IN ('Metadata agent', 'DHCP agent', 'L3 agent')
+        """.format(self.neutron_db)
         results = self.get_objects_list(query, "")
         for r in results:
             host = hosts[r["host"]]

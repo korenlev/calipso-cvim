@@ -19,9 +19,9 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
         results = self.get_objects_list_for_id(
             """
               SELECT *
-              FROM neutron.agents
+              FROM {}.agents
               WHERE host = %s AND agent_type = 'Open vSwitch agent'
-            """,
+            """.format(self.neutron_db),
             "vedge", host_id)
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:

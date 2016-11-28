@@ -35,9 +35,9 @@ class CliFetchHostVservice(CliAccess, DbAccess):
     def get_network_name(self, id):
         query = """
                 SELECT name
-                FROM neutron.networks
+                FROM {}.networks
                 WHERE id = %s
-                """
+                """.format(self.neutron_db)
         results = self.get_objects_list_for_id(query, "router", id)
         if not list(results):
             return id
@@ -47,9 +47,9 @@ class CliFetchHostVservice(CliAccess, DbAccess):
     def get_router_name(self, r, id):
         query = """
                 SELECT *
-                FROM neutron.routers
+                FROM {}.routers
                 WHERE id = %s
-                """
+                """.format(self.neutron_db)
         results = self.get_objects_list_for_id(query, "router", id)
         for db_row in results:
             r.update(db_row)

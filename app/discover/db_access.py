@@ -14,15 +14,24 @@ class DbAccess(Fetcher, Util):
         self.config = Configuration()
         self.conf = self.config.get("mysql")
         self.connect_to_db()
+        cursor = DbAccess.conn.cursor(dictionary=True)
+        try:
+            # check if DB schema 'neutron' exists
+            cursor.execute("SELECT COUNT(*) FROM neutron.agents")
+            for row in cursor:
+                dummy = row
+            self.neutron_db = "neutron"
+        except (AttributeError, mysql.connector.errors.ProgrammingError) as e:
+            self.neutron_db = "ml2_neutron"
 
     def db_connect(self, _host, _port, _user, _password, _database):
         if DbAccess.conn:
             return
         DbAccess.conn = mysql.connector.connect(host=_host, port=_port, \
-                                                # connection timeout set to 30 seconds, due to problems over long connections
-                                                connection_timeout=30,
-                                                user=_user, password=_password, database=_database,
-                                                raise_on_warnings=True)
+            # connection timeout set to 30 seconds, due to problems over long connections
+            connection_timeout=30,
+            user=_user, password=_password, database=_database,
+            raise_on_warnings=True)
         DbAccess.conn.ping(True)  # auto-reconnect if necessary
         DbAccess.query_count_per_con = 0
         if not DbAccess.conn:
@@ -33,7 +42,7 @@ class DbAccess(Fetcher, Util):
             if not force:
                 return
             self.log.info("DbAccess: ****** forcing reconnect, query count: %s ******",
-                          DbAccess.query_count_per_con)
+                DbAccess.query_count_per_con)
             DbAccess.conn = None
         self.conf = self.config.get("mysql")
         cnf = self.conf
