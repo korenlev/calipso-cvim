@@ -1,11 +1,10 @@
 import re
 
 from discover.cli_access import CliAccess
-from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
 
 
-class CliFetchVserviceVnics(Fetcher, CliAccess):
+class CliFetchVserviceVnics(CliAccess):
     def __init__(self):
         super(CliFetchVserviceVnics, self).__init__()
         self.inv = InventoryMgr()

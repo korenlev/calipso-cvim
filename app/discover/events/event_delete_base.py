@@ -12,7 +12,7 @@ class EventDeleteBase(Fetcher):
     def delete_handler(self, env, id, type):
         item = self.inv.get_by_id(env, id)
         if not item:
-            self.log.info('%s document is not found, aborting %s delete' % (type, type))
+            self.inv.log.info('%s document is not found, aborting %s delete' % (type, type))
             return None
 
         db_id = ObjectId(item['_id'])

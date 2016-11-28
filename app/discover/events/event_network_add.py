@@ -25,7 +25,7 @@ class EventNetworkAdd(Fetcher):
         network['type'] = 'network'
         network['id_path'] = "/%s/%s-projects/%s/%s/%s" % (env, env, project_id, parent_id, network_id)
         network['cidrs'] = []
-        network['subnets_id'] = []
+        network['subnet_ids'] = []
         network['last_scanned'] = notification['timestamp']
         network['name_path'] = "/%s/Projects/%s/Networks/%s" % (env, project_name, network_name)
         network['network'] = network_id

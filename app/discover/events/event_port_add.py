@@ -2,7 +2,10 @@ import datetime
 
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from discover.fetcher import Fetcher
+from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
+from discover.find_links_for_vedges import FindLinksForVedges
 from discover.inventory_mgr import InventoryMgr
+from discover.scan_instances_root import ScanInstancesRoot
 
 
 class EventPortAdd(Fetcher):
@@ -76,20 +79,20 @@ class EventPortAdd(Fetcher):
         }
         self.inv.set(network_services_folder)
 
-    def add_dhcp_document(self, env, host_id, host_id_path, host_name_path, network_id, network_name):
+    def add_dhcp_document(self, env, host, network_id, network_name):
         dhcp_document = {
             "children_url": "/osdna_dev/discover.py?type=tree&id=qdhcp-"+network_id,
             "environment": env,
-            "host": host_id,
+            "host": host['id'],
             "id": "qdhcp-" + network_id,
-            "id_path": host_id_path + "/%s-vservices/%s-vservices-dhcps/qdhcp-%s" % (host_id, host_id, network_id),
+            "id_path": host['id_path'] + "/%s-vservices/%s-vservices-dhcps/qdhcp-%s" % (host['id'], host['id'], network_id),
             "last_scanned": datetime.datetime.utcnow(),
             "local_service_id": "qdhcp-" + network_id,
             "name": "dhcp-" + network_name,
-            "name_path": host_name_path + "/Vservices/DHCP servers/dhcp-" + network_name,
+            "name_path": host['name_path'] + "/Vservices/DHCP servers/dhcp-" + network_name,
             "network": [network_id],
             "object_name": "dhcp-" + network_name,
-            "parent_id": host_id + "-vservices-dhcps",
+            "parent_id": host['id'] + "-vservices-dhcps",
             "parent_text": "DHCP servers",
             "parent_type": "vservice_dhcps_folder",
             "service_type": "dhcp",
@@ -98,21 +101,22 @@ class EventPortAdd(Fetcher):
         }
         self.inv.set(dhcp_document)
 
-    def add_vnics_folder(self, env, host_id, host_id_path, host_name_path,
-                         network_id, network_name, type="dhcp", router_name=''):
+    def add_vnics_folder(self, env, host, id=None, network_name='', type="dhcp", router_name=''):
+        # when vservice is DHCP, id = network_id,
+        # when vservice is router, id = router_id
         type_map = {"dhcp": ('DHCP servers', 'dhcp-'+network_name),
                     "router": ('Gateways', router_name)}
 
         vnics_folder = {
             "environment": env,
-            "id": "q%s-%s-vnics" % (type, network_id),
-            "id_path": host_id_path + "/%s-vservices/%s-vservices-%ss/q%s-%s/q%s-%s-vnics" %
-                                      (host_id, host_id, type, type, network_id, type, network_id),
+            "id": "q%s-%s-vnics" % (type, id),
+            "id_path": host['id_path'] + "/%s-vservices/%s-vservices-%ss/q%s-%s/q%s-%s-vnics" %
+                                      (host['id'], host['id'], type, type, id, type, id),
             "last_scanned": datetime.datetime.utcnow(),
-            "name": "q%s-%s-vnics" % (type, network_id),
-            "name_path": host_name_path + "/Vservices/%s/%s/vNICs" % (type_map[type][0], type_map[type][1]),
+            "name": "q%s-%s-vnics" % (type, id),
+            "name_path": host['name_path'] + "/Vservices/%s/%s/vNICs" % (type_map[type][0], type_map[type][1]),
             "object_name": "vNICs",
-            "parent_id": "q%s-%s" %(type, network_id),
+            "parent_id": "q%s-%s" %(type, id),
             "parent_type": "vservice",
             "show_in_tree": True,
             "text": "vNICs",
@@ -120,22 +124,23 @@ class EventPortAdd(Fetcher):
         }
         self.inv.set(vnics_folder)
 
-    def add_vnic_document(self, env, host_id, host_id_path, host_name_path, network_id, network_name,
-                          type='dhcp', router_name=''):
+    def add_vnic_document(self, env, host, id=None, network_name='', type='dhcp', router_name=''):
+        # when vservice is DHCP, id = network_id,
+        # when vservice is router, id = router_id
         type_map = {"dhcp": ('DHCP servers', 'dhcp-'+network_name),
                     "router": ('Gateways', router_name)}
 
         fetcher = CliFetchVserviceVnics()
-        namespace = 'q%s-%s' % (type, network_id)
-        vnic_document = fetcher.handle_service(host_id, namespace)
+        fetcher.set_env(env)
+        namespace = 'q%s-%s' % (type, id)
+        vnic_document = fetcher.handle_service(host['id'], namespace)
 
         for doc in vnic_document:
             doc["environment"] = env
-            doc["id_path"] = host_id_path + "/%s-vservices/%s-vservices-%ss/%s/%s-vnics/%s" % \
-                             (host_id, host_id, type, namespace, namespace, doc["id"]),
-            doc["name_path"] = host_name_path + "/Vservices/%s/%s/vNICs/%s" %\
+            doc["id_path"] = host['id_path'] + "/%s-vservices/%s-vservices-%ss/%s/%s-vnics/%s" % \
+                             (host['id'], host['id'], type, namespace, namespace, doc["id"]),
+            doc["name_path"] = host['name_path'] + "/Vservices/%s/%s/vNICs/%s" %\
                                                 (type_map[type][0],type_map[type][1], doc["id"])
-
             self.inv.set(doc)
 
     def handle_dhcp_device(self, env, notification, network_id, network_name):
@@ -143,13 +148,13 @@ class EventPortAdd(Fetcher):
         host_id = notification["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
 
-        self.add_dhcp_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        self.add_dhcp_document(env, host, network_id, network_name)
 
         # add vnics folder.
-        self.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        self.add_vnics_folder(env, host, network_id, network_name)
 
         # add vnic docuemnt.
-        self.add_vnic_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        self.add_vnic_document(env, host, network_id, network_name)
 
 
     def handle(self, env, notification):
@@ -163,20 +168,53 @@ class EventPortAdd(Fetcher):
         self.port_id = self.port['id']
 
         # check ports folder document.
-        ports_folder = self.inv.get_by_id(self.env, self.port_id+'-ports')
+        ports_folder = self.inv.get_by_id(env, self.network_id+'-ports')
         if not ports_folder:
-            print("not folder")
-            self.add_ports_folder(self.env, self.project_id, self.network_id, self.network_name)
-        self.add_port_document(self.env, self.project, self.project_id, self.network_name, self.network_id, self.port)
+            print("ports folder not found.")
+            self.add_ports_folder(env, self.project_id, self.network_id, self.network_name)
+        self.add_port_document(env, self.project, self.project_id, self.network_name, self.network_id, self.port)
 
         port_device_owner_handler = {
-            "network:router_gateway": None,
-            "network:floatingip": None,
-            "network:dhcp": self.handle_dhcp_device,
-            "network:router_interface": None,
+            #"router_gateway": None,
+            #"floatingip": None,
+            "dhcp": self.handle_dhcp_device,
+            #"router_interface": None,
             # other type will be handled by instance scanning.
         }
+        device_owner = self.port['device_owner'].split(":")
+        print(device_owner)
+        if device_owner[0] == 'compute':
+            host_id  = self.port['binding:host_id']
+            instance_id = self.port['device_id']
+            instances_root_id = host_id + '-instances'
+            instances_root = self.inv.get_by_id(env, instances_root_id)
+            if not instances_root:
+                self.log.info('instance document not found, aborting port adding')
+                return None
 
-        if self.port['device_owner']:pass
+            # scan instance
+            instances_scanner = ScanInstancesRoot()
+            instances_scanner.set_env(env)
+            instances_scanner.scan(instances_root,
+                                   limit_to_child_id=instance_id, limit_to_child_type='instance')
+            instances_scanner.scan_from_queue()
 
+            # do we need to scan host?
+            self.log.info("scanning for links")
+            fetchers_implementing_add_links = [
+                FindLinksForInstanceVnics(),
+                FindLinksForVedges(),
+            ]
+            for fetcher in fetchers_implementing_add_links:
+                fetcher.add_links()
+            instances_scanner.scan_cliques()
+            return True
+
+        if device_owner[0] == '':
+            return
+            handler = port_device_owner_handler.get(device_owner)
+            if handler:
+                handler(env, notification, self.network_id, self.network_name)
+
+        # port of interface should be done after router.
         print("\n Todo: add port for network")

@@ -1,10 +1,11 @@
 import time
 
+from discover.fetcher import Fetcher
 from discover.ssh_conn import SshConn
 from utils.binary_converter import BinaryConverter
 
 
-class CliAccess(BinaryConverter):
+class CliAccess(BinaryConverter, Fetcher):
     config = None
     connections = {}
     ssh_cmd = "ssh -o StrictHostKeyChecking=no "

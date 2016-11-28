@@ -2,6 +2,7 @@ import datetime
 
 from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
+from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
 from discover.events.event_port_add import EventPortAdd
 from discover.fetcher import Fetcher
@@ -9,7 +10,6 @@ from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.inventory_mgr import InventoryMgr
 from discover.scan_network import ScanNetwork
-from discover.scan_regions_root import ScanRegionsRoot
 
 
 class EventSubnetAdd(Fetcher):
@@ -22,16 +22,16 @@ class EventSubnetAdd(Fetcher):
         fetcher.set_env(env)
         ports = fetcher.get(port_id)
 
-        for doc in ports:
-            doc['type'] = "port"
-            doc['environment'] = env
-            port_id = doc['id']
-            doc['id_path'] = "%s/%s-projects/%s/%s-networks/%s/%s-ports/%s" % \
+        for port in ports:
+            port['type'] = "port"
+            port['environment'] = env
+            port_id = port['id']
+            port['id_path'] = "%s/%s-projects/%s/%s-networks/%s/%s-ports/%s" % \
                              (env, env, project_id, project_id, network_id, network_id, port_id)
-            doc['last_scanned'] = datetime.datetime.utcnow()
-            doc['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
-                               (env, doc['project'], network_name, port_id)
-            self.inv.set(doc)
+            port['last_scanned'] = datetime.datetime.utcnow()
+            port['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
+                               (env, port['project'], network_name, port_id)
+            self.inv.set(port)
 
     def add_ports_folder(self, env, project_id, network_id, network_name):
         port_folder = {
@@ -53,19 +53,6 @@ class EventSubnetAdd(Fetcher):
 
         self.inv.set(port_folder)
 
-    def scan_regions(self, env):
-        # regions info doesn't exist, scan region.
-        self.log.info("Scan regions for adding regions data.")
-        regions_root_scanner = ScanRegionsRoot()
-        regions_root_scanner.set_env(env)
-        regions_root_doc = self.inv.get_by_id(env, env + "-regions")
-        if len(regions_root_doc) == 0:
-            self.log.info("Regions_folder is not found.")
-            return None
-        else:
-            regions_root_scanner.scan(regions_root_doc)
-            regions_root_scanner.scan_from_queue()
-
     def add_children_documents(self, env, notification, project_id, network_id, network_name):
         # generate port folder data.
         self.add_ports_folder(env, project_id, network_id, network_name)
@@ -86,13 +73,13 @@ class EventSubnetAdd(Fetcher):
         host_id = notification["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
 
-        port_handler.add_dhcp_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        port_handler.add_dhcp_document(env, host, network_id, network_name)
 
         # add vnics folder.
-        port_handler.add_vnics_folder(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        port_handler.add_vnics_folder(env, host, network_id, network_name)
 
         # add vnic docuemnt.
-        port_handler.add_vnic_document(env, host["id"], host["id_path"], host["name_path"], network_id, network_name)
+        port_handler.add_vnic_document(env, host, network_id, network_name)
 
 
     def handle(self, env, notification):
@@ -113,23 +100,26 @@ class EventSubnetAdd(Fetcher):
             network_document['subnets'] = {}
 
         network_document['subnets'][subnet['name']] = subnet
-        network_document['subnets_id'].append(subnet['id'])
+        network_document['subnet_ids'].append(subnet['id'])
         self.inv.set(network_document)
 
         # Check DHCP enable, if true, scan network.
         if subnet['enable_dhcp'] == True:
-            # scan network
+            # update network
             if len(ApiAccess.regions) == 0:
-                self.scan_regions(env)
-            else:
-                # scan new network.
-                self.log.info("Scan new network.")
-                self.add_children_documents(env, notification, project_id, network_id, network_name)
+                fetcher = ApiFetchRegions()
+                fetcher.set_env(env)
+                fetcher.get(None)
+
+            self.log.info("add new subnet.")
+            self.add_children_documents(env, notification, project_id, network_id, network_name)
 
         # scan links and cliques
         self.log.info("scanning for links")
-        for fetcher in [FindLinksForPnics(),FindLinksForVserviceVnics()]:
-            fetcher.add_links()
+        fetcher = FindLinksForPnics()
+        fetcher.add_links()
+        fetcher = FindLinksForVserviceVnics()
+        fetcher.add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
 
         network_scanner = ScanNetwork()
         network_scanner.scan_cliques()
