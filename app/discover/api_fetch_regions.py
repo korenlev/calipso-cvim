@@ -15,9 +15,14 @@ class ApiFetchRegions(ApiAccess):
         service_catalog = ApiAccess.auth_response['access']['serviceCatalog']
         env = self.get_env()
         ret = []
+        NULL_REGION = "No-Region"
         for service in service_catalog:
             for e in service["endpoints"]:
-                region_name = e.pop("region")
+                if "region" in e:
+                    region_name = e.pop("region")
+                    region_name = region_name if region_name else NULL_REGION
+                else:
+                    region_name = NULL_REGION
                 if region_name in self.regions.keys():
                     region = self.regions[region_name]
                 else:
