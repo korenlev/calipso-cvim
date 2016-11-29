@@ -19,7 +19,8 @@ class FindLinksForVserviceVnics(Fetcher):
         host = self.inv.get_by_id(self.get_env(), v["host"])
         if "Network" not in host["host_type"]:
             return
-        cidr = v["cidr"]
+        if "Network" not in v:
+            return
         network = self.inv.get_by_id(self.get_env(), v["network"])
         if network == []:
             return
@@ -35,5 +36,5 @@ class FindLinksForVserviceVnics(Fetcher):
         state = "up"  # TBD
         link_weight = 0  # TBD
         self.inv.create_link(self.get_env(), v["host"], source, source_id,
-                             target, target_id, link_type, link_name, state, link_weight,
-                             extra_attributes={'network': v['network']})
+            target, target_id, link_type, link_name, state, link_weight,
+            extra_attributes={'network': v['network']})
