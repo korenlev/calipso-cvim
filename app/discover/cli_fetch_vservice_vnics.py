@@ -55,7 +55,7 @@ class CliFetchVserviceVnics(CliAccess):
                     current = None
                 else:
                     line_remainder = matches.group(2)
-                    vservice_id = service
+                    vservice_id = host + "-" + service
                     current = {
                         "id": name,
                         "type": "vnic",
@@ -99,12 +99,13 @@ class CliFetchVserviceVnics(CliAccess):
             return
         interface["network"] = network["id"]
         # set network for the vservice, to check network on clique creation
-        vservice = self.inv.get_by_id(self.get_env(), interface["master_parent_id"])
+        vservice = self.inv.get_by_id(self.get_env(),
+	    interface["master_parent_id"])
+        network_id = network["id"]
         if "network" not in vservice:
-            vservice["network"] = [network["id"]]
-        else:
-            if network["id"] not in vservice["network"]:
-                vservice["network"].append(network["id"])
+            vservice["network"] = list()
+        if network_id not in vservice["network"]:
+            vservice["network"].append(network_id)
         self.inv.set(vservice)
 
     # find CIDR string by IP address and netmask

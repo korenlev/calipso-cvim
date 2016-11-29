@@ -21,7 +21,7 @@ class CliFetchHostVservice(CliAccess, DbAccess):
 
     def set_details(self, host_id, r):
         # keep the index without prefix
-        id_full = r["local_service_id"]
+        id_full = r["local_service_id"].strip()
         prefix = id_full[1:id_full.index('-')]
         id_clean = id_full[id_full.index('-') + 1:]
         r["service_type"] = prefix
@@ -29,7 +29,7 @@ class CliFetchHostVservice(CliAccess, DbAccess):
             else self.get_network_name(id_clean)
         r["name"] = prefix + "-" + name
         r["host"] = host_id
-        r["id"] = id_full
+        r["id"] = host_id + "-" + id_full
         self.set_agent_type(r)
 
     def get_network_name(self, id):
