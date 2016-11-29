@@ -50,7 +50,7 @@ class CliFetchHostVservice(CliAccess, DbAccess):
                 FROM {}.routers
                 WHERE id = %s
                 """.format(self.neutron_db)
-        results = self.get_objects_list_for_id(query, "router", id)
+        results = self.get_objects_list_for_id(query, "router", id.strip())
         for db_row in results:
             r.update(db_row)
         return r["name"]
