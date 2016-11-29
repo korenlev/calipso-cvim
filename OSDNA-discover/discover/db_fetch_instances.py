@@ -26,7 +26,7 @@ class DbFetchInstances(DbAccess):
       result = self.build_instance_details(e)
       ret.append(result)
     return ret
-  
+  ## old stuff here ...from 6 m ago ...
   def build_instance_details(self, result):
     network_info_str = result["network_info"]
     try:
