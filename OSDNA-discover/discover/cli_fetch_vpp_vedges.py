@@ -1,4 +1,4 @@
-moved# Copyright 2016 NEC Corporation
+# Copyright 2016 cisco Corporation
 #oslo related message handling
 
 from oslo_serialization import jsonutils
