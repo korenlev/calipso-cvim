@@ -19,7 +19,5 @@ class FetchHostObjectTypes(Fetcher):
     }
     return ret
 
-    API Training Shop Blog About 
-
-    © 2016 GitHub, Inc. Help Support 
+    ## old/moved
 
