@@ -50,13 +50,13 @@ class ApiFetchNetworks(ApiAccess):
                 project_id = project["id"]
             doc["master_parent_id"] = project_id
             doc["parent_type"] = "networks_folder"
-            doc["parent_id"] = doc["tenant_id"] + "-networks"
+            doc["parent_id"] = project_id + "-networks"
             doc["parent_text"] = "Networks"
             # set the 'network' attribute for network objects to the name of network,
             # to allow setting constraint on network when creating network clique
             doc['network'] = doc["id"]
             # get the project name
-            project = self.inv.get_by_id(self.get_env(), doc["tenant_id"])
+            project = self.inv.get_by_id(self.get_env(), project_id)
             if project:
                 doc["project"] = project["name"]
             subnets_details = {}
