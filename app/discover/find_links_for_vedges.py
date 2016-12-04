@@ -19,7 +19,8 @@ class FindLinksForVedges(Fetcher):
                 self.add_link_for_vedge(vedge, p)
 
     def add_link_for_vedge(self, vedge, port):
-        vnic = self.inv.get_by_id(self.get_env(), port["name"])
+        vnic = self.inv.get_by_id(self.get_env(),
+				vedge['host'] + '-' + port["name"])
         if not vnic:
             self.find_matching_vconnector(vedge, port)
             self.find_matching_pnic(vedge, port)
@@ -37,8 +38,9 @@ class FindLinksForVedges(Fetcher):
         source_label = vnic["mac_address"]
         target_label = port["id"]
         self.inv.create_link(self.get_env(), vedge["host"],
-                             source, source_id, target, target_id,
-                             link_type, link_name, state, link_weight, source_label, target_label)
+            source, source_id, target, target_id,
+            link_type, link_name, state, link_weight,
+						source_label, target_label)
 
     def find_matching_vconnector(self, vedge, port):
         if self.configuration.has_network_plugin('VPP'):
@@ -81,9 +83,10 @@ class FindLinksForVedges(Fetcher):
         if 'network' in vconnector:
             attributes['network'] = vconnector['network']
         self.inv.create_link(self.get_env(), vedge["host"],
-                             source, source_id, target, target_id,
-                             link_type, link_name, state, link_weight, source_label, target_label,
-                             attributes)
+            source, source_id, target, target_id,
+            link_type, link_name, state, link_weight,
+						source_label, target_label,
+						attributes)
 
     def find_matching_pnic(self, vedge, port):
         pname = port["name"]
@@ -109,5 +112,5 @@ class FindLinksForVedges(Fetcher):
         state = "up" if pnic["Link detected"] == "yes" else "down"
         link_weight = 0  # TBD
         self.inv.create_link(self.get_env(), vedge["host"],
-                             source, source_id, target, target_id,
-                             link_type, link_name, state, link_weight)
+            source, source_id, target, target_id,
+            link_type, link_name, state, link_weight)
