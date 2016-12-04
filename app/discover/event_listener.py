@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 
 from kombu import Queue, Exchange
 from kombu.mixins import ConsumerMixin
@@ -74,8 +75,14 @@ class Worker(ConsumerMixin):
                          callbacks=[self.process_task])]
 
     def process_task(self, body, message):
+        f = open("/tmp/listener.log", "a")
+        f.write(body['oslo.message'] + "\n")
+        f.close
         if "event_type" in body:
             self.handle_event(body["event_type"], body)
+        elif "event_type" in body['oslo.message']:
+            msg = json.loads(body['oslo.message'])
+            self.handle_event(msg['event_type'], msg)
         message.ack()
 
     def handle_event(self, type, notification):
@@ -106,10 +113,10 @@ def get_args():
 
 if __name__ == '__main__':
     logger = Logger()
-    logger.set_loglevel('INFO')
     from kombu import Connection
     args = get_args()
     conf = Configuration(args.mongo_config)
+    logger.set_loglevel(args.loglevel)
     env = args.env
     conf.use_env(env)
     amqp_config = conf.get("AMQP")
