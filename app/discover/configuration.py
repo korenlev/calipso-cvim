@@ -33,9 +33,10 @@ class Configuration(MongoAccess, metaclass=Singleton):
         return self.env
 
     def get(self, component):
-        if not self.config:
+        try:
+            matches = [c for c in self.config if c["name"] == component]
+        except AttributeError:
             raise ValueError("Configuration: environment not set")
-        matches = [c for c in self.config if c["name"] == component]
         if (len(matches) == 0):
             raise IndexError("No matches for configuration component: " + component)
         if len(matches) > 1:
