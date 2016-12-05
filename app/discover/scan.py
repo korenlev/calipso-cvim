@@ -12,6 +12,7 @@ import sys
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.inventory_mgr import InventoryMgr
+from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 
 
 class ScanController(Fetcher):
@@ -161,7 +162,12 @@ class ScanController(Fetcher):
         links_only = scan_plan["links_only"]
         cliques_only = scan_plan["cliques_only"]
         results = []
-        run_all = False if inventory_only or links_only or cliques_only else True
+        run_all = False if inventory_only or links_only or cliques_only \
+				    else True
+
+        # setup monitoring server
+        self.monitoring_setup = MonitoringSetupManager(args.mongo_config)
+        self.monitoring_setup.server_setup()
 
         # do the actual scanning
         if inventory_only or run_all:
