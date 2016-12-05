@@ -32,6 +32,10 @@ class Configuration(MongoAccess, metaclass=Singleton):
     def get_env(self):
         return self.env
 
+    def update_env(self, values):
+      self.collection.update_one({"name": self.env},
+        {'$set': self.encode_mongo_keys(values)})
+
     def get(self, component):
         try:
             matches = [c for c in self.config if c["name"] == component]
