@@ -25,40 +25,46 @@ class ScanController(Fetcher):
         # try to read scan plan from command line parameters
         parser = argparse.ArgumentParser()
         parser.add_argument("-c", "--cgi", nargs="?", type=bool, default=False,
-                            help="read argument from CGI (true/false) \n(default: false)")
+            help="read argument from CGI (true/false) \n(default: false)")
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
-                            default="",
-                            help="name of config file with MongoDB servr access details")
+            default="",
+            help="name of config file with MongoDB servr access details")
         parser.add_argument("-e", "--env", nargs="?", type=str,
-                            default=self.default_env,
-                            help="name of environment to scan \n(default: " + self.default_env + ")")
+            default=self.default_env,
+            help="name of environment to scan \n" +
+						"(default: " + self.default_env + ")")
         parser.add_argument("-t", "--type", nargs="?", type=str,
-                            default="environment",
-                            help="type of object to scan \n(default: environment)")
+            default="environment",
+            help="type of object to scan \n(default: environment)")
         parser.add_argument("-y", "--inventory", nargs="?", type=str,
-                            default="inventory",
-                            help="name of inventory collection \n(default: 'inventory')")
+            default="inventory",
+            help="name of inventory collection \n(default: 'inventory')")
         parser.add_argument("-s", "--scan_self", action="store_true",
-                            help="scan changes to a specific object \n(default: False)")
+            help="scan changes to a specific object \n(default: False)")
         parser.add_argument("-i", "--id", nargs="?", type=str,
-                            default=ScanController.default_env,
-                            help="ID of object to scan (when scan_self=true)")
-        parser.add_argument("-p", "--parent_id", nargs="?", type=str, default="",
-                            help="ID of parent object (when scan_self=true)")
-        parser.add_argument("-a", "--parent_type", nargs="?", type=str, default="",
-                            help="type of parent object (when scan_self=true)")
-        parser.add_argument("-f", "--id_field", nargs="?", type=str, default="id",
-                            help="name of ID field (when scan_self=true) \n(default: 'id', use 'name' for projects)")
-        parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
-                            help="logging level \n(default: 'INFO')")
+            default=ScanController.default_env,
+            help="ID of object to scan (when scan_self=true)")
+        parser.add_argument("-p", "--parent_id", nargs="?", type=str,
+            default="",
+            help="ID of parent object (when scan_self=true)")
+        parser.add_argument("-a", "--parent_type", nargs="?", type=str,
+            default="",
+            help="type of parent object (when scan_self=true)")
+        parser.add_argument("-f", "--id_field", nargs="?", type=str,
+            default="id",
+            help="name of ID field (when scan_self=true) \n" +
+            "(default: 'id', use 'name' for projects)")
+        parser.add_argument("-l", "--loglevel", nargs="?", type=str,
+            default="INFO",
+            help="logging level \n(default: 'INFO')")
         parser.add_argument("--inventory_only", action="store_true",
-                            help="do only scan to inventory\n(default: False)")
+            help="do only scan to inventory\n(default: False)")
         parser.add_argument("--links_only", action="store_true",
-                            help="do only links creation \n(default: False)")
+            help="do only links creation \n(default: False)")
         parser.add_argument("--cliques_only", action="store_true",
-                            help="do only cliques creation \n(default: False)")
+            help="do only cliques creation \n(default: False)")
         parser.add_argument("--clear", action="store_true",
-                            help="clear all data prior to scanning\n(default: False)")
+            help="clear all data prior to scanning\n(default: False)")
         args = parser.parse_args()
         return args
 
@@ -163,11 +169,13 @@ class ScanController(Fetcher):
         cliques_only = scan_plan["cliques_only"]
         results = []
         run_all = False if inventory_only or links_only or cliques_only \
-				    else True
+            else True
 
         # setup monitoring server
-        self.monitoring_setup = MonitoringSetupManager(args.mongo_config)
-        self.monitoring_setup.server_setup()
+        self.monitoring_setup_manager = \
+            MonitoringSetupManager(args.mongo_config)
+        self.monitoring_setup_manager.server_setup()
+        scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
 
         # do the actual scanning
         if inventory_only or run_all:

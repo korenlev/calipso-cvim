@@ -25,6 +25,7 @@ class Scanner(Util, Fetcher):
     root_patern = None
     scan_queue = queue.Queue()
     scan_queue_track = {}
+    monitoring_setup_manager = None
 
     def __init__(self, types_to_fetch):
         """
@@ -59,11 +60,14 @@ class Scanner(Util, Fetcher):
                     continue
                 children = self.scan_type(t, obj, id_field)
                 if limit_to_child_id:
-                    children = [c for c in children if c[id_field] == limit_to_child_id]
+                    children = [c for c in children
+                        if c[id_field] == limit_to_child_id]
                     if not children:
                         continue
-                types_children.append({"type": t["type"], "children": children})
-        except ValueError as e:
+                types_children.append({
+                    "type": t["type"],
+                    "children": children})
+        except ValueError:
             return False
         if limit_to_child_id and len(types_children) > 0:
             t = types_children[0]
@@ -102,7 +106,7 @@ class Scanner(Util, Fetcher):
             id = None
         else:
             id = str(parent[id_field])
-            if id == None or not id.rstrip():
+            if not id or not id.rstrip():
                 raise ValueError("Object missing " + id_field + " attribute")
 
         # get Fetcher instance
@@ -115,32 +119,39 @@ class Scanner(Util, Fetcher):
         # get children_scanner instance
         try:
             children_scanner_class = type_to_fetch["children_scanner"]
-            children_scanner = self.get_instance_of_class(children_scanner_class)
+            children_scanner = \
+                self.get_instance_of_class(children_scanner_class)
             children_scanner.set_env(self.get_env())
+            children_scanner.set_monitoring_setup_manager(
+                self.monitoring_setup_manager)
         except KeyError:
             children_scanner = None
 
         escaped_id = fetcher.escape(str(id)) if id else id
-        self.log.info("scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
-                      type_to_fetch["type"],
-                      "environment" if "type" not in parent else parent["type"],
-                      "" if "name" not in parent else parent["name"],
-                      escaped_id)
+        self.log.info(
+            "scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
+            type_to_fetch["type"],
+            "environment" if "type" not in parent else parent["type"],
+            "" if "name" not in parent else parent["name"],
+            escaped_id)
 
         # fetch data from environment by CLI, API or MySQL
         # It depends on the Fetcher's config.
         try:
             db_results = fetcher.get(escaped_id)
         except Exception as e:
-            self.log.error("Error while scanning : " +
-                           "fetcher=%s, " +
-                           "type=%s, parent: (type=%s, name=%s, id=%s), error: %s",
-                           fetcher.__class__.__name__,
-                           type_to_fetch["type"],
-                           "environment" if "type" not in parent else parent["type"],
-                           "" if "name" not in parent else parent["name"],
-                           escaped_id,
-                           e)
+            self.log.error(
+                "Error while scanning : " +
+                "fetcher=%s, " +
+                "type=%s, " +
+                "type=%s, " +
+                "parent: (type=%s, name=%s, id=%s), error: %s",
+                fetcher.__class__.__name__,
+                type_to_fetch["type"],
+                "environment" if "type" not in parent else parent["type"],
+                "" if "name" not in parent else parent["name"],
+                escaped_id,
+                e)
             traceback.print_exc()
             return []
 
@@ -164,7 +175,8 @@ class Scanner(Util, Fetcher):
         for o in results:
             o["id"] = str(o["id"])
             o["environment"] = environment
-            o["type"] = type_to_fetch["type"] if type_to_fetch["type"] else o["type"]
+            o["type"] = type_to_fetch["type"] if type_to_fetch["type"] \
+                else o["type"]
             try:
                 o["show_in_tree"] = type_to_fetch["show_in_tree"]
             except KeyError:
@@ -181,18 +193,24 @@ class Scanner(Util, Fetcher):
                 # case of dynamic folder added by need
                 master_parent_type = o["master_parent_type"]
                 master_parent_id = o["master_parent_id"]
-                master_parent = self.inventory.get_by_id(self.get_env(), master_parent_id)
+                master_parent = self.inventory.get_by_id(
+                    self.get_env(),
+                    master_parent_id)
                 if not master_parent:
-                    self.log.error("failed to find master parent " + master_parent_id)
+                    self.log.error(
+                        "failed to find master parent " +
+                        master_parent_id)
                     continue
                 folder = {
                     "environment": parent["environment"],
                     "parent_id": master_parent_id,
                     "parent_type": master_parent_type,
                     "id": o["parent_id"],
-                    "id_path": master_parent["id_path"] + "/" + o["parent_id"],
+                    "id_path": master_parent["id_path"] + "/" +
+                        o["parent_id"],
                     "show_in_tree": True,
-                    "name_path": master_parent["name_path"] + "/" + o["parent_text"],
+                    "name_path": master_parent["name_path"] +
+                        o["parent_text"],
                     "name": o["parent_id"],
                     "type": o["parent_type"],
                     "text": o["parent_text"]
@@ -219,7 +237,8 @@ class Scanner(Util, Fetcher):
                 o["parent_type"] = parent["type"]
             elif "parent_id" in o and o["parent_id"] != parent["id"]:
                 # using alternate parent - fetch parent path from inventory
-                parent_obj = Scanner.inventory.get_by_id(environment, o["parent_id"])
+                parent_obj = Scanner.inventory.get_by_id(environment,
+                    o["parent_id"])
                 if parent_obj:
                     parent_id_path = parent_obj["id_path"]
                     parent_name_path = parent_obj["name_path"]
@@ -243,7 +262,10 @@ class Scanner(Util, Fetcher):
                     o["projects"] = projects
 
             if "create_object" not in o or o["create_object"]:
+                # add/update object in DB
                 Scanner.inventory.set(o)
+                # create the corresponding monitoring setup
+                self.monitoring_setup_manager.create_setup(o)
 
             # add objects into children list.
             children.append(o)
@@ -263,7 +285,7 @@ class Scanner(Util, Fetcher):
             return
         Scanner.scan_queue_track[o["type"] + ";" + o["id"]] = 1
         Scanner.scan_queue.put({"object": o,
-                                "child_id_field": child_id_field, "scanner": children_scanner})
+            "child_id_field": child_id_field, "scanner": children_scanner})
 
     def run_scan(self, obj, id_field, child_id, child_type):
         results = self.scan(obj, id_field, child_id, child_type)
@@ -300,3 +322,6 @@ class Scanner(Util, Fetcher):
 
     def scan_cliques(self):
         Scanner.inventory.scan_cliques(self.get_env())
+
+    def set_monitoring_setup_manager(self, monitoring_setup_manager):
+        self.monitoring_setup_manager = monitoring_setup_manager
