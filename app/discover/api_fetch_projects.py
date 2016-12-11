@@ -20,7 +20,7 @@ class ApiFetchProjects(ApiAccess):
         token = self.v2_auth_pwd(self.admin_project)
         endpoint = self.get_region_url_nover(region, "keystone")
         headers = {
-            'X-Auth-Project-Id': 'admin',
+            'X-Auth-Project-Id': self.admin_project,
             'X-Auth-Token': token['id']
         }
         # first get the list of users to get the user ID
