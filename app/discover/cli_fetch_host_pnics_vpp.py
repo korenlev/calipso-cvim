@@ -19,7 +19,8 @@ class CliFetchHostPnicsVpp(Fetcher):
         for vedge in vedges:
             pnic_ports = vedge['ports']
             for pnic_name in pnic_ports:
-                if not pnic_name.startswith('TenGigabitEthernet'):
+                if not pnic_name.startswith('TenGigabitEthernet') and \
+                       not pnic_name.startswith('GigabitEthernet'):
                     continue
                 pnic = pnic_ports[pnic_name]
                 pnic['host'] = host_id
