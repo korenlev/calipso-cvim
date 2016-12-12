@@ -26,7 +26,7 @@ class CliFetchHostPnicsOvs(CliAccess):
             self.log.error("CliFetchHostPnics: host not found: " + host_id)
             return []
         if "host_type" not in host:
-            self.log.error("host does not have host_type: " + host_id + \
+            self.log.error("host does not have host_type: " + host_id +
                            ", host: " + str(host))
             return []
         host_types = host["host_type"]
@@ -36,6 +36,7 @@ class CliFetchHostPnicsOvs(CliAccess):
         interfaces = []
         for line in interface_lines:
             interface_name = line[line.rindex('/')+1:]
+            interface_name = interface_name.strip()
             # run ifconfig with specific interface name,
             # since running it with no name yields a list without inactive pNICs
             interface = self.find_interface_details(host_id, interface_name)
@@ -47,12 +48,12 @@ class CliFetchHostPnicsOvs(CliAccess):
         lines = self.run_fetch_lines("ifconfig " + interface_name, host_id)
         interface = None
         status_up = None
-        for line in lines:
+        for line in [l for l in lines if l != '']:
             tokens = None
-            matches = False
-            if interface == None:
+            if interface is None:
                 tokens = line.split()
                 name = tokens[0].strip('- :')
+                name = name.strip()
                 if name == interface_name:
                     line_remainder = line.strip('-')[len(interface_name)+2:]
                     line_remainder = line_remainder.strip(' :')
@@ -64,8 +65,10 @@ class CliFetchHostPnicsOvs(CliAccess):
                         "lines": []
                     }
                     self.handle_line(interface, line_remainder)
-            if status_up == None:
-                if tokens == None:
+                    if '<UP,' in line:
+                        status_up = True
+            if status_up is None:
+                if tokens is None:
                     tokens = line.split()
                 if 'BROADCAST' in tokens:
                     status_up = 'UP' in tokens
@@ -87,7 +90,8 @@ class CliFetchHostPnicsOvs(CliAccess):
                     matched_value = matches.group(1)
                     interface[re_name] = matched_value
                     if re_name == "mac_address":
-                        interface["id"] = interface["name"] + "-" + interface["mac_address"]
+                        interface["id"] = interface["name"] + "-" + \
+                            interface["mac_address"]
         interface["lines"].append(line.strip())
 
     def set_interface_data(self, interface):
