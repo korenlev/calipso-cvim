@@ -23,17 +23,8 @@ class ApiFetchProjects(ApiAccess):
             'X-Auth-Project-Id': self.admin_project,
             'X-Auth-Token': token['id']
         }
-        # first get the list of users to get the user ID
-        req_url = endpoint + '/v3/users'
-        response = self.get_url(req_url, headers)
-        if not response or 'users' not in response:
-            return None
-        user_name = ApiAccess.api_config['user']
-        matches = [u for u in response['users'] if u['name'] == user_name]
-        if not matches:
-            return None
-        user_id = matches[0]['id']
-        req_url = endpoint + '/v3/users/' + user_id + "/projects"
+        # get the list of projects accessible by the admin user
+        req_url = endpoint + '/v3/projects'
         response = self.get_url(req_url, headers)
         if not response or 'projects' not in response:
             return None
