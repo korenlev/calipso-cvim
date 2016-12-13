@@ -12,8 +12,8 @@ class CliFetchHostPnicsOvs(CliAccess):
         self.regexps = [
             {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
             {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
-            {"IP Address": re.compile('^\s*inet addr:(\S+)\s.*$')},
-            {"IP Address": re.compile('^\s*inet (\S+)\s.*$')},
+            {"IP Address": re.compile('^\s*inet addr:?(\S+)\s.*$')},
+            {"IP Address": re.compile('^\s*inet ([0-9.]+)\s.*$')},
             {"IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')},
             {"IPv6 Address": re.compile('^\s*inet6 \s*(\S+)(\s.*)?$')}
         ]
@@ -72,9 +72,8 @@ class CliFetchHostPnicsOvs(CliAccess):
                     tokens = line.split()
                 if 'BROADCAST' in tokens:
                     status_up = 'UP' in tokens
-            else:
-                if interface:
-                    self.handle_line(interface, line)
+            if interface:
+                self.handle_line(interface, line)
         self.set_interface_data(interface)
         interface['state'] = 'UP' if status_up else 'DOWN'
         if 'id' not in interface:
