@@ -1,7 +1,7 @@
-from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
+from discover.cli_fetch_instance_vnics_base import CliFetchInstanceVnicsBase
 
 
-class CliFetchInstanceVnicsVpp(CliFetchInstanceVnics):
+class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
     def __init__(self):
         super().__init__()
 
