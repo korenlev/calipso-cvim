@@ -154,15 +154,15 @@ class CliAccess(BinaryConverter, Fetcher):
                 break
         return lines[start_pos:end_pos]
 
-    """
-    find object data in output lines from CLI command
-    parameters:
-    - o: object (dict), to which we'll add attributes with the data found
-    - lines: list of strings
-    - regexps: dict, keys are attribute names, values are regexp to match
-                for finding the value of the attribute
-    """
     def get_object_data(self, o, lines, regexps):
+        """
+        find object data in output lines from CLI command
+        parameters:
+        - o: object (dict), to which we'll add attributes with the data found
+        - lines: list of strings
+        - regexps: dict, keys are attribute names, values are regexp to match
+                    for finding the value of the attribute
+        """
         for line in lines:
             self.find_matching_regexps(o, line, regexps)
         for regexp_tuple in regexps:
