@@ -6,8 +6,8 @@ from discover.singleton import Singleton
 class ScanHost(Scanner, metaclass=Singleton):
     def __init__(self):
         super(ScanHost, self).__init__([
-            # creating only top folder for vServices, lower levels are categories
-            # like gateways, DHCPs, etc., and they will be created
+            # creating only top folder for vServices, lower levels are
+            # categories like gateways, DHCPs, etc., and they will be created
             # while fetching vservices, by specifying master_parent_id.
             #
             # this is necessary to allow fetch of vServices to happen
@@ -24,13 +24,7 @@ class ScanHost(Scanner, metaclass=Singleton):
             # fetching of vService vNICs is done from host for efficiency
             {
                 "type": "vnic",
-                "environment_condition": {"mechanism_drivers": "OVS"},
-                "fetcher": "CliFetchVserviceVnicsOvs"
-            },
-            {
-                "type": "vnic",
-                "environment_condition": {"mechanism_drivers": "VPP"},
-                "fetcher": "CliFetchVserviceVnicsVpp"
+                "fetcher": "CliFetchVserviceVnics"
             },
             {
                 "type": "instances_folder",
