@@ -1,3 +1,4 @@
+import re
 import time
 
 from discover.fetcher import Fetcher
@@ -30,8 +31,8 @@ class CliAccess(BinaryConverter, Fetcher):
                 self.cached_commands.pop(cmd, None)
             else:
                 # result is good to use - skip the SSH call
-                self.log.info("CliAccess: ****** using cached result, cmd: %s ******",
-                              cmd)
+                self.log.info('CliAccess: ****** using cached result, ' +
+                              'cmd: %s ******', cmd)
                 return cached["result"]
 
         ret = ssh_conn.exec(cmd)
@@ -100,8 +101,8 @@ class CliAccess(BinaryConverter, Fetcher):
         return content
 
     def merge_ws_spillover_lines(self, lines):
-        # with WS-separated output, extra output is sometimes spilled to next line
-        # detect that and add them to the end of the previous line for our procesing
+        # with WS-separated output, extra output sometimes spills to next line
+        # detect that and add to the end of the previous line for our procesing
         pending_line = None
         fixed_lines = []
         # remove headers line
@@ -120,3 +121,60 @@ class CliAccess(BinaryConverter, Fetcher):
         if pending_line:
             fixed_lines.append(pending_line)
         return fixed_lines
+
+    """
+    given output lines from CLI command like 'ip -d link show',
+    find lines belonging to section describing a specific interface
+    parameters:
+    - lines: list of strings, output of command
+    - header_regexp: regexp marking the start of the section
+    - end_regexp: regexp marking the end of the section
+    """
+    def get_section_lines(self, lines, header_regexp, end_regexp):
+        if not lines:
+            return []
+        header_re = re.compile(header_regexp)
+        start_pos = None
+        # find start_pos of section
+        line_count = len(lines)
+        for line_num in range(0, line_count-1):
+            matches = header_re.match(lines[line_num])
+            if matches:
+                start_pos = line_num
+                break
+        if not start_pos:
+            return []
+        # find end of section
+        end_pos = line_count
+        end_re = re.compile(end_regexp)
+        for line_num in range(start_pos+1, end_pos-1):
+            matches = end_re.match(lines[line_num])
+            if matches:
+                end_pos = line_num
+                break
+        return lines[start_pos:end_pos]
+
+    """
+    find object data in output lines from CLI command
+    parameters:
+    - o: object (dict), to which we'll add attributes with the data found
+    - lines: list of strings
+    - regexps: dict, keys are attribute names, values are regexp to match
+                for finding the value of the attribute
+    """
+    def get_object_data(self, o, lines, regexps):
+        for line in lines:
+            self.find_matching_regexps(o, line, regexps)
+        for regexp_tuple in regexps:
+            name = regexp_tuple['name']
+            if 'name' not in o and 'default' in regexp_tuple:
+                o[name] = regexp_tuple['default']
+
+    def find_matching_regexps(self, o, line, regexps):
+        for regexp_tuple in regexps:
+            name = regexp_tuple['name']
+            regex = regexp_tuple['re']
+            regex = re.compile(regex)
+            matches = regex.match(line)
+            if matches:
+                o[name] = matches.group(1)
