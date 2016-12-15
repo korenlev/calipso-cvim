@@ -6,11 +6,11 @@ from discover.inventory_mgr import InventoryMgr
 
 class CliFetchVserviceVnics(CliAccess):
     def __init__(self):
-        super(CliFetchVserviceVnics, self).__init__()
+        super().__init__()
         self.inv = InventoryMgr()
         self.if_header = re.compile('^[-]?(\S+)\s+(.*)$')
         self.regexps = [
-            {'name': 'mac_address', re: '^.*\sHWaddr\s(\S+)(\s.*)?$'},
+            {'name': 'mac_address', 're': '^.*\sHWaddr\s(\S+)(\s.*)?$'},
             {'name': 'mac_address', 're': '^.*\sether\s(\S+)(\s.*)?$'},
             {'name': 'netmask', 're': '^.*\sMask:\s?([0-9.]+)(\s.*)?$'},
             {'name': 'netmask', 're': '^.*\snetmask\s([0-9.]+)(\s.*)?$'},
@@ -25,7 +25,7 @@ class CliFetchVserviceVnics(CliAccess):
     def get(self, host_id):
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
-            self.log.error("CliFetchVserviceVnics: host not found: " + host_id)
+            self.log.error("host not found: " + host_id)
             return []
         if "host_type" not in host:
             self.log.error("host does not have host_type: " + host_id +
