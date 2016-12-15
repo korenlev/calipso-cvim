@@ -12,6 +12,12 @@ class ScanVconnectorsRoot(Scanner, metaclass=Singleton):
             },
             {
                 "type": "vconnector",
+                "environment_condition": {"mechanism_drivers": "LXB"},
+                "fetcher": "CliFetchVconnectorsLxb",
+                "children_scanner": "ScanOteps"
+            },
+            {
+                "type": "vconnector",
                 "environment_condition": {"mechanism_drivers": "VPP"},
                 "fetcher": "CliFetchVconnectorsVpp"
             }

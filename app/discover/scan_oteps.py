@@ -7,6 +7,17 @@ class ScanOteps(Scanner, metaclass=Singleton):
         super().__init__([
             {
                 "type": "otep",
+                "environment_condition": {"mechanism_drivers": "OVS"},
                 "fetcher": "DbFetchOteps"
+            },
+            {
+                "type": "otep",
+                "environment_condition": {"mechanism_drivers": "VPP"},
+                "fetcher": "DbFetchOteps"
+            },
+            {
+                "type": "otep",
+                "environment_condition": {"mechanism_drivers": "LXB"},
+                "fetcher": "CliFetchOtepsLxb"
             }
         ])
