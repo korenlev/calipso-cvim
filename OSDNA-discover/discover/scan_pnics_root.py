@@ -1,14 +1,13 @@
-from singleton import Singleton
-from scanner import Scanner
-# his is old pnic handler , new handler @ (removed) now with pci stuff for vpp specifics (user space)
+from discover.scanner import Scanner
+from discover.singleton import Singleton
+
+
 class ScanPnicsRoot(Scanner, metaclass=Singleton):
-  
-  def __init__(self):
-    super(ScanPnicsRoot, self).__init__([
-#      {
-      # TBD
-#        "type": "pnic",
-#        "fetcher": XXX(),
-#        "children_scanner": XXX()
-#      }
-    ])
+    def __init__(self):
+        super(ScanPnicsRoot, self).__init__([
+            {
+                "type": "pnic",
+                "environment_condition": {"mechanism_drivers": "OVS"},
+                "fetcher": "CliFetchHostPnicsOvs"
+            }
+        ])

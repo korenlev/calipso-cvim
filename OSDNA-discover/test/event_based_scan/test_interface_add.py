@@ -1,0 +1,62 @@
+from unittest.mock import MagicMock
+
+from discover.api_access import ApiAccess
+from discover.api_fetch_port import ApiFetchPort
+from discover.cli_fetch_host_vservice import CliFetchHostVservice
+from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
+from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
+from test.event_based_scan.test_data.event_payload_interface_add import EVENT_PAYLOAD_INTERFACE_ADD, NETWORK_DOC, \
+    EVENT_PAYLOAD_REGION, PORT_DOC, ROUTER_DOCUMENT, HOST, VNIC_DOCS
+from test.event_based_scan.test_event import TestEvent
+
+
+class TestInterfaceAdd(TestEvent):
+    def test_handle_interface_add(self):
+        self.values = EVENT_PAYLOAD_INTERFACE_ADD
+        self.payload = self.values['payload']
+        self.interface = self.payload['router_interface']
+
+        self.port_id = self.interface['port_id']
+        self.router_id = 'qrouter-' + self.interface['id']
+
+        self.set_item(NETWORK_DOC)
+        ApiAccess.regions = EVENT_PAYLOAD_REGION
+
+        # mock port data,
+        original_api_get_port = ApiFetchPort.get
+        ApiFetchPort.get = MagicMock(return_value=[PORT_DOC])
+        self.item_ids.append(PORT_DOC['id'])
+
+        # set router document
+        self.set_item(ROUTER_DOCUMENT)
+
+        # set host document
+        self.set_item(HOST)
+
+        # mock add_links
+        original_add_links = FindLinksForVserviceVnics.add_links
+        FindLinksForVserviceVnics.add_links = MagicMock()
+
+        # mock get_vservice
+        original_get_vservice = CliFetchHostVservice.get_vservice
+        CliFetchHostVservice.get_vservice = MagicMock(return_value=ROUTER_DOCUMENT)
+
+        # mock handle_vservice
+        original_handle_service = CliFetchVserviceVnics.handle_service
+        CliFetchVserviceVnics.handle_service = MagicMock(return_value=VNIC_DOCS)
+
+        # handle the notification
+        self.handler.router_interface_create(self.values)
+
+        # reset the method.
+        ApiFetchPort.get = original_api_get_port
+        FindLinksForVserviceVnics.add_links = original_add_links
+        CliFetchHostVservice.get_vservice = original_get_vservice
+        CliFetchVserviceVnics.handle_service = original_handle_service
+
+        # check port and router document
+        port_doc = self.handler.inv.get_by_id(self.env, self.port_id)
+        self.assertNotEqual(port_doc, [])
+
+        router_doc = self.handler.inv.get_by_id(self.env, self.router_id)
+        self.assertIn(NETWORK_DOC['id'], router_doc['network'])

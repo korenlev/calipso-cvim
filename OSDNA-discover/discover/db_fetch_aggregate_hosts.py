@@ -1,13 +1,12 @@
-from db_access import DbAccess
+from discover.db_access import DbAccess
+
 
 class DbFetchAggregateHosts(DbAccess):
-  
-  def get(self, id):
-    query = """
-      SELECT h.host AS id, h.host AS name, COUNT(*) AS descendants
-      FROM nova.aggregate_hosts h
-        LEFT JOIN nova.instances i ON h.host = i.hostname
-      WHERE h.deleted = 0 AND aggregate_id = %s
-      GROUP BY h.id, h.host
+    def get(self, id):
+        query = """
+      SELECT CONCAT('aggregate-', a.name, '-', host) AS id, host AS name
+      FROM nova.aggregate_hosts ah
+        JOIN nova.aggregates a ON a.id = ah.aggregate_id
+      WHERE ah.deleted = 0 AND aggregate_id = %s
     """
-    return self.get_objects_list_for_id(query, "host", id)
+        return self.get_objects_list_for_id(query, "host", id)
