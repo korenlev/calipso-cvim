@@ -10,12 +10,12 @@ class CliFetchHostPnicsOvs(CliAccess):
         self.inv = InventoryMgr()
         self.ethtool_attr = re.compile('^\s+([^:]+):\s(.*)$')
         self.regexps = [
-            {"mac_address": re.compile('^.*\sHWaddr\s(\S+)(\s.*)?$')},
-            {"mac_address": re.compile('^.*\sether\s(\S+)(\s.*)?$')},
-            {"IP Address": re.compile('^\s*inet addr:?(\S+)\s.*$')},
-            {"IP Address": re.compile('^\s*inet ([0-9.]+)\s.*$')},
-            {"IPv6 Address": re.compile('^\s*inet6 addr:\s*(\S+)(\s.*)?$')},
-            {"IPv6 Address": re.compile('^\s*inet6 \s*(\S+)(\s.*)?$')}
+            {'name': 'mac_address', 're': '^.*\sHWaddr\s(\S+)(\s.*)?$'},
+            {'name': 'mac_address', 're': '^.*\sether\s(\S+)(\s.*)?$'},
+            {'name': 'IP Address', 're': '^\s*inet addr:?(\S+)\s.*$'},
+            {'name': 'IP Address', 're': '^\s*inet ([0-9.]+)\s.*$'},
+            {'name': 'IPv6 Address', 're': '^\s*inet6 addr:\s*(\S+)(\s.*)?$'},
+            {'name': 'IPv6 Address', 're': '^\s*inet6 \s*(\S+)(\s.*)?$'}
         ]
 
     def get(self, id):
