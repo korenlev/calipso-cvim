@@ -52,5 +52,12 @@ see under /Architecture
 ### Contacts
 * Koren Lev (korlev)
 * Yaron Yogev (yayogev)
+<<<<<<< HEAD
 * Stas Isakov (sisakov)
 * Ofir Ashery (oashery)
+=======
+* Amit Kumar (amikumar)
+* Stas Isakov (sisakov)
+* Ofir Ashery (oashery)
+* Amit Saha (amisaha)
+>>>>>>> 5cfe971c5d067c9162ed5a44b5c4ffe4f111a371

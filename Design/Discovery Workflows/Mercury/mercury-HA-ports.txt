@@ -1,1 +1,0 @@
-neutron.ha_router_port_bindings
