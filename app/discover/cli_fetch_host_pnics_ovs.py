@@ -81,16 +81,9 @@ class CliFetchHostPnicsOvs(CliAccess):
         return interface
 
     def handle_line(self, interface, line):
-        for regexp_tuple in self.regexps:
-            for re_name in regexp_tuple.keys():
-                re_value = regexp_tuple[re_name]
-                matches = re_value.match(line)
-                if matches:
-                    matched_value = matches.group(1)
-                    interface[re_name] = matched_value
-                    if re_name == "mac_address":
-                        interface["id"] = interface["name"] + "-" + \
-                            interface["mac_address"]
+        self.find_matching_regexps(interface, line, self.regexps)
+        if 'mac_address' in interface:
+            interface["id"] = interface["name"] + "-" + interface["mac_address"]
         interface["lines"].append(line.strip())
 
     def set_interface_data(self, interface):
