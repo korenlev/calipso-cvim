@@ -1,7 +1,6 @@
-from singleton import Singleton
-from scanner import Scanner
-from db_fetch_host_network_agents import DbFetchHostNetworkAgents
-from cli_fetch_host_vservices import CliFetchHostVservices
+from discover.singleton import Singleton
+from discover.scanner import Scanner
+from discover.cli_fetch_host_vservices import CliFetchHostVservices
 
 class ScanVservicesRoot(Scanner, metaclass=Singleton):
 

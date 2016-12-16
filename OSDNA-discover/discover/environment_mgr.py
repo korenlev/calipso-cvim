@@ -1,5 +1,5 @@
-from mongo_access import MongoAccess
-from util import Util
+from discover.mongo_access import MongoAccess
+from discover.util import Util
 from datetime import datetime
 
 class InventoryMgr(MongoAccess, Util):

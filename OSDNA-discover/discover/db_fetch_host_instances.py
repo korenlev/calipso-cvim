@@ -1,4 +1,4 @@
-from db_fetch_instances import DbFetchInstances
+from discover.db_fetch_instances import DbFetchInstances
 
 class DbFetchHostInstances(DbFetchInstances):
   

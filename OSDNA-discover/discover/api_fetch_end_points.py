@@ -1,9 +1,8 @@
 # fetch the end points for a given project (tenant)
 # return list of regions, to allow further recursive scanning
 
-from api_access import ApiAccess
-from fetcher import Fetcher
-from util import Util
+from discover.api_access import ApiAccess
+from discover.util import Util
 
 class ApiFetchEndPoints(ApiAccess, Util):
   

@@ -1,11 +1,11 @@
 # scan an availability zone for hosts
 
-from singleton import Singleton
-from db_fetch_az_hosts import DbFetchAZHosts
-from db_fetch_az_network_hosts import DbFetchAZNetworkHosts
-from scanner import Scanner
-from scan_host import ScanHost
-from scan_network_host import ScanNetworkHost
+from discover.singleton import Singleton
+from discover.db_fetch_az_hosts import DbFetchAZHosts
+from discover.db_fetch_az_network_hosts import DbFetchAZNetworkHosts
+from discover.scanner import Scanner
+from discover.scan_host import ScanHost
+from discover.scan_network_host import ScanNetworkHost
 
 class ScanAvailabilityZone(Scanner, metaclass=Singleton):
   
