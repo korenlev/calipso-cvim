@@ -7,7 +7,8 @@ class ScanPnicsRoot(Scanner, metaclass=Singleton):
         super(ScanPnicsRoot, self).__init__([
             {
                 "type": "pnic",
-                "environment_condition": {"mechanism_drivers": "OVS"},
-                "fetcher": "CliFetchHostPnicsOvs"
+                "environment_condition":
+                    {"mechanism_drivers": ["OVS", "LXB"]},
+                "fetcher": "CliFetchHostPnics"
             }
         ])
