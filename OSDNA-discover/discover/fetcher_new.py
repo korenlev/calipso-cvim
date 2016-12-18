@@ -1,4 +1,4 @@
-from fetcher import Fetcher_old
+from discover.fetcher import Fetcher
 ##old stuff
 class FetchHostObjectTypes(Fetcher):
   def __init__(self):

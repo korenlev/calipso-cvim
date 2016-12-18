@@ -2,10 +2,10 @@ import paramiko
 import json
 import os
  # older way to get from ssh master host (dep)
-from configuration import Configuration
-from fetcher import Fetcher
+from discover.configuration import Configuration
+from discover.fetcher import Fetcher
 
-class CliAccess(Fetcher_new):
+class CliAccess(Fetcher):
 
   initialized  = False
   config = None

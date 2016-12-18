@@ -1,6 +1,6 @@
-from singleton import Singleton
-from scanner import Scanner
-from db_fetch_host_network_agents import DbFetchHostNetworkAgents
+from discover.singleton import Singleton
+from discover.scanner import Scanner
+from discover.db_fetch_host_network_agents import DbFetchHostNetworkAgents
 
 class ScanNetworkAgentsRoot(Scanner, metaclass=Singleton):
   
