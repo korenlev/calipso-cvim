@@ -43,9 +43,9 @@ class CliFetchVserviceVnics(CliAccess):
             ret.extend(self.handle_service(host_id, service))
         return ret
 
-    def handle_service(self, host, service):
+    def handle_service(self, host, service, enable_cache=True):
         cmd = "ip netns exec " + service + " ifconfig"
-        lines = self.run_fetch_lines(cmd, host)
+        lines = self.run_fetch_lines(cmd, host, enable_cache)
         interfaces = []
         current = None
         for line in lines:
@@ -87,8 +87,9 @@ class CliFetchVserviceVnics(CliAccess):
         interface["lines"].append(line.strip())
 
     def set_interface_data(self, interface):
-        if not interface:
+        if not interface or 'IP Address' not in interface or 'netmask' not in interface:
             return
+
         interface["data"] = "\n".join(interface.pop("lines", None))
         interface["cidr"] = self.get_cidr_for_vnic(interface)
         network = self.inv.get_by_field(self.get_env(), "network", "cidrs",

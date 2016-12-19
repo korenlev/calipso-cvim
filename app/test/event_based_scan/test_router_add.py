@@ -15,21 +15,33 @@ class TestRouterAdd(TestEvent):
         self.payload = self.values['payload']
         self.router = self.payload['router']
         self.router_id = "qrouter-"+self.router['id']
-        self.handler.inv.set(HOST_DOC)
+
+        self.set_item(HOST_DOC)
         self.host_id = HOST_DOC['id']
         gateway_info = self.router['external_gateway_info']
         if gateway_info:
             self.network_id = self.router['external_gateway_info']['network_id']
             self.handler.inv.set(NETWORK_DOC)
 
-        handler = EventRouterAdd()
+        original_get_vservice = CliFetchHostVservice.get_vservice
         CliFetchHostVservice.get_vservice = MagicMock(return_value=ROUTER_DOCUMENT)
+        self.gw_port_id = ROUTER_DOCUMENT['gw_port_id']
+
+        original_add_port = EventSubnetAdd.add_port_document
         EventSubnetAdd.add_port_document = MagicMock()
+
+        original_add_vnic = EventPortAdd.add_vnic_document
         EventPortAdd.add_vnic_document = MagicMock()
+
+        handler = EventRouterAdd()
         handler.update_links_and_cliques = MagicMock()
 
         handler.handle(self.env, self.values)
-        self.gw_port_id = ROUTER_DOCUMENT['gw_port_id']
+
+        # reset the methods back
+        CliFetchHostVservice.get_vservice = original_get_vservice
+        EventSubnetAdd.add_port_document = original_add_port
+        EventPortAdd.add_vnic_document = original_add_vnic
 
         # assert router document
         router_doc = self.handler.inv.get_by_id(self.env, self.router_id)
@@ -42,38 +54,14 @@ class TestRouterAdd(TestEvent):
         self.assertNotEqual(vnics_folder, [], "Vnics folder not found.")
 
     def tearDown(self):
-        # delete network document
-        self.handler.inv.delete('inventory', {'id': self.network_id})
-        item = self.handler.inv.get_by_id(self.env, self.network_id)
-        self.assertEqual(item, [])
-
-        # delete host document
-        self.handler.inv.delete('inventory', {'id': self.host_id})
-        item = self.handler.inv.get_by_id(self.env, self.host_id)
-        self.assertEqual(item, [])
-
-        # delete ports folder document
-        self.handler.inv.delete('inventory', {'id': self.network_id+"-ports"})
-        item = self.handler.inv.get_by_id(self.env, self.network_id+"-ports")
-        self.assertEqual(item, [])
-
-        # delete port document
-        self.handler.inv.delete('inventory', {'id': self.gw_port_id})
-        item = self.handler.inv.get_by_id(self.env, self.gw_port_id)
-        self.assertEqual(item, [])
-
-        # delete vnics folder document
-        self.handler.inv.delete('inventory', {'id': self.router_id+'-vnics'})
-        item = self.handler.inv.get_by_id(self.env, self.router_id+'-vnics')
-        self.assertEqual(item, [])
+        self.item_ids = [self.network_id, self.host_id, self.network_id+"-ports", self.gw_port_id,
+                         self.router_id+'-vnics', self.router_id]
+        for item_id in self.item_ids:
+            self.handler.inv.delete('inventory', {'id': item_id})
+            item = self.handler.inv.get_by_id(self.env, item_id)
+            self.assertEqual(item, [])
 
         # delete vnics document
         self.handler.inv.delete('inventory', {'parent_id': self.router_id+'-vnics'})
         item = self.handler.inv.get_by_field(self.env, 'vnic', 'parent_id', self.router_id+'-vnics')
         self.assertEqual(item, [])
-
-        # delete router document
-        self.handler.inv.delete('inventory', {'id': self.router_id})
-        item = self.handler.inv.get_by_id(self.env, self.router_id)
-        self.assertEqual(item, [])
-

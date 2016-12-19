@@ -1,3 +1,4 @@
+from test.event_based_scan.config.test_config import ENV_CONFIG
 
 NETWORK_DOC = {
     'port_security_enabled': True, 'status': 'ACTIVE',
@@ -10,12 +11,12 @@ NETWORK_DOC = {
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'host_routes': [], 'ip_version': 4},
                 },
     'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
-    'name_path': '/Mirantis-Liberty-CL/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,
+    'name_path': '/'+ENV_CONFIG+'/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,
     'provider:physical_network': None,
-    'id_path': '/Mirantis-Liberty-CL/Mirantis-Liberty-CL-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0'+
+    'id_path': '/'+ENV_CONFIG+'/'+ENV_CONFIG+'-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0'+
             'ae4973c8375ddf40-networks/0abe6331-0d74-4bbd-ad89-a5719c3793e4',
     'object_name': 'testsubnetadd', 'provider:segmentation_id': 46, 'provider:network_type': 'vxlan',
-    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'environment': 'Mirantis-Liberty-CL', 'name': 'testsubnetadd',
+    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'environment': ENV_CONFIG, 'name': 'testsubnetadd',
     'last_scanned': '2016-10-13 00:20:59.280329', 'id': '0abe6331-0d74-4bbd-ad89-a5719c3793e4',
     'cidrs': ['172.16.12.0/24'],
     'type': 'network', 'network': '0abe6331-0d74-4bbd-ad89-a5719c3793e4', 'shared': False, 'mtu': 1400}

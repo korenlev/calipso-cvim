@@ -9,7 +9,7 @@ class TestNetworkAdd(TestEvent):
         self.payload = self.values['payload']
         self.network = self.payload['network']
         self.network_id = self.network['id']
-        self.item_id = self.network_id
+        self.item_ids.append(self.network_id)
 
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
         if network_document:

@@ -8,7 +8,7 @@ class TestInstanceUpdate(TestEvent):
         self.values = EVENT_PAYLOAD_INSTANCE_UPDATE
         payload = self.values['payload']
         self.instance_id = payload['instance_id']
-        self.item_id = self.instance_id
+        self.item_ids.append(self.instance_id)
         new_name = payload['display_name']
 
         # preparing instance to be updated
@@ -17,8 +17,7 @@ class TestInstanceUpdate(TestEvent):
             self.handler.log.info("instance document is not found, add document for updating")
 
             # add instance document for updating
-            self.handler.inv.set(INSTANCE_DOCUMENT)
-
+            self.set_item(INSTANCE_DOCUMENT)
             instance = self.handler.inv.get_by_id(self.env, self.instance_id)
             self.assertNotEqual(instance, [])
             self.assertEqual(instance['name'], INSTANCE_DOCUMENT['name'])

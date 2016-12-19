@@ -17,21 +17,39 @@ class EventSubnetAdd(Fetcher):
         super().__init__()
         self.inv = InventoryMgr()
 
-    def add_port_document(self, env, project_id, network_id, network_name, port_id):
+    def add_port_document(self, env, port_id, network_name=None, project_name=''):
+        # when add router-interface port, network_name need to be given to enhance efficiency.
+        # when add gateway port, project_name need to be specified, cause this type of port
+        # document does not has project attribute. In this case, network_name should not be provided.
+
         fetcher = ApiFetchPort()
         fetcher.set_env(env)
         ports = fetcher.get(port_id)
 
-        for port in ports:
+        if ports != []:
+            port = ports[0]
+            project_id = port['tenant_id']
+            network_id = port['network_id']
+
+            if network_name == None:
+                network = self.inv.get_by_id(env, network_id)
+                network_name = network['name']
+
             port['type'] = "port"
             port['environment'] = env
             port_id = port['id']
             port['id_path'] = "%s/%s-projects/%s/%s-networks/%s/%s-ports/%s" % \
-                             (env, env, project_id, project_id, network_id, network_id, port_id)
+                              (env, env, project_id, project_id, network_id, network_id, port_id)
             port['last_scanned'] = datetime.datetime.utcnow()
+            if 'project' in port:
+                project_name = port['project']
             port['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
-                               (env, port['project'], network_name, port_id)
+                                (env, project_name, network_name, port_id)
             self.inv.set(port)
+            self.inv.log.info("add port document for port:%s" % port_id)
+            return port
+        return False
+
 
     def add_ports_folder(self, env, project_id, network_id, network_name):
         port_folder = {
@@ -53,16 +71,15 @@ class EventSubnetAdd(Fetcher):
 
         self.inv.set(port_folder)
 
-    def add_children_documents(self, env, notification, project_id, network_id, network_name):
+    def add_children_documents(self, env, project_id, network_id, network_name, host_id):
         # generate port folder data.
         self.add_ports_folder(env, project_id, network_id, network_name)
 
         # get ports ID.
-        ports_fetcher = DbFetchPort()
-        port_id = ports_fetcher.get_id(network_id)
+        port_id = DbFetchPort().get_id(network_id)
 
         # add specific ports documents.
-        self.add_port_document(env, project_id, network_id, network_name, port_id)
+        self.add_port_document(env, port_id, network_name=network_name)
 
         port_handler = EventPortAdd()
 
@@ -70,7 +87,6 @@ class EventSubnetAdd(Fetcher):
         port_handler.add_network_services_folder(env, project_id, network_id, network_name)
 
         # add dhcp vservice document.
-        host_id = notification["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
 
         port_handler.add_dhcp_document(env, host, network_id, network_name)
@@ -80,7 +96,6 @@ class EventSubnetAdd(Fetcher):
 
         # add vnic docuemnt.
         port_handler.add_vnic_document(env, host, network_id, network_name)
-
 
     def handle(self, env, notification):
         # check for network document.
@@ -95,12 +110,14 @@ class EventSubnetAdd(Fetcher):
         network_name = network_document['name']
 
         # build subnet document for adding network
-        network_document['cidrs'].append(subnet['cidr'])
+        if subnet['cidr'] not in network_document['cidrs']:
+            network_document['cidrs'].append(subnet['cidr'])
         if network_document['subnets'] == []:
             network_document['subnets'] = {}
 
         network_document['subnets'][subnet['name']] = subnet
-        network_document['subnet_ids'].append(subnet['id'])
+        if subnet['id'] not in network_document['subnet_ids']:
+            network_document['subnet_ids'].append(subnet['id'])
         self.inv.set(network_document)
 
         # Check DHCP enable, if true, scan network.
@@ -112,15 +129,13 @@ class EventSubnetAdd(Fetcher):
                 fetcher.get(None)
 
             self.log.info("add new subnet.")
-            self.add_children_documents(env, notification, project_id, network_id, network_name)
+            host_id = notification["publisher_id"].replace("network.", "", 1)
+            self.add_children_documents(env, project_id, network_id, network_name, host_id)
 
         # scan links and cliques
         self.log.info("scanning for links")
-        fetcher = FindLinksForPnics()
-        fetcher.add_links()
-        fetcher = FindLinksForVserviceVnics()
-        fetcher.add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
+        FindLinksForPnics().add_links()
+        FindLinksForVserviceVnics().add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
 
-        network_scanner = ScanNetwork()
-        network_scanner.scan_cliques()
+        ScanNetwork().scan_cliques()
         self.log.info("Finished subnet added.")

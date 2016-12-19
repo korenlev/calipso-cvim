@@ -13,11 +13,11 @@ class TestSubnetUpdate(TestEvent):
         self.payload = self.values['payload']
         self.subnet = self.payload['subnet']
         self.subnet_id = self.subnet['id']
-        # self.item_id for tearDown()
-        self.item_id = self.network_id = self.subnet['network_id']
+        self.network_id = self.subnet['network_id']
+        self.item_ids.append(self.network_id)
 
         #add network document for subnet.
-        self.handler.inv.set(NETWORK_DOC)
+        self.set_item(NETWORK_DOC)
 
         # check network document
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)

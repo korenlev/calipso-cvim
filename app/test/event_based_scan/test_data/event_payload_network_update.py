@@ -1,3 +1,4 @@
+from test.event_based_scan.config.test_config import ENV_CONFIG
 
 EVENT_PAYLOAD_NETWORK_UPDATE = {
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_user': '13baa553aae44adca6615e711fd2f6d9',
@@ -22,17 +23,19 @@ EVENT_PAYLOAD_NETWORK_UPDATE = {
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_tenant_name': 'OSDNA-project'}
 
 
-EVENT_PAYLOAD_NETWORK_DOCUMENT = {
+NETWORK_DOCUMENT = {
     "admin_state_up" : True,
     "cidrs" : [
         "172.16.4.0/24"
     ],
-    "environment" : "Mirantis-Liberty-CL",
+    "environment" : ENV_CONFIG,
     "id" : "8673c48a-f137-4497-b25d-08b7b218fd17",
+    "id_path" : '/%s/%s-projects/' % (ENV_CONFIG, ENV_CONFIG) +'75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b' +
+                '0ae4973c8375ddf40-networks/8673c48a-f137-4497-b25d-08b7b218fd17',
     "last_scanned" : 0,
     "mtu" : 1400,
     "name" : "osdna-met4",
-    "name_path" : "/Mirantis-Liberty-CL/Projects/OSDNA-project/Networks/osdna-met4",
+    "name_path" : "/"+ENV_CONFIG+"/Projects/OSDNA-project/Networks/osdna-met4",
     "network" : "b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe",
     "object_name" : "osdna-met4",
     "parent_id" : "75c0eb79ff4a42b0ae4973c8375ddf40-networks",

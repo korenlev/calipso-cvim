@@ -18,12 +18,12 @@ class CliAccess(BinaryConverter, Fetcher):
     def __init__(self):
         super().__init__()
 
-    def run(self, cmd, ssh_to_host=""):
+    def run(self, cmd, ssh_to_host="", enable_cache=True):
         ssh_conn = SshConn(ssh_to_host)
         if ssh_to_host and ssh_to_host != ssh_conn.get_host():
             cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
         curr_time = time.time()
-        if cmd in self.cached_commands:
+        if enable_cache and cmd in self.cached_commands:
             # try to re-use output from last call
             cached = self.cached_commands[cmd]
             if cached["timestamp"] + self.cache_lifetime < curr_time:
@@ -39,8 +39,8 @@ class CliAccess(BinaryConverter, Fetcher):
         self.cached_commands[cmd] = {"timestamp": curr_time, "result": ret}
         return ret
 
-    def run_fetch_lines(self, cmd, ssh_to_host=""):
-        out = self.run(cmd, ssh_to_host)
+    def run_fetch_lines(self, cmd, ssh_to_host="", enable_cache=True):
+        out = self.run(cmd, ssh_to_host, enable_cache)
         if not out:
             return []
         # first try to split lines by whitespace

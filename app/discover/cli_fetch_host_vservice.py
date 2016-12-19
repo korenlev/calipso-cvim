@@ -15,7 +15,7 @@ class CliFetchHostVservice(CliAccess, DbAccess):
         self.agents_list = NetworkAgentsList()
 
     def get_vservice(self, host_id, name_space):
-        result = {"local_service_id":name_space}
+        result = {"local_service_id": name_space}
         self.set_details(host_id, result)
         return result
 

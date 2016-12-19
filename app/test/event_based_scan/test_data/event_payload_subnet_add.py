@@ -1,17 +1,19 @@
 import datetime
 
-NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnet_ids': [], 'parent_type': 'networks_folder',
- 'parent_id': '75c0eb79ff4a42b0ae4973c8375ddf40-networks', 'parent_text': 'Networks', 'subnets': {},
- 'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
- 'name_path': '/Mirantis-Liberty-CL/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,
- 'provider:physical_network': None,
- 'id_path': '/Mirantis-Liberty-CL/Mirantis-Liberty-CL-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0'+
-            'ae4973c8375ddf40-networks/1bb0ba6c-6863-4121-ac89-93f81a9da2b0',
- 'object_name': 'testsubnetadd', 'provider:segmentation_id': 46, 'provider:network_type': 'vxlan',
- 'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'environment': 'Mirantis-Liberty-CL', 'name': 'testsubnetadd',
- 'last_scanned': '2016-10-13 00:20:59.280329', 'id': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'cidrs': [],
- 'type': 'network', 'network': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'shared': False, 'mtu': 1400}
+from test.event_based_scan.config.test_config import ENV_CONFIG
 
+NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnet_ids': [], 'parent_type': 'networks_folder',
+               'parent_id': '75c0eb79ff4a42b0ae4973c8375ddf40-networks', 'parent_text': 'Networks', 'subnets': {},
+               'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
+               'name_path': '/' + ENV_CONFIG + '/Projects/OSDNA-project/Networks/testsubnetadd',
+               'router:external': False,
+               'provider:physical_network': None,
+               'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0' +
+                          'ae4973c8375ddf40-networks/1bb0ba6c-6863-4121-ac89-93f81a9da2b0',
+               'object_name': 'testsubnetadd', 'provider:segmentation_id': 46, 'provider:network_type': 'vxlan',
+               'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'environment': ENV_CONFIG, 'name': 'testsubnetadd',
+               'last_scanned': '2016-10-13 00:20:59.280329', 'id': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'cidrs': [],
+               'type': 'network', 'network': '1bb0ba6c-6863-4121-ac89-93f81a9da2b0', 'shared': False, 'mtu': 1400}
 
 EVENT_PAYLOAD_SUBNET_ADD = {
     'payload': {
@@ -39,10 +41,10 @@ EVENT_PAYLOAD_SUBNET_ADD = {
 EVENT_PAYLOAD_REGION = {
     'RegionOne': {
         'object_name': 'RegionOne', 'id': 'RegionOne', 'name': 'RegionOne',
-        'environment': 'Mirantis-Liberty-CL',
-        'last_scanned': datetime.datetime.utcnow(),
-        'name_path': '/Mirantis-Liberty-CL/Regions/RegionOne',
-        'parent_id': 'Mirantis-Liberty-CL-regions', 'parent_type': 'regions_folder',
+        'environment': ENV_CONFIG,
+                                 'last_scanned': datetime.datetime.utcnow(),
+        'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne',
+        'parent_id': ENV_CONFIG + '-regions', 'parent_type': 'regions_folder',
         'endpoints': {'nova': {'id': '274cbbd9fd6d4311b78e78dd3a1df51f',
                                'adminURL': 'http://192.168.0.2:8774/v2/8c1751e0ce714736a63fee3c776164da',
                                'service_type': 'compute',
@@ -109,5 +111,5 @@ EVENT_PAYLOAD_REGION = {
                                'publicURL': 'http://172.16.0.3:8004/v1/8c1751e0ce714736a63fee3c776164da',
                                'internalURL': 'http://192.168.0.2:8004/v1/8c1751e0ce714736a63fee3c776164da'}},
         'show_in_tree': True,
-        'id_path': '/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne',
+        'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne',
         'type': 'region'}}

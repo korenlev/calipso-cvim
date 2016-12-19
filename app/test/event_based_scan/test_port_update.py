@@ -9,7 +9,6 @@ class TestPortUpdate(TestEvent):
         self.payload = self.values['payload']
         self.port = self.payload['port']
         self.port_id = self.port['id']
-        self.item_id = self.port_id
 
         # set port data firstly.
         self.handler.inv.set(PORT_DOCUMENT)

@@ -16,10 +16,10 @@ class TestInstanceAdd(TestEvent):
         host_id = payload['host']
 
         # prepare instances root, in case it's not there
-        self.handler.inv.set(INSTANCES_ROOT)
+        self.set_item(INSTANCES_ROOT)
 
         # prepare host, in case it's not existed.
-        self.handler.inv.set(HOST)
+        self.set_item(HOST)
 
         # check instance document
         instance = self.handler.inv.get_by_id(self.env, self.instance_id)
@@ -32,24 +32,17 @@ class TestInstanceAdd(TestEvent):
 
         # check the return of instance handler.
         handler = EventInstanceAdd()
+
+        # save the original method.
+        original_method = ScanHost.scan_links
         ScanHost.scan_links = MagicMock()
         ret  = handler.handle(self.env, self.values)
+
+        # reset the method in case of affecting other unit tests.
+        ScanHost.scan_links = original_method
+
         self.assertEqual(ret, True)
 
         # check host document
         host = self.handler.inv.get_by_id(self.env, host_id)
         self.assertNotEqual(host, [])
-
-    # Delete the document after test.
-    def tearDown(self):
-        self.handler.inv.delete('inventory', {'id': self.instance_id})
-        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
-        self.assertEqual(instance, [])
-
-        self.handler.inv.delete('inventory', {'id': INSTANCES_ROOT['id']})
-        root = self.handler.inv.get_by_id(self.env, INSTANCES_ROOT['id'])
-        self.assertEqual(root, [])
-
-        self.handler.inv.delete('inventory', {'id': HOST['id']})
-        host = self.handler.inv.get_by_id(self.env, HOST['id'])
-        self.assertEqual(host, [])

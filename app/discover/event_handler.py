@@ -2,10 +2,12 @@ from discover.events.event_instance_add import EventInstanceAdd
 from discover.events.event_instance_delete import EventInstanceDelete
 from discover.events.event_instance_update import EventInstanceUpdate
 from discover.events.event_interface_add import EventInterfaceAdd
+from discover.events.event_interface_delete import EventInterfaceDelete
 from discover.events.event_network_add import EventNetworkAdd
 from discover.events.event_network_delete import EventNetworkDelete
 from discover.events.event_network_update import EventNetworkUpdate
 from discover.events.event_port_add import EventPortAdd
+from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_port_update import EventPortUpdate
 from discover.events.event_router_add import EventRouterAdd
 from discover.events.event_router_delete import EventRouterDelete
@@ -24,20 +26,20 @@ class EventHandler(Fetcher):
         self.inv.set_inventory_collection(inventory_collection)
         self.env = env
 
-    def instance_add(self, vals):
+    def instance_add(self, notification):
         self.log.info("instance_add")
         handler = EventInstanceAdd()
-        handler.handle(self.env, vals)
+        handler.handle(self.env, notification)
 
-    def instance_delete(self, vals):
+    def instance_delete(self, notification):
         self.log.info("instance_delete")
         handler = EventInstanceDelete()
-        handler.handle(self.env, vals)
+        handler.handle(self.env, notification)
 
-    def instance_update(self, vals):
+    def instance_update(self, notification):
         self.log.info("instance_update")
         handler = EventInstanceUpdate()
-        handler.handle(self.env, vals)
+        handler.handle(self.env, notification)
 
     def instance_down(self, notification):
         pass
@@ -95,7 +97,9 @@ class EventHandler(Fetcher):
         handler.handle(self.env, notification)
 
     def port_delete(self, notification):
-        pass
+        self.log.info("port_delete")
+        handler = EventPortDelete()
+        handler.handle(self.env, notification)
 
     def router_create(self, notification):
         self.log.info("router_add")
@@ -118,4 +122,6 @@ class EventHandler(Fetcher):
         handler.handle(self.env, notification)
 
     def router_interface_delete(self, notification):
-        pass
+        self.log.info("router_interface_delete")
+        handler = EventInterfaceDelete()
+        handler.handle(self.env, notification)

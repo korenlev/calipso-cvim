@@ -1,7 +1,7 @@
-from test.event_based_scan.config.local_config import ENV_CONFIG
+from test.event_based_scan.config.test_config import ENV_CONFIG
 
 EVENT_PAYLOAD_INSTANCE_ADD = {
-    'publisher_id': 'compute.node-6.cisco.com', '_context_resource_uuid': None,
+    'publisher_id': 'compute.node-251.cisco.com', '_context_resource_uuid': None,
     '_context_instance_lock_checked': False,
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40',
@@ -48,12 +48,12 @@ EVENT_PAYLOAD_INSTANCE_ADD = {
               'availability_zone': 'osdna-zone',
               'instance_id': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'deleted_at': '',
               'image_ref_url': 'http://172.16.0.4:9292/images/c6f490c4-3656-43c6-8d03-b4e66bd249f9',
-              'host': 'node-5.cisco.com', 'vcpus': 1, 'state': 'active',
+              'host': 'node-252.cisco.com', 'vcpus': 1, 'state': 'active',
               'old_task_state': None,
               'architecture': None,
               'terminated_at': '', 'root_gb': 0,
               'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-              'node': 'node-5.cisco.com', 'bandwidth': {}, 'disk_gb': 0,
+              'node': 'node-252.cisco.com', 'bandwidth': {}, 'disk_gb': 0,
               'audit_period_ending': '2016-09-08T22:01:43.165282'},
     '_context_quota_class': None,
     '_context_is_admin': True, '_context_read_deleted': 'no',
@@ -71,13 +71,13 @@ EVENT_PAYLOAD_INSTANCE_ADD = {
 INSTANCES_ROOT = {
     "create_object": True,
     "environment": ENV_CONFIG,
-    "id": "node-5.cisco.com-instances",
+    "id": "node-252.cisco.com-instances",
     "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones" +
-               "/osdna-zone/node-5.cisco.com/node-5.cisco.com-instances",
+               "/osdna-zone/node-252.cisco.com/node-252.cisco.com-instances",
     "name": "Instances",
-    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/osdna-zone/node-5.cisco.com/Instances",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/osdna-zone/node-252.cisco.com/Instances",
     "object_name": "Instances",
-    "parent_id": "node-5.cisco.com",
+    "parent_id": "node-252.cisco.com",
     "parent_type": "host",
     "show_in_tree": True,
     "text": "Instances",
@@ -85,13 +85,13 @@ INSTANCES_ROOT = {
 }
 
 HOST = {
-    'name_path': '/'+ ENV_CONFIG +'/Regions/RegionOne/Availability Zones/osdna-zone/node-5.cisco.com',
-    'children_url': '/osdna_dev/discover.py?type=tree&id=node-5.cisco.com',
+    'name_path': '/'+ ENV_CONFIG +'/Regions/RegionOne/Availability Zones/osdna-zone/node-252.cisco.com',
+    'children_url': '/osdna_dev/discover.py?type=tree&id=node-252.cisco.com',
     'id_path': '/'+ENV_CONFIG+ '/'+ENV_CONFIG+'-regions/RegionOne/' +
-               'RegionOne-availability_zones/osdna-zone/node-5.cisco.com',
-    'object_name': 'node-5.cisco.com', 'last_scanned': 0,
-    'type': 'host', 'environment': ENV_CONFIG, 'host': 'node-5.cisco.com', 'id': 'node-5.cisco.com',
-    'ip_address': '192.168.0.4', 'name': 'node-5.cisco.com', 'host_type': ['Compute'],
+               'RegionOne-availability_zones/osdna-zone/node-252.cisco.com',
+    'object_name': 'node-252.cisco.com', 'last_scanned': 0,
+    'type': 'host', 'environment': ENV_CONFIG, 'host': 'node-252.cisco.com', 'id': 'node-252.cisco.com',
+    'ip_address': '192.168.0.4', 'name': 'node-252.cisco.com', 'host_type': ['Compute'],
     'services': {'nova-compute': {'updated_at': '2016-09-26T22:47:09.000000', 'active': True, 'available': True}},
     'show_in_tree': True, 'zone': 'osdna-zone', 'os_id': '1',
     'parent_type': 'availability_zone', 'parent_id': 'osdna-zone'

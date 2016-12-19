@@ -114,6 +114,7 @@ def get_args():
 if __name__ == '__main__':
     logger = Logger()
     from kombu import Connection
+
     args = get_args()
     conf = Configuration(args.mongo_config)
     logger.set_loglevel(args.loglevel)

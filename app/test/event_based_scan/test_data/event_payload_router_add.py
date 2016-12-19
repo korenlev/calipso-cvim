@@ -1,5 +1,7 @@
 import datetime
 
+from test.event_based_scan.config.test_config import ENV_CONFIG
+
 EVENT_PAYLOAD_ROUTER_ADD = {
     '_context_show_deleted': False, '_context_domain': None,
     '_context_user': '13baa553aae44adca6615e711fd2f6d9',
@@ -61,18 +63,18 @@ HOST_DOC = {
         "interface_driver": "neutron.agent.linux.interface.OVSInterfaceDriver",
         "routers": 4
     },
-    "environment": "Mirantis-Liberty-CL",
+    "environment": ENV_CONFIG,
     "host": "node-250.cisco.com",
     "host_type": [
         "Controller",
         "Network"
     ],
     "id": "node-250.cisco.com",
-    "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne/RegionOne-availability_zones" +
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones" +
                "/internal/node-250.cisco.com",
     "last_scanned": datetime.datetime.utcnow(),
     "name": "node-250.cisco.com",
-    "name_path": "/Mirantis-Liberty-CL/Regions/RegionOne/Availability Zones/internal/node-250.cisco.com",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/internal/node-250.cisco.com",
     "object_name": "node-250.cisco.com",
     "parent_id": "internal",
     "parent_type": "availability_zone",
@@ -108,14 +110,14 @@ NETWORK_DOC = {
     "cidrs": [
         "172.16.0.0/24"
     ],
-    "environment": "Mirantis-Liberty-CL",
+    "environment": ENV_CONFIG,
     "id": "c64adb76-ad9d-4605-9f5e-123456781234",
-    "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-projects/8c1751e0ce714736a63fee3c776164da/8c1751e0ce71"+
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-projects/8c1751e0ce714736a63fee3c776164da/8c1751e0ce71" +
                "4736a63fee3c776164da-networks/c64adb76-ad9d-4605-9f5e-123456781234",
     "last_scanned": datetime.datetime.utcnow(),
     "mtu": 1500,
     "name": "admin_floating_net",
-    "name_path": "/Mirantis-Liberty-CL/Projects/admin/Networks/admin_floating_net",
+    "name_path": "/" + ENV_CONFIG + "/Projects/admin/Networks/admin_floating_net",
     "network": "c64adb76-ad9d-4605-9f5e-123456781234",
     "object_name": "admin_floating_net",
     "parent_id": "8c1751e0ce714736a63fee3c776164da-networks",

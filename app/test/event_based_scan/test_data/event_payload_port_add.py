@@ -1,43 +1,16 @@
-EVENT_PAYLOAD_PORT_INTERFACE_ADD = {
-    '_context_project_name': 'OSDNA-project', '_context_timestamp': '2016-10-24 20:14:26.234774',
-    '_context_is_admin': True, '_context_show_deleted': False, 'publisher_id': 'network.node-6.cisco.com',
-    '_context_roles': ['_member_', 'admin'], '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40',
-    '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_project_domain': None,
-    '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_user_domain': None,
-    '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'event_type': 'port.create.end',
-    '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
-    'timestamp': '2016-10-24 20:14:28.937765', '_context_read_only': False, '_context_resource_uuid': None,
-    'message_id': '33102061-4ec3-461e-9e01-1b9a9d7185ab', 'payload': {
-        'port': {'binding:vif_details': {}, 'binding:vif_type': 'unbound', 'allowed_address_pairs': [],
-                 'dns_assignment': [
-                     {'ip_address': '172.16.13.5', 'hostname': 'host-172-16-13-5',
-                      'fqdn': 'host-172-16-13-5.openstacklocal.'}],
-                 'device_id': '', 'network_id': '2e3b85f4-756c-49d9-b34c-f3db13212dbc',
-                 'id': '18f029db-775d-462e-b877-55f98130f8c0', 'dns_name': '', 'binding:vnic_type': 'normal',
-                 'binding:host_id': '', 'device_owner': '', 'binding:profile': {}, 'mac_address': 'fa:16:3e:1f:e1:74',
-                 'name': '',
-                 'fixed_ips': [{'ip_address': '172.16.13.5', 'subnet_id': '9a9c1848-ea23-4c5d-8c40-ae1def4c2de3'}],
-                 'port_security_enabled': True, 'admin_state_up': True, 'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-                 'status': 'DOWN', 'security_groups': ['2dd5c169-1ff7-40e5-ad96-18924b6d23f1']}},
-    '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_unique_id': '4997ceb32d89405588ac9430f186de83',
-    '_context_domain': None,
-    '_context_auth_token': 'gAAAAABYDmmboPzjwNVOZHJ81_qQ72Qt0-rodeqwxDQ9k8S_ddPsgQtTVG9-UFy0n8INf1qbgsMz7K4wgm' +
-                           'B_Gcsz_MuMs_3Y2nDanmUCyzpecdYioGBjWjVTV8KAC_J3ToRKDeMg2U75tZ0e55lpkwLLNkayX7GcGOaiX' +
-                           'hS7ngGJW-qWKkbPTncg9AxSD6d0oiJzWe8lUPjv',
-    '_context_request_id': 'req-d17797e7-dad8-4731-8664-b677b830bd63', '_context_tenant_name': 'OSDNA-project',
-    '_context_user_name': 'admin', 'priority': 'INFO'}
+from test.event_based_scan.config.test_config import ENV_CONFIG
 
 EVENT_PAYLOAD_PORT_INSTANCE_ADD = {
     '_context_user_id': '73638a2687534f9794cd8057ba860637', 'payload': {
         'port': {'port_security_enabled': True, 'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
                  'binding:vif_type': 'ovs',
-                 'mac_address': 'fa:16:3e:21:a3:e8',
+                 'mac_address': 'fa:16:3e:04:cd:ab',
                  'fixed_ips': [{'subnet_id': '9a9c1848-ea23-4c5d-8c40-ae1def4c2de3', 'ip_address': '172.16.13.6'}],
                  'security_groups': ['2dd5c169-1ff7-40e5-ad96-18924b6d23f1'], 'allowed_address_pairs': [],
-                 'binding:host_id': 'node-5.cisco.com', 'dns_name': '', 'status': 'DOWN',
-                 'id': 'cf6089f4-ecb7-4467-bdcc-b3a0a18f4569', 'binding:profile': {}, 'admin_state_up': True,
-                 'device_owner': 'compute:osdna-zone', 'device_id': 'e1de7561-8fdd-478c-8e7d-56514a0778a6',
-                 'network_id': '2e3b85f4-756c-49d9-b34c-f3db13212dbc', 'name': '',
+                 'binding:host_id': 'node-223.cisco.com', 'dns_name': '', 'status': 'DOWN',
+                 'id': '1233445-75b6-4c05-9480-4bc648845c6f', 'binding:profile': {}, 'admin_state_up': True,
+                 'device_owner': 'compute:osdna-zone', 'device_id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
+                 'network_id': '55550a69-24eb-47f5-a458-3aa086cc71c2', 'name': '',
                  'binding:vif_details': {'ovs_hybrid_plug': True, 'port_filter': True}, 'extra_dhcp_opts': [],
                  'binding:vnic_type': 'normal'}}, '_context_project_domain': None, 'event_type': 'port.create.end',
     'message_id': '2e0da8dc-6d2d-4bde-9e52-c43ec4687864', 'publisher_id': 'network.node-6.cisco.com',
@@ -54,69 +27,282 @@ EVENT_PAYLOAD_PORT_INSTANCE_ADD = {
     'timestamp': '2016-10-24 21:29:56.383789', '_context_project_id': 'a83c8b0d2df24170a7c54f09f824230e',
     '_context_user_identity': '73638a2687534f9794cd8057ba860637 a83c8b0d2df24170a7c54f09f824230e - - -'}
 
-EVENT_PAYLOAD_PORT_ADD_INTF = {
-    '_context_timestamp': '2016-10-26 19:14:00.622705',
-    '_context_tenant': 'a83c8b0d2df24170a7c54f09f824230e',
-    'publisher_id': 'network.node-6.cisco.com', '_context_tenant_name': 'services',
-    '_context_show_deleted': False, '_context_user_id': '73638a2687534f9794cd8057ba860637',
-    '_context_project_name': 'services',
-    '_context_project_id': 'a83c8b0d2df24170a7c54f09f824230e', '_context_user_domain': None,
-    'event_type': 'port.create.end', '_context_resource_uuid': None,
-    'message_id': '42438e1f-2477-4f1a-b5fc-c27446ea50b4',
-    '_context_user': '73638a2687534f9794cd8057ba860637', '_context_roles': ['admin'],
-    '_context_auth_token': 'gAAAAABYEPS6lqo8DUMw36Db097YQnGhh2k0Q4bizNxvfsrcpIZlwO4Y548HmdJK4JwbaCpgSfy11dL4aq5y0E62' +
-                           '9RYYq6_Xy9xyYhrNn_IyFbQj1AAS5nFAp3m1QqtI1Q0azjQrkkPKTwh_BVp7D1uriWlsdGEWX5r3bdawNx5o' +
-                           'FBFiRnAJhhM',
-    '_context_is_admin': True, '_context_user_name': 'neutron', '_context_domain': None,
-    '_context_project_domain': None,
-    '_context_tenant_id': 'a83c8b0d2df24170a7c54f09f824230e', '_context_read_only': False,
-    'payload': {'port': {'name': '', 'network_id': '2e3b85f4-756c-49d9-b34c-f3db13212dbc',
-                         'binding:host_id': 'node-4.cisco.com', 'allowed_address_pairs': [],
-                         'port_security_enabled': True,
-                         'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-                         'mac_address': 'fa:16:3e:33:00:4c', 'extra_dhcp_opts': [],
-                         'status': 'DOWN', 'dns_name': '',
-                         'security_groups': ['2dd5c169-1ff7-40e5-ad96-18924b6d23f1'],
-                         'device_id': 'fec3fc2d-be50-4234-b41a-1f43069f3a67',
-                         'binding:vif_type': 'ovs', 'binding:profile': {},
-                         'binding:vnic_type': 'normal',
-                         'binding:vif_details': {'ovs_hybrid_plug': True,
-                                                 'port_filter': True},
-                         'admin_state_up': True,
-                         'id': '10e98e6d-72fc-45b0-931d-4a5c58953a15',
-                         'device_owner': 'compute:None', 'fixed_ips': [
-            {'subnet_id': '9a9c1848-ea23-4c5d-8c40-ae1def4c2de3',
-             'ip_address': '172.16.13.7'}]}},
-    '_unique_id': '4320656d70684a78a165767b15d50985', 'priority': 'INFO',
-    'timestamp': '2016-10-26 19:14:02.086856',
-    '_context_user_identity': '73638a2687534f9794cd8057ba860637 a83c8b0d2df24170a7c54f09f824230e - - -',
-    '_context_request_id': 'req-c3963c6e-763b-47bf-99c5-6d335c3dd425'}
+NETWORK_DOC = {
+    "admin_state_up": True,
+    "children_url": "/osdna_dev/discover.py?type=tree&id=55550a69-24eb-47f5-a458-3aa086cc71c2",
+    "cidrs": [
+        "172.16.12.0/24"
+    ],
+    "environment": ENV_CONFIG,
+    "id": "55550a69-24eb-47f5-a458-3aa086cc71c2",
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0ae" +
+               "4973c8375ddf40-networks/55550a69-24eb-47f5-a458-3aa086cc71c2",
+    "last_scanned": 0,
+    "mtu": 0,
+    "name": "please_connect",
+    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/please_connect",
+    "network": "55550a69-24eb-47f5-a458-3aa086cc71c2",
+    "object_name": "please_connect",
+    "parent_id": "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
+    "parent_text": "Networks",
+    "parent_type": "networks_folder",
+    "port_security_enabled": True,
+    "project": "OSDNA-project",
+    "provider:network_type": "vxlan",
+    "provider:physical_network": None,
+    "provider:segmentation_id": 23,
+    "router:external": False,
+    "shared": False,
+    "show_in_tree": True,
+    "status": "ACTIVE",
+    "subnet_ids": [
+        "6f6ef3b5-76c9-4f70-81e5-f3cc196db025"
+    ],
+    "subnets": {
+        "1234": {
+            "cidr": "172.16.12.0/24",
+            "network_id": "55550a69-24eb-47f5-a458-3aa086cc71c2",
+            "allocation_pools": [
+                {
+                    "start": "172.16.12.2",
+                    "end": "172.16.12.254"
+                }
+            ],
+            "id": "6f6ef3b5-76c9-4f70-81e5-f3cc196db025",
+            "enable_dhcp": True,
+            "ipv6_address_mode": None,
+            "name": "1234",
+            "host_routes": [
 
-EVENT_PAYLOAD_PORT_INTERFACE_ADD_1 = {
-    '_context_timestamp': '2016-10-26 21:52:15.829792', '_context_project_name': 'OSDNA-project',
-    'publisher_id': 'network.node-6.cisco.com', 'timestamp': '2016-10-26 21:52:18.429222',
-    '_context_user_name': 'admin',
-    '_context_roles': ['_member_', 'admin'], '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-    '_unique_id': 'cff9b9ed7277410da6e2ec97a83c6bdc', 'priority': 'INFO',
-    '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40',
-    '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
-    '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_user_domain': None,
-    '_context_show_deleted': False,
-    '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_user': '13baa553aae44adca6615e711fd2f6d9',
-    '_context_is_admin': True, 'message_id': '7d620314-b27a-429f-9cf5-5c4edd30dbd6', 'payload': {
-    'port': {'status': 'DOWN', 'name': '', 'security_groups': ['2dd5c169-1ff7-40e5-ad96-18924b6d23f1'], 'device_id': '',
-             'port_security_enabled': True, 'binding:profile': {}, 'device_owner': '',
-             'mac_address': 'fa:16:3e:b5:d1:b5', 'network_id': '95d2a3bb-16b9-4241-ab51-449482fcb9b9',
-             'binding:host_id': '', 'dns_assignment': [
-            {'hostname': 'host-172-16-9-9', 'fqdn': 'host-172-16-9-9.openstacklocal.', 'ip_address': '172.16.9.9'}],
-             'binding:vif_type': 'unbound', 'dns_name': '', 'binding:vif_details': {},
-             'id': 'b3e4ea8a-75b6-4c05-9480-4bc648845c6f',
-             'fixed_ips': [{'ip_address': '172.16.9.9', 'subnet_id': '6f6ef3b5-76c9-4f70-81e5-f3cc196db025'}],
-             'admin_state_up': True, 'allowed_address_pairs': [], 'binding:vnic_type': 'normal',
-             'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40'}}, '_context_domain': None, '_context_read_only': False,
-    '_context_resource_uuid': None, 'event_type': 'port.create.end',
-    '_context_request_id': 'req-86d18db1-ebe4-4673-b21a-6cc0831bbf6c', '_context_project_domain': None,
-    '_context_tenant_name': 'OSDNA-project',
-    '_context_auth_token': 'gAAAAABYERgkK8sR80wFsQywjt8vwG0caJW5oxfsWNURcDaYAxy0O6P0u2QQczoMuHBAZa-Ga8T1b'+
-                           '3O-5p7pjw-vAyI1z5whuY7i-hJSl2II6WUX2-9dy7BALQgxhCGpe60atLcyTl-rW6o_TKc3f-ppvq'+
-                           'tiul4UTlzH9OtYN7b-CezaywYDCIMuzGbThPARd9ilQR2B6DuE'}
+            ],
+            "ipv6_ra_mode": None,
+            "gateway_ip": "172.16.12.1",
+            "ip_version": 4,
+            "subnetpool_id": None,
+            "dns_nameservers": [
+
+            ],
+            "tenant_id": "75c0eb79ff4a42b0ae4973c8375ddf40"
+        }
+    },
+    "tenant_id": "75c0eb79ff4a42b0ae4973c8375ddf40",
+    "type": "network"
+}
+
+INSTANCE_DOC = {
+    "environment": ENV_CONFIG,
+    "id": "b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+    "type": "instance",
+    "uuid": "b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+    "network": [
+        "a09455d9-399a-4193-9cb4-95e9d8e9a560"
+    ],
+    "local_name": "instance-00000002",
+    'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne/Availability Zones' +
+                 '/osdna-zone/node-223.cisco.com/Instances/name-change',
+    'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
+    'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+               '/node-223.cisco.com/node-223.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
+    "name": "name-change",
+    "network_info": [
+        {
+            "qbg_params": None,
+            "id": "1233445-75b6-4c05-9480-4bc648845c6f",
+            "network": {
+                "bridge": "br-int",
+                "meta": {
+                    "injected": False,
+                    "tenant_id": "a3efb05cd0484bf0b600e45dab09276d"
+                },
+                "id": "a09455d9-399a-4193-9cb4-95e9d8e9a560",
+                "subnets": [
+                    {
+                        "gateway": {
+                            "meta": {
+
+                            },
+                            "type": "gateway",
+                            "version": 4,
+                            "address": "172.16.50.254"
+                        },
+                        "version": 4,
+                        "dns": [
+
+                        ],
+                        "cidr": "172.16.50.0/24",
+                        "routes": [
+
+                        ],
+                        "meta": {
+                            "dhcp_server": "172.16.50.1"
+                        },
+                        "ips": [
+                            {
+                                "floating_ips": [
+
+                                ],
+                                "meta": {
+
+                                },
+                                "type": "fixed",
+                                "version": 4,
+                                "address": "172.16.50.3"
+                            }
+                        ]
+                    }
+                ],
+                "label": "osdna-network"
+            },
+            "active": True,
+            "address": "fa:16:3e:04:cd:ab",
+            "vnic_type": "normal",
+            "meta": {
+            },
+            "ovs_interfaceid": "1233445-75b6-4c05-9480-4bc648845c6f",
+            "type": "ovs",
+            "devname": "tapa9a8fa24-11",
+        }
+    ],
+    "host": "node-223.cisco.com",
+    "project_id": "a3efb05cd0484bf0b600e45dab09276d",
+    "object_name": "libertyDD",
+    "parent_id": "node-223.cisco.com-instances",
+    "parent_type": "instances_folder",
+    "projects": [
+        "project-osdna"
+    ],
+    "children_url": "/osdna_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+    "mac_address": "fa:16:3e:04:cd:ab"
+}
+
+INSTANCES_ROOT = {
+    "create_object": True,
+    "environment": ENV_CONFIG,
+    "id": "node-223.cisco.com-instances",
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones" +
+               "/osdna-zone/node-223.cisco.com/node-223.cisco.com-instances",
+    "name": "Instances",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/osdna-zone/node-223.cisco.com/Instances",
+    "object_name": "Instances",
+    "parent_id": "node-223.cisco.com",
+    "parent_type": "host",
+    "show_in_tree": True,
+    "text": "Instances",
+    "type": "instances_folder"
+}
+
+INSTANCE_DOCS = [
+    {
+        "environment": ENV_CONFIG,
+        "type": "instance",
+        "uuid": "b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+        "network": [
+            "a09455d9-399a-4193-9cb4-95e9d8e9a560"
+        ],
+        "local_name": "instance-00000002",
+        'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne/Availability Zones' +
+                     '/osdna-zone/node-223.cisco.com/Instances/name-change',
+        'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
+        'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+                   '/node-223.cisco.com/node-223.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
+        "name": "name-change",
+        "network_info": [
+            {
+                "qbg_params": None,
+                "id": "2233445-75b6-4c05-9480-4bc648845c6f",
+                "network": {
+                    "bridge": "br-int",
+                    "meta": {
+                        "injected": False,
+                        "tenant_id": "a3efb05cd0484bf0b600e45dab09276d"
+                    },
+                    "id": "a09455d9-399a-4193-9cb4-95e9d8e9a560",
+                    "subnets": [
+                        {
+                            "gateway": {
+                                "meta": {
+
+                                },
+                                "type": "gateway",
+                                "version": 4,
+                                "address": "172.16.50.254"
+                            },
+                            "version": 4,
+                            "dns": [
+
+                            ],
+                            "cidr": "172.16.50.0/24",
+                            "routes": [
+
+                            ],
+                            "meta": {
+                                "dhcp_server": "172.16.50.1"
+                            },
+                            "ips": [
+                                {
+                                    "floating_ips": [
+
+                                    ],
+                                    "meta": {
+
+                                    },
+                                    "type": "fixed",
+                                    "version": 4,
+                                    "address": "172.16.50.3"
+                                }
+                            ]
+                        }
+                    ],
+                    "label": "osdna-network"
+                },
+                "active": True,
+                "address": "fa:16:3e:04:cd:ab",
+                "vnic_type": "normal",
+                "meta": {
+                },
+                "ovs_interfaceid": "2233445-75b6-4c05-9480-4bc648845c6f",
+                "type": "ovs",
+                "devname": "tapa9a8fa24-12",
+            }
+        ],
+        "host": "node-223.cisco.com",
+        "project_id": "a3efb05cd0484bf0b600e45dab09276d",
+        "object_name": "libertyDD",
+        "parent_id": "node-223.cisco.com-instances",
+        "parent_type": "instances_folder",
+        "projects": [
+            "project-osdna"
+        ],
+        "children_url": "/osdna_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+        "mac_address": "fa:16:3e:04:cd:ab"
+    }
+]
+
+VNIC_DOCS = [{
+    "IP Address": "172.16.10.2",
+    "IPv6 Address": "fe80::f816:3eff:fe96:5066/64",
+    "cidr": "172.16.10.0/25",
+    "data": "Link encap:Ethernet  HWaddr fa:16:3e:96:50:66\ninet addr:172.16.10.2  Bcast:172.16.10.127  " +
+            "Mask:255.255.255.128\ninet6 addr: fe80::f816:3eff:fe96:5066/64 Scope:Link\nUP BROADCAST RUNNING " +
+            "MULTICAST  MTU:1450  Metric:1\nRX packets:17 errors:0 dropped:2 overruns:0 frame:0\nTX packets:8 " +
+            "errors:0 dropped:0 overruns:0 carrier:0\ncollisions:0 txqueuelen:0\nRX bytes:1593 " +
+            "(1.5 KB)  TX bytes:648 (648.0 B)\n",
+    "host": "node-251.cisco.com",
+    "id": "tapca33c645-5b",
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones/internal" +
+               "/node-251.cisco.com/node-251.cisco.com-vservices/node-251.cisco.com-vservices-dhcps/qdhcp-911fe57e" +
+               "-1ddd-4151-9dc7-6b578ab357b1/qdhcp-911fe57e-1ddd-4151-9dc7-6b578ab357b1-vnics/tapca33c645-5b",
+    "last_scanned": 0,
+    "mac_address": "fa:16:3e:04:cd:ab",
+    "name": "tapca33c645-5b",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/internal/node-251.cisco.com/" +
+                 "Vservices/DHCP servers/dhcp-test_interface/vNICs/tapca33c645-5b",
+    "netmask": "255.255.255.128",
+    "network": "911fe57e-1ddd-4151-9dc7-6b578ab357b1",
+    "object_name": "tapca33c645-5b",
+    "parent_id": "qdhcp-911fe57e-1ddd-4151-9dc7-6b578ab357b1-vnics",
+    "parent_text": "vNICs",
+    "parent_type": "vnics_folder",
+    "show_in_tree": True,
+    "vnic_type": "instance_vnic"
+}]

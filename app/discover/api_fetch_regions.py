@@ -8,6 +8,7 @@ class ApiFetchRegions(ApiAccess):
 
     def get(self, id):
         token = self.v2_auth_pwd(self.admin_project)
+        token = self.v2_auth_pwd("admin")
         if not token:
             return []
         # the returned authentication response contains the list of end points

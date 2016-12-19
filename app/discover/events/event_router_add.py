@@ -44,15 +44,29 @@ class EventRouterAdd(Fetcher):
         if not ports_folder:
             self.log.info("Ports_folder not found.")
             subnet_handler.add_ports_folder(env, project_id, network_id, network_name)
-        subnet_handler.add_port_document(env, project_id, network_id, network_name, router_doc['gw_port_id'])
+        add_port_return = subnet_handler.add_port_document(env, router_doc['gw_port_id'], network_name=network_name)
 
         # add vnics folder and vnic document
         port_handler = EventPortAdd()
         port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name, type="router",
                                       router_name=router_doc['name'])
 
-        port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name, type="router",
-                                       router_name=router_doc['name'])
+        if add_port_return != False:
+            add_vnic_return = port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
+                                                             type="router", router_name=router_doc['name'])
+            if add_vnic_return == False:
+                self.inv.log.info("Try to add vnic document again.")
+                port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
+                                               type="router", router_name=router_doc['name'])
+        else:
+            # in some cases, port has been created, but port doc can not be fetched by OpenStack API
+            self.inv.log.info("Try to add port document again.")
+            add_port_return = port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name,
+                                                            type="router", router_name=router_doc['name'])
+            if add_port_return == False:
+                self.inv.log.info("Try to add vnic document again.")
+                port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
+                                               type="router", router_name=router_doc['name'])
 
     def handle(self, env, values):
         router = values['payload']['router']
@@ -73,9 +87,6 @@ class EventRouterAdd(Fetcher):
         self.add_router_document(env, None, router_doc, host)
 
         # scan links and cliques
-        fetcher = FindLinksForVserviceVnics()
-        fetcher.add_links(search={"parent_id": router_id})
-
-        scanner = ScanNetwork()
-        scanner.scan_cliques()
+        FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
+        ScanNetwork().scan_cliques()
         self.log.info("Finished router added.")

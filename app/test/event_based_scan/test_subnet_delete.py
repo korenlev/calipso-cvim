@@ -10,7 +10,7 @@ class TestSubnetDelete(TestEvent):
         self.subnet_id = self.values['payload']['subnet_id']
         self.network_doc = EVENT_PAYLOAD_NETWORK
         self.network_id = self.network_doc['id']
-        self.item_id = self.network_id
+        self.item_ids.append(self.network_id)
 
         self.subnet_name = None
         self.cidr = None
@@ -22,7 +22,7 @@ class TestSubnetDelete(TestEvent):
                 break
 
         # add document for subnet deleting test.
-        self.handler.inv.set(self.network_doc)
+        self.set_item(self.network_doc)
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
         self.assertNotEqual(network_document, [], "add network document failed")
 

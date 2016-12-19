@@ -1,3 +1,5 @@
+from test.event_based_scan.config.test_config import ENV_CONFIG
+
 EVENT_PAYLOAD_ROUTER_DELETE = {
     '_context_request_id': 'req-8b2dd9ba-5faa-4471-94c3-fb41781eef8d', '_unique_id': 'c7417f771ee74bb19036b06e685c93dc',
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_user': '13baa553aae44adca6615e711fd2f6d9',
@@ -20,11 +22,11 @@ ROUTER_DOCUMENT = {
     "admin_state_up": True,
     "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
-    "environment": "Mirantis-Liberty-CL",
+    "environment": ENV_CONFIG,
     "gw_port_id": None,
     "host": "node-6.cisco.com",
     "id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
-    "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne/RegionOne-availability_zones/internal" +
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones/internal" +
                "/node-6.cisco.com/node-6.cisco.com-vservices/node-6.cisco.com-vservices-routers/qrouter-bde87a5a" +
                "-7968-4f3b-952c-e87681a96078",
     "last_scanned": 0,
@@ -32,7 +34,7 @@ ROUTER_DOCUMENT = {
     "master_parent_id": "node-6.cisco.com-vservices",
     "master_parent_type": "vservices_folder",
     "name": "1234",
-    "name_path": "/Mirantis-Liberty-CL/Regions/RegionOne/Availability Zones/internal/node-6.cisco.com/" +
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/internal/node-6.cisco.com/" +
                  "Vservices/Gateways/router-1234",
     "network": [
         "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb"

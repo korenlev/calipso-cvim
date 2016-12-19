@@ -19,7 +19,7 @@ class ApiFetchPort(ApiAccess):
         for region in self.regions:
             ret.append(self.get_port(region, token, id))
         if ret == []:
-            self.log.info("Port not found.")
+            self.log.info("ApiFetchPort: Port not found.")
         return ret
 
     def get_port(self, region, token, id):

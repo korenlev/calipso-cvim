@@ -1,4 +1,4 @@
-from test.event_based_scan.config.local_config import ENV_CONFIG
+from test.event_based_scan.config.test_config import ENV_CONFIG
 
 EVENT_PAYLOAD_SUBNET_DELETE = {
     'payload': {'subnet_id': '88442b4a-e62d-4d72-9d18-b8d6973eb3da'},

@@ -1,3 +1,5 @@
+from test.event_based_scan.config.test_config import ENV_CONFIG
+
 EVENT_PAYLOAD_ROUTER_UPDATE = {
     '_context_request_id': 'req-da45908c-0765-4f8a-9fac-79246901de41', '_unique_id': '80723cc09a4748c6b13214dcb867719e',
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_user': '13baa553aae44adca6615e711fd2f6d9',
@@ -16,10 +18,10 @@ EVENT_PAYLOAD_ROUTER_UPDATE = {
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_roles': ['_member_', 'admin'],
     '_context_project_domain': None, '_context_user_domain': None, '_context_read_only': False,
     '_context_is_admin': True, '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_domain': None,
-    '_context_show_deleted': False, '_context_tenant_name': 'OSDNA-project', 'publisher_id': 'network.node-6.cisco.com',
+    '_context_show_deleted': False, '_context_tenant_name': 'OSDNA-project', 'publisher_id': 'network.node-250.cisco.com',
     'timestamp': '2016-10-28 20:29:39.986161'}
 
-ROUTER_VSERVICE = {'host': 'node-6.cisco.com', 'service_type': 'router', 'name': '1234',
+ROUTER_VSERVICE = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name': '1234',
                    'id': 'qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
                    'local_service_id': 'qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE',
@@ -27,32 +29,32 @@ ROUTER_VSERVICE = {'host': 'node-6.cisco.com', 'service_type': 'router', 'name':
                    'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1,
                    'parent_text': 'Gateways',
                    'gw_port_id': 'e2f31c24-d0f9-499e-a8b1-883941543aa4',
-                   'master_parent_id': 'node-6.cisco.com-vservices',
-                   'parent_id': 'node-6.cisco.com-vservices-routers'}
+                   'master_parent_id': 'node-250.cisco.com-vservices',
+                   'parent_id': 'node-250.cisco.com-vservices-routers'}
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
     "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
-    "environment": "Mirantis-Liberty-CL",
+    "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
-    "host": "node-6.cisco.com",
+    "host": "node-250.cisco.com",
     "id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
-    "id_path": "/Mirantis-Liberty-CL/Mirantis-Liberty-CL-regions/RegionOne/RegionOne-availability_zones/internal" +
-               "/node-6.cisco.com/node-6.cisco.com-vservices/node-6.cisco.com-vservices-routers/qrouter-bde87a5a" +
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones/internal" +
+               "/node-250.cisco.com/node-250.cisco.com-vservices/node-250.cisco.com-vservices-routers/qrouter-bde87a5a" +
                "-7968-4f3b-952c-e87681a96078",
     "last_scanned": 0,
     "local_service_id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
-    "master_parent_id": "node-6.cisco.com-vservices",
+    "master_parent_id": "node-250.cisco.com-vservices",
     "master_parent_type": "vservices_folder",
     "name": "1234",
-    "name_path": "/Mirantis-Liberty-CL/Regions/RegionOne/Availability Zones/internal/node-6.cisco.com/" +
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/internal/node-250.cisco.com/" +
                  "Vservices/Gateways/router-1234",
     "network": [
-        "c64adb76-ad9d-4605-9f5e-bd6dbe325cfb"
+        "a55ff1e8-3821-4e5f-bcfd-07df93720a4f"
     ],
     "object_name": "router-1234",
-    "parent_id": "node-6.cisco.com-vservices-routers",
+    "parent_id": "node-250.cisco.com-vservices-routers",
     "parent_text": "Gateways",
     "parent_type": "vservice_routers_folder",
     "service_type": "router",
@@ -63,7 +65,7 @@ ROUTER_DOCUMENT = {
 }
 
 EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
-    'publisher_id': 'network.node-6.cisco.com',
+    'publisher_id': 'network.node-250.cisco.com',
     '_context_request_id': 'req-79d53b65-47b8-46b2-9a72-3f4031e2d605',
     '_context_project_name': 'OSDNA-project', '_context_show_deleted': False,
     '_context_user_name': 'admin', '_context_timestamp': '2016-11-02 21:44:31.156447',
@@ -72,7 +74,7 @@ EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
                    'status': 'ACTIVE', 'ha': False, 'name': 'test_namespace', 'distributed': False,
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'external_gateway_info': {'external_fixed_ips': [
                 {'ip_address': '172.16.0.144', 'subnet_id': 'a5336853-cbc0-49e8-8401-a093e8bab7bb'}],
-                'network_id': 'c64adb76-ad9d-4605-9f5e-bd6dbe325cfb',
+                'network_id': 'a55ff1e8-3821-4e5f-bcfd-07df93720a4f',
                 'enable_snat': True}}},
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_read_only': False,
     '_context_auth_token': 'gAAAAABYGlU6mEqntx5E9Nss203DIKH352JKSZP0RsJrAJQ_PfjyZEAzYcFvMh4FYVRDRWLvu0cSDsvUk1ILu' +
@@ -92,7 +94,7 @@ EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
 
 EVENT_PAYLOAD_ROUTER_DEL_GATEWAY = {
     '_context_show_deleted': False, '_context_timestamp': '2016-11-03 18:48:40.420170', '_context_read_only': False,
-    'publisher_id': 'network.node-6.cisco.com',
+    'publisher_id': 'network.node-250.cisco.com',
     '_context_auth_token': 'gAAAAABYG4UUGbe9bykUJUPY0lKye578aF0RrMCc7nA21eLbhpwcsh5pWWqz6hnOi7suUCUtr1DPTbqF1M8CVJ' +
                            '9FT2EevbqiahcyphrV2VbmP5_tebOcIHIPJ_f_K3KYJM1C6zgcWgdf9KFu_8t_G99wd1MwWBrZyUUElXgSNv48' +
                            'W4uaCKcbYclnZW78lgXVik5x6WLT_j5V',
@@ -111,3 +113,151 @@ EVENT_PAYLOAD_ROUTER_DEL_GATEWAY = {
                    'name': 'TEST_AAA', 'routes': [], 'ha': False, 'admin_state_up': True,
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE'}},
     '_context_request_id': 'req-d7e73189-4709-4234-8b4c-fb6b4dc2017b'}
+
+PORTS = {
+    "admin_state_up": True,
+    "allowed_address_pairs": [
+
+    ],
+    "binding:host_id": "node-250.cisco.com",
+    "binding:profile": {
+
+    },
+    "binding:vif_details": {
+        "port_filter": True,
+        "ovs_hybrid_plug": True
+    },
+    "binding:vif_type": "ovs",
+    "binding:vnic_type": "normal",
+    "device_id": "9ec3d703-0725-47e3-8f48-02b16236caf9",
+    "device_owner": "network:router_interface",
+    "dns_assignment": [
+        {
+            "hostname": "host-172-16-1-1",
+            "fqdn": "host-172-16-1-1.openstacklocal.",
+            "ip_address": "172.16.1.1"
+        }
+    ],
+    "dns_name": "",
+    "environment": ENV_CONFIG,
+    "extra_dhcp_opts": [
+
+    ],
+    "fixed_ips": [
+        {
+            "subnet_id": "c1287696-224b-4a72-9f1d-d45176671bce",
+            "ip_address": "172.16.1.1"
+        }
+    ],
+    "id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b" +
+               "0ae4973c8375ddf40-networks/a55ff1e8-3821-4e5f-bcfd-07df93720a4f/a55ff1e8-3821-4e5f-bcfd-07df93720a4" +
+               "f-ports/e2f31c24-d0f9-499e-a8b1-883941543aa4",
+    "last_scanned": 0,
+    "mac_address": "fa:16:3e:ee:9a:46",
+    "name": "fa:16:3e:ee:9a:46",
+    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/osdna-net2/Ports/fa:16:3e:ee:9a:46",
+    "network_id": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
+    "object_name": "fa:16:3e:ee:9a:46",
+    "parent_id": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f-ports",
+    "parent_text": "Ports",
+    "parent_type": "ports_folder",
+    "port_security_enabled": False,
+    "project": "OSDNA-project",
+    "security_groups": [
+
+    ],
+    "show_in_tree": True,
+    "status": "ACTIVE",
+    "tenant_id": "75c0eb79ff4a42b0ae4973c8375ddf40",
+    "type": "port"
+}
+
+NETWORK_DOC = {
+    "admin_state_up": True,
+    "cidrs": [
+        "172.16.4.0/24"
+    ],
+    "environment": ENV_CONFIG,
+    "id": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b" +
+               "0ae4973c8375ddf40-networks/a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
+    "last_scanned": 0,
+    "mtu": 1400,
+    "name": "osdna-net2",
+    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/osdna-net2",
+    "network": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
+    "object_name": "osdna-net2",
+    "parent_id": "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
+    "parent_text": "Networks",
+    "parent_type": "networks_folder",
+    "port_security_enabled": True,
+    "project": "OSDNA-project",
+    "provider:network_type": "vxlan",
+    "provider:physical_network": None,
+    "provider:segmentation_id": 0,
+    "router:external": False,
+    "shared": False,
+    "show_in_tree": True,
+    "status": "ACTIVE",
+    "subnets": {},
+    "tenant_id": "75c0eb79ff4a42b0ae4973c8375ddf40",
+    "type": "network"
+}
+
+HOST_DOC = {
+    "config": {
+        "gateway_external_network_id": "",
+        "router_id": "",
+        "handle_internal_only_routers": True,
+        "agent_mode": "legacy",
+        "ex_gw_ports": 4,
+        "floating_ips": 1,
+        "external_network_bridge": "",
+        "interfaces": 1,
+        "log_agent_heartbeats": False,
+        "use_namespaces": True,
+        "interface_driver": "neutron.agent.linux.interface.OVSInterfaceDriver",
+        "routers": 4
+    },
+    "environment": ENV_CONFIG,
+    "host": "node-250.cisco.com",
+    "host_type": [
+        "Controller",
+        "Network"
+    ],
+    "id": "node-250.cisco.com",
+    "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones" +
+               "/internal/node-250.cisco.com",
+    "last_scanned": 0,
+    "name": "node-250.cisco.com",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/internal/node-250.cisco.com",
+    "object_name": "node-250.cisco.com",
+    "parent_id": "internal",
+    "parent_type": "availability_zone",
+    "services": {
+        "nova-scheduler": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:47.000000"
+        },
+        "nova-consoleauth": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:48.000000"
+        },
+        "nova-cert": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:41.000000"
+        },
+        "nova-conductor": {
+            "active": True,
+            "available": True,
+            "updated_at": "2016-11-02T21:19:52.000000"
+        }
+    },
+    "show_in_tree": True,
+    "type": "host",
+    "zone": "internal"
+}

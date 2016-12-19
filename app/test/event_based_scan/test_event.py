@@ -1,10 +1,11 @@
 import unittest
 
+import re
 from bson import ObjectId
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
-from test.event_based_scan.config.local_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+from test.event_based_scan.config.test_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 
 
 class TestEvent(unittest.TestCase):
@@ -16,9 +17,17 @@ class TestEvent(unittest.TestCase):
         self.conf = Configuration(self.mongo_config)
         self.conf.use_env(self.env)
         self.handler = EventHandler(ENV_CONFIG , self.collection)
-        self.item_id = None
+        self.item_ids = []
 
-    def handle_delete(self, handler, values, type, document=[]):
+    def set_item(self, document):
+        self.handler.inv.set(document)
+        self.item_ids.append(document['id'])
+
+    def assert_empty_by_id(self, id):
+        doc = self.handler.inv.get_by_id(self.env, id)
+        self.assertEqual(doc, [])
+
+    def handle_delete(self, handler, values, type, document):
         payload = values['payload']
         self.item_id = payload['%s_id' % type]
         if type == 'router':
@@ -53,6 +62,14 @@ class TestEvent(unittest.TestCase):
         self.assertEqual(matched_children, [])
 
     def tearDown(self):
-        self.handler.inv.delete('inventory', {'id': self.item_id})
-        item = self.handler.inv.get_by_id(self.env, self.item_id)
-        self.assertEqual(item, [])
+        for item_id in self.item_ids:
+            item = self.handler.inv.get_by_id(self.env, item_id)
+            # delete children
+            if item:
+                regexp = re.compile('^' + item['id_path'])
+                self.handler.inv.delete('inventory', {'id_path': {'$regex': regexp}})
+
+            # delete target item
+            self.handler.inv.delete('inventory', {'id': item_id})
+            item = self.handler.inv.get_by_id(self.env, item_id)
+            self.assertEqual(item, [])

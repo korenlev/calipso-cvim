@@ -15,8 +15,8 @@ class TestSubnetAdd(TestEvent):
         self.payload = self.values['payload']
         self.subnet = self.payload['subnet']
         self.subnet_id = self.subnet['id']
-        # self.item_id for tearDown()
-        self.item_id = self.network_id = self.subnet['network_id']
+        self.network_id = self.subnet['network_id']
+        self.item_ids.append(self.network_id)
 
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
         if network_document:
@@ -24,7 +24,7 @@ class TestSubnetAdd(TestEvent):
             self.assertNotIn(self.subnet['cidr'], network_document['cidrs'])
         else:
             self.handler.log.info("network document is not found, add it first.")
-            self.handler.inv.set(NETWORK_DOC)
+            self.set_item(NETWORK_DOC)
             # check network document
             network_document = self.handler.inv.get_by_id(self.env, self.network_id)
             self.assertNotEqual(network_document, [])
@@ -37,9 +37,18 @@ class TestSubnetAdd(TestEvent):
         # add subnet document for updating network
         handler = EventSubnetAdd()
         handler.add_children_documents = MagicMock()
+
+        original_add_pnic_links = FindLinksForPnics.add_links
         FindLinksForPnics.add_links = MagicMock()
+
+        original_add_vservice_links = FindLinksForVserviceVnics.add_links
         FindLinksForVserviceVnics.add_links = MagicMock()
+
         handler.handle(self.env, self.values)
+
+        # reset the methods back
+        FindLinksForPnics.add_links = original_add_pnic_links
+        FindLinksForVserviceVnics.add_links = original_add_vservice_links
 
         # check network document
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
