@@ -1,10 +1,10 @@
-from monitoring.setup.monitoring_handler import MonitoringHandler
+from monitoring.setup.monitoring_check_handler import MonitoringCheckHandler
 
 
-class MonitoringOtep(MonitoringHandler):
+class MonitoringOtep(MonitoringCheckHandler):
 
-    def __init__(self, mongo_conf_file):
-        super().__init__(mongo_conf_file)
+    def __init__(self, mongo_conf_file, env):
+        super().__init__(mongo_conf_file, env)
 
     # add monitoring setup for remote host
     def create_setup(self, o):

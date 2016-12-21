@@ -173,7 +173,7 @@ class ScanController(Fetcher):
 
         # setup monitoring server
         self.monitoring_setup_manager = \
-            MonitoringSetupManager(args.mongo_config)
+            MonitoringSetupManager(args.mongo_config, env_name)
         self.monitoring_setup_manager.server_setup()
         scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
 

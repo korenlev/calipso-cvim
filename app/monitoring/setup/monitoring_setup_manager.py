@@ -9,11 +9,12 @@ class MonitoringSetupManager(MonitoringHandler):
 
     object_handlers = None
 
-    def __init__(self, mongo_conf_file):
-        super().__init__(mongo_conf_file)
+    def __init__(self, mongo_conf_file, env):
+        conf_file = mongo_conf_file
+        super().__init__(conf_file, env)
         self.object_handlers = {
-            "host": MonitoringHost(mongo_conf_file),
-            "otep": MonitoringOtep(mongo_conf_file)}
+            "host": MonitoringHost(conf_file, env),
+            "otep": MonitoringOtep(conf_file, env)}
 
     # add monitoring setup to Sensu server
     def server_setup(self):
@@ -36,7 +37,7 @@ class MonitoringSetupManager(MonitoringHandler):
                 {'side': 'server'},
                 self.env_monitoring_config)
             full_path = directory + '/' + file_name
-            self.write_file(full_path, server_host, content)
+            self.write_config_file(file_name, full_path, server_host, content)
         self.config.update_env({'monitoring_setup_done': True})
 
     # add setup for inventory object
