@@ -21,7 +21,7 @@ class MonitoringHandler(MongoAccess):
         super().__init__(mongo_conf_file)
         self.config = Configuration()
         self.env = env
-        self.monitoring_config = self.db.monitoring_config
+        self.monitoring_config = self.db.monitoring_config_templates
         self.env_monitoring_config = self.config.get('Monitoring')
         self.replacements = self.env_monitoring_config
         self.local_host = socket.gethostname()
