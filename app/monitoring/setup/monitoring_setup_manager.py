@@ -31,11 +31,9 @@ class MonitoringSetupManager(MonitoringHandler):
         server_host = self.env_monitoring_config['server_ip']
         config_folder = self.env_monitoring_config['config_folder']
         directory = self.make_directory(config_folder + '/server/')
+        self.replacements.update(self.env_monitoring_config)
         for file_name in sensu_server_files:
-            content = self.prepare_config_file(
-                file_name,
-                {'side': 'server'},
-                self.env_monitoring_config)
+            content = self.prepare_config_file(file_name, {'side': 'server'})
             full_path = directory + '/' + file_name
             self.write_config_file(file_name, full_path, server_host, content)
         self.config.update_env({'monitoring_setup_done': True})
