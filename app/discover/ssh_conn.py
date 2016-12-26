@@ -30,6 +30,7 @@ class SshConn(BinaryConverter, Logger):
         else:
             self.host_conf = self.conf
         self.ssh = None
+        self.ftp = None
         self.key = None
         self.user = None
         self.pwd = None
@@ -111,3 +112,11 @@ class SshConn(BinaryConverter, Logger):
         stderr.close()
         stdout.close()
         return ret
+
+    def write_file(self, file_name, content):
+        self.connect()
+        if not self.ftp:
+            self.ftp = self.ssh.open_sftp()
+        remote_file = self.ftp.file(file_name, "w", -1)
+        remote_file.write(content)
+        remote_file.flush()
