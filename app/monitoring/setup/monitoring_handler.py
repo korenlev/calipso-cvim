@@ -39,7 +39,7 @@ class MonitoringHandler(MongoAccess):
             os.makedirs(directory)
         return directory
 
-    def prepare_config_file(self, file_type, base_condition, config):
+    def prepare_config_file(self, file_type, base_condition):
         condition = base_condition
         condition['type'] = file_type
         sort = [('order', pymongo.ASCENDING)]
@@ -47,28 +47,30 @@ class MonitoringHandler(MongoAccess):
         content = {}
         for doc in docs:
             content.update(doc)
-        return self.content_replace({'config': content['config']})
+        config = self.content_replace({'config': content['config']})
+        return config
 
     def content_replace(self, content):
         content_remapped = remap(content, visit=self.fill_values)
         return content_remapped
 
+    def format_string(self, val):
+        formatted = val if not isinstance(val, str) or '{' not in val \
+            else val.format_map(self.replacements)
+        return formatted
+
     def fill_values(self, path, key, value):
         if not path:
             return key, value
-        if isinstance(value, dict):
-            return key, value
-        value = str(value)
-        if '{' in value:
-            value_formatted = value.format_map(self.replacements)
-            return key, value_formatted
-        return key, value
+        key_formatted = self.format_string(key)
+        value_formatted = self.format_string(value)
+        return key_formatted, value_formatted
 
     def get_config_from_db(self, host, file_type):
         find_tuple = {
             'environment': self.env,
             'host': host,
-            'file': file_type
+            'type': file_type
         }
         doc = self.config_db.find_one(find_tuple)
         if not doc:
@@ -110,7 +112,7 @@ class MonitoringHandler(MongoAccess):
         content = self.merge_config(host, file_type, content)
 
         # now dump the config to the file
-        content_json = json.dumps(content, sort_keys=True, indent=4) + '\n'
+        content_json = json.dumps(content['config'], sort_keys=True, indent=4) + '\n'
         if self.in_debug() or host == self.local_host:
             # just write to file locally
             self.write_to_local_host(file_path, content_json)
