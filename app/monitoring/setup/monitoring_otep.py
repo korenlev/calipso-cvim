@@ -15,10 +15,10 @@ class MonitoringOtep(MonitoringCheckHandler):
         if port['type'] not in ['vxlan', 'gre']:
             return  # we only handle vxlan and gre
         opt = port['options']
-        config = {
+        values = {
             "objtype": "otep",
             "objid": o['id'],
             "portid": port['name'],
             "otep_src_ip": opt['local_ip'],
             "otep_dest_ip": opt['remote_ip']}
-        self.create_monitoring_for_object(o, config)
+        self.create_monitoring_for_object(o, values)
