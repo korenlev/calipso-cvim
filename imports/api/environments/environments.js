@@ -169,7 +169,8 @@ Environments.schema = new SimpleSchema({
     autoValue: function () {
       return 'environment';
     },
-  }
+  },
+  event_based_scan: { type: Boolean, defaultValue: true }, 
 });
 
 // Bug in simple schema. cant add custom message to instance specific

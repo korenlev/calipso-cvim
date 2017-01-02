@@ -8,6 +8,7 @@ import * as R from 'ramda';
 
 import { Environments } from '/imports/api/environments/environments';
 import { createNewConfGroup } from '/imports/api/environments/environments';
+import { store } from '/imports/ui/store/store';
 
 import './environment-wizard.html';
 
@@ -65,6 +66,14 @@ Template.EnvironmentWizard.onCreated(function(){
       instance.state.set('environmentModel', generateNewEnv());
     }
   });
+
+  instance.storeUnsubscribe = store.subscribe(() => {
+    let i18n = store.getState().api.i18n;
+    instance.state.set('i18n', i18n);
+  });
+
+  let i18n = store.getState().api.i18n;
+  instance.state.set('i18n', i18n);
 });
 
 Template.EnvironmentWizard.rendered = function(){
@@ -75,6 +84,11 @@ Template.EnvironmentWizard.rendered = function(){
   });
 
 };
+
+Template.EnvironmentWizard.onDestroyed(function () {
+  let instance = this;
+  instance.storeUnsubscribe();
+});
 
 /*
  * Helpers
@@ -117,6 +131,8 @@ Template.EnvironmentWizard.helpers({
       templateData: {
         model: environmentModel, 
         disabled: disabled,
+        eventBasedScanLabel: R.path(['collections', 'environments', 'fields', 'eventBasedScan', 'label'], instance.state.get('i18n')),
+        eventBasedScanDesc: R.path(['collections', 'environments', 'fields', 'eventBasedScan', 'desc'], instance.state.get('i18n')),
         setModel: function (newModel) {
           instance.state.set('environmentModel', newModel);
         },
@@ -309,6 +325,7 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
+      event_based_scan: environment.event_based_scan,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -321,6 +338,7 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
+      event_based_scan: environment.event_based_scan,
     }, processActionResult.bind(null, instance));
     break;
 

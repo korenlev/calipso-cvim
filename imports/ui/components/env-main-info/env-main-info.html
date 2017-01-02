@@ -97,6 +97,24 @@
       </div>
 
       <div class="form-group">
+        <label for="inputEnvName" 
+          class="col-sm-2 control-label"
+          >{{ eventBasedScanLabel }}</label>
+
+        <div class="col-sm-3">
+          {{> InputModel(createInputArgs
+                value=model.event_based_scan
+                key='event_based_scan'
+                type="checkbox"
+                disabled=disabled)
+          }}
+        </div>
+        <div class="col-sm-4">
+          <p>{{ eventBasedScanDesc }}</p>
+        </div>
+      </div>
+
+      <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
           <button type="button" 
             class="sm-next-button mdl-button mdl-js-button 
