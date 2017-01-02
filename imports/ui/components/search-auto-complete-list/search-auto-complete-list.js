@@ -75,6 +75,9 @@ Template.SearchAutoCompleteList.helpers({
     let instance = Template.instance();
     return {
       namePath: resultItem.name_path,
+      objectName: resultItem.object_name,
+      objectType: resultItem.type,
+      environment: resultItem.environment,
       onClick() {
         instance.data.onResultSelected(resultItem); 
       }
