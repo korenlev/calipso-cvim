@@ -4,7 +4,6 @@ const SET_CURRENT_NODE = 'SET_CURRENT_NODE';
 const SET_CURRENT_NODE_FROM_TREE_CONTROL = 'SET_CURRENT_NODE_FROM_TREE_CONTROL';
 
 function setCurrentNode(item) {
-
   let nodeChain = convertToNodeChain(item.id_path, item.name_path);
   R.last(nodeChain).item = item;
 

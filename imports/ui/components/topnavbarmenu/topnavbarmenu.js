@@ -3,11 +3,16 @@
  */
     
 import { Template } from 'meteor/templating';
-//import { ReactiveDict } from 'meteor/reactive-dict';
+import { ReactiveDict } from 'meteor/reactive-dict';
 //import * as R from 'ramda';
 
 import { store } from '/imports/ui/store/store';
-import { setSearchTerm } from '/imports/ui/actions/search-interested-parties';
+//import { setSearchTerm } from '/imports/ui/actions/search-interested-parties';
+import { setCurrentNode } from '/imports/ui/actions/navigation';
+import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
+
+
+import '/imports/ui/components/search-auto-complete-list/search-auto-complete-list';
 
 import './topnavbarmenu.html';
 
@@ -16,9 +21,16 @@ import './topnavbarmenu.html';
  */   
 
 Template.topnavbarmenu.onCreated(function () {
+  let instance = this;
+
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    isAutoCompleteOpen: false
+  });
 });
 
 Template.topnavbarmenu.events = {
+  /*
   'keypress #search': function  (event) {
     if (event.which === 13) {
       var instance = Template.instance(),
@@ -29,8 +41,33 @@ Template.topnavbarmenu.events = {
       showNodeEffectInTree(searchTerm);
     }
   },
+  */
+
+  'keyup #search': function  (event) {
+    let instance = Template.instance();
+    let searchTerm =  instance.$(event.target).val();
+    store.dispatch(notifySearchAutoCompleteTermChanged(searchTerm));
+    instance.state.set('isAutoCompleteOpen', true);
+  }
 };
 
+Template.topnavbarmenu.helpers({
+  createSearchAutoCompleteListArgs: function () {
+    let instance = Template.instance();
+
+    return {
+      isOpen: instance.state.get('isAutoCompleteOpen'),
+      onResultSelected(node) {
+        instance.state.set('isAutoCompleteOpen', false);
+        let searchInput = instance.$('input#search');  
+        searchInput.val(node.name_path);
+        store.dispatch(setCurrentNode(node));
+      }
+    };
+  }
+});
+
+/*
 function showNodeEffectInTree(searchValue) {
   //var selectedVal = $('#search').val();
   var node = d3Graph.svg.selectAll('.node');
@@ -49,3 +86,4 @@ function showNodeEffectInTree(searchValue) {
         .style('opacity', 1);
   }
 }
+*/

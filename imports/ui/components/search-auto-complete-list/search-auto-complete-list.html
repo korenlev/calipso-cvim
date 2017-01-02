@@ -1,0 +1,9 @@
+<template name="SearchAutoCompleteList">
+  <div class="sm-search-auto-complete-list {{#if isOpen }}cl-open{{/if}}">
+    <ul class="sm-list">
+    {{#each resultItem in searchResults }}
+      {{>AutoSearchResultLine (createAutoSearchResultLineArgs resultItem) }}
+    {{/each }}
+    </ul>
+  </div>
+</template>

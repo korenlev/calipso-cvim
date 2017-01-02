@@ -16,8 +16,13 @@
             <div id="navbar" class="navbar-collapse collapse">
                 <div class="navbar-form navbar-right">
                   <div class="search">
-                    <span class="fa fa-search"></span>
-                    <input id="search" placeholder="Search ...">
+                    <div class="search-input-group">
+                      <span class="fa fa-search"></span>
+                      <input id="search" placeholder="Search ...">
+                    </div>
+                    <div class="search-auto-complete">
+                      {{>SearchAutoCompleteList (createSearchAutoCompleteListArgs) }}  
+                    </div>
                   </div>
                 </div>
                 <ul class="nav navbar-nav navbar-right">

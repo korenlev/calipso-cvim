@@ -7,7 +7,7 @@ import { Inventory } from '/imports/api/inventories/inventories';
 
 (function () {
 
-/* 
+/*
  * Lifecycle methods
  */
 
@@ -34,10 +34,11 @@ Template.dashboard.onCreated(function () {
 
 Template.dashboard.rendered = function(){
 
+  /*
   $.getScript('https://www.gstatic.com/charts/loader.js', function() {
     google.charts.load('current', {'packages':['gauge', 'line']});
   google.charts.setOnLoadCallback(drawLine);
-    
+
 
   function drawLine() {
       var data = new google.visualization.DataTable();
@@ -71,6 +72,7 @@ Template.dashboard.rendered = function(){
   }
   });
 
+  */
 }
 /*
  * Helpers
@@ -86,37 +88,37 @@ Template.dashboard.helpers({
     instancesCount: function (envName){
         //return Inventory.find({environment: envName, type:'instance'}).count();
         return Counts.get('inventory?env+type!counter?env=' +
-          envName + '&type=' + 'instance'); 
+          envName + '&type=' + 'instance');
     },
 
     vservicesCount: function (envName) {
         //return Inventory.find({environment: envName, type:'vservice'}).count();
         return Counts.get('inventory?env+type!counter?env=' +
-          envName + '&type=' + 'vservice'); 
+          envName + '&type=' + 'vservice');
     },
 
     hostsCount: function (envName) {
         //return Inventory.find({environment: envName, type:'host'}).count();
         return Counts.get('inventory?env+type!counter?env=' +
-          envName + '&type=' + 'host'); 
+          envName + '&type=' + 'host');
     },
 
     vconnectorsCount: function(envName){
         //return Inventory.find({environment: envName, type:'vconnector'}).count();
         return Counts.get('inventory?env+type!counter?env=' +
-          envName + '&type=' + 'vconnector'); 
+          envName + '&type=' + 'vconnector');
     },
 
     projectsCount: function (envName){
         //return Inventory.find({environment: envName, type:'project'}).count();
         return Counts.get('inventory?env+type!counter?env=' +
-          envName + '&type=' + 'project'); 
+          envName + '&type=' + 'project');
     },
 
     regoinsCount: function (envName){
         //return Inventory.find({environment: envName, type:'region'}).count();
         return Counts.get('inventory?env+type!counter?env=' +
-          envName + '&type=' + 'region'); 
+          envName + '&type=' + 'region');
     },
 
     regoins: function (envName) {
@@ -160,4 +162,4 @@ Template.dashboard.helpers({
 
 });
 
-})();  
+})();

@@ -15,6 +15,7 @@ import { Inventory } from '/imports/api/inventories/inventories';
 
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
+import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
 import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
 import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
 
@@ -43,6 +44,7 @@ Template.Environment.onCreated(function () {
 
     var envName = controller.state.get('envName');
     instance.state.set('envName', envName);
+    store.dispatch(setEnvName(envName));
 
     let onSearchRequested = (searchTerm) => {
       console.log(`search requested for: ${searchTerm}`);
@@ -103,6 +105,7 @@ Template.Environment.onDestroyed(function () {
 
 Template.Environment.rendered = function(){
 
+  /*
   $.getScript('https://www.gstatic.com/charts/loader.js', function() {
     google.charts.load('current', {'packages':['gauge', 'line']});
     google.charts.setOnLoadCallback(drawLine);
@@ -139,6 +142,7 @@ Template.Environment.rendered = function(){
       chart.draw(data, options);
     }
   });
+  */
 
 };
 
