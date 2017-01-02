@@ -229,8 +229,9 @@ export const CLISchema = new SimpleSchema({
 
 CLISchema.addValidator(function () {
   let that = this;
-  let password = that.field('password');
+  let password = that.field('pwd');
   let key = that.field('key');
+
 
   if (key.value || password.value) { return; }
 

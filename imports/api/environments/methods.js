@@ -10,9 +10,14 @@ export const insert = new ValidatedMethod({
   name: 'environments.insert',
   validate: Environments.simpleSchema()
     .pick([
-      'configuration', 'configuration.$', 
-      'user', 'distribution', 'name', 
-      'network_plugins', 'network_plugins.$'
+      'configuration', 
+      'configuration.$', 
+      'user', 
+      'distribution', 
+      'name', 
+      'type_drivers',
+      'mechanism_drivers',
+      'mechanism_drivers.$'
     ]).validator({ clean: true, filter: false }), 
   //validate: null, 
   run({
