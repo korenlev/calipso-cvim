@@ -17,7 +17,8 @@ class MonitoringCheckHandler(MonitoringHandler):
             if host and 'ip_address' in host:
                 self.replacements['client_ip'] = host['ip_address']
         config_folder = self.env_monitoring_config['config_folder']
-        file_type = 'client_check_' + o['type'] + '.json'
+        type_str = o['type'] if 'type' in o else 'link_' + o['link_type']
+        file_type = 'client_check_' + type_str + '.json'
         host = o['host']
         directory = self.make_directory(config_folder + '/host/' + host)
         content = self.prepare_config_file(
@@ -29,10 +30,18 @@ class MonitoringCheckHandler(MonitoringHandler):
         client_file_content = self.get_config_from_db(host, client_file)
         # merge checks attribute from current content into client.json
         checks = client_file_content['config']['checks'] \
-            if 'checks' in client_file_content['config'] \
+            if (client_file_content and
+                'checks' in client_file_content['config']) \
             else {}
         checks.update(content['config']['checks'])
-        client_file_content['config']['checks'] = checks
+        if client_file_content:
+            client_file_content['config']['checks'] = checks
+        else:
+            client_file_content = {
+                'config': {
+                    'checks': checks
+                }
+            }
         content = client_file_content
         full_path = directory + '/' + client_file
         self.write_config_file(client_file, full_path, host, content)

@@ -3,6 +3,8 @@
 from monitoring.setup.monitoring_handler import MonitoringHandler
 from monitoring.setup.monitoring_host import MonitoringHost
 from monitoring.setup.monitoring_otep import MonitoringOtep
+from monitoring.setup.monitoring_link_vnic_vconnector \
+    import MonitoringLinkVnicVconnector
 
 
 class MonitoringSetupManager(MonitoringHandler):
@@ -14,7 +16,8 @@ class MonitoringSetupManager(MonitoringHandler):
         super().__init__(conf_file, env)
         self.object_handlers = {
             "host": MonitoringHost(conf_file, env),
-            "otep": MonitoringOtep(conf_file, env)}
+            "otep": MonitoringOtep(conf_file, env),
+            "vnic-vconnector": MonitoringLinkVnicVconnector(conf_file, env)}
 
     # add monitoring setup to Sensu server
     def server_setup(self):
@@ -40,6 +43,8 @@ class MonitoringSetupManager(MonitoringHandler):
 
     # add setup for inventory object
     def create_setup(self, o):
-        if o['type'] in self.object_handlers.keys():
-            object_handler = self.object_handlers[o['type']]
+        type_attribute = 'type' if 'type' in o else 'link_type'
+        type_value = o[type_attribute]
+        if type_value in self.object_handlers.keys():
+            object_handler = self.object_handlers[type_value]
             object_handler.create_setup(o)
