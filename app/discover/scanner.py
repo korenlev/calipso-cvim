@@ -313,12 +313,12 @@ class Scanner(Util, Fetcher):
     def scan_links(self):
         self.log.info("scanning for links")
         fetchers_implementing_add_links = [
-            FindLinksForPnics(),
-            FindLinksForInstanceVnics(),
-            FindLinksForVserviceVnics(),
-            FindLinksForVconnectors(),
-            FindLinksForVedges(),
-            FindLinksForOteps()
+            FindLinksForPnics(self.monitoring_setup_manager),
+            FindLinksForInstanceVnics(self.monitoring_setup_manager),
+            FindLinksForVserviceVnics(self.monitoring_setup_manager),
+            FindLinksForVconnectors(self.monitoring_setup_manager),
+            FindLinksForVedges(self.monitoring_setup_manager),
+            FindLinksForOteps(self.monitoring_setup_manager)
         ]
         for fetcher in fetchers_implementing_add_links:
             fetcher.add_links()
