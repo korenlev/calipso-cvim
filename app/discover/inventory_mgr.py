@@ -184,6 +184,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         return self.process_results(results, get_single=get_single)
 
     # record a link between objects in the inventory, to be used in graphs
+    # returns - the new link document
     # parameters -
     # environment: name of environment
     # host: name of host
@@ -222,9 +223,11 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             "source_id": source_id,
             "target_id": target_id
         }
-        self.links.update_one(find_tuple,
+        result = self.links.update_one(find_tuple,
                               {'$set': self.encode_mongo_keys(link)},
                               upsert=True)
+        link['_id'] = result.upserted_id
+        return link
 
     def get_clique_finder(self):
         if not self.clique_scanner:
