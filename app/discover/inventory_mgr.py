@@ -61,7 +61,6 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         ret = []
         for doc in raw_results:
             doc["_id"] = str(doc["_id"])
-            doc["children_url"] = self.get_base_url(doc)
             if get_single:
                 return doc
             ret.append(doc)
@@ -167,9 +166,6 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         arg = obj[field_name]
         if arg == None or not str(arg).rstrip():
             raise ValueError("Inventory item - the following field is not defined: " + field_name)
-
-    def get_base_url(self, doc):
-        return self.base_url_prefix + "&id=" + str(doc["id"])
 
     # note: to use general find, call find_items() which also does process_results
     def find(self, search, projection=None, get_single=False):
