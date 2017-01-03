@@ -124,8 +124,9 @@ class Scanner(Util, Fetcher):
             children_scanner = \
                 self.get_instance_of_class(children_scanner_class)
             children_scanner.set_env(self.get_env())
-            children_scanner.set_monitoring_setup_manager(
-                self.monitoring_setup_manager)
+            if self.monitoring_setup_manager:
+                children_scanner.set_monitoring_setup_manager(
+                    self.monitoring_setup_manager)
         except KeyError:
             children_scanner = None
 
@@ -267,7 +268,8 @@ class Scanner(Util, Fetcher):
                 # add/update object in DB
                 Scanner.inventory.set(o)
                 # create the corresponding monitoring setup
-                self.monitoring_setup_manager.create_setup(o)
+                if self.monitoring_setup_manager:
+                    self.monitoring_setup_manager.create_setup(o)
 
             # add objects into children list.
             children.append(o)

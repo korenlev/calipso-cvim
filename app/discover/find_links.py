@@ -15,4 +15,5 @@ class FindLinks(Fetcher):
         link = self.inv.create_link(env, host,
                                     source, source_id, target, target_id,
                                     link_type, link_name, state, link_weight)
-        self.monitoring_setup.create_setup(link)
+        if self.monitoring_setup:
+            self.monitoring_setup.create_setup(link)

@@ -172,10 +172,12 @@ class ScanController(Fetcher):
             else True
 
         # setup monitoring server
-        self.monitoring_setup_manager = \
-            MonitoringSetupManager(args.mongo_config, env_name)
-        self.monitoring_setup_manager.server_setup()
-        scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
+        if 'no_monitoring' not in self.env_config \
+                or not self.env_config['no_monitoring']:
+            self.monitoring_setup_manager = \
+                MonitoringSetupManager(args.mongo_config, env_name)
+            self.monitoring_setup_manager.server_setup()
+            scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
 
         # do the actual scanning
         if inventory_only or run_all:
