@@ -1,11 +1,9 @@
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from discover.find_links import FindLinks
 
 
-class FindLinksForVconnectors(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class FindLinksForVconnectors(FindLinks):
+    def __init__(self, monitoring_setup_manager):
+        super().__init__(monitoring_setup_manager)
 
     def add_links(self):
         vconnectors = self.inv.find_items({
@@ -25,13 +23,14 @@ class FindLinksForVconnectors(Fetcher):
             # interface ID for OVS
             vnic = self.inv.get_by_id(self.get_env(), interface_name)
         else:
-            # interface ID for VPP - match interface MAC address to vNIC MAC address
+            # interface ID for VPP - match interface MAC address to vNIC MAC
             interface = vconnector['interfaces'][interface_name]
             if not interface or 'mac_address' not in interface:
                 return
             vnic_mac = interface['mac_address']
             vnic = self.inv.get_by_field(self.get_env(), 'vnic',
-                                         'mac_address', vnic_mac, get_single=True)
+                                         'mac_address', vnic_mac,
+                                         get_single=True)
         if not vnic:
             return
         host = vnic["host"]
@@ -48,9 +47,10 @@ class FindLinksForVconnectors(Fetcher):
             attributes = {'network': vnic['network']}
             vconnector['network'] = vnic['network']
             self.inv.set(vconnector)
-        self.inv.create_link(self.get_env(), host,
-                             source, source_id, target, target_id,
-                             link_type, link_name, state, link_weight, extra_attributes=attributes)
+        self.create_link(self.get_env(), host,
+                         source, source_id, target, target_id,
+                         link_type, link_name, state, link_weight,
+                         extra_attributes=attributes)
 
     def add_vconnector_pnic_link(self, vconnector, interface):
         ifname = interface['name'] if isinstance(interface, dict) else interface
@@ -73,5 +73,7 @@ class FindLinksForVconnectors(Fetcher):
         link_name = pnic["name"]
         state = "up"  # TBD
         link_weight = 0  # TBD
-        self.inv.create_link(self.get_env(), host, source, source_id, target, target_id,
-                             link_type, link_name, state, link_weight)
+        self.create_link(self.get_env(), host,
+                         source, source_id,
+                         target, target_id,
+                         link_type, link_name, state, link_weight)

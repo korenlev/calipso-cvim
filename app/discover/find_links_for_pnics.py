@@ -1,11 +1,9 @@
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from discover.find_links import FindLinks
 
 
-class FindLinksForPnics(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class FindLinksForPnics(FindLinks):
+    def __init__(self, monitoring_setup_manager):
+        super().__init__(monitoring_setup_manager)
 
     def add_links(self):
         pnics = self.inv.find_items({
@@ -41,8 +39,10 @@ class FindLinksForPnics(Fetcher):
                 else "Segment-None"
             state = "up" if pnic["Link detected"] == "yes" else "down"
             link_weight = 0  # TBD
-            source_label = "port-" + pnic["port_id"] if "port_id" in pnic else ""
-            self.inv.create_link(self.get_env(), host,
-                                 source, source_id, target, target_id,
-                                 link_type, link_name, state, link_weight, source_label,
-                                 extra_attributes={"network": target_id})
+            source_label = "port-" + pnic["port_id"] if "port_id" in pnic \
+                else ""
+            self.create_link(self.get_env(), host,
+                             source, source_id, target, target_id,
+                             link_type, link_name, state, link_weight,
+                             source_label,
+                             extra_attributes={"network": target_id})

@@ -1,15 +1,15 @@
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from discover.find_links import FindLinks
 
 
-class FindLinksForVserviceVnics(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class FindLinksForVserviceVnics(FindLinks):
+    def __init__(self, monitoring_setup_manager):
+        super().__init__(monitoring_setup_manager)
 
     def add_links(self, search={}):
         self.log.info("adding links of type: vservice-vnic")
-        search.update({"environment": self.get_env(), "type": "vnic", "vnic_type": "vservice_vnic"})
+        search.update({"environment": self.get_env(),
+                       "type": "vnic",
+                       "vnic_type": "vservice_vnic"})
         vnics = self.inv.find_items(search)
 
         for v in vnics:
@@ -35,6 +35,8 @@ class FindLinksForVserviceVnics(Fetcher):
         link_name = network["name"]
         state = "up"  # TBD
         link_weight = 0  # TBD
-        self.inv.create_link(self.get_env(), v["host"], source, source_id,
-            target, target_id, link_type, link_name, state, link_weight,
-            extra_attributes={'network': v['network']})
+        self.create_link(self.get_env(), v["host"],
+                         source, source_id,
+                         target, target_id,
+                         link_type, link_name, state, link_weight,
+                         extra_attributes={'network': v['network']})

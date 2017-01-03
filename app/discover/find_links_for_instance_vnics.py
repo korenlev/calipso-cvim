@@ -1,11 +1,9 @@
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from discover.find_links import FindLinks
 
 
-class FindLinksForInstanceVnics(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class FindLinksForInstanceVnics(FindLinks):
+    def __init__(self, monitoring_setup_manager):
+        super().__init__(monitoring_setup_manager)
 
     def add_links(self):
         self.log.info("adding links of type: instance-vnic")
@@ -20,7 +18,8 @@ class FindLinksForInstanceVnics(Fetcher):
     def add_link_for_vnic(self, v):
         instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
         if "network_info" not in instance:
-            self.log.warn("add_link_for_vnic: network_info missing in instance: %s ",
+            self.log.warn("add_link_for_vnic: " +
+                          "network_info missing in instance: %s ",
                           instance["id"])
             return
         host = self.inv.get_by_id(self.get_env(), instance["host"])
@@ -45,6 +44,7 @@ class FindLinksForInstanceVnics(Fetcher):
         state = "up"  # TBD
         link_weight = 0  # TBD
         attributes = {} if not network_id else {'network': network_id}
-        self.inv.create_link(self.get_env(), host["name"],
-                             source, source_id, target, target_id,
-                             link_type, network_name, state, link_weight, extra_attributes=attributes)
+        self.create_link(self.get_env(), host["name"],
+                         source, source_id, target, target_id,
+                         link_type, network_name, state, link_weight,
+                         extra_attributes=attributes)
