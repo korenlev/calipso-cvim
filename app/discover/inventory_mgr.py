@@ -22,7 +22,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             collection_name = self.get_coll_name(coll_type)
         # do not allow setting the collection more than once
         if coll_type not in self.coll or not self.coll[coll_type]:
-            self.log.info("using " + coll_type + " collection: " + collection_name)
+            self.log.info("using " + coll_type + " collection: " +
+                          collection_name)
             name = collection_name if collection_name else coll_type
             self.coll[coll_type] = MongoAccess.db[name]
             if coll_type == "inventory":
@@ -84,12 +85,11 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
     def get_by_field(self, environment, item_type, field_name, field_value,
                      get_single=False):
-        if field_value and (not isinstance(field_value, str) or field_value > ""):
-            matches = self.find({
-                "environment": environment,
-                "type": item_type,
-                field_name: field_value
-            })
+        if field_value and (not isinstance(field_value, str) or
+                            field_value > ""):
+            matches = self.find({"environment": environment,
+                                 "type": item_type,
+                                 field_name: field_value})
         else:
             matches = self.find({
                 "environment": environment,
@@ -104,21 +104,29 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
     def get_children(self, environment, item_type, parent_id):
         matches = []
-        if parent_id and parent_id > "" and item_type == None:
-            matches = self.find({"environment": environment, "parent_id": parent_id})
+        if parent_id and parent_id > "" and not item_type:
+            matches = self.find({"environment": environment,
+                                "parent_id": parent_id})
         else:
             if parent_id and parent_id > "":
-                matches = self.find({"environment": environment, "type": item_type, "parent_id": parent_id})
+                matches = self.find({"environment": environment,
+                                     "type": item_type,
+                                     "parent_id": parent_id})
             else:
-                matches = self.find({"environment": environment, "type": item_type})
+                matches = self.find({"environment": environment,
+                                     "type": item_type})
         return self.process_results(matches)
 
     def get_single(self, environment, item_type, item_id):
-        matches = self.find({"environment": environment, "type": item_type, "id": item_id})
+        matches = self.find({"environment": environment,
+                             "type": item_type,
+                             "id": item_id})
         if len(matches) > 1:
-            raise ValueError("Found multiple matches for item: type=" + item_type + ", id=" + item_id)
+            raise ValueError("Found multiple matches for item: " +
+                             "type=" + item_type + ", id=" + item_id)
         if len(matches) == 0:
-            raise ValueError("No matches for item: type=" + item_type + ", id=" + item_id)
+            raise ValueError("No matches for item: " +
+                             "type=" + item_type + ", id=" + item_id)
         ret = self.process_results(matches)
         return ret[0]
 
@@ -152,22 +160,25 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             find_tuple = {'_id': mongo_id}
 
         col.update_one(find_tuple,
-            {'$set': self.encode_mongo_keys(item)},
-            upsert=True)
+                       {'$set': self.encode_mongo_keys(item)},
+                       upsert=True)
         if mongo_id:
             # restore original mongo ID of document, in case we need to use it
             item['_id'] = mongo_id
         if projects:
             col.update_one(find_tuple,
-                {'$addToSet': {"projects": {'$each': projects}}},
-                upsert=True)
+                           {'$addToSet': {"projects": {'$each': projects}}},
+                           upsert=True)
 
     def check(self, obj, field_name):
         arg = obj[field_name]
-        if arg == None or not str(arg).rstrip():
-            raise ValueError("Inventory item - the following field is not defined: " + field_name)
+        if not arg or not str(arg).rstrip():
+            raise ValueError("Inventory item - " +
+                             "the following field is not defined: " +
+                             field_name)
 
-    # note: to use general find, call find_items() which also does process_results
+    # note: to use general find, call find_items(),
+    # which also does process_results
     def find(self, search, projection=None, collection=None):
         coll = self.inv if not collection else self.coll[collection]
         matches = coll.find(search, projection=projection)
@@ -224,8 +235,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             "target_id": target_id
         }
         result = self.links.update_one(find_tuple,
-                              {'$set': self.encode_mongo_keys(link)},
-                              upsert=True)
+                                       {'$set': self.encode_mongo_keys(link)},
+                                       upsert=True)
         link['_id'] = result.upserted_id
         return link
 
