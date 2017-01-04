@@ -168,15 +168,19 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             raise ValueError("Inventory item - the following field is not defined: " + field_name)
 
     # note: to use general find, call find_items() which also does process_results
-    def find(self, search, projection=None, get_single=False):
-        matches = self.inv.find(search, projection=projection)
+    def find(self, search, projection=None, collection=None):
+        coll = self.inv if not collection else self.coll[collection]
+        matches = coll.find(search, projection=projection)
         decoded_matches = []
         for m in matches:
             decoded_matches.append(self.decode_mongo_keys(m))
         return decoded_matches
 
-    def find_items(self, search, projection=None, get_single=False):
-        results = self.find(search, projection)
+    def find_items(self, search,
+                   projection=None,
+                   get_single=False,
+                   collection=None):
+        results = self.find(search, projection, collection)
         return self.process_results(results, get_single=get_single)
 
     # record a link between objects in the inventory, to be used in graphs
