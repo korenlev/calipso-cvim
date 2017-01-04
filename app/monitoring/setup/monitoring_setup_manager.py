@@ -29,12 +29,14 @@ class MonitoringSetupManager(MonitoringHandler):
             'redis.json',
             'api.json'
         ]
-        if 'monitoring_setup_done' in self.config.env_config:
+        conf = self.env_monitoring_config
+        debug = 'debug' in conf and conf['debug']
+        if not debug and 'monitoring_setup_done' in conf:
             return
-        server_host = self.env_monitoring_config['server_ip']
-        config_folder = self.env_monitoring_config['config_folder']
+        server_host = conf['server_ip']
+        config_folder = conf['config_folder']
         directory = self.make_directory(config_folder + '/server/')
-        self.replacements.update(self.env_monitoring_config)
+        self.replacements.update(conf)
         for file_name in sensu_server_files:
             content = self.prepare_config_file(file_name, {'side': 'server'})
             full_path = directory + '/' + file_name
