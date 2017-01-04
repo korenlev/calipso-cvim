@@ -31,7 +31,8 @@ class MonitoringCheckHandler(Logger):
 
   def doc_by_db_id(self, db_id, coll_name=None):
     coll = self.inv.coll[coll_name] if coll_name else None
-    doc = self.inv.find_in_db({'_id': ObjectId(db_id)}, get_single=True, collection=coll)
+    doc = self.inv.find({'_id': ObjectId(db_id)},
+                        get_single=True, collection=coll)
     if not doc:
       self.log.warn('No matching object found with DB ID: ' + db_id)
     return doc
