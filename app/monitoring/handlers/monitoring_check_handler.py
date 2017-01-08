@@ -42,8 +42,10 @@ class MonitoringCheckHandler(Logger):
     if status_text:
       doc['status_text'] = status_text
     doc['status_timestamp'] = strftime(TIME_FORMAT, timestamp)
-    coll = self.inv.coll['links' if 'link_type' in doc else 'inventory']
-    self.inv.set(doc, collection=coll)
+    if 'link_type' in doc:
+        self.inv.write_link(doc)
+    else:
+        self.inv.set(doc)
 
   def check_ts(self, check_result):
     return gmtime(check_result['executed'])
