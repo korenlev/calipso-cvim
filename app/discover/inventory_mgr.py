@@ -149,7 +149,11 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             find_tuple = {"environment": item["environment"],
                           "type": item["type"], "id": item["id"]}
         else:
-            find_tuple = {'_id': mongo_id}
+            find_tuple = {'_id': bson.ObjectId(mongo_id)}
+            doc = col.find_one(find_tuple)
+            if not doc:
+                raise ValueError('set(): could not find document with _id=' +
+                                 mongo_id)
 
         col.update_one(find_tuple,
             {'$set': self.encode_mongo_keys(item)},
@@ -218,11 +222,16 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             "target_label": target_label,
             "attributes": extra_attributes
         }
+        return self.write_link(link)
+
+    def write_link(self, link):
         find_tuple = {
-            "environment": env,
-            "source_id": source_id,
-            "target_id": target_id
+            'environment': link['environment'],
+            'source_id': link['source_id'],
+            'target_id': link['target_id']
         }
+        if "_id" in link:
+            link.pop("_id", None)
         result = self.links.update_one(find_tuple,
                               {'$set': self.encode_mongo_keys(link)},
                               upsert=True)
