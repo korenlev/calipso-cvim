@@ -12,6 +12,7 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
 //import * as R from 'ramda';
 
 import { Inventory } from '/imports/api/inventories/inventories';
+//import { Messages } from '/imports/api/messages/messages';
 
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';

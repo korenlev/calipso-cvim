@@ -4,6 +4,7 @@
 
 import { Environments } from '/imports/api/environments/environments';
 import { Inventory } from '/imports/api/inventories/inventories';
+import { Messages } from '/imports/api/messages/messages';
 
 (function () {
 

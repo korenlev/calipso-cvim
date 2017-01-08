@@ -3,6 +3,7 @@
  */
 
 import '/imports/ui/components/breadcrumb/breadcrumb';
+import { Messages } from '/imports/api/messages/messages';
 
 (function () {
 

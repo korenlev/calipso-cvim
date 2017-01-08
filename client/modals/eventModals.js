@@ -2,6 +2,8 @@
  * Template Component: eventModals
  */
 
+import { Messages } from '/imports/api/messages/messages';
+
 (function () {
 
 /*
