@@ -16,8 +16,8 @@ import { Inventory } from '/imports/api/inventories/inventories';
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
-import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
-import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
+//import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
+//import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 
@@ -43,47 +43,54 @@ Template.Environment.onCreated(function () {
     var query = params.query;
 
     var envName = controller.state.get('envName');
-    instance.state.set('envName', envName);
-    store.dispatch(setEnvName(envName));
+    if (envName !== instance.state.get('envName')) {
+      instance.state.set('envName', envName);
+      store.dispatch(setEnvName(envName));
 
-    let onSearchRequested = (searchTerm) => {
-      console.log(`search requested for: ${searchTerm}`);
-      instance.subscribe('inventory?env+name', envName, searchTerm);
-      instance.state.set('searchTerm', null);
-      instance.state.set('searchTerm', searchTerm);
-    };
+      /*
+      let onSearchRequested = (searchTerm) => {
+        console.log(`search requested for: ${searchTerm}`);
+        instance.subscribe('inventory?env+name', envName, searchTerm);
+        instance.state.set('searchTerm', null);
+        instance.state.set('searchTerm', searchTerm);
+      };
+      */
 
-    instance.onSearchRequested = onSearchRequested;
-    store.dispatch(addSearchInterestedParty(onSearchRequested));
+      /*
+      instance.onSearchRequested = onSearchRequested;
+      store.dispatch(addSearchInterestedParty(onSearchRequested));
+      */
 
-    if (query.graph) {
-      let node24IdPath =
-        '/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24';
-      let node24NamePath =
-        '/WebEX-Mirantis@Cisco/Regions/RegionOne/Aggregates/WebEx-RTP-SSD-Aggregate/node-24';
+      if (query.graph) {
+        let node24IdPath =
+          '/WebEX-Mirantis@Cisco/WebEX-Mirantis@Cisco-regions/RegionOne/RegionOne-aggregates/7/aggregate-WebEx-RTP-SSD-Aggregate-node-24';
+        let node24NamePath =
+          '/WebEX-Mirantis@Cisco/Regions/RegionOne/Aggregates/WebEx-RTP-SSD-Aggregate/node-24';
 
-      store.dispatch(setCurrentNode({
-        id_path: node24IdPath,
-        name_path: node24NamePath
-      }));
-    } else {
-      store.dispatch(setCurrentNode({
-        id_path: '/' + envName,
-        name_path: '/' + envName
-      }));
+        store.dispatch(setCurrentNode({
+          id_path: node24IdPath,
+          name_path: node24NamePath
+        }));
+      } else {
+        store.dispatch(setCurrentNode({
+          id_path: '/' + envName,
+          name_path: '/' + envName
+        }));
+      }
+
+      instance.subscribe('inventory?env+type', envName, 'instance');
+      instance.subscribe('inventory?env+type', envName, 'vservice');
+      instance.subscribe('inventory?env+type', envName, 'host');
+      instance.subscribe('inventory?env+type', envName, 'vconnector');
+      instance.subscribe('inventory?env+type', envName, 'project');
+      instance.subscribe('inventory?env+type', envName, 'region');
+      instance.subscribe('messages?env+level', envName, 'notify');
+      instance.subscribe('messages?env+level', envName, 'warn');
+      instance.subscribe('messages?env+level', envName, 'error');
     }
-
-    instance.subscribe('inventory?env+type', envName, 'instance');
-    instance.subscribe('inventory?env+type', envName, 'vservice');
-    instance.subscribe('inventory?env+type', envName, 'host');
-    instance.subscribe('inventory?env+type', envName, 'vconnector');
-    instance.subscribe('inventory?env+type', envName, 'project');
-    instance.subscribe('inventory?env+type', envName, 'region');
-    instance.subscribe('messages?env+level', envName, 'notify');
-    instance.subscribe('messages?env+level', envName, 'warn');
-    instance.subscribe('messages?env+level', envName, 'error');
   });
 
+  /* Depracted: search is done in audo search box.
   instance.autorun(function () {
     var controller = Iron.controller();
     let envName = controller.state.get('envName');
@@ -95,12 +102,13 @@ Template.Environment.onCreated(function () {
       });
     }
   });
+  */
 
 });
 
 Template.Environment.onDestroyed(function () {
-  let instance = this;
-  store.dispatch(removeSearchInterestedParty(instance.onSearchRequested));
+  //let instance = this;
+  //store.dispatch(removeSearchInterestedParty(instance.onSearchRequested));
 });
 
 Template.Environment.rendered = function(){

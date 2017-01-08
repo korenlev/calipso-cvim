@@ -59,9 +59,19 @@ Template.topnavbarmenu.helpers({
       isOpen: instance.state.get('isAutoCompleteOpen'),
       onResultSelected(node) {
         instance.state.set('isAutoCompleteOpen', false);
+
         let searchInput = instance.$('input#search');  
         searchInput.val(node.name_path);
-        store.dispatch(setCurrentNode(node));
+
+        let envName = store.getState().components.environmentPanel.envName;
+        Router.go(`/enviroment?env=${envName}`);
+
+        // environment screen is opening with default selected node.
+        // after that we need to set the current node.
+        // todo: make env screen be aware of other state in redux (not only router) ?
+        setTimeout(function () {
+          store.dispatch(setCurrentNode(node));
+        }, 0);
       }
     };
   }
