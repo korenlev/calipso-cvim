@@ -48,6 +48,19 @@ Template.topnavbarmenu.events = {
     let searchTerm =  instance.$(event.target).val();
     store.dispatch(notifySearchAutoCompleteTermChanged(searchTerm));
     instance.state.set('isAutoCompleteOpen', true);
+  },
+
+  'click .os-nav-link': function () {
+    let instance = Template.instance();
+    instance.state.set('isAutoCompleteOpen', false);
+  },
+
+  'click .sm-dashboard-link': function () {
+    Router.go('dashboard');
+  },
+
+  'click .sm-get-started-link': function () {
+    Router.go('getstarted');
   }
 };
 

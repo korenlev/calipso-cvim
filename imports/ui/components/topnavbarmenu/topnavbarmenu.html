@@ -1,6 +1,6 @@
 <template name="topnavbarmenu">
 
-    <nav class="navbar navbar-inverse navbar-custom navbar-fixed-top">
+    <nav class="os-topnavbarmenu navbar navbar-inverse navbar-custom navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -26,12 +26,13 @@
                   </div>
                 </div>
                 <ul class="nav navbar-nav navbar-right">
-                  <li class="dropdown">
+                  <li class="dropdown os-nav-link">
                     {{> envForm}}    
                   </li>
-                  <li><a href="{{pathFor route='dashboard'}}">Dashboard</a></li>
-                  <li><a href="{{pathFor route='getstarted'}}">Get started</a></li>
-                  <li><a href="#">{{> loginButtons}}</a></li>
+                  <li><a class="sm-dashboard-link os-nav-link">Dashboard</a></li>
+                  <li><a class="sm-get-started-link os-nav-link">Get started</a></li>
+                  <li><a class="sm-login-buttons-link os-nav-link" href="#"
+                      >{{> loginButtons}}</a></li>
                 </ul>
             </div>
         </div>
