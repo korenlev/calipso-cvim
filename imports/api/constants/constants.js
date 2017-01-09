@@ -8,6 +8,7 @@ import { LogLevels } from './data/log-levels';
 import { MechanismDrivers } from './data/mechanism-drivers';
 import { ObjectTypes } from './data/object-types';
 import { TypeDrivers } from './data/type-drivers';
+import { EnvTypes } from './data/env-types';
 
 export const Constants = new Mongo.Collection('constants');
 
@@ -67,6 +68,13 @@ if (Meteor.server) {
     Constants.insert({
       name: 'type_drivers',
       data: TypeDrivers
+    });
+  }
+
+  if (Constants.find({ name: 'env_types'}).count() === 0) {
+    Constants.insert({
+      name: 'env_types',
+      data: EnvTypes
     });
   }
 }

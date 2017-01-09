@@ -3,9 +3,10 @@
           multiple="{{ multi }}" 
           {{ markIfDisabled }} 
           >
+    {{#if showNullOption }}<option value="" ></option>{{/if}}
     {{#each option in options }}
     <option value="{{ option.value }}"
-      selected="{{ isSelected option.label }}" 
+      selected="{{ isSelected option.value }}" 
       >{{ option.label }}</option>
     {{/each }}
 	</select>

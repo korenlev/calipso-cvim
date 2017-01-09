@@ -50,7 +50,8 @@
                 values=model.distribution 
                 key="distribution"
                 disabled=disabled
-                options=distributionOptions)
+                options=distributionOptions
+                showNullOption=true)
           }}
         </div>
         <div class="col-sm-4">
@@ -69,7 +70,8 @@
                 key="type_drivers"
                 options=typeDriversOptions
                 disabled=disabled
-                multi=false)
+                multi=false
+                showNullOption=true)
           }}
         </div>
         <div class="col-sm-4">
@@ -93,24 +95,6 @@
         </div>
         <div class="col-sm-4">
           <p>Enter mechanism drivers</p>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="inputEnvName" 
-          class="col-sm-2 control-label"
-          >{{ eventBasedScanLabel }}</label>
-
-        <div class="col-sm-3">
-          {{> InputModel(createInputArgs
-                value=model.event_based_scan
-                key='event_based_scan'
-                type="checkbox"
-                disabled=disabled)
-          }}
-        </div>
-        <div class="col-sm-4">
-          <p>{{ eventBasedScanDesc }}</p>
         </div>
       </div>
 

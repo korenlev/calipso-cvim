@@ -18,6 +18,7 @@ import '/imports/ui/components/env-open-stack-db-credentials-info/env-open-stack
 import '/imports/ui/components/env-master-host-credentials-info/env-master-host-credentials-info';
 import '/imports/ui/components/env-nfv-info/env-nfv-info';
 import '/imports/ui/components/env-amqp-credentials-info/env-amqp-credentials-info';
+import '/imports/ui/components/env-monitoring-info/env-monitoring-info';
 
 import {
   insert,
@@ -131,8 +132,6 @@ Template.EnvironmentWizard.helpers({
       templateData: {
         model: environmentModel, 
         disabled: disabled,
-        eventBasedScanLabel: R.path(['collections', 'environments', 'fields', 'eventBasedScan', 'label'], instance.state.get('i18n')),
-        eventBasedScanDesc: R.path(['collections', 'environments', 'fields', 'eventBasedScan', 'desc'], instance.state.get('i18n')),
         setModel: function (newModel) {
           instance.state.set('environmentModel', newModel);
         },
@@ -204,6 +203,24 @@ Template.EnvironmentWizard.helpers({
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('NFV_provider', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
+      }
+    }, {
+      label: 'Monitoring',
+      localLink: 'monitoringInfo',
+      templateName: 'EnvMonitoringInfo',
+      templateData: {
+        model: getGroupInArray('Monitoring', environmentModel.configuration),
+        disabled: disabled,
+        eventBasedScanLabel: R.path(['collections', 'environments', 'fields', 
+          'eventBasedScan', 'label'], instance.state.get('i18n')),
+        eventBasedScanDesc: R.path(['collections', 'environments', 'fields', 
+          'eventBasedScan', 'desc'], instance.state.get('i18n')),
+        setModel: function (newSubModel) {
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
       }
@@ -325,7 +342,6 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
-      event_based_scan: environment.event_based_scan,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -338,7 +354,6 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
-      event_based_scan: environment.event_based_scan,
     }, processActionResult.bind(null, instance));
     break;
 

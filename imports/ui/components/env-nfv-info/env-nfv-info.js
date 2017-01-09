@@ -28,6 +28,10 @@ Template.EnvNfvInfo.rendered = function() {
  */
 
 Template.EnvNfvInfo.events({
+  'click .sm-next-button': function () {
+    let instance = Template.instance();
+    instance.data.onNextRequested(); 
+  }
 });
    
 /*  

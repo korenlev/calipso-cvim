@@ -7,13 +7,17 @@ let portRegEx = /^0*(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1
 
 let pathRegEx = /^(\/){1}([^\/\0]+(\/)?)+$/;
 
+let hostnameRegex= new RegExp('^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$');
+
+let ipAddressRegex = new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}');
+
 export const Environments = new Mongo.Collection('environments_config');
 
 let defaultGroups = [{
   name: 'mysql',
   host: '10.0.0.1',
   password: 'abcdefg123456',
-  port: '3307.0',
+  port: '3307',
   user: 'user',
 }, {
   name: 'OpenStack',
@@ -41,6 +45,20 @@ let defaultGroups = [{
   port: '5000',
   user: 'admin',
   pwd: 'admin',
+}, {
+  name: 'General',
+  app_path: '/etc/osdna/monitoring',
+}, {
+  name: 'Monitoring',
+  //app_path: '/etc/osdna/monitoring',
+  config_folder: '/mp/sensu_test',
+  debug: false,
+  port: 4567,
+  rabbitmq_user: 'sensu',
+  rabbitmq_pass: null,
+  server_ip: null,
+  server_name: null,
+  type: 'Sensu'
 }
     ];
 
@@ -71,6 +89,8 @@ Environments.schema = new SimpleSchema({
         'OpenStack',
         'CLI',
         'AMQP',
+        'General',
+        'Monitoring'
       ];
 
       let subErrors = [];
@@ -170,7 +190,6 @@ Environments.schema = new SimpleSchema({
       return 'environment';
     },
   },
-  event_based_scan: { type: Boolean, defaultValue: true }, 
 });
 
 // Bug in simple schema. cant add custom message to instance specific
@@ -273,6 +292,65 @@ export const NfvProviderSchema = new SimpleSchema({
   pwd: { type: String },
 });
 
+export const GeneralSchema = new SimpleSchema({
+  name: { type: String, autoValue: function () { return 'General'; } },
+  app_path: { type: String, autoValue: function () { return '/etc/osdna/monitoring'; } },
+});
+
+
+export const MonitoringSchema = new SimpleSchema({
+  name: { type: String, autoValue: function () { return 'Monitoring'; } },
+  //app_path: { type: String, autoValue: function () { return '/etc/osdna/monitoring'; } },
+  config_folder: { 
+    type: String, 
+    autoValue: function () { return '/tmp/sensu_test'; } 
+  },
+  debug: { 
+    type: Boolean, 
+    autoValue: function () { return false; } 
+  },
+  event_based_scan: { 
+    type: Boolean, 
+    defaultValue: true 
+  }, 
+  env_type: { 
+    type: String, 
+    defaultValue: 'production',
+    custom: function () {
+      let that = this;
+      let EnvTypesRec = Constants.findOne({ name: 'env_types' });
+
+      if (R.isNil(EnvTypesRec.data)) { return 'notAllowed'; } 
+      let EnvTypes = EnvTypesRec.data;
+
+      if (R.isNil(R.find(R.propEq('value', that.value), EnvTypes))) {
+        return 'notAllowed';
+      }
+    },
+  },
+  port: {
+    type: String,
+    defaultValue: 4567,
+    regEx: portRegEx,
+  },
+  rabbitmq_user: { 
+    type: String,
+    defaultValue: 'sensu'
+  }, 
+  rabbitmq_pass: { type: String },
+  server_ip: {
+    type: String,
+    regEx: new RegExp(hostnameRegex.source + '|' + ipAddressRegex.soure)
+  },
+  server_name: {
+    type: String,
+  },
+  type: {
+    type: String,
+    defaultValue: 'Sensu'
+  }
+});
+
 function getSchemaForGroupName(groupName) {
   switch (groupName) {
   case 'mysql': 
@@ -285,6 +363,10 @@ function getSchemaForGroupName(groupName) {
     return AMQPSchema;
   case 'NFV_provider':
     return NfvProviderSchema; 
+  case 'General':
+    return GeneralSchema;
+  case 'Monitoring':
+    return MonitoringSchema;
   default:
     throw 'group name is not recognized. group: ' + groupName;
   }

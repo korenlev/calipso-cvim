@@ -17,5 +17,6 @@ export const createSelectArgs = function (params) {
         instance.data.setModel(newModel); 
       }
     },
+    showNullOption: R.isNil(params.hash.showNullOption) ? false : params.hash.showNullOption
   };
 };
