@@ -34,13 +34,12 @@ class MonitoringSetupManager(MonitoringHandler):
         if not debug and 'monitoring_setup_done' in conf:
             return
         server_host = conf['server_ip']
-        config_folder = conf['config_folder']
-        directory = self.make_directory(config_folder + '/server/')
+        sub_dir = '/server'
         self.replacements.update(conf)
         for file_name in sensu_server_files:
             content = self.prepare_config_file(file_name, {'side': 'server'})
-            full_path = directory + '/' + file_name
-            self.write_config_file(file_name, full_path, server_host, content)
+            self.write_config_file(file_name, file_name, sub_dir, server_host,
+                                   content)
         self.config.update_env({'monitoring_setup_done': True})
 
     # add setup for inventory object

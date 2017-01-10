@@ -16,11 +16,10 @@ class MonitoringCheckHandler(MonitoringHandler):
             host = self.inv.get_by_id(self.env, o['host'])
             if host and 'ip_address' in host:
                 self.replacements['client_ip'] = host['ip_address']
-        config_folder = self.env_monitoring_config['config_folder']
         type_str = o['type'] if 'type' in o else 'link_' + o['link_type']
         file_type = 'client_check_' + type_str + '.json'
         host = o['host']
-        directory = self.make_directory(config_folder + '/host/' + host)
+        sub_dir = '/host/' + host
         content = self.prepare_config_file(
             file_type,
             {'side': 'client', 'type': file_type})
@@ -43,5 +42,4 @@ class MonitoringCheckHandler(MonitoringHandler):
                 }
             }
         content = client_file_content
-        full_path = directory + '/' + client_file
-        self.write_config_file(client_file, full_path, host, content)
+        self.write_config_file(file_type, client_file, sub_dir, host, content)
