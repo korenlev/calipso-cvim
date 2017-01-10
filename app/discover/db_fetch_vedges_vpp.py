@@ -35,7 +35,7 @@ class DbFetchVedgesVpp(DbAccess, CliAccess, metaclass=Singleton):
     def fetch_ports(self, interfaces):
         ports = {}
         for i in interfaces:
-            if i.startswith(' '):
+            if not i or i.startswith(' '):
                 continue
             parts = i.split()
             port = {
