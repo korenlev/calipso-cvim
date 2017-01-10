@@ -20,6 +20,17 @@ class SshConn(BinaryConverter, Logger):
         super().__init__()
         self.config = Configuration()
         self.conf = self.config.get('CLI')
+        self.set_host_conf(host_name)
+        self.ssh = None
+        self.ftp = None
+        self.key = None
+        self.user = None
+        self.pwd = None
+        self.check_definitions()
+        if host_name in self.connections and not self.ssh:
+            self.ssh = self.connections[host_name]
+
+    def set_host_conf(self, host_name):
         if 'hosts' in self.conf:
             if not host_name:
                 raise ValueError('SshConn(): host must be specified ' +
@@ -29,19 +40,14 @@ class SshConn(BinaryConverter, Logger):
             self.host_conf = self.conf['hosts'][host_name]
         else:
             self.host_conf = self.conf
-        self.ssh = None
-        self.ftp = None
-        self.key = None
-        self.user = None
-        self.pwd = None
+
+    def check_definitions(self):
         try:
             self.host = self.host_conf['host']
             if self.host in self.connections:
                 self.ssh = self.connections[self.host]
         except KeyError:
             raise ValueError('Missing definition of host for CLI access')
-        if host_name in self.connections and not self.ssh:
-            self.ssh = self.connections[host_name]
         try:
             self.user = self.host_conf['user']
         except KeyError:
@@ -56,7 +62,7 @@ class SshConn(BinaryConverter, Logger):
             self.pwd = self.host_conf['pwd']
         except KeyError:
             self.pwd = None
-        if self.key == None and self.pwd == None:
+        if not self.key and not self.pwd:
             raise ValueError('Must specify key or password for CLI access')
 
     @staticmethod
@@ -74,7 +80,8 @@ class SshConn(BinaryConverter, Logger):
         if self.ssh:
             if self.call_count_per_con[self.host] < self.max_call_count_per_con:
                 return
-            self.log.info("CliAccess: ****** forcing reconnect, call count: %s ******",
+            self.log.info("CliAccess: ****** forcing reconnect, " +
+                          "call count: %s ******",
                           self.call_count_per_con[self.host])
             self.ssh.close()
             if self.host in self.connections:
@@ -102,7 +109,8 @@ class SshConn(BinaryConverter, Logger):
         err = self.binary2str(stderr.read())
         if err:
             # ignore messages about loading plugin
-            err_lines = [l for l in err.splitlines() if 'Loaded plugin: ' not in l]
+            err_lines = [l for l in err.splitlines()
+                         if 'Loaded plugin: ' not in l]
             if err_lines:
                 self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
                 stderr.close()
@@ -113,10 +121,11 @@ class SshConn(BinaryConverter, Logger):
         stdout.close()
         return ret
 
-    def write_file(self, file_name, content):
+    def copy_file(self, local_file, remote_directory):
         self.connect()
         if not self.ftp:
             self.ftp = self.ssh.open_sftp()
-        remote_file = self.ftp.file(file_name, "w", -1)
-        remote_file.write(content)
-        remote_file.flush()
+        try:
+            self.ftp.put(local_file, remote_directory)
+        except Exception:
+            self.log.error('failed to copy file to remote host ' + self.host)
