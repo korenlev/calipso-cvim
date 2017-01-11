@@ -78,17 +78,17 @@ Template.Environment.onCreated(function () {
           name_path: '/' + envName
         }));
       }
-
-      instance.subscribe('inventory?env+type', envName, 'instance');
-      instance.subscribe('inventory?env+type', envName, 'vservice');
-      instance.subscribe('inventory?env+type', envName, 'host');
-      instance.subscribe('inventory?env+type', envName, 'vconnector');
-      instance.subscribe('inventory?env+type', envName, 'project');
-      instance.subscribe('inventory?env+type', envName, 'region');
-      instance.subscribe('messages?env+level', envName, 'notify');
-      instance.subscribe('messages?env+level', envName, 'warn');
-      instance.subscribe('messages?env+level', envName, 'error');
     }
+
+    instance.subscribe('inventory?env+type', envName, 'instance');
+    instance.subscribe('inventory?env+type', envName, 'vservice');
+    instance.subscribe('inventory?env+type', envName, 'host');
+    instance.subscribe('inventory?env+type', envName, 'vconnector');
+    instance.subscribe('inventory?env+type', envName, 'project');
+    instance.subscribe('inventory?env+type', envName, 'region');
+    instance.subscribe('messages?env+level', envName, 'notify');
+    instance.subscribe('messages?env+level', envName, 'warn');
+    instance.subscribe('messages?env+level', envName, 'error');
   });
 
   /* Depracted: search is done in audo search box.
