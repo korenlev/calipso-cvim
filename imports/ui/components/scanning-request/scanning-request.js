@@ -7,17 +7,25 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
 
+import { Constants } from '/imports/api/constants/constants';
 //import { createInputArgs } from '/imports/ui/lib/input-model';
-import { ScanningRequests } from '/imports/api/scanning_requests/scanning_requests';
+import { createSelectArgs } from '/imports/ui/lib/select-model';
+import { Scans } from '/imports/api/scans/scans';
 
 import '/imports/ui/components/input-model/input-model';
+import '/imports/ui/components/select-model/select-model';
         
 import {
   insert,
-} from '/imports/api/scanning_requests/methods';
+} from '/imports/api/scans/methods';
 
 import './scanning-request.html';     
     
+const noteTypeScanExists = {
+  type: 'scanExists',
+  message: 'There is already a scan in progess in the system. Please wait until it ends.'
+};
+
 /*  
  * Lifecycles
  */   
@@ -33,6 +41,7 @@ Template.ScanningRequest.onCreated(function() {
     isMessage: false,
     message: null,
     disabled: false,
+    notifications: {}
   });
 
   instance.autorun(function () {
@@ -40,11 +49,29 @@ Template.ScanningRequest.onCreated(function() {
     let params = controller.getParams();
     let query = params.query;
 
-    instance.state.set('environmentName', query.env);
+    instance.subscribe('constants');
+    instance.subscribe('scans?env', query.env);
+
+    let envName = query.env;
+    instance.state.set('environmentName', envName );
     instance.state.set('action', 'insert');
-    instance.state.set('model', ScanningRequests.schema.clean({
-      environment_name: instance.state.get('environmentName')
+    instance.state.set('model', Scans.schema.clean({
+      environment: instance.state.get('environmentName')
     }));
+
+    let notifications = instance.state.get('notifications');
+    if (Scans.find({ environment: envName, status: { $in: ['pending', 'running'] } }).count() > 0) {
+      instance.state.set('notifications', R.assoc(
+        noteTypeScanExists.type, 
+        noteTypeScanExists.type, 
+        notifications
+      ));
+    } else {
+      instance.state.set('notifications', R.dissoc(
+        noteTypeScanExists.type, 
+        notifications
+      ));
+    }
   });
 });  
 
@@ -70,6 +97,29 @@ Template.ScanningRequest.events({
  */
 
 Template.ScanningRequest.helpers({    
+  notifications: function () {
+    let instance = Template.instance();
+    let notifications = instance.state.get('notifications');
+    let notesExpaned = R.pipe(
+      R.map((noteType) => {
+        switch(noteType) {
+        case noteTypeScanExists.type:
+          return noteTypeScanExists.message;
+        default:
+          return ''; 
+        }
+      }),
+      R.values()
+    )(notifications);
+
+    return notesExpaned;
+  }, 
+
+  notificationsExists: function () {
+    let instance = Template.instance();
+    return R.keys(instance.state.get('notifications')).length > 0;
+  },
+
   model: function () {
     let instance = Template.instance();
     return instance.state.get('model');
@@ -95,6 +145,22 @@ Template.ScanningRequest.helpers({
     };
   },
 
+  createSelectArgs: createSelectArgs,
+
+  calcSetModelFn: function (key) {
+    let instance = Template.instance();
+    let intf =  {
+      fn: (values) => {
+        let model = instance.state.get('model');
+        let newModel = R.assoc(key, values, model);
+        instance.state.set('model', newModel);
+      },
+      sample: 'text'
+    };
+
+    return intf;
+  },
+
   getState: function (key) {
     let instance = Template.instance();
     return instance.state.get(key); 
@@ -102,7 +168,7 @@ Template.ScanningRequest.helpers({
 
   getFieldDesc: function (key) {
     //let instance = Template.instance();
-    return ScanningRequests.schemaRelated[key].description;
+    return Scans.schemaRelated[key].description;
   },
 
   commandOptions: function () { 
@@ -113,7 +179,7 @@ Template.ScanningRequest.helpers({
         name: key,
         info: value
       }, array);
-    }, ScanningRequests.schemaRelated);
+    }, Scans.schemaRelated);
 
     return array;
   },
@@ -133,7 +199,17 @@ Template.ScanningRequest.helpers({
     }
 
     return 'textbox';
-  }
+  },
+
+  isCommandOptionSelectType(commandOption) {
+    return (R.path(['info', 'subtype'], commandOption) === 'select');
+  },
+
+  calcCommandSelectOptions(commandOption) {
+    let item = Constants.findOne({ name: R.path(['info', 'options'], commandOption) });
+    if (R.isNil(item)) { return []; }
+    return item.data;
+  },
 });
 
 function submitItem(instance) {
@@ -148,21 +224,14 @@ function submitItem(instance) {
   switch (action) {
   case 'insert':
     insert.call({
-      environment_name: model.environment_name,
-      cgi: model.cgi,
-      mongo_config: model.mongo_config,
-      type: model.type,
+      environment: model.environment,
       inventory: model.inventory,
-      scan_self:  model.scan_self,
-      id: model.id,
-      parent_id: model.parent_id,
-      parent_type: model.parent_type,
-      id_field: model.id_field,
-      loglevel: model.loglevel,
-      inventory_only: model.inventory_only,
-      links_only: model.links_only,
-      cliques_only: model.cliques_only,
+      object_id: model.object_id,
+      log_level: model.log_level,
       clear: model.clear,
+      scan_only_inventory: model.scan_only_inventory,
+      scan_only_links: model.scan_only_links,
+      scan_only_cliques: model.scan_only_cliques,
     }, processActionResult.bind(null, instance));
     break;
   default:

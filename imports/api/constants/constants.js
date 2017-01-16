@@ -9,6 +9,7 @@ import { MechanismDrivers } from './data/mechanism-drivers';
 import { ObjectTypes } from './data/object-types';
 import { TypeDrivers } from './data/type-drivers';
 import { EnvTypes } from './data/env-types';
+import { Statuses as ScansStatuses } from './data/scans-statuses';
 
 export const Constants = new Mongo.Collection('constants');
 
@@ -75,6 +76,13 @@ if (Meteor.server) {
     Constants.insert({
       name: 'env_types',
       data: EnvTypes
+    });
+  }
+
+  if (Constants.find({ name: 'scans_statuses'}).count() === 0) {
+    Constants.insert({
+      name: 'scans_statuses',
+      data: ScansStatuses
     });
   }
 }

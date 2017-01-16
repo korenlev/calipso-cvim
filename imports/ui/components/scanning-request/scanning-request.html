@@ -1,5 +1,13 @@
 <template name="ScanningRequest">
   <div class="os-scanning-request cards white">
+    {{#if notificationsExists}}
+    <div class="sm-notification-panel alert alert-danger">
+      {{#each note in notifications }}
+      <div>{{ note }}</div>
+      {{/each }}
+    </div>
+    {{/if}}
+
     <h3>New Scanning Reuqest</h3>
     <div class="sm-form-container">
       <form role="form" class="form-horizontal">
@@ -9,12 +17,24 @@
         <div class="form-group">
           <label class="col-sm-2 control-label">{{ commandOption.info.label }}</label>
           <div class="col-sm-3">
-            {{> InputModel(createInputArgs
-                  value=(getModelKeyValue commandOption.name)
-                  key=commandOption.name
-                  type=(calcInputType commandOption.info)
+            {{#if (isCommandOptionSelectType commandOption)}}
+              {{> SelectModel(createSelectArgs
+                    value=(getModelKeyValue commandOption.name)
+                    key=commandOption.name
+                    options=(calcCommandSelectOptions commandOption)
+                    setModel=(calcSetModelFn commandOption.name)
+                    disabled=commandOption.info.disabled
                   )
-            }}
+              }}
+            {{else}}
+              {{> InputModel(createInputArgs
+                    value=(getModelKeyValue commandOption.name)
+                    key=commandOption.name
+                    type=(calcInputType commandOption.info)
+                    disabled=commandOption.info.disabled
+                    )
+              }}
+            {{/if}}
           </div>
           <div class="col-sm-5">
             {{ commandOption.info.description }}

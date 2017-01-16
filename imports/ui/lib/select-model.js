@@ -10,13 +10,14 @@ export const createSelectArgs = function (params) {
     options: params.hash.options,
     multi: params.hash.multi ? params.hash.multi : false, 
     disabled: params.hash.disabled,
-    setModel: function (values) {
-      let model = instance.data.model; 
-      let newModel = R.assoc(params.hash.key, values, model);
-      if (instance.data.setModel) {
-        instance.data.setModel(newModel); 
-      }
-    },
+    setModel: params.hash.setModel ? params.hash.setModel.fn : 
+      function (values) {
+        let model = instance.data.model; 
+        let newModel = R.assoc(params.hash.key, values, model);
+        if (instance.data.setModel) {
+          instance.data.setModel(newModel); 
+        }
+      },
     showNullOption: R.isNil(params.hash.showNullOption) ? false : params.hash.showNullOption
   };
 };
