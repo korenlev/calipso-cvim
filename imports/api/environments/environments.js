@@ -46,9 +46,6 @@ let defaultGroups = [{
   user: 'admin',
   pwd: 'admin',
 }, {
-  name: 'General',
-  app_path: '/etc/osdna/monitoring',
-}, {
   name: 'Monitoring',
   //app_path: '/etc/osdna/monitoring',
   config_folder: '/mp/sensu_test',
@@ -89,7 +86,6 @@ Environments.schema = new SimpleSchema({
         'OpenStack',
         'CLI',
         'AMQP',
-        'General',
         'Monitoring'
       ];
 
@@ -189,6 +185,12 @@ Environments.schema = new SimpleSchema({
     autoValue: function () {
       return 'environment';
     },
+  },
+  app_path: { 
+    type: String, 
+    autoValue: function () { 
+      return '/etc/osdna/monitoring'; 
+    } 
   },
 });
 
@@ -292,12 +294,6 @@ export const NfvProviderSchema = new SimpleSchema({
   pwd: { type: String },
 });
 
-export const GeneralSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'General'; } },
-  app_path: { type: String, autoValue: function () { return '/etc/osdna/monitoring'; } },
-});
-
-
 export const MonitoringSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'Monitoring'; } },
   //app_path: { type: String, autoValue: function () { return '/etc/osdna/monitoring'; } },
@@ -363,8 +359,6 @@ function getSchemaForGroupName(groupName) {
     return AMQPSchema;
   case 'NFV_provider':
     return NfvProviderSchema; 
-  case 'General':
-    return GeneralSchema;
   case 'Monitoring':
     return MonitoringSchema;
   default:
