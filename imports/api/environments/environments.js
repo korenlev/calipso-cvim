@@ -2,14 +2,12 @@ import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 import { Constants } from '/imports/api/constants/constants';
-
-let portRegEx = /^0*(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$/;
-
-let pathRegEx = /^(\/){1}([^\/\0]+(\/)?)+$/;
-
-let hostnameRegex= new RegExp('^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$');
-
-let ipAddressRegex = new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}');
+import { MysqlSchema } from './configuration-groups/mysql-configuration';
+import { OpenStackSchema } from './configuration-groups/open-stack-configuration';
+import { MonitoringSchema } from './configuration-groups/monitoring-configuration';
+import { CLISchema } from './configuration-groups/cli-configuration';
+import { AMQPSchema } from './configuration-groups/amqp-configuration';
+import { NfvProviderSchema } from './configuration-groups/nfv-provider-configuration';
 
 export const Environments = new Mongo.Collection('environments_config');
 
@@ -59,6 +57,18 @@ let defaultGroups = [{
 }
     ];
 
+export const requiredConfGroups = [
+  'mysql',
+  'OpenStack',
+  'CLI',
+  'AMQP',
+  'Monitoring'
+];
+
+export const optionalConfGroups = [
+  'NFV_provider'
+];
+
 Environments.schema = new SimpleSchema({
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
   configuration: { 
@@ -66,11 +76,15 @@ Environments.schema = new SimpleSchema({
     blackbox: true,
     autoValue: function () {
       let that = this;
+      let confGroups = that.value;
+
+      confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
+
       if (that.isSet) {
         let newValue = R.map(function(confGroup) {
           let schema = getSchemaForGroupName(confGroup.name);
           return schema.clean(confGroup);
-        }, that.value);
+        }, confGroups);
 
         return newValue;
       } else {
@@ -81,27 +95,20 @@ Environments.schema = new SimpleSchema({
       let that = this;
       let configurationGroups = that.value;
 
-      let requiredGroups = [
-        'mysql',
-        'OpenStack',
-        'CLI',
-        'AMQP',
-        'Monitoring'
-      ];
-
       let subErrors = [];
 
       let invalidResult = R.find(function(groupName) {
         subErrors = checkGroup(groupName, configurationGroups, true);
         if (subErrors.length > 0) { return true; } 
         return false;
-      }, requiredGroups);
+      }, requiredConfGroups);
 
       if (R.isNil(invalidResult)) {
-        subErrors = checkGroup('NFV_provider', configurationGroups, false);
-        if (subErrors.length > 0) {
-          invalidResult = {};
-        }
+        invalidResult = R.find(function(groupName) {
+          subErrors = checkGroup(groupName, configurationGroups, false);
+          if (subErrors.length > 0) { return true; } 
+          return false;
+        }, optionalConfGroups);
       }
 
       if (! R.isNil(invalidResult)) {
@@ -205,148 +212,6 @@ SimpleSchema.messages({
 
 Environments.attachSchema(Environments.schema);
 
-export const MysqlSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'mysql'; } },
-  host: { 
-    type: String,
-    regEx: SimpleSchema.RegEx.IP,
-  },
-  password: { type: String },
-  port: { 
-    type: String,
-    regEx: portRegEx
-  },
-  user: { type: String, min: 3 },
-});
-
-export const OpenStackSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'OpenStack'; } },
-  host: { 
-    type: String,
-    regEx: SimpleSchema.RegEx.IP,
-  },
-  admin_token: { type: String },
-  port: { 
-    type: String, 
-    regEx: portRegEx
-  },
-  user: { type: String },
-  pwd: { type: String },
-});
-
-export const CLISchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'CLI'; } },
-  host: { type: String },
-  key: { 
-    type: String,
-    regEx: pathRegEx,
-    optional: true
-  },
-  user: { type: String },
-  pwd: { 
-    type: String,
-    optional: true
-  },
-});
-
-CLISchema.addValidator(function () {
-  let that = this;
-  let password = that.field('pwd');
-  let key = that.field('key');
-
-
-  if (key.value || password.value) { return; }
-
-  throw {
-    isError: true,
-    type: 'subGroupError',
-    data: [],
-    message: 'Master Host Group: At least one required: key or password'
-  };
-});
-
-export const AMQPSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'AMQP'; } },
-  host: { 
-    type: String,
-    regEx: SimpleSchema.RegEx.IP,
-  },
-  port: { 
-    type: String, 
-    regEx: portRegEx
-  },
-  user: { type: String },
-  password: { type: String },
-});
-
-export const NfvProviderSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'NFV_provider'; } },
-  host: { 
-    type: String,
-    regEx: SimpleSchema.RegEx.IP,
-  },
-  admin_token: { type: String },
-  port: { 
-    type: String, 
-    regEx: portRegEx
-  },
-  user: { type: String },
-  pwd: { type: String },
-});
-
-export const MonitoringSchema = new SimpleSchema({
-  name: { type: String, autoValue: function () { return 'Monitoring'; } },
-  //app_path: { type: String, autoValue: function () { return '/etc/osdna/monitoring'; } },
-  config_folder: { 
-    type: String, 
-    autoValue: function () { return '/tmp/sensu_test'; } 
-  },
-  debug: { 
-    type: Boolean, 
-    autoValue: function () { return false; } 
-  },
-  event_based_scan: { 
-    type: Boolean, 
-    defaultValue: true 
-  }, 
-  env_type: { 
-    type: String, 
-    defaultValue: 'production',
-    custom: function () {
-      let that = this;
-      let EnvTypesRec = Constants.findOne({ name: 'env_types' });
-
-      if (R.isNil(EnvTypesRec.data)) { return 'notAllowed'; } 
-      let EnvTypes = EnvTypesRec.data;
-
-      if (R.isNil(R.find(R.propEq('value', that.value), EnvTypes))) {
-        return 'notAllowed';
-      }
-    },
-  },
-  port: {
-    type: String,
-    defaultValue: 4567,
-    regEx: portRegEx,
-  },
-  rabbitmq_user: { 
-    type: String,
-    defaultValue: 'sensu'
-  }, 
-  rabbitmq_pass: { type: String },
-  server_ip: {
-    type: String,
-    regEx: new RegExp(hostnameRegex.source + '|' + ipAddressRegex.soure)
-  },
-  server_name: {
-    type: String,
-  },
-  type: {
-    type: String,
-    defaultValue: 'Sensu'
-  }
-});
-
 function getSchemaForGroupName(groupName) {
   switch (groupName) {
   case 'mysql': 
@@ -410,4 +275,22 @@ function checkGroup(groupName, configurationGroups, groupRequired) {
 export function createNewConfGroup(groupName) {
   let schema = getSchemaForGroupName(groupName);
   return schema.clean({});
+}
+
+function cleanOptionalGroups(confGroups, optionalConfGroups) {
+  return R.filter((conf) => {
+    if (R.contains(conf.name, optionalConfGroups)) {
+      return !isConfEmpty(conf);     
+    } 
+
+    return true;
+  }, confGroups);
+}
+
+function isConfEmpty(conf) {
+  return ! R.any((key) => { 
+    if (key === 'name') { return false; } // We ignore the key 'name'. It is a 'type' key.
+    let val = conf[key];
+    return ! ( R.isNil(val) || R.isEmpty(val)); 
+  })(R.keys(conf));
 }

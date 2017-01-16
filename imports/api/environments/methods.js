@@ -30,6 +30,7 @@ export const insert = new ValidatedMethod({
   }) {
     // todo: create clean object instance.
     let environment = Environments.schema.clean({});
+
     environment = R.merge(environment, {
       configuration,
       user,
