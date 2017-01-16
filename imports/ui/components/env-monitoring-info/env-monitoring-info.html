@@ -1,22 +1,5 @@
 <template name="EnvMonitoringInfo">
 <div class="form-horizontal">
-  <div class="form-group">
-    <label for="" 
-      class="col-sm-2 control-label"
-      >{{ eventBasedScanLabel }}</label>
-
-    <div class="col-sm-3">
-      {{> InputModel(createInputArgs
-            value=model.event_based_scan
-            key='event_based_scan'
-            type="checkbox"
-            disabled=disabled)
-      }}
-    </div>
-    <div class="col-sm-4">
-      <p>{{ eventBasedScanDesc }}</p>
-    </div>
-  </div>
 
   <div class="form-group">
     <label for="" 
@@ -144,12 +127,12 @@
       >Type</label>
 
     <div class="col-sm-3">
-      {{> InputModel(createInputArgs
-            value=model.type 
+      {{> SelectModel(createSelectArgs
+            values=model.type 
             key="type"
-            type="text"
             disabled=disabled
-            placeholder="Type of monitoring system")
+            options=monitoringTypeOptions
+            showNullOption=false)
       }}
     </div>
 

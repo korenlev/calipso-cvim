@@ -11,52 +11,6 @@ import { NfvProviderSchema } from './configuration-groups/nfv-provider-configura
 
 export const Environments = new Mongo.Collection('environments_config');
 
-let defaultGroups = [{
-  name: 'mysql',
-  host: '10.0.0.1',
-  password: 'abcdefg123456',
-  port: '3307',
-  user: 'user',
-}, {
-  name: 'OpenStack',
-  host: '10.0.0.1',
-  admin_token: 'abcd1234',
-  port: '5000',
-  user: 'admin',
-  pwd: 'admin',
-}, {
-  name: 'CLI',
-  host: '10.0.0.1',
-  key: '',
-  pwd: '',
-  user: '',
-}, {
-  name: 'AMQP',
-  host: '10.0.0.1',
-  port: '5673',
-  user: 'User',
-  password: 'abcd1234'
-}, {
-  name: 'NFV_provider',
-  host: '10.0.0.1',
-  admin_token: 'abcdefg1234',
-  port: '5000',
-  user: 'admin',
-  pwd: 'admin',
-}, {
-  name: 'Monitoring',
-  //app_path: '/etc/osdna/monitoring',
-  config_folder: '/mp/sensu_test',
-  debug: false,
-  port: 4567,
-  rabbitmq_user: 'sensu',
-  rabbitmq_pass: null,
-  server_ip: null,
-  server_name: null,
-  type: 'Sensu'
-}
-    ];
-
 export const requiredConfGroups = [
   'mysql',
   'OpenStack',
@@ -76,11 +30,11 @@ Environments.schema = new SimpleSchema({
     blackbox: true,
     autoValue: function () {
       let that = this;
-      let confGroups = that.value;
-
-      confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
 
       if (that.isSet) {
+        let confGroups = that.value;
+        confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
+
         let newValue = R.map(function(confGroup) {
           let schema = getSchemaForGroupName(confGroup.name);
           return schema.clean(confGroup);
@@ -88,7 +42,11 @@ Environments.schema = new SimpleSchema({
 
         return newValue;
       } else {
-        return defaultGroups;
+        let newValue = R.map((confName) => {
+          let schema = getSchemaForGroupName(confName);
+          return schema.clean({});
+        }, requiredConfGroups);
+        return newValue;
       }
     },
     custom: function () {
@@ -122,10 +80,13 @@ Environments.schema = new SimpleSchema({
     },
 
   },
-  user: { type: String }, 
+  user: { 
+    type: String,
+    defaultValue: 'osdna_user'
+  }, 
   distribution: { 
     type: String, 
-    defaultValue: null,
+    defaultValue: 'Mirantis-8.0',
     custom: function () {
       let that = this;
       let constsDist = Constants.findOne({ name: 'distributions' });
@@ -138,15 +99,17 @@ Environments.schema = new SimpleSchema({
       }
     },
   }, 
-  last_scanned: { type: String, defaultValue: '' },
+  last_scanned: { 
+    type: String, defaultValue: '' 
+  },
   name: { 
     type: String, 
-    defaultValue: null,
+    defaultValue: 'MyEnvironmentName',
     min: 6,
   },
   type_drivers: { 
     type: String, 
-    defaultValue: null,
+    defaultValue: 'gre',
     custom: function () {
       let that = this;
       let TypeDriversRec = Constants.findOne({ name: 'type_drivers' });
@@ -161,7 +124,7 @@ Environments.schema = new SimpleSchema({
   }, 
   mechanism_drivers: { 
     type: [String],
-    defaultValue: [],
+    defaultValue: ['ovs'],
     minCount: 1,
     custom: function () {
       let that = this;
@@ -199,6 +162,10 @@ Environments.schema = new SimpleSchema({
       return '/etc/osdna/monitoring'; 
     } 
   },
+  event_based_scan: { 
+    type: Boolean, 
+    defaultValue: true 
+  }, 
 });
 
 // Bug in simple schema. cant add custom message to instance specific

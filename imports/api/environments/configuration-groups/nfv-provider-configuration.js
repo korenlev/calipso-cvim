@@ -7,7 +7,7 @@ export const NfvProviderSchema = new SimpleSchema({
     type: String,
     regEx: SimpleSchema.RegEx.IP,
   },
-  admin_token: { type: String },
+  nfv_token: { type: String },
   port: { 
     type: String, 
     regEx: portRegEx

@@ -16,10 +16,6 @@ export const MonitoringSchema = new SimpleSchema({
     type: Boolean, 
     autoValue: function () { return false; } 
   },
-  event_based_scan: { 
-    type: Boolean, 
-    defaultValue: true 
-  }, 
   env_type: { 
     type: String, 
     defaultValue: 'production',
@@ -47,13 +43,25 @@ export const MonitoringSchema = new SimpleSchema({
   rabbitmq_pass: { type: String },
   server_ip: {
     type: String,
-    regEx: new RegExp(hostnameRegex.source + '|' + ipAddressRegex.soure)
+    regEx: new RegExp(hostnameRegex.source + '|' + ipAddressRegex.soure),
+    defaultValue: '10.0.0.1',
   },
   server_name: {
     type: String,
+    defaultValue: 'sensu_server',
   },
   type: {
     type: String,
-    defaultValue: 'Sensu'
+    defaultValue: 'Sensu',
+    custom: function () {
+      let that = this;
+      let values = Constants.findOne({ name: 'environment_monitoring_types' }).data;
+
+      if (R.isNil(values)) { return 'notAllowed'; } 
+
+      if (R.isNil(R.find(R.propEq('value', that.value), values))) {
+        return 'notAllowed';
+      }
+    },
   }
 });

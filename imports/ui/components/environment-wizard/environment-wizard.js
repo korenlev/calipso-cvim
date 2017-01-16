@@ -214,10 +214,6 @@ Template.EnvironmentWizard.helpers({
       templateData: {
         model: getGroupInArray('Monitoring', environmentModel.configuration),
         disabled: disabled,
-        eventBasedScanLabel: R.path(['collections', 'environments', 'fields', 
-          'eventBasedScan', 'label'], instance.state.get('i18n')),
-        eventBasedScanDesc: R.path(['collections', 'environments', 'fields', 
-          'eventBasedScan', 'desc'], instance.state.get('i18n')),
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
@@ -342,6 +338,7 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
+      event_based_scan: environment.event_based_scan,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -354,6 +351,7 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
+      event_based_scan: environment.event_based_scan,
     }, processActionResult.bind(null, instance));
     break;
 

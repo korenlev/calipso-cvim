@@ -6,11 +6,16 @@ export const AMQPSchema = new SimpleSchema({
   host: { 
     type: String,
     regEx: SimpleSchema.RegEx.IP,
+    defaultValue: '10.0.0.1',
   },
   port: { 
     type: String, 
-    regEx: portRegEx
+    regEx: portRegEx,
+    defaultValue: '5673',
   },
-  user: { type: String },
+  user: { 
+    type: String, 
+    defaultValue: 'rabbitmquser'
+  },
   password: { type: String },
 });

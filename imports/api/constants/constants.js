@@ -1,6 +1,6 @@
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import * as R from 'ramda';
+import * as R from 'ramda';
 
 import { Distributions } from './data/distributions';
 //import { NetworkPlugins } from './data/network-plugins';
@@ -10,6 +10,7 @@ import { ObjectTypes } from './data/object-types';
 import { TypeDrivers } from './data/type-drivers';
 import { EnvTypes } from './data/env-types';
 import { Statuses as ScansStatuses } from './data/scans-statuses';
+import { EnvironmentMonitoringTypes } from './data/environment-monitoring-types';
 
 export const Constants = new Mongo.Collection('constants');
 
@@ -19,6 +20,32 @@ let schema = {
   data: { type: [Object], blackbox: true },
 };
 
+let constantsDefaults = [{
+  name: 'env_types',
+  values: EnvTypes
+}, {
+  name: 'scans_statuses', 
+  values: ScansStatuses
+}, {
+  name: 'environment_monitoring_types',
+  values: EnvironmentMonitoringTypes
+}, {
+  name: 'distributions',
+  values: Distributions
+}, {
+  name: 'log_levels',
+  values: LogLevels
+}, {
+  name: 'mechanism_drivers',
+  values: MechanismDrivers
+}, {
+  name: 'object_types',
+  values: ObjectTypes
+}, {
+  name: 'type_drivers',
+  values: TypeDrivers
+}];
+
 Constants.schema = schema;
 Constants.attachSchema(schema);
 
@@ -27,62 +54,16 @@ Constants.attachSchema(schema);
  */
 
 if (Meteor.server) {
-  if (Constants.find({ name: 'distributions'}).count() === 0) {
-    Constants.insert({
-      name: 'distributions',
-      data: Distributions
-    });
-  }
+  R.forEach((def) => {
+    insertConstants(Constants, def.name, def.values);
+  }, constantsDefaults);
+}
 
-  /* depracated 
-   *
-  if (Constants.find({ name: 'network_plugins'}).count() === 0) {
+function insertConstants(collection, name, values) {
+  if (collection.find({ name: name}).count() === 0) {
     Constants.insert({
-      name: 'network_plugins',
-      data: NetworkPlugins, 
-    });
-  }
-  */
-
-  if (Constants.find({ name: 'log_levels'}).count() === 0) {
-    Constants.insert({
-      name: 'log_levels',
-      data: LogLevels
-    });
-  }
-
-  if (Constants.find({ name: 'mechanism_drivers'}).count() === 0) {
-    Constants.insert({
-      name: 'mechanism_drivers',
-      data: MechanismDrivers
-    });
-  }
-
-  if (Constants.find({ name: 'object_types'}).count() === 0) {
-    Constants.insert({
-      name: 'object_types',
-      data: ObjectTypes
-    });
-  }
-
-  if (Constants.find({ name: 'type_drivers'}).count() === 0) {
-    Constants.insert({
-      name: 'type_drivers',
-      data: TypeDrivers
-    });
-  }
-
-  if (Constants.find({ name: 'env_types'}).count() === 0) {
-    Constants.insert({
-      name: 'env_types',
-      data: EnvTypes
-    });
-  }
-
-  if (Constants.find({ name: 'scans_statuses'}).count() === 0) {
-    Constants.insert({
-      name: 'scans_statuses',
-      data: ScansStatuses
+      name: name,
+      data: values
     });
   }
 }

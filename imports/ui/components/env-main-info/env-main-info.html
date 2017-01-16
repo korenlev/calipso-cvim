@@ -51,7 +51,7 @@
                 key="distribution"
                 disabled=disabled
                 options=distributionOptions
-                showNullOption=true)
+                showNullOption=false)
           }}
         </div>
         <div class="col-sm-4">
@@ -71,7 +71,7 @@
                 options=typeDriversOptions
                 disabled=disabled
                 multi=false
-                showNullOption=true)
+                showNullOption=false)
           }}
         </div>
         <div class="col-sm-4">
@@ -95,6 +95,24 @@
         </div>
         <div class="col-sm-4">
           <p>Enter mechanism drivers</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="" 
+          class="col-sm-2 control-label"
+          >Event based scan</label>
+
+        <div class="col-sm-3">
+          {{> InputModel(createInputArgs
+                value=model.event_based_scan
+                key='event_based_scan'
+                type="checkbox"
+                disabled=disabled)
+          }}
+        </div>
+        <div class="col-sm-4">
+          <p>Update the inventory in real-time whenever a user makes a change to the OpenStack environment</p>
         </div>
       </div>
 

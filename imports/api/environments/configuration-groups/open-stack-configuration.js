@@ -6,12 +6,17 @@ export const OpenStackSchema = new SimpleSchema({
   host: { 
     type: String,
     regEx: SimpleSchema.RegEx.IP,
+    defaultValue: '10.0.0.1',
   },
   admin_token: { type: String },
   port: { 
     type: String, 
-    regEx: portRegEx
+    regEx: portRegEx,
+    defaultValue: '5000',
   },
-  user: { type: String },
+  user: { 
+    type: String,
+    defaultValue: 'adminuser'
+  },
   pwd: { type: String },
 });

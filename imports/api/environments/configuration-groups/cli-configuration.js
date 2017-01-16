@@ -4,13 +4,19 @@ import { pathRegEx } from '/imports/lib/general-regex';
 
 export const CLISchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'CLI'; } },
-  host: { type: String },
+  host: { 
+    type: String,
+    defaultValue: '10.0.0.1'
+  },
   key: { 
     type: String,
     regEx: pathRegEx,
     optional: true
   },
-  user: { type: String },
+  user: { 
+    type: String,
+    defaultValue: 'sshuser'
+  },
   pwd: { 
     type: String,
     optional: true
