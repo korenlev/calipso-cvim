@@ -1,3 +1,15 @@
+/*
+ * Template Component: accordionWikiMenu
+ */
+
+import { Template } from 'meteor/templating';
+//import { ReactiveDict } from 'meteor/reactive-dict';
+
+//import { store } from '/imports/ui/store/store';
+//import { setCurrentNode } from '/imports/ui/actions/navigation';
+
+import './accordion-wiki-menu.html';
+
 Template.accordionWikiMenu.rendered = function () {
   
   // init wow lib

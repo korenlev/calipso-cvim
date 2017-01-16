@@ -13,6 +13,7 @@ import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-
 
 
 import '/imports/ui/components/search-auto-complete-list/search-auto-complete-list';
+import '/imports/ui/components/get-started/get-started';
 
 import './topnavbarmenu.html';
 
