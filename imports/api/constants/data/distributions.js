@@ -46,5 +46,11 @@ export const Distributions = [{
 }, {
   label: 'packstack-7.0.0-0.10.dev1682',
   value: 'packstack-7.0.0-0.10.dev1682',
+}, {
+  label: 'Stratoscale-v2.1.6',
+  value: 'Stratoscale-v2.1.6',
+}, {
+  label: 'Mirantis-9.1',
+  value: 'Mirantis-9.1',
 }
 ]; 
