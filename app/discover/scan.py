@@ -197,6 +197,7 @@ class ScanController(Fetcher):
             scanner.scan_links()
         if cliques_only or run_all:
             scanner.scan_cliques()
+        scanner.deploy_monitoring_setup()
         if scan_plan["cgi"]:
             response = {"success": not isinstance(results, bool),
                         "results": [] if isinstance(results, bool) else results}
