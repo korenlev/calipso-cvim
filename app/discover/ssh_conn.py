@@ -3,6 +3,7 @@ import os
 import paramiko
 
 from discover.configuration import Configuration
+from discover.inventory_mgr import InventoryMgr
 from discover.logger import Logger
 from utils.binary_converter import BinaryConverter
 
@@ -19,6 +20,8 @@ class SshConn(BinaryConverter, Logger):
     def __init__(self, host_name):
         super().__init__()
         self.config = Configuration()
+        self.env_config = self.config.get_env_config()
+        self.env = self.env_config['name']
         self.conf = self.config.get('CLI')
         self.set_host_conf(host_name)
         self.ssh = None
@@ -27,8 +30,10 @@ class SshConn(BinaryConverter, Logger):
         self.user = None
         self.pwd = None
         self.check_definitions()
+        self.inv = InventoryMgr()
         if host_name in self.connections and not self.ssh:
             self.ssh = self.connections[host_name]
+        self.fetched_host_details = False
 
     def set_host_conf(self, host_name):
         if 'hosts' in self.conf:
@@ -73,6 +78,34 @@ class SshConn(BinaryConverter, Logger):
 
     def get_host(self):
         return self.host
+
+    def get_host_details(self):
+        if not self.fetched_host_details:
+            host = self.inv.get_by_id(self.env, self.host)
+            if not host:
+                host = self.inv.find_items({'environment': self.env,
+                                            'type': 'host',
+                                            'ip_address': self.host},
+                                           get_single=True)
+            self.host_details = host
+            self.fetched_host_details = True
+        return self.host_details
+
+    def get_user(self):
+        return self.user
+
+    def is_gateway_host(self, host):
+        gateway_host = self.host
+        if host == gateway_host:
+            return True
+        # the values might not match if one is an IP address,
+        # so need to look in gateway host details
+        gateway_host_details = self.get_host_details()
+        if gateway_host_details and host == gateway_host_details['id']:
+            return True
+        if gateway_host_details and host == gateway_host_details['ip_address']:
+            return True
+        return False
 
     def connect(self):
         if self.host in self.connections:
@@ -121,11 +154,14 @@ class SshConn(BinaryConverter, Logger):
         stdout.close()
         return ret
 
-    def copy_file(self, local_file, remote_directory):
+    def copy_file(self, local_path, remote_path, mode=None):
         self.connect()
         if not self.ftp:
             self.ftp = self.ssh.open_sftp()
         try:
-            self.ftp.put(local_file, remote_directory)
+            self.ftp.put(local_path, remote_path)
+            if mode:
+                remote_file = self.ftp.file(remote_path, 'a+')
+                remote_file.chmod(mode)
         except Exception:
             self.log.error('failed to copy file to remote host ' + self.host)
