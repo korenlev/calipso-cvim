@@ -5,8 +5,8 @@ export const MechanismDrivers = [{
   'label' : 'vpp', 
   'value' : 'vpp'
 }, {
-  'label' : 'LinuxBridge', 
-  'value' : 'LinuxBridge'
+  'label' : 'lxb', 
+  'value' : 'lxb'
 }, {
   'label' : 'Arista', 
   'value' : 'Arista'
