@@ -338,7 +338,7 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
-      event_based_scan: environment.event_based_scan,
+      listen: environment.listen,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -351,7 +351,7 @@ function doSubmit(instance) {
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
-      event_based_scan: environment.event_based_scan,
+      listen: environment.listen,
     }, processActionResult.bind(null, instance));
     break;
 

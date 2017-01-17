@@ -162,7 +162,7 @@ Environments.schema = new SimpleSchema({
       return '/etc/osdna/monitoring'; 
     } 
   },
-  event_based_scan: { 
+  listen: { 
     type: Boolean, 
     defaultValue: true 
   }, 
