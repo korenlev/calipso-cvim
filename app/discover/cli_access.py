@@ -18,25 +18,35 @@ class CliAccess(BinaryConverter, Fetcher):
     def __init__(self):
         super().__init__()
 
-    def run(self, cmd, ssh_to_host="", enable_cache=True):
+    def is_gateway_host(self, ssh_to_host):
         ssh_conn = SshConn(ssh_to_host)
-        if ssh_to_host and ssh_to_host != ssh_conn.get_host():
+        return ssh_conn.is_gateway_host(ssh_to_host)
+
+    def run_on_gateway(self, cmd, ssh_to_host="", enable_cache=True):
+        self.run(cmd, ssh_to_host, enable_cache, True)
+
+    def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False):
+        ssh_conn = SshConn(ssh_to_host)
+        if not on_gateway and ssh_to_host \
+                and not ssh_conn.is_gateway_host(ssh_to_host) \
+                and not cmd.strip().startswith("sudo "):
             cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
         curr_time = time.time()
-        if enable_cache and cmd in self.cached_commands:
+        cmd_path = ssh_to_host + ',' + cmd
+        if enable_cache and cmd_path in self.cached_commands:
             # try to re-use output from last call
-            cached = self.cached_commands[cmd]
+            cached = self.cached_commands[cmd_path]
             if cached["timestamp"] + self.cache_lifetime < curr_time:
                 # result expired
-                self.cached_commands.pop(cmd, None)
+                self.cached_commands.pop(cmd_path, None)
             else:
                 # result is good to use - skip the SSH call
                 self.log.info('CliAccess: ****** using cached result, ' +
-                              'cmd: %s ******', cmd)
+                              'host: ' + ssh_to_host + ', cmd: %s ******', cmd)
                 return cached["result"]
 
         ret = ssh_conn.exec(cmd)
-        self.cached_commands[cmd] = {"timestamp": curr_time, "result": ret}
+        self.cached_commands[cmd_path] = {"timestamp": curr_time, "result": ret}
         return ret
 
     def run_fetch_lines(self, cmd, ssh_to_host="", enable_cache=True):
