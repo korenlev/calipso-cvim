@@ -75,6 +75,7 @@ let schema = {
   },
   object_id: {
     type: String,
+    optional: true,
   },
   log_level: {
     type: String,
