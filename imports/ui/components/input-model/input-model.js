@@ -1,24 +1,24 @@
 /*
- * Template Component: InputModel 
+ * Template Component: InputModel
  */
-    
-//import { Meteor } from 'meteor/meteor'; 
+
+//import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
-        
-import './input-model.html';     
-    
-/*  
+
+import './input-model.html';
+
+/*
  * Lifecycles
- */   
-  
+ */
+
 Template.InputModel.onCreated(function() {
-});  
+});
 
 /*
 Template.InputModel.rendered = function() {
-};  
+};
 */
 
 /*
@@ -26,23 +26,24 @@ Template.InputModel.rendered = function() {
  */
 
 Template.InputModel.events({
-  'input .inputField': function (event) {
-    let instance = Template.instance();
+  'input .inputField': function (event, instance) {
+    if (instance.data.type === 'checkbox') { return; }
+
     instance.data.setModel(event.target.value);
   },
   'click .inputField': function (event, instance) {
-    if (instance.data.type === 'checkbox') {
-      let element = instance.$('.inputField')[0];
-      instance.data.setModel(element.checked);
-    } 
+    if (instance.data.type !== 'checkbox') { return; }
+
+    let element = instance.$('.inputField')[0];
+    instance.data.setModel(element.checked);
   }
 });
-   
-/*  
+
+/*
  * Helpers
  */
 
-Template.InputModel.helpers({    
+Template.InputModel.helpers({
   calcAttrs: function () {
     let instance = Template.instance();
     let attrs = {};
@@ -50,7 +51,7 @@ Template.InputModel.helpers({
     if (instance.data.type === 'checkbox') {
       if (instance.data.value) {
         attrs.checked = true;
-      } 
+      }
     } else {
       attrs.value = instance.data.value;
     }
@@ -60,7 +61,7 @@ Template.InputModel.helpers({
 
   calcType: function () {
     let instance = Template.instance();
-    return instance.data.type; 
+    return instance.data.type;
   },
 
   calcId: function () {

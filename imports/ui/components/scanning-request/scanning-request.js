@@ -1,8 +1,8 @@
 /*
- * Template Component: ScanningRequest 
+ * Template Component: ScanningRequest
  */
-    
-//import { Meteor } from 'meteor/meteor'; 
+
+//import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
@@ -14,22 +14,22 @@ import { Scans } from '/imports/api/scans/scans';
 
 import '/imports/ui/components/input-model/input-model';
 import '/imports/ui/components/select-model/select-model';
-        
+
 import {
   insert,
 } from '/imports/api/scans/methods';
 
-import './scanning-request.html';     
-    
+import './scanning-request.html';
+
 const noteTypeScanExists = {
   type: 'scanExists',
   message: 'There is already a scan in progess in the system. Please wait until it ends.'
 };
 
-/*  
+/*
  * Lifecycles
- */   
-  
+ */
+
 Template.ScanningRequest.onCreated(function() {
   let instance = this;
   instance.state = new ReactiveDict();
@@ -62,22 +62,22 @@ Template.ScanningRequest.onCreated(function() {
     let notifications = instance.state.get('notifications');
     if (Scans.find({ environment: envName, status: { $in: ['pending', 'running'] } }).count() > 0) {
       instance.state.set('notifications', R.assoc(
-        noteTypeScanExists.type, 
-        noteTypeScanExists.type, 
+        noteTypeScanExists.type,
+        noteTypeScanExists.type,
         notifications
       ));
     } else {
       instance.state.set('notifications', R.dissoc(
-        noteTypeScanExists.type, 
+        noteTypeScanExists.type,
         notifications
       ));
     }
   });
-});  
+});
 
 /*
 Template.ScanningRequest.rendered = function() {
-};  
+};
 */
 
 /*
@@ -86,17 +86,15 @@ Template.ScanningRequest.rendered = function() {
 
 Template.ScanningRequest.events({
   'click .js-submit-button': function(event, instance) {
-    console.log('submit click');
-
     submitItem(instance);
   }
 });
-   
-/*  
+
+/*
  * Helpers
  */
 
-Template.ScanningRequest.helpers({    
+Template.ScanningRequest.helpers({
   notifications: function () {
     let instance = Template.instance();
     let notifications = instance.state.get('notifications');
@@ -106,14 +104,14 @@ Template.ScanningRequest.helpers({
         case noteTypeScanExists.type:
           return noteTypeScanExists.message;
         default:
-          return ''; 
+          return '';
         }
       }),
       R.values()
     )(notifications);
 
     return notesExpaned;
-  }, 
+  },
 
   notificationsExists: function () {
     let instance = Template.instance();
@@ -135,9 +133,6 @@ Template.ScanningRequest.helpers({
       placeholder: params.hash.placeholder,
       disabled: params.hash.disabled,
       setModel: function (value) {
-        console.log('setting model');
-        console.log(value);
-
         let model = instance.state.get('model');
         let newModel = R.assoc(params.hash.key, value, model);
         instance.state.set('model', newModel);
@@ -163,7 +158,7 @@ Template.ScanningRequest.helpers({
 
   getState: function (key) {
     let instance = Template.instance();
-    return instance.state.get(key); 
+    return instance.state.get(key);
   },
 
   getFieldDesc: function (key) {
@@ -171,7 +166,7 @@ Template.ScanningRequest.helpers({
     return Scans.schemaRelated[key].description;
   },
 
-  commandOptions: function () { 
+  commandOptions: function () {
     let array = [];
 
     R.mapObjIndexed((value, key) => {
@@ -216,10 +211,10 @@ function submitItem(instance) {
   let action = instance.state.get('action');
   let model = instance.state.get('model');
 
-  instance.state.set('isError', false);  
-  instance.state.set('isSuccess', false);  
-  instance.state.set('isMessage', false);  
-  instance.state.set('message', null);  
+  instance.state.set('isError', false);
+  instance.state.set('isSuccess', false);
+  instance.state.set('isMessage', false);
+  instance.state.set('message', null);
 
   switch (action) {
   case 'insert':
@@ -246,7 +241,7 @@ function processActionResult(instance, error) {
   if (error) {
     instance.state.set('isError', true);
     instance.state.set('isSuccess', false);
-    instance.state.set('isMessage', true);  
+    instance.state.set('isMessage', true);
 
     if (typeof error === 'string') {
       instance.state.set('message', error);
@@ -257,7 +252,7 @@ function processActionResult(instance, error) {
   } else {
     instance.state.set('isError', false);
     instance.state.set('isSuccess', true);
-    instance.state.set('isMessage', true);  
+    instance.state.set('isMessage', true);
 
     if (action === 'insert') {
       instance.state.set('message', 'Record had been added successfully');

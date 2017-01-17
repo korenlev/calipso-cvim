@@ -1,19 +1,19 @@
 export const LogLevels = [{
-  label: 'Critical', 
+  label: 'CRITICAL', 
   value: 'critical', 
 }, {
-  label: 'Error', 
+  label: 'ERROR', 
   value: 'error', 
 }, {
-  label: 'Warning', 
+  label: 'WARNING', 
   value: 'warning', 
 }, {
-  label: 'Info', 
+  label: 'INFO', 
   value: 'info', 
 }, {
-  label: 'Debug', 
+  label: 'DEBUG', 
   value: 'debug', 
 }, {
-  label: 'Notset',
+  label: 'NOTSET',
   value: 'notset',
 }];
