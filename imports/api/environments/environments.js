@@ -164,8 +164,12 @@ Environments.schema = new SimpleSchema({
   },
   listen: { 
     type: Boolean, 
-    defaultValue: true 
+    defaultValue: true,
   }, 
+  no_monitoring: {
+    type: Boolean, 
+    defaultValue: false, 
+  }
 });
 
 // Bug in simple schema. cant add custom message to instance specific
