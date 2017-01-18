@@ -40,8 +40,25 @@ Template.Environment.onCreated(function () {
     envName: null,
     searchTerm: null,
     briefInfoList: [{
+      header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
+      dataSource: 'infoInstancesCount',
+      icon: { type: 'fa', name: 'desktop' },
+    }, {
+      header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
+      dataSource: 'infoVServicesCount',
+      icon: { type: 'fa', name: 'object-group' },
+    }, {
+      header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
+      dataSource: 'infoHostsCount',
+      icon: { type: 'fa', name: 'server' },
+    }, {
+      header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
+      dataSource: 'infoVConnectorsCount',
+      icon: { type: 'fa', name: 'compress' },
+    }, {
       header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
-      dataSource: 'infoLastScanning'
+      dataSource: 'infoLastScanning',
+      icon: { type: 'fa', name: 'search' },
     }],
     infoLastScanning: null
   });
@@ -86,6 +103,7 @@ Template.Environment.onCreated(function () {
           name_path: '/' + envName
         }));
       }
+
     }
 
     instance.subscribe('inventory?env+type', envName, 'instance');
@@ -103,6 +121,25 @@ Template.Environment.onCreated(function () {
       instance.state.set('infoLastScanning', env.last_scanned);
     });
 
+    let vConnectorCounterName = 'inventory?env+type!counter?env=' +
+      envName + '&type=' + 'vconnector';
+    let infoVConnectorsCount = Counts.get(vConnectorCounterName);
+    instance.state.set('infoVConnectorsCount', infoVConnectorsCount);
+
+    let hostsCounterName = 'inventory?env+type!counter?env=' +
+      envName + '&type=' + 'host';
+    let infoHostsCount = Counts.get(hostsCounterName);
+    instance.state.set('infoHostsCount', infoHostsCount);
+
+    let vServicesCounterName = 'inventory?env+type!counter?env=' +
+      envName + '&type=' + 'vservice';
+    let infoVServicesCount =  Counts.get(vServicesCounterName);
+    instance.state.set('infoVServicesCount', infoVServicesCount);
+
+    let instancesCounterName = 'inventory?env+type!counter?env=' +
+      envName + '&type=' + 'instance';
+    let infoInstancesCount = Counts.get(instancesCounterName);
+    instance.state.set('infoInstancesCount', infoInstancesCount);
   });
 
 });
@@ -164,42 +201,6 @@ Template.Environment.helpers({
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
     return envName;
-  },
-
-  instancesCount: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' +
-      envName + '&type=' + 'instance';
-    //return Inventory.find({environment: envName,type:'instance'}).count();
-    return Counts.get(counterName);
-  },
-
-  vservicesCount: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' +
-      envName + '&type=' + 'vservice';
-    //return Inventory.find({environment: envName,type:'vservice'}).count();
-    return Counts.get(counterName);
-  },
-
-  hostsCount: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' +
-      envName + '&type=' + 'host';
-    //return Inventory.find({environment: envName,type:'host'}).count();
-    return Counts.get(counterName);
-  },
-
-  vconnectorsCount: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    var counterName = 'inventory?env+type!counter?env=' +
-      envName + '&type=' + 'vconnector';
-    //return Inventory.find({environment: envName,type: 'vconnector'}).count();
-    return Counts.get(counterName);
   },
 
   projectsCount: function(){
@@ -290,7 +291,8 @@ Template.Environment.helpers({
     let instance = Template.instance();
     return {
       header: R.path(briefInfo.header, store.getState().api.i18n),
-      dataInfo: instance.state.get(briefInfo.dataSource) 
+      dataInfo: instance.state.get(briefInfo.dataSource),
+      icon: briefInfo.icon
     };
   }
 

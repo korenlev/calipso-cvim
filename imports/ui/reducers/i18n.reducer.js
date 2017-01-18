@@ -19,6 +19,18 @@ const defaultState = {
       briefInfos: {
         lastScanning: {
           header: 'Last scanning'
+        },
+        vConnectorsNum: {
+          header: 'Number of vConnectors'
+        },
+        hostsNum: {
+          header: 'Number of hosts'
+        },
+        vServicesNum: {
+          header: 'Number of vServices'
+        },
+        instancesNum: {
+          header: 'Number of instances'
         }
       }
     }

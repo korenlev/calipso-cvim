@@ -30,47 +30,6 @@
 
       <div class="mainContentData flex-box justify-content-between">
 
-        <div class="cards-w250 white blue-text flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="fa fa-desktop"></i>
-            </div>
-            <div class="flex-box-2">
-            <p>Number of instances <br> <span>{{instancesCount}}</span></p>
-            </div>
-          </div>
-        </div>
-        <div class="cards-w250 white blue-text flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="fa fa-object-group"></i>
-            </div>
-            <div class="flex-box-2">
-            <p>Number of vServices <br> <span>{{vservicesCount}}</span></p>
-            </div>
-          </div>
-        </div>
-        <div class="cards-w250 white blue-text flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="fa fa-server" aria-hidden="true"></i>
-            </div>
-            <div class="flex-box-2">
-            <p>Number of hosts <br> <span>{{hostsCount}}</span></p>
-            </div>
-          </div>
-        </div>
-        <div class="cards-w250 white blue-text flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="fa fa-compress"></i>
-            </div>
-            <div class="flex-box-2">
-            <p>Number of vConnectors <br> <span>{{vconnectorsCount}}</span></p>
-            </div>
-          </div>
-        </div>
-
         {{#each briefInfo in briefInfoList }}
           {{> DataCubic (genArgsBriefInfo briefInfo) }}
         {{/each }}
