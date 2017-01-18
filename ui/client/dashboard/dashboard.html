@@ -1,0 +1,172 @@
+<template name="dashboard">
+
+  <!-- modals template for issue modal  -->
+  {{> eventModals}}
+
+  <div class="flex-box">
+    
+    <div class="flex-box-1 site-sidenav-collapse">
+      <i class="material-icons">menu</i>
+    </div>
+
+    <div class="flex-box-3 main-layout-no-nav">
+      
+      <!-- this flex box separate enviroment cards from alerts -->
+      <div class="flex-box ">
+        
+        <!-- this flex box for enviroment cards -->
+        <div class="flex-box-3 flex-box flex-col">
+          {{#each envItem in envList}}
+            <div class="cards-flex-col-h500 white flex-box-1 ">
+              <div class="flex-box justify-content-between">
+                <div class="flex-box-1">
+                  <i class="material-icons">view_carousel</i>
+                </div>
+                <div class="flex-box-3">
+                  <h3>Enviroment name: {{ envItem.name }}</h3>
+                  <table class="table table-striped">
+                    <tbody>
+                      <tr>
+                        <th>Distribution</th>
+                        <td> {{ envItem.distribution }} </td>
+                      </tr>
+                      <tr>
+                        <th>Number of regions: {{ regoinsCount (envItem.name) }}</th>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Select region from dropdown
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    {{#each regionItem in regoins (envItem.name) }}
+                                        <li><a href="{{pathFor route='region' query='regionName='}}{{ regionItem.object_name }}">{{ regionItem.object_name }}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Number of projects: {{ projectsCount (envItem.name) }}</th>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Select project from dropdown
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    {{#each projectItem in projects (envItem.name) }}
+                                        <li><a href="{{pathFor route='project' query='projectName='}}{{ projectItem.object_name }}">{{ projectItem.object_name }}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </div>
+
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>Enviroment summary:</h5>
+                  <div class="flex-box justify-content-around">
+                    <div class="cards-w300-h60 white blue-text flex-box-1">
+                      <div class="flex-box ">
+                        <div class="flex-box-1">
+                          <i class="fa fa-desktop"></i>
+                        </div>
+                        <div class="flex-box-3">
+                        <p>Number of instances {{ instancesCount (envItem.name)}}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cards-w300-h60 white blue-text flex-box-1">
+                      <div class="flex-box ">
+                        <div class="flex-box-1">
+                          <i class="fa fa-object-group"></i>
+                        </div>
+                        <div class="flex-box-3">
+                        <p>Number of vServices {{ vservicesCount (envItem.name) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex-box justify-content-around">
+                    <div class="cards-w300-h60 white blue-text flex-box-1">
+                      <div class="flex-box ">
+                        <div class="flex-box-1">
+                          <i class="fa fa-compress"></i>
+                        </div>
+                        <div class="flex-box-3">
+                        <p>Number of vConnectors {{ vconnectorsCount (envItem.name) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cards-w300-h60 white blue-text flex-box-1">
+                      <div class="flex-box ">
+                        <div class="flex-box-1">
+                          <i class="fa fa-server" aria-hidden="true"></i>
+                        </div>
+                        <div class="flex-box-3">
+                        <p>Number of hosts {{ hostsCount (envItem.name) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        {{/each}} <!-- envItem in envList -->
+
+        </div> <!-- flex box for enviroment cards -->
+        
+        <!-- this flex box for alerts cards -->
+        <div class="flex-box-1 flex-box flex-col ">
+          
+          <div class="cards-flex-col-h120 white green-text not-active flex-box-1">
+            <div class="flex-box ">
+              <div class="flex-box-1">
+                <i class="material-icons">notifications</i>
+              </div>
+              <div class="flex-box-2">
+                <h5>Notification</h5>
+                <p>Total: {{notificationsCount}}</p>
+                <p>Timestamp: 4/4/2016 5:40pm</p>
+                <a href="#" data-toggle="modal" data-target="#notificationGlobal">More details</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="cards-flex-col-h120 white orange-text not-active flex-box-1">
+            <div class="flex-box ">
+              <div class="flex-box-1">
+                <i class="material-icons">warning</i>
+              </div>
+              <div class="flex-box-2">
+                <h5>Warning</h5>
+                <p>Total: {{warningsCount}}</p>
+                <p>Timestamp: 4/4/2016 5:40pm</p>
+                <a href="#" data-toggle="modal" data-target="#issueGlobal">More details</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="cards-flex-col-h120 white red-text flex-box-1">
+            <div class="flex-box ">
+              <div class="flex-box-1">
+                <i class="material-icons">error</i>
+              </div>
+              <div class="flex-box-2">
+                <h5>Error</h5>
+                <p class="active">Total: {{errorsCount}}</p>
+                <p>Timestamp: 4/4/2016 5:40pm</p>
+                <a href="#" data-toggle="modal" data-target="#errorGlobal">More details</a>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- flex box for alerts cards -->
+
+      </div>
+
+    </div> <!-- main-layout -->
+  </div>
+
+</template>

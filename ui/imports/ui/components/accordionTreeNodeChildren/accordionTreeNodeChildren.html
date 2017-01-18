@@ -1,0 +1,9 @@
+<template name="accordionTreeNodeChildren" >
+<ul class="submenu">       
+    {{#each childItem in children }}
+        {{> accordionTreeNode (createTreeNodeArgs childItem selectedNode) }}
+    {{/each }}
+</ul>
+{{ reactOnNewData node }}
+</template>
+

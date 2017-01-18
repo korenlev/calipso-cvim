@@ -1,0 +1,21 @@
+<template name="accordionNavMenu">
+  <nav class="os-accordion-nav-menu">
+    <div id="left-nav-menu" class="left-nav-menu">
+      <div class="menu-header">
+        <p>
+            {{envName}}
+        </p>
+        <a href="#"><i class="material-icons">menu</i></a>
+      </div>
+      <ul class="sm-menu-items-list">
+        <li><a class="toggleGraph" href="#"><i class="material-icons">share</i>Toggle Graph</a></li>
+        <li><a href="{{pathFor route='dashboard'}}"><i class="material-icons">home</i>Dashboard</a></li>
+
+        {{>accordionTreeNode (createNodeArgs rootNode)}}
+        
+        <li><a href="#"><i class="fa fa-envelope"> </i> Contact</a></li>
+      </ul>
+      <div class="menu-footer"> Cisco Systems inc. All rights reserved.</div>
+    </div>
+  </nav>
+</template>

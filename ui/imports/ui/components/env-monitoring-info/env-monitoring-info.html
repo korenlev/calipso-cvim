@@ -1,0 +1,145 @@
+<template name="EnvMonitoringInfo">
+<div class="form-horizontal">
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Environment Type</label>
+
+    <div class="col-sm-3">
+      {{> SelectModel(createSelectArgs
+            values=model.env_type 
+            key="env_type"
+            disabled=disabled
+            options=envTypeOptions
+            )
+      }}
+    </div>
+    <div class="col-sm-4">
+      <p>Enter environment type</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Port</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.port 
+            key="port"
+            type="text"
+            disabled=disabled
+            placeholder="Port")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>What port to use for the monitoring program</p>
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >RabbitMQ User</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.rabbitmq_user 
+            key="rabbitmq_user"
+            type="text"
+            disabled=disabled
+            placeholder="User")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>User used to access RabbitMQ</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >RabbitMQ Password</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.rabbitmq_pass 
+            key="rabbitmq_pass"
+            type="password"
+            disabled=disabled
+            placeholder="RabbitMQ Password")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Password used to access RabbitMQ</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Server IP</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.server_ip 
+            key="server_ip"
+            type="text"
+            disabled=disabled
+            placeholder="Server IP")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Network name or IP address of server on which Sensu will run</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Server Name</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.server_name 
+            key="server_name"
+            type="text"
+            disabled=disabled
+            placeholder="Server name")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Name of the server on which Sensu runs. Example: 'devtest-sensu'</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Type</label>
+
+    <div class="col-sm-3">
+      {{> SelectModel(createSelectArgs
+            values=model.type 
+            key="type"
+            disabled=disabled
+            options=monitoringTypeOptions
+            showNullOption=false)
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Type of monitoring system used</p>
+    </div>
+  </div>
+
+</div>
+</template>
