@@ -8,13 +8,20 @@ const defaultState = {
     environments: {
       fields: {
         eventBasedScan: {
-          label: 'Event based scan',
+          header: 'Event based scan',
           desc: 'Update the inventory in real-time whenever a user makes a change to the OpenStack environment'
         }
       }
     }
   },
   components: {
+    environment: {
+      briefInfos: {
+        lastScanning: {
+          header: 'Last scanning'
+        }
+      }
+    }
   }
 };
 

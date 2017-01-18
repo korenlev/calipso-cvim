@@ -29,6 +29,7 @@
       </div>
 
       <div class="mainContentData flex-box justify-content-between">
+
         <div class="cards-w250 white blue-text flex-box-1">
           <div class="flex-box ">
             <div class="flex-box-1">
@@ -69,7 +70,13 @@
             </div>
           </div>
         </div>
+
+        {{#each briefInfo in briefInfoList }}
+          {{> DataCubic (genArgsBriefInfo briefInfo) }}
+        {{/each }}
+
       </div>
+
       <div class="mainContentData flex-box justify-content-between">
         <div class="cards-flex-col-h120 white not-active green-text flex-box-1">
           <div class="flex-box ">

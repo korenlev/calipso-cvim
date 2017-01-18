@@ -9,9 +9,10 @@
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { Counts } from 'meteor/tmeasday:publish-counts';
-//import * as R from 'ramda';
+import * as R from 'ramda';
 
 import { Inventory } from '/imports/api/inventories/inventories';
+import { Environments } from '/imports/api/environments/environments';
 //import { Messages } from '/imports/api/messages/messages';
 
 import { store } from '/imports/ui/store/store';
@@ -21,6 +22,8 @@ import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
 //import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+import '/imports/ui/components/data-cubic/data-cubic';
+import '/imports/ui/components/icon/icon';
 
 import './environment.html';
 
@@ -35,7 +38,12 @@ Template.Environment.onCreated(function () {
   instance.state.setDefault({
     childNodeRequested: null,
     envName: null,
-    searchTerm: null
+    searchTerm: null,
+    briefInfoList: [{
+      header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
+      dataSource: 'infoLastScanning'
+    }],
+    infoLastScanning: null
   });
 
   instance.autorun(function () {
@@ -89,21 +97,13 @@ Template.Environment.onCreated(function () {
     instance.subscribe('messages?env+level', envName, 'notify');
     instance.subscribe('messages?env+level', envName, 'warn');
     instance.subscribe('messages?env+level', envName, 'error');
-  });
+    instance.subscribe('environments?name', envName);
 
-  /* Depracted: search is done in audo search box.
-  instance.autorun(function () {
-    var controller = Iron.controller();
-    let envName = controller.state.get('envName');
-    let searchTerm = instance.state.get('searchTerm');
-    if (searchTerm) {
-      Inventory.find({ environment: envName, name: searchTerm })
-      .forEach(function (resultNode) { // todo: one result only ?
-        store.dispatch(setCurrentNode(resultNode));
-      });
-    }
+    Environments.find({ name: envName }).forEach((env) => {
+      instance.state.set('infoLastScanning', env.last_scanned);
+    });
+
   });
-  */
 
 });
 
@@ -278,6 +278,19 @@ Template.Environment.helpers({
   createNavMenuArgs: function (childNodeRequested) {
     return {
       childNodeRequested: childNodeRequested
+    };
+  },
+
+  briefInfoList: function () {
+    let instance = Template.instance();
+    return instance.state.get('briefInfoList');
+  },
+
+  genArgsBriefInfo: function (briefInfo) {
+    let instance = Template.instance();
+    return {
+      header: R.path(briefInfo.header, store.getState().api.i18n),
+      dataInfo: instance.state.get(briefInfo.dataSource) 
     };
   }
 
