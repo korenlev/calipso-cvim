@@ -1,0 +1,11 @@
+{
+"namespace": "pnda.kafka.metrics",
+ "type": "record",
+ "name": "metricRecord",
+ "fields": [
+     {"name": "timestamp", "type": "long"},
+     {"name": "src",       "type": "string"},
+     {"name": "host_ip",   "type": "string"},
+     {"name": "rawdata",   "type": "bytes"}
+ ]
+}
