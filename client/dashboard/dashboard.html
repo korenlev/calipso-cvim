@@ -56,7 +56,7 @@
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                                     {{#each projectItem in projects (envItem.name) }}
-                                        <li><a href="{{pathFor route='project' query='projectName='}}{{ projectItem.object_name }}">{{ projectItem.object_name }}</a></li>
+                                        <li><a href="{{pathFor route='project' query='id='}}{{ projectItem.id }}">{{ projectItem.object_name }}</a></li>
                                     {{/each}}
                                 </ul>
                             </div>

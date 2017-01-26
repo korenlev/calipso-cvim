@@ -1,7 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { Counts } from 'meteor/tmeasday:publish-counts';
+import { check } from 'meteor/check';
+//import * as R from 'ramda';
 
 import { Inventory } from '../inventories.js';
+import { regexEscape } from '/imports/lib/regex-utils';
 
 Meteor.publish('inventory', function () {
   console.log('server subscribtion to: inventory');
@@ -78,6 +81,30 @@ Meteor.publish('inventory?type+host', function (type, host) {
   console.log('- host: ' + host);
   return Inventory.find(query); 
 });
+
+Meteor.publish('inventory?id_path_like&type', function (id_path, type) {
+  check(id_path, String);
+  check(type, String);
+
+  let idPathExp = new RegExp(regexEscape(id_path));
+
+  let query = {
+    id_path: idPathExp,
+    type: type
+  };
+
+  var counterName = 'inventory?id_path_like&type!counter?id_path_like=' + 
+    id_path + '&type=' + type;
+
+  console.log('server subscribing to counter: ' + counterName);
+  Counts.publish(this, counterName, Inventory.find(query));
+
+  console.log('server subscribtion to: inventory?id_path_like&type');
+  console.log('-id_path_like: ' + id_path);
+  console.log('-type: ' + type);
+  return Inventory.find(query);
+});
+
 
 Meteor.publish('inventory.children', function (nodeId) {
   console.log('server subscribtion to: inventory.children');

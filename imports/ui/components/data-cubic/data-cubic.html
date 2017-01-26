@@ -1,12 +1,10 @@
 <template name="DataCubic">
-  <div class="cards-w250 white blue-text flex-box-1">
-    <div class="flex-box ">
-      <div class="flex-box-1">
-        {{> Icon type=icon.type name=icon.name }}
-      </div>
-      <div class="flex-box-2">
-        <p>{{ header }} <br> <span>{{ dataInfo }}</span></p>
-      </div>
+  <div class="os-data-cubic cards-w250 cl-theme-{{ theme }}">
+    <div class="sm-icon-part" >
+      {{> Icon type=icon.type name=icon.name }}
+    </div>
+    <div class="sm-info-part">
+      <p>{{ header }} <br> <span>{{ dataInfo }}</span></p>
     </div>
   </div>
 </template>

@@ -33,6 +33,16 @@ const defaultState = {
           header: 'Number of instances'
         }
       }
+    },
+    projectDashboard: {
+      infoBoxes: {
+        networks: {
+          header: 'Number of networks'
+        },
+        ports: {
+          header: 'Number of ports'
+        }
+      }
     }
   }
 };

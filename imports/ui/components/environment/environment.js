@@ -20,6 +20,7 @@ import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
 //import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
 //import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
+import { Icon } from '/imports/lib/icon';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
@@ -42,23 +43,23 @@ Template.Environment.onCreated(function () {
     briefInfoList: [{
       header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
       dataSource: 'infoInstancesCount',
-      icon: { type: 'fa', name: 'desktop' },
+      icon: new Icon({ type: 'fa', name: 'desktop' }),
     }, {
       header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
       dataSource: 'infoVServicesCount',
-      icon: { type: 'fa', name: 'object-group' },
+      icon: new Icon({ type: 'fa', name: 'object-group' }),
     }, {
       header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
       dataSource: 'infoHostsCount',
-      icon: { type: 'fa', name: 'server' },
+      icon: new Icon({ type: 'fa', name: 'server' }),
     }, {
       header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
       dataSource: 'infoVConnectorsCount',
-      icon: { type: 'fa', name: 'compress' },
+      icon: new Icon({ type: 'fa', name: 'compress' }),
     }, {
       header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
       dataSource: 'infoLastScanning',
-      icon: { type: 'fa', name: 'search' },
+      icon: new Icon({ type: 'fa', name: 'search' }),
     }],
     infoLastScanning: null
   });
@@ -291,8 +292,8 @@ Template.Environment.helpers({
     let instance = Template.instance();
     return {
       header: R.path(briefInfo.header, store.getState().api.i18n),
-      dataInfo: instance.state.get(briefInfo.dataSource),
-      icon: briefInfo.icon
+      dataInfo: R.toString(instance.state.get(briefInfo.dataSource)),
+      icon: new Icon(briefInfo.icon)
     };
   }
 

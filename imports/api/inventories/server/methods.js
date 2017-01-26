@@ -2,12 +2,11 @@
 
 import { check } from 'meteor/check';
 import { Inventory } from '../inventories';
+import { regexEscape } from '/imports/lib/regex-utils';
 
 const AUTO_COMPLETE_RESULTS_LIMIT = 5;
 
-function regexEscape(s) {
-  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-}
+
 
 Meteor.methods({
   'inventorySearch': function(searchTerm, envName) {

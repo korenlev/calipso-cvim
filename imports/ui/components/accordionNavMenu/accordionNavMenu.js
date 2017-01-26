@@ -253,6 +253,8 @@ Template.accordionNavMenu.helpers({
     var controller = Iron.controller();
     var envName = controller.state.get('envName');
 
+    if (R.isNil(envName)) { return null; }
+
     return {
       id: envName,
       type: 'environment',

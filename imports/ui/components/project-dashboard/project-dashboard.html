@@ -1,0 +1,34 @@
+<template name="ProjectDashboard">
+  <!-- modals template for issue modal  -->
+  {{> eventModals}}
+
+  <div class="flex-box justify-content-between">
+    <div class="flex-box-1 site-sidenav">
+      {{> accordionNavMenu}}  
+    </div>
+    <div class="flex-box-3 main-layout-no-nav">
+      
+      <div class="flex">
+        <div class="flex-box-1 cards white title">
+          <h4>Project name: {{ project.name }}</h4>
+        </div>
+      </div>
+
+      <div class="flex-box justify-content-around">
+        {{#each infoBox in infoBoxes }}
+          {{> DataCubic (genArgsInfoBox infoBox) }}
+        {{/each }}
+      </div>
+      
+      <!-- flex box for regions and projects -->
+      <div class="flex-box justify-content-between">
+        
+        {{#each network in networks }}
+          {{> NetworkInfoBox (argsNetworkInfoBox network) }}
+        {{/each }}
+        
+      </div>
+      
+    </div>
+  </div>
+</template>

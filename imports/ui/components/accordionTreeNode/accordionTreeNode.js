@@ -29,7 +29,7 @@ Template.accordionTreeNode.onCreated(function () {
   });
 
   instance.autorun(function () {
-    var tempData = instance.state.get('data');
+    //var tempData = instance.state.get('data');
 
     instance.subscribe('inventory.first-child',
       instance.data.node.id);
