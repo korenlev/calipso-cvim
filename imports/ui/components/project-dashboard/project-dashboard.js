@@ -38,7 +38,7 @@ Template.ProjectDashboard.onCreated(function() {
       icon: { type: 'material', name: 'settings_input_hdmi' },
       theme: 'dark'
     }],
-    project_id: null,
+    project_id_path: null,
     networksCount: 0,
     portsCount: 0,
   });
@@ -47,15 +47,16 @@ Template.ProjectDashboard.onCreated(function() {
     let controller = Iron.controller();
     let params = controller.getParams();
     let query = params.query;
-    let project_id = query.id;
+    let project_id_path = query.id_path;
 
-    instance.state.set('project_id', project_id);
+    instance.state.set('project_id_path', project_id_path);
 
-    instance.subscribe('inventory?id', project_id);
-    instance.subscribe('inventory?id_path_like&type', project_id, 'network');
-    instance.subscribe('inventory?id_path_like&type', project_id, 'port');
+    instance.subscribe('inventory?id_path', project_id_path);
+    instance.subscribe('inventory?id_path_start&type', project_id_path, 'network');
+    instance.subscribe('inventory?id_path_start&type', project_id_path, 'port');
 
-    let idPathExp = new RegExp(regexEscape(project_id));
+    let idPathExp = new RegExp(`^${regexEscape(project_id_path)}`);
+
     instance.state.set('networksCount', Inventory.find({ 
       id_path: idPathExp,
       type: 'network'
@@ -87,9 +88,9 @@ Template.ProjectDashboard.events({
 Template.ProjectDashboard.helpers({    
   project: function () {
     let instance = Template.instance();
-    let project_id = instance.state.get('project_id');
+    let project_id_path = instance.state.get('project_id_path');
 
-    return Inventory.findOne({ id: project_id });
+    return Inventory.findOne({ id_path: project_id_path });
   },
 
   infoBoxes: function () {
@@ -99,8 +100,8 @@ Template.ProjectDashboard.helpers({
 
   networks: function () {
     let instance = Template.instance();
-    let project_id = instance.state.get('project_id');
-    let idPathExp = new RegExp(regexEscape(project_id));
+    let project_id_path = instance.state.get('project_id_path');
+    let idPathExp = new RegExp(`^${regexEscape(project_id_path)}`);
     return Inventory.find({ 
       id_path: idPathExp,
       type: 'network'

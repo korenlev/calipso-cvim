@@ -18,6 +18,11 @@ Meteor.publish('inventory?id', function (id) {
   return Inventory.find({id: id});
 });
 
+Meteor.publish('inventory?id_path', function (id_path) {
+  console.log('server subscribtion to: inventory?id_path');
+  return Inventory.find({id_path: id_path});
+});
+
 Meteor.publish('inventory?_id-in', function (idsList) {
   var query = {
     _id: { $in: idsList }
@@ -82,25 +87,25 @@ Meteor.publish('inventory?type+host', function (type, host) {
   return Inventory.find(query); 
 });
 
-Meteor.publish('inventory?id_path_like&type', function (id_path, type) {
+Meteor.publish('inventory?id_path_start&type', function (id_path, type) {
   check(id_path, String);
   check(type, String);
 
-  let idPathExp = new RegExp(regexEscape(id_path));
+  let idPathExp = new RegExp(`^${regexEscape(id_path)}`);
 
   let query = {
     id_path: idPathExp,
     type: type
   };
 
-  var counterName = 'inventory?id_path_like&type!counter?id_path_like=' + 
+  var counterName = 'inventory?id_path_start&type!counter?id_path_start=' + 
     id_path + '&type=' + type;
 
   console.log('server subscribing to counter: ' + counterName);
   Counts.publish(this, counterName, Inventory.find(query));
 
-  console.log('server subscribtion to: inventory?id_path_like&type');
-  console.log('-id_path_like: ' + id_path);
+  console.log('server subscribtion to: inventory?id_path_start&type');
+  console.log('-id_path_start: ' + id_path);
   console.log('-type: ' + type);
   return Inventory.find(query);
 });

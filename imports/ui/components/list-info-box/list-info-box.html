@@ -1,0 +1,31 @@
+<template name="ListInfoBox">
+<div class="cards-450 white flex-box-1">
+  <div class="flex-box ">
+    <div class="flex-box-1">
+      {{> Icon type=icon.type name=icon.name }}
+    </div>
+    <div class="flex-box-2">
+      <h3>{{ header }}</h3>
+    <table class="table table-striped">
+      <tbody>
+        <tr>
+          <th>Last Scanning</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th>Number of {{ header }}:</th>
+          <td>{{ itemsCount }}</td>
+        </tr>
+        <tr>
+          <th>{{ header }}:</th>
+          <td>
+            {{> SelectModel(argsSelect list listItemFormat) 
+            }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+</template>

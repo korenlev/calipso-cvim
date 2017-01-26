@@ -43,6 +43,30 @@ const defaultState = {
           header: 'Number of ports'
         }
       }
+    },
+    regionDashboard: {
+      infoBoxes: {
+        instances: {
+          header: 'Number of instances'
+        },
+        vServices: {
+          header: 'Number of vServices'
+        },
+        hosts: {
+          header: 'Number of hosts'
+        },
+        vConnectors: {
+          header: 'Number of vConnectors'
+        }
+      },
+      listInfoBoxes: {
+        availabilityZones: {
+          header: 'Availability zones'
+        },
+        aggregates: {
+          header: 'Aggregates'
+        }
+      }
     }
   }
 };
