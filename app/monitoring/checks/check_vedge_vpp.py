@@ -36,10 +36,10 @@ try:
     matching_lines = [l for l in lines if search_pattern.match(l)]
     matching_line = matching_lines[0] if matching_lines else None
     if matching_line and "done" in matching_line.split():
-        print('output from "vppctl show runtime":\n' + out)
+        print(out)
     else:
         rc = 1
-        print('Error: failed to find status in output of "vppctl show runtime": ' + out)
+        print('Error: failed to find status in ifconfig output: ' + out)
 except subprocess.CalledProcessError as e:
     print("Error finding 'vppctl show runtime': " + binary2str(e.output))
     rc = 2
