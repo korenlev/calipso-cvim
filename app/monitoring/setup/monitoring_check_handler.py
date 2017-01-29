@@ -42,4 +42,4 @@ class MonitoringCheckHandler(MonitoringHandler):
                 }
             }
         content = client_file_content
-        self.write_config_file(file_type, client_file, sub_dir, host, content)
+        self.write_config_file(client_file, sub_dir, host, content)

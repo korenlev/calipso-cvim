@@ -40,8 +40,7 @@ class MonitoringSetupManager(MonitoringHandler):
         self.replacements.update(conf)
         for file_name in sensu_server_files:
             content = self.prepare_config_file(file_name, {'side': 'server'})
-            self.write_config_file(file_name, file_name, sub_dir, server_host,
-                                   content)
+            self.write_config_file(file_name, sub_dir, server_host, content)
         self.config.update_env({'monitoring_setup_done': True})
 
     # add setup for inventory object

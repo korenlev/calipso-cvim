@@ -43,8 +43,7 @@ class MonitoringHost(MonitoringHandler):
         # copy configuration files
         for file_name in sensu_host_files:
             content = self.prepare_config_file(file_name, {'side': 'client'})
-            self.write_config_file(file_name, file_name, sub_dir, host_id,
-                                   content)
+            self.write_config_file(file_name, sub_dir, host_id, content)
         # copy scripts to host
         scripts_dir = join(self.env_monitoring_config['app_path'],
                            self.APP_SCRIPTS_FOLDER)
