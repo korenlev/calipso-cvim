@@ -27,10 +27,11 @@ class CliAccess(BinaryConverter, Fetcher):
 
     def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False):
         ssh_conn = SshConn(ssh_to_host)
+        if not cmd.strip().startswith("sudo "):
+            cmd = "sudo " + cmd
         if not on_gateway and ssh_to_host \
-                and not ssh_conn.is_gateway_host(ssh_to_host) \
-                and not cmd.strip().startswith("sudo "):
-            cmd = self.ssh_cmd + ssh_to_host + " sudo " + cmd
+                and not ssh_conn.is_gateway_host(ssh_to_host):
+            cmd = self.ssh_cmd + ssh_to_host + " " + cmd
         curr_time = time.time()
         cmd_path = ssh_to_host + ',' + cmd
         if enable_cache and cmd_path in self.cached_commands:
