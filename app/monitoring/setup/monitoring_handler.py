@@ -116,14 +116,14 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         self.write_config_to_db(host, config, file_type)
         return config
 
-    def write_config_file(self, file_type, file_name, sub_dir, host, content):
+    def write_config_file(self, file_name, sub_dir, host, content):
         """
         apply environment definitions to the config,
         e.g. replace {server_ip} with the IP or host name for the server
         """
         # save the config to DB first, and while doing that
         # merge it with any existing config on same host
-        content = self.merge_config(host, file_type, content)
+        content = self.merge_config(host, file_name, content)
 
         # now dump the config to the file
         content_json = json.dumps(content['config'], sort_keys=True, indent=4)
@@ -132,17 +132,17 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         local_dir = self.make_directory(self.get_config_dir() + '/' + sub_dir)
         local_path = local_dir + '/' + file_name
         self.write_to_local_host(local_path, content_json)
-        self.track_pending_host_setup_changes(host, file_type, local_path,
+        self.track_pending_host_setup_changes(host, file_name, local_path,
                                               sub_dir)
 
-    def track_pending_host_setup_changes(self, host, file_type, local_path,
+    def track_pending_host_setup_changes(self, host, file_name, local_path,
                                          sub_dir):
         if host not in self.pending_changes:
             self.pending_changes[host] = {}
-        if file_type not in self.pending_changes[host]:
-            self.pending_changes[host][file_type] = {
+        if file_name not in self.pending_changes[host]:
+            self.pending_changes[host][file_name] = {
                 "host": host,
-                "file_type": file_type,
+                "file_name": file_name,
                 "local_path": local_path,
                 "sub_dir": sub_dir
             }
@@ -170,7 +170,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             else:
                 # write to remote host prepare dir - use sftp
                 self.write_to_remote_host(host, changes['local_path'],
-                                          changes['file_type'])
+                                          changes['file_name'])
         if not is_local_host:
             # copy the files to remote target config directory
             self.make_remote_dir(host, self.PRODUCTION_CONFIG_DIR)

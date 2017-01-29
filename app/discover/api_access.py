@@ -8,11 +8,6 @@ import httplib2 as http
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-
 
 class ApiAccess(Fetcher):
     subject_token = None
@@ -42,17 +37,17 @@ class ApiAccess(Fetcher):
         host = ApiAccess.api_config["host"]
         ApiAccess.host = host
         port = ApiAccess.api_config["port"]
-        if (host == None or port == None):
-            raise ValueError("Missing definition of host or port for OpenStack API access")
+        if (host is None or port is None):
+            raise ValueError('Missing definition of host or port ' +
+                             'for OpenStack API access')
         ApiAccess.base_url = "http://" + host + ":" + port
         ApiAccess.admin_token = ApiAccess.api_config["admin_token"]
         ApiAccess.admin_project = ApiAccess.api_config["admin_project"] \
             if "admin_project" in ApiAccess.api_config \
-            else self.admin_project
+            else 'admin'
         ApiAccess.admin_endpoint = "http://" + host + ":" + "35357"
 
         self.v2_auth_pwd(ApiAccess.admin_project)
-        initialized = True
 
     def parse_time(self, time_str):
         try:
@@ -96,8 +91,8 @@ class ApiAccess(Fetcher):
         ApiAccess.auth_response = json.loads(content_string)
         if 'error' in self.auth_response:
             e = self.auth_response['error']
-            self.log.error(str(e['code']) + ' ' + e['title'] + ': ' + e['message'] + \
-                           ", URL: " + req_url)
+            self.log.error(str(e['code']) + ' ' + e['title'] + ': ' +
+                           e['message'] + ", URL: " + req_url)
             return None
         try:
             token_details = ApiAccess.auth_response["access"]["token"]
@@ -125,7 +120,7 @@ class ApiAccess(Fetcher):
             }
         }
         id = ""
-        if project != None:
+        if project is not None:
             post_body["auth"]["tenantName"] = project
             id = project
         else:
@@ -136,17 +131,8 @@ class ApiAccess(Fetcher):
         }
         return self.v2_auth(id, headers, post_body)
 
-    def v2_auth_token(self):
-        headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json; charset=UTF-8',
-            'X-Auth-Token': admin_token
-        }
-        post_body = {"auth": {"passwordCredentials": {"token": admin_token}}}
-        return self.v2_auth("admin_token", headers, post_body)
-
     def get(self, id):
-        return nil
+        return None
 
     def get_rel_url(self, relative_url, headers):
         req_url = ApiAccess.base_url + relative_url
@@ -190,9 +176,10 @@ class ApiAccess(Fetcher):
         return url
 
     def get_catalog(self, pretty):
-        return jsonify(regions, pretty)
+        return self.jsonify(self.regions, pretty)
 
-    # find the endpoints for a given service name, considering also alternative service names
+    # find the endpoints for a given service name,
+    # considering also alternative service names
     def get_service_region_endpoints(self, region, service):
         alternatives = [service]
         endpoints = region["endpoints"]
