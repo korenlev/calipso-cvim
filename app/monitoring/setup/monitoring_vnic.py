@@ -9,6 +9,7 @@ class MonitoringVnic(MonitoringCheckHandler):
     # add monitoring setup for remote host
     def create_setup(self, o):
         values = {
-            "objtype": "vnic",
-            "objid": o['id']}
+            'objtype': 'vnic',
+            'vnictype': o['vnic_type'],
+            'objid': o['id'].replace(':', '')}
         self.create_monitoring_for_object(o, values)
