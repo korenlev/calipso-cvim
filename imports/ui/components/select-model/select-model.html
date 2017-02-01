@@ -3,7 +3,7 @@
           multiple="{{ multi }}" 
           {{ markIfDisabled }} 
           >
-    {{#if showNullOption }}<option value="" ></option>{{/if}}
+          {{#if showNullOption }}<option value="">{{ nullOptionLabel }}</option>{{/if}}
     {{#each option in options }}
     <option value="{{ option.value }}"
       selected="{{ isSelected option.value }}" 

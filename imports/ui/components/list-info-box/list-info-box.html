@@ -19,8 +19,27 @@
         <tr>
           <th>{{ header }}:</th>
           <td>
-            {{> SelectModel(argsSelect list listItemFormat) 
-            }}
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" 
+                  type="button" 
+                  data-toggle="dropdown" 
+                  aria-haspopup="true" 
+                  aria-expanded="true"
+                  >
+                    Select from dropdown
+                    <span class="caret"></span>
+                </button>
+
+                <ul class="dropdown-menu" 
+                  aria-labelledby="dropdownMenu1">
+                    {{#each option in (options list listItemFormat) }}
+                        <li>
+                          <a data-value="{{ option.value }}" 
+                            class="os-list-item">{{option.label}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
           </td>
         </tr>
       </tbody>

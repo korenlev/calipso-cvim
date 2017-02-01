@@ -26,6 +26,11 @@ Template.ListInfoBox.rendered = function() {
  */
 
 Template.ListInfoBox.events({
+  'click .os-list-item'(event) {
+    let instance = Template.instance();
+    let val = event.target.attributes['data-value'].value;
+    instance.data.onItemSelected(val);
+  }
 });
    
 /*  
@@ -33,7 +38,21 @@ Template.ListInfoBox.events({
  */
 
 Template.ListInfoBox.helpers({    
+  options: function (list, listItemFormat) {
+    //let instance = Template.instance();
+
+    let options = R.map((listItem) => {
+      return { 
+        label: listItem[listItemFormat.label], 
+        value: listItem[listItemFormat.value] 
+      };
+    }, list.fetch());
+
+    return options;
+  },
+
   itemsCount: function () {
+
     let instance = Template.instance();
     return instance.data.list.count();
   },
@@ -51,9 +70,11 @@ Template.ListInfoBox.helpers({
     return {
       values: [],
       options: options,
+      showNullOption: true,
+      nullOptionLabel: 'Select from dropdown',
       setModel: function (val) {
         instance.data.onItemSelected(val);
-      }
+      },
     };
   }
 });
