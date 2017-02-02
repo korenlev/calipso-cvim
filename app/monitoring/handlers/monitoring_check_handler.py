@@ -1,4 +1,5 @@
 # handle monitoring event
+import sys
 
 from bson import ObjectId
 from time import gmtime, strftime
@@ -6,10 +7,12 @@ from time import gmtime, strftime
 from discover.configuration import Configuration
 from discover.inventory_mgr import InventoryMgr
 from discover.logger import Logger
+from utils.special_char_converter import SpecialCharConverter
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
 
-class MonitoringCheckHandler(Logger):
+
+class MonitoringCheckHandler(Logger, SpecialCharConverter):
 
   STATUS_LABEL = ['OK', 'Warning', 'Critical']
 
@@ -38,7 +41,8 @@ class MonitoringCheckHandler(Logger):
     return doc
 
   def set_doc_status(self, doc, status, status_text, timestamp):
-    doc['status'] = self.STATUS_LABEL[status] if isinstance(status, int) else status
+    doc['status'] = self.STATUS_LABEL[status] if isinstance(status, int) \
+        else status
     if status_text:
       doc['status_text'] = status_text
     doc['status_timestamp'] = strftime(TIME_FORMAT, timestamp)
@@ -52,5 +56,5 @@ class MonitoringCheckHandler(Logger):
 
   def keep_result(self, doc, check_result):
     status = check_result['status']
-    self.set_doc_status(doc, status, check_result['output'], self.check_ts(check_result))
-
+    self.set_doc_status(doc, status, check_result['output'],
+                        self.check_ts(check_result))

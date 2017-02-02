@@ -11,5 +11,5 @@ class MonitoringVnic(MonitoringCheckHandler):
         values = {
             'objtype': 'vnic',
             'vnictype': o['vnic_type'],
-            'objid': o['id'].replace(':', '')}
+            'objid': self.encode_special_characters(o['id'])}
         self.create_monitoring_for_object(o, values)
