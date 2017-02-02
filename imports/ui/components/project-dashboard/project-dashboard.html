@@ -2,7 +2,7 @@
   <!-- modals template for issue modal  -->
   {{> eventModals}}
 
-  <div class="flex-box justify-content-between">
+  <div class="os-project-dashboard flex-box justify-content-between">
     <div class="flex-box-1 site-sidenav">
       {{> accordionNavMenu}}  
     </div>
@@ -14,19 +14,18 @@
         </div>
       </div>
 
-      <div class="flex-box justify-content-around">
+      <div class="sm-info-boxes">
         {{#each infoBox in infoBoxes }}
           {{> DataCubic (genArgsInfoBox infoBox) }}
         {{/each }}
       </div>
       
-      <!-- flex box for regions and projects -->
-      <div class="flex-box justify-content-between">
-        
+      <div class="sm-list-info-boxes">
         {{#each network in networks }}
-          {{> NetworkInfoBox (argsNetworkInfoBox network) }}
+          <div class="sm-item">
+            {{> NetworkInfoBox (argsNetworkInfoBox network) }}
+          </div>
         {{/each }}
-        
       </div>
       
     </div>

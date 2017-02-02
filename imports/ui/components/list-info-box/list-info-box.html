@@ -1,5 +1,5 @@
 <template name="ListInfoBox">
-<div class="cards-450 white flex-box-1">
+<div class="os-list-info-box cards-450 white flex-box-1">
   <div class="flex-box ">
     <div class="flex-box-1">
       {{> Icon type=icon.type name=icon.name }}
@@ -10,7 +10,7 @@
       <tbody>
         <tr>
           <th>Last Scanning</th>
-          <td></td>
+          <td>{{ lastScanning }}</td>
         </tr>
         <tr>
           <th>Number of {{ header }}:</th>
@@ -30,7 +30,7 @@
                     <span class="caret"></span>
                 </button>
 
-                <ul class="dropdown-menu" 
+                <ul class="sm-items-dropdown-menu dropdown-menu" 
                   aria-labelledby="dropdownMenu1">
                     {{#each option in (options list listItemFormat) }}
                         <li>

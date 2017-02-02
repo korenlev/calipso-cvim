@@ -61,7 +61,20 @@ Template.Environment.onCreated(function () {
       dataSource: 'infoLastScanning',
       icon: new Icon({ type: 'fa', name: 'search' }),
     }],
-    infoLastScanning: null
+    infoLastScanning: null,
+    listInfoBoxes: [{
+      header: ['components', 'environment', 'listInfoBoxes', 'regions', 'header'],
+      listName: 'regions',
+      listItemFormat: { label: 'name', value: 'id_path' },
+      icon: { type: 'material', name: 'public' },
+    }, {
+      header: ['components', 'environment', 'listInfoBoxes', 'projects', 'header'],
+      listName: 'projects',
+      listItemFormat: { label: 'name', value: 'id_path' },
+      icon: { type: 'material', name: 'folder' },
+    }],
+    projectsCount: 0,
+    regionsCount: 0
   });
 
   instance.autorun(function () {
@@ -73,20 +86,6 @@ Template.Environment.onCreated(function () {
     if (envName !== instance.state.get('envName')) {
       instance.state.set('envName', envName);
       store.dispatch(setEnvName(envName));
-
-      /*
-      let onSearchRequested = (searchTerm) => {
-        console.log(`search requested for: ${searchTerm}`);
-        instance.subscribe('inventory?env+name', envName, searchTerm);
-        instance.state.set('searchTerm', null);
-        instance.state.set('searchTerm', searchTerm);
-      };
-      */
-
-      /*
-      instance.onSearchRequested = onSearchRequested;
-      store.dispatch(addSearchInterestedParty(onSearchRequested));
-      */
 
       if (query.graph) {
         let node24IdPath =
@@ -141,6 +140,16 @@ Template.Environment.onCreated(function () {
       envName + '&type=' + 'instance';
     let infoInstancesCount = Counts.get(instancesCounterName);
     instance.state.set('infoInstancesCount', infoInstancesCount);
+
+    let projectsCounterName = 'inventory?env+type!counter?env=' +
+      envName + '&type=' + 'project';
+    let projectsCount = Counts.get(projectsCounterName);
+    instance.state.set('projectsCount', projectsCount);
+
+    let regionsCounterName = 'inventory?env+type!counter?env=' +
+      envName + '&type=' + 'region';
+    let regionsCount = Counts.get(regionsCounterName);
+    instance.state.set('regionsCount', regionsCount);
   });
 
 });
@@ -295,8 +304,30 @@ Template.Environment.helpers({
       dataInfo: R.toString(instance.state.get(briefInfo.dataSource)),
       icon: new Icon(briefInfo.icon)
     };
-  }
+  },
 
+  listInfoBoxes: function () {
+    let instance = Template.instance();
+    return instance.state.get('listInfoBoxes');
+  },
+
+  argsListInfoBox: function (listInfoBox) {
+    let instance = Template.instance();
+    let envName = instance.state.get('envName');
+
+    let lastScanned = calcLastScanned(listInfoBox.listName, envName);
+
+    return {
+      header: R.path(listInfoBox.header, store.getState().api.i18n),
+      list: getList(listInfoBox.listName, envName),
+      icon: new Icon(listInfoBox.icon),
+      listItemFormat: listInfoBox.listItemFormat,
+      lastScanning: lastScanned,      
+      onItemSelected: function (itemKey) {
+        Router.go(buildRoute(listInfoBox.listName, itemKey));
+      }
+    };
+  },
 });
 
 
@@ -311,3 +342,60 @@ Template.Environment.events({
     Router.go('scanning-request.insert',{},{ query: 'env=' + envName });
   },
 });
+
+function getList(listName, envName) {
+  switch (listName) {
+  case 'regions':
+    return Inventory.find({ 
+      environment: envName,
+      type: 'region'
+    });   
+
+  case 'projects':
+    return Inventory.find({ 
+      environment: envName,
+      type: 'project'
+    });   
+
+  default:
+    throw 'unknowned list type';
+  }
+}
+
+function buildRoute(listName, itemKey) {
+  switch (listName) {
+  case 'regions':
+    return buildRouteRegion(itemKey);
+  case 'projects':
+    return buildRouteProject(itemKey);
+  default:
+    throw 'unknowned list name';
+  }
+}
+
+function buildRouteRegion(id_path) {
+  return `/region?id_path=${id_path}`;
+}
+
+function buildRouteProject(id_path) {
+  return `/project?id_path=${id_path}`;
+}
+
+function calcLastScanned(listName, envName) {
+  switch (listName) {
+  case 'regions':
+    return R.path(['last_scanned'], Inventory.findOne({
+      environment: envName, 
+      type:'region'
+    }));
+
+  case 'projects':
+    return R.path(['last_scanned'], Inventory.findOne({
+      environment: envName, 
+      type:'project'
+    }));
+
+  default:
+    throw 'unknown';
+  }
+}

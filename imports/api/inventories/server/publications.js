@@ -56,6 +56,20 @@ Meteor.publish('inventory?env+type', function (env, type) {
   return Inventory.find(query); 
 });
 
+Meteor.publish('inventory?env&binding:host_id&type', function (env, host_id, type) {
+  var query = {
+    environment: env,
+    'binding:host_id': host_id,
+    type: type
+  };
+  console.log('server subscribtion to: inventory?env&binding:host_id&type');
+  console.log('-env: ' + env);
+  console.log('-binding:host_id: ' + host_id);
+  console.log('-type: ' + type);
+
+  return Inventory.find(query); 
+});
+
 Meteor.publish('inventory?env+name', function (env, name) {
   var query = {
     name: name,

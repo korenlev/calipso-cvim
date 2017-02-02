@@ -28,7 +28,7 @@
           </div>
       </div>
 
-      <div class="mainContentData flex-box justify-content-between">
+      <div class="sm-items-segment mainContentData flex-box">
 
         {{#each briefInfo in briefInfoList }}
           {{> DataCubic (genArgsBriefInfo briefInfo) }}
@@ -78,86 +78,12 @@
         </div>
       </div>
 
-      <!-- flex box for regions and projects -->
-      <div class="mainContentData flex-box justify-content-between">
-
-        <div class="cards-450 white flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="material-icons">public</i>
-            </div>
-            <div class="flex-box-2">
-            <h3>Regions</h3>
-            <table class="table table-striped">
-              <tbody>
-                <tr>
-                  <th>Last Scanning</th>
-                  <td> {{ regionItem.last_scanned }} </td>
-                </tr>
-                <tr>
-                  <th>Number of Regions:</th>
-                  <td> {{regoinsCount}}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="flex-box">
-                <div class="flex-box-1">
-                    <div class="dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Select region from dropdown
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            {{#each regoins}}
-                                <li><a href="{{pathFor route='region' query='regionName='}}{{object_name}}">{{object_name}}</a></li>
-                            {{/each}}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cards-450 white flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="material-icons">folder</i>
-            </div>
-            <div class="flex-box-2">
-            <h3>Projects</h3>
-            <table class="table table-striped">
-              <tbody>
-                <tr>
-                  <th>Last Scanning</th>
-                  <td> {{ projectItem.last_scanned }} </td>
-                </tr>
-                <tr>
-                  <th>Number of Projects:</th>
-                  <td> {{projectsCount}}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="flex-box">
-                <div class="flex-box-1">
-                    <div class="dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Select project from dropdown
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            {{#each projects}}
-                                <li><a href="{{pathFor route='project' query='projectName='}}{{object_name}}">{{object_name}}</a></li>
-                            {{/each}}
-                        </ul>
-                    </div>
-
-                </div>
-            </div>
-            </div>
-          </div>
-        </div>
+      <div class="sm-list-info-boxes">
+        {{#each listInfoBox in listInfoBoxes }}
+          {{> ListInfoBox (argsListInfoBox listInfoBox) }}
+        {{/each }}
       </div>
+
     </div>
   </div>
 

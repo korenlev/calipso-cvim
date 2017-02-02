@@ -32,6 +32,14 @@ const defaultState = {
         instancesNum: {
           header: 'Number of instances'
         }
+      },
+      listInfoBoxes: {
+        regions: {
+          header: 'Regions'
+        },
+        projects: {
+          header: 'Projects'
+        }
       }
     },
     projectDashboard: {
@@ -44,6 +52,7 @@ const defaultState = {
         }
       }
     },
+
     regionDashboard: {
       infoBoxes: {
         instances: {
@@ -67,6 +76,82 @@ const defaultState = {
           header: 'Aggregates'
         }
       }
+    },
+
+    zoneDashboard: {
+      infoBoxes: {
+        instances: {
+          header: 'Number of instances'
+        },
+        vServices: {
+          header: 'Number of vServices'
+        },
+        hosts: {
+          header: 'Number of hosts'
+        },
+        vConnectors: {
+          header: 'Number of vConnectors'
+        },
+        vEdges: {
+          header: 'Number of vEdges'
+        }
+      },
+      listInfoBoxes: {
+        hosts: {
+          header: 'Hosts'
+        },
+      }
+    },
+
+    aggregateDashboard: {
+      infoBoxes: {
+        instances: {
+          header: 'Number of instances'
+        },
+        vServices: {
+          header: 'Number of vServices'
+        },
+        hosts: {
+          header: 'Number of hosts'
+        },
+        vConnectors: {
+          header: 'Number of vConnectors'
+        },
+        vEdges: {
+          header: 'Number of vEdges'
+        }
+      },
+      listInfoBoxes: {
+        hosts: {
+          header: 'Hosts'
+        },
+      }
+    },
+
+    hostDashboard: {
+      infoBoxes: {
+        instances: {
+          header: 'Number of instances'
+        },
+        vServices: {
+          header: 'Number of vServices'
+        },
+        vConnectors: {
+          header: 'Number of vConnectors'
+        },
+        networkAgents: {
+          header: 'Number of agents'
+        },
+        pnics: {
+          header: 'Number of pnics'
+        },
+        vEdges: {
+          header: 'Number of vEdges'
+        },
+        ports: {
+          header: 'Number of ports'
+        }
+      },
     }
   }
 };

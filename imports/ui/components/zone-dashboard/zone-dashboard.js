@@ -1,94 +1,94 @@
 /*
- * Template Component: RegionDashboard 
+ * Template Component: ZoneDashboard 
  */
     
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-import * as R from 'ramda';
 import { Inventory } from '/imports/api/inventories/inventories';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { regexEscape } from '/imports/lib/regex-utils';
+import * as R from 'ramda';
 import { store } from '/imports/ui/store/store';
 import { Icon } from '/imports/lib/icon';
-import { regexEscape } from '/imports/lib/regex-utils';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import { setCurrentNode } from '/imports/ui/actions/navigation';
-
+        
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/list-info-box/list-info-box';
-        
-import './region-dashboard.html';     
+
+import './zone-dashboard.html';     
     
 /*  
  * Lifecycles
  */   
   
-Template.RegionDashboard.onCreated(function() {
+Template.ZoneDashboard.onCreated(function() {
   var instance = this;
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     infoBoxes: [{
-      header: ['components', 'regionDashboard', 'infoBoxes', 'instances', 'header'],
+      header: ['components', 'zoneDashboard', 'infoBoxes', 'instances', 'header'],
       dataSource: 'instancesCount',
       icon: { type: 'fa', name: 'desktop' },
       theme: 'dark'
     }, {
-      header: ['components', 'regionDashboard', 'infoBoxes', 'vServices', 'header'],
+      header: ['components', 'zoneDashboard', 'infoBoxes', 'vServices', 'header'],
       dataSource: 'vServicesCount',
       icon: { type: 'fa', name: 'object-group' },
       theme: 'dark'
     }, {
-      header: ['components', 'regionDashboard', 'infoBoxes', 'hosts', 'header'],
+      header: ['components', 'zoneDashboard', 'infoBoxes', 'hosts', 'header'],
       dataSource: 'hostsCount',
       icon: { type: 'fa', name: 'server' },
       theme: 'dark'
     }, {
-      header: ['components', 'regionDashboard', 'infoBoxes', 'vConnectors', 'header'],
+      header: ['components', 'zoneDashboard', 'infoBoxes', 'vConnectors', 'header'],
       dataSource: 'vConnectorsCount',
       icon: { type: 'fa', name: 'compress' },
       theme: 'dark'
-    }, 
+    }, {
+      header: ['components', 'zoneDashboard', 'infoBoxes', 'vEdges', 'header'],
+      dataSource: 'vEdgesCount',
+      icon: { type: 'fa', name: 'external-link' },
+      theme: 'dark'
+    }], 
+
+    listInfoBoxes: [{
+      header: ['components', 'zoneDashboard', 'listInfoBoxes', 'hosts', 'header'],
+      listName: 'hosts',
+      listItemFormat: { label: 'name', value: 'id_path' },
+      icon: { type: 'material', name: 'developer_board' },
+    }
     ],
-    region_id_path: null,
+    zone_id_path: null,
     instancesCount: 0,
     vServicesCount: 0,
     hostsCount: 0,
     vConnectors: 0,
-    listInfoBoxes: [{
-      header: ['components', 'regionDashboard', 'listInfoBoxes', 'availabilityZones', 'header'],
-      listName: 'availabilityZones',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'developer_board' },
-    }, {
-      header: ['components', 'regionDashboard', 'listInfoBoxes', 'aggregates', 'header'],
-      listName: 'aggregates',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'storage' },
-    }]
+    vEdges: 0,
   });
 
   instance.autorun(function () {
     let controller = Iron.controller();
     let params = controller.getParams();
     let query = params.query;
-    let region_id_path = query.id_path;
+    let zone_id_path = query.id_path;
 
     new SimpleSchema({
-      region_id_path: { type: String },
-    }).validate({ region_id_path });
+      zone_id_path: { type: String },
+    }).validate({ zone_id_path });
 
-    instance.state.set('region_id_path', region_id_path);
+    instance.state.set('zone_id_path', zone_id_path);
 
-    instance.subscribe('inventory?id_path', region_id_path);
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'instance');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'vservice');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'host');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'vconnector');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'availability_zone');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'aggregate');
+    instance.subscribe('inventory?id_path', zone_id_path);
+    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'instance');
+    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'vservice');
+    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'host');
+    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'vconnector');
+    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'vedge');
 
-    let idPathExp = new RegExp(`^${regexEscape(region_id_path)}`);
+    let idPathExp = new RegExp(`^${regexEscape(zone_id_path)}`);
 
     instance.state.set('instancesCount', Inventory.find({ 
       id_path: idPathExp,
@@ -109,12 +109,16 @@ Template.RegionDashboard.onCreated(function() {
       id_path: idPathExp,
       type: 'vconnector'
     }).count());
-  });
 
+    instance.state.set('vEdgesCount', Inventory.find({ 
+      id_path: idPathExp,
+      type: 'vedge'
+    }).count());
+  });
 });  
 
 /*
-Template.RegionDashboard.rendered = function() {
+Template.ZoneDashboard.rendered = function() {
 };  
 */
 
@@ -122,19 +126,19 @@ Template.RegionDashboard.rendered = function() {
  * Events
  */
 
-Template.RegionDashboard.events({
+Template.ZoneDashboard.events({
 });
    
 /*  
  * Helpers
  */
 
-Template.RegionDashboard.helpers({    
-  region: function () {
+Template.ZoneDashboard.helpers({    
+  zone: function () {
     let instance = Template.instance();
-    let region_id_path = instance.state.get('region_id_path');
+    let zone_id_path = instance.state.get('zone_id_path');
 
-    return Inventory.findOne({ id_path: region_id_path });
+    return Inventory.findOne({ id_path: zone_id_path });
   },
 
   infoBoxes: function () {
@@ -146,7 +150,7 @@ Template.RegionDashboard.helpers({
     let instance = Template.instance();
     return instance.state.get('listInfoBoxes');
   },
-  
+
   argsInfoBox: function (infoBox) {
     let instance = Template.instance();
 
@@ -160,58 +164,34 @@ Template.RegionDashboard.helpers({
 
   argsListInfoBox: function (listInfoBox) {
     let instance = Template.instance();
-    let region_id_path = instance.state.get('region_id_path');
+    let zone_id_path = instance.state.get('zone_id_path');
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
-      list: getList(listInfoBox.listName, region_id_path),
+      list: getList(listInfoBox.listName, zone_id_path),
       //dataInfo: instance.state.get(infoBox.dataSource).toString(),
       icon: new Icon(listInfoBox.icon),
       //theme: infoBox.theme
       listItemFormat: listInfoBox.listItemFormat,
       onItemSelected: function (itemKey) {
-        Router.go(buildRoute(itemKey, listInfoBox.listName));
+        Router.go(`/host?id_path=${itemKey}`);
       }
     };
-  },
+  }
 });
+
 
 function getList(listName, parentIdPath) {
   let idPathExp = new RegExp(`^${regexEscape(parentIdPath)}`);
 
   switch (listName) {
-  case 'availabilityZones':
+  case 'hosts':
     return Inventory.find({ 
       id_path: idPathExp,
-      type: 'availability_zone'
-    });   
-
-  case 'aggregates':
-    return Inventory.find({ 
-      id_path: idPathExp,
-      type: 'aggregate'
+      type: 'host'
     });   
 
   default:
     throw 'unknowned list type';
   }
-}
-
-function buildRoute(itemKey, listName) {
-  switch (listName) {
-  case 'availabilityZones':
-    return buildRouteZone(itemKey);
-  case 'aggregates':
-    return buildRouteAggregate(itemKey);
-  default:
-    throw 'unknowned list name';
-  }
-}
-
-function buildRouteZone(id_path) {
-  return `/zone?id_path=${id_path}`;
-}
-
-function buildRouteAggregate(id_path) {
-  return `/aggregate?id_path=${id_path}`;
 }
