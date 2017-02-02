@@ -1,8 +1,9 @@
 from discover.inventory_mgr import InventoryMgr
 from monitoring.setup.monitoring_handler import MonitoringHandler
+from utils.special_char_converter import SpecialCharConverter
 
 
-class MonitoringCheckHandler(MonitoringHandler):
+class MonitoringCheckHandler(MonitoringHandler, SpecialCharConverter):
 
     def __init__(self, mongo_conf_file, env):
         super().__init__(mongo_conf_file, env)
