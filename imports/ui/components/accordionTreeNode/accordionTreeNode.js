@@ -8,8 +8,13 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 
 import { Inventory } from '/imports/api/inventories/inventories';
+import { Cliques } from '/imports/api/cliques/cliques.js';
+import { Links } from '/imports/api/links/links.js';
 //import { store } from '/client/imports/store';
 //import { setCurrentNode } from '/client/imports/actions/navigation';
+
+import { d3Graph } from '/imports/lib/d3-graph';
+
 import '/imports/ui/components/accordionTreeNodeChildren/accordionTreeNodeChildren';
 import './accordionTreeNode.html';
 

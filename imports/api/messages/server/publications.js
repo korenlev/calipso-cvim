@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Messages } from '../messages.js';
 
 Meteor.publish('messages', function () {

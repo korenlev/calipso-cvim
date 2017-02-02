@@ -28,6 +28,10 @@ module.exports = {
             "always"
         ],
         "no-console": 0,
+        "no-unused-vars": [
+          "error", 
+          { "argsIgnorePattern": "^_" }
+        ]
     },
     "globals": {
         "Iron": true,
