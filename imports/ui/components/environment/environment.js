@@ -26,6 +26,7 @@ import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
 import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
+import '/imports/ui/components/vedge-info-window/vedge-info-window';
 
 import './environment.html';
 
@@ -76,7 +77,8 @@ Template.Environment.onCreated(function () {
     }],
     projectsCount: 0,
     regionsCount: 0,
-    graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false }
+    graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false },
+    vedgeInfoWindow: { node: {}, left: 0, top: 0, show: false },
   });
 
   instance.autorun(function () {
@@ -156,14 +158,18 @@ Template.Environment.onCreated(function () {
 
   instance.storeUnsubscribe = store.subscribe(() => {
     let state = store.getState();
+
     let graphTooltipWindow = state.components.graphTooltipWindow;
     instance.state.set('graphTooltipWindow', graphTooltipWindow);
+
+    let vedgeInfoWindow = state.components.vedgeInfoWindow;
+    instance.state.set('vedgeInfoWindow', vedgeInfoWindow);
   });
 });
 
 Template.Environment.onDestroyed(function () {
-  //let instance = this;
-  //store.dispatch(removeSearchInterestedParty(instance.onSearchRequested));
+  let instance = this;
+  instance.storeUnsubscribe();
 });
 
 Template.Environment.rendered = function(){
@@ -343,6 +349,13 @@ Template.Environment.helpers({
     return graphTooltipWindow; 
   },
 
+  vedgeInfoWindow: function () {
+    let instance = Template.instance();
+    let vedgeInfoWindow = instance.state.get('vedgeInfoWindow');
+
+    return vedgeInfoWindow; 
+  },
+
   argsGraphTooltipWindow: function (graphTooltipWindow) {
     return {
       label: R.path(['label'], graphTooltipWindow),
@@ -353,9 +366,14 @@ Template.Environment.helpers({
     };
   },
 
-  showGraphTooltipWindow: function (graphTooltipWindow) {
-    return R.path(['show'], graphTooltipWindow);
-  }
+  argsVedgeInfoWindow: function (vedgeInfoWindow) {
+    return {
+      node: R.path(['node'], vedgeInfoWindow),
+      left: R.path(['left'], vedgeInfoWindow),
+      top: R.path(['top'], vedgeInfoWindow),
+      show: R.path(['show'], vedgeInfoWindow)
+    };
+  },
 });
 
 

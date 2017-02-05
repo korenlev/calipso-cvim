@@ -1,7 +1,6 @@
 /* Set the component style here */
-// "GraphTooltipWindow"
-.os-graph-tooltip-window
-  visibility: hidden;
+.os-vedge-info-window
+  visibility: none
 
   position: absolute;
   text-align: left;
@@ -16,10 +15,10 @@
   border: 2px solid stark-blue
   pointer-events: none;
 
-  transition: visibility 0.5s, opacity 0.5s linear
+  transition: opacity 0.5s linear
 
-.os-graph-tooltip-window.cl-visible 
+.os-vedge-info-window.cl-visible 
   visibility: visible
   opacity: 0.9
-  transition: visibility 0.2s, opacity 0.2s linear
+  transition: visibility 0s, opacity 0.2s linear
 

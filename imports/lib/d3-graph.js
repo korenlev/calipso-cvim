@@ -6,6 +6,7 @@ import * as cola from 'webcola';
 import { store } from '/imports/ui/store/store';
 import { activateGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
 import { closeGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
+import { activateVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 
 let d3Graph = {
   color:'',
@@ -334,6 +335,14 @@ let d3Graph = {
         })
         .on('mouseout', function(_d) {
           store.dispatch(closeGraphTooltipWindow());
+        })
+        .on('click', function(d) {
+          if (d.type === 'vedge') {
+            store.dispatch(activateVedgeInfoWindow(
+              d,
+              d3.event.pageX,
+              d3.event.pageY));
+          }
         })
         .style('fill', function(d) {
           if(d.state == 'error'){
