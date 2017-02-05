@@ -3,6 +3,9 @@ import { Cliques } from '/imports/api/cliques/cliques';
 import { Links } from '/imports/api/links/links';
 import { NodeHoverAttr } from '/imports/api/attributes_for_hover_on_data/attributes_for_hover_on_data';
 import * as cola from 'webcola';
+import { store } from '/imports/ui/store/store';
+import { activateGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
+import { closeGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
 
 let d3Graph = {
   color:'',
@@ -199,10 +202,6 @@ let d3Graph = {
     this.svg.selectAll('g').remove();
     //this.svg.exit().remove();
 
-    var div = d3.select('body').append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0);
-
     this.force
         .nodes(this.graph.nodes)
         .links(this.graph.links)
@@ -277,21 +276,15 @@ let d3Graph = {
       .attr('dy', '.25em')
       .attr('text-anchor', 'right')
       .on('mouseover', function(d) {
-        div.transition()
-            .duration(200)
-            .style('opacity', .9);
-        d.title = '';
-        if(d.attributes != undefined){
-          d.title = JSON.stringify(d.attributes, null, 4).toString().replace(/\,/g,'<BR>').replace(/\[/g,'').replace(/\]/g,'').replace(/\{/g,'').replace(/\}/g,'').replace(/"/g,'');
-        }
-        div.html('<p><u>' + d.label + '</u><br/>'  + d.title + '<p/>')
-            .style('left', (d3.event.pageX) + 'px')
-            .style('top', (d3.event.pageY - 28) + 'px');
+        store.dispatch(activateGraphTooltipWindow(
+          d.label, 
+          d.attributes,
+          d3.event.pageX,
+          d3.event.pageY
+        ));
       })
       .on('mouseout', function(_d) {
-        div.transition()
-            .duration(500)
-            .style('opacity', 0);
+        store.dispatch(closeGraphTooltipWindow());
       });
 
     var node = this.svg.selectAll('.node')
@@ -333,22 +326,14 @@ let d3Graph = {
         .attr('class', 'node')
         //.attr('r', function(d){return 13;})
         .on('mouseover', function(d) {
-          div.transition()
-              .duration(200)
-              .style('opacity', .9);
-          d.title = '';
-          if(d.attributes != undefined){
-            d.title = JSON.stringify(d.attributes, null, 4).toString().replace(/\,/g,'<BR>').replace(/\[/g,'').replace(/\]/g,'').replace(/\{/g,'').replace(/\}/g,'').replace(/"/g,'');
-          }
-
-          div.html('<p><u>' + d.name + '</u><br/>'  + d.title + '<p/>')
-              .style('left', (d3.event.pageX) + 'px')
-              .style('top', (d3.event.pageY - 28) + 'px');
+          store.dispatch(activateGraphTooltipWindow(
+            d.name, 
+            d.attributes,
+            d3.event.pageX,
+            d3.event.pageY));
         })
         .on('mouseout', function(_d) {
-          div.transition()
-              .duration(500)
-              .style('opacity', 0);
+          store.dispatch(closeGraphTooltipWindow());
         })
         .style('fill', function(d) {
           if(d.state == 'error'){

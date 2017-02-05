@@ -25,6 +25,7 @@ import { Icon } from '/imports/lib/icon';
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
+import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
 
 import './environment.html';
 
@@ -74,7 +75,8 @@ Template.Environment.onCreated(function () {
       icon: { type: 'material', name: 'folder' },
     }],
     projectsCount: 0,
-    regionsCount: 0
+    regionsCount: 0,
+    graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false }
   });
 
   instance.autorun(function () {
@@ -152,6 +154,11 @@ Template.Environment.onCreated(function () {
     instance.state.set('regionsCount', regionsCount);
   });
 
+  instance.storeUnsubscribe = store.subscribe(() => {
+    let state = store.getState();
+    let graphTooltipWindow = state.components.graphTooltipWindow;
+    instance.state.set('graphTooltipWindow', graphTooltipWindow);
+  });
 });
 
 Template.Environment.onDestroyed(function () {
@@ -328,6 +335,27 @@ Template.Environment.helpers({
       }
     };
   },
+  
+  graphTooltipWindow: function () {
+    let instance = Template.instance();
+    let graphTooltipWindow = instance.state.get('graphTooltipWindow');
+
+    return graphTooltipWindow; 
+  },
+
+  argsGraphTooltipWindow: function (graphTooltipWindow) {
+    return {
+      label: R.path(['label'], graphTooltipWindow),
+      title: R.path(['title'], graphTooltipWindow),
+      left: R.path(['left'], graphTooltipWindow),
+      top: R.path(['top'], graphTooltipWindow),
+      show: R.path(['show'], graphTooltipWindow)
+    };
+  },
+
+  showGraphTooltipWindow: function (graphTooltipWindow) {
+    return R.path(['show'], graphTooltipWindow);
+  }
 });
 
 
