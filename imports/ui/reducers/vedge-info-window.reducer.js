@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import * as actions from '/imports/ui/actions/vedge-info-window.actions';
 
 const defaultState = { 
-  node: null,
+  node: {},
   left: 0,
   top: 0,
   show: false
@@ -20,7 +20,11 @@ export function reducer(state = defaultState, action) {
     });
 
   case actions.CLOSE_VEDGE_INFO_WINDOW:
-    return R.assoc('show', false, state);
+    return R.merge(state, {
+      show: false,
+      top: 0,
+      left: 0
+    });
 
   default: 
     return state;

@@ -21,7 +21,8 @@ Template.VedgeInfoWindow.onCreated(function() {
       node: { type: Object, blackbox: true },
       left: { type: Number },
       top: { type: Number },
-      show: { type: Boolean }
+      show: { type: Boolean },
+      onCloseRequested: { type: Function }
     }).validate(Template.currentData());
   });
 });  
@@ -36,6 +37,10 @@ Template.VedgeInfoWindow.rendered = function() {
  */
 
 Template.VedgeInfoWindow.events({
+  'click .sm-close-button': function (event, instance) {
+    event.stopPropagation();
+    instance.data.onCloseRequested();
+  }
 });
    
 /*  

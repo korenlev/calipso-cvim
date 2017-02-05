@@ -18,8 +18,7 @@ import { Environments } from '/imports/api/environments/environments';
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
-//import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
-//import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
+import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 import { Icon } from '/imports/lib/icon';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
@@ -78,7 +77,7 @@ Template.Environment.onCreated(function () {
     projectsCount: 0,
     regionsCount: 0,
     graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false },
-    vedgeInfoWindow: { node: {}, left: 0, top: 0, show: false },
+    vedgeInfoWindow: { node: { }, left: 0, top: 0, show: false },
   });
 
   instance.autorun(function () {
@@ -371,7 +370,10 @@ Template.Environment.helpers({
       node: R.path(['node'], vedgeInfoWindow),
       left: R.path(['left'], vedgeInfoWindow),
       top: R.path(['top'], vedgeInfoWindow),
-      show: R.path(['show'], vedgeInfoWindow)
+      show: R.path(['show'], vedgeInfoWindow),
+      onCloseRequested: function () {
+        store.dispatch(closeVedgeInfoWindow());
+      }
     };
   },
 });

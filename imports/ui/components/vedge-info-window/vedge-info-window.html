@@ -1,6 +1,21 @@
 <template name="VedgeInfoWindow">
 <div class="os-vedge-info-window {{#if show}}cl-visible{{/if}}" 
      style="top: {{ top }}px; left: {{ left }}px;">   
-  <h1>Test Component VedgeInfoWindow !!!</h1>
+        
+    <div class="sm-header">
+      <button type="button" class="sm-close-button close" 
+        data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">x</span>
+      </button>
+      <h4 class="modal-title">Default Modal</h4>
+    </div>
+
+    <div class="sm-body">
+      <p>This is a body</p>
+    </div>
+
+    <div class="sm-footer"> 
+    </div>
+
 </div>
 </template>
