@@ -5,11 +5,12 @@ import json
 from kafka import KafkaConsumer
 
 from discover.configuration import Configuration
+from discover.mongo_access import MongoAccess
 from discover.inventory_mgr import InventoryMgr
 from discover.logger import Logger
 
 
-class StatsConsumer(Logger):
+class StatsConsumer(MongoAccess, Logger):
     default_env = "WebEX-Mirantis@Cisco"
 
     def __init__(self):
@@ -18,6 +19,7 @@ class StatsConsumer(Logger):
         self.conf = Configuration(self.args.mongo_config)
         self.inv = InventoryMgr()
         self.inv.set_inventory_collection(self.args.inventory)
+        self.stats = self.db['vedge_flows']
         # consume messages from topic
         self.consumer = KafkaConsumer('VPP.stats',
                                       group_id='osdna_test',
@@ -72,13 +74,15 @@ class StatsConsumer(Logger):
             self.log.error('could not find vEdge for host: ' + host_id)
             return
         self.log.info('setting VPP stats for vEdge of host: ' + host_id)
-        self.add_stats_to_vnic(vedge, msg)
+        self.add_stats_for_object(vedge, msg)
 
-    def add_stats_to_vnic(self, vedge, msg):
-        if 'stats' not in vedge:
-            vedge['stats'] = []
-        vedge['stats'].append(msg)
-        self.inv.set(vedge)
+    def add_stats_for_object(self, o, msg):
+        msg['environment'] = self.args.env
+        msg['object_type'] = o['type']
+        msg['object_id'] = o['id']
+        msg['flow_type'] = 'L2' if msg['flowType'] == 'L2' else 'L3'
+        msg['sample_time'] = msg.pop('flowStartNanoSeconds')
+        self.stats.insert_one(msg)
 
 if __name__ == '__main__':
     stats_consumer = StatsConsumer()
