@@ -65,6 +65,12 @@ if object_type == 'pnic':
 if object_type == 'vedge':
     from monitoring.handlers.handle_vedge_vpp import HandleVedgeVpp
     handler = HandleVedgeVpp(args)
+if object_type == 'pnic':
+    from monitoring.handlers.handle_pnic_vpp import HandlePnicVpp
+    handler = HandlePnicVpp(args)
+if object_type == 'vnic':
+    from monitoring.handlers.handle_vnic_vpp import HandleVnicVpp
+    handler = HandleVnicVpp(args)
 if object_type == 'link':
     from monitoring.handlers.handle_link import HandleLink
     handler = HandleLink(args)

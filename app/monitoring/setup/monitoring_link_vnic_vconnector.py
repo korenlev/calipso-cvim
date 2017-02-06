@@ -21,7 +21,7 @@ class MonitoringLinkVnicVconnector(MonitoringCheckHandler):
             return
         values = {
             'linktype': 'vnic-vconnector',
-            'fromobjid': vnic['id'].replace(':', ''),
+            'fromobjid': self.encode_special_characters(vnic['id']),
             'toobjid': vconnector['id'],
             'bridge': vconnector['object_name'],
             'mac_address': vnic['mac_address']}
