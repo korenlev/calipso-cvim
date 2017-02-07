@@ -2,6 +2,8 @@
 
 import argparse
 import json
+import time
+
 from kafka import KafkaConsumer
 
 from discover.configuration import Configuration
@@ -80,8 +82,9 @@ class StatsConsumer(MongoAccess, Logger):
         msg['environment'] = self.args.env
         msg['object_type'] = o['type']
         msg['object_id'] = o['id']
-        msg['flow_type'] = 'L2' if msg['flowType'] == 'L2' else 'L3'
-        msg['sample_time'] = msg.pop('flowStartNanoSeconds')
+        time_seconds = int(msg.pop('averageArrivalNanoSeconds') / 1000000000)
+        sample_time = time.gmtime(time_seconds)
+        msg['sample_time'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", sample_time)
         self.stats.insert_one(msg)
 
 if __name__ == '__main__':
