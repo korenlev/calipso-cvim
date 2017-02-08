@@ -21,7 +21,8 @@ class StatsConsumer(MongoAccess, Logger):
         self.conf = Configuration(self.args.mongo_config)
         self.inv = InventoryMgr()
         self.inv.set_inventory_collection(self.args.inventory)
-        self.stats = self.db['vedge_flows']
+        stats_coll = self.inv.get_coll_name('statistics')
+        self.stats = self.db[stats_coll]
         # consume messages from topic
         self.consumer = KafkaConsumer('VPP.stats',
                                       group_id='osdna_test',
@@ -79,13 +80,38 @@ class StatsConsumer(MongoAccess, Logger):
         self.add_stats_for_object(vedge, msg)
 
     def add_stats_for_object(self, o, msg):
+        msg['type'] = 'vedge_flows'
         msg['environment'] = self.args.env
         msg['object_type'] = o['type']
         msg['object_id'] = o['id']
         time_seconds = int(msg.pop('averageArrivalNanoSeconds') / 1000000000)
         sample_time = time.gmtime(time_seconds)
         msg['sample_time'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", sample_time)
+        # find instances between which the flow happens
+        # to find the instance, find the related vNIC first
+        msg['source'] = self.find_instance_for_stat('source', msg)
+        msg['destination'] = self.find_instance_for_stat('destination', msg)
         self.stats.insert_one(msg)
+
+    def find_instance_for_stat(self, direction, msg):
+        search_by_mac_address = 'sourceMacAddress' in msg
+        value_attr = 'MacAddress' if search_by_mac_address else 'IpAddress'
+        value_to_search = msg[direction + value_attr]
+        attr = 'mac_address' if search_by_mac_address else 'ip_address'
+        search = {
+            'environment': self.args.env,
+            'type': 'vnic',
+            attr: value_to_search
+        }
+        vnic = self.inv.find_items(search, get_single=True)
+        if not vnic:
+            self.log.error('failed to find vNIC for ' +
+                           attr + '=' + value_to_search)
+            return 'Unknown'
+        # now find the instance name from the vnic name
+        name_path = vnic['name_path'].split('/')
+        instance_name = name_path[8]
+        return instance_name
 
 if __name__ == '__main__':
     stats_consumer = StatsConsumer()
