@@ -84,7 +84,7 @@ class StatsConsumer(MongoAccess, Logger):
         msg['environment'] = self.args.env
         msg['object_type'] = o['type']
         msg['object_id'] = o['id']
-        time_seconds = int(msg.pop('averageArrivalNanoSeconds') / 1000000000)
+        time_seconds = int(msg['averageArrivalNanoSeconds'] / 1000000000)
         sample_time = time.gmtime(time_seconds)
         msg['sample_time'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", sample_time)
         # find instances between which the flow happens
