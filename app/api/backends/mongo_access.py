@@ -10,7 +10,7 @@ class MongoAccess(Logger, Utils, metaclass=Singleton):
 
     # this default mongo config file is just for development
     # it should point to the mongo config file of the overall system
-    default_config_file = "/Users/xiaocdon/Dev/OSDNA_NEW/OSDNA/app/config/osdna_mongo_access.conf"
+    default_config_file = "/home/xiacong/OSDNA/app/config/osdna_mongo_access.conf"
 
     def __init__(self):
         super().__init__()

@@ -9,7 +9,7 @@ from api.etc.utils import Utils
 
 class LDAPAccess(Logger, Utils, metaclass=Singleton):
 
-    default_config_file = "/Users/xiaocdon/Dev/OSDNA_NEW/OSDNA/app/api/config/ldap.conf"
+    default_config_file = "/home/xiacong/OSDNA/app/api/config/ldap.conf"
     tls_request_certs = {
         "demand": ssl.CERT_REQUIRED,
         "allow": ssl.CERT_OPTIONAL,
