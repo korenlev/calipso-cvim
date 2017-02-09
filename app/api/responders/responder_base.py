@@ -52,8 +52,8 @@ class ResponderBase(MongoAccess, DataValidate):
             self.bad_request(data_validation['error_message'])
 
     def check_environment_name(self, env_name):
-        query = {"environment": env_name}
-        objects = self.read("inventory", query)
+        query = {"name": env_name}
+        objects = self.read("environments_config", query)
         if not objects:
             return False
         return True
