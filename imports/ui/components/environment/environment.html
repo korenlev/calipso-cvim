@@ -16,7 +16,10 @@
         {{> d3graph}}
 
         {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
-        {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+
+        {{#if showVedgeInfoWindow }}
+          {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+        {{/if }}
 
       <div class="mainContentData flex">
           <div class="sm-env-header-line cards white title">

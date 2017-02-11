@@ -77,8 +77,10 @@ Template.Environment.onCreated(function () {
     projectsCount: 0,
     regionsCount: 0,
     graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false },
-    vedgeInfoWindow: { node: { }, left: 0, top: 0, show: false },
+    vedgeInfoWindow: { node: null, left: 0, top: 0, show: false },
   });
+
+  Session.set('currNodeId', null);
 
   instance.autorun(function () {
     var controller = Iron.controller();
@@ -367,7 +369,9 @@ Template.Environment.helpers({
 
   argsVedgeInfoWindow: function (vedgeInfoWindow) {
     return {
-      node: R.path(['node'], vedgeInfoWindow),
+      environment: R.path(['node', 'environment'], vedgeInfoWindow),
+      object_id: R.path(['node', 'id'], vedgeInfoWindow),
+      name: R.path(['node', 'name'], vedgeInfoWindow),
       left: R.path(['left'], vedgeInfoWindow),
       top: R.path(['top'], vedgeInfoWindow),
       show: R.path(['show'], vedgeInfoWindow),
@@ -376,6 +380,12 @@ Template.Environment.helpers({
       }
     };
   },
+
+  showVedgeInfoWindow: function () {
+    let instance = Template.instance();
+    let node = instance.state.get('vedgeInfoWindow').node;
+    return ! R.isNil(node);
+  }
 });
 
 
