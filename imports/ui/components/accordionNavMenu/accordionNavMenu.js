@@ -168,32 +168,6 @@ Template.accordionNavMenu.rendered = function () {
       $('#dgraphid').toggle();
     });
 
-    /* refactord to component
-
-    $("#aggregate-WebEx-RTP-SSD-Aggregate-node-24").click(function() {
-      $('.mainContentData').hide();
-      $('#dgraphid').show();
-
-      //$('#dgraphid').css('display','block');
-      //$('.flex-box-3 main-layout-no-nav').html('<div id=""></div>');
-      Session.set('currNodeId','node-24');
-      var graphData = d3Graph.getGraphData('node-24');
-      d3Graph.updateNetworkGraph(graphData);
-      //$("body").scrollTop(0);
-    });
-
-    $(".genGraphClick").click(function() {
-      //console.log($(this).attr('objid'));
-      $('.mainContentData').hide();
-      $('#dgraphid').show();
-      //$('#dgraphid').css('display','block');
-      //$('.flex-box-3 main-layout-no-nav').html('<div id=""></div>');
-      Session.set('currNodeId',$(this).attr('objid'));
-      var graphData = d3Graph.getGraphDataByClique($(this).attr('objid'));
-      d3Graph.updateNetworkGraph(graphData);
-    });
-    */
-
     $('.colors a').click(function() {
       if ($(this).attr('class') != 'default') {
         $('#left-nav-menu').removeClass();
@@ -204,14 +178,6 @@ Template.accordionNavMenu.rendered = function () {
       }
     });
 
-    /* refactored to component environment
-    if(Session.get('envGraph')=="true"){
-      Meteor.setTimeout(function(){
-        $("#aggregate-WebEx-RTP-SSD-Aggregate-node-24").click();
-      },1000);
-
-    }
-    */
   });
 /*
   Meteor.setTimeout(function(){

@@ -18,13 +18,14 @@ import { Environments } from '/imports/api/environments/environments';
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
-//import { addSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
-//import { removeSearchInterestedParty } from '/imports/ui/actions/search-interested-parties';
+import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 import { Icon } from '/imports/lib/icon';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
+import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
+import '/imports/ui/components/vedge-info-window/vedge-info-window';
 
 import './environment.html';
 
@@ -74,8 +75,12 @@ Template.Environment.onCreated(function () {
       icon: { type: 'material', name: 'folder' },
     }],
     projectsCount: 0,
-    regionsCount: 0
+    regionsCount: 0,
+    graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false },
+    vedgeInfoWindow: { node: null, left: 0, top: 0, show: false },
   });
+
+  Session.set('currNodeId', null);
 
   instance.autorun(function () {
     var controller = Iron.controller();
@@ -152,11 +157,20 @@ Template.Environment.onCreated(function () {
     instance.state.set('regionsCount', regionsCount);
   });
 
+  instance.storeUnsubscribe = store.subscribe(() => {
+    let state = store.getState();
+
+    let graphTooltipWindow = state.components.graphTooltipWindow;
+    instance.state.set('graphTooltipWindow', graphTooltipWindow);
+
+    let vedgeInfoWindow = state.components.vedgeInfoWindow;
+    instance.state.set('vedgeInfoWindow', vedgeInfoWindow);
+  });
 });
 
 Template.Environment.onDestroyed(function () {
-  //let instance = this;
-  //store.dispatch(removeSearchInterestedParty(instance.onSearchRequested));
+  let instance = this;
+  instance.storeUnsubscribe();
 });
 
 Template.Environment.rendered = function(){
@@ -328,6 +342,50 @@ Template.Environment.helpers({
       }
     };
   },
+  
+  graphTooltipWindow: function () {
+    let instance = Template.instance();
+    let graphTooltipWindow = instance.state.get('graphTooltipWindow');
+
+    return graphTooltipWindow; 
+  },
+
+  vedgeInfoWindow: function () {
+    let instance = Template.instance();
+    let vedgeInfoWindow = instance.state.get('vedgeInfoWindow');
+
+    return vedgeInfoWindow; 
+  },
+
+  argsGraphTooltipWindow: function (graphTooltipWindow) {
+    return {
+      label: R.path(['label'], graphTooltipWindow),
+      title: R.path(['title'], graphTooltipWindow),
+      left: R.path(['left'], graphTooltipWindow),
+      top: R.path(['top'], graphTooltipWindow),
+      show: R.path(['show'], graphTooltipWindow)
+    };
+  },
+
+  argsVedgeInfoWindow: function (vedgeInfoWindow) {
+    return {
+      environment: R.path(['node', 'environment'], vedgeInfoWindow),
+      object_id: R.path(['node', 'id'], vedgeInfoWindow),
+      name: R.path(['node', 'name'], vedgeInfoWindow),
+      left: R.path(['left'], vedgeInfoWindow),
+      top: R.path(['top'], vedgeInfoWindow),
+      show: R.path(['show'], vedgeInfoWindow),
+      onCloseRequested: function () {
+        store.dispatch(closeVedgeInfoWindow());
+      }
+    };
+  },
+
+  showVedgeInfoWindow: function () {
+    let instance = Template.instance();
+    let node = instance.state.get('vedgeInfoWindow').node;
+    return ! R.isNil(node);
+  }
 });
 
 

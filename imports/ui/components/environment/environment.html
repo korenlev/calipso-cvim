@@ -15,6 +15,12 @@
 
         {{> d3graph}}
 
+        {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+
+        {{#if showVedgeInfoWindow }}
+          {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+        {{/if }}
+
       <div class="mainContentData flex">
           <div class="sm-env-header-line cards white title">
             <div class="sm-env-header-name-cmp">

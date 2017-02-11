@@ -6,6 +6,8 @@
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
         
+import { d3Graph } from '/imports/lib/d3-graph';
+
 import './d3graph.html';     
     
 /*  

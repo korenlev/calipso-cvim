@@ -11,3 +11,12 @@ import '../../api/scans/methods.js';
 
 import '../../api/messages/server/publications';
 import '../../api/messages/methods.js';
+
+import '../../api/cliques/server/publications';
+import '../../api/cliques/methods.js';
+
+import '../../api/links/server/publications';
+import '../../api/links/methods.js';
+
+import '../../api/statistics/server/publications';
+import '../../api/statistics/methods.js';

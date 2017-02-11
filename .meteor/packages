@@ -40,3 +40,4 @@ modules
 aldeed:simple-schema
 mdg:validated-method
 aldeed:collection2
+meteorhacks:aggregate
