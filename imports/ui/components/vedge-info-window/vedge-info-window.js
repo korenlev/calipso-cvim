@@ -37,6 +37,7 @@ Template.VedgeInfoWindow.onCreated(function() {
     selectedDstMacAddress: null,
     selectedSrcIPv4Address: null,
     selectedDstIPv4Address: null,
+    simulateGraph: false
   });
 
   instance.autorun(() => {
@@ -150,6 +151,11 @@ Template.VedgeInfoWindow.events({
 
     instance.state.set('selectedDstMacAddress', selections[0]);
   },
+
+  'click .sm-simulate-graph': function (event, instance) {
+    let element = instance.$('.sm-simulate-graph')[0];
+    instance.state.set('simulateGraph', element.checked);
+  }
 });
    
 /*  
@@ -231,11 +237,13 @@ Template.VedgeInfoWindow.helpers({
     return {
       env: instance.state.get('environment'),
       object_id: instance.state.get('object_id'),
+      type: 'vedge_flows',
       flowType: instance.state.get('selectedFlowType'),
       sourceMacAddress: instance.state.get('selectedSrcMacAddress'),
       destinationMacAddress: instance.state.get('selectedDstMacAddress'),
       sourceIPv4Address: instance.state.get('selectedSrcIPv4Address'),
-      destinationIPv4Address: instance.state.get('selectedDstIPv4Address')
+      destinationIPv4Address: instance.state.get('selectedDstIPv4Address'),
+      simulateGraph: instance.state.get('simulateGraph')
     };
   },
 

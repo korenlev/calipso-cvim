@@ -168,7 +168,12 @@ let d3Graph = {
 
     var outer = d3.select('#dgraphid')
         .append('svg')
-        .attr({ width: '100%', height: '100%', 'pointer-events': 'all' });
+        .attr({ 
+          width: '100%', 
+          height: '100%', 
+          'pointer-events': 'all', 
+          class: 'os-d3-graph' 
+        });
 
     outer.append('rect')
         .attr({ class: 'background', width: '100%', height: '100%' })

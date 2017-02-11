@@ -107,20 +107,36 @@ Meteor.methods({
     object_id, 
     type,
     flowType, 
+    timeStart,
+    timeEnd,
     sourceMacAddress,
-    targetMacAddress,
+    destinationMacAddress,
     sourceIPv4Address,
-    targetIPv4Address
+    destinationIPv4Address
   }) {
     let schema = createGraphQuerySchema(
       env, 
       object_id,
       type,
       flowType, 
+      timeStart,
+      timeEnd,
       sourceMacAddress,
-      targetMacAddress,
+      destinationMacAddress,
       sourceIPv4Address,
-      targetIPv4Address);
+      destinationIPv4Address);
+
+    console.log('statistics!graph-frames');
+    console.log(`- env: ${env}`);
+    console.log(`- object_id: ${object_id}`);
+    console.log(`- type: ${type}`);
+    console.log(`- flowType: ${flowType}`);
+    console.log(`- timeStart: ${timeStart}`);
+    console.log(`- timeEnd: ${timeEnd}`);
+    console.log(`- sourceMacAddress: ${sourceMacAddress}`);
+    console.log(`- destinationMacAddress: ${destinationMacAddress}`);
+    console.log(`- sourceIPv4Address: ${sourceIPv4Address}`);
+    console.log(`- destinationIPv4Address: ${destinationIPv4Address}`);
 
     return Statistics.find(schema).fetch();
   }
@@ -131,6 +147,8 @@ function createGraphQuerySchema(
   object_id, 
   type,
   flowType, 
+  timeStart,
+  timeEnd,
   sourceMacAddress,
   destinationMacAddress,
   sourceIPv4Address,
@@ -141,6 +159,10 @@ function createGraphQuerySchema(
     object_id: object_id, 
     type: type,
     flowType: flowType, 
+    averageArrivalNanoSeconds: {
+      $gte: timeStart,
+      $lt: timeEnd
+    }
   };
 
   switch (flowType) {
