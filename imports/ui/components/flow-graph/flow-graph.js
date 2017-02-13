@@ -129,8 +129,8 @@ Template.FlowGraph.rendered = function() {
         .ease(d3.easeLinear)
         .on('start', tick);
 
-      let timeStart = Date.now() * 1000000;
-      //let timeStart = 1486473453359891200;
+      //let timeStart = Date.now() * 1000000;
+      let timeStart = 1486661783217004480; 
       let timeEnd;
       let serverData = [];
 
@@ -143,8 +143,8 @@ Template.FlowGraph.rendered = function() {
           data.push(0);
         }
 
-        timeEnd = Date.now() * 1000000;
-        //timeEnd = 1486473455962783814;
+        //timeEnd = Date.now() * 1000000;
+        timeEnd = timeStart + 400000000;
 
         Meteor.call('statistics!graph-frames', { 
           env: environment,
