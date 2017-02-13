@@ -332,4 +332,5 @@ class Scanner(Util, Fetcher):
         self.monitoring_setup_manager = monitoring_setup_manager
 
     def deploy_monitoring_setup(self):
-        self.monitoring_setup_manager.handle_pending_setup_changes()
+        if self.monitoring_setup_manager:
+            self.monitoring_setup_manager.handle_pending_setup_changes()
