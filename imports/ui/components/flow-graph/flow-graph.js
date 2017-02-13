@@ -84,7 +84,7 @@ Template.FlowGraph.rendered = function() {
       var data = d3.range(n).map(R.always(0));
     //var svg = d3.select('svg'),
       var svg = d3.select(graphContainer[0]),
-        margin = {top: 20, right: 20, bottom: 20, left: 40},
+        margin = {top: 20, right: 20, bottom: 20, left: 80},
         width = +svg.attr('width') - margin.left - margin.right,
         height = +svg.attr('height') - margin.top - margin.bottom;
         
@@ -97,7 +97,7 @@ Template.FlowGraph.rendered = function() {
         .range([0, width]);
 
       var y = d3.scaleLinear()
-        .domain([0, 4000000])
+        .domain([0, 5000000])
         .range([height, 0]);
 
       var line = d3.line()
@@ -133,15 +133,19 @@ Template.FlowGraph.rendered = function() {
       let timeStart = 1486661783217004480; 
       let timeEnd;
       let serverData = [];
+      let dataPoint;
+      let lastDataPoint = 0;
 
       function tick() {
         // Push a new data point onto the back.
         if (serverData.length > 0) {
-          data.push(serverData[0]);
+          dataPoint = serverData[0];
           serverData = R.drop(1, serverData);
         } else {
-          data.push(0);
+          dataPoint = lastDataPoint;
         }
+
+        data.push(dataPoint);
 
         //timeEnd = Date.now() * 1000000;
         timeEnd = timeStart + 400000000;
@@ -165,7 +169,7 @@ Template.FlowGraph.rendered = function() {
           } else if (! R.isNil(err)) {
             console.log(err);
           } else if (res.length === 0) {
-            serverData = R.append(0, serverData);
+            //serverData = R.append(0, serverData);
           } else {
             serverData = R.append(res[0].averageThroughput, serverData);
           }
@@ -185,6 +189,8 @@ Template.FlowGraph.rendered = function() {
 
         // Pop the old data point off the front.
         data.shift();
+
+        lastDataPoint = dataPoint;
       }
     })(d3v4);
 

@@ -20,3 +20,7 @@ import '../../api/links/methods.js';
 
 import '../../api/statistics/server/publications';
 import '../../api/statistics/methods.js';
+
+import '../../api/attributes_for_hover_on_data/server/publications';
+import '../../api/attributes_for_hover_on_data/methods.js';
+

@@ -15,6 +15,11 @@ import './d3graph.html';
  */   
   
 Template.d3graph.onCreated(function() {
+  let instance = this;
+
+  instance.autorun(function () {
+    instance.subscribe('attributes_for_hover_on_data');
+  });
 });  
 
 Template.d3graph.rendered = function () {
