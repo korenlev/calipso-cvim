@@ -20,7 +20,7 @@ class ScanController(Fetcher):
     default_env = "WebEX-Mirantis@Cisco"
 
     def __init__(self):
-        pass
+        self.monitoring_setup_manager = None
 
     def get_args(self):
         # try to read scan plan from command line parameters
