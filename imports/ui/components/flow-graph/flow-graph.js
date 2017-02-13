@@ -60,6 +60,18 @@ Template.FlowGraph.onCreated(function() {
 
 });  
 
+Template.FlowGraph.onDestroyed(function () {
+  (function (d3) {
+    let instance = Template.instance();
+    let graphContainer = instance.$('.sm-graph');
+    var svg = d3.select(graphContainer[0]);
+
+    svg.interrupt();
+    var lineSvg = svg.select('g g path.line');
+    lineSvg.interrupt();
+  })(d3v4);
+});
+
 Template.FlowGraph.rendered = function() {
   let instance = Template.instance();
 

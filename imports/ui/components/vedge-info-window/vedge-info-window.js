@@ -37,7 +37,8 @@ Template.VedgeInfoWindow.onCreated(function() {
     selectedDstMacAddress: null,
     selectedSrcIPv4Address: null,
     selectedDstIPv4Address: null,
-    simulateGraph: false
+    simulateGraph: false,
+    show: false
   });
 
   instance.autorun(() => {
@@ -51,8 +52,9 @@ Template.VedgeInfoWindow.onCreated(function() {
       onCloseRequested: { type: Function }
     }).validate(Template.currentData());
 
-    instance.state.set('environment', instance.data.environment);
-    instance.state.set('object_id', instance.data.object_id);
+    instance.state.set('show', Template.currentData().show);
+    instance.state.set('environment', Template.currentData().environment);
+    instance.state.set('object_id', Template.currentData().object_id);
   });
 
   instance.autorun(() => {
@@ -199,11 +201,14 @@ Template.VedgeInfoWindow.helpers({
 
   isShow: function () {
     let instance = Template.instance();
-    return instance.data.show;
+    return instance.state.get('show');
   },
 
   isShowGraph: function () {
     let instance = Template.instance();
+
+    let show = instance.state.get('show');
+    if (! show) { return false; }
 
     let info = {
       env: instance.state.get('environment'),
