@@ -215,7 +215,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     def create_link(self, env, host, src, source_id, target, target_id,
                     link_type, link_name, state, link_weight,
                     source_label="", target_label="",
-                    extra_attributes={}):
+                    extra_attributes=None):
         s = bson.ObjectId(src)
         t = bson.ObjectId(target)
         link = {
@@ -231,7 +231,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             "link_weight": link_weight,
             "source_label": source_label,
             "target_label": target_label,
-            "attributes": extra_attributes
+            "attributes": extra_attributes if extra_attributes else {}
         }
         return self.write_link(link)
 
