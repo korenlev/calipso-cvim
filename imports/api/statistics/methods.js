@@ -56,7 +56,7 @@ Meteor.methods({
       }
     }, {
       $group: {
-        _id: { destinationMacAddress: 'destinationMacAddress' },
+        _id: { destinationMacAddress: '$destinationMacAddress' },
         destinationMacAddress: { $first: '$destinationMacAddress' }
       }
     }];
