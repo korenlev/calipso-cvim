@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^0.8.7",
+    "bson": "^1.0.4",
     "cola": "tgdwyer/WebCola#master",
     "d3": "^4.5.0",
     "meteor-node-stubs": "^0.2.1",

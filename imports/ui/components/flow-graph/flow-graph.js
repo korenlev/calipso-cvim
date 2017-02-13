@@ -9,6 +9,9 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 // We import d3 v4 not into d3 because old code network visualization use globaly d3 v3.
 import * as d3v4 from 'd3';
 import * as R from 'ramda';
+import { Statistics } from '/imports/api/statistics/statistics';
+import { createGraphQuerySchema } from '/imports/api/statistics/helpers';
+import * as BSON from 'bson';
         
 import './flow-graph.html';     
     
@@ -29,7 +32,8 @@ Template.FlowGraph.onCreated(function() {
     destinationMacAddress: instance.data.destinationMacAddress,
     sourceIPv4Address: instance.data.sourceIPv4Address,
     destinationIPv4Address: instance.data.destinationIPv4Address,
-    simulateGraph: instance.data.simulateGraph
+    simulateGraph: instance.data.simulateGraph,
+    timeDeltaNano: 0
   });
 
   instance.autorun(() => {
@@ -42,7 +46,8 @@ Template.FlowGraph.onCreated(function() {
       destinationMacAddress: { type: String, optional: true },
       sourceIPv4Address: { type: String, optional: true },
       destinationIPv4Address: { type: String, optional: true },
-      simulateGraph: { type: Boolean, optional: true }
+      simulateGraph: { type: Boolean, optional: true },
+      timeDeltaNano: { type: Number, optional: true }
     }).validate(Template.currentData());
 
     let data = Template.currentData();
@@ -56,6 +61,22 @@ Template.FlowGraph.onCreated(function() {
     instance.state.set('sourceIPv4Address', data.sourceIPv4Address);
     instance.state.set('destinationIPv4Address', data.destinationIPv4Address);
     instance.state.set('simulateGraph', data.simulateGraph);
+    instance.state.set('timeDeltaNano', data.timeDeltaNano);
+
+    //let timeStart = Date.now() * 1000000;
+    let timeStart = 1486661783217004480; 
+
+    instance.subscribe('statistics!graph-frames', {
+      env: data.env, 
+      object_id: data.object_id, 
+      type: data.type,
+      flowType: data.flowType, 
+      timeStart: timeStart,
+      sourceMacAddress: data.sourceMacAddress,
+      destinationMacAddress: data.destinationMacAddress,
+      sourceIPv4Address: data.sourceIPv4Address,
+      destinationIPv4Address: data.destinationIPv4Address
+    });
   });
 
 });  
@@ -86,6 +107,7 @@ Template.FlowGraph.rendered = function() {
     let sourceIPv4Address = instance.state.get('sourceIPv4Address');
     let destinationIPv4Address = instance.state.get('destinationIPv4Address');
     let simulateGraph = instance.state.get('simulateGraph');
+    let timeDeltaNano = instance.state.get('timeDeltaNano');
 
     (function (d3) {
       let graphContainer = instance.$('.sm-graph');
@@ -142,7 +164,11 @@ Template.FlowGraph.rendered = function() {
         .on('start', tick);
 
       //let timeStart = Date.now() * 1000000;
-      let timeStart = 1486661783217004480; 
+      //let timeStart = (Date.now() * 1000000) - timeDeltaNano;
+      //let timeStart = 1486661783217004480; 
+      let timeStart = 1486661034810432900;//  1486661034810432945;
+      let delta = (Date.now() * 1000000) - timeStart; 
+      debugger;
       let timeEnd;
       let serverData = [];
       let dataPoint;
@@ -150,18 +176,40 @@ Template.FlowGraph.rendered = function() {
 
       function tick() {
         // Push a new data point onto the back.
-        if (serverData.length > 0) {
-          dataPoint = serverData[0];
-          serverData = R.drop(1, serverData);
+        
+        timeEnd = (Date.now() * 1000000) - delta;
+        //timeStart = timeEnd - (500 * 1000000);
+
+        let timeStartBson = BSON.Long(timeStart);
+        let timeEndBson = BSON.Long(timeEnd);
+
+        // debug
+        // timeStartBson = BSON.Long(0);
+        //timeEndBson = BSON.Long(2486661034810432900);
+
+        let query = createGraphQuerySchema(
+          environment, 
+          object_id,
+          type,
+          flowType, 
+          timeStartBson,
+          timeEndBson,
+          sourceMacAddress,
+          destinationMacAddress,
+          sourceIPv4Address,
+          destinationIPv4Address);
+
+        let statItem = Statistics.findOne(query);
+        if (!R.isNil(statItem)) {
+          dataPoint = statItem.averageThroughput;
         } else {
           dataPoint = lastDataPoint;
         }
 
         data.push(dataPoint);
 
-        //timeEnd = Date.now() * 1000000;
-        timeEnd = timeStart + 400000000;
-
+        timeStart = timeEnd - (4 * 1000000000);
+        /*
         Meteor.call('statistics!graph-frames', { 
           env: environment,
           object_id: object_id,
@@ -187,6 +235,7 @@ Template.FlowGraph.rendered = function() {
           }
 
         });
+        */
 
         // Redraw the line.
         d3.select(this)
