@@ -267,9 +267,7 @@ class Scanner(Util, Fetcher):
             if "create_object" not in o or o["create_object"]:
                 # add/update object in DB
                 Scanner.inventory.set(o)
-                # create the corresponding monitoring setup
-                if self.monitoring_setup_manager:
-                    self.monitoring_setup_manager.create_setup(o)
+                self.monitoring_setup_manager.create_setup(o)
 
             # add objects into children list.
             children.append(o)
@@ -332,4 +330,5 @@ class Scanner(Util, Fetcher):
         self.monitoring_setup_manager = monitoring_setup_manager
 
     def deploy_monitoring_setup(self):
-        self.monitoring_setup_manager.handle_pending_setup_changes()
+        if self.monitoring_setup_manager:
+            self.monitoring_setup_manager.handle_pending_setup_changes()

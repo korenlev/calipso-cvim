@@ -20,7 +20,7 @@ class ScanController(Fetcher):
     default_env = "WebEX-Mirantis@Cisco"
 
     def __init__(self):
-        pass
+        self.monitoring_setup_manager = None
 
     def get_args(self):
         # try to read scan plan from command line parameters
@@ -180,12 +180,10 @@ class ScanController(Fetcher):
             else True
 
         # setup monitoring server
-        env_conf = self.conf.get_env_config()
-        if 'no_monitoring' not in env_conf or not env_conf['no_monitoring']:
-            self.monitoring_setup_manager = \
-                MonitoringSetupManager(args.mongo_config, env_name)
-            self.monitoring_setup_manager.server_setup()
-            scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
+        self.monitoring_setup_manager =\
+            MonitoringSetupManager(args.mongo_config, env_name)
+        self.monitoring_setup_manager.server_setup()
+        scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
 
         # do the actual scanning
         if inventory_only or run_all:

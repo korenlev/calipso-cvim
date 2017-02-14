@@ -4,3 +4,4 @@
 OSDNA.komodoproject
 .idea/
 .ropeproject/
+mongo*.conf

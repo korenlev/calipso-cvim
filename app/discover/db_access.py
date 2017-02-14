@@ -53,6 +53,7 @@ class DbAccess(Fetcher, Util):
             DbAccess.conn = None
         self.conf = self.config.get("mysql")
         cnf = self.conf
+        cnf['schema'] = cnf['schema'] if 'schema' in cnf else 'nova'
         self.db_connect(cnf["host"], cnf["port"],
                         cnf["user"], cnf["password"],
                         cnf["schema"])
