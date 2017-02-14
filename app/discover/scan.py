@@ -8,6 +8,7 @@ import argparse
 import cgi
 import os
 import sys
+import time
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
@@ -19,7 +20,7 @@ class ScanController(Fetcher):
     default_env = "WebEX-Mirantis@Cisco"
 
     def __init__(self):
-        pass
+        self.monitoring_setup_manager = None
 
     def get_args(self):
         # try to read scan plan from command line parameters
@@ -191,6 +192,10 @@ class ScanController(Fetcher):
                 scan_plan["id_field"],
                 scan_plan["child_id"],
                 scan_plan["child_type"])
+            if args.type == 'environment':
+                now = time.gmtime()
+                time_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", now)
+                self.conf.update_env({'last_scanned': time_str})
         if links_only or run_all:
             scanner.scan_links()
         if cliques_only or run_all:
