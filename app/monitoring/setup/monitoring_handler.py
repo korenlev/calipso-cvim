@@ -22,6 +22,13 @@ from utils.binary_converter import BinaryConverter
 class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     PRODUCTION_CONFIG_DIR = '/etc/sensu/conf.d'
 
+    provision_levels = {
+        'none': 0,
+        'db': 1,
+        'files': 2,
+        'remote': 3
+    }
+
     pending_changes = {}
 
     def __init__(self, mongo_conf_file, env):
@@ -35,14 +42,17 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         self.inv = InventoryMgr()
         config_collection = self.inv.get_coll_name('monitoring_config')
         self.config_db = self.db[config_collection]
-
-    def in_debug(self):
-        conf = self.env_monitoring_config
-        in_debug_mode = 'debug' in conf and bool(conf['debug'])
-        return in_debug_mode
+        self.provision = self.provision_levels['none']
+        if self.env_monitoring_config:
+            provision = self.env_monitoring_config.get('provision', 'none')
+            provision = str.lower(provision)
+            self.provision =\
+                self.provision_levels.get(provision,
+                                          self.provision_levels['none'])
 
     # create a directory if it does not exist
-    def make_directory(self, directory):
+    @staticmethod
+    def make_directory(directory):
         if not os.path.exists(directory):
             os.makedirs(directory)
         return directory
@@ -125,9 +135,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         # merge it with any existing config on same host
         content = self.merge_config(host, file_name, content)
 
+        if self.provision == self.provision_levels['none']:
+            self.log.debug('Monitoring setup kept only in DB')
+            return
         # now dump the config to the file
         content_json = json.dumps(content['config'], sort_keys=True, indent=4)
-        content_json = content_json + '\n'
+        content_json += '\n'
         # always write the file locally first
         local_dir = self.make_directory(self.get_config_dir() + '/' + sub_dir)
         local_path = local_dir + '/' + file_name
@@ -148,15 +161,18 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             }
 
     def handle_pending_setup_changes(self):
+        if self.provision < self.provision_levels['files']:
+            if self.provision == self.provision_levels['db']:
+                self.log.info('Monitoring config applied only in DB')
+            return
         self.log.info('applying monitoring setup')
         for host, host_changes in self.pending_changes.items():
             self.handle_pending_host_setup_changes(host_changes)
         self.log.info('done applying monitoring setup')
 
     def handle_pending_host_setup_changes(self, host_changes):
-        if self.in_debug():
-            return
         host = None
+        is_local_host = False
         for file_type, changes in host_changes.items():
             host = changes['host']
             self.log.debug('applying monitoring setup changes ' +
@@ -194,6 +210,9 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                   ", output: " + self.binary2str(e.output) + "\n")
 
     def move_setup_files_to_remote_host(self, host, local_dir):
+        if self.provision < self.provision_levels['remote']:
+            self.log.info('Monitoring config not written to remote host')
+            return
         if self.is_gateway_host(host):
             # do a simple copy on the gateway host
             self.run('cp ' + local_dir + '/* ' + self.PRODUCTION_CONFIG_DIR,

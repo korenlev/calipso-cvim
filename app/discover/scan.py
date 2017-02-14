@@ -196,12 +196,10 @@ class ScanController(Fetcher):
             else True
 
         # setup monitoring server
-        env_conf = self.conf.get_env_config()
-        if not env_conf.get('no_monitoring'):
-            self.monitoring_setup_manager = \
-                MonitoringSetupManager(args.mongo_config, env_name)
-            self.monitoring_setup_manager.server_setup()
-            scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
+        self.monitoring_setup_manager =\
+            MonitoringSetupManager(args.mongo_config, env_name)
+        self.monitoring_setup_manager.server_setup()
+        scanner.set_monitoring_setup_manager(self.monitoring_setup_manager)
 
         # do the actual scanning
         if inventory_only or run_all:
@@ -218,8 +216,7 @@ class ScanController(Fetcher):
             scanner.scan_links()
         if cliques_only or run_all:
             scanner.scan_cliques()
-        if not env_conf.get('no_monitoring'):
-            scanner.deploy_monitoring_setup()
+        scanner.deploy_monitoring_setup()
         if scan_plan.cgi:
             response = {"success": not isinstance(results, bool),
                         "results": [] if isinstance(results, bool) else results}
