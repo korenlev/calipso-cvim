@@ -186,6 +186,6 @@ class CliAccess(BinaryConverter, Fetcher):
             name = regexp_tuple['name']
             regex = regexp_tuple['re']
             regex = re.compile(regex)
-            matches = regex.match(line)
+            matches = regex.search(line)
             if matches:
                 o[name] = matches.group(1)
