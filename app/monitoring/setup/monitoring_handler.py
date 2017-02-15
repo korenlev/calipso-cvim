@@ -26,7 +26,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         'none': 0,
         'db': 1,
         'files': 2,
-        'remote': 3
+        'deploy': 3
     }
 
     pending_changes = {}
@@ -210,7 +210,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                   ", output: " + self.binary2str(e.output) + "\n")
 
     def move_setup_files_to_remote_host(self, host, local_dir):
-        if self.provision < self.provision_levels['remote']:
+        if self.provision < self.provision_levels['deploy']:
             self.log.info('Monitoring config not written to remote host')
             return
         if self.is_gateway_host(host):
