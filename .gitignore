@@ -5,3 +5,4 @@ OSDNA.komodoproject
 .idea/
 .ropeproject/
 mongo*.conf
+.DS_Store

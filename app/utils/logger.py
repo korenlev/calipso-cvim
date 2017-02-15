@@ -1,7 +1,7 @@
 import logging
 
 
-class Logger():
+class Logger:
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("OS-DNA")

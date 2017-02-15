@@ -46,16 +46,20 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
     def clear(self, scan_plan):
         col_to_skip = ["link_types", "clique_types", "clique_constraints"]
-        if scan_plan["links_only"] or scan_plan["cliques_only"]:
+        if scan_plan.links_only or scan_plan.cliques_only:
             col_to_skip.append("inventory")
-        if scan_plan["inventory_only"] or scan_plan["cliques_only"]:
+        if scan_plan.inventory_only or scan_plan.cliques_only:
             col_to_skip.append("links")
-        if scan_plan["inventory_only"] or scan_plan["links_only"]:
+        if scan_plan.inventory_only or scan_plan.links_only:
             col_to_skip.append("cliques")
+        env_cond = {} if scan_plan.clear_all \
+            else {"environment": scan_plan.env}
         for c in [c for c in self.coll if c not in col_to_skip]:
             col = self.coll[c]
             self.log.info("clearing collection: " + col.full_name)
-            col.delete_many({})  # delete all documents from the collection
+            # delete docs from the collection,
+            # either all or just for the specified environment
+            col.delete_many(env_cond)
 
     # return single match
     def process_results(self, raw_results, get_single=False):
@@ -215,7 +219,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     def create_link(self, env, host, src, source_id, target, target_id,
                     link_type, link_name, state, link_weight,
                     source_label="", target_label="",
-                    extra_attributes={}):
+                    extra_attributes=None):
         s = bson.ObjectId(src)
         t = bson.ObjectId(target)
         link = {
@@ -231,7 +235,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             "link_weight": link_weight,
             "source_label": source_label,
             "target_label": target_label,
-            "attributes": extra_attributes
+            "attributes": extra_attributes if extra_attributes else {}
         }
         return self.write_link(link)
 

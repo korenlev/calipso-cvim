@@ -35,15 +35,18 @@ class MonitoringHost(MonitoringHandler):
             'env_name': env_name
         })
 
+        # copy configuration files
+        for file_name in sensu_host_files:
+            content = self.prepare_config_file(file_name, {'side': 'client'})
+            self.write_config_file(file_name, sub_dir, host_id, content)
+
+        if self.provision < self.provision_levels['deploy']:
+            return
         # make sure the remote directories are there
         # with the right permissions
         self.make_remote_dir(host_id, self.PRODUCTION_CONFIG_DIR)
         self.make_remote_dir(host_id, self.REMOTE_SCRIPTS_FOLDER)
 
-        # copy configuration files
-        for file_name in sensu_host_files:
-            content = self.prepare_config_file(file_name, {'side': 'client'})
-            self.write_config_file(file_name, sub_dir, host_id, content)
         # copy scripts to host
         scripts_dir = join(self.env_monitoring_config['app_path'],
                            self.APP_SCRIPTS_FOLDER)

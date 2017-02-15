@@ -7,7 +7,7 @@ class BinaryConverter(Logger):
         if not isinstance(txt, bytes):
             return str(txt)
         try:
-            s = txt.decode("ascii")
+            s = txt.decode("utf-8")
         except TypeError:
             s = str(txt)
         return s

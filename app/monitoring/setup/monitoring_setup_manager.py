@@ -27,6 +27,9 @@ class MonitoringSetupManager(MonitoringHandler):
 
     # add monitoring setup to Sensu server
     def server_setup(self):
+        if self.provision == self.provision_levels['none']:
+            self.log.info('Monitoring config setup skipped')
+            return
         sensu_server_files = [
             'transport.json',
             'client.json',
@@ -36,9 +39,6 @@ class MonitoringSetupManager(MonitoringHandler):
             'api.json'
         ]
         conf = self.env_monitoring_config
-        debug = 'debug' in conf and conf['debug']
-        if not debug and 'monitoring_setup_done' in conf:
-            return
         server_host = conf['server_ip']
         sub_dir = '/server'
         self.replacements.update(conf)
@@ -49,6 +49,9 @@ class MonitoringSetupManager(MonitoringHandler):
 
     # add setup for inventory object
     def create_setup(self, o):
+        if self.provision == self.provision_levels['none']:
+            self.log.info('Monitoring config setup skipped')
+            return
         type_attribute = 'type' if 'type' in o else 'link_type'
         type_value = o[type_attribute]
         if type_value in self.object_handlers.keys():

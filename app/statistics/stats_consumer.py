@@ -26,8 +26,7 @@ class StatsConsumer(MongoAccess, Logger):
         # consume messages from topic
         self.consumer = KafkaConsumer('VPP.stats',
                                       group_id='osdna_test',
-                                      # debugging - read from first message
-                                      auto_offset_reset='smallest',
+                                      auto_offset_reset=self.args.offset,
                                       bootstrap_servers=['localhost:9092'])
 
     def get_args(self):
@@ -48,6 +47,11 @@ class StatsConsumer(MongoAccess, Logger):
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default="INFO",
                             help="logging level \n(default: 'INFO')")
+        parser.add_argument("-o", "--offset", nargs="?", type=str,
+                            default="largest",
+                            help="where to start reading" +
+                                 " - use 'smallest' for start \n" +
+                                 "(default: 'largest')")
         self.args = parser.parse_args()
 
     def read(self):
