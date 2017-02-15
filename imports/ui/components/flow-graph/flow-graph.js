@@ -33,6 +33,7 @@ Template.FlowGraph.onCreated(function() {
     sourceIPv4Address: instance.data.sourceIPv4Address,
     destinationIPv4Address: instance.data.destinationIPv4Address,
     simulateGraph: instance.data.simulateGraph,
+    yScale: instance.data.yScale,
     timeDeltaNano: 0
   });
 
@@ -47,7 +48,8 @@ Template.FlowGraph.onCreated(function() {
       sourceIPv4Address: { type: String, optional: true },
       destinationIPv4Address: { type: String, optional: true },
       simulateGraph: { type: Boolean, optional: true },
-      timeDeltaNano: { type: Number, optional: true }
+      yScale: { type: Number, optional: true },
+      timeDeltaNano: { type: Number, optional: true },
     }).validate(Template.currentData());
 
     let data = Template.currentData();
@@ -61,10 +63,16 @@ Template.FlowGraph.onCreated(function() {
     instance.state.set('sourceIPv4Address', data.sourceIPv4Address);
     instance.state.set('destinationIPv4Address', data.destinationIPv4Address);
     instance.state.set('simulateGraph', data.simulateGraph);
+    instance.state.set('yScale', data.yScale);
     instance.state.set('timeDeltaNano', data.timeDeltaNano);
 
-    //let timeStart = Date.now() * 1000000;
-    let timeStart = 1486661783217004480; 
+    let timeStart = (Date.now() * 1000000) - data.timeDeltaNano;
+
+    // debug purpose: 
+    //let timeStart = 1486661034810432900;//  1486661034810432945;
+    //let timeDeltaNano = Date.now() * 1000000 - timeStart;
+    //instance.state.set('timeDeltaNano', timeDeltaNano);
+    // debug end
 
     instance.subscribe('statistics!graph-frames', {
       env: data.env, 
@@ -107,153 +115,26 @@ Template.FlowGraph.rendered = function() {
     let sourceIPv4Address = instance.state.get('sourceIPv4Address');
     let destinationIPv4Address = instance.state.get('destinationIPv4Address');
     let simulateGraph = instance.state.get('simulateGraph');
+    let yScale = instance.state.get('yScale');
     let timeDeltaNano = instance.state.get('timeDeltaNano');
 
-    (function (d3) {
-      let graphContainer = instance.$('.sm-graph');
+    let graphContainer = instance.$('.sm-graph');
 
-      var n = 40;
-      var random = d3.randomNormal(0, 2000000);
-      //var data = d3.range(n).map(random);
-      var data = d3.range(n).map(R.always(0));
-    //var svg = d3.select('svg'),
-      var svg = d3.select(graphContainer[0]),
-        margin = {top: 20, right: 20, bottom: 20, left: 80},
-        width = +svg.attr('width') - margin.left - margin.right,
-        height = +svg.attr('height') - margin.top - margin.bottom;
-        
-      svg.select('g').remove();
-      var g = svg.append('g').attr(
-          'transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-      var x = d3.scaleLinear()
-        .domain([0, n - 1])
-        .range([0, width]);
-
-      var y = d3.scaleLinear()
-        .domain([0, 5000000])
-        .range([height, 0]);
-
-      var line = d3.line()
-        .x(function(d, i) { return x(i); })
-        .y(function(d, _i) { return y(d); });
-
-      g.append('defs').append('clipPath')
-        .attr('id', 'clip')
-      .append('rect')
-        .attr('width', width)
-        .attr('height', height);
-
-      g.append('g')
-        .attr('class', 'axis axis--x')
-        .attr('transform', 'translate(0,' + y(0) + ')')
-        .call(d3.axisBottom(x));
-
-      g.append('g')
-        .attr('class', 'axis axis--y')
-        .call(d3.axisLeft(y));
-
-      g.append('g')
-        .attr('clip-path', 'url(#clip)')
-      .append('path')
-        .datum(data)
-        .attr('class', 'line')
-      .transition()
-        .duration(500)
-        .ease(d3.easeLinear)
-        .on('start', tick);
-
-      //let timeStart = Date.now() * 1000000;
-      //let timeStart = (Date.now() * 1000000) - timeDeltaNano;
-      //let timeStart = 1486661783217004480; 
-      let timeStart = 1486661034810432900;//  1486661034810432945;
-      let delta = (Date.now() * 1000000) - timeStart; 
-      debugger;
-      let timeEnd;
-      let serverData = [];
-      let dataPoint;
-      let lastDataPoint = 0;
-
-      function tick() {
-        // Push a new data point onto the back.
-        
-        timeEnd = (Date.now() * 1000000) - delta;
-        //timeStart = timeEnd - (500 * 1000000);
-
-        let timeStartBson = BSON.Long(timeStart);
-        let timeEndBson = BSON.Long(timeEnd);
-
-        // debug
-        // timeStartBson = BSON.Long(0);
-        //timeEndBson = BSON.Long(2486661034810432900);
-
-        let query = createGraphQuerySchema(
-          environment, 
-          object_id,
-          type,
-          flowType, 
-          timeStartBson,
-          timeEndBson,
-          sourceMacAddress,
-          destinationMacAddress,
-          sourceIPv4Address,
-          destinationIPv4Address);
-
-        let statItem = Statistics.findOne(query);
-        if (!R.isNil(statItem)) {
-          dataPoint = statItem.averageThroughput;
-        } else {
-          dataPoint = lastDataPoint;
-        }
-
-        data.push(dataPoint);
-
-        timeStart = timeEnd - (4 * 1000000000);
-        /*
-        Meteor.call('statistics!graph-frames', { 
-          env: environment,
-          object_id: object_id,
-          type: type,
-          flowType: flowType,
-          timeStart: timeStart,
-          timeEnd: timeEnd,
-          sourceMacAddress: sourceMacAddress,
-          destinationMacAddress: destinationMacAddress,
-          sourceIPv4Address: sourceIPv4Address,
-          destinationIPv4Address: destinationIPv4Address 
-        }, (err, res) => {
-          timeStart = timeEnd;
-
-          if (simulateGraph) {
-            serverData = R.append(random(), serverData);
-          } else if (! R.isNil(err)) {
-            console.log(err);
-          } else if (res.length === 0) {
-            //serverData = R.append(0, serverData);
-          } else {
-            serverData = R.append(res[0].averageThroughput, serverData);
-          }
-
-        });
-        */
-
-        // Redraw the line.
-        d3.select(this)
-            .attr('d', line)
-            .attr('transform', null);
-
-        // Slide it to the left.
-        d3.active(this)
-            .attr('transform', 'translate(' + x(-1) + ',0)')
-          .transition()
-            .on('start', tick);
-
-        // Pop the old data point off the front.
-        data.shift();
-
-        lastDataPoint = dataPoint;
-      }
-    })(d3v4);
+    generateAllGraph(
+      d3v4,
+      graphContainer,
+      environment,
+      object_id,
+      type,
+      flowType,
+      sourceMacAddress,
+      destinationMacAddress,
+      sourceIPv4Address,
+      destinationIPv4Address,
+      simulateGraph,
+      yScale,
+      timeDeltaNano
+    );
 
   });
 };  
@@ -272,4 +153,182 @@ Template.FlowGraph.events({
 Template.FlowGraph.helpers({    
 });
 
+function generateAllGraph(
+  d3,
+  graphContainer,
+  environment,
+  object_id,
+  type,
+  flowType,
+  sourceMacAddress,
+  destinationMacAddress,
+  sourceIPv4Address,
+  destinationIPv4Address,
+  simulateGraph,
+  yScale,
+  timeDeltaNano) {
 
+  let dataRetrivalFn = createDataRetrivalFn(
+    d3,
+    simulateGraph,
+    environment, 
+    object_id,
+    type,
+    flowType, 
+    sourceMacAddress,
+    destinationMacAddress,
+    sourceIPv4Address,
+    destinationIPv4Address,
+    yScale
+  );
+
+  generateGraph(
+    d3,
+    dataRetrivalFn,
+    graphContainer,
+    timeDeltaNano,
+    yScale
+  );
+}
+
+function createDataRetrivalFn(
+  d3,
+  simulateGraph,
+  environment, 
+  object_id,
+  type,
+  flowType, 
+  sourceMacAddress,
+  destinationMacAddress,
+  sourceIPv4Address,
+  destinationIPv4Address,
+  yScale
+) {
+
+  if (simulateGraph) {
+    let random = d3.randomNormal(0, yScale);
+    return function (_start, _end) {
+      return {
+        averageThroughput: random()
+      };
+    };
+  }
+
+  return function (startNano, endNano) {
+    let startBson = BSON.Long(startNano);
+    let endBson = BSON.Long(endNano);
+
+    let query = createGraphQuerySchema(
+      environment, 
+      object_id,
+      type,
+      flowType, 
+      startBson,
+      endBson,
+      sourceMacAddress,
+      destinationMacAddress,
+      sourceIPv4Address,
+      destinationIPv4Address);
+
+    return Statistics.findOne(query);
+  };
+}
+
+function generateGraph(
+  d3,
+  dataRetrivalFn,
+  graphContainer,
+  timeDeltaNano,
+  yScale
+) { 
+  var n = 40;
+
+  let data = d3.range(n).map(R.always(0));
+  let svg = d3.select(graphContainer[0]);
+  let margin = {top: 20, right: 20, bottom: 20, left: 80};
+  let width = +svg.attr('width') - margin.left - margin.right;
+  let height = +svg.attr('height') - margin.top - margin.bottom;
+    
+  svg.interrupt();
+  var lineSvg = svg.select('g g path.line');
+  lineSvg.interrupt();
+
+  svg.select('g').remove();
+
+  var g = svg.append('g').attr(
+      'transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  var x = d3.scaleLinear()
+    .domain([0, n - 1])
+    .range([0, width]);
+
+  var y = d3.scaleLinear()
+    .domain([0, yScale])
+    .range([height, 0]);
+
+  var line = d3.line()
+    .x(function(d, i) { return x(i); })
+    .y(function(d, _i) { return y(d); });
+
+  g.append('defs').append('clipPath')
+    .attr('id', 'clip')
+  .append('rect')
+    .attr('width', width)
+    .attr('height', height);
+
+  g.append('g')
+    .attr('class', 'axis axis--x')
+    .attr('transform', 'translate(0,' + y(0) + ')')
+    .call(d3.axisBottom(x));
+
+  g.append('g')
+    .attr('class', 'axis axis--y')
+    .call(d3.axisLeft(y));
+
+  g.append('g')
+    .attr('clip-path', 'url(#clip)')
+  .append('path')
+    .datum(data)
+    .attr('class', 'line')
+  .transition()
+    .duration(500)
+    .ease(d3.easeLinear)
+    .on('start', tick);
+
+  let timeStart = (Date.now() * 1000000) - timeDeltaNano;
+  let timeEnd;
+  let dataPoint;
+  let lastDataPoint = 0;
+
+  function tick() {
+    timeEnd = (Date.now() * 1000000) - timeDeltaNano;
+
+    let statItem = dataRetrivalFn(timeStart, timeEnd);
+
+    if (!R.isNil(statItem)) {
+      dataPoint = statItem.averageThroughput;
+    } else {
+      dataPoint = lastDataPoint;
+    }
+
+    data.push(dataPoint);
+
+    timeStart = timeEnd - (4 * 1000000000);
+
+    // Redraw the line.
+    d3.select(this)
+        .attr('d', line)
+        .attr('transform', null);
+
+    // Slide it to the left.
+    d3.active(this)
+        .attr('transform', 'translate(' + x(-1) + ',0)')
+      .transition()
+        .on('start', tick);
+
+    // Pop the old data point off the front.
+    data.shift();
+
+    lastDataPoint = dataPoint;
+  }
+}

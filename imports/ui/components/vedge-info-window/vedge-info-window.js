@@ -38,7 +38,9 @@ Template.VedgeInfoWindow.onCreated(function() {
     selectedSrcIPv4Address: null,
     selectedDstIPv4Address: null,
     simulateGraph: false,
-    show: false
+    show: false,
+    yScale: 5000000,
+    delta: 0
   });
 
   instance.autorun(() => {
@@ -157,6 +159,18 @@ Template.VedgeInfoWindow.events({
   'click .sm-simulate-graph': function (event, instance) {
     let element = instance.$('.sm-simulate-graph')[0];
     instance.state.set('simulateGraph', element.checked);
+  },
+
+  'input .sm-y-scale-input': function (event, instance) {
+    let element = instance.$('.sm-y-scale-input')[0];
+    let val = R.ifElse(isNaN, R.always(5000000), Number)(element.value);
+    instance.state.set('yScale', val);
+  },
+
+  'input .sm-delta-input': function (event, instance) {
+    let element = instance.$('.sm-delta-input')[0];
+    let val = R.ifElse(isNaN,  R.always(0), Number)(element.value);
+    instance.state.set('delta', val);
   }
 });
    
@@ -248,7 +262,9 @@ Template.VedgeInfoWindow.helpers({
       destinationMacAddress: instance.state.get('selectedDstMacAddress'),
       sourceIPv4Address: instance.state.get('selectedSrcIPv4Address'),
       destinationIPv4Address: instance.state.get('selectedDstIPv4Address'),
-      simulateGraph: instance.state.get('simulateGraph')
+      simulateGraph: instance.state.get('simulateGraph'),
+      yScale: instance.state.get('yScale'),
+      timeDeltaNano: instance.state.get('delta')
     };
   },
 
