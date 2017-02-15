@@ -36,6 +36,7 @@ class ScanPlan:
         self.links_only = cmd_args.links_only
         self.cliques_only = cmd_args.cliques_only
         self.clear = cmd_args.clear
+        self.clear_all = cmd_args.clear_all
         self.object_type = cmd_args.type
         self.env = cmd_args.env
         self.object_id = cmd_args.id
@@ -54,6 +55,7 @@ class ScanPlan:
         self.links_only = form.getvalue("links_only", ""),
         self.cliques_only = form.getvalue("cliques_only", ""),
         self.clear = form.getvalue("clear", ""),
+        self.clear_all = form.getvalue("clear_all", ""),
         self.object_type = form.getvalue("type", "environment"),
         self.env = form.getvalue("env", ScanController.default_env),
         self.object_id = form.getvalue("id", ScanController.default_env),
@@ -122,6 +124,10 @@ class ScanController(Fetcher):
         parser.add_argument("--cliques_only", action="store_true",
                             help="do only cliques creation \n(default: False)")
         parser.add_argument("--clear", action="store_true",
+                            help="clear all data related to " +
+                            "the specified environemtn prior to scanning\n" +
+                            "(default: False)")
+        parser.add_argument("--clear_all", action="store_true",
                             help="clear all data prior to scanning\n" +
                             "(default: False)")
         args = parser.parse_args()
@@ -173,7 +179,7 @@ class ScanController(Fetcher):
             sys.exit(1)
 
         scan_plan = self.get_scan_plan(args)
-        if scan_plan.clear:
+        if scan_plan.clear or scan_plan.clear_all:
             self.inv.clear(scan_plan)
         self.conf.set_loglevel(scan_plan.loglevel)
 
@@ -182,7 +188,8 @@ class ScanController(Fetcher):
 
         # generate ScanObject Class and instance.
         class_name = scan_plan.scanner_class
-        module = importlib.import_module(".".join(["discover", scan_plan.module_file]))
+        module_parts = ["discover", scan_plan.module_file]
+        module = importlib.import_module(".".join(module_parts))
         class_ = getattr(module, class_name)
         scanner = class_()
         scanner.set_env(env_name)

@@ -52,10 +52,14 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             col_to_skip.append("links")
         if scan_plan.inventory_only or scan_plan.links_only:
             col_to_skip.append("cliques")
+        env_cond = {} if scan_plan.clear_all \
+            else {"environment": scan_plan.env}
         for c in [c for c in self.coll if c not in col_to_skip]:
             col = self.coll[c]
             self.log.info("clearing collection: " + col.full_name)
-            col.delete_many({})  # delete all documents from the collection
+            # delete docs from the collection,
+            # either all or just for the specified environment
+            col.delete_many(env_cond)
 
     # return single match
     def process_results(self, raw_results, get_single=False):
