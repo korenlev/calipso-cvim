@@ -57,6 +57,12 @@ Template.EnvMonitoringInfo.helpers({
     if (R.isNil(item)) { return []; }
     return item.data;
   },
+
+  provisionOptions: function () {
+    let item = Constants.findOne({ name: 'environment_provision_types' });
+    if (R.isNil(item)) { return []; }
+    return item.data;
+  },
 });
 
 

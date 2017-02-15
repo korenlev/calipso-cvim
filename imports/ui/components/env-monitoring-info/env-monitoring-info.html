@@ -141,5 +141,25 @@
     </div>
   </div>
 
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Provision</label>
+
+    <div class="col-sm-3">
+      {{> SelectModel(createSelectArgs
+            values=model.provision 
+            key="provision"
+            disabled=disabled
+            options=provisionOptions
+            showNullOption=false)
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Provision</p>
+    </div>
+  </div>
+
 </div>
 </template>

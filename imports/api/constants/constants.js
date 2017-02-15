@@ -11,6 +11,7 @@ import { TypeDrivers } from './data/type-drivers';
 import { EnvTypes } from './data/env-types';
 import { Statuses as ScansStatuses } from './data/scans-statuses';
 import { EnvironmentMonitoringTypes } from './data/environment-monitoring-types';
+import { EnvProvisionTypes } from './data/environment-provision-types';
 
 export const Constants = new Mongo.Collection('constants');
 
@@ -44,6 +45,9 @@ let constantsDefaults = [{
 }, {
   name: 'type_drivers',
   values: TypeDrivers
+}, {
+  name: 'environment_provision_types',
+  values: EnvProvisionTypes
 }];
 
 Constants.schema = schema;
