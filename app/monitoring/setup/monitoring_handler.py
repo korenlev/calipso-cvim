@@ -135,7 +135,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         # merge it with any existing config on same host
         content = self.merge_config(host, file_name, content)
 
-        if self.provision == self.provision_levels['none']:
+        if self.provision == self.provision_levels['db']:
             self.log.debug('Monitoring setup kept only in DB')
             return
         # now dump the config to the file
@@ -173,6 +173,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     def handle_pending_host_setup_changes(self, host_changes):
         host = None
         is_local_host = False
+        if self.provision < self.provision_levels['deploy']:
+            self.log.info('Monitoring config not deployed to remote host')
         for file_type, changes in host_changes.items():
             host = changes['host']
             self.log.debug('applying monitoring setup changes ' +
@@ -185,10 +187,14 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                 shutil.copy(changes['local_path'], file_path)
             else:
                 # write to remote host prepare dir - use sftp
+                if self.provision < self.provision_levels['deploy']:
+                    continue
                 self.write_to_remote_host(host, changes['local_path'],
                                           changes['file_name'])
         if not is_local_host:
             # copy the files to remote target config directory
+            if self.provision < self.provision_levels['deploy']:
+                return
             self.make_remote_dir(host, self.PRODUCTION_CONFIG_DIR)
             local_path = changes['local_path']
             local_dir = local_path[:local_path.rindex('/')]
