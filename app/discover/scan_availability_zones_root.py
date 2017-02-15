@@ -1,9 +1,9 @@
 # scan a region for availability zones and aggregates
 
-from discover.singleton import Singleton
 from discover.db_fetch_availability_zones import DbFetchAvailabilityZones
-from discover.scanner import Scanner
 from discover.scan_availability_zone import ScanAvailabilityZone
+from discover.scanner import Scanner
+from utils.singleton import Singleton
 
 class ScanAvailabilityZonesRoot(Scanner, metaclass=Singleton):
   

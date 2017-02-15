@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from discover.scanner import Scanner
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class ScanRegionsRoot(Scanner, metaclass=Singleton):

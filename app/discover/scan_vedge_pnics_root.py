@@ -1,6 +1,6 @@
 from discover.folder_fetcher import FolderFetcher
 from discover.scanner import Scanner
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class ScanVedgePnicsRoot(Scanner, metaclass=Singleton):

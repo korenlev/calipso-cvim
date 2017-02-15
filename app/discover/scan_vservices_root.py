@@ -1,6 +1,7 @@
-from discover.singleton import Singleton
-from discover.scanner import Scanner
 from discover.cli_fetch_host_vservices import CliFetchHostVservices
+from discover.scanner import Scanner
+from utils.singleton import Singleton
+
 
 class ScanVservicesRoot(Scanner, metaclass=Singleton):
 

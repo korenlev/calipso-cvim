@@ -1,5 +1,5 @@
 from discover.scanner import Scanner
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class ScanVnicsRoot(Scanner, metaclass=Singleton):

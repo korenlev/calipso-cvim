@@ -3,9 +3,9 @@ from datetime import datetime
 import bson
 
 from discover.clique_finder import CliqueFinder
-from discover.mongo_access import MongoAccess
-from discover.singleton import Singleton
-from discover.util import Util
+from utils.mongo_access import MongoAccess
+from utils.singleton import Singleton
+from utils.util import Util
 
 
 class InventoryMgr(MongoAccess, Util, metaclass=Singleton):

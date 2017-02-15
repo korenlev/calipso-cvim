@@ -1,22 +1,26 @@
 import json
 
-from api.backends.mongo_access import MongoAccess
-from api.etc.data_validate import DataValidate
+from api.backends.mongo_mgr import MongoMgr
 from api.exceptions import exceptions
+from api.validation.data_validate import DataValidate
+from utils.dict_naming_converter import DictNamingConverter
+from utils.logger import Logger
+from utils.util import Util
 
 
-class ResponderBase(MongoAccess, DataValidate):
+class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
 
     def __init__(self):
         super().__init__()
+        self.mongo_mgr = MongoMgr()
 
     def set_successful_response(self, resp, body="", status="200"):
         if not isinstance(body, str):
             try:
-                body = str(body)
+                body = json.dumps(body)
             except Exception as e:
                 self.log.exception(e)
-                raise ValueError("The request content is invalid")
+                raise ValueError("The response body should be a string")
         resp.status = status
         resp.body = body
 
@@ -33,23 +37,23 @@ class ResponderBase(MongoAccess, DataValidate):
         body = json.dumps(body)
         raise exceptions.OSDNAApiException(code, body, message)
 
-    def not_found(self, message="The requested resource can't be found"):
+    def not_found(self, message="Requested resource not found"):
         self.set_error_response("Not Found", "404", message)
 
-    def conflict(self, message="The post data conflict with the existing data"):
+    def conflict(self, message="The posted data conflicts with the existing data"):
         self.set_error_response("Conflict", "409", message)
 
-    def bad_request(self, message="The request can't be handled due to the request content"):
+    def bad_request(self, message="Invalid request content"):
         self.set_error_response("Bad Request", "400", message)
 
-    def unauthorized(self, message="The request you have made requires authentication."):
+    def unauthorized(self, message="Request requires authorization"):
         self.set_error_response("Unauthorized", "401", message)
 
-    def validate_filters(self, filters, filters_requirements):
+    def validate_query_data(self, filters, filters_requirements):
         # validate the filters in the query string
-        data_validation = self.validate_data(filters, filters_requirements)
-        if not data_validation['passed']:
-            self.bad_request(data_validation['error_message'])
+        error_message = self.validate_data(filters, filters_requirements)
+        if error_message:
+            self.bad_request(error_message)
 
     def check_environment_name(self, env_name):
         query = {"name": env_name}
@@ -74,26 +78,14 @@ class ResponderBase(MongoAccess, DataValidate):
         return objects_ids
 
     def parse_query_params(self, params):
-        """
-        parse filter names to the keys we can use in mongo query,
-        e.g attributes:network => attributes.network
-        :param params: the filters parameters
-        :return: parsed parameters
-        """
-        parsed_params = {}
-        for key, value in params.items():
-            key = key.replace(":", ".")
-            parsed_params[key] = value
-        return parsed_params
+        return self.change_dict_naming_convention(params, self.replace_colon_with_dot)
+
+    def replace_colon_with_dot(self, s):
+        return s.replace(':', '.')
 
     def get_pagination(self, filters):
-        page_size = filters.get('page_size')
-        page = filters.get('page')
-        if not page_size:
-            page_size = 1000
-
-        if not page:
-            page = 0
+        page_size = filters.get('page_size', 1000)
+        page = filters.get('page', 0)
         return page, page_size
 
     def update_query_with_filters(self, filters, filters_keys, query):
@@ -115,5 +107,21 @@ class ResponderBase(MongoAccess, DataValidate):
             error = "The request can not be fulfilled due to bad syntax"
         return error, content
 
+    def get_constants_by_name(self, name):
+        constants = self.mongo_mgr.get_collection('constants').\
+            find_one({"name": name})
+        return [d['value'] for d in constants['data']]
 
+    def read(self, collection, matches={}, projection=None, skip=0, limit=1000):
+        collection = self.mongo_mgr.get_collection(collection)
+        skip *= limit
+        query = collection.find(matches, projection).skip(skip).limit(limit)
+        return list(query)
 
+    def write(self, document, collection="inventory"):
+        self.mongo_mgr.get_collection(collection).insert_one(document)
+
+    def aggregate(self, pipeline, collection):
+        collection = self.mongo_mgr.get_collection(collection)
+        data = collection.aggregate(pipeline)
+        return list(data)

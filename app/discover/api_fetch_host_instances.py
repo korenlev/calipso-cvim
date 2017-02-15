@@ -2,7 +2,7 @@ from discover.api_access import ApiAccess
 from discover.db_access import DbAccess
 from discover.db_fetch_instances import DbFetchInstances
 from discover.inventory_mgr import InventoryMgr
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):

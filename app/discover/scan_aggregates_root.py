@@ -1,6 +1,6 @@
 # scan a region for availability zones and aggregates
 from discover.scanner import Scanner
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class ScanAggregatesRoot(Scanner, metaclass=Singleton):

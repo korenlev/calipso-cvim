@@ -4,8 +4,8 @@ import paramiko
 
 from discover.configuration import Configuration
 from discover.inventory_mgr import InventoryMgr
-from discover.logger import Logger
 from utils.binary_converter import BinaryConverter
+from utils.logger import Logger
 
 
 class SshConn(BinaryConverter, Logger):

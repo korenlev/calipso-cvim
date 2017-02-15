@@ -3,7 +3,9 @@ import sys
 
 from bson.objectid import ObjectId
 from pymongo import MongoClient
-from discover.logger import Logger
+from utils.config_file import ConfigFile
+from utils.dict_naming_converter import DictNamingConverter
+from utils.logger import Logger
 
 
 # Provides access to MongoDB using PyMongo library
@@ -13,7 +15,7 @@ from discover.logger import Logger
 # you can also specify name of file from CLI with --mongo_config
 
 
-class MongoAccess(Logger):
+class MongoAccess(Logger, ConfigFile, DictNamingConverter):
     client = None
     db = None
     default_conf_file = 'osdna_mongo_access.conf'
@@ -30,31 +32,16 @@ class MongoAccess(Logger):
             "port": 27017
         }
         if not config_file:
-            # try to look in the current work directory
-            # as defined by PYTHONPATH
-            python_path = os.environ['PYTHONPATH']
-            if os.pathsep in python_path:
-                python_path = python_path.split(os.pathsep)[0]
-            config_file = python_path + '/config/' + self.default_conf_file
+            config_file = self.get_config_file(self.default_conf_file)
             if not os.path.isfile(config_file):
                 msg = "failed to open config file: " + config_file
                 self.log.error(msg)
                 sys.exit(1)
         if config_file:
-            # read connection parameters from file
             try:
-                with open(config_file) as f:
-                    for line in f:
-                        l = line.strip()
-                        if " " not in l:
-                            continue
-                        pos = l.index(" ")
-                        attr = l[:pos]
-                        if attr.startswith("#"):
-                            continue  # skip comments
-                        val = l[pos + 1:].strip()
-                        if val:
-                            self.connect_params[attr] = val
+                # read connection parameters from file
+                config_params = self.read_config_from_config_file(config_file)
+                self.connect_params.update(config_params)
             except Exception:
                 self.log.error("failed to open config file: " + config_file)
                 raise
@@ -89,29 +76,3 @@ class MongoAccess(Logger):
 
     def decode_mongo_keys(self, item):
         return self.change_dict_naming_convention(item, self.decode_dots)
-
-    # Convert a nested dictionary from one convention to another.
-    # Args:
-    #     d (dict): dictionary (nested or not) to be converted.
-    #     cf (func): convert function - takes the string in one convention,
-    #                returns it in the other one.
-    # Returns:
-    #     Dictionary with the new keys.
-    def change_dict_naming_convention(self, d, cf):
-        new = {}
-        if not d:
-            return d
-        if isinstance(d, str):
-            return d
-        if isinstance(d, ObjectId):
-            return d
-        for k, v in d.items():
-            new_v = v
-            if isinstance(v, dict):
-                new_v = self.change_dict_naming_convention(v, cf)
-            elif isinstance(v, list):
-                new_v = list()
-                for x in v:
-                    new_v.append(self.change_dict_naming_convention(x, cf))
-            new[cf(k)] = new_v
-        return new

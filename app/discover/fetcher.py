@@ -1,8 +1,7 @@
 import json
 
-from utils.binary_converter import BinaryConverter
 from discover.configuration import Configuration
-from discover.logger import Logger
+from utils.logger import Logger
 
 
 class Fetcher(Logger):

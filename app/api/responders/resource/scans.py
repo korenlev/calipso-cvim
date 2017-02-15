@@ -1,15 +1,14 @@
+from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
 from datetime import datetime
-from api.etc.data_validate import DataValidate
 
 
 class Scans(ResponderBase):
-
     def __init__(self):
         super().__init__()
-        self.collection = "scans"
-        self.id = "_id"
+        self.COLLECTION = "scans"
+        self.ID = "_id"
 
     def on_get(self, req, resp):
         self.log.debug("Getting scans")
@@ -17,40 +16,38 @@ class Scans(ResponderBase):
 
         scan_statuses = self.get_constants_by_name("scan_statuses")
         filters_requirements = {
-            "env_name": self.get_validate_requirement(str, mandatory=True),
-            "id": self.get_validate_requirement(ObjectId, True),
-            "base_object": self.get_validate_requirement(str),
-            "status": self.get_validate_requirement(str, False, DataValidate.LIST, scan_statuses),
-            "page": self.get_validate_requirement(int, True),
-            "page_size": self.get_validate_requirement(int, True)
+            "env_name": self.require(str, mandatory=True),
+            "id": self.require(ObjectId, True),
+            "base_object": self.require(str),
+            "status": self.require(str, False, DataValidate.LIST, scan_statuses),
+            "page": self.require(int, True),
+            "page_size": self.require(int, True)
         }
 
-        self.validate_filters(filters, filters_requirements)
+        self.validate_query_data(filters, filters_requirements)
         page, page_size = self.get_pagination(filters)
 
         query = self.build_query(filters)
         if "_id" in query:
-            scan = self.get_object_by_id(self.collection, query, [ObjectId, datetime], self.id)
+            scan = self.get_object_by_id(self.COLLECTION, query,
+                                         [ObjectId, datetime], self.ID)
             if not scan:
                 self.not_found()
             self.set_successful_response(resp, scan)
         else:
-            scans_ids = self.get_object_ids(self.collection, query, page, page_size, self.id)
+            scans_ids = self.get_object_ids(self.COLLECTION, query,
+                                            page, page_size, self.ID)
             self.set_successful_response(resp, {"scans": scans_ids})
 
     def build_query(self, filters):
         query = {}
         filters_keys = ["status"]
-        env_name = filters.get("env_name")
-        _id = filters.get("id")
-        base_object = filters.get("base_object")
-
         self.update_query_with_filters(filters, filters_keys, query)
+        base_object = filters.get("base_object")
         if base_object:
             query['object_id'] = base_object
-
+        _id = filters.get("id")
         if _id:
             query['_id'] = _id
-
-        query['environment'] = env_name
+        query['environment'] = filters['env_name']
         return query

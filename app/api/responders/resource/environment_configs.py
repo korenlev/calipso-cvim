@@ -1,20 +1,51 @@
+from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
-from api.etc.data_validate import DataValidate
 
 
 class EnvironmentConfigs(ResponderBase):
-
     def __init__(self):
         super(EnvironmentConfigs, self).__init__()
-        self.collection = "environments_config"
-        self.mandatory_configurations_names = ["mysql", "OpenStack", "CLI", "AMQP"]
-        self.optional_configurations_names = ["Monitoring"]
-        self.config_validation_map = {
-            "mysql": self.validate_mysql_config,
-            "OpenStack": self.validate_openstack_config,
-            "CLI": self.validate_cli_config,
-            "AMQP": self.validate_amqp_config,
-            "Monitoring": self.validate_monitoring_config
+        self.COLLECTION = "environments_config"
+        self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
+                                     "CLI", "AMQP", "Monitoring"]
+        self.OPERATIONAL_CONFIGURATIONS_NAMES = ["Monitoring"]
+        self.REQUIREMENTS = {
+            "host": self.require(str, mandatory=True),
+            "password": self.require(str, mandatory=True),
+            "port": self.require(int, True, mandatory=True),
+            "user": self.require(str, mandatory=True),
+            "admin_project": self.require(str, mandatory=True),
+            "admin_token": self.require(str, mandatory=True),
+            "pwd": self.require(str, mandatory=True),
+            "key": self.require(str, mandatory=True),
+            "app_path": self.require(str, mandatory=True),
+            "config_folder": self.require(str, mandatory=True),
+            "debug": self.require(bool, True, mandatory=True),
+            "env_type": self.require(str, False, DataValidate.LIST,
+                                     ["development", "product"],
+                                     mandatory=True),
+            "osdna_path": self.require(str, mandatory=True),
+            "rabbitmq_pass": self.require(str, mandatory=True),
+            "rabbitmq_user": self.require(str, mandatory=True),
+            "server_ip": self.require(str, mandatory=True),
+            "server_name": self.require(str, mandatory=True),
+            "type": self.require(str, mandatory=True)
+        }
+        self.CONFIGURATIONS_KEYS = {
+            "mysql":
+                ["host", "password", "port", "user"],
+            "OpenStack":
+                ["host", "admin_project", "admin_token",
+                 "port", "user", "pwd"],
+            "CLI":
+                ["host", "key", "pwd", "user"],
+            "AMQP":
+                ["host", "port", "user", "password"],
+            "Monitoring":
+                ["app_path", "config_folder", "debug",
+                "env_type", "osdna_path", "port",
+                "rabbitmq_pass", "rabbitmq_user",
+                "server_ip", "server_name", "type"]
         }
 
     def on_post(self, req, resp):
@@ -27,24 +58,22 @@ class EnvironmentConfigs(ResponderBase):
         distributions = self.get_constants_by_name("distributions")
         mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
         type_drivers = self.get_constants_by_name("type_drivers")
-
         environment_config_requirement = {
-            "configuration": self.get_validate_requirement(list, mandatory=True),
-            "distribution": self.get_validate_requirement(str, False, DataValidate.LIST, distributions, True),
-            "last_scanned": self.get_validate_requirement(str, mandatory=True),
-            "mechanism_drivers": self.get_validate_requirement(list, False, DataValidate.LIST, mechanism_drivers, True),
-            "monitoring_setup_done": self.get_validate_requirement(bool, True, mandatory=True),
-            "name": self.get_validate_requirement(str, mandatory=True),
-            "operational": self.get_validate_requirement(bool, True, mandatory=True),
-            "scanned": self.get_validate_requirement(bool, True, mandatory=True),
-            "type": self.get_validate_requirement(str, mandatory=True),
-            "type_drivers": self.get_validate_requirement(str, False, DataValidate.LIST, type_drivers, True)
+            "configuration": self.require(list, mandatory=True),
+            "distribution": self.require(str, False, DataValidate.LIST,
+                                         distributions, True),
+            "last_scanned": self.require(str, mandatory=True),
+            "mechanism_drivers": self.require(list, False, DataValidate.LIST,
+                                              mechanism_drivers, True),
+            "monitoring_setup_done": self.require(bool, True, mandatory=True),
+            "name": self.require(str, mandatory=True),
+            "operational": self.require(bool, True, mandatory=True),
+            "scanned": self.require(bool, True, mandatory=True),
+            "type": self.require(str, mandatory=True),
+            "type_drivers": self.require(str, False, DataValidate.LIST,
+                                         type_drivers, True)
         }
-
-        env_validation = self.validate_data(env_config, environment_config_requirement)
-        if not env_validation['passed']:
-            self.bad_request(env_validation['error_message'])
-
+        self.validate_query_data(env_config, environment_config_requirement)
         # validate the configurations
         configurations = env_config['configuration']
         config_validation = self.validate_environment_config(configurations)
@@ -53,100 +82,68 @@ class EnvironmentConfigs(ResponderBase):
             self.bad_request(config_validation['error_message'])
 
         env_name = env_config['name']
-        db_environment_config = self.read(self.collection, {"name": env_name})
+        db_environment_config = self.read(self.COLLECTION, {"name": env_name})
         if db_environment_config:
-            self.conflict("configuration for environment {0} has existed".format(env_name))
+            self.conflict("configuration for environment {0} "
+                          "has existed".format(env_name))
 
-        self.write(env_config, "environments_config")
+        self.write(env_config, self.COLLECTION)
         self.set_successful_response(resp, "201")
 
     def validate_environment_config(self, configurations):
         configurations_of_names = {}
         validation = {"passed": True}
-
-        for name in self.mandatory_configurations_names:
-            configuration = [config for config in configurations if config['name'] == name]
-            if not configuration:
-                validation["passed"] = False
-                validation['error_message'] = "configuration for {0} is mandatory".format(name)
-                return validation
-            if len(configuration) > 1:
-                validation["passed"] = False
-                validation['error_message'] = "environment configurations should only contain one" \
-                                              "configuration for {0}".format(name)
-                return validation
-            configurations_of_names[name] = configuration[0]
-
-        for name in self.optional_configurations_names:
-            configuration = [config for config in configurations if config['name'] == name]
-            if len(configuration) > 1:
-                validation["passed"] = False
-                validation['error_message'] = "environment configuration should only contain one" \
-                                              "configuration for {0}".format(name)
-                return validation
-            if configuration:
-                configurations_of_names[name] = configuration[0]
-
+        if [config for config in configurations
+            if 'name' not in config]:
+            validation['passed'] = False
+            validation['error_message'] = "configuration must have name"
+            return validation
+        for name in self.CONFIGURATIONS_NAMES:
+            if not name in self.OPERATIONAL_CONFIGURATIONS_NAMES:
+                configuration = self.get_configuration_by_name(name,
+                                                               configurations,
+                                                               True, validation)
+                if not validation['passed']:
+                    return validation
+                configurations_of_names[name] = configuration
+            else:
+                configuration = self.get_configuration_by_name(name,
+                                                               configurations,
+                                                               False, validation)
+                if not validation["passed"]:
+                    return validation
+                if configuration:
+                    configurations_of_names[name] = configuration
         for name, config in configurations_of_names.items():
-            config_validation = self.config_validation_map[name](config)
-            if not config_validation['passed']:
+            error_message = self.validate_configuration(name, config)
+            if error_message:
                 validation['passed'] = False
-                validation['error_message'] = config_validation['error_message']
+                validation['error_message'] = error_message
                 break
-
         return validation
 
-    def validate_mysql_config(self, mysql_config):
-        mysql_requirements = {
-            "host": self.get_validate_requirement(str, mandatory=True),
-            "password": self.get_validate_requirement(str, mandatory=True),
-            "port": self.get_validate_requirement(int, True, mandatory=True),
-            "user": self.get_validate_requirement(str, mandatory=True)
-        }
-        return self.validate_data(mysql_config, mysql_requirements)
+    def get_configuration_by_name(self, name, configurations, is_mandatory,
+                                  validation):
+        configurations = [config for config in configurations
+                         if config['name'] == name]
+        if not configurations and is_mandatory:
+            validation["passed"] = False
+            validation['error_message'] = "configuration for {0} " \
+                                          "is mandatory".format(name)
+            return None
+        if len(configurations) > 1:
+            validation["passed"] = False
+            validation['error_message'] = "environment configurations can " \
+                                          "only contain one " \
+                                          "configuration for {0}".format(name)
+            return None
 
-    def validate_openstack_config(self, openstack_config):
-        openstack_requirements = {
-            "host": self.get_validate_requirement(str, mandatory=True),
-            "admin_project": self.get_validate_requirement(str, mandatory=True),
-            "admin_token": self.get_validate_requirement(str, mandatory=True),
-            "port": self.get_validate_requirement(int, True, mandatory=True),
-            "user": self.get_validate_requirement(str, mandatory=True),
-            "pwd": self.get_validate_requirement(str, mandatory=True)
-        }
-        return self.validate_data(openstack_config, openstack_requirements)
+        if not configurations:
+            return None
+        return configurations[0]
 
-    def validate_cli_config(self, cli_config):
-        cli_requirements = {
-            "host": self.get_validate_requirement(str, mandatory=True),
-            "key": self.get_validate_requirement(str, mandatory=True),
-            "pwd": self.get_validate_requirement(str, mandatory=True),
-            "user": self.get_validate_requirement(str, mandatory=True)
-        }
-        return self.validate_data(cli_config, cli_requirements)
-
-    def validate_amqp_config(self, amqp_config):
-        ampd_requirements = {
-            "host": self.get_validate_requirement(str, mandatory=True),
-            "port": self.get_validate_requirement(int, True, mandatory=True),
-            "user": self.get_validate_requirement(str, mandatory=True),
-            "password": self.get_validate_requirement(str, mandatory=True)
-        }
-        return self.validate_data(amqp_config, ampd_requirements)
-
-    def validate_monitoring_config(self, monitoring_config):
-        monitoring_requirements = {
-            "app_path": self.get_validate_requirement(str, mandatory=True),
-            "config_folder": self.get_validate_requirement(str, mandatory=True),
-            "debug": self.get_validate_requirement(bool, True, mandatory=True),
-            "env_type": self.get_validate_requirement(str, False, DataValidate.LIST, ["development", "product"],
-                                                      mandatory=True),
-            "osdna_path": self.get_validate_requirement(str, mandatory=True),
-            "port": self.get_validate_requirement(int, True, mandatory=True),
-            "rabbitmq_pass": self.get_validate_requirement(str, mandatory=True),
-            "rabbitmq_user": self.get_validate_requirement(str, mandatory=True),
-            "server_ip": self.get_validate_requirement(str, mandatory=True),
-            "server_name": self.get_validate_requirement(str, mandatory=True),
-            "type": self.get_validate_requirement(str, mandatory=True)
-        }
-        return self.validate_data(monitoring_config, monitoring_requirements)
+    def validate_configuration(self, name, configuration):
+        requirements = {}
+        for key in self.CONFIGURATIONS_KEYS[name]:
+            requirements[key] = self.REQUIREMENTS[key]
+        return self.validate_data(configuration, requirements)

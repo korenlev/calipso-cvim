@@ -1,6 +1,6 @@
 from discover.cli_access import CliAccess
 from discover.inventory_mgr import InventoryMgr
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class CliFetchVconnectors(CliAccess, metaclass=Singleton):

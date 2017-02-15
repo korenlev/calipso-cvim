@@ -6,7 +6,7 @@ from time import gmtime, strftime
 
 from discover.configuration import Configuration
 from discover.inventory_mgr import InventoryMgr
-from discover.logger import Logger
+from utils.logger import Logger
 from utils.special_char_converter import SpecialCharConverter
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'

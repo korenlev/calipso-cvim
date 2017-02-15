@@ -7,9 +7,9 @@ import time
 from kafka import KafkaConsumer
 
 from discover.configuration import Configuration
-from discover.mongo_access import MongoAccess
 from discover.inventory_mgr import InventoryMgr
-from discover.logger import Logger
+from utils.logger import Logger
+from utils.mongo_access import MongoAccess
 
 
 class StatsConsumer(MongoAccess, Logger):
