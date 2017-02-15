@@ -19,7 +19,7 @@ def binary2str(txt):
     return s
 
 def thresholds_string(string):
-    matches = re.match('\d+\%/\d+([.]\d+)?/\d+([.]\d+)?', string)
+    matches = re.match('\d+%/\d+([.]\d+)?/\d+([.]\d+)?', string)
     if not matches:
         msg = "%r is not a valid thresholds string" % string
         raise argparse.ArgumentTypeError(msg)
