@@ -48,11 +48,10 @@ class StatsConsumer(MongoAccess, Logger):
                             default="INFO",
                             help="logging level \n(default: 'INFO')")
         parser.add_argument("-o", "--offset", nargs="?", type=str,
-                            default="latest",
+                            default="largest",
                             help="where to start reading" +
-                                 " - use 'earliest' for start \n" +
-                                 "(default: 'latest')")
-
+                                 " - use 'smallest' for start \n" +
+                                 "(default: 'largest')")
         self.args = parser.parse_args()
 
     def read(self):
