@@ -1,6 +1,6 @@
 from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.events.event_delete_base import EventDeleteBase
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventPortDelete(EventDeleteBase):

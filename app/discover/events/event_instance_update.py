@@ -3,7 +3,7 @@ import re
 from discover.events.event_instance_add import EventInstanceAdd
 from discover.events.event_instance_delete import EventInstanceDelete
 from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventInstanceUpdate(Fetcher):

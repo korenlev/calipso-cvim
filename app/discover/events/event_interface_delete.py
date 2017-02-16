@@ -1,6 +1,6 @@
 from discover.events.event_delete_base import EventDeleteBase
 from discover.events.event_port_delete import EventPortDelete
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventInterfaceDelete(EventDeleteBase):

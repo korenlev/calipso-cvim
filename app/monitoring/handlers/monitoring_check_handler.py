@@ -5,7 +5,7 @@ from bson import ObjectId
 from time import gmtime, strftime
 
 from discover.configuration import Configuration
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.special_char_converter import SpecialCharConverter
 

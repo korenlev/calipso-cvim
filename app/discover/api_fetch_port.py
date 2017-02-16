@@ -1,5 +1,5 @@
 from discover.api_access import ApiAccess
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class ApiFetchPort(ApiAccess):

@@ -1,7 +1,7 @@
 from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
 from discover.scan_host import ScanHost
 from discover.scan_instances_root import ScanInstancesRoot
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventInstanceAdd(Fetcher):

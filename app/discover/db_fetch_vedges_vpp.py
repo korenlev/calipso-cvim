@@ -1,6 +1,6 @@
 from discover.cli_access import CliAccess
 from discover.db_access import DbAccess
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 from utils.singleton import Singleton
 
 

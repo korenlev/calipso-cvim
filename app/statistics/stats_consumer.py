@@ -7,7 +7,7 @@ import time
 from kafka import KafkaConsumer
 
 from discover.configuration import Configuration
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.mongo_access import MongoAccess
 

@@ -1,9 +1,10 @@
 import importlib
 import falcon
 
-from api.backends.mongo_mgr import MongoMgr
+
 from api.exceptions.exceptions import OSDNAApiException
 from api.middleware.authentication import AuthenticationMiddleware
+from utils.inventory_mgr import InventoryMgr
 
 
 class App:
@@ -26,9 +27,11 @@ class App:
 
     responders_path = "api.responders"
 
-    def __init__(self, mongo_config="", ldap_config="", log_level=""):
-        self.mongoMgr = MongoMgr(mongo_config)
-        self.mongoMgr.set_loglevel(log_level)
+    def __init__(self, mongo_config="", ldap_config="",
+                 log_level="", inventory=""):
+        self.inv = InventoryMgr(mongo_config)
+        self.inv.set_loglevel(log_level)
+        self.inv.set_inventory_collection(inventory)
         self.middleware = AuthenticationMiddleware(ldap_config)
         # self.app = falcon.API(middleware=[self.middleware])
         self.app = falcon.API()

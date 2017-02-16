@@ -1,5 +1,5 @@
-from discover.inventory_mgr import InventoryMgr
 from monitoring.setup.monitoring_handler import MonitoringHandler
+from utils.inventory_mgr import InventoryMgr
 from utils.special_char_converter import SpecialCharConverter
 
 

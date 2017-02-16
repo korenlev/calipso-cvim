@@ -1,7 +1,5 @@
-import json
-
 from discover.db_access import DbAccess
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class DbFetchPort(DbAccess):

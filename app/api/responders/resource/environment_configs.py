@@ -8,7 +8,7 @@ class EnvironmentConfigs(ResponderBase):
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring"]
-        self.OPERATIONAL_CONFIGURATIONS_NAMES = ["Monitoring"]
+        self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring"]
         self.REQUIREMENTS = {
             "host": self.require(str, mandatory=True),
             "password": self.require(str, mandatory=True),
@@ -99,7 +99,7 @@ class EnvironmentConfigs(ResponderBase):
             validation['error_message'] = "configuration must have name"
             return validation
         for name in self.CONFIGURATIONS_NAMES:
-            if not name in self.OPERATIONAL_CONFIGURATIONS_NAMES:
+            if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
                 configuration = self.get_configuration_by_name(name,
                                                                configurations,
                                                                True, validation)

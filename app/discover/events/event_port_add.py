@@ -1,14 +1,15 @@
 import datetime
 
-from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.cli_fetch_instance_vnics_ovs import CliFetchInstanceVnicsOvs
+
+from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.cli_fetch_instance_vnics_vpp import CliFetchInstanceVnicsVpp
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from discover.fetcher import Fetcher
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
-from discover.inventory_mgr import InventoryMgr
 from discover.scan_instances_root import ScanInstancesRoot
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventPortAdd(Fetcher):

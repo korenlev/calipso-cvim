@@ -1,5 +1,5 @@
 from discover.cli_access import CliAccess
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 from utils.singleton import Singleton
 
 

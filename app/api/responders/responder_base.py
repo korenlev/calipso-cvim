@@ -1,10 +1,11 @@
 import json
 
-from api.backends.mongo_mgr import MongoMgr
+
 from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
 from utils.dict_naming_converter import DictNamingConverter
 from utils.logger import Logger
+from utils.inventory_mgr import InventoryMgr
 from utils.util import Util
 
 
@@ -12,7 +13,7 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
 
     def __init__(self):
         super().__init__()
-        self.mongo_mgr = MongoMgr()
+        self.inv = InventoryMgr()
 
     def set_successful_response(self, resp, body="", status="200"):
         if not isinstance(body, str):
@@ -110,20 +111,20 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
         return error, content
 
     def get_constants_by_name(self, name):
-        constants = self.mongo_mgr.get_collection('constants').\
+        constants = self.inv.coll['constants'].\
             find_one({"name": name})
         return [d['value'] for d in constants['data']]
 
     def read(self, collection, matches={}, projection=None, skip=0, limit=1000):
-        collection = self.mongo_mgr.get_collection(collection)
+        collection = self.inv.coll[collection]
         skip *= limit
         query = collection.find(matches, projection).skip(skip).limit(limit)
         return list(query)
 
     def write(self, document, collection="inventory"):
-        self.mongo_mgr.get_collection(collection).insert_one(document)
+        self.inv.coll[collection].insert_one(document)
 
     def aggregate(self, pipeline, collection):
-        collection = self.mongo_mgr.get_collection(collection)
+        collection = self.inv.coll[collection]
         data = collection.aggregate(pipeline)
         return list(data)

@@ -8,8 +8,8 @@ from discover.events.event_port_add import EventPortAdd
 from discover.fetcher import Fetcher
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.inventory_mgr import InventoryMgr
 from discover.scan_network import ScanNetwork
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventSubnetAdd(Fetcher):

@@ -3,7 +3,7 @@
 import cgi
 import re
 
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 prettify = True
 

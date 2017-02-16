@@ -40,6 +40,10 @@ def get_args():
                         default="127.0.0.1:8000",
                         help="binding address of the API server\n"
                              "(default 127.0.0.1:8000)")
+    parser.add_argument("-y", "--inventory", nargs="?", type=str,
+                        default="inventory",
+                        help="name of inventory collection \n" +
+                             "(default: 'inventory')")
     args = parser.parse_args()
     return args
 
@@ -50,5 +54,8 @@ if __name__ == "__main__":
     options = {
         "bind": args.bind
     }
-    app = App(args.mongo_config, args.ldap_config, args.loglevel).get_app()
+    app = App(args.mongo_config,
+              args.ldap_config,
+              args.loglevel,
+              args.inventory).get_app()
     StandaloneApplication(app, options).run()

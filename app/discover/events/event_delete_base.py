@@ -1,7 +1,9 @@
 import re
+
 from bson.objectid import ObjectId
+
 from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventDeleteBase(Fetcher):

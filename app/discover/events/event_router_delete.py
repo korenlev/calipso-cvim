@@ -1,5 +1,5 @@
 from discover.events.event_delete_base import EventDeleteBase
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventRouterDelete(EventDeleteBase):
