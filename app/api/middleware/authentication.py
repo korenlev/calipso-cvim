@@ -5,9 +5,9 @@ from api.responders.responder_base import ResponderBase
 
 
 class AuthenticationMiddleware(ResponderBase):
-    def __init__(self):
+    def __init__(self, ldap_config=""):
         super().__init__()
-        self.ldap_access = LDAPAccess()
+        self.ldap_access = LDAPAccess(ldap_config)
         self.BASIC_AUTH = "AUTHORIZATION"
 
     def process_request(self, req, resp):
@@ -30,7 +30,7 @@ class AuthenticationMiddleware(ResponderBase):
                                                           credentials[1]):
                     self.log.info("Authentication of {0} failed".format(credentials[0]))
                     self.unauthorized("Authentication failed")
-                self.log.info("Authentication of {0} succeeded".format(credentials[1]))
+                self.log.info("Authentication of {0} succeeded".format(credentials[0]))
         else:
             self.unauthorized("Authentication required")
 

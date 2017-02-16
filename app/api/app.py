@@ -30,8 +30,7 @@ class App:
     def __init__(self, mongo_config="", ldap_config="", log_level=""):
         self.mongoMgr = MongoMgr(mongo_config)
         self.mongoMgr.set_loglevel(log_level)
-        self.ldap = LDAPAccess(ldap_config)
-        self.middleware = AuthenticationMiddleware()
+        self.middleware = AuthenticationMiddleware(ldap_config)
         # self.app = falcon.API(middleware=[self.middleware])
         self.app = falcon.API()
         self.app.add_error_handler(OSDNAApiException)
