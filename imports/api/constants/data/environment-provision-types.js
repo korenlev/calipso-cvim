@@ -3,7 +3,7 @@ export const EnvProvisionTypes = [{
   value: 'None', 
 }, {
   label: 'Deploy', 
-  value: 'Delpy', 
+  value: 'Deploy', 
 }, {
   label: 'Files', 
   value: 'Files', 
