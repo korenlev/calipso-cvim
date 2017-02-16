@@ -14,11 +14,6 @@ export const MonitoringSchema = new SimpleSchema({
     autoValue: function () { return '/tmp/sensu_test'; } 
   },
 
-  debug: { 
-    type: Boolean, 
-    autoValue: function () { return false; } 
-  },
-
   env_type: { 
     type: String, 
     defaultValue: 'production',
