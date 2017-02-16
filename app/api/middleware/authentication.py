@@ -12,13 +12,13 @@ class AuthenticationMiddleware(ResponderBase):
 
     def process_request(self, req, resp):
         self.log.debug("Authentication middleware is processing the request")
-        uppercase_headers = self.change_dict_naming_convention(req.headers,
-                                                               self.convert_to_uppercase)
+        headers = self.change_dict_naming_convention(req.headers,
+                                                     self.convert_to_uppercase)
 
         # check whether it has basic authentication info in the headers
-        if self.BASIC_AUTH in uppercase_headers:
+        if self.BASIC_AUTH in headers:
             self.log.debug("Authenticating the basic credentials")
-            basic = uppercase_headers[self.BASIC_AUTH]
+            basic = headers[self.BASIC_AUTH]
             if not basic or not basic.startswith("Basic"):
                 self.unauthorized("Credentials not provided")
             else:
