@@ -18,7 +18,8 @@ class MonitoringConfigTemplates(ResponderBase):
         filters_requirements = {
             "id": self.require(ObjectId, True),
             "order": self.require(str),
-            "side": self.require(str, validate=DataValidate.LIST, requirement=sides),
+            "side": self.require(str, validate=DataValidate.LIST,
+                                 requirement=sides),
             "type": self.require(str),
             "page": self.require(int, True),
             "page_size": self.require(int, True)
@@ -37,8 +38,10 @@ class MonitoringConfigTemplates(ResponderBase):
         else:
             templates = self.get_object_ids(self.COLLECTION, query,
                                             page, page_size, self.ID)
-            self.set_successful_response(resp,
-                                         {"monitoring_config_templates": templates})
+            self.set_successful_response(
+                resp,
+                {"monitoring_config_templates": templates}
+            )
 
     def build_query(self, filters):
         query = {}
