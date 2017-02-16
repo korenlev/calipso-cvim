@@ -60,9 +60,10 @@ class DataValidate:
 
             if not value:
                 # check if the key is mandatory
-                error_message = self.mandatory_check(
-                    key, requirement['mandatory'], error_messages.get('mandatory')
-                )
+                mandatory_error = error_messages.get('mandatory')
+                error_message = self.mandatory_check(key,
+                                                     requirement['mandatory'],
+                                                     mandatory_error)
                 if error_message:
                     return error_message
                 continue
@@ -86,9 +87,10 @@ class DataValidate:
             if not isinstance(value, list):
                 value = [value]
             # validate the data against the requirement
+            req_error = error_messages.get("requirement")
             error_message = self.requirement_check(key, value, validate,
                                                    requirement_value,
-                                                   error_messages.get("requirement"))
+                                                   req_error)
             if error_message:
                 return error_message
         return None
@@ -112,11 +114,9 @@ class DataValidate:
                     # value has been converted, update the data
                     data[key] = converted_val
                 return None
-        required_types_string = " or ".join(
-            self.get_type_names(requirement_types)
-        )
+        required_types = self.get_type_names(requirement_types)
         return error_message if error_message else \
-            "{0} must be {1}".format(key, required_types_string)
+            "{0} must be {1}".format(key, " or ".join(required_types))
 
     def requirement_check(self, key, value, validate,
                           requirement, error_message):
