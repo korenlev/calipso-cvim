@@ -89,7 +89,7 @@ class Util(object):
         python_path = os.environ['PYTHONPATH']
         if os.pathsep in python_path:
             python_path = python_path.split(os.pathsep)[0]
-            return python_path + "/config/" + config_file
+        return python_path + "/config/" + config_file
 
     # read config info from config file
     def read_config_from_config_file(self, config_file):
