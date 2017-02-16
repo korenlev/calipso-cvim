@@ -4,6 +4,7 @@ import { Constants } from '/imports/api/constants/constants';
 import { portRegEx } from '/imports/lib/general-regex';
 import { hostnameRegex } from '/imports/lib/general-regex';
 import { ipAddressRegex } from '/imports/lib/general-regex';
+import { pathRegEx } from '/imports/lib/general-regex';
 
 export const MonitoringSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'Monitoring'; } },
@@ -11,7 +12,8 @@ export const MonitoringSchema = new SimpleSchema({
   
   config_folder: { 
     type: String, 
-    autoValue: function () { return '/tmp/sensu_test'; } 
+    defaultValue: function () { return '/tmp/sensu_test'; },
+    regEx: pathRegEx,
   },
 
   env_type: { 

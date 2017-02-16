@@ -161,5 +161,25 @@
     </div>
   </div>
 
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >Config folder</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.config_folder 
+            key="config_folder"
+            type="text"
+            disabled=disabled
+            placeholder="Config folder")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Config folder</p>
+    </div>
+  </div>
+
 </div>
 </template>
