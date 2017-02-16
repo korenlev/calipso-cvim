@@ -139,7 +139,8 @@ Meteor.methods({
     console.log(`- sourceIPv4Address: ${sourceIPv4Address}`);
     console.log(`- destinationIPv4Address: ${destinationIPv4Address}`);
 
-    let data = Statistics.find(schema).fetch();
+    //let data = Statistics.find(schema).fetch();
+    let data = Statistics.findOne(schema);
     console.log(`- averageArrivalNanoSeconds: ${R.path([0, 'averageArrivalNanoSeconds'], data)}`);
 
     return data;

@@ -17,14 +17,20 @@ export function createGraphQuerySchema(
     object_id: object_id, 
     type: type,
     flowType: flowType, 
+		/*
     averageArrivalNanoSeconds: {
       $gte: timeStart,
       //$lt: timeEnd
     }
+		*/
+    data_arrival_avg: {
+      $gte: timeStart,
+    }
   };
 
   if (! R.isNil(timeEnd)) {
-    schema = R.assocPath(['averageArrivalNanoSeconds', '$lt'], timeEnd, schema);
+    //schema = R.assocPath(['averageArrivalNanoSeconds', '$lt'], timeEnd, schema);
+    schema = R.assocPath(['data_arrival_avg', '$lt'], timeEnd, schema);
   }
 
   switch (flowType) {

@@ -8,8 +8,10 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 //import { VedgeFlows } from '/imports/api/vedge_flows/vedge_flows';
 import * as R from 'ramda';
+//import * as moment from 'moment';
         
 import '/imports/ui/components/flow-graph/flow-graph';
+import '/imports/ui/components/time-selection-widget/time-selection-widget';
 import './vedge-info-window.html';     
     
 /*  
@@ -40,7 +42,7 @@ Template.VedgeInfoWindow.onCreated(function() {
     simulateGraph: false,
     show: false,
     yScale: 5000000,
-    delta: 0
+    startDateTime: null
   });
 
   instance.autorun(() => {
@@ -108,10 +110,11 @@ Template.VedgeInfoWindow.onCreated(function() {
   });
 });  
 
-/*
 Template.VedgeInfoWindow.rendered = function() {
+  this.$('.sm-start-datetime-group').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm'
+  });
 };  
-*/
 
 /*
  * Events
@@ -167,10 +170,10 @@ Template.VedgeInfoWindow.events({
     instance.state.set('yScale', val);
   },
 
-  'input .sm-delta-input': function (event, instance) {
-    let element = instance.$('.sm-delta-input')[0];
-    let val = R.ifElse(isNaN,  R.always(0), Number)(element.value);
-    instance.state.set('delta', val);
+  'dp.change .sm-start-datetime-group': function (event, instance) {
+    let element = instance.$('.sm-start-datetime')[0];
+    //let startDateTime = moment(element.value);
+    instance.state.set('startDateTime', element.value);
   }
 });
    
@@ -264,7 +267,7 @@ Template.VedgeInfoWindow.helpers({
       destinationIPv4Address: instance.state.get('selectedDstIPv4Address'),
       simulateGraph: instance.state.get('simulateGraph'),
       yScale: instance.state.get('yScale'),
-      timeDeltaNano: instance.state.get('delta')
+      startDateTime: instance.state.get('startDateTime')
     };
   },
 

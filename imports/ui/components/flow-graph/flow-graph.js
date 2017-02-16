@@ -11,7 +11,7 @@ import * as d3v4 from 'd3';
 import * as R from 'ramda';
 import { Statistics } from '/imports/api/statistics/statistics';
 import { createGraphQuerySchema } from '/imports/api/statistics/helpers';
-import * as BSON from 'bson';
+//import * as BSON from 'bson';
         
 import './flow-graph.html';     
     
@@ -34,7 +34,8 @@ Template.FlowGraph.onCreated(function() {
     destinationIPv4Address: instance.data.destinationIPv4Address,
     simulateGraph: instance.data.simulateGraph,
     yScale: instance.data.yScale,
-    timeDeltaNano: 0
+    timeDeltaNano: 0,
+    timeDeltaSeconds: 0
   });
 
   instance.autorun(() => {
@@ -49,7 +50,7 @@ Template.FlowGraph.onCreated(function() {
       destinationIPv4Address: { type: String, optional: true },
       simulateGraph: { type: Boolean, optional: true },
       yScale: { type: Number, optional: true },
-      timeDeltaNano: { type: Number, optional: true },
+      startDateTime: { type: String, optional: true },
     }).validate(Template.currentData());
 
     let data = Template.currentData();
@@ -64,10 +65,17 @@ Template.FlowGraph.onCreated(function() {
     instance.state.set('destinationIPv4Address', data.destinationIPv4Address);
     instance.state.set('simulateGraph', data.simulateGraph);
     instance.state.set('yScale', data.yScale);
-    instance.state.set('timeDeltaNano', data.timeDeltaNano);
 
-    let timeStart = (Date.now() * 1000000) - data.timeDeltaNano;
+    let startDateTime = R.ifElse(R.isNil, (_p) => { return moment();}, moment)(data.startDateTime);
+    let deltaSeconds = moment().diff(startDateTime, 'seconds');
+    //let deltaNano = deltaMili * 1000000;
+    //instance.state.set('timeDeltaNano', deltaNano);
+    instance.state.set('timeDeltaSeconds', deltaSeconds);
 
+    //let timeStart = startDateTime.valueOf() * 1000000;
+    let timeStart = startDateTime.unix();
+
+    //debugger;
     // debug purpose: 
     //let timeStart = 1486661034810432900;//  1486661034810432945;
     //let timeDeltaNano = Date.now() * 1000000 - timeStart;
@@ -116,7 +124,8 @@ Template.FlowGraph.rendered = function() {
     let destinationIPv4Address = instance.state.get('destinationIPv4Address');
     let simulateGraph = instance.state.get('simulateGraph');
     let yScale = instance.state.get('yScale');
-    let timeDeltaNano = instance.state.get('timeDeltaNano');
+    //let timeDeltaNano = instance.state.get('timeDeltaNano');
+    let timeDeltaSeconds = instance.state.get('timeDeltaSeconds');
 
     let graphContainer = instance.$('.sm-graph');
 
@@ -133,7 +142,8 @@ Template.FlowGraph.rendered = function() {
       destinationIPv4Address,
       simulateGraph,
       yScale,
-      timeDeltaNano
+      //timeDeltaNano
+      timeDeltaSeconds
     );
 
   });
@@ -166,7 +176,8 @@ function generateAllGraph(
   destinationIPv4Address,
   simulateGraph,
   yScale,
-  timeDeltaNano) {
+  //timeDeltaNano) {
+  timeDeltaSeconds) {
 
   let dataRetrivalFn = createDataRetrivalFn(
     d3,
@@ -186,7 +197,8 @@ function generateAllGraph(
     d3,
     dataRetrivalFn,
     graphContainer,
-    timeDeltaNano,
+    //timeDeltaNano,
+    timeDeltaSeconds,
     yScale
   );
 }
@@ -214,17 +226,22 @@ function createDataRetrivalFn(
     };
   }
 
-  return function (startNano, endNano) {
-    let startBson = BSON.Long(startNano);
-    let endBson = BSON.Long(endNano);
+  //return function (startNano, endNano) {
+  return function (startSeconds, endSeconds) {
+    //let startBson = BSON.Long.fromNumber(startNano);
+    //let endBson = BSON.Long.fromNumber(endNano);
+    //let startBson = startNano;
+    //let endBson = endNano;
 
     let query = createGraphQuerySchema(
       environment, 
       object_id,
       type,
       flowType, 
-      startBson,
-      endBson,
+      //startBson,
+      //endBson,
+      startSeconds,
+      endSeconds,
       sourceMacAddress,
       destinationMacAddress,
       sourceIPv4Address,
@@ -232,13 +249,34 @@ function createDataRetrivalFn(
 
     return Statistics.findOne(query);
   };
+
+/*
+  return function (timeStart, timeEnd, callback) {
+    Meteor.call('statistics!graph-frames', { 
+      env: environment, 
+      object_id: object_id, 
+      type: type, 
+      flowType: flowType, 
+      timeStart: timeStart, 
+      timeEnd: timeEnd, 
+      sourceMacAddress: sourceMacAddress, 
+      destinationMacAddress: destinationMacAddress, 
+      sourceIPv4Address: sourceIPv4Address, 
+      destinationIPv4Address: destinationIPv4Address 
+    }, (_err, res) => { 
+      callback(res);
+    });
+
+  };
+  */
 }
 
 function generateGraph(
   d3,
   dataRetrivalFn,
   graphContainer,
-  timeDeltaNano,
+  //timeDeltaNano,
+  timeDeltaSeconds,
   yScale
 ) { 
   var n = 40;
@@ -295,13 +333,15 @@ function generateGraph(
     .ease(d3.easeLinear)
     .on('start', tick);
 
-  let timeStart = (Date.now() * 1000000) - timeDeltaNano;
+  //let timeStart = (Date.now() * 1000000) - timeDeltaNano;
+  let timeStart = moment().unix() - timeDeltaSeconds;
   let timeEnd;
   let dataPoint;
   let lastDataPoint = 0;
 
   function tick() {
-    timeEnd = (Date.now() * 1000000) - timeDeltaNano;
+    //timeEnd = (Date.now() * 1000000) - timeDeltaNano;
+    timeEnd = (moment().unix()) - timeDeltaSeconds;
 
     let statItem = dataRetrivalFn(timeStart, timeEnd);
 
@@ -313,7 +353,8 @@ function generateGraph(
 
     data.push(dataPoint);
 
-    timeStart = timeEnd - (4 * 1000000000);
+    //timeStart = timeEnd - (4 * 1000000000);
+    timeStart = timeEnd;
 
     // Redraw the line.
     d3.select(this)
