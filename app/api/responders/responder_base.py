@@ -40,7 +40,8 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
     def not_found(self, message="Requested resource not found"):
         self.set_error_response("Not Found", "404", message)
 
-    def conflict(self, message="The posted data conflicts with the existing data"):
+    def conflict(self,
+                 message="The posted data conflicts with the existing data"):
         self.set_error_response("Conflict", "409", message)
 
     def bad_request(self, message="Invalid request content"):
@@ -78,7 +79,8 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
         return objects_ids
 
     def parse_query_params(self, params):
-        return self.change_dict_naming_convention(params, self.replace_colon_with_dot)
+        return self.change_dict_naming_convention(params,
+                                                  self.replace_colon_with_dot)
 
     def replace_colon_with_dot(self, s):
         return s.replace(':', '.')
