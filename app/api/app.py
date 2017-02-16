@@ -1,7 +1,6 @@
 import importlib
 import falcon
 
-from api.backends.ldap_access import LDAPAccess
 from api.backends.mongo_mgr import MongoMgr
 from api.exceptions.exceptions import OSDNAApiException
 from api.middleware.authentication import AuthenticationMiddleware

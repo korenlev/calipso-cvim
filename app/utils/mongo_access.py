@@ -1,11 +1,10 @@
 import os
 import sys
 
-from bson.objectid import ObjectId
 from pymongo import MongoClient
-from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
 from utils.logger import Logger
+from utils.util import Util
 
 
 # Provides access to MongoDB using PyMongo library
@@ -15,7 +14,7 @@ from utils.logger import Logger
 # you can also specify name of file from CLI with --mongo_config
 
 
-class MongoAccess(Logger, ConfigFile, DictNamingConverter):
+class MongoAccess(Logger, Util, DictNamingConverter):
     client = None
     db = None
     default_conf_file = 'osdna_mongo_access.conf'

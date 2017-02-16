@@ -3,12 +3,12 @@ import os
 import ssl
 import sys
 
-from utils.config_file import ConfigFile
 from utils.logger import Logger
 from utils.singleton import Singleton
+from utils.util import Util
 
 
-class LDAPAccess(Logger, ConfigFile, metaclass=Singleton):
+class LDAPAccess(Logger, Util, metaclass=Singleton):
 
     default_config_file = "ldap.conf"
     TLS_REQUEST_CERTS = {
@@ -51,9 +51,6 @@ class LDAPAccess(Logger, ConfigFile, metaclass=Singleton):
         return ldap_params
 
     def connect_ldap_server(self):
-        if not self.ldap_params:
-            self.ldap_params = self.get_ldap_params()
-
         ca_certificate_file = self.ldap_params.get('tls_cacertfile')
         req_cert = self.ldap_params.get('tls_req_cert')
         ldap_url = self.ldap_params.get('url')
