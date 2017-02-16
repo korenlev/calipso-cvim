@@ -40,6 +40,7 @@ module.exports = {
         "d3": true,
         "$": true,
         "toastr": true,
-        "google": true
+        "google": true,
+        "moment": true
     }
 };
