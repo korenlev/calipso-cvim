@@ -41,3 +41,5 @@ aldeed:simple-schema
 mdg:validated-method
 aldeed:collection2
 meteorhacks:aggregate
+momentjs:moment
+tsega:bootstrap3-datetimepicker
