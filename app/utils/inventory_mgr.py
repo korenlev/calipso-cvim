@@ -10,8 +10,8 @@ from utils.singleton import Singleton
 class InventoryMgr(MongoAccess, metaclass=Singleton):
     prettify = False
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, mongo_config=""):
+        super().__init__(mongo_config)
         self.coll = {}
         self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
         self.clique_scanner = None
@@ -42,6 +42,11 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.set_collection("clique_constraints")
         self.set_collection("cliques")
         self.set_collection("monitoring_config")
+        self.set_collection("constants")
+        self.set_collection("messages")
+        self.set_collection("environments_config")
+        self.set_collection("scans")
+        self.set_collection("monitoring_config_templates")
 
     def clear(self, scan_plan):
         col_to_skip = ["link_types", "clique_types", "clique_constraints"]
