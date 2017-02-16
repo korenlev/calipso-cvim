@@ -33,7 +33,8 @@ class Messages(ResponderBase):
         }
         self.validate_query_data(filters, filters_requirements)
         page, page_size = self.get_pagination(filters)
-        self.check_and_convert_datetime(filters)
+        self.check_and_convert_datetime('start_time', filters)
+        self.check_and_convert_datetime('end_time', filters)
 
         query = self.build_query(filters)
         if self.ID in query:
@@ -47,25 +48,16 @@ class Messages(ResponderBase):
                                               page, page_size, self.ID)
             self.set_successful_response(resp, {'messages': objects_ids})
 
-    def check_and_convert_datetime(self, filters):
-        start_time = filters.get('start_time')
-        end_time = filters.get('end_time')
+    def check_and_convert_datetime(self, time_key, filters):
+        time = filters.get(time_key)
 
-        if start_time:
-            start_time = start_time.replace(' ', '+')
+        if time:
+            time = time.replace(' ', '+')
             try:
-                filters['start_time'] = parser.parse(start_time)
+                filters[time_key] = parser.parse(time)
             except Exception:
-                self.bad_request("start_time must follow ISO 8610 date and time format,"
-                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm")
-
-        if end_time:
-            end_time = end_time.replace(' ', '+')
-            try:
-                filters['end_time'] = parser.parse(end_time)
-            except Exception:
-                self.bad_request("end_time must follow ISO 8610 date and time format,"
-                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm")
+                self.bad_request("{0} must follow ISO 8610 date and time format,"
+                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
     def build_query(self, filters):
         query = {}
