@@ -19,7 +19,6 @@ export const insert = new ValidatedMethod({
       'mechanism_drivers',
       'mechanism_drivers.$',
       'listen',
-      'no_monitoring',
     ]).validator({ clean: true, filter: false }), 
   //validate: null, 
   run({
@@ -30,7 +29,6 @@ export const insert = new ValidatedMethod({
     type_drivers,
     mechanism_drivers,
     listen,
-    no_monitoring,
   }) {
     // todo: create clean object instance.
     let environment = Environments.schema.clean({});
@@ -43,7 +41,6 @@ export const insert = new ValidatedMethod({
       type_drivers,
       mechanism_drivers,
       listen,
-      no_monitoring,
     });
 
     Environments.insert(environment);
@@ -63,7 +60,6 @@ export const update = new ValidatedMethod({
     'mechanism_drivers', 
     'mechanism_drivers.$',
     'listen',
-    'no_monitoring',
   ]).validator({ clean: true, filter: false }),
   run({
     _id,
@@ -74,7 +70,6 @@ export const update = new ValidatedMethod({
     type_drivers,
     mechanism_drivers,
     listen,
-    no_monitoring,
   }) {
     //const environment = Environments.findOne(environmentId);
 
@@ -87,7 +82,6 @@ export const update = new ValidatedMethod({
         type_drivers,
         mechanism_drivers,
         listen,
-        no_monitoring,
       },
     });
   }
