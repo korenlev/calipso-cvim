@@ -109,7 +109,8 @@ class EnvironmentConfigs(ResponderBase):
             else:
                 configuration = self.get_configuration_by_name(name,
                                                                configurations,
-                                                               False, validation)
+                                                               False,
+                                                               validation)
                 if not validation["passed"]:
                     return validation
                 if configuration:
