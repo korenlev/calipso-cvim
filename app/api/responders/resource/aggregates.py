@@ -21,8 +21,11 @@ class Aggregates(ResponderBase):
             "type": self.require(str, validate=DataValidate.LIST,
                                  requirement=self.AGGREGATE_TYPES,
                                  mandatory=True,
-                                 error_messages={"mandatory": "type must be specified: "
-                                                              "environment/message/constant"})
+                                 error_messages={"mandatory":
+                                                 "type must be specified: " +
+                                                 "environment/" +
+                                                 " message/" +
+                                                 "constant"})
         }
         self.validate_query_data(filters, filters_requirements)
         query = self.build_query(filters)

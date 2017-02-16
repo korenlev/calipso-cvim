@@ -21,7 +21,8 @@ class App:
         "/monitoring_config_templates":
             "resource.monitoring_config_templates.MonitoringConfigTemplates",
         "/aggregates": "resource.aggregates.Aggregates",
-        "/environment_configs": "resource.environment_configs.EnvironmentConfigs"
+        "/environment_configs":
+            "resource.environment_configs.EnvironmentConfigs"
     }
 
     responders_path = "api.responders"
