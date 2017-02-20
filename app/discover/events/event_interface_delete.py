@@ -1,12 +1,8 @@
 from discover.events.event_delete_base import EventDeleteBase
 from discover.events.event_port_delete import EventPortDelete
-from utils.inventory_mgr import InventoryMgr
 
 
 class EventInterfaceDelete(EventDeleteBase):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def handle(self, env, values):
         interface = values['payload']['router_interface']

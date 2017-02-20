@@ -1,11 +1,7 @@
 from discover.events.event_delete_base import EventDeleteBase
-from utils.inventory_mgr import InventoryMgr
 
 
 class EventSubnetDelete(EventDeleteBase):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def delete_children_documents(self, env, vservice_id):
         vnic_parent_id = vservice_id + '-vnics'

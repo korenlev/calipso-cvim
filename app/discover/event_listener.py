@@ -27,6 +27,8 @@ class Worker(ConsumerMixin):
 
     def __init__(self, connection):
         self.connection = connection
+        self.handler = None
+        self.notification_responses = {}
 
     def set_env(self, env, inventory_collection):
         inv = InventoryMgr()
@@ -77,7 +79,7 @@ class Worker(ConsumerMixin):
     def process_task(self, body, message):
         f = open("/tmp/listener.log", "a")
         f.write(body['oslo.message'] + "\n")
-        f.close
+        f.close()
         if "event_type" in body:
             self.handle_event(body["event_type"], body)
         elif "event_type" in body['oslo.message']:
@@ -111,7 +113,7 @@ def get_args():
     return args
 
 
-if __name__ == '__main__':
+def main():
     logger = Logger()
     from kombu import Connection
 
@@ -134,3 +136,7 @@ if __name__ == '__main__':
             worker.run()
         except KeyboardInterrupt:
             print('Stopped')
+
+
+if __name__ == '__main__':
+    main()

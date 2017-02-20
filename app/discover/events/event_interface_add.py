@@ -3,18 +3,17 @@ import time
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
+from discover.events.event_base import EventBase
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
-from discover.fetcher import Fetcher
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
 from utils.inventory_mgr import InventoryMgr
 
 
-class EventInterfaceAdd(Fetcher):
+class EventInterfaceAdd(EventBase):
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.delay = 2
 
     def add_gateway_port(self, env, project, network_name, router_doc, host_id):

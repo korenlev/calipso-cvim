@@ -1,11 +1,7 @@
-from discover.fetcher import Fetcher
-from utils.inventory_mgr import InventoryMgr
+from discover.events.event_base import EventBase
 
 
-class EventPortUpdate(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventPortUpdate(EventBase):
 
     def handle(self, env, notification):
         # check port document.

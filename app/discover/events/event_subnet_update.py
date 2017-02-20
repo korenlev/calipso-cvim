@@ -1,19 +1,16 @@
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
+from discover.events.event_base import EventBase
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_subnet_add import EventSubnetAdd
-from discover.fetcher import Fetcher
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
 from utils.inventory_mgr import InventoryMgr
 
 
-class EventSubnetUpdate(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventSubnetUpdate(EventBase):
 
     def handle(self, env, notification):
         # check for network document.

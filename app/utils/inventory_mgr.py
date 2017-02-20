@@ -8,14 +8,26 @@ from utils.singleton import Singleton
 from utils.util import Util
 
 
+def inv_initialization_required(func):
+    def decorated(self, *args, **kwargs):
+        if self.inv is None:
+            raise TypeError("Inv is not set.")
+        return func(self, *args, **kwargs)
+    return decorated
+
+
 class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     prettify = False
 
     def __init__(self, mongo_config=""):
         super().__init__(mongo_config)
+        self.inv = None
+        self.inventory_col = None
+        self.links = []
         self.coll = {}
         self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
         self.clique_scanner = None
+        self.monitoring_setup_manager = None
 
     def set_collection(self, coll_type, collection_name=""):
         if coll_type != "inventory":
@@ -31,6 +43,9 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         return self.coll[coll_type]
 
     def get_coll_name(self, coll_name):
+        if not self.inventory_col:
+            raise TypeError("inventory_col is not initialized")
+
         return self.inventory_col.replace("inventory", coll_name) \
             if self.inventory_col.startswith("inventory") \
             else self.inventory_col + "_" + coll_name
@@ -189,6 +204,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
     # note: to use general find, call find_items(),
     # which also does process_results
+    @inv_initialization_required
     def find(self, search, projection=None, collection=None):
         coll = self.inv if not collection else self.coll[collection]
         matches = coll.find(search, projection=projection)
@@ -255,6 +271,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         link['_id'] = result.upserted_id
         return link
 
+    @inv_initialization_required
     def get_clique_finder(self):
         if not self.clique_scanner:
             self.clique_scanner = CliqueFinder(self.inv, self.links,
@@ -284,6 +301,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     # - values_replacement: dict,
     #     - keys: names of keys for which to replace the values
     #     - values: dict with "from" (value to be replaced) and "to" (new value)
+    @inv_initialization_required
     def values_replace(self, search, values_replacement):
         for doc in self.inv.find(search):
             self.values_replace_in_object(doc, values_replacement)
