@@ -11,6 +11,10 @@ from utils.util import Util
 
 class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
 
+    UNCHANGED_COLLECTIONS = ["monitoring_config_templates",
+                             "environments_config",
+                             "messages"]
+
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
@@ -110,21 +114,27 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
             error = "The request can not be fulfilled due to bad syntax"
         return error, content
 
+    def get_collection_by_name(self, name):
+        if name in self.UNCHANGED_COLLECTIONS:
+            return self.inv.db[name]
+        return self.inv.coll[name]
+
     def get_constants_by_name(self, name):
-        constants = self.inv.coll['constants'].\
+        constants = self.get_collection_by_name("constants").\
             find_one({"name": name})
         return [d['value'] for d in constants['data']]
 
     def read(self, collection, matches={}, projection=None, skip=0, limit=1000):
-        collection = self.inv.coll[collection]
+        collection = self.get_collection_by_name(collection)
         skip *= limit
         query = collection.find(matches, projection).skip(skip).limit(limit)
         return list(query)
 
     def write(self, document, collection="inventory"):
-        self.inv.coll[collection].insert_one(document)
+        self.get_collection_by_name(collection).\
+            insert_one(document)
 
     def aggregate(self, pipeline, collection):
-        collection = self.inv.coll[collection]
+        collection = self.get_collection_by_name(collection)
         data = collection.aggregate(pipeline)
         return list(data)

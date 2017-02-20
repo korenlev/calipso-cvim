@@ -44,10 +44,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         self.set_collection("cliques")
         self.set_collection("monitoring_config")
         self.set_collection("constants")
-        self.set_collection("messages")
-        self.set_collection("environments_config")
         self.set_collection("scans")
-        self.set_collection("monitoring_config_templates")
 
     def clear(self, scan_plan):
         col_to_skip = ["link_types", "clique_types", "clique_constraints"]
