@@ -1,14 +1,21 @@
+from abc import abstractmethod, ABC, ABCMeta
+
 from discover.cli_access import CliAccess
 from discover.inventory_mgr import InventoryMgr
 from discover.singleton import Singleton
 
 
-class CliFetchVconnectors(CliAccess, metaclass=Singleton):
+class ABCSingleton(ABCMeta, Singleton):
+    pass
+
+
+class CliFetchVconnectors(CliAccess, metaclass=ABCSingleton):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
 
-    def get_vconnectors(self):
+    @abstractmethod
+    def get_vconnectors(self, host):
         raise NotImplementedError("Subclass must override get_vconnectors()")
 
     def get(self, id):

@@ -2,8 +2,8 @@ from discover.find_links import FindLinks
 
 
 class FindLinksForOteps(FindLinks):
-    def __init__(self, monitoring_setup_manager):
-        super().__init__(monitoring_setup_manager)
+    def __init__(self):
+        super().__init__()
 
     def add_links(self):
         self.log.info("adding link types: " +

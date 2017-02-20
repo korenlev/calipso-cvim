@@ -2,14 +2,19 @@ from discover.find_links import FindLinks
 
 
 class FindLinksForVserviceVnics(FindLinks):
-    def __init__(self, monitoring_setup_manager):
-        super().__init__(monitoring_setup_manager)
+    def __init__(self):
+        super().__init__()
 
-    def add_links(self, search={}):
+    def add_links(self, search=None):
         self.log.info("adding links of type: vservice-vnic")
+
+        if search is None:
+            search = {}
+
         search.update({"environment": self.get_env(),
                        "type": "vnic",
                        "vnic_type": "vservice_vnic"})
+
         vnics = self.inv.find_items(search)
 
         for v in vnics:

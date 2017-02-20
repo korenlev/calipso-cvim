@@ -1,16 +1,12 @@
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
+from discover.events.event_base import EventBase
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
-from discover.fetcher import Fetcher
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.inventory_mgr import InventoryMgr
 from discover.scan_network import ScanNetwork
 
 
-class EventRouterUpdate(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventRouterUpdate(EventBase):
 
     def handle(self, env, values):
         project_id = values['_context_project_id']

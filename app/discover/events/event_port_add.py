@@ -1,20 +1,16 @@
 import datetime
 
 from discover.api_fetch_host_instances import ApiFetchHostInstances
-from discover.cli_fetch_instance_vnics_ovs import CliFetchInstanceVnicsOvs
+from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from discover.cli_fetch_instance_vnics_vpp import CliFetchInstanceVnicsVpp
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
-from discover.fetcher import Fetcher
+from discover.events.event_base import EventBase
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
-from discover.inventory_mgr import InventoryMgr
 from discover.scan_instances_root import ScanInstancesRoot
 
 
-class EventPortAdd(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventPortAdd(EventBase):
 
     def get_name_by_id(self, id):
         item = self.inv.get_by_id(self.env, id)
@@ -240,7 +236,7 @@ class EventPortAdd(Fetcher):
                 vnic_fetcher = CliFetchInstanceVnicsVpp()
             else:
                 # set ovs as default type.
-                vnic_fetcher = CliFetchInstanceVnicsOvs()
+                vnic_fetcher = CliFetchInstanceVnics()
 
             vnic_fetcher.set_env(env)
             vnic_docs = vnic_fetcher.get(instance_id + '-', enable_cache=False)

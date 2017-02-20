@@ -11,26 +11,23 @@ class Fetcher(Logger):
 
     def __init__(self):
         super().__init__()
-        self.prettify = False
 
-    def escape(self, string):
+    @staticmethod
+    def escape(string):
         return string
 
-    def set_prettify(self, prettify):
-        self.prettify = prettify
-
-    def get_prettify(self):
-        return self.prettify
-
-    def set_env(self, env):
+    @staticmethod
+    def set_env(env):
         Fetcher.env = env
         Fetcher.configuration = Configuration()
 
-    def get_env(self):
+    @staticmethod
+    def get_env():
         return Fetcher.env
 
-    def jsonify(self, obj):
-        if self.prettify:
+    @staticmethod
+    def jsonify(obj, prettify=False):
+        if prettify:
             return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
         else:
             return json.dumps(obj)

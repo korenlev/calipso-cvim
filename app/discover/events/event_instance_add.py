@@ -1,13 +1,9 @@
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from discover.events.event_base import EventBase
 from discover.scan_host import ScanHost
 from discover.scan_instances_root import ScanInstancesRoot
 
 
-class EventInstanceAdd(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventInstanceAdd(EventBase):
 
     def handle(self, env, values):
         # find the host, to serve as parent

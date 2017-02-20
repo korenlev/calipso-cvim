@@ -1,13 +1,10 @@
 import re
 from bson.objectid import ObjectId
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+
+from discover.events.event_base import EventBase
 
 
-class EventDeleteBase(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventDeleteBase(EventBase):
 
     def delete_handler(self, env, id, type):
         item = self.inv.get_by_id(env, id)

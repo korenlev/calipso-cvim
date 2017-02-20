@@ -1,15 +1,11 @@
 import re
 
+from discover.events.event_base import EventBase
 from discover.events.event_instance_add import EventInstanceAdd
 from discover.events.event_instance_delete import EventInstanceDelete
-from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
 
 
-class EventInstanceUpdate(Fetcher):
-    def __init__(self):
-        super(EventInstanceUpdate, self).__init__()
-        self.inv = InventoryMgr()
+class EventInstanceUpdate(EventBase):
 
     def handle(self, env, values):
         # find the host, to serve as parent

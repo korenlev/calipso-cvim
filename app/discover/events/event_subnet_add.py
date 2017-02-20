@@ -4,18 +4,14 @@ from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
+from discover.events.event_base import EventBase
 from discover.events.event_port_add import EventPortAdd
-from discover.fetcher import Fetcher
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.inventory_mgr import InventoryMgr
 from discover.scan_network import ScanNetwork
 
 
-class EventSubnetAdd(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class EventSubnetAdd(EventBase):
 
     def add_port_document(self, env, port_id, network_name=None, project_name=''):
         # when add router-interface port, network_name need to be given to enhance efficiency.

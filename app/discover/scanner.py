@@ -25,7 +25,6 @@ class Scanner(Util, Fetcher):
     root_patern = None
     scan_queue = queue.Queue()
     scan_queue_track = {}
-    monitoring_setup_manager = None
 
     def __init__(self, types_to_fetch):
         """
@@ -46,6 +45,7 @@ class Scanner(Util, Fetcher):
         if not Scanner.inventory:
             Scanner.inventory = InventoryMgr()
         self.config = Configuration()
+        self.inv = InventoryMgr()
 
     def scan(self, obj, id_field="id",
              limit_to_child_id=None, limit_to_child_type=None):
@@ -124,9 +124,6 @@ class Scanner(Util, Fetcher):
             children_scanner = \
                 self.get_instance_of_class(children_scanner_class)
             children_scanner.set_env(self.get_env())
-            if self.monitoring_setup_manager:
-                children_scanner.set_monitoring_setup_manager(
-                    self.monitoring_setup_manager)
         except KeyError:
             children_scanner = None
 
@@ -267,7 +264,7 @@ class Scanner(Util, Fetcher):
             if "create_object" not in o or o["create_object"]:
                 # add/update object in DB
                 Scanner.inventory.set(o)
-                self.monitoring_setup_manager.create_setup(o)
+                self.inv.monitoring_setup_manager.create_setup(o)
 
             # add objects into children list.
             children.append(o)
@@ -313,12 +310,12 @@ class Scanner(Util, Fetcher):
     def scan_links(self):
         self.log.info("scanning for links")
         fetchers_implementing_add_links = [
-            FindLinksForPnics(self.monitoring_setup_manager),
-            FindLinksForInstanceVnics(self.monitoring_setup_manager),
-            FindLinksForVserviceVnics(self.monitoring_setup_manager),
-            FindLinksForVconnectors(self.monitoring_setup_manager),
-            FindLinksForVedges(self.monitoring_setup_manager),
-            FindLinksForOteps(self.monitoring_setup_manager)
+            FindLinksForPnics(),
+            FindLinksForInstanceVnics(),
+            FindLinksForVserviceVnics(),
+            FindLinksForVconnectors(),
+            FindLinksForVedges(),
+            FindLinksForOteps()
         ]
         for fetcher in fetchers_implementing_add_links:
             fetcher.add_links()
@@ -326,9 +323,6 @@ class Scanner(Util, Fetcher):
     def scan_cliques(self):
         Scanner.inventory.scan_cliques(self.get_env())
 
-    def set_monitoring_setup_manager(self, monitoring_setup_manager):
-        self.monitoring_setup_manager = monitoring_setup_manager
-
     def deploy_monitoring_setup(self):
-        if self.monitoring_setup_manager:
-            self.monitoring_setup_manager.handle_pending_setup_changes()
+        if self.inv.monitoring_setup_manager:
+            self.inv.monitoring_setup_manager.handle_pending_setup_changes()
