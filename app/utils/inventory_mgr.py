@@ -5,9 +5,10 @@ import bson
 from discover.clique_finder import CliqueFinder
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
+from utils.util import Util
 
 
-class InventoryMgr(MongoAccess, metaclass=Singleton):
+class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     prettify = False
 
     def __init__(self, mongo_config=""):

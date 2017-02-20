@@ -1,10 +1,7 @@
-import os
-import sys
-
 from pymongo import MongoClient
+from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
 from utils.logger import Logger
-from utils.util import Util
 
 
 # Provides access to MongoDB using PyMongo library
@@ -14,35 +11,32 @@ from utils.util import Util
 # you can also specify name of file from CLI with --mongo_config
 
 
-class MongoAccess(Logger, Util, DictNamingConverter):
+class MongoAccess(Logger, DictNamingConverter):
     client = None
     db = None
     default_conf_file = 'osdna_mongo_access.conf'
 
-    def __init__(self, config_file=""):
+    def __init__(self, config_file_path=""):
         super().__init__()
-        self.mongo_connect(config_file)
+        self.mongo_connect(config_file_path)
 
-    def mongo_connect(self, config_file=""):
+    def mongo_connect(self, config_file_path=""):
         if (MongoAccess.client is not None):
             return
         self.connect_params = {
             "server": "localhost",
             "port": 27017
         }
-        if not config_file:
-            config_file = self.get_config_file(self.default_conf_file)
-            if not os.path.isfile(config_file):
-                msg = "failed to open config file: " + config_file
-                self.log.error(msg)
-                sys.exit(1)
-        if config_file:
+        if not config_file_path:
+            config_file_path = ConfigFile.get(self.default_conf_file)
+        if config_file_path:
             try:
-                # read connection parameters from file
-                config_params = self.read_config_from_config_file(config_file)
+                config_file = ConfigFile(config_file_path)
+                # read connection parameters from config file
+                config_params = config_file.read_config()
                 self.connect_params.update(config_params)
-            except Exception:
-                self.log.error("failed to open config file: " + config_file)
+            except Exception as e:
+                self.log.error(str(e))
                 raise
         self.prepare_connect_uri()
         MongoAccess.client = MongoClient(

@@ -1,14 +1,12 @@
 from ldap3 import Server, Connection, Tls
-import os
 import ssl
-import sys
 
+from utils.config_file import ConfigFile
 from utils.logger import Logger
 from utils.singleton import Singleton
-from utils.util import Util
 
 
-class LDAPAccess(Logger, Util, metaclass=Singleton):
+class LDAPAccess(Logger, metaclass=Singleton):
 
     default_config_file = "ldap.conf"
     TLS_REQUEST_CERTS = {
@@ -19,35 +17,31 @@ class LDAPAccess(Logger, Util, metaclass=Singleton):
     }
     user_ssl = True
 
-    def __init__(self, config_file=""):
+    def __init__(self, config_file_path=""):
         super().__init__()
-        self.ldap_params = self.get_ldap_params(config_file)
+        self.ldap_params = self.get_ldap_params(config_file_path)
         self.server = self.connect_ldap_server()
 
-    def get_ldap_params(self, config_file):
+    def get_ldap_params(self, config_file_path):
         ldap_params = {
             "url": "ldap://localhost:389"
         }
-        if not config_file:
-            config_file = self.get_config_file(self.default_config_file)
-            if not os.path.isfile(config_file):
-                msg = "ldap config file doesn't exist: " + config_file
-                self.log.error(msg)
-                sys.exit(1)
-        if config_file:
+        if not config_file_path:
+            config_file_path = ConfigFile.get(self.default_config_file)
+        if config_file_path:
             try:
-                params = self.read_config_from_config_file(config_file)
+                config_file = ConfigFile(config_file_path)
+                params = config_file.read_config()
                 ldap_params.update(params)
-            except Exception:
-                self.log.error("failed to open ldap config file: " +
-                               config_file)
+            except Exception as e:
+                self.log.error(str(e))
                 raise
         if "user_tree_dn" not in ldap_params:
             raise ValueError("user_tree_dn must be specified in " +
-                             config_file)
+                             config_file_path)
         if "user_id_attribute" not in ldap_params:
             raise ValueError("user_id_attribute must be specified in " +
-                             config_file)
+                             config_file_path)
         return ldap_params
 
     def connect_ldap_server(self):

@@ -28,9 +28,9 @@ class AuthenticationMiddleware(ResponderBase):
                 credentials = username_password.split(":")
                 if not self.ldap_access.authenticate_user(credentials[0],
                                                           credentials[1]):
-                    self.log.info("Authentication of {0} failed".format(credentials[0]))
+                    self.log.info("Authentication for {0} failed".format(credentials[0]))
                     self.unauthorized("Authentication failed")
-                self.log.info("Authentication of {0} succeeded".format(credentials[0]))
+                self.log.info("Authentication for {0} succeeded".format(credentials[0]))
         else:
             self.unauthorized("Authentication required")
 
