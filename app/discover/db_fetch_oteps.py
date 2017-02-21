@@ -2,8 +2,8 @@ import re
 
 from discover.cli_access import CliAccess
 from discover.db_access import DbAccess
-from discover.inventory_mgr import InventoryMgr
-from discover.singleton import Singleton
+from utils.inventory_mgr import InventoryMgr
+from utils.singleton import Singleton
 
 
 class DbFetchOteps(DbAccess, CliAccess, metaclass=Singleton):

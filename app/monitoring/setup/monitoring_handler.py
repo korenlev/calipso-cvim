@@ -12,11 +12,11 @@ from boltons.iterutils import remap
 
 from discover.cli_access import CliAccess
 from discover.configuration import Configuration
-from discover.inventory_mgr import InventoryMgr
-from discover.mongo_access import MongoAccess
 from discover.ssh_conn import SshConn
-from utils.deep_merge import remerge
 from utils.binary_converter import BinaryConverter
+from utils.deep_merge import remerge
+from utils.inventory_mgr import InventoryMgr
+from utils.mongo_access import MongoAccess
 
 
 class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):

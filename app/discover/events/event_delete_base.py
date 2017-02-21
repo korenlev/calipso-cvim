@@ -1,6 +1,6 @@
 import re
-from bson.objectid import ObjectId
 
+from bson.objectid import ObjectId
 from discover.events.event_base import EventBase
 
 

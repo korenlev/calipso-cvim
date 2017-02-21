@@ -3,6 +3,7 @@ import logging
 
 class Logger:
     def __init__(self):
+        super().__init__()
         self.log = logging.getLogger("OS-DNA")
 
     def set_loglevel(self, loglevel):

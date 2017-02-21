@@ -2,7 +2,7 @@ import mysql.connector
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
-from discover.util import Util
+from utils.util import Util
 
 
 class DbAccess(Fetcher, Util):

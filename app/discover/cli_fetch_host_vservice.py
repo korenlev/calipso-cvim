@@ -2,8 +2,8 @@ import re
 
 from discover.cli_access import CliAccess
 from discover.db_access import DbAccess
-from discover.inventory_mgr import InventoryMgr
 from discover.network_agents_list import NetworkAgentsList
+from utils.inventory_mgr import InventoryMgr
 
 
 class CliFetchHostVservice(CliAccess, DbAccess):

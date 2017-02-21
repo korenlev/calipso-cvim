@@ -2,7 +2,7 @@
 # return list of regions, to allow further recursive scanning
 
 from discover.api_access import ApiAccess
-from discover.util import Util
+from utils.util import Util
 
 class ApiFetchEndPoints(ApiAccess, Util):
   

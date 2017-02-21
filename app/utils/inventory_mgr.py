@@ -3,9 +3,9 @@ from datetime import datetime
 import bson
 
 from discover.clique_finder import CliqueFinder
-from discover.mongo_access import MongoAccess
-from discover.singleton import Singleton
-from discover.util import Util
+from utils.mongo_access import MongoAccess
+from utils.singleton import Singleton
+from utils.util import Util
 
 
 def inv_initialization_required(func):
@@ -19,8 +19,8 @@ def inv_initialization_required(func):
 class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     prettify = False
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, mongo_config=""):
+        super().__init__(mongo_config)
         self.inv = None
         self.inventory_col = None
         self.links = []
@@ -58,6 +58,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         self.set_collection("clique_constraints")
         self.set_collection("cliques")
         self.set_collection("monitoring_config")
+        self.set_collection("constants")
+        self.set_collection("scans")
 
     def clear(self, scan_plan):
         col_to_skip = ["link_types", "clique_types", "clique_constraints"]

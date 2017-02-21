@@ -1,8 +1,8 @@
 from abc import abstractmethod, ABC, ABCMeta
 
 from discover.cli_access import CliAccess
-from discover.inventory_mgr import InventoryMgr
-from discover.singleton import Singleton
+from utils.inventory_mgr import InventoryMgr
+from utils.singleton import Singleton
 
 
 class ABCSingleton(ABCMeta, Singleton):

@@ -14,8 +14,8 @@ import time
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.inventory_mgr import InventoryMgr
 
 
 class ScanPlan:

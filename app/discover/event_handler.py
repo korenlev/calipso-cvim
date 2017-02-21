@@ -16,7 +16,7 @@ from discover.events.event_subnet_add import EventSubnetAdd
 from discover.events.event_subnet_delete import EventSubnetDelete
 from discover.events.event_subnet_update import EventSubnetUpdate
 from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventHandler(Fetcher):

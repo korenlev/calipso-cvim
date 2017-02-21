@@ -4,6 +4,7 @@ from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventRouterUpdate(EventBase):

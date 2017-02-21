@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # scan an environment for projects
 from discover.scanner import Scanner
-from discover.singleton import Singleton
+from utils.singleton import Singleton
 
 
 class ScanProjectsRoot(Scanner, metaclass=Singleton):

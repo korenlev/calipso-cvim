@@ -1,7 +1,7 @@
 from bson.objectid import ObjectId
 
 from discover.fetcher import Fetcher
-from discover.mongo_access import MongoAccess
+from utils.mongo_access import MongoAccess
 
 
 class CliqueFinder(Fetcher, MongoAccess):

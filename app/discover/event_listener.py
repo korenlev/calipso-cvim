@@ -8,8 +8,8 @@ from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
-from discover.inventory_mgr import InventoryMgr
-from discover.logger import Logger
+from utils.inventory_mgr import InventoryMgr
+from utils.logger import Logger
 
 
 class Worker(ConsumerMixin):

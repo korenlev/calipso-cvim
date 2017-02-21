@@ -12,9 +12,9 @@ from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vconnectors import FindLinksForVconnectors
 from discover.find_links_for_vedges import FindLinksForVedges
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.inventory_mgr import InventoryMgr
 from discover.ssh_conn import SshConn
-from discover.util import Util
+from utils.inventory_mgr import InventoryMgr
+from utils.util import Util
 
 
 class Scanner(Util, Fetcher):

@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 
 from discover.fetcher import Fetcher
-from discover.inventory_mgr import InventoryMgr
+from utils.inventory_mgr import InventoryMgr
 
 
 class EventBase(Fetcher, ABC):
