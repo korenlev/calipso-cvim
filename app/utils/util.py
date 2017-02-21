@@ -1,3 +1,4 @@
+import importlib
 import json
 import re
 
@@ -37,11 +38,12 @@ class Util(object):
         module_file = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
         return module_file
 
-    def get_instance_of_class(self, class_name):
+    def get_instance_of_class(self, class_name, package="discover"):
         if class_name in self.class_instances:
             return self.class_instances[class_name]
         module_file = self.get_module_file_by_class_name(class_name)
-        module = __import__(module_file, globals(), level=1)
+        module_parts = [package, module_file]
+        module = importlib.import_module(".".join(module_parts))
         class_ = getattr(module, class_name)
         instance = class_()
         self.class_instances[class_name] = instance
