@@ -10,6 +10,7 @@ class EnvironmentConfigs(ResponderBase):
                                      "CLI", "AMQP", "Monitoring"]
         self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring"]
         self.REQUIREMENTS = {
+            "name": self.require(str, mandatory=True),
             "host": self.require(str, mandatory=True),
             "password": self.require(str, mandatory=True),
             "port": self.require(int, True, mandatory=True),
@@ -33,16 +34,16 @@ class EnvironmentConfigs(ResponderBase):
         }
         self.CONFIGURATIONS_KEYS = {
             "mysql":
-                ["host", "password", "port", "user"],
+                ["name", "host", "password", "port", "user"],
             "OpenStack":
-                ["host", "admin_project", "admin_token",
+                ["name", "host", "admin_project", "admin_token",
                  "port", "user", "pwd"],
             "CLI":
-                ["host", "key", "pwd", "user"],
+                ["name", "host", "key", "pwd", "user"],
             "AMQP":
-                ["host", "port", "user", "password"],
+                ["name", "host", "port", "user", "password"],
             "Monitoring":
-                ["app_path", "config_folder", "debug",
+                ["name", "app_path", "config_folder", "debug",
                 "env_type", "osdna_path", "port",
                 "rabbitmq_pass", "rabbitmq_user",
                 "server_ip", "server_name", "type"]
@@ -73,7 +74,9 @@ class EnvironmentConfigs(ResponderBase):
             "type_drivers": self.require(str, False, DataValidate.LIST,
                                          type_drivers, True)
         }
-        self.validate_query_data(env_config, environment_config_requirement)
+        self.validate_query_data(env_config,
+                                 environment_config_requirement,
+                                 True)
         # validate the configurations
         configurations = env_config['configuration']
         config_validation = self.validate_environment_config(configurations)
@@ -102,7 +105,8 @@ class EnvironmentConfigs(ResponderBase):
             if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
                 configuration = self.get_configuration_by_name(name,
                                                                configurations,
-                                                               True, validation)
+                                                               True,
+                                                               validation)
                 if not validation['passed']:
                     return validation
                 configurations_of_names[name] = configuration
@@ -147,4 +151,4 @@ class EnvironmentConfigs(ResponderBase):
         requirements = {}
         for key in self.CONFIGURATIONS_KEYS[name]:
             requirements[key] = self.REQUIREMENTS[key]
-        return self.validate_data(configuration, requirements)
+        return self.validate_data(configuration, requirements, True)

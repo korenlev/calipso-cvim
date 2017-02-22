@@ -1,4 +1,7 @@
-class DataValidate:
+from utils.util import Util
+
+
+class DataValidate(Util):
     LIST = "list"
 
     def __init__(self):
@@ -53,7 +56,7 @@ class DataValidate:
             "error_messages": error_messages
         }
 
-    def validate_data(self, data, requirements):
+    def validate_data(self, data, requirements, filter):
         for key, requirement in requirements.items():
             value = data.get(key)
             error_messages = requirement['error_messages']
@@ -93,6 +96,9 @@ class DataValidate:
                                                    req_error)
             if error_message:
                 return error_message
+
+        if filter:
+            self.filter_object_by_keys(requirements.keys(), data)
         return None
 
     def mandatory_check(self, key, mandatory, error_message):

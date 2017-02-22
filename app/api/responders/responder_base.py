@@ -3,13 +3,13 @@ import json
 
 from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
+from dateutil import parser
 from utils.dict_naming_converter import DictNamingConverter
 from utils.logger import Logger
 from utils.inventory_mgr import InventoryMgr
-from utils.util import Util
 
 
-class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
+class ResponderBase(DataValidate, Logger, DictNamingConverter):
 
     UNCHANGED_COLLECTIONS = ["monitoring_config_templates",
                              "environments_config",
@@ -22,7 +22,7 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
     def set_successful_response(self, resp, body="", status="200"):
         if not isinstance(body, str):
             try:
-                body = json.dumps(body)
+                body = self.jsonify(body)
             except Exception as e:
                 self.log.exception(e)
                 raise ValueError("The response body should be a string")
@@ -39,7 +39,7 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
                 "title": title
             }
         }
-        body = json.dumps(body)
+        body = self.jsonify(body)
         raise exceptions.OSDNAApiException(code, body, message)
 
     def not_found(self, message="Requested resource not found"):
@@ -55,11 +55,21 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
     def unauthorized(self, message="Request requires authorization"):
         self.set_error_response("Unauthorized", "401", message)
 
-    def validate_query_data(self, filters, filters_requirements):
-        # validate the filters in the query string
-        error_message = self.validate_data(filters, filters_requirements)
+    def validate_query_data(self, data, data_requirements, filter=False):
+        error_message = self.validate_data(data, data_requirements, filter)
         if error_message:
             self.bad_request(error_message)
+
+    def check_and_convert_datetime(self, time_key, data):
+        time = data.get(time_key)
+
+        if time:
+            time = time.replace(' ', '+')
+            try:
+                data[time_key] = parser.parse(time)
+            except Exception:
+                self.bad_request("{0} must follow ISO 8610 date and time format,"
+                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
     def check_environment_name(self, env_name):
         query = {"name": env_name}
@@ -132,7 +142,7 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
 
     def write(self, document, collection="inventory"):
         self.get_collection_by_name(collection).\
-            insert_one(document)
+                insert_one(document)
 
     def aggregate(self, pipeline, collection):
         collection = self.get_collection_by_name(collection)

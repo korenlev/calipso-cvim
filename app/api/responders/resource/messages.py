@@ -3,7 +3,6 @@ from datetime import datetime
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
 from bson.objectid import ObjectId
-from dateutil import parser
 
 
 class Messages(ResponderBase):
@@ -47,17 +46,6 @@ class Messages(ResponderBase):
             objects_ids = self.get_object_ids(self.COLLECTION, query,
                                               page, page_size, self.ID)
             self.set_successful_response(resp, {'messages': objects_ids})
-
-    def check_and_convert_datetime(self, time_key, filters):
-        time = filters.get(time_key)
-
-        if time:
-            time = time.replace(' ', '+')
-            try:
-                filters[time_key] = parser.parse(time)
-            except Exception:
-                self.bad_request("{0} must follow ISO 8610 date and time format,"
-                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
     def build_query(self, filters):
         query = {}
