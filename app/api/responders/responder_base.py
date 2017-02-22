@@ -5,12 +5,11 @@ from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
 from dateutil import parser
 from utils.dict_naming_converter import DictNamingConverter
-from utils.logger import Logger
 from utils.inventory_mgr import InventoryMgr
+from utils.logger import Logger
 
 
 class ResponderBase(DataValidate, Logger, DictNamingConverter):
-
     UNCHANGED_COLLECTIONS = ["monitoring_config_templates",
                              "environments_config",
                              "messages"]
@@ -142,7 +141,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
 
     def write(self, document, collection="inventory"):
         self.get_collection_by_name(collection).\
-                insert_one(document)
+            insert_one(document)
 
     def aggregate(self, pipeline, collection):
         collection = self.get_collection_by_name(collection)

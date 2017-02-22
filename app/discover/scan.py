@@ -16,6 +16,7 @@ from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.inventory_mgr import InventoryMgr
+from utils.util import Util
 
 
 class ScanPlan:
@@ -23,7 +24,6 @@ class ScanPlan:
     def __init__(self, cmd_args):
         self.obj = None
         self.scanner_class = None
-        self.module_file = None
         if "REQUEST_METHOD" in os.environ:
             self._init_from_cgi()
         else:
@@ -164,7 +164,6 @@ class ScanController(Fetcher):
             plan.obj = obj
 
         plan.scanner_class = "Scan" + plan.object_type
-        plan.module_file = "scan_" + module
         return plan
 
     def run(self):
@@ -187,10 +186,7 @@ class ScanController(Fetcher):
 
         # generate ScanObject Class and instance.
         class_name = scan_plan.scanner_class
-        module_parts = ["discover", scan_plan.module_file]
-        module = importlib.import_module(".".join(module_parts))
-        class_ = getattr(module, class_name)
-        scanner = class_()
+        scanner = Util.get_instance_of_class(class_name)
         scanner.set_env(env_name)
 
         # decide what scanning operations to do

@@ -107,6 +107,7 @@ class EnvironmentConfigs(ResponderBase):
                                                                configurations,
                                                                True,
                                                                validation)
+
                 if not validation['passed']:
                     return validation
                 configurations_of_names[name] = configuration
