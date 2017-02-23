@@ -67,7 +67,7 @@ class ScanPlan:
         self.child_id = None
 
 
-class ScanController(Fetcher):
+class ScanController(Fetcher, Util):
     default_env = "WebEX-Mirantis@Cisco"
 
     def __init__(self):
@@ -186,7 +186,7 @@ class ScanController(Fetcher):
 
         # generate ScanObject Class and instance.
         class_name = scan_plan.scanner_class
-        scanner = Util.get_instance_of_class(class_name)
+        scanner = self.get_instance_of_class(class_name)
         scanner.set_env(env_name)
 
         # decide what scanning operations to do
