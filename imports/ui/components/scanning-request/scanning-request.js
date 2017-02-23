@@ -5,6 +5,7 @@
 //import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 
 import { Constants } from '/imports/api/constants/constants';
@@ -34,14 +35,15 @@ Template.ScanningRequest.onCreated(function() {
   let instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    environmentName: null,
+    env: null,
     action: 'insert',
     isError: false,
     isSuccess: false,
     isMessage: false,
     message: null,
     disabled: false,
-    notifications: {}
+    notifications: {},
+    model: {},
   });
 
   instance.autorun(function () {
@@ -49,28 +51,23 @@ Template.ScanningRequest.onCreated(function() {
     let params = controller.getParams();
     let query = params.query;
 
-    instance.subscribe('constants');
-    instance.subscribe('scans?env', query.env);
+    new SimpleSchema({
+      action: { type: String, allowedValues: ['insert', 'view', 'update'] },
+      env: { type: String, optional: true },
+      id: { type: String, optional: true }
+    }).validate(query);
 
-    let envName = query.env;
-    instance.state.set('environmentName', envName );
-    instance.state.set('action', 'insert');
-    instance.state.set('model', Scans.schema.clean({
-      environment: instance.state.get('environmentName')
-    }));
+    switch (query.action) {
+    case 'insert':
+      initInsertView(instance, query); 
+      break;
 
-    let notifications = instance.state.get('notifications');
-    if (Scans.find({ environment: envName, status: { $in: ['pending', 'running'] } }).count() > 0) {
-      instance.state.set('notifications', R.assoc(
-        noteTypeScanExists.type,
-        noteTypeScanExists.type,
-        notifications
-      ));
-    } else {
-      instance.state.set('notifications', R.dissoc(
-        noteTypeScanExists.type,
-        notifications
-      ));
+    case 'view':
+      initViewView(instance, query);
+      break;
+
+    default:
+      throw 'unimplemented action';
     }
   });
 });
@@ -181,7 +178,7 @@ Template.ScanningRequest.helpers({
 
   getModelKeyValue: function (key) {
     let instance = Template.instance();
-    return instance.state.get('model')[key];
+    return R.path([key], instance.state.get('model'));
   },
 
   calcInputType: function(fieldInfo) {
@@ -205,6 +202,36 @@ Template.ScanningRequest.helpers({
     if (R.isNil(item)) { return []; }
     return item.data;
   },
+
+  pageHeader() {
+    let instance = Template.instance();
+    let action = instance.state.get('action');
+    
+    switch (action) {
+    case 'insert': 
+      return 'New Scanning Reuqest';
+
+    case 'view':
+      return 'Scan Information';
+
+    default:
+      return '';
+    }
+  },
+
+  isUpdateableAction() {
+    let instance = Template.instance();
+    let action = instance.state.get('action');
+
+    return R.contains(action, ['insert', 'update']);
+  },
+
+  isCommandDisabled(isSpecificCommandDisabled) {
+    let instance = Template.instance();
+    let action = instance.state.get('action');
+
+    return isSpecificCommandDisabled || (action === 'view');
+  }
 });
 
 function submitItem(instance) {
@@ -261,4 +288,53 @@ function processActionResult(instance, error) {
       instance.state.set('message', 'Record had been updated successfully');
     }
   }
+}
+
+function initInsertView(instance, query) {
+  instance.state.set('action', query.action);
+  instance.state.set('env', query.env);
+  instance.state.set('model', Scans.schema.clean({
+    environment: instance.state.get('env')
+  }));
+
+  instance.subscribe('constants');
+  instance.subscribe('scans?env', query.env);
+
+  updateNotificationSameScanExistsForInsert(instance, query.env);
+
+  // todo
+}
+
+function updateNotificationSameScanExistsForInsert(instance, env) {
+  let notifications = instance.state.get('notifications');
+  if (Scans.find({ 
+    environment: env, 
+    status: { 
+      $in: ['pending', 'running'] 
+    } }).count() > 0) {
+
+    instance.state.set('notifications', R.assoc(
+      noteTypeScanExists.type,
+      noteTypeScanExists.type,
+      notifications
+    ));
+  } else {
+    instance.state.set('notifications', R.dissoc(
+      noteTypeScanExists.type,
+      notifications
+    ));
+  }
+}
+
+function initViewView(instance, query) {
+  instance.state.set('action', query.action);
+  instance.state.set('env', query.env);
+  instance.state.set('id', query.id);
+
+  instance.subscribe('constants');
+  instance.subscribe('scans?id', query.id);
+
+  let model = Scans.findOne({ _id: query.id }); 
+  instance.state.set('model', model);
+  // todo
 }

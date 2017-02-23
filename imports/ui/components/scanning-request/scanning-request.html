@@ -8,7 +8,7 @@
     </div>
     {{/if}}
 
-    <h3>New Scanning Reuqest</h3>
+    <h3>{{ pageHeader }}</h3>
     <div class="sm-form-container">
       <form role="form" class="form-horizontal">
 
@@ -23,7 +23,7 @@
                     key=commandOption.name
                     options=(calcCommandSelectOptions commandOption)
                     setModel=(calcSetModelFn commandOption.name)
-                    disabled=commandOption.info.disabled
+                    disabled=(isCommandDisabled commandOption.info.disabled) 
                   )
               }}
             {{else}}
@@ -31,7 +31,7 @@
                     value=(getModelKeyValue commandOption.name)
                     key=commandOption.name
                     type=(calcInputType commandOption.info)
-                    disabled=commandOption.info.disabled
+                    disabled=(isCommandDisabled commandOption.info.disabled) 
                     )
               }}
             {{/if}}
@@ -43,10 +43,12 @@
 
         {{/each }}
 
+        {{#if isUpdateableAction }}
         <button type="button" 
           class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
             mdl-js-ripple-effect mdl-button--colored"
             >Submit</button>
+        {{/if }}
 
       </form>
 

@@ -11,3 +11,4 @@ import '/imports/ui/components/region-dashboard/region-dashboard';
 import '/imports/ui/components/zone-dashboard/zone-dashboard';
 import '/imports/ui/components/host-dashboard/host-dashboard';
 import '/imports/ui/components/aggregate-dashboard/aggregate-dashboard';
+import '/imports/ui/components/scans-list/scans-list';
