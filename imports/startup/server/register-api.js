@@ -24,3 +24,11 @@ import '../../api/statistics/methods.js';
 import '../../api/attributes_for_hover_on_data/server/publications';
 import '../../api/attributes_for_hover_on_data/methods.js';
 
+import '../../api/link-types/server/publications';
+import '../../api/link-types/methods.js';
+
+import '../../api/clique-types/server/publications';
+import '../../api/clique-types/methods.js';
+
+import '../../api/clique-constraints/server/publications';
+import '../../api/clique-constraints/methods.js';

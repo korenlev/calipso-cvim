@@ -9,7 +9,8 @@ import { CLISchema } from './configuration-groups/cli-configuration';
 import { AMQPSchema } from './configuration-groups/amqp-configuration';
 import { NfvProviderSchema } from './configuration-groups/nfv-provider-configuration';
 
-export const Environments = new Mongo.Collection('environments_config');
+export const Environments = new Mongo.Collection(
+  'environments_config', { idGeneration: 'MONGO' });
 
 export const requiredConfGroups = [
   'mysql',

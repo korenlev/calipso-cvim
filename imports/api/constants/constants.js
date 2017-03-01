@@ -13,7 +13,7 @@ import { Statuses as ScansStatuses } from './data/scans-statuses';
 import { EnvironmentMonitoringTypes } from './data/environment-monitoring-types';
 import { EnvProvisionTypes } from './data/environment-provision-types';
 
-export const Constants = new Mongo.Collection('constants');
+export const Constants = new Mongo.Collection('constants', { idGeneration: 'MONGO' });
 
 let schema = {
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },

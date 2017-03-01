@@ -1,5 +1,5 @@
 /*
- * Template Component: ScansList 
+ * Template Component: LinkTypesList 
  */
     
 //import { Meteor } from 'meteor/meteor'; 
@@ -7,15 +7,15 @@ import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { Scans } from '/imports/api/scans/scans';
+import { LinkTypes } from '/imports/api/link-types/link-types';
         
-import './scans-list.html';     
+import './link-types-list.html';     
     
 /*  
  * Lifecycles
  */   
   
-Template.ScansList.onCreated(function() {
+Template.LinkTypesList.onCreated(function() {
   var instance = this;
 
   instance.state = new ReactiveDict();
@@ -43,12 +43,12 @@ Template.ScansList.onCreated(function() {
       instance.state.set('env', env);
     }
 
-    instance.subscribe('scans?env*', env);
+    instance.subscribe('link_types?env*', env);
   });
 });  
 
 /*
-Template.ScansList.rendered = function() {
+Template.LinkTypesList.rendered = function() {
 };  
 */
 
@@ -56,19 +56,19 @@ Template.ScansList.rendered = function() {
  * Events
  */
 
-Template.ScansList.events({
+Template.LinkTypesList.events({
 });
    
 /*  
  * Helpers
  */
 
-Template.ScansList.helpers({    
-  scans: function () {
+Template.LinkTypesList.helpers({    
+  linkTypes: function () {
     //let instance = Template.instance();
 
     //var env = instance.state.get('env');
     //return Scans.find({ environment: env });
-    return Scans.find({}); 
-  }
+    return LinkTypes.find({}); 
+  },
 });

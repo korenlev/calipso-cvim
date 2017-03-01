@@ -15,7 +15,7 @@ export const ObjectTypes = [{
   value: 'vservice', 
 }, {
   label: 'pnic', 
-  vlaue: 'pnic', 
+  value: 'pnic', 
 }, {
   label: 'network', 
   value: 'network', 

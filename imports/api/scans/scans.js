@@ -5,7 +5,7 @@ import * as R from 'ramda';
 import { Constants } from '/imports/api/constants/constants';
 import { StatusesInOperation } from '/imports/api/constants/data/scans-statuses';
 
-export const Scans = new Mongo.Collection('scans');
+export const Scans = new Mongo.Collection('scans', { idGeneration: 'MONGO' });
 
 Scans.schemaRelated = {
   environment: {

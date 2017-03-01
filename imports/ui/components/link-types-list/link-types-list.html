@@ -1,0 +1,44 @@
+<template name="LinkTypesList">
+<div class="os-link-types-list cards white">
+  <h3>Link Types</h3>
+  <a href="{{pathFor route='link-type' query=(asHash action='insert') }}">
+    <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new link type
+  </a>
+  <table class="sm-link-types-table table">
+    <caption>Link types</caption>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Description</th>
+        <th>Folder Text</th>
+        <th>Type</th>
+        <th>Endpoint A</th>
+        <th>Endpoint B</th>
+        <th>Actions</th>
+      </tr> </thead>
+    <tbody> 
+      {{#each linkType in linkTypes }}
+      <tr>
+        <td>{{ linkType._id }}</td>
+        <td>{{ linkType.description }}</td>
+        <td>{{ linkType.folder_text }}</td>
+        <td>{{ linkType.type }}</td>
+        <td>{{ linkType.endPointA }}</td>
+        <td>{{ linkType.endPointB }}</td>
+        <td>
+          <div class="sm-action-bar">
+            <a href="{{pathFor route='link-type' 
+                          query=(asHash id=linkType._id action='view') }}"
+                ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
+
+            <a href="{{pathFor route='link-type' 
+                          query=(asHash id=linkType._id action='remove') }}"
+                ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+      {{/each }}
+    </tbody>
+  </table>
+</div>
+</template>

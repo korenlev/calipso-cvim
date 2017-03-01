@@ -1,0 +1,42 @@
+<template name="CliqueTypesList">
+<div class="os-clique-types-list cards white">
+  <h3>Clique Types</h3>
+  <a href="{{pathFor route='clique-type' query=(asHash action='insert') }}">
+    <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new clique type
+  </a>
+  <table class="sm-clique-types-table table">
+    <caption>Clique types</caption>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Environment</th>
+        <th>Focal Point Type</th>
+        <th>Link Types</th>
+        <th>name</th>
+        <th>Actions</th>
+      </tr> </thead>
+    <tbody> 
+      {{#each cliqueType in cliqueTypes }}
+      <tr>
+        <td>{{ cliqueType._id }}</td>
+        <td>{{ cliqueType.environment }}</td>
+        <td>{{ cliqueType.focal_point_type }}</td>
+        <td>{{ cliqueType.link_types }}</td>
+        <td>{{ cliqueType.name }}</td>
+        <td>
+          <div class="sm-action-bar">
+            <a href="{{pathFor route='clique-type' 
+                          query=(asHash id=(idToStr cliqueType._id) action='view') }}"
+                ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
+
+            <a href="{{pathFor route='clique-type' 
+                          query=(asHash id=(idToStr cliqueType._id) action='remove') }}"
+                ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+      {{/each }}
+    </tbody>
+  </table>
+</div>
+</template>

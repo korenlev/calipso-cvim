@@ -21,7 +21,7 @@ Meteor.publish('scans?env*', function (env) {
   //let that = this;
 
   let query = {};
-  if (! R.isNil(env)) { query = R.assoc('env', env, query); }
+  if (! R.isNil(env)) { query = R.assoc('environment', env, query); }
   console.log('-query: ', query);
   return Scans.find(query); 
 });

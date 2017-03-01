@@ -1,21 +1,20 @@
 /*
- * Template Component: ScansList 
+ * Template Component: CliqueTypesList 
  */
     
 //import { Meteor } from 'meteor/meteor'; 
-import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { Scans } from '/imports/api/scans/scans';
+import { CliqueTypes } from '/imports/api/clique-types/clique-types';
         
-import './scans-list.html';     
+import './clique-types-list.html';     
     
 /*  
  * Lifecycles
  */   
   
-Template.ScansList.onCreated(function() {
+Template.CliqueTypesList.onCreated(function() {
   var instance = this;
 
   instance.state = new ReactiveDict();
@@ -24,8 +23,6 @@ Template.ScansList.onCreated(function() {
   });
 
   instance.autorun(function () {
-
-
     //let data = Template.currentData();
     
     var controller = Iron.controller();
@@ -37,18 +34,14 @@ Template.ScansList.onCreated(function() {
     }).validate(query);
 
     let env = query.env;
-    if (R.isNil(env)) {
-      instance.state.set('env', null);
-    } else {
-      instance.state.set('env', env);
-    }
+    instance.state.set('env', env);
 
-    instance.subscribe('scans?env*', env);
+    instance.subscribe('clique_types?env*', env);
   });
 });  
 
 /*
-Template.ScansList.rendered = function() {
+Template.CliqueTypesList.rendered = function() {
 };  
 */
 
@@ -56,19 +49,21 @@ Template.ScansList.rendered = function() {
  * Events
  */
 
-Template.ScansList.events({
+Template.CliqueTypesList.events({
 });
    
 /*  
  * Helpers
  */
 
-Template.ScansList.helpers({    
-  scans: function () {
+Template.CliqueTypesList.helpers({    
+  cliqueTypes: function () {
     //let instance = Template.instance();
 
     //var env = instance.state.get('env');
     //return Scans.find({ environment: env });
-    return Scans.find({}); 
-  }
+    return CliqueTypes.find({}); 
+  },
 });
+
+
