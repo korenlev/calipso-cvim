@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { check } from 'meteor/check';
-//import * as R from 'ramda';
+import * as R from 'ramda';
 
 import { Inventory } from '../inventories.js';
 import { regexEscape } from '/imports/lib/regex-utils';
@@ -128,10 +128,21 @@ Meteor.publish('inventory?id_path_start&type', function (id_path, type) {
 Meteor.publish('inventory.children', function (nodeId) {
   console.log('server subscribtion to: inventory.children');
   console.log('node id: ' + nodeId.toString());
+  console.log('node id type: ' + R.type(nodeId));
 
-  return Inventory.find({
-    parent_id: nodeId
-  });    
+  let query = {
+    $or: 
+    [
+      {
+        parent_id: nodeId
+      }, 
+      {
+        host_ref: nodeId
+      }
+    ]
+  };
+  console.log('query: ', R.toString(query));
+  return Inventory.find(query);    
 });
 
 Meteor.publish('inventory.first-child', function (nodeId) {
@@ -139,20 +150,21 @@ Meteor.publish('inventory.first-child', function (nodeId) {
   console.log('node id: ' + nodeId.toString());
 
   var counterName = 'inventory.first-child!counter!id=' + nodeId;
-  Counts.publish(this, counterName, 
-    Inventory.find({
-      parent_id: nodeId
-    }, {
-      limit: 1
-    }));
+  var query = {
+    $or: [
+      {
+        parent_id: nodeId
+      },
+      {
+        host_ref: nodeId
+      }
+    ]
+  };
+  Counts.publish(this, counterName, Inventory.find(query, { limit: 1 }));
   console.log('server subscribing to counter: ' + counterName);
 
 // todo: eyaltask: all criteria
-  return Inventory.find({
-    parent_id: nodeId
-  }, {
-    limit: 1
-  });
+  return Inventory.find(query, { limit: 1 });
 });
 
 Meteor.publish('inventoryByEnv', function (env) {

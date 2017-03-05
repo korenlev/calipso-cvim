@@ -19,8 +19,8 @@ Template.accordionTreeNodeChildren.onCreated(function () {
   });
 
   instance.autorun(function () {
-    var tempData = instance.state.get('data');
-    var node = instance.data.node;
+    //var tempData = instance.state.get('data');
+    //var node = instance.data.node;
     instance.subscribe('inventory.children',
       instance.data.node.id);
   });
@@ -85,10 +85,23 @@ function getChildren(instance) {
 */
 
 function getChildrenQuery(node, envName) {
-  return Inventory.find({
-    parent_id: node.id,
-    parent_type: node.type,
-    environment: envName,
-    show_in_tree: true
-  });
+  let query = 
+    {
+      $or: [
+        {
+          parent_id: node.id,
+          parent_type: node.type,
+          environment: envName,
+          show_in_tree: true
+        },
+        {
+          host_ref: node.id,
+          environment: envName,
+          show_in_tree: true
+        }
+      ]
+    };
+
+  //console.log('getChildrenQuery', query);
+  return Inventory.find(query);
 }	
