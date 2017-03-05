@@ -20,12 +20,15 @@ import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
 import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 import { Icon } from '/imports/lib/icon';
+import { remove } from '/imports/api/environments/methods';
 
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
 import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
 import '/imports/ui/components/vedge-info-window/vedge-info-window';
+import '/imports/ui/components/event-modals/event-modals';
+import '/imports/ui/components/env-delete-modal/env-delete-modal';
 
 import './environment.html';
 
@@ -39,6 +42,7 @@ Template.Environment.onCreated(function () {
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     childNodeRequested: null,
+    _id: null,
     envName: null,
     searchTerm: null,
     briefInfoList: [{
@@ -123,6 +127,7 @@ Template.Environment.onCreated(function () {
     instance.subscribe('environments?name', envName);
 
     Environments.find({ name: envName }).forEach((env) => {
+      instance.state.set('_id', env._id);
       instance.state.set('infoLastScanning', env.last_scanned);
     });
 
@@ -385,6 +390,24 @@ Template.Environment.helpers({
     let instance = Template.instance();
     let node = instance.state.get('vedgeInfoWindow').node;
     return ! R.isNil(node);
+  },
+
+  argsEnvDeleteModal: function () {
+    let instance = Template.instance();
+    return {
+      onDeleteReq: function () {
+        instance.$('#env-delete-modal').modal('hide'); 
+        let _id = instance.state.get('_id');
+        remove.call({ _id: _id }, function (error, _res) {
+          if (R.isNil(error)) {
+            setTimeout(() => {
+              Router.go('/dashboard');
+            }, 700);
+          }          
+        });
+        console.log('delete req performed');
+      }
+    };
   }
 });
 

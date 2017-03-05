@@ -14,6 +14,7 @@ import { Icon } from '/imports/lib/icon';
         
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
+import '/imports/ui/components/event-modals/event-modals';
 
 import './host-dashboard.html';     
     

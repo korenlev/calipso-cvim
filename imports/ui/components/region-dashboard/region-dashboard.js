@@ -16,6 +16,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/list-info-box/list-info-box';
+import '/imports/ui/components/event-modals/event-modals';
         
 import './region-dashboard.html';     
     

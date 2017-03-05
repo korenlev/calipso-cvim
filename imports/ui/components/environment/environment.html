@@ -3,6 +3,8 @@
   <!-- modals template for issue modal  -->
   {{> eventModals}}
 
+  {{> EnvDeleteModal argsEnvDeleteModal }}
+
   <div class="sm-environment-container flex-box justify-content-between">
     <div class="flex-box-1 site-sidenav">
       {{> accordionNavMenu (createNavMenuArgs childNodeRequested) }}
@@ -29,8 +31,14 @@
 
             <a class="sm-scan-button cl-action-button btn btn-app"
                ><i class="fa fa-search-plus" aria-hidden="true"></i></a>
+
             <a class="sm-edit-button cl-action-button btn btn-app"
               ><i class="fa fa-fw fa-edit"></i></a>
+
+            <a class="sm-delete-button cl-action-button btn btn-app"
+              href="#" data-toggle="modal" data-target="#env-delete-modal">
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </a>
           </div>
       </div>
 
