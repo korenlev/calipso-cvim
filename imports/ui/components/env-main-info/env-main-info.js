@@ -4,7 +4,7 @@
 
 //import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-//import { ReactiveDict } from 'meteor/reactive-dict';
+import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
 
 import '/imports/ui/components/input-model/input-model';
@@ -22,7 +22,15 @@ import './env-main-info.html';
 Template.EnvMainInfo.onCreated(function () {
   let instance = this;
 
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    action: null,
+  });
+
   instance.autorun(function () {
+    let action = Template.currentData().action;
+    instance.state.set('action', action);
+
     instance.subscribe('constants');
   });
 
@@ -79,6 +87,12 @@ Template.EnvMainInfo.helpers({
     return item.data;
   },
  
+  isFieldDisabled: function (fieldName, globalDisabled) {
+    let instance = Template.instance();
+    if (globalDisabled) { return true; }
+
+    return  isDisabledByField(fieldName, instance.state.get('action'));
+  }
 });
 
 /*
@@ -91,3 +105,11 @@ Template.EnvMainInfo.events({
     instance.data.onNextRequested(); 
   }
 });
+
+function isDisabledByField(fieldName, actionName) {
+  if (R.contains(fieldName, ['name', 'distribution']) && actionName !== 'insert') {
+    return true;
+  }
+  
+  return false;
+}

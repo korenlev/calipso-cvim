@@ -31,7 +31,7 @@
                 value=model.name
                 key='name'
                 type="text"
-                disabled=disabled
+                disabled=(isFieldDisabled 'name' disabled)
                 placeholder="Name")
           }}
         </div>
@@ -49,7 +49,7 @@
           {{> SelectModel(createSelectArgs
                 values=model.distribution 
                 key="distribution"
-                disabled=disabled
+                disabled=(isFieldDisabled 'distribution' disabled)
                 options=distributionOptions
                 showNullOption=false)
           }}

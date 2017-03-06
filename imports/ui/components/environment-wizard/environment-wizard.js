@@ -105,6 +105,7 @@ Template.EnvironmentWizard.helpers({
   tabs: function () {
     let instance = Template.instance();
     let environmentModel = instance.state.get('environmentModel');
+    let action = instance.state.get('action');
     let disabled = instance.state.get('disabled');
     let activateNextTab = function (nextTabId) {
       instance.$('#link-' + nextTabId).tab('show');
@@ -126,6 +127,7 @@ Template.EnvironmentWizard.helpers({
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'endpoint-panel'),
+        action: action,
       }
     }, {
       label: 'OS API Endpoint',
@@ -140,6 +142,7 @@ Template.EnvironmentWizard.helpers({
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'db-credentials'),
+        action: action,
       }
     }, {
       label: 'OS DB Credentials',
@@ -154,6 +157,7 @@ Template.EnvironmentWizard.helpers({
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'master-host'),
+        action: action,
       }
     }, {
       label: 'Master Host Credentials',
@@ -168,6 +172,7 @@ Template.EnvironmentWizard.helpers({
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'amqp'),
+        action: action,
       }
     }, {
       label: 'AMQP Credentials',
@@ -182,6 +187,7 @@ Template.EnvironmentWizard.helpers({
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'nfv'),
+        action: action,
       }
     }, {
       label: 'NFV Credentials',
@@ -196,6 +202,7 @@ Template.EnvironmentWizard.helpers({
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
+        action: action,
       }
     }, {
       label: 'Monitoring',
@@ -209,6 +216,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
+        action: action,
       }
     }];
   },
@@ -335,8 +343,8 @@ function doSubmit(instance) {
     update.call({
       _id: environment._id,
       configuration: environment.configuration,
-      distribution: environment.distribution,
-      name: environment.name,
+      //distribution: environment.distribution,
+      //name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
       listen: environment.listen,

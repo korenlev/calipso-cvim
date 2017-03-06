@@ -58,8 +58,8 @@ export const update = new ValidatedMethod({
     '_id',
     'configuration', 
     'configuration.$', 
-    'distribution', 
-    'name', 
+    //'distribution', 
+    //'name', 
     'type_drivers', 
     'mechanism_drivers', 
     'mechanism_drivers.$',
@@ -68,8 +68,8 @@ export const update = new ValidatedMethod({
   run({
     _id,
     configuration,
-    distribution,
-    name,
+    //distribution,
+    //name,
     type_drivers,
     mechanism_drivers,
     listen,
@@ -82,8 +82,8 @@ export const update = new ValidatedMethod({
     Environments.update(_id, {
       $set: {
         configuration: configuration,
-        distribution: distribution,
-        name: name,
+        //distribution: distribution,
+        //name: name,
         type_drivers,
         mechanism_drivers,
         listen,
