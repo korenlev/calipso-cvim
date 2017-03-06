@@ -83,7 +83,6 @@ Environments.schema = new SimpleSchema({
   },
   user: { 
     type: String,
-    defaultValue: 'osdna_user'
   }, 
   distribution: { 
     type: String, 

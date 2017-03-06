@@ -403,7 +403,9 @@ Template.Environment.helpers({
             setTimeout(() => {
               Router.go('/dashboard');
             }, 700);
-          }          
+          } else {
+            alert('error removing environment. ' + error.message);
+          }
         });
         console.log('delete req performed');
       }

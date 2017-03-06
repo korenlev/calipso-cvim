@@ -96,16 +96,6 @@ Template.EnvironmentWizard.onDestroyed(function () {
  */
 
 Template.EnvironmentWizard.helpers({
-  // todo: check absolete
-  updateRecipeId : function () {
-    return this._id;
-  },
-
-  // todo: check absolete
-  user : function () {
-    return Meteor.user().username;
-  },
-
   model: function () {
     let instance = Template.instance();
     let environmentModel = instance.state.get('environmentModel');
@@ -333,7 +323,6 @@ function doSubmit(instance) {
   case 'insert':
     insert.call({
       configuration: environment.configuration,
-      user: environment.user,
       distribution: environment.distribution,
       name: environment.name,
       type_drivers: environment.type_drivers,
@@ -346,7 +335,6 @@ function doSubmit(instance) {
     update.call({
       _id: environment._id,
       configuration: environment.configuration,
-      user: environment.user,
       distribution: environment.distribution,
       name: environment.name,
       type_drivers: environment.type_drivers,
