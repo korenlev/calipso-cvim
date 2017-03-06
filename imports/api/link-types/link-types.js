@@ -9,6 +9,7 @@ export const LinkTypes = new Mongo.Collection(
 
 let schema = {
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+  user_id: { type: String }, 
   /*
   environment: {
     type: String,

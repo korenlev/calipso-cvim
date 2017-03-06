@@ -28,11 +28,11 @@
         <td>
           <div class="sm-action-bar">
             <a href="{{pathFor route='link-type' 
-                          query=(asHash id=linkType._id action='view') }}"
+                          query=(asHash id=(idToStr linkType._id) action='view') }}"
                 ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
 
             <a href="{{pathFor route='link-type' 
-                          query=(asHash id=linkType._id action='remove') }}"
+                          query=(asHash id=(idToStr linkType._id) action='remove') }}"
                 ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a>
           </div>
         </td>

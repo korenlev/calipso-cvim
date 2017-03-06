@@ -20,7 +20,9 @@ export const insert = new ValidatedMethod({
     endPointA,
     endPointB
   }) {
-    let linkType = LinkTypes.schema.clean({});
+    let linkType = LinkTypes.schema.clean({
+      user_id: Meteor.user()._id
+    });
 
     let type = calcTypeFromEndPoints(endPointA, endPointB);
 
@@ -48,6 +50,11 @@ export const remove = new ValidatedMethod({
   }) {
     let linkType = LinkTypes.findOne({ _id: _id });
     console.log('link type for remove: ', linkType);
+    console.log('current user', Meteor.userId());
+
+    if (linkType.user_id !== Meteor.userId()) {
+      throw new Meteor.Error('not-auth', 'User not authorized to perform action');
+    }
 
     LinkTypes.remove({ _id: _id });
   }

@@ -8,7 +8,9 @@ Meteor.publish('link_types', function () {
 
   //let that = this;
 
-  let query = {};
+  let query = {
+    user_id: this.userId
+  };
   return LinkTypes.find(query); 
 });
 
@@ -18,7 +20,9 @@ Meteor.publish('link_types?env*', function (env) {
 
   //let that = this;
 
-  let query = {};
+  let query = {
+    user_id: this.userId
+  };
   if (! R.isNil(env)) { query = R.assoc('environment', env, query); }
   console.log('-query: ', query);
   return LinkTypes.find(query); 
@@ -30,6 +34,10 @@ Meteor.publish('link_types?_id', function (_id) {
 
   //let that = this;
 
-  let query = { _id: _id };
+  let query = { 
+    _id: _id,
+    user_id: this.userId
+  };
+  console.log('-query: ', query);
   return LinkTypes.find(query); 
 });
