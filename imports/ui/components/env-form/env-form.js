@@ -4,7 +4,7 @@
 
 import { Environments } from '/imports/api/environments/environments';
 
-(function () {
+import './env-form.html';
 
 /*
  * Lifecycle methods
@@ -14,7 +14,7 @@ Template.envForm.onCreated(function () {
   var instance = this;
 
   instance.autorun(function() {
-    instance.subscribe("environments_config");
+    instance.subscribe('environments_config');
   });
 });
 
@@ -53,16 +53,14 @@ Template.envForm.events = {
  */   
 
 Template.envForm.helpers({
-    envName: function () {
-        var controller = Iron.controller();
-        var envName = controller.state.get('envName') || "My Environments";
+  envName: function () {
+    var controller = Iron.controller();
+    var envName = controller.state.get('envName') || 'My Environments';
 
-        return envName;
-    },
-    envList: function () {
-        //return Environments.find({type:"environment"});
-        return Environments.find({});
-    },
+    return envName;
+  },
+  envList: function () {
+    //return Environments.find({type:"environment"});
+    return Environments.find({});
+  },
 });
-
-})();

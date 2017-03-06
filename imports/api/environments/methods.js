@@ -36,7 +36,7 @@ export const insert = new ValidatedMethod({
   }) {
     // todo: create clean object instance.
     let environment = Environments.schema.clean({
-      user: Meteor.user().username
+      user: Meteor.userId()
     });
 
     environment = R.merge(environment, {
@@ -75,7 +75,7 @@ export const update = new ValidatedMethod({
     listen,
   }) {
     const env = Environments.findOne({ _id: _id });
-    if (env.user !== Meteor.user().username) { 
+    if (env.user !== Meteor.userId()) { 
       throw new Meteor.Error('not-auth', 'User not authorized to perform action');
     }
 
@@ -102,7 +102,7 @@ export const remove = new ValidatedMethod({
   }) {
     const env = Environments.findOne({ _id: _id });
     console.log('environment for remove: ', env);
-    if (env.user !== Meteor.user().username) { 
+    if (env.user !== Meteor.userId()) { 
       throw new Meteor.Error('not-auth', 'User not authorized to perform action');
     }
 
