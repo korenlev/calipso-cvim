@@ -115,6 +115,21 @@ Template.Environment.onCreated(function () {
 
     }
 
+    if (query.resetDashboard === 'true') {
+      $('.mainContentData').show();
+      $('#dgraphid').hide();
+
+      store.dispatch(setCurrentNode({
+        id_path: '/' + envName,
+        name_path: '/' + envName
+      }));
+
+      let newRoute = Router.current().route.path({}, { 
+        query: R.dissoc('resetDashboard', query) 
+      });
+      Router.go(newRoute);
+    }
+
     instance.subscribe('inventory?env+type', envName, 'instance');
     instance.subscribe('inventory?env+type', envName, 'vservice');
     instance.subscribe('inventory?env+type', envName, 'host');

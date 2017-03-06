@@ -9,7 +9,8 @@
       </div>
       <ul class="sm-menu-items-list">
         <li><a class="toggleGraph" href="#"><i class="material-icons">share</i>Toggle Graph</a></li>
-        <li><a href="{{pathFor route='dashboard'}}"><i class="material-icons">home</i>Dashboard</a></li>
+        <li><a href="{{ pathFor route='enviroment' query='env=' }}{{ envName  }}&resetDashboard=true"
+            ><i class="material-icons">home</i>Dashboard</a></li>
 
         {{#if rootNode }}
           {{>accordionTreeNode (createNodeArgs rootNode)}}
