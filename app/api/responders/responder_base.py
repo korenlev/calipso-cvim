@@ -114,13 +114,18 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         error = ""
         content = ""
         if not req.content_length:
-            return {}
+            error = "No data found in the request body"
+            return error, content
+
         data = req.stream.read()
         content_string = data.decode()
         try:
             content = json.loads(content_string)
+            if not isinstance(content, dict):
+                error = "The data in the request body must be a dictionary"
         except Exception:
             error = "The request can not be fulfilled due to bad syntax"
+
         return error, content
 
     def get_collection_by_name(self, name):
