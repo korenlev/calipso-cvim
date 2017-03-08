@@ -11,7 +11,7 @@ class CliqueConstraints(ResponderBase):
 
     def on_get(self, req, resp):
         self.log.debug("Getting clique_constraints")
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         focal_point_types = self.get_constants_by_name("object_types")
         filters_requirements = {
             'id': self.require(ObjectId, True),

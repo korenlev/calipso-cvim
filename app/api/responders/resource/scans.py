@@ -12,7 +12,7 @@ class Scans(ResponderBase):
 
     def on_get(self, req, resp):
         self.log.debug("Getting scans")
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
 
         scan_statuses = self.get_constants_by_name("scan_statuses")
         filters_requirements = {

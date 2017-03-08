@@ -12,7 +12,7 @@ class Cliques(ResponderBase):
     def on_get(self, req, resp):
         self.log.debug("Getting cliques")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         focal_point_types = self.get_constants_by_name("object_types")
         link_types = self.get_constants_by_name("link_types")
         filters_requirements = {

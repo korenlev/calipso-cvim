@@ -12,7 +12,7 @@ class MonitoringConfigTemplates(ResponderBase):
     def on_get(self, req, resp):
         self.log.debug("Getting monitoring config template")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
 
         sides = self.get_constants_by_name("monitoring_sides")
         filters_requirements = {

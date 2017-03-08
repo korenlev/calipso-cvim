@@ -12,7 +12,7 @@ class Links(ResponderBase):
     def on_get(self, req, resp):
         self.log.debug("Getting links from links")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
 
         link_types = self.get_constants_by_name("link_types")
         link_states = self.get_constants_by_name("link_states")

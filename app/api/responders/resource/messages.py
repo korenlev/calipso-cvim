@@ -13,7 +13,7 @@ class Messages(ResponderBase):
 
     def on_get(self, req, resp):
         self.log.debug("Getting messages from messages")
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         messages_severity = self.get_constants_by_name("messages_severity")
         object_types = self.get_constants_by_name("object_types")
         filters_requirements = {

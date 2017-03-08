@@ -92,7 +92,12 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         objects_ids = [str(obj[id]) for obj in objects]
         return objects_ids
 
-    def parse_query_params(self, params):
+    def parse_query_params(self, req):
+        params = req.params
+        query_string = req.query_string
+        if not params and query_string:
+            self.bad_request("query string {0} doesn't contain any filters".
+                             format(query_string))
         return self.change_dict_naming_convention(params,
                                                   self.replace_colon_with_dot)
 
