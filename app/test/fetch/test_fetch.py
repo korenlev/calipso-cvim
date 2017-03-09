@@ -15,8 +15,8 @@ class TestFetch(unittest.TestCase):
         self.inv = COLLECTION_CONFIG
 
         self.conf = Configuration(self.mongo_config)
-        self.conf.config = CONFIGURATIONS
         self.conf.use_env(self.env)
+        self.conf.config = CONFIGURATIONS['configuration']
         self.inventory = InventoryMgr()
         self.inventory.set_inventory_collection(self.inv)
 
