@@ -17,7 +17,6 @@ class TestScanController(TestScan):
         sys.modules[MODULE_NAME_FOR_IMPORT] = mock_module
 
     def check_args_values(self, args, arguments):
-        self.assertEqual(args.cgi, arguments['CGI'], "The value of cgi is wrong")
         self.assertEqual(args.mongo_config, arguments['MONGO_CONFIG'],
                          "The value of mongo_config is wrong")
         self.assertEqual(args.env, arguments['ENV'], "The value of environment is wrong")
@@ -57,54 +56,6 @@ class TestScanController(TestScan):
             return FORM[key]
         else:
             return default
-
-    # there may be a possible defect here after change in the source code, should change the test data
-    @patch("cgi.FieldStorage.getvalue")
-    def test_get_scan_object_from_cgi(self, get_value):
-        original_prepare_scan_plan = self.scan_controller.prepare_scan_plan
-
-        get_value.side_effect = self.side_effect
-        self.scan_controller.prepare_scan_plan = MagicMock()
-
-        self.scan_controller.get_scan_object_from_cgi()
-        self.scan_controller.prepare_scan_plan.assert_called_once_with(CGI_PLAN)
-
-        self.scan_controller.prepare_scan_plan = original_prepare_scan_plan
-
-    @patch.dict(os.environ, {"REQUEST_METHOD": "POST"})
-    def test_get_scan_plan_with_request_method(self):
-        original_get_scan_object_from_cgi = self.scan_controller.get_scan_object_from_cgi
-        original_prepare_scan_plan = self.scan_controller.prepare_scan_plan
-
-        self.scan_controller.get_scan_object_from_cgi = MagicMock()
-        self.scan_controller.prepare_scan_plan = MagicMock()
-
-        sys.argv = LONG_COMMAND_ARGS
-        args = self.scan_controller.get_args()
-        self.scan_controller.get_scan_plan(args)
-
-        self.scan_controller.get_scan_object_from_cgi.assert_any_call()
-        self.scan_controller.prepare_scan_plan.assert_not_called()
-
-        self.scan_controller.get_scan_object_from_cgi = original_get_scan_object_from_cgi
-        self.scan_controller.prepare_scan_plan = original_prepare_scan_plan
-
-    def test_get_scan_plan_without_request_method(self):
-        original_get_scan_object_from_cgi = self.scan_controller.get_scan_object_from_cgi
-        original_prepare_scan_plan = self.scan_controller.prepare_scan_plan
-
-        self.scan_controller.get_scan_object_from_cgi = MagicMock()
-        self.scan_controller.prepare_scan_plan = MagicMock()
-
-        sys.argv = LONG_COMMAND_ARGS
-        args = self.scan_controller.get_args()
-        self.scan_controller.get_scan_plan(args)
-
-        self.scan_controller.get_scan_object_from_cgi.assert_not_called()
-        self.assertEqual(self.scan_controller.prepare_scan_plan.call_count, 1)
-
-        self.scan_controller.get_scan_object_from_cgi = original_get_scan_object_from_cgi
-        self.scan_controller.prepare_scan_plan = original_prepare_scan_plan
 
     def check_plan_values(self, plan, scanner_class, module_file, obj_id,
                           child_type, child_id):
