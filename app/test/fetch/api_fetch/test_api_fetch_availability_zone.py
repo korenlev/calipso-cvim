@@ -1,7 +1,7 @@
-from unittest.mock import MagicMock
 from discover.api_fetch_availability_zones import ApiFetchAvailabilityZones
-from test.fetch.api_fetch.test_data.api_fetch_availability_zones import *
 from test.fetch.test_fetch import TestFetch
+from test.fetch.api_fetch.test_data.api_fetch_availability_zones import *
+from unittest.mock import MagicMock
 from test.fetch.api_fetch.test_data.token import TOKEN
 
 
