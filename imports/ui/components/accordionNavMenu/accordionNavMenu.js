@@ -232,6 +232,7 @@ Template.accordionNavMenu.helpers({
   createNodeArgs: function (node) {
     let instance = Template.instance();
     let selectedNode = instance.state.get('selectedNode');
+    let onNodeClick = Template.currentData().onNodeClick;
 
     return {
       node: node,
@@ -239,6 +240,7 @@ Template.accordionNavMenu.helpers({
       selectedNode: selectedNode,
       onClick: function (childNode) {
         store.dispatch(setCurrentNodeFromTreeControl(childNode));
+        onNodeClick(childNode);
         },
     };
   }

@@ -5,6 +5,7 @@
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 
 
@@ -45,10 +46,18 @@ Template.ProjectDashboard.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
+    /*
     let params = controller.getParams();
     let query = params.query;
     let project_id_path = query.id_path;
+    */
+
+    let data = Template.currentData();
+    new SimpleSchema({
+      id_path: { type: String },
+    }).validate(data);
+
+    let project_id_path = data.id_path;
 
     instance.state.set('project_id_path', project_id_path);
 

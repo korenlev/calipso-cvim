@@ -71,14 +71,13 @@ Template.AggregateDashboard.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
-    let params = controller.getParams();
-    let query = params.query;
-    let aggregate_id_path = query.id_path;
+    let data = Template.currentData();
 
     new SimpleSchema({
-      aggregate_id_path: { type: String },
-    }).validate({ aggregate_id_path });
+      id_path: { type: String },
+    }).validate(data);
+
+    let aggregate_id_path = data.id_path;
 
     instance.state.set('aggregate_id_path', aggregate_id_path);
 

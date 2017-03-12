@@ -3,8 +3,6 @@
   <!-- modals template for issue modal  -->
   {{> eventModals}}
 
-  {{> EnvDeleteModal argsEnvDeleteModal }}
-
   <div class="sm-environment-container flex-box justify-content-between">
     <div class="flex-box-1 site-sidenav">
       {{> accordionNavMenu (createNavMenuArgs childNodeRequested) }}
@@ -23,80 +21,15 @@
           {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
         {{/if }}
 
-      <div class="mainContentData flex">
-          <div class="sm-env-header-line cards white title">
-            <div class="sm-env-header-name-cmp">
-              <h4>Enviroment name: {{ envName }}</h4>
-            </div>
-
-            <a class="sm-scan-button cl-action-button btn btn-app"
-               ><i class="fa fa-search-plus" aria-hidden="true"></i></a>
-
-            <a class="sm-edit-button cl-action-button btn btn-app"
-              ><i class="fa fa-fw fa-edit"></i></a>
-
-            <a class="sm-delete-button cl-action-button btn btn-app"
-              href="#" data-toggle="modal" data-target="#env-delete-modal">
-              <i class="fa fa-trash-o" aria-hidden="true"></i>
-            </a>
-          </div>
-      </div>
-
-      <div class="sm-items-segment mainContentData flex-box">
-
-        {{#each briefInfo in briefInfoList }}
-          {{> DataCubic (genArgsBriefInfo briefInfo) }}
-        {{/each }}
-
-      </div>
-
-      <div class="mainContentData flex-box justify-content-between">
-        <div class="cards-flex-col-h120 white not-active green-text flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="material-icons">notifications</i>
-            </div>
-            <div class="flex-box-2">
-              <h5>Notification</h5>
-              <p>Total: {{notificationsCount}}</p>
-              <p>Timestamp: 4/4/2016 5:40pm</p>
-              <a href="#" data-toggle="modal" data-target="#notification">More details</a>
-            </div>
-          </div>
-        </div>
-        <div class="cards-flex-col-h120 white not-active orange-text flex-box-1" style="margin: 0px 10px;">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="material-icons">warning</i>
-            </div>
-            <div class="flex-box-2">
-              <h5>Warning</h5>
-              <p>Total: {{warningsCount}}</p>
-              <p>Timestamp: 4/4/2016 5:40pm</p>
-              <a href="#" data-toggle="modal" data-target="#issue">More details</a>
-            </div>
-          </div>
-        </div>
-        <div class="cards-flex-col-h120 white red-text flex-box-1">
-          <div class="flex-box ">
-            <div class="flex-box-1">
-              <i class="material-icons">error</i>
-            </div>
-            <div class="flex-box-2">
-              <h5>Error</h5>
-              <p class="active">Total: {{errorsCount}}</p>
-              <p>Timestamp: 4/4/2016 5:40pm</p>
-              <a href="#" data-toggle="modal" data-target="#error">More details</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sm-list-info-boxes mainContentData">
-        {{#each listInfoBox in listInfoBoxes }}
-          {{> ListInfoBox (argsListInfoBox listInfoBox) }}
-        {{/each }}
-      </div>
+        {{#if isShowDashboard 'environment' }}
+          {{> EnvironmentDashboard argsEnvDashboard }}
+        {{/if }}
+        {{#if isShowDashboard 'project' }}
+          {{> ProjectDashboard argsProjectDashboard }} 
+        {{/if }}
+        {{#if isShowDashboard 'aggregate' }}
+          {{> AggregateDashboard argsAggregateDashboard }}
+        {{/if }}
 
     </div>
   </div>
