@@ -163,10 +163,12 @@ Template.accordionNavMenu.rendered = function () {
     // refactored to component
     //$("#left-nav-menu").accordion();
 
+    /*
     $('.toggleGraph').click(function() {
       $('.mainContentData').toggle();
       $('#dgraphid').toggle();
     });
+    */
 
     $('.colors a').click(function() {
       if ($(this).attr('class') != 'default') {
@@ -202,6 +204,10 @@ Template.accordionNavMenu.onDestroyed(function () {
  */
 
 Template.accordionNavMenu.events({
+  'click .sm-toggle-graph-button': function (_event, _instance) {
+    let data = Template.currentData();
+    data.onToggleGraphReq();
+  }
 });
 
 /*

@@ -13,31 +13,37 @@
           {{> breadcrumb }}
         </div>
 
-        {{> d3graph}}
+        {{#if (getState 'showGraph') }}
 
-        {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+          {{> d3graph}}
 
-        {{#if showVedgeInfoWindow }}
-          {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
-        {{/if }}
+          {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
 
-        {{#if isShowDashboard 'environment' }}
-          {{> EnvironmentDashboard argsEnvDashboard }}
-        {{/if }}
-        {{#if isShowDashboard 'project' }}
-          {{> ProjectDashboard argsInventoryNodeDashboard }} 
-        {{/if }}
-        {{#if isShowDashboard 'aggregate' }}
-          {{> AggregateDashboard argsInventoryNodeDashboard }}
-        {{/if }}
-        {{#if isShowDashboard 'region' }}
-          {{> RegionDashboard argsInventoryNodeDashboard }}
-        {{/if }}
-        {{#if isShowDashboard 'host' }}
-          {{> HostDashboard argsInventoryNodeDashboard }}
-        {{/if }}
-        {{#if isShowDashboard 'availability_zone' }}
-          {{> ZoneDashboard argsInventoryNodeDashboard }}
+          {{#if showVedgeInfoWindow }}
+            {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+          {{/if }}
+
+        {{else }} 
+
+          {{#if isShowDashboard 'environment' }}
+            {{> EnvironmentDashboard argsEnvDashboard }}
+          {{/if }}
+          {{#if isShowDashboard 'project' }}
+            {{> ProjectDashboard argsInventoryNodeDashboard }} 
+          {{/if }}
+          {{#if isShowDashboard 'aggregate' }}
+            {{> AggregateDashboard argsInventoryNodeDashboard }}
+          {{/if }}
+          {{#if isShowDashboard 'region' }}
+            {{> RegionDashboard argsInventoryNodeDashboard }}
+          {{/if }}
+          {{#if isShowDashboard 'host' }}
+            {{> HostDashboard argsInventoryNodeDashboard }}
+          {{/if }}
+          {{#if isShowDashboard 'availability_zone' }}
+            {{> ZoneDashboard argsInventoryNodeDashboard }}
+          {{/if }}
+
         {{/if }}
 
     </div>

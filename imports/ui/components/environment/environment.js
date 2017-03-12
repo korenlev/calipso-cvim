@@ -42,7 +42,8 @@ Template.Environment.onCreated(function () {
     graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false },
     vedgeInfoWindow: { node: null, left: 0, top: 0, show: false },
     dashboardName: 'environment',
-    clickedNode: null
+    clickedNode: null,
+    showGraph: false
   });
 
   Session.set('currNodeId', null);
@@ -86,6 +87,7 @@ Template.Environment.onCreated(function () {
       }));
 
       instance.state.set('dashboardName', 'environment');
+      instance.state.set('showGraph', false);
 
       let newRoute = Router.current().route.path({}, { 
         query: R.dissoc('resetDashboard', query) 
@@ -130,6 +132,11 @@ Template.Environment.helpers({
     return envName;
   },
 
+  getState: function (key) {
+    let instance = Template.instance();
+    return instance.state.get(key);
+  },
+
   childNodeRequested: function () {
     let instance = Template.instance();
     return instance.state.get('childNodeRequested');
@@ -144,7 +151,17 @@ Template.Environment.helpers({
           'availability_zone'])) {
           instance.state.set('dashboardName', node.type);
           instance.state.set('clickedNode', node);  
+          instance.state.set('showGraph', false);
+        } else {
+          if (! R.isNil(node.clique)) {
+            instance.state.set('showGraph', true);
+          }
         }
+      },
+      onToggleGraphReq: function () {
+        let showGraph = instance.state.get('showGraph');
+        showGraph = !showGraph;
+        instance.state.set('showGraph', showGraph);
       }
     };
   },

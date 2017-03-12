@@ -278,9 +278,11 @@ function activateNodeAction (instance) {
     if (instance.data.node.clique) {
 
       var objId = instance.data.node._id._str;
+      /*
       // todo: component way, not jquery
       $('.mainContentData').hide();
       $('#dgraphid').show();
+      */
       Session.set('currNodeId', objId);
 
       let graphData = d3Graph.getGraphDataByClique(objId);
