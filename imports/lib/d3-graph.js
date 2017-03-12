@@ -7,6 +7,7 @@ import { store } from '/imports/ui/store/store';
 import { activateGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
 import { closeGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
 import { activateVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
+import * as R from 'ramda';
 
 let d3Graph = {
   color:'',
@@ -91,6 +92,10 @@ let d3Graph = {
     var nodes = [];
     var edges_new = [];
     
+    if (R.length(cliques) === 0) {
+      return;
+    }
+
     cliques[0].links.forEach(function(n){
       cliquesLinks.push(n);
     });
@@ -204,6 +209,10 @@ let d3Graph = {
 
   updateNetworkGraph:function (){
     var self = this;
+
+    if (R.isNil(this.svg)) {
+      return;
+    }
 
     this.svg.selectAll('g').remove();
     //this.svg.exit().remove();

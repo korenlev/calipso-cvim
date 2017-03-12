@@ -15,12 +15,20 @@
 
         {{#if (getState 'showGraph') }}
 
-          {{> d3graph}}
+          {{#if isClickedNodeAGraph }}
 
-          {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+            {{> d3graph argsD3Graph }}
 
-          {{#if showVedgeInfoWindow }}
-            {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+            {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+
+            {{#if showVedgeInfoWindow }}
+              {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+            {{/if }}
+          
+          {{else }}
+
+            <div>Node does not have a graph data</div>
+
           {{/if }}
 
         {{else }} 

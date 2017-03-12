@@ -154,6 +154,8 @@ Template.Environment.helpers({
           instance.state.set('showGraph', false);
         } else {
           if (! R.isNil(node.clique)) {
+            instance.state.set('dashboardName', null);
+            instance.state.set('clickedNode', node);  
             instance.state.set('showGraph', true);
           }
         }
@@ -204,6 +206,14 @@ Template.Environment.helpers({
     };
   },
 
+  argsD3Graph: function () {
+    let instance = Template.instance();
+
+    return {
+      id_path: R.path(['id_path'], instance.state.get('clickedNode'))
+    };
+  },
+
   showVedgeInfoWindow: function () {
     let instance = Template.instance();
     let node = instance.state.get('vedgeInfoWindow').node;
@@ -234,6 +244,12 @@ Template.Environment.helpers({
     return instance.state.get('dashboardName') === dashboardName;
   },
 
+  isClickedNodeAGraph: function () {
+    let instance = Template.instance();
+    let node = instance.state.get('clickedNode');
+
+    return !R.isNil(node.clique);
+  }
 });
 
 

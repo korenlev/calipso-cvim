@@ -8,12 +8,10 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 
 import { Inventory } from '/imports/api/inventories/inventories';
-import { Cliques } from '/imports/api/cliques/cliques.js';
-import { Links } from '/imports/api/links/links.js';
 //import { store } from '/client/imports/store';
 //import { setCurrentNode } from '/client/imports/actions/navigation';
 
-import { d3Graph } from '/imports/lib/d3-graph';
+//import { d3Graph } from '/imports/lib/d3-graph';
 
 import '/imports/ui/components/accordionTreeNodeChildren/accordionTreeNodeChildren';
 import './accordionTreeNode.html';
@@ -38,37 +36,6 @@ Template.accordionTreeNode.onCreated(function () {
 
     instance.subscribe('inventory.first-child',
       instance.data.node.id);
-
-    if (instance.data.node.clique) {
-
-      if (instance.data.node.id === 'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
-        let objId = 'node-24';
-        instance.subscribe('inventory?type+host', 'instance', objId);
-
-      } else {
-        let objId = instance.data.node._id._str;
-        instance.subscribe('cliques?focal_point', objId);
-
-        Cliques.find({
-          focal_point: new Mongo.ObjectID(objId)
-        })
-        .forEach(
-          function (cliqueItem) {
-            instance.subscribe('links?_id-in', cliqueItem.links);
-
-            Links.find({ _id: {$in: cliqueItem.links} })
-            .forEach(function(linkItem) {
-              let idsList = [ linkItem['source'], linkItem['target'] ];
-              instance.subscribe('inventory?_id-in', idsList);
-
-              Inventory.find({ _id: { $in: idsList } })
-              .forEach(function (invItem) {
-                instance.subscribe('attributes_for_hover_on_data?type', invItem.type);
-              });
-            });
-          });
-      }
-    }
   });
 
 });
@@ -267,37 +234,8 @@ Template.accordionTreeNode.events({
   },
 });
 
-function activateNodeAction (instance) {
-  if (instance.data.node.clique ||
-      instance.data.node.id ===
-        'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
+function activateNodeAction (_instance) {
 
-    var $element = instance.$(instance.firstNode);
-    window.location.href = $element.children('a').attr('href');
-
-    if (instance.data.node.clique) {
-
-      var objId = instance.data.node._id._str;
-      /*
-      // todo: component way, not jquery
-      $('.mainContentData').hide();
-      $('#dgraphid').show();
-      */
-      Session.set('currNodeId', objId);
-
-      let graphData = d3Graph.getGraphDataByClique(objId);
-      d3Graph.updateNetworkGraph(graphData);
-
-    } else if (instance.data.node.id ===
-                 'aggregate-WebEx-RTP-SSD-Aggregate-node-24') {
-
-      $('.mainContentData').hide();
-      $('#dgraphid').show();
-      Session.set('currNodeId','node-24');
-      let graphData = d3Graph.getGraphData('node-24');
-      d3Graph.updateNetworkGraph(graphData);
-    }
-  }
 }
 
 function hasChildren(instance) {
