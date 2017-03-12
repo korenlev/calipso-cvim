@@ -70,15 +70,13 @@ Template.ZoneDashboard.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
-    let params = controller.getParams();
-    let query = params.query;
-    let zone_id_path = query.id_path;
+    let data = Template.currentData();
 
     new SimpleSchema({
-      zone_id_path: { type: String },
-    }).validate({ zone_id_path });
+      id_path: { type: String },
+    }).validate(data);
 
+    let zone_id_path = data.id_path;
     instance.state.set('zone_id_path', zone_id_path);
 
     instance.subscribe('inventory?id_path', zone_id_path);

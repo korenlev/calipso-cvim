@@ -140,7 +140,8 @@ Template.Environment.helpers({
     return {
       childNodeRequested: childNodeRequested,
       onNodeClick: function (node) {
-        if (R.contains(node.type, ['project', 'aggregate', 'region', 'host'])) {
+        if (R.contains(node.type, ['project', 'aggregate', 'region', 'host', 
+          'availability_zone'])) {
           instance.state.set('dashboardName', node.type);
           instance.state.set('clickedNode', node);  
         }

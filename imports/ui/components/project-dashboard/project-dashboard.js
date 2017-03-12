@@ -46,13 +46,8 @@ Template.ProjectDashboard.onCreated(function() {
   });
 
   instance.autorun(function () {
-    /*
-    let params = controller.getParams();
-    let query = params.query;
-    let project_id_path = query.id_path;
-    */
-
     let data = Template.currentData();
+
     new SimpleSchema({
       id_path: { type: String },
     }).validate(data);

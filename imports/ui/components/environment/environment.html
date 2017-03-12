@@ -36,6 +36,9 @@
         {{#if isShowDashboard 'host' }}
           {{> HostDashboard argsInventoryNodeDashboard }}
         {{/if }}
+        {{#if isShowDashboard 'availability_zone' }}
+          {{> ZoneDashboard argsInventoryNodeDashboard }}
+        {{/if }}
 
     </div>
   </div>
