@@ -74,15 +74,13 @@ Template.HostDashboard.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
-    let params = controller.getParams();
-    let query = params.query;
-    let host_id_path = query.id_path;
+    let data = Template.currentData();
 
     new SimpleSchema({
-      host_id_path: { type: String },
-    }).validate({ host_id_path });
+      id_path: { type: String },
+    }).validate(data);
 
+    let host_id_path = data.id_path;
     instance.state.set('host_id_path', host_id_path);
 
     instance.subscribe('inventory?id_path', host_id_path);

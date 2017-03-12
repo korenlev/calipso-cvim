@@ -140,7 +140,7 @@ Template.Environment.helpers({
     return {
       childNodeRequested: childNodeRequested,
       onNodeClick: function (node) {
-        if (R.contains(node.type, ['project', 'aggregate'])) {
+        if (R.contains(node.type, ['project', 'aggregate', 'region', 'host'])) {
           instance.state.set('dashboardName', node.type);
           instance.state.set('clickedNode', node);  
         }
@@ -200,16 +200,7 @@ Template.Environment.helpers({
     };
   },
 
-  argsProjectDashboard: function () {
-    let instance = Template.instance();
-    let node = instance.state.get('clickedNode');
-
-    return {
-      id_path: node.id_path
-    };
-  },
-
-  argsAggregateDashboard: function () {
+  argsInventoryNodeDashboard: function () {
     let instance = Template.instance();
     let node = instance.state.get('clickedNode');
 

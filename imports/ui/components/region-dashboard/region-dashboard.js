@@ -70,14 +70,12 @@ Template.RegionDashboard.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
-    let params = controller.getParams();
-    let query = params.query;
-    let region_id_path = query.id_path;
-
+    let data = Template.currentData();
     new SimpleSchema({
-      region_id_path: { type: String },
-    }).validate({ region_id_path });
+      id_path: { type: String },
+    }).validate(data);
+
+    let region_id_path = data.id_path;
 
     instance.state.set('region_id_path', region_id_path);
 

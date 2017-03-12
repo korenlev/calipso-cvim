@@ -25,10 +25,16 @@
           {{> EnvironmentDashboard argsEnvDashboard }}
         {{/if }}
         {{#if isShowDashboard 'project' }}
-          {{> ProjectDashboard argsProjectDashboard }} 
+          {{> ProjectDashboard argsInventoryNodeDashboard }} 
         {{/if }}
         {{#if isShowDashboard 'aggregate' }}
-          {{> AggregateDashboard argsAggregateDashboard }}
+          {{> AggregateDashboard argsInventoryNodeDashboard }}
+        {{/if }}
+        {{#if isShowDashboard 'region' }}
+          {{> RegionDashboard argsInventoryNodeDashboard }}
+        {{/if }}
+        {{#if isShowDashboard 'host' }}
+          {{> HostDashboard argsInventoryNodeDashboard }}
         {{/if }}
 
     </div>
