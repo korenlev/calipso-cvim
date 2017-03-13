@@ -1,10 +1,12 @@
 from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
+from bson.objectid import ObjectId
 
 
 class EnvironmentConfigs(ResponderBase):
     def __init__(self):
         super(EnvironmentConfigs, self).__init__()
+        self.ID = "name"
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring"]
@@ -48,6 +50,52 @@ class EnvironmentConfigs(ResponderBase):
                 "rabbitmq_pass", "rabbitmq_user",
                 "server_ip", "server_name", "type"]
         }
+
+    def on_get(self, req, resp):
+        self.log.debug("Getting environment config")
+        filters = self.parse_query_params(req)
+
+        distributions = self.get_constants_by_name("distributions")
+        mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
+        type_drivers = self.get_constants_by_name("type_drivers")
+
+        filters_requirements = {
+            "name": self.require(str),
+            "distribution": self.require(str, False, DataValidate.LIST, distributions),
+            "mechanism_drivers": self.require([str, list], False, DataValidate.LIST, mechanism_drivers),
+            "type_drivers": self.require(str, False, DataValidate.LIST, type_drivers),
+            "user": self.require(str)
+        }
+
+        self.validate_query_data(filters, filters_requirements)
+        page, page_size = self.get_pagination(filters)
+
+        query = self.build_query(filters)
+        if not query:
+            self.bad_request("environment must be got by {0}".
+                             format(" or ".join(filters_requirements.keys())))
+
+        if self.ID in query:
+            environment_config = self.get_object_by_id(self.COLLECTION, query,
+                                                       [ObjectId], self.ID)
+            if not environment_config:
+                self.not_found()
+            self.set_successful_response(resp, environment_config)
+        else:
+            objects_ids = self.get_object_ids(self.COLLECTION, query,
+                                              page, page_size, self.ID)
+            self.set_successful_response(resp, {'environment_configs': objects_ids})
+
+    def build_query(self, filters):
+        query = {}
+        filters_keys = ["name", "distribution", "type_drivers", "user"]
+        self.update_query_with_filters(filters, filters_keys, query)
+        mechanism_drivers = filters.get("mechanism_drivers")
+        if mechanism_drivers:
+            if type(mechanism_drivers) != list:
+                mechanism_drivers = [mechanism_drivers]
+            query['mechanism_drivers'] = {'$all': mechanism_drivers}
+        return query
 
     def on_post(self, req, resp):
         self.log.debug("Creating a new environment config")
