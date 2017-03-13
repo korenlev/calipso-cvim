@@ -3,7 +3,7 @@
 from monitoring.handlers.monitoring_check_handler import MonitoringCheckHandler
 
 
-class HandleVedgeVpp(MonitoringCheckHandler):
+class HandleVedge(MonitoringCheckHandler):
 
     def __init__(self, args):
         super().__init__(args)
