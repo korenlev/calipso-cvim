@@ -6,7 +6,7 @@
 
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
-
+import { ReactiveDict } from 'meteor/reactive-dict';
 import { Inventory } from '/imports/api/inventories/inventories';
 
 import './accordionTreeNodeChildren.html';
@@ -16,13 +16,26 @@ Template.accordionTreeNodeChildren.onCreated(function () {
   this.state = new ReactiveDict();
   this.state.setDefault({
     data: null,
+    siblingId: null
   });
 
   instance.autorun(function () {
-    //var tempData = instance.state.get('data');
-    //var node = instance.data.node;
+    let node = instance.data.node;
     instance.subscribe('inventory.children',
-      instance.data.node.id);
+      node.id, node.type, node.name, node.environment);
+
+    if (R.equals('host_ref', node.type)) {
+      instance.subscribe('inventory?name&env&type', 
+        node.name, node.environment, 'host');
+
+      Inventory.find({ 
+        name: node.name,
+        environment: node.environment,
+        type: 'host'
+      }).forEach((sibling) => {
+        instance.state.set('siblingId', sibling.id);
+      });
+    }
   });
 
 });
@@ -34,11 +47,10 @@ Template.accordionTreeNodeChildren.helpers({
   },
 
   children: function () {
-    var instance = Template.instance();
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
+    let instance = Template.instance();
+    let siblingId = instance.state.get('siblingId');
 
-    return getChildrenQuery(instance.data.node, envName);
+    return getChildrenQuery(instance.data.node, siblingId);
   },
 
   createTreeNodeArgs: function(
@@ -75,33 +87,30 @@ Template.accordionTreeNodeChildren.helpers({
 Template.accordionTreeNodeChildren.events({
 });
 
-/*
-function getChildren(instance) {
-  var controller = Iron.controller();
-  var envName = controller.state.get('envName');
-
-  return getChildrenQuery(instance.node, envName);
-}
-*/
-
-function getChildrenQuery(node, envName) {
+function getChildrenQuery(node, siblingId) {
   let query = 
     {
       $or: [
         {
           parent_id: node.id,
           parent_type: node.type,
-          environment: envName,
-          show_in_tree: true
-        },
-        {
-          host_ref: node.id,
-          environment: envName,
+          environment: node.environment,
           show_in_tree: true
         }
       ]
     };
 
-  //console.log('getChildrenQuery', query);
+
+  if (R.equals('host_ref', node.type)) {
+    query = R.merge(query, {
+      $or: R.append({
+        parent_id: siblingId,
+        show_in_tree: true
+      }, query.$or)
+    });
+  }
+
+  console.log('getChildrenQuery', R.toString(query));
+
   return Inventory.find(query);
 }	

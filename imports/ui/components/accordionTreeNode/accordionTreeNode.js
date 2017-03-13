@@ -34,8 +34,9 @@ Template.accordionTreeNode.onCreated(function () {
   instance.autorun(function () {
     //var tempData = instance.state.get('data');
 
+    let node = instance.data.node;
     instance.subscribe('inventory.first-child',
-      instance.data.node.id);
+      node.id, node.type, node.name, node.environment);
   });
 
 });

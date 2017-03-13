@@ -13,6 +13,13 @@ Meteor.publish('inventory', function () {
   return Inventory.find({});
 });
 
+Meteor.publish('inventory?_id', function (_id) {
+  console.log('server subscribtion to: inventory?_id');
+  console.log('_id:', R.toString(_id));
+
+  return Inventory.find({ _id: _id });
+});
+
 Meteor.publish('inventory?id', function (id) {
   console.log('server subscribtion to: inventory?id');
   return Inventory.find({id: id});
@@ -21,6 +28,22 @@ Meteor.publish('inventory?id', function (id) {
 Meteor.publish('inventory?id_path', function (id_path) {
   console.log('server subscribtion to: inventory?id_path');
   return Inventory.find({id_path: id_path});
+});
+
+Meteor.publish('inventory?name&env&type', function (name, env, type) {
+  console.log('server subscribtion to: inventory?name&env&type');
+  console.log('-name:', R.toString(name));
+  console.log('-env:', R.toString(env));
+  console.log('-type:', R.toString(type));
+
+  let query = {
+    name: name,
+    environment: env,
+    type: type
+  };
+
+  console.log('query', R.toString(query));
+  return Inventory.find(query);
 });
 
 Meteor.publish('inventory?_id-in', function (idsList) {
@@ -125,41 +148,71 @@ Meteor.publish('inventory?id_path_start&type', function (id_path, type) {
 });
 
 
-Meteor.publish('inventory.children', function (nodeId) {
+Meteor.publish('inventory.children', function (id, type, name, env) {
   console.log('server subscribtion to: inventory.children');
-  console.log('node id: ' + nodeId.toString());
-  console.log('node id type: ' + R.type(nodeId));
+  console.log('node id: ' + R.toString(id));
+  console.log('node type: ' + R.toString(type));
+  console.log('node name: ' + R.toString(name));
+  console.log('node env: ' + R.toString(env));
 
   let query = {
     $or: 
     [
       {
-        parent_id: nodeId
+        parent_id: id
       }, 
-      {
-        host_ref: nodeId
-      }
     ]
   };
+
+  if (R.equals('host_ref', type)) {
+    let realParent = Inventory.findOne({ 
+      name: name,
+      environment: env,
+      type: 'host'
+    });
+
+    query = R.merge(query, {
+      $or: R.append({
+        parent_id: realParent.id
+      }, query.$or)
+    });
+  }
+
   console.log('query: ', R.toString(query));
+
   return Inventory.find(query);    
 });
 
-Meteor.publish('inventory.first-child', function (nodeId) {
+Meteor.publish('inventory.first-child', function (id, type, name, env) {
   console.log('server subscribing to: inventory.first-child');
-  console.log('node id: ' + nodeId.toString());
+  console.log('node id: ' + R.toString(id));
+  console.log('node type: ' + R.toString(type));
+  console.log('node name: ' + R.toString(name));
+  console.log('node env: ' + R.toString(env));
 
-  var counterName = 'inventory.first-child!counter!id=' + nodeId;
+  var counterName = 'inventory.first-child!counter!id=' + id;
   var query = {
     $or: [
       {
-        parent_id: nodeId
-      },
-      {
-        host_ref: nodeId
+        parent_id: id
       }
     ]
   };
+
+  if (R.equals('host_ref', type)) {
+    let realParent = Inventory.findOne({ 
+      name: name,
+      environment: env,
+      type: 'host'
+    });
+
+    query = R.merge(query, {
+      $or: R.append({
+        parent_id: realParent.id
+      }, query.$or)
+    });
+  }
+
   Counts.publish(this, counterName, Inventory.find(query, { limit: 1 }));
   console.log('server subscribing to counter: ' + counterName);
 

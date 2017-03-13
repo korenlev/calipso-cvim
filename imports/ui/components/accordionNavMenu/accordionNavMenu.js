@@ -230,7 +230,8 @@ Template.accordionNavMenu.helpers({
     return {
       id: envName,
       type: 'environment',
-      name: envName
+      name: envName,
+      environment: envName
     };
     //return Inventory.findOne({ id: envName });
   },
