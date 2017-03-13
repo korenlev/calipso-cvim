@@ -40,6 +40,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         self.env = env
         self.monitoring_config = self.db.monitoring_config_templates
         self.env_monitoring_config = self.config.get('Monitoring')
+        self.local_host = self.env_monitoring_config['server_ip']
         self.replacements = self.env_monitoring_config
         self.inv = InventoryMgr()
         config_collection = self.inv.get_coll_name('monitoring_config')
