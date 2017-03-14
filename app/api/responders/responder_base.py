@@ -178,7 +178,15 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
     def get_constants_by_name(self, name):
         constants = self.get_collection_by_name("constants").\
             find_one({"name": name})
-        return [d['value'] for d in constants['data']]
+        # consts = [d['value'] for d in constants['data']]
+        consts = []
+        for d in constants['data']:
+            try:
+                consts.append(d['value'])
+            except KeyError:
+                self.log.error('constant type: ' + name +
+                               ': no "value" key for data: ' + str(d))
+        return consts
 
     def read(self, collection, matches={}, projection=None, skip=0, limit=1000):
         collection = self.get_collection_by_name(collection)

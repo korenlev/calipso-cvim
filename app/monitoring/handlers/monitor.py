@@ -63,8 +63,8 @@ if object_type == 'pnic':
     from monitoring.handlers.handle_pnic import HandlePnic
     handler = HandlePnic(args)
 if object_type == 'vedge':
-    from monitoring.handlers.handle_vedge_vpp import HandleVedgeVpp
-    handler = HandleVedgeVpp(args)
+    from monitoring.handlers.handle_vedge import HandleVedge
+    handler = HandleVedge(args)
 if object_type == 'pnic':
     from monitoring.handlers.handle_pnic_vpp import HandlePnicVpp
     handler = HandlePnicVpp(args)
