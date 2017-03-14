@@ -29,8 +29,6 @@ class Inventory(ResponderBase):
         if self.ID in query:
             obj = self.get_object_by_id(self.COLLECTION, query,
                                         [ObjectId, datetime], self.ID)
-            if not obj:
-                self.not_found()
             self.set_successful_response(resp, obj)
         else:
             objects_ids = self.get_object_ids(self.COLLECTION, query,

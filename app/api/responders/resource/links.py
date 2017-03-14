@@ -38,8 +38,6 @@ class Links(ResponderBase):
         if self.ID in query:
             link = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId], self.ID)
-            if not link:
-                self.not_found()
             self.set_successful_response(resp, link)
         else:
             links_ids = self.get_object_ids(self.COLLECTION, query,

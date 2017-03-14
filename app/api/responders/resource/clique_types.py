@@ -34,8 +34,6 @@ class CliqueTypes(ResponderBase):
         if self.ID in query:
             clique_type = self.get_object_by_id(self.COLLECTION, query,
                                                 [ObjectId], self.ID)
-            if not clique_type:
-                self.not_found()
             self.set_successful_response(resp, clique_type)
         else:
             clique_types_ids = self.get_object_ids(self.COLLECTION,
@@ -61,20 +59,9 @@ class CliqueTypes(ResponderBase):
         }
 
         self.validate_query_data(clique_type, clique_type_requirements)
-        env_name = clique_type['environment']
-        focal_point_type = clique_type['focal_point_type']
-        if not self.check_environment_name(env_name):
-            self.bad_request("{0} doesn't exist".format(env_name))
 
-        query = {
-            'environment': env_name,
-            'focal_point_type': focal_point_type
-        }
-        clique_types = self.read(self.COLLECTION, query)
-        if clique_types:
-            self.conflict("clique_type for focal_point_type {0} in "
-                          "environment {1} has exists".format(focal_point_type,
-                                                              env_name))
+        env_name = clique_type['environment']
+        self.check_environment_name(env_name)
 
         self.write(clique_type, self.COLLECTION)
         self.set_successful_response(resp, status="201")

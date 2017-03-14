@@ -68,7 +68,7 @@ class DataValidate(Util):
                             if not re.match(additional_key_re, key)]
 
         if illegal_keys:
-            return 'illegal key(s): {0}'.format(' and '.join(illegal_keys))
+            return 'invalid key(s): {0}'.format(' and '.join(illegal_keys))
 
         for key, requirement in requirements.items():
             value = data.get(key)

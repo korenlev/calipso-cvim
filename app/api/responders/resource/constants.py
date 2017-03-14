@@ -18,6 +18,4 @@ class Constants(ResponderBase):
         query = {"name": filters['name']}
         constant = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId], self.ID)
-        if not constant:
-            self.not_found()
         self.set_successful_response(resp, constant)

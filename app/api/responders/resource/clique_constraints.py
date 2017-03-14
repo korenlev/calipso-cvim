@@ -28,8 +28,6 @@ class CliqueConstraints(ResponderBase):
             clique_constraint = self.get_object_by_id(self.COLLECTION,
                                                       query,
                                                       [ObjectId], self.ID)
-            if not clique_constraint:
-                self.not_found()
             self.set_successful_response(resp, clique_constraint)
         else:
             clique_constraints_ids = self.get_object_ids(self.COLLECTION,

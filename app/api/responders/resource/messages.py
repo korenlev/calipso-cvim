@@ -39,8 +39,6 @@ class Messages(ResponderBase):
         if self.ID in query:
             message = self.get_object_by_id(self.COLLECTION, query,
                                             [ObjectId, datetime], self.ID)
-            if not message:
-                self.not_found()
             self.set_successful_response(resp, message)
         else:
             objects_ids = self.get_object_ids(self.COLLECTION, query,

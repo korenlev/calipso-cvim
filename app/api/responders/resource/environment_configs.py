@@ -78,8 +78,6 @@ class EnvironmentConfigs(ResponderBase):
         if self.ID in query:
             environment_config = self.get_object_by_id(self.COLLECTION, query,
                                                        [ObjectId], self.ID)
-            if not environment_config:
-                self.not_found()
             self.set_successful_response(resp, environment_config)
         else:
             objects_ids = self.get_object_ids(self.COLLECTION, query,
@@ -130,12 +128,6 @@ class EnvironmentConfigs(ResponderBase):
 
         if not config_validation['passed']:
             self.bad_request(config_validation['error_message'])
-
-        env_name = env_config['name']
-        db_environment_config = self.read(self.COLLECTION, {"name": env_name})
-        if db_environment_config:
-            self.conflict("configuration for environment {0} "
-                          "has existed".format(env_name))
 
         self.write(env_config, self.COLLECTION)
         self.set_successful_response(resp, status="201")

@@ -1,9 +1,10 @@
 import json
-
+import re
 
 from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
 from dateutil import parser
+from pymongo import errors
 from utils.dict_naming_converter import DictNamingConverter
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
@@ -76,13 +77,14 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         query = {"name": env_name}
         objects = self.read("environments_config", query)
         if not objects:
-            return False
-        return True
+            self.bad_request("unkown environment: " + env_name)
 
     def get_object_by_id(self, collection, query, stringify_types, id):
         objs = self.read(collection, query)
         if not objs:
-            return None
+            if "environment" in query:
+                self.check_environment_name(query["environment"])
+            self.not_found()
         obj = objs[0]
         self.stringify_object_values_by_types(obj, stringify_types)
         if id is "_id":
@@ -91,8 +93,18 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
 
     def get_object_ids(self, collection, query, page, page_size, id):
         objects = self.read(collection, query, {id: True}, page, page_size)
-        objects_ids = [str(obj[id]) for obj in objects]
-        return objects_ids
+        if not objects:
+            if "environment" in query:
+                self.check_environment_name(query["environment"])
+            self.not_found()
+        object_ids = []
+        for obj in objects:
+            try:
+                object_ids.append(str(obj[id]))
+            except KeyError as e:
+                self.log.error("no {0} key for data {1}".
+                               format(id, str(obj)))
+        return object_ids
 
     def parse_query_params(self, req):
         query_string = req.query_string.strip()
@@ -121,7 +133,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
                     query_params[key] = [query_params[key]]
                 query_params[key].append(value)
         if not valid:
-            self.bad_request('illegal query string: {0}'
+            self.bad_request('invalid query string: {0}'
                              .format(query_string))
 
         return query_params
@@ -152,7 +164,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         try:
             content = json.loads(content_string)
             if not isinstance(content, dict):
-                error = "The data in the request body must be a dictionary"
+                error = "The data in the request body must be an object"
         except Exception:
             error = "The request can not be fulfilled due to bad syntax"
 
@@ -175,8 +187,18 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         return list(query)
 
     def write(self, document, collection="inventory"):
-        self.get_collection_by_name(collection).\
-            insert_one(document)
+        try:
+            self.get_collection_by_name(collection).\
+                insert_one(document)
+        except errors.DuplicateKeyError as e:
+            self.conflict("The key value ({0}) already exists".
+                          format(', '.
+                                 join(self.get_duplicate_key_values(e.details['errmsg']))))
+        except errors.WriteError as e:
+            self.bad_request('Failed to create resource for {0}'.format(str(e)))
+
+    def get_duplicate_key_values(self, err_msg):
+        return ["'{0}'".format(key) for key in re.findall(r'"([^",]+)"', err_msg)]
 
     def aggregate(self, pipeline, collection):
         collection = self.get_collection_by_name(collection)

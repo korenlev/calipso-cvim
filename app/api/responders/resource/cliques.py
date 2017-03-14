@@ -34,8 +34,6 @@ class Cliques(ResponderBase):
         if self.ID in query:
             clique = self.get_object_by_id(self.COLLECTION, query,
                                            [ObjectId], self.ID)
-            if not clique:
-                self.not_found()
             self.set_successful_response(resp, clique)
         else:
             cliques_ids = self.get_object_ids(self.COLLECTION, query,

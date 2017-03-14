@@ -32,8 +32,6 @@ class MonitoringConfigTemplates(ResponderBase):
         if self.ID in query:
             template = self.get_object_by_id(self.COLLECTION, query,
                                              [ObjectId], self.ID)
-            if not template:
-                self.not_found()
             self.set_successful_response(resp, template)
         else:
             templates = self.get_object_ids(self.COLLECTION, query,

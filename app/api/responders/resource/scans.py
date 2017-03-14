@@ -31,8 +31,6 @@ class Scans(ResponderBase):
         if "_id" in query:
             scan = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId, datetime], self.ID)
-            if not scan:
-                self.not_found()
             self.set_successful_response(resp, scan)
         else:
             scans_ids = self.get_object_ids(self.COLLECTION, query,
@@ -73,10 +71,9 @@ class Scans(ResponderBase):
         }
         self.validate_query_data(scan, scan_requirements)
         self.check_and_convert_datetime("submit_timestamp", scan)
+
         env_name = scan["environment"]
-        if not self.check_environment_name(env_name):
-            self.bad_request("Can't post scan object to nonexistent "
-                             "environment: {0}".format(env_name))
+        self.check_environment_name(env_name)
 
         self.write(scan, self.COLLECTION)
         self.set_successful_response(resp, status="201")
