@@ -80,10 +80,10 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
             self.bad_request("unkown environment: " + env_name)
 
     def get_object_by_id(self, collection, query, stringify_types, id):
+        if "environment" in query:
+            self.check_environment_name(query["environment"])
         objs = self.read(collection, query)
         if not objs:
-            if "environment" in query:
-                self.check_environment_name(query["environment"])
             self.not_found()
         obj = objs[0]
         self.stringify_object_values_by_types(obj, stringify_types)
@@ -92,10 +92,10 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         return obj
 
     def get_object_ids(self, collection, query, page, page_size, id):
+        if "environment" in query:
+            self.check_environment_name(query["environment"])
         objects = self.read(collection, query, {id: True}, page, page_size)
         if not objects:
-            if "environment" in query:
-                self.check_environment_name(query["environment"])
             self.not_found()
         object_ids = []
         for obj in objects:

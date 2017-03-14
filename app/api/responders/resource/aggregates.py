@@ -33,7 +33,8 @@ class Aggregates(ResponderBase):
         if query_type == "environment":
             env_name = query.get("env_name")
             if not env_name:
-                self.bad_request("environment name not specified")
+                self.bad_request("env_name must be specified")
+            self.check_environment_name(env_name)
 
         aggregates = self.AGGREGATES_MAP[query_type](query)
         self.set_successful_response(resp, aggregates)
