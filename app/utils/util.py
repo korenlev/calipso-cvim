@@ -84,13 +84,6 @@ class Util(object):
                                         format(o))
                 obj[key] = o
 
-    def filter_object_by_keys(self, keys, obj):
-        obj_keys = list(obj.keys())
-        for obj_key in obj_keys:
-            if obj_key not in keys:
-                del obj[obj_key]
-
-
     # stringify datetime object
     def stringify_datetime(self, dt):
         return dt.strftime("%Y-%m-%dT%H:%M:%S.%f%z")

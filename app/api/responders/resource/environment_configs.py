@@ -123,8 +123,7 @@ class EnvironmentConfigs(ResponderBase):
                                          type_drivers, True)
         }
         self.validate_query_data(env_config,
-                                 environment_config_requirement,
-                                 True)
+                                 environment_config_requirement)
         # validate the configurations
         configurations = env_config['configuration']
         config_validation = self.validate_environment_config(configurations)
@@ -139,7 +138,7 @@ class EnvironmentConfigs(ResponderBase):
                           "has existed".format(env_name))
 
         self.write(env_config, self.COLLECTION)
-        self.set_successful_response(resp, "201")
+        self.set_successful_response(resp, status="201")
 
     def validate_environment_config(self, configurations):
         configurations_of_names = {}
@@ -200,4 +199,4 @@ class EnvironmentConfigs(ResponderBase):
         requirements = {}
         for key in self.CONFIGURATIONS_KEYS[name]:
             requirements[key] = self.REQUIREMENTS[key]
-        return self.validate_data(configuration, requirements, True)
+        return self.validate_data(configuration, requirements)

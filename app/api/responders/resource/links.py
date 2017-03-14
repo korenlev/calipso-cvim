@@ -31,7 +31,8 @@ class Links(ResponderBase):
             'page_size': self.require(int, True)
         }
 
-        self.validate_query_data(filters, filters_requirements)
+        self.validate_query_data(filters, filters_requirements, r'^attributes\:\w+$')
+        filters = self.change_dict_naming_convention(filters, self.replace_colon_with_dot)
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:

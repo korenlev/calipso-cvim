@@ -54,8 +54,10 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
     def unauthorized(self, message="Request requires authorization"):
         self.set_error_response("Unauthorized", "401", message)
 
-    def validate_query_data(self, data, data_requirements, filter=False):
-        error_message = self.validate_data(data, data_requirements, filter)
+    def validate_query_data(self, data, data_requirements,
+                            additional_key_reg=None):
+        error_message = self.validate_data(data, data_requirements,
+                                           additional_key_reg)
         if error_message:
             self.bad_request(error_message)
 
@@ -93,13 +95,36 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         return objects_ids
 
     def parse_query_params(self, req):
-        params = req.params
-        query_string = req.query_string
-        if not params and query_string:
-            self.bad_request("query string {0} doesn't contain any filters".
-                             format(query_string))
-        return self.change_dict_naming_convention(params,
-                                                  self.replace_colon_with_dot)
+        query_string = req.query_string.strip()
+        query_params = {}
+
+        if not query_string:
+            return query_params
+
+        valid = True
+        filters = query_string.split('&')
+        for filter in filters:
+            if '=' not in filter:
+                valid = False
+                break
+            index = filter.index('=')
+            key = filter[:index].strip()
+            value = filter[index + 1:].strip()
+
+            if not key or not value:
+                valid = False
+                break
+            if key not in query_params:
+                query_params[key] = value
+            else:
+                if not isinstance(query_params[key], list):
+                    query_params[key] = [query_params[key]]
+                query_params[key].append(value)
+        if not valid:
+            self.bad_request('illegal query string: {0}'
+                             .format(query_string))
+
+        return query_params
 
     def replace_colon_with_dot(self, s):
         return s.replace(':', '.')

@@ -71,7 +71,7 @@ class Scans(ResponderBase):
             "inventory": self.require(str, mandatory=True),
             "object_id": self.require(str, mandatory=True)
         }
-        self.validate_query_data(scan, scan_requirements, True)
+        self.validate_query_data(scan, scan_requirements)
         self.check_and_convert_datetime("submit_timestamp", scan)
         env_name = scan["environment"]
         if not self.check_environment_name(env_name):
@@ -79,7 +79,7 @@ class Scans(ResponderBase):
                              "environment: {0}".format(env_name))
 
         self.write(scan, self.COLLECTION)
-        self.set_successful_response(resp, "201")
+        self.set_successful_response(resp, status="201")
 
     def build_query(self, filters):
         query = {}

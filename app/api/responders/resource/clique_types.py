@@ -60,7 +60,7 @@ class CliqueTypes(ResponderBase):
             'name': self.require(str, mandatory=True)
         }
 
-        self.validate_query_data(clique_type, clique_type_requirements, True)
+        self.validate_query_data(clique_type, clique_type_requirements)
         env_name = clique_type['environment']
         focal_point_type = clique_type['focal_point_type']
         if not self.check_environment_name(env_name):
