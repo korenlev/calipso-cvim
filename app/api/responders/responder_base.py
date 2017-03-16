@@ -149,7 +149,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
     def update_query_with_filters(self, filters, filters_keys, query):
         for filter_key in filters_keys:
             filter = filters.get(filter_key)
-            if filter:
+            if filter is not None:
                 query.update({filter_key: filter})
 
     def get_content_from_request(self, req):
@@ -180,6 +180,10 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
             find_one({"name": name})
         # consts = [d['value'] for d in constants['data']]
         consts = []
+        if not constants:
+            self.log.error('constant type: ' + name +
+                           'no constants exists')
+            return consts
         for d in constants['data']:
             try:
                 consts.append(d['value'])

@@ -64,16 +64,17 @@ class EnvironmentConfigs(ResponderBase):
             "distribution": self.require(str, False, DataValidate.LIST, distributions),
             "mechanism_drivers": self.require([str, list], False, DataValidate.LIST, mechanism_drivers),
             "type_drivers": self.require(str, False, DataValidate.LIST, type_drivers),
-            "user": self.require(str)
+            "user": self.require(str),
+            "listen": self.require(bool, True),
+            "scanned": self.require(bool, True),
+            "monitoring_setup_done": self.require(bool, True),
+            "operational": self.require(bool, True)
         }
 
         self.validate_query_data(filters, filters_requirements)
         page, page_size = self.get_pagination(filters)
 
         query = self.build_query(filters)
-        if not query:
-            self.bad_request("environment must be got by {0}".
-                             format(" or ".join(filters_requirements.keys())))
 
         if self.ID in query:
             environment_config = self.get_object_by_id(self.COLLECTION, query,
@@ -86,13 +87,16 @@ class EnvironmentConfigs(ResponderBase):
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ["name", "distribution", "type_drivers", "user"]
+        filters_keys = ["name", "distribution", "type_drivers", "user",
+                        "listen", "monitoring_setup_done", "scanned",
+                        "operational"]
         self.update_query_with_filters(filters, filters_keys, query)
         mechanism_drivers = filters.get("mechanism_drivers")
         if mechanism_drivers:
             if type(mechanism_drivers) != list:
                 mechanism_drivers = [mechanism_drivers]
             query['mechanism_drivers'] = {'$all': mechanism_drivers}
+
         return query
 
     def on_post(self, req, resp):
