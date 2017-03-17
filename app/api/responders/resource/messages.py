@@ -10,6 +10,12 @@ class Messages(ResponderBase):
         super().__init__()
         self.ID = "id"
         self.COLLECTION = 'messages'
+        self.PROJECTION = {
+            self.ID: True,
+            "environment": True,
+            "source_system": True,
+            "level": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting messages from messages")
@@ -41,8 +47,8 @@ class Messages(ResponderBase):
                                             [ObjectId, datetime], self.ID)
             self.set_successful_response(resp, message)
         else:
-            objects_ids = self.get_object_ids(self.COLLECTION, query,
-                                              page, page_size, self.ID)
+            objects_ids = self.get_objects_list(self.COLLECTION, query,
+                                                page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {'messages': objects_ids})
 
     def build_query(self, filters):

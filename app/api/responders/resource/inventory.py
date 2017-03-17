@@ -8,6 +8,11 @@ class Inventory(ResponderBase):
         super().__init__()
         self.COLLECTION = 'inventory'
         self.ID = 'id'
+        self.PROJECTION = {
+            self.ID: True,
+            "name": True,
+            "name_path": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting objects from inventory")
@@ -31,8 +36,8 @@ class Inventory(ResponderBase):
                                         [ObjectId, datetime], self.ID)
             self.set_successful_response(resp, obj)
         else:
-            objects_ids = self.get_object_ids(self.COLLECTION, query,
-                                              page, page_size, self.ID)
+            objects_ids = self.get_objects_list(self.COLLECTION, query,
+                                                page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {"objects": objects_ids})
 
     def build_query(self, filters):

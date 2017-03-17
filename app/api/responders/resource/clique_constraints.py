@@ -7,6 +7,9 @@ class CliqueConstraints(ResponderBase):
     def __init__(self):
         super().__init__()
         self.ID = '_id'
+        self.PROJECTION = {
+            self.ID: True
+        }
         self.COLLECTION = 'clique_constraints'
 
     def on_get(self, req, resp):
@@ -30,9 +33,9 @@ class CliqueConstraints(ResponderBase):
                                                       [ObjectId], self.ID)
             self.set_successful_response(resp, clique_constraint)
         else:
-            clique_constraints_ids = self.get_object_ids(self.COLLECTION,
-                                                         query,
-                                                         page, page_size, self.ID)
+            clique_constraints_ids = self.get_objects_list(self.COLLECTION,
+                                                           query,
+                                                           page, page_size, self.PROJECTION)
             self.set_successful_response(
                 resp, {"clique_constraints": clique_constraints_ids}
             )

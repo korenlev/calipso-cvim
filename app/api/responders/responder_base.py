@@ -91,20 +91,19 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
             obj['id'] = obj.get('_id')
         return obj
 
-    def get_object_ids(self, collection, query, page, page_size, id):
+    def get_objects_list(self, collection, query, page, page_size,
+                         projection):
         if "environment" in query:
             self.check_environment_name(query["environment"])
-        objects = self.read(collection, query, {id: True}, page, page_size)
+        objects = self.read(collection, query, projection, page, page_size)
         if not objects:
             self.not_found()
-        object_ids = []
         for obj in objects:
-            try:
-                object_ids.append(str(obj[id]))
-            except KeyError as e:
-                self.log.error("no {0} key for data {1}".
-                               format(id, str(obj)))
-        return object_ids
+            if "id" not in obj and "_id" in obj:
+                obj["id"] = str(obj["_id"])
+            if "_id" in obj:
+                del obj["_id"]
+        return objects
 
     def parse_query_params(self, req):
         query_string = req.query_string.strip()

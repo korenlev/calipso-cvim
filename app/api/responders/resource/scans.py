@@ -9,6 +9,12 @@ class Scans(ResponderBase):
         super().__init__()
         self.COLLECTION = "scans"
         self.ID = "_id"
+        self.PROJECTION = {
+            self.ID: True,
+            "environment": True,
+            "status": True,
+            "scan_completed": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting scans")
@@ -33,8 +39,8 @@ class Scans(ResponderBase):
                                          [ObjectId, datetime], self.ID)
             self.set_successful_response(resp, scan)
         else:
-            scans_ids = self.get_object_ids(self.COLLECTION, query,
-                                            page, page_size, self.ID)
+            scans_ids = self.get_objects_list(self.COLLECTION, query,
+                                              page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {"scans": scans_ids})
 
     def on_post(self, req, resp):
@@ -62,9 +68,6 @@ class Scans(ResponderBase):
                                             mandatory=True),
             "scan_only_cliques": self.require(bool, True,
                                               mandatory=True),
-            "scan_completed": self.require(bool, True,
-                                           mandatory=True),
-            "submit_timestamp": self.require(str, mandatory=True),
             "environment": self.require(str, mandatory=True),
             "inventory": self.require(str, mandatory=True),
             "object_id": self.require(str, mandatory=True)
@@ -76,7 +79,11 @@ class Scans(ResponderBase):
         self.check_environment_name(env_name)
 
         self.write(scan, self.COLLECTION)
-        self.set_successful_response(resp, status="201")
+        self.set_successful_response(resp,
+                                     {"message": "created a new scan for "
+                                                 "environment {0}"
+                                                 .format(env_name)},
+                                     "201")
 
     def build_query(self, filters):
         query = {}

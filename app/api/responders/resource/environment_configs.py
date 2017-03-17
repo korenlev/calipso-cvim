@@ -7,6 +7,12 @@ class EnvironmentConfigs(ResponderBase):
     def __init__(self):
         super(EnvironmentConfigs, self).__init__()
         self.ID = "name"
+        self.PROJECTION = {
+            self.ID: True,
+            "_id": False,
+            "name": True,
+            "distribution": True
+        }
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring"]
@@ -68,7 +74,7 @@ class EnvironmentConfigs(ResponderBase):
             "listen": self.require(bool, True),
             "scanned": self.require(bool, True),
             "monitoring_setup_done": self.require(bool, True),
-            "operational": self.require(bool, True)
+            "operational": self.require(str, False, DataValidate.LIST, ["yes", "no"])
         }
 
         self.validate_query_data(filters, filters_requirements)
@@ -81,8 +87,8 @@ class EnvironmentConfigs(ResponderBase):
                                                        [ObjectId], self.ID)
             self.set_successful_response(resp, environment_config)
         else:
-            objects_ids = self.get_object_ids(self.COLLECTION, query,
-                                              page, page_size, self.ID)
+            objects_ids = self.get_objects_list(self.COLLECTION, query,
+                                                page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {'environment_configs': objects_ids})
 
     def build_query(self, filters):
@@ -118,7 +124,8 @@ class EnvironmentConfigs(ResponderBase):
                                               mechanism_drivers, True),
             "monitoring_setup_done": self.require(bool, True, mandatory=True),
             "name": self.require(str, mandatory=True),
-            "operational": self.require(bool, True, mandatory=True),
+            "operational": self.require(str, True, DataValidate.LIST,
+                                        ["yes", "no"], mandatory=True),
             "scanned": self.require(bool, True, mandatory=True),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
@@ -134,7 +141,11 @@ class EnvironmentConfigs(ResponderBase):
             self.bad_request(config_validation['error_message'])
 
         self.write(env_config, self.COLLECTION)
-        self.set_successful_response(resp, status="201")
+        self.set_successful_response(resp,
+                                     {"message": "created environment_config "
+                                                 "for {0}"
+                                                 .format(env_config["name"])},
+                                     "201")
 
     def validate_environment_config(self, configurations):
         configurations_of_names = {}

@@ -8,6 +8,11 @@ class Cliques(ResponderBase):
         super().__init__()
         self.COLLECTION = "cliques"
         self.ID = '_id'
+        self.PROJECTION = {
+            self.ID: True,
+            "focal_point_type": True,
+            "environment": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting cliques")
@@ -36,8 +41,8 @@ class Cliques(ResponderBase):
                                            [ObjectId], self.ID)
             self.set_successful_response(resp, clique)
         else:
-            cliques_ids = self.get_object_ids(self.COLLECTION, query,
-                                              page, page_size, self.ID)
+            cliques_ids = self.get_objects_list(self.COLLECTION, query,
+                                                page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {"cliques": cliques_ids})
 
     def build_query(self, filters):

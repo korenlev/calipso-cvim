@@ -8,6 +8,12 @@ class CliqueTypes(ResponderBase):
         super().__init__()
         self.COLLECTION = "clique_types"
         self.ID = "_id"
+        self.PROJECTION = {
+            self.ID: True,
+            "focal_point_type": True,
+            "link_types": True,
+            "environment": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting clique types")
@@ -36,9 +42,9 @@ class CliqueTypes(ResponderBase):
                                                 [ObjectId], self.ID)
             self.set_successful_response(resp, clique_type)
         else:
-            clique_types_ids = self.get_object_ids(self.COLLECTION,
-                                                   query,
-                                                   page, page_size, self.ID)
+            clique_types_ids = self.get_objects_list(self.COLLECTION,
+                                                     query,
+                                                     page, page_size, self.PROJECTION)
             self.set_successful_response(resp,
                                          {"clique_types": clique_types_ids})
 
@@ -64,7 +70,11 @@ class CliqueTypes(ResponderBase):
         self.check_environment_name(env_name)
 
         self.write(clique_type, self.COLLECTION)
-        self.set_successful_response(resp, status="201")
+        self.set_successful_response(resp,
+                                     {"message": "created a new clique_type "
+                                                 "for environment {0}"
+                                                 .format(env_name)},
+                                     "201")
 
     def build_query(self, filters):
         query = {}
