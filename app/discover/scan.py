@@ -20,68 +20,67 @@ from utils.util import Util
 
 class ScanPlan:
 
-    def __init__(self, args):
+    COMMON_ATTRIBUTES = (("loglevel",),
+                         ("inventory_only",),
+                         ("links_only",),
+                         ("cliques_only",),
+                         ("clear",),
+                         ("clear_all",),
+                         ("object_type", "type", "type"),
+                         ("env",),
+                         ("object_id", "id", "env"),
+                         ("parent_id",),
+                         ("type_to_scan", "parent_type", "parent_type"),
+                         ("id_field",),
+                         ("scan_self",),
+                         ("child_type", "type", "type"))
+
+    def __init__(self, args=None):
         self.obj = None
         self.scanner_class = None
+        self.args = args
         if "REQUEST_METHOD" in os.environ:
             self._init_from_cgi()
         elif isinstance(args, dict):
-            self._init_from_dict(args)
+            self._init_from_dict()
         else:
-            self._init_from_args(args)
+            self._init_from_args()
 
-    def _init_from_dict(self, args: dict):
+    def _set_arg_from_dict(self, attribute_name, arg_name=None, default_key=None):
+        setattr(self,
+                attribute_name,
+                self.args.get(arg_name if arg_name else attribute_name,
+                              ScanController.DEFAULTS[default_key if default_key else attribute_name]))
+
+    def _set_arg_from_cmd(self, attribute_name, arg_name=None):
+        setattr(self,
+                attribute_name,
+                getattr(self.args, arg_name if arg_name else attribute_name))
+
+    def _set_arg_from_form(self, attribute_name, arg_name=None, default_key=None):
+        setattr(self,
+                attribute_name,
+                self.args.getvalue(arg_name if arg_name else attribute_name,
+                                   ScanController.DEFAULTS[default_key if default_key else attribute_name]))
+
+    def _init_from_dict(self):
+
         self.cgi = False
-        self.loglevel = args.get("loglevel", ScanController.DEFAULTS["loglevel"])
-        self.inventory_only = args.get("inventory_only", ScanController.DEFAULTS["inventory_only"])
-        self.links_only = args.get("links_only", ScanController.DEFAULTS["links_only"])
-        self.cliques_only = args.get("cliques_only", ScanController.DEFAULTS["cliques_only"])
-        self.clear = args.get("clear", ScanController.DEFAULTS["clear"])
-        self.clear_all = args.get("clear_all", ScanController.DEFAULTS["clear_all"])
-        self.object_type = args.get("type", ScanController.DEFAULTS["type"])
-        self.env = args.get("env", ScanController.DEFAULTS["env"])
-        self.object_id = args.get("id", ScanController.DEFAULTS["env"])
-        self.parent_id = args.get("parent_id", ScanController.DEFAULTS["parent_id"])
-        self.type_to_scan = args.get("parent_type", ScanController.DEFAULTS["parent_type"])
-        self.id_field = args.get("id_field", ScanController.DEFAULTS["id_field"])
-        self.scan_self = args.get("scan_self", ScanController.DEFAULTS["scan_self"])
-        self.child_type = args.get("type", ScanController.DEFAULTS["type"])
+        for arg in self.COMMON_ATTRIBUTES:
+            self._set_arg_from_dict(*arg)
         self.child_id = None
 
-    def _init_from_args(self, cmd_args):
+    def _init_from_args(self):
         self.cgi = False
-        self.loglevel = cmd_args.loglevel
-        self.inventory_only = cmd_args.inventory_only
-        self.links_only = cmd_args.links_only
-        self.cliques_only = cmd_args.cliques_only
-        self.clear = cmd_args.clear
-        self.clear_all = cmd_args.clear_all
-        self.object_type = cmd_args.type
-        self.env = cmd_args.env
-        self.object_id = cmd_args.id
-        self.parent_id = cmd_args.parent_id
-        self.type_to_scan = cmd_args.parent_type
-        self.id_field = cmd_args.id_field
-        self.scan_self = cmd_args.scan_self
-        self.child_type = cmd_args.type
+        for arg in self.COMMON_ATTRIBUTES:
+            self._set_arg_from_cmd(*arg[:2])
         self.child_id = None
 
     def _init_from_cgi(self):
-        form = cgi.FieldStorage()
-        self.cgi = True,
-        self.loglevel = form.getvalue("loglevel", ScanController.DEFAULTS["loglevel"])
-        self.inventory_only = form.getvalue("inventory_only", ScanController.DEFAULTS["inventory_only"])
-        self.links_only = form.getvalue("links_only", ScanController.DEFAULTS["links_only"])
-        self.cliques_only = form.getvalue("cliques_only", ScanController.DEFAULTS["cliques_only"])
-        self.clear = form.getvalue("clear", ScanController.DEFAULTS["clear"])
-        self.clear_all = form.getvalue("clear_all", ScanController.DEFAULTS["clear_all"])
-        self.object_type = form.getvalue("type", ScanController.DEFAULTS["type"])
-        self.env = form.getvalue("env", ScanController.DEFAULTS["env"])
-        self.object_id = form.getvalue("id", ScanController.DEFAULTS["env"])
-        self.parent_id = form.getvalue("parent_id", ScanController.DEFAULTS["parent_id"])
-        self.type_to_scan = form.getvalue("parent_type", ScanController.DEFAULTS["parent_type"])
-        self.id_field = form.getvalue("id_field", ScanController.DEFAULTS["id_field"])
-        self.scan_self = form.getvalue("scan_self", ScanController.DEFAULTS["scan_self"])
+        self.args = cgi.FieldStorage()
+        self.cgi = True
+        for arg in self.COMMON_ATTRIBUTES:
+            self._set_arg_from_form(*arg)
         self.child_type = None
         self.child_id = None
 
