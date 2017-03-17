@@ -46,22 +46,26 @@ class ScanPlan:
         else:
             self._init_from_args()
 
-    def _set_arg_from_dict(self, attribute_name, arg_name=None, default_key=None):
+    def _set_arg_from_dict(self, attribute_name, arg_name=None,
+                           default_key=None):
         setattr(self,
                 attribute_name,
                 self.args.get(arg_name if arg_name else attribute_name,
-                              ScanController.DEFAULTS[default_key if default_key else attribute_name]))
+                              ScanController.DEFAULTS[default_key
+                              if default_key else attribute_name]))
 
     def _set_arg_from_cmd(self, attribute_name, arg_name=None):
         setattr(self,
                 attribute_name,
                 getattr(self.args, arg_name if arg_name else attribute_name))
 
-    def _set_arg_from_form(self, attribute_name, arg_name=None, default_key=None):
+    def _set_arg_from_form(self, attribute_name, arg_name=None,
+                           default_key=None):
         setattr(self,
                 attribute_name,
                 self.args.getvalue(arg_name if arg_name else attribute_name,
-                                   ScanController.DEFAULTS[default_key if default_key else attribute_name]))
+                                   ScanController.DEFAULTS[default_key
+                                   if default_key else attribute_name]))
 
     def _init_from_dict(self):
 
@@ -113,7 +117,8 @@ class ScanController(Fetcher):
     def get_args(self):
         # try to read scan plan from command line parameters
         parser = argparse.ArgumentParser()
-        parser.add_argument("-c", "--cgi", nargs="?", type=bool, default=self.DEFAULTS["cgi"],
+        parser.add_argument("-c", "--cgi", nargs="?", type=bool,
+                            default=self.DEFAULTS["cgi"],
                             help="read argument from CGI (true/false) \n" +
                             "(default: false)")
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
@@ -201,7 +206,8 @@ class ScanController(Fetcher):
         plan.scanner_class = "Scan" + plan.object_type
         return plan
 
-    # Get arguments from cli or another source and convert them to dict to enforce uniformity.
+    # Get arguments from CLI or another source and convert them to dict
+    # to enforce uniformity.
     # Throws a TypeError if arguments can't be converted to dict.
     def _setup_args(self, args: dict):
         if args is None:
@@ -218,7 +224,7 @@ class ScanController(Fetcher):
 
     def run(self, args: dict = None):
         args = self._setup_args(args)
-        # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
+        # assuming args dictionary has all keys defined in self.DEFAULTS
 
         try:
             self.conf = Configuration(args['mongo_config'])
@@ -249,7 +255,8 @@ class ScanController(Fetcher):
             else True
 
         # setup monitoring server
-        self.inv.monitoring_setup_manager = MonitoringSetupManager(args['mongo_config'], env_name)
+        self.inv.monitoring_setup_manager = \
+            MonitoringSetupManager(args['mongo_config'], env_name)
         self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
