@@ -34,11 +34,14 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     def __init__(self, mongo_conf_file, env):
         super().__init__(mongo_conf_file)
         self.config = Configuration()
+        conf = self.configuration
+        env_config = conf.env_config
+        self.mechanism_drivers = env_config['mechanism_drivers']
         self.env = env
         self.monitoring_config = self.db.monitoring_config_templates
         self.env_monitoring_config = self.config.get('Monitoring')
+        self.local_host = self.env_monitoring_config['server_ip']
         self.replacements = self.env_monitoring_config
-        self.local_host = socket.gethostname()
         self.inv = InventoryMgr()
         config_collection = self.inv.get_coll_name('monitoring_config')
         self.config_db = self.db[config_collection]
@@ -69,10 +72,19 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         docs = self.monitoring_config.find(condition, sort=sort)
         content = {}
         for doc in docs:
-            content.update(doc)
+            if self.check_env_condition(doc):
+                content.update(doc)
         self.replacements['app_path'] = self.config.env_config['app_path']
         config = self.content_replace({'config': content['config']})
         return config
+
+    def check_env_condition(self, doc):
+        if 'condition' not in doc:
+            return True
+        condition = doc['condition']
+        if 'mechanism_drivers' not in condition:
+            return True
+        return condition['mechanism_drivers'] in self.mechanism_drivers
 
     def content_replace(self, content):
         content_remapped = remap(content, visit=self.fill_values)

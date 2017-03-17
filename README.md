@@ -1,4 +1,4 @@
-OS DNA - OpenStack Network Discovery and Assurance
+OSDNA - OpenStack Network Discovery and Assurance
 ==================================================
 ##About
 We are going to enhance the way Cloud Network Administrators(CNA) and Tenant Network Administrators(TNA) 
@@ -23,7 +23,7 @@ Provide CNA and TNA with support for:
 <br>
 1. Building virtual Network inventory and visualizing all inter-connections in real-time
 <br>
-2. Monitor virtual network objects state
+2. Monitor virtual network objects state and health
 <br>
 3. Troubleshoot failures in virtual networks
 <br>
@@ -37,20 +37,11 @@ Model: https://cto-github.cisco.com/korlev/OSDNA/blob/master/Design/UML.jpg
 
 ##Proto (mockups, updated Nov 15th)
 <br>
-https://korenlev.mybalsamiq.com/projects
-
-#### Typeface
-Flat UI Pro made using the Lato typeface, http://www.google.com/webfonts/specimen/Lato, 
-+ we plan to utilize AnX framework.
-
-#### Data Collection
-see under /Design
+korlev-osdna-be.cisco.com:8081
 
 #### High Level Architecture: <br>
-see under /Architecture
+see under /Architecture (outdated)
 
 ### Contacts
 * Koren Lev (korlev)
 * Yaron Yogev (yayogev)
-* Stas Isakov (sisakov)
-* Ofir Ashery (oashery)
