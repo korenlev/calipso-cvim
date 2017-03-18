@@ -22,6 +22,10 @@ class Manager(Logger, ABC):
     def do_action(self):
         pass
 
+    def _update_document(self, document, upsert=False):
+        self.collection.update_one({'_id': document['_id']},
+                                   {'$set': document}, upsert=upsert)
+
     def run(self):
         self.configure()
         self.do_action()

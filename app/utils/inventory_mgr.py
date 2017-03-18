@@ -62,16 +62,17 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         self.set_collection("scans")
 
     def clear(self, scan_plan):
-        col_to_skip = ["link_types", "clique_types", "clique_constraints"]
-        if scan_plan.links_only or scan_plan.cliques_only:
-            col_to_skip.append("inventory")
-        if scan_plan.inventory_only or scan_plan.cliques_only:
-            col_to_skip.append("links")
-        if scan_plan.inventory_only or scan_plan.links_only:
-            col_to_skip.append("cliques")
-        env_cond = {} if scan_plan.clear_all \
-            else {"environment": scan_plan.env}
-        for c in [c for c in self.coll if c not in col_to_skip]:
+        if scan_plan.inventory_only:
+            collections = {"inventory"}
+        elif scan_plan.links_only:
+            collections = {"links"}
+        elif scan_plan.cliques_only:
+            collections = {"cliques"}
+        else:
+            collections = {"inventory", "links", "cliques"}
+
+        env_cond = {} if scan_plan.clear_all else {"environment": scan_plan.env}
+        for c in collections:
             col = self.coll[c]
             self.log.info("clearing collection: " + col.full_name)
             # delete docs from the collection,
