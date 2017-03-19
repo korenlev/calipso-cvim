@@ -2,6 +2,7 @@ import argparse
 import datetime
 
 import time
+from functools import partial
 
 from discover.manager import Manager
 from utils.exceptions import ScanArgumentsError
@@ -21,7 +22,6 @@ class ScanManager(Manager):
         super().__init__()
         self.args = None
         self.db_client = None
-        self.db = None
 
     @staticmethod
     def get_args():
@@ -44,8 +44,8 @@ class ScanManager(Manager):
     def configure(self):
         self.args = self.get_args()
         self.db_client = MongoAccess(self.args.mongo_config)
-        self.db = MongoAccess.db
-        self.collection = self.db[self.args.collection]
+        self.collection = self.db_client.db[self.args.collection]
+        self._update_document = partial(MongoAccess.update_document, self.collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
 
         self.log.info("Started ScanManager with following configuration:\n"

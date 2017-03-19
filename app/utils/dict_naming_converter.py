@@ -10,7 +10,8 @@ class DictNamingConverter:
     #                returns it in the other one.
     # Returns:
     #     Dictionary with the new keys.
-    def change_dict_naming_convention(self, d, cf):
+    @staticmethod
+    def change_dict_naming_convention(d, cf):
         new = {}
         if not d:
             return d
@@ -21,10 +22,10 @@ class DictNamingConverter:
         for k, v in d.items():
             new_v = v
             if isinstance(v, dict):
-                new_v = self.change_dict_naming_convention(v, cf)
+                new_v = DictNamingConverter.change_dict_naming_convention(v, cf)
             elif isinstance(v, list):
                 new_v = list()
                 for x in v:
-                    new_v.append(self.change_dict_naming_convention(x, cf))
+                    new_v.append(DictNamingConverter.change_dict_naming_convention(x, cf))
             new[cf(k)] = new_v
         return new

@@ -12,6 +12,7 @@ class Manager(Logger, ABC):
         super().__init__()
         self.conf = None
         self.collection = None
+        self._update_document = None
         self.interval = self.MIN_INTERVAL
 
     @abstractmethod
@@ -21,10 +22,6 @@ class Manager(Logger, ABC):
     @abstractmethod
     def do_action(self):
         pass
-
-    def _update_document(self, document, upsert=False):
-        self.collection.update_one({'_id': document['_id']},
-                                   {'$set': document}, upsert=upsert)
 
     def run(self):
         self.configure()

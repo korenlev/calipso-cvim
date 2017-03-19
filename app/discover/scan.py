@@ -224,26 +224,9 @@ class ScanController(Fetcher):
         plan.scanner_class = "Scan" + plan.object_type
         return plan
 
-    # Get arguments from CLI or another source and convert them to dict
-    # to enforce uniformity.
-    # Throws a TypeError if arguments can't be converted to dict.
-    def _setup_args(self, args: dict):
-        if args is None:
-            args = vars(self.get_args())
-        if not isinstance(args, dict):
-            try:
-                args = dict(args)
-            except TypeError:
-                try:
-                    args = vars(args)
-                except TypeError:
-                    raise TypeError("Wrong scan arguments format")
-        return dict(self.DEFAULTS, **args)
-
-    # Returns a tuple of exit code and error message if applicable
     def run(self, args: dict = None):
-        args = self._setup_args(args)
-        # assuming args dictionary has all keys defined in self.DEFAULTS
+        args = Util.setup_args(args, self.DEFAULTS, self.get_args)
+        # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
 
         try:
             self.conf = Configuration(args['mongo_config'])

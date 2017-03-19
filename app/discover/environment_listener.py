@@ -8,11 +8,22 @@ from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
+from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from utils.util import Util
 
 
-class Worker(ConsumerMixin):
+class EnvironmentListener(ConsumerMixin):
+
+    DEFAULTS = {
+        "env": "Mirantis-Liberty",
+        "mongo_config": "",
+        "inventory": "inventory",
+        "loglevel": "INFO",
+        "environments_collection": "environments_config"
+    }
+
     event_queues = [
         Queue('notifications.nova',
               Exchange('nova', 'topic', durable=False),
@@ -22,6 +33,9 @@ class Worker(ConsumerMixin):
               durable=False, routing_key='#'),
         Queue('notifications.neutron',
               Exchange('dhcp_agent', 'topic', durable=False),
+              durable=False, routing_key='#'),
+        Queue('notifications.info',
+              Exchange('info', 'topic', durable=False),
               durable=False, routing_key='#')
     ]
 
@@ -29,10 +43,10 @@ class Worker(ConsumerMixin):
         self.connection = connection
         self.handler = None
         self.notification_responses = {}
+        self.inv = InventoryMgr()
 
     def set_env(self, env, inventory_collection):
-        inv = InventoryMgr()
-        inv.set_inventory_collection(inventory_collection)
+        self.inv.set_inventory_collection(inventory_collection)
         self.handler = EventHandler(env, inventory_collection)
         self.notification_responses = {
             "compute.instance.create.end": self.handler.instance_add,
@@ -71,21 +85,29 @@ class Worker(ConsumerMixin):
             "router.interface.delete": self.handler.router_interface_delete,
         }
 
-    def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=self.event_queues,
+    def get_consumers(self, consumer, channel):
+        return [consumer(queues=self.event_queues,
                          accept=['json'],
                          callbacks=[self.process_task])]
 
-    def process_task(self, body, message):
-        f = open("/tmp/listener.log", "a")
-        f.write(body['oslo.message'] + "\n")
-        f.close()
+    # Determines if message should be processed by a handler
+    # and extracts message body if yes.
+    @staticmethod
+    def _extract_event_data(body):
         if "event_type" in body:
-            self.handle_event(body["event_type"], body)
-        elif "event_type" in body['oslo.message']:
-            msg = json.loads(body['oslo.message'])
-            self.handle_event(msg['event_type'], msg)
-        message.ack()
+            return True, body
+        elif "event_type" in body["oslo.message"]:
+            return True, json.loads(body["oslo.message"])
+        else:
+            return False, None
+
+    def process_task(self, body, message):
+        processable, event_data = self._extract_event_data(body)
+        if processable:
+            with open("/tmp/listener.log", "a") as f:
+                f.write(body['oslo.message'] + "\n")
+            self.handle_event(event_data["event_type"], event_data)
+            message.ack()
 
     def handle_event(self, type, notification):
         print("got notification, event_type: " + type + '\n' + str(notification))
@@ -95,33 +117,44 @@ class Worker(ConsumerMixin):
 
 
 def get_args():
-    # try to read scan plan from command line parameters
+    # Read listener config from command line args
     parser = argparse.ArgumentParser()
-    default_env = "Mirantis-Liberty"
     parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
-                        default="",
-                        help="name of config file with MongoDB servr access details")
+                        default=EnvironmentListener.DEFAULTS["mongo_config"],
+                        help="Name of config file with MongoDB server access details")
+    parser.add_argument("-c", "--environments_collection", nargs="?", type=str,
+                        default=EnvironmentListener.DEFAULTS["environments_collection"],
+                        help="Name of collection where selected environment is taken from \n(default: {})"
+                        .format(EnvironmentListener.DEFAULTS["environments_collection"]))
     parser.add_argument("-e", "--env", nargs="?", type=str,
-                        default=default_env,
-                        help="name of environment to scan \n(default: " + default_env + ")")
+                        default=EnvironmentListener.DEFAULTS["env"],
+                        help="Name of target listener environment \n(default: {})"
+                        .format(EnvironmentListener.DEFAULTS["env"]))
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
-                        default="inventory",
-                        help="name of inventory collection \n(default: 'inventory')")
-    parser.add_argument("-l", "--loglevel", nargs="?", type=str, default="INFO",
-                        help="logging level \n(default: 'INFO')")
+                        default=EnvironmentListener.DEFAULTS["inventory"],
+                        help="Name of inventory collection \n(default: 'inventory')")
+    parser.add_argument("-l", "--loglevel", nargs="?", type=str,
+                        default=EnvironmentListener.DEFAULTS["loglevel"],
+                        help="Logging level \n(default: 'INFO')")
     args = parser.parse_args()
     return args
 
 
-def main():
-    logger = Logger()
+def listen(args: dict = None):
     from kombu import Connection
+    logger = Logger()
 
-    args = get_args()
-    conf = Configuration(args.mongo_config)
-    logger.set_loglevel(args.loglevel)
-    env = args.env
-    conf.use_env(env)
+    args = Util.setup_args(args, EnvironmentListener.DEFAULTS, get_args)
+    if 'process_vars' not in args:
+        args['process_vars'] = {}
+
+    logger.set_loglevel(args["loglevel"])
+
+    conf = Configuration(args["mongo_config"], args["environments_collection"])
+
+    env_name = args["env"]
+    conf.use_env(env_name)
+
     amqp_config = conf.get("AMQP")
     host = amqp_config["host"]
     port = amqp_config["port"]
@@ -131,12 +164,20 @@ def main():
     with Connection(connect_url) as conn:
         try:
             print(conn)
-            worker = Worker(conn)
-            worker.set_env(env, args.inventory)
+            conn.connect()
+            args['process_vars']['operational'] = "running"
+            worker = EnvironmentListener(conn)
+            worker.set_env(env_name, args["inventory"])
+            worker.inv.monitoring_setup_manager = MonitoringSetupManager(args["mongo_config"], env_name)
+            worker.inv.monitoring_setup_manager.server_setup()
             worker.run()
         except KeyboardInterrupt:
             print('Stopped')
+            args['process_vars']['operational'] = "error"
+        except Exception as e:
+            logger.log.error(e)
+            args['process_vars']['operational'] = "error"
 
 
 if __name__ == '__main__':
-    main()
+    listen()

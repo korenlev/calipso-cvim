@@ -18,15 +18,18 @@ class MongoAccess(Logger, DictNamingConverter):
 
     def __init__(self, config_file_path=""):
         super().__init__()
+        self.connect_params = {}
         self.mongo_connect(config_file_path)
 
     def mongo_connect(self, config_file_path=""):
-        if (MongoAccess.client is not None):
+        if MongoAccess.client:
             return
+
         self.connect_params = {
             "server": "localhost",
             "port": 27017
         }
+
         if not config_file_path:
             config_file_path = ConfigFile.get(self.default_conf_file)
         if config_file_path:
@@ -55,17 +58,28 @@ class MongoAccess(Logger, DictNamingConverter):
             uri = uri + '/' + params['auth_db']
         self.connect_params['server'] = uri
 
-    def encode_dots(self, s):
+    @staticmethod
+    def update_document(collection, document, upsert=False):
+        if isinstance(collection, str):
+            collection = MongoAccess.db[collection]
+        collection.update_one({'_id': document['_id']},
+                              {'$set': document}, upsert=upsert)
+
+    @staticmethod
+    def encode_dots(s):
         return s.replace(".", "[dot]")
 
-    def decode_dots(self, s):
+    @staticmethod
+    def decode_dots(s):
         return s.replace("[dot]", ".")
 
-    # Mongo will not accpet dot (".") in keys, or $ in start of keys
+    # Mongo will not accept dot (".") in keys, or $ in start of keys
     # $ in beginning of key does not happen in OpenStack,
     # so need to translate only "." --> "[dot]"
-    def encode_mongo_keys(self, item):
-        return self.change_dict_naming_convention(item, self.encode_dots)
+    @staticmethod
+    def encode_mongo_keys(item):
+        return MongoAccess.change_dict_naming_convention(item, MongoAccess.encode_dots)
 
-    def decode_mongo_keys(self, item):
-        return self.change_dict_naming_convention(item, self.decode_dots)
+    @staticmethod
+    def decode_mongo_keys(item):
+        return MongoAccess.change_dict_naming_convention(item, MongoAccess.decode_dots)
