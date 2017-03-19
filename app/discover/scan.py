@@ -43,7 +43,7 @@ class ScanPlan:
         self.scanner_class = None
         self.args = args
         for attribute in self.COMMON_ATTRIBUTES:
-            setattr(self, attribute, None)
+            setattr(self, attribute[0], None)
 
         if "REQUEST_METHOD" in os.environ:
             self._init_from_cgi()
@@ -55,9 +55,9 @@ class ScanPlan:
 
     def _validate_args(self):
         errors = []
-        if self.inventory_only and \
-                (self.links_only or self.cliques_only) or \
-                (self.links_only and self.cliques_only):
+        if (self.inventory_only and self.links_only) \
+                or (self.inventory_only and self.cliques_only) \
+                or (self.links_only and self.cliques_only):
             errors.append("Only one of (inventory_only, links_only, cliques_only) can be True.")
         if errors:
             raise ScanArgumentsError("\n".join(errors))
