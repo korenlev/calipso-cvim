@@ -84,7 +84,6 @@ Template.LinkType.events({
     let _id = instance.state.get('id');
     //let env = instance.$('.sm-input-env')[0].value;
     let desc = instance.$('.sm-input-desc')[0].value;
-    let folderText = instance.$('.sm-input-folder-text')[0].value;
     let endPointA = instance.$('.sm-input-endpoint-a')[0].value;
     let endPointB = instance.$('.sm-input-endpoint-b')[0].value;
 
@@ -92,7 +91,6 @@ Template.LinkType.events({
       _id,
       //env, 
       desc, 
-      folderText, 
       endPointA, 
       endPointB);
   }
@@ -207,7 +205,6 @@ function submitItem(
   id, 
   //env, 
   desc, 
-  folderText, 
   endPointA, 
   endPointB) {
 
@@ -223,7 +220,6 @@ function submitItem(
     insert.call({
       //environment: env,
       description: desc,
-      folder_text: folderText,
       endPointA: endPointA,
       endPointB: endPointB,
     }, processActionResult.bind(null, instance));

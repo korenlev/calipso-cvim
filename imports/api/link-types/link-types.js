@@ -26,9 +26,6 @@ let schema = {
   description: {
     type: String
   },
-  folder_text: {
-    type: String
-  },
   type: {
     type: String
   },
