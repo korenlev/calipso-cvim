@@ -21,7 +21,6 @@ import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.acti
 import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
 import '/imports/ui/components/vedge-info-window/vedge-info-window';
-import '/imports/ui/components/event-modals/event-modals';
 import '/imports/ui/components/env-delete-modal/env-delete-modal';
 import '/imports/ui/components/environment-dashboard/environment-dashboard';
 

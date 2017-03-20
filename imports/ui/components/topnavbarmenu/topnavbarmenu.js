@@ -15,6 +15,7 @@ import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-
 import '/imports/ui/components/search-auto-complete-list/search-auto-complete-list';
 import '/imports/ui/components/get-started/get-started';
 import '/imports/ui/components/env-form/env-form';
+import '/imports/ui/components/event-modals/event-modals';
 
 import './topnavbarmenu.html';
 
