@@ -5,24 +5,22 @@ from utils.logger import Logger
 
 
 class Fetcher(Logger):
-    env = None
-    configuration = None
 
     def __init__(self):
         super().__init__()
+        self.env = None
+        self.configuration = None
 
     @staticmethod
     def escape(string):
         return string
 
-    @staticmethod
-    def set_env(env):
-        Fetcher.env = env
-        Fetcher.configuration = Configuration()
+    def set_env(self, env):
+        self.env = env
+        self.configuration = Configuration()
 
-    @staticmethod
-    def get_env():
-        return Fetcher.env
+    def get_env(self):
+        return self.env
 
     @staticmethod
     def jsonify(obj, prettify=False):

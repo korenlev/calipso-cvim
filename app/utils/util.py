@@ -1,5 +1,8 @@
 import importlib
 import json
+from argparse import Namespace
+from typing import Dict, Callable
+
 import re
 
 
@@ -91,3 +94,23 @@ class Util(object):
     # stringify ObjectId
     def stringify_object_id(self, object_id):
         return str(object_id)
+
+    # Get arguments from cli or another source and convert them to dict to enforce uniformity.
+    # Throws a TypeError if arguments can't be converted to dict.
+    @staticmethod
+    def setup_args(args: dict, defaults: Dict[str, object], get_cmd_args: Callable[[], Namespace] = None):
+        if defaults is None:
+            defaults = {}
+
+        if args is None and get_cmd_args is not None:
+            args = vars(get_cmd_args())
+        elif not isinstance(args, dict):
+            try:
+                args = dict(args)
+            except TypeError:
+                try:
+                    args = vars(args)
+                except TypeError:
+                    raise TypeError("Wrong arguments format")
+
+        return dict(defaults, **args)

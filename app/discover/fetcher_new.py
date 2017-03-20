@@ -1,8 +1,6 @@
 from discover.fetcher import Fetcher
 ##old stuff
 class FetchHostObjectTypes(Fetcher):
-  def __init__(self):
-    pass
   
   
   def get(self, parent):
