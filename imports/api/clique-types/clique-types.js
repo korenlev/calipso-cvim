@@ -59,5 +59,19 @@ let schema = {
   },
 };
 
-CliqueTypes.schema = new SimpleSchema(schema);
+let simpleSchema = new SimpleSchema(schema);
+simpleSchema.addValidator(function () {
+  let that = this;
+
+  let existing = CliqueTypes.findOne({ 
+    environment: that.field('environment').value,
+    focal_point_type: that.field('focal_point_type').value
+  });
+
+  if (! R.isNil(existing)) {
+    return 'alreadyExists';
+  }
+});
+
+CliqueTypes.schema = simpleSchema;
 CliqueTypes.attachSchema(CliqueTypes.schema);
