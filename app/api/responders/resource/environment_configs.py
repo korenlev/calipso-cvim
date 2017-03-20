@@ -1,6 +1,7 @@
 from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
+from datetime import datetime
 
 
 class EnvironmentConfigs(ResponderBase):
@@ -84,7 +85,7 @@ class EnvironmentConfigs(ResponderBase):
 
         if self.ID in query:
             environment_config = self.get_object_by_id(self.COLLECTION, query,
-                                                       [ObjectId], self.ID)
+                                                       [ObjectId, datetime], self.ID)
             self.set_successful_response(resp, environment_config)
         else:
             objects_ids = self.get_objects_list(self.COLLECTION, query,
