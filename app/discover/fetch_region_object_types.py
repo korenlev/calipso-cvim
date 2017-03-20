@@ -2,8 +2,6 @@ from discover.fetcher import Fetcher
 
 
 class FetchRegionObjectTypes(Fetcher):
-    def __init(self):
-        pass
 
     def get(self, parent):
         ret = {
