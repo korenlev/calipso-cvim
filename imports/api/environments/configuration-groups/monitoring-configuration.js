@@ -73,7 +73,7 @@ export const MonitoringSchema = new SimpleSchema({
 
   provision: {
     type: String,
-    defaultValue: 'none',
+    defaultValue: 'None',
     custom: function () {
       let that = this;
       let values = Constants.findOne({ name: 'environment_provision_types' }).data;
