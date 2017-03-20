@@ -8,11 +8,17 @@ class CliqueTypes(ResponderBase):
         super().__init__()
         self.COLLECTION = "clique_types"
         self.ID = "_id"
+        self.PROJECTION = {
+            self.ID: True,
+            "focal_point_type": True,
+            "link_types": True,
+            "environment": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting clique types")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         focal_point_types = self.get_constants_by_name("object_types")
         link_types = self.get_constants_by_name("link_types")
         filters_requirements = {
@@ -34,13 +40,11 @@ class CliqueTypes(ResponderBase):
         if self.ID in query:
             clique_type = self.get_object_by_id(self.COLLECTION, query,
                                                 [ObjectId], self.ID)
-            if not clique_type:
-                self.not_found()
             self.set_successful_response(resp, clique_type)
         else:
-            clique_types_ids = self.get_object_ids(self.COLLECTION,
-                                                   query,
-                                                   page, page_size, self.ID)
+            clique_types_ids = self.get_objects_list(self.COLLECTION,
+                                                     query,
+                                                     page, page_size, self.PROJECTION)
             self.set_successful_response(resp,
                                          {"clique_types": clique_types_ids})
 
@@ -61,23 +65,16 @@ class CliqueTypes(ResponderBase):
         }
 
         self.validate_query_data(clique_type, clique_type_requirements)
-        env_name = clique_type['environment']
-        focal_point_type = clique_type['focal_point_type']
-        if not self.check_environment_name(env_name):
-            self.bad_request("{0} doesn't exist".format(env_name))
 
-        query = {
-            'environment': env_name,
-            'focal_point_type': focal_point_type
-        }
-        clique_types = self.read(self.COLLECTION, query)
-        if clique_types:
-            self.conflict("clique_type for focal_point_type {0} in "
-                          "environment {1} has exists".format(focal_point_type,
-                                                              env_name))
+        env_name = clique_type['environment']
+        self.check_environment_name(env_name)
 
         self.write(clique_type, self.COLLECTION)
-        self.set_successful_response(resp, status="201")
+        self.set_successful_response(resp,
+                                     {"message": "created a new clique_type "
+                                                 "for environment {0}"
+                                                 .format(env_name)},
+                                     "201")
 
     def build_query(self, filters):
         query = {}

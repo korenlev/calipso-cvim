@@ -7,11 +7,14 @@ class CliqueConstraints(ResponderBase):
     def __init__(self):
         super().__init__()
         self.ID = '_id'
+        self.PROJECTION = {
+            self.ID: True
+        }
         self.COLLECTION = 'clique_constraints'
 
     def on_get(self, req, resp):
         self.log.debug("Getting clique_constraints")
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         focal_point_types = self.get_constants_by_name("object_types")
         filters_requirements = {
             'id': self.require(ObjectId, True),
@@ -28,13 +31,11 @@ class CliqueConstraints(ResponderBase):
             clique_constraint = self.get_object_by_id(self.COLLECTION,
                                                       query,
                                                       [ObjectId], self.ID)
-            if not clique_constraint:
-                self.not_found()
             self.set_successful_response(resp, clique_constraint)
         else:
-            clique_constraints_ids = self.get_object_ids(self.COLLECTION,
-                                                         query,
-                                                         page, page_size, self.ID)
+            clique_constraints_ids = self.get_objects_list(self.COLLECTION,
+                                                           query,
+                                                           page, page_size, self.PROJECTION)
             self.set_successful_response(
                 resp, {"clique_constraints": clique_constraints_ids}
             )

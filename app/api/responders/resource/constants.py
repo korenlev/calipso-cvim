@@ -10,7 +10,7 @@ class Constants(ResponderBase):
 
     def on_get(self, req, resp):
         self.log.debug("Getting constants with name")
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         filters_requirements = {
             "name": self.require(str, mandatory=True),
         }
@@ -18,6 +18,4 @@ class Constants(ResponderBase):
         query = {"name": filters['name']}
         constant = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId], self.ID)
-        if not constant:
-            self.not_found()
         self.set_successful_response(resp, constant)

@@ -1,15 +1,24 @@
 from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
+from bson.objectid import ObjectId
 
 
 class EnvironmentConfigs(ResponderBase):
     def __init__(self):
         super(EnvironmentConfigs, self).__init__()
+        self.ID = "name"
+        self.PROJECTION = {
+            self.ID: True,
+            "_id": False,
+            "name": True,
+            "distribution": True
+        }
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring"]
         self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring"]
         self.REQUIREMENTS = {
+            "name": self.require(str, mandatory=True),
             "host": self.require(str, mandatory=True),
             "password": self.require(str, mandatory=True),
             "port": self.require(int, True, mandatory=True),
@@ -33,20 +42,68 @@ class EnvironmentConfigs(ResponderBase):
         }
         self.CONFIGURATIONS_KEYS = {
             "mysql":
-                ["host", "password", "port", "user"],
+                ["name", "host", "password", "port", "user"],
             "OpenStack":
-                ["host", "admin_project", "admin_token",
+                ["name", "host", "admin_project", "admin_token",
                  "port", "user", "pwd"],
             "CLI":
-                ["host", "key", "pwd", "user"],
+                ["name", "host", "key", "pwd", "user"],
             "AMQP":
-                ["host", "port", "user", "password"],
+                ["name", "host", "port", "user", "password"],
             "Monitoring":
-                ["app_path", "config_folder", "debug",
+                ["name", "app_path", "config_folder", "debug",
                 "env_type", "osdna_path", "port",
                 "rabbitmq_pass", "rabbitmq_user",
                 "server_ip", "server_name", "type"]
         }
+
+    def on_get(self, req, resp):
+        self.log.debug("Getting environment config")
+        filters = self.parse_query_params(req)
+
+        distributions = self.get_constants_by_name("distributions")
+        mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
+        type_drivers = self.get_constants_by_name("type_drivers")
+
+        filters_requirements = {
+            "name": self.require(str),
+            "distribution": self.require(str, False, DataValidate.LIST, distributions),
+            "mechanism_drivers": self.require([str, list], False, DataValidate.LIST, mechanism_drivers),
+            "type_drivers": self.require(str, False, DataValidate.LIST, type_drivers),
+            "user": self.require(str),
+            "listen": self.require(bool, True),
+            "scanned": self.require(bool, True),
+            "monitoring_setup_done": self.require(bool, True),
+            "operational": self.require(str, False, DataValidate.LIST, ["yes", "no"])
+        }
+
+        self.validate_query_data(filters, filters_requirements)
+        page, page_size = self.get_pagination(filters)
+
+        query = self.build_query(filters)
+
+        if self.ID in query:
+            environment_config = self.get_object_by_id(self.COLLECTION, query,
+                                                       [ObjectId], self.ID)
+            self.set_successful_response(resp, environment_config)
+        else:
+            objects_ids = self.get_objects_list(self.COLLECTION, query,
+                                                page, page_size, self.PROJECTION)
+            self.set_successful_response(resp, {'environment_configs': objects_ids})
+
+    def build_query(self, filters):
+        query = {}
+        filters_keys = ["name", "distribution", "type_drivers", "user",
+                        "listen", "monitoring_setup_done", "scanned",
+                        "operational"]
+        self.update_query_with_filters(filters, filters_keys, query)
+        mechanism_drivers = filters.get("mechanism_drivers")
+        if mechanism_drivers:
+            if type(mechanism_drivers) != list:
+                mechanism_drivers = [mechanism_drivers]
+            query['mechanism_drivers'] = {'$all': mechanism_drivers}
+
+        return query
 
     def on_post(self, req, resp):
         self.log.debug("Creating a new environment config")
@@ -67,13 +124,15 @@ class EnvironmentConfigs(ResponderBase):
                                               mechanism_drivers, True),
             "monitoring_setup_done": self.require(bool, True, mandatory=True),
             "name": self.require(str, mandatory=True),
-            "operational": self.require(bool, True, mandatory=True),
+            "operational": self.require(str, True, DataValidate.LIST,
+                                        ["yes", "no"], mandatory=True),
             "scanned": self.require(bool, True, mandatory=True),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
                                          type_drivers, True)
         }
-        self.validate_query_data(env_config, environment_config_requirement)
+        self.validate_query_data(env_config,
+                                 environment_config_requirement)
         # validate the configurations
         configurations = env_config['configuration']
         config_validation = self.validate_environment_config(configurations)
@@ -81,14 +140,12 @@ class EnvironmentConfigs(ResponderBase):
         if not config_validation['passed']:
             self.bad_request(config_validation['error_message'])
 
-        env_name = env_config['name']
-        db_environment_config = self.read(self.COLLECTION, {"name": env_name})
-        if db_environment_config:
-            self.conflict("configuration for environment {0} "
-                          "has existed".format(env_name))
-
         self.write(env_config, self.COLLECTION)
-        self.set_successful_response(resp, "201")
+        self.set_successful_response(resp,
+                                     {"message": "created environment_config "
+                                                 "for {0}"
+                                                 .format(env_config["name"])},
+                                     "201")
 
     def validate_environment_config(self, configurations):
         configurations_of_names = {}
@@ -102,7 +159,9 @@ class EnvironmentConfigs(ResponderBase):
             if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
                 configuration = self.get_configuration_by_name(name,
                                                                configurations,
-                                                               True, validation)
+                                                               True,
+                                                               validation)
+
                 if not validation['passed']:
                     return validation
                 configurations_of_names[name] = configuration

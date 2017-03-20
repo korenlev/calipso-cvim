@@ -8,11 +8,18 @@ class Links(ResponderBase):
         super().__init__()
         self.COLLECTION = 'links'
         self.ID = '_id'
+        self.PROJECTION = {
+            self.ID: True,
+            "link_name": True,
+            "link_type": True,
+            "environment": True,
+            "host": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting links from links")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
 
         link_types = self.get_constants_by_name("link_types")
         link_states = self.get_constants_by_name("link_states")
@@ -31,18 +38,17 @@ class Links(ResponderBase):
             'page_size': self.require(int, True)
         }
 
-        self.validate_query_data(filters, filters_requirements)
+        self.validate_query_data(filters, filters_requirements, r'^attributes\:\w+$')
+        filters = self.change_dict_naming_convention(filters, self.replace_colon_with_dot)
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
             link = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId], self.ID)
-            if not link:
-                self.not_found()
             self.set_successful_response(resp, link)
         else:
-            links_ids = self.get_object_ids(self.COLLECTION, query,
-                                            page, page_size, self.ID)
+            links_ids = self.get_objects_list(self.COLLECTION, query,
+                                              page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {"links": links_ids})
 
     def build_query(self, filters):

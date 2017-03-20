@@ -3,7 +3,6 @@ from datetime import datetime
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
 from bson.objectid import ObjectId
-from dateutil import parser
 
 
 class Messages(ResponderBase):
@@ -11,10 +10,16 @@ class Messages(ResponderBase):
         super().__init__()
         self.ID = "id"
         self.COLLECTION = 'messages'
+        self.PROJECTION = {
+            self.ID: True,
+            "environment": True,
+            "source_system": True,
+            "level": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting messages from messages")
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         messages_severity = self.get_constants_by_name("messages_severity")
         object_types = self.get_constants_by_name("object_types")
         filters_requirements = {
@@ -40,24 +45,11 @@ class Messages(ResponderBase):
         if self.ID in query:
             message = self.get_object_by_id(self.COLLECTION, query,
                                             [ObjectId, datetime], self.ID)
-            if not message:
-                self.not_found()
             self.set_successful_response(resp, message)
         else:
-            objects_ids = self.get_object_ids(self.COLLECTION, query,
-                                              page, page_size, self.ID)
+            objects_ids = self.get_objects_list(self.COLLECTION, query,
+                                                page, page_size, self.PROJECTION)
             self.set_successful_response(resp, {'messages': objects_ids})
-
-    def check_and_convert_datetime(self, time_key, filters):
-        time = filters.get(time_key)
-
-        if time:
-            time = time.replace(' ', '+')
-            try:
-                filters[time_key] = parser.parse(time)
-            except Exception:
-                self.bad_request("{0} must follow ISO 8610 date and time format,"
-                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
     def build_query(self, filters):
         query = {}
