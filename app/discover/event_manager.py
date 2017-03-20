@@ -72,19 +72,25 @@ class EventManager(Manager):
             'process_vars': process_vars
         })
 
+    @staticmethod
+    def _get_operational(process):
+        return process.get("vars", {})\
+                      .get("operational", "")\
+                      .lower()
+
+    def _update_operational_status(self, status):
+        self.collection.update_many(
+            {"name": {"$in": [process.get("name")
+                              for process
+                              in self.processes
+                              if self._get_operational(process) == status]}},
+            {"$set": {"operational": status}}
+        )
+
     def update_operational_statuses(self):
-        self.collection.update_many(
-            {"name": {"$in": [p.get("name")
-                              for p in self.processes
-                              if p.get("vars").get("operational", "").lower() == "running"]}},
-            {"$set": {"operational": "running"}}
-        )
-        self.collection.update_many(
-            {"name": {"$in": [p.get("name")
-                              for p in self.processes
-                              if p.get("vars").get("operational", "").lower() == "error"]}},
-            {"$set": {"operational": "error"}}
-        )
+        self._update_operational_status("running")
+        self._update_operational_status("error")
+        self._update_operational_status("stopped")
 
     def do_action(self):
         try:
@@ -94,7 +100,9 @@ class EventManager(Manager):
                 self.update_operational_statuses()
 
                 # Remove dead processes from memory so that they are fetched freshly from db later
-                self.processes = [process for process in self.processes
+                self.processes = [process
+                                  for process
+                                  in self.processes
                                   if process.get("process").is_alive()]
 
                 envs = self.collection.find({'scanned': True, 'listen': True})
@@ -120,6 +128,14 @@ class EventManager(Manager):
                 self.log.info("Stopping '{0}' event listener".format(p.get("name")))
                 p.get("process").terminate()
 
+            # Updating operational statuses for manually stopped processes
+            self.collection.update_many(
+                {"name": {"$in": [process.get("name")
+                                  for process
+                                  in self.processes
+                                  if self._get_operational(process) != "error"]}},
+                {"$set": {"operational": "stopped"}}
+            )
 
 if __name__ == "__main__":
     EventManager().run()

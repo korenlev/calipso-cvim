@@ -173,7 +173,7 @@ def listen(args: dict = None):
             worker.run()
         except KeyboardInterrupt:
             print('Stopped')
-            args['process_vars']['operational'] = "error"
+            args['process_vars']['operational'] = "stopped"
         except Exception as e:
             logger.log.error(e)
             args['process_vars']['operational'] = "error"
