@@ -73,11 +73,12 @@ class Scans(ResponderBase):
             "object_id": self.require(str, mandatory=True)
         }
         self.validate_query_data(scan, scan_requirements)
-        self.check_and_convert_datetime("submit_timestamp", scan)
 
         env_name = scan["environment"]
         self.check_environment_name(env_name)
 
+        scan["scan_completed"] = False
+        scan["submit_timestamp"] = datetime.now()
         self.write(scan, self.COLLECTION)
         self.set_successful_response(resp,
                                      {"message": "created a new scan for "
