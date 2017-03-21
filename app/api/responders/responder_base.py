@@ -8,6 +8,7 @@ from pymongo import errors
 from utils.dict_naming_converter import DictNamingConverter
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from urllib import parse
 
 
 class ResponderBase(DataValidate, Logger, DictNamingConverter):
@@ -106,36 +107,18 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
         return objects
 
     def parse_query_params(self, req):
-        query_string = req.query_string.strip()
-        query_params = {}
-
+        query_string = req.query_string
         if not query_string:
+            return {}
+        try:
+            query_params = dict((k, v if len(v) > 1 else v[0])
+                                for k, v in
+                                parse.parse_qs(query_string,
+                                               keep_blank_values=True,
+                                               strict_parsing=True).items())
             return query_params
-
-        valid = True
-        filters = query_string.split('&')
-        for filter in filters:
-            if '=' not in filter:
-                valid = False
-                break
-            index = filter.index('=')
-            key = filter[:index].strip()
-            value = filter[index + 1:].strip()
-
-            if not key or not value:
-                valid = False
-                break
-            if key not in query_params:
-                query_params[key] = value
-            else:
-                if not isinstance(query_params[key], list):
-                    query_params[key] = [query_params[key]]
-                query_params[key].append(value)
-        if not valid:
-            self.bad_request('invalid query string: {0}'
-                             .format(query_string))
-
-        return query_params
+        except ValueError as e:
+            self.bad_request(str("Invalid query string: {0}".format(str(e))))
 
     def replace_colon_with_dot(self, s):
         return s.replace(':', '.')

@@ -68,13 +68,15 @@ class DataValidate(Util):
                             if not re.match(additional_key_re, key)]
 
         if illegal_keys:
-            return 'invalid key(s): {0}'.format(' and '.join(illegal_keys))
+            return 'Invalid key(s): {0}'.format(' and '.join(illegal_keys))
 
         for key, requirement in requirements.items():
             value = data.get(key)
             error_messages = requirement['error_messages']
 
             if not value:
+                if key in data:
+                    return "Invalid query string: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
                 mandatory_error = error_messages.get('mandatory')
                 error_message = self.mandatory_check(key,
