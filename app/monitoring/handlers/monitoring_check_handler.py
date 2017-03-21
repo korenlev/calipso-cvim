@@ -1,4 +1,5 @@
 # handle monitoring event
+import datetime
 import sys
 
 from bson import ObjectId
@@ -9,9 +10,11 @@ from messages.message import Message
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.special_char_converter import SpecialCharConverter
+from utils.util import Util
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
 SOURCE_SYSTEM = 'Sensu'
+ERROR_LEVEL = ['ok', 'warning', 'critical']
 
 
 class MonitoringCheckHandler(Logger, SpecialCharConverter):
@@ -54,14 +57,22 @@ class MonitoringCheckHandler(Logger, SpecialCharConverter):
         self.inv.set(doc)
 
   @staticmethod
-  def check_ts(self, check_result):
+  def check_ts(check_result):
     return gmtime(check_result['executed'])
 
   def keep_result(self, doc, check_result):
     status = check_result['status']
     ts = self.check_ts(check_result)
     self.set_doc_status(doc, status, check_result['output'], ts)
+    self.keep_message(doc, check_result)
+
+  def keep_message(self, doc, check_result, error_level=None):
     msg_id = check_result['id']
-    message = Message(msg_id, self.env, SOURCE_SYSTEM, doc['id'], doc['type'],
-               display_context, level, msg, ts):
-    self.inv.set(message, self.inv.coll['messages'])
+    obj_id = ObjectId(doc['_id'])
+    display_context = doc['id']
+    level = error_level if error_level else ERROR_LEVEL[check_result['status']]
+    dt = datetime.utcfromtimestamp(check_result['executed'])
+    ts = Util.stringify_datetime(dt)
+    message = Message(msg_id, self.env, SOURCE_SYSTEM, obj_id, doc['type'],
+                      display_context, level, check_result, ts)
+    self.inv.set(message.get(), self.inv.collections['messages'])
