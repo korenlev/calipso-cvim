@@ -15,3 +15,17 @@ class Message:
         self.message = msg
         self.timestamp = ts
         self.viewed = False
+
+    def get(self):
+        return {
+            "id": self.id,
+            "environment": self.environment,
+            "source_system": self.source_system,
+            "related_object": self.related_object,
+            "related_object_type": self.related_object_type,
+            "display_context": self.display_context,
+            "level": self.level,
+            "message": self.message,
+            "timestamp": self.timestamp,
+            "viewed": self.viewed
+        }
