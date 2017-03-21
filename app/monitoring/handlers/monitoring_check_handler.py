@@ -5,11 +5,13 @@ from bson import ObjectId
 from time import gmtime, strftime
 
 from discover.configuration import Configuration
+from messages.message import Message
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.special_char_converter import SpecialCharConverter
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
+SOURCE_SYSTEM = 'Sensu'
 
 
 class MonitoringCheckHandler(Logger, SpecialCharConverter):
@@ -51,10 +53,15 @@ class MonitoringCheckHandler(Logger, SpecialCharConverter):
     else:
         self.inv.set(doc)
 
+  @staticmethod
   def check_ts(self, check_result):
     return gmtime(check_result['executed'])
 
   def keep_result(self, doc, check_result):
     status = check_result['status']
-    self.set_doc_status(doc, status, check_result['output'],
-                        self.check_ts(check_result))
+    ts = self.check_ts(check_result)
+    self.set_doc_status(doc, status, check_result['output'], ts)
+    msg_id = check_result['id']
+    message = Message(msg_id, self.env, SOURCE_SYSTEM, doc['id'], doc['type'],
+               display_context, level, msg, ts):
+    self.inv.set(message, self.inv.coll['messages'])

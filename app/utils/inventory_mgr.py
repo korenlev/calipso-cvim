@@ -63,6 +63,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         self.set_collection("monitoring_config")
         self.set_collection("constants")
         self.set_collection("scans")
+        self.set_collection("messages")
 
     def clear(self, scan_plan):
         if scan_plan.inventory_only:
