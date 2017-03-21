@@ -155,7 +155,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
     def get_collection_by_name(self, name):
         if name in self.UNCHANGED_COLLECTIONS:
             return self.inv.db[name]
-        return self.inv.coll[name]
+        return self.inv.collections[name]
 
     def get_constants_by_name(self, name):
         constants = self.get_collection_by_name("constants").\

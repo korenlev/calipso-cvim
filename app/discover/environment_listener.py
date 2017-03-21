@@ -46,7 +46,7 @@ class EnvironmentListener(ConsumerMixin):
         self.inv = InventoryMgr()
 
     def set_env(self, env, inventory_collection):
-        self.inv.set_inventory_collection(inventory_collection)
+        self.inv.set_collections(inventory_collection)
         self.handler = EventHandler(env, inventory_collection)
         self.notification_responses = {
             "compute.instance.create.end": self.handler.instance_add,
@@ -175,7 +175,7 @@ def listen(args: dict = None):
             print('Stopped')
             args['process_vars']['operational'] = "stopped"
         except Exception as e:
-            logger.log.error(e)
+            logger.log.exception(e)
             args['process_vars']['operational'] = "error"
 
 

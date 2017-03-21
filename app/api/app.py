@@ -31,7 +31,7 @@ class App:
                  log_level="", inventory=""):
         self.inv = InventoryMgr(mongo_config)
         self.inv.set_loglevel(log_level)
-        self.inv.set_inventory_collection(inventory)
+        self.inv.set_collections(inventory)
         self.middleware = AuthenticationMiddleware(ldap_config)
         # self.app = falcon.API(middleware=[self.middleware])
         self.app = falcon.API()

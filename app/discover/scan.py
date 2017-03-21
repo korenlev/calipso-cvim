@@ -231,7 +231,7 @@ class ScanController(Fetcher):
         try:
             self.conf = Configuration(args['mongo_config'])
             self.inv = InventoryMgr()
-            self.inv.set_inventory_collection(args['inventory'])
+            self.inv.set_collections(args['inventory'])
         except FileNotFoundError:
             return False, 'Mongo configuration file not found'
 

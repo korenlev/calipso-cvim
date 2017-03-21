@@ -39,7 +39,7 @@ class MongoAccess(Logger, DictNamingConverter):
                 config_params = config_file.read_config()
                 self.connect_params.update(config_params)
             except Exception as e:
-                self.log.error(str(e))
+                self.log.exception(e)
                 raise
         self.prepare_connect_uri()
         MongoAccess.client = MongoClient(
@@ -83,3 +83,7 @@ class MongoAccess(Logger, DictNamingConverter):
     @staticmethod
     def decode_mongo_keys(item):
         return MongoAccess.change_dict_naming_convention(item, MongoAccess.decode_dots)
+
+    @staticmethod
+    def decode_object_id(item: dict):
+        return dict(item, **{"_id": str(item["_id"])}) if item and "_id" in item else item

@@ -106,7 +106,7 @@ class ScanManager(Manager):
                     scan_request['status'] = 'failed'
                     self._update_document(scan_request)
                 except Exception as e:
-                    self.log.error(e)
+                    self.log.exception(e)
                     self.log.info("Scan request '{}' has failed.".format(scan_request['_id']))
                     scan_request['status'] = 'failed'
                     self._update_document(scan_request)
