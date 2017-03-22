@@ -14,7 +14,7 @@ from utils.util import Util
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
 SOURCE_SYSTEM = 'Sensu'
-ERROR_LEVEL = ['ok', 'warning', 'critical']
+ERROR_LEVEL = ['info', 'warning', 'critical']
 
 
 class MonitoringCheckHandler(Logger, SpecialCharConverter):
@@ -71,8 +71,9 @@ class MonitoringCheckHandler(Logger, SpecialCharConverter):
     obj_id = ObjectId(doc['_id'])
     display_context = doc['id']
     level = error_level if error_level else ERROR_LEVEL[check_result['status']]
-    dt = datetime.utcfromtimestamp(check_result['executed'])
+    dt = datetime.datetime.utcfromtimestamp(check_result['executed'])
     ts = Util.stringify_datetime(dt)
     message = Message(msg_id, self.env, SOURCE_SYSTEM, obj_id, doc['type'],
                       display_context, level, check_result, ts)
-    self.inv.set(message.get(), self.inv.collections['messages'])
+    collection = self.inv.collections['messages']
+    collection.insert_one(message.get())
