@@ -82,17 +82,19 @@ class Util(object):
                 if o:
                     try:
                         o = ObjectId(o)
-                    except Exception as e:
+                    except Exception:
                         raise Exception("{0} is not a valid object id".
                                         format(o))
                 obj[key] = o
 
     # stringify datetime object
-    def stringify_datetime(self, dt):
+    @staticmethod
+    def stringify_datetime(dt):
         return dt.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
     # stringify ObjectId
-    def stringify_object_id(self, object_id):
+    @staticmethod
+    def stringify_object_id(object_id):
         return str(object_id)
 
     # Get arguments from cli or another source and convert them to dict to enforce uniformity.
