@@ -58,17 +58,18 @@ class ScanPlan:
         if (self.inventory_only and self.links_only) \
                 or (self.inventory_only and self.cliques_only) \
                 or (self.links_only and self.cliques_only):
-            errors.append("Only one of (inventory_only, links_only, cliques_only) can be True.")
+            errors.append("Only one of the *_only flags can be True.")
+
         if errors:
             raise ScanArgumentsError("\n".join(errors))
 
     def _set_arg_from_dict(self, attribute_name, arg_name=None,
                            default_key=None):
+        default_key = default_key if default_key else attribute_name
         setattr(self,
                 attribute_name,
                 self.args.get(arg_name if arg_name else attribute_name,
-                              ScanController.DEFAULTS[default_key
-                              if default_key else attribute_name]))
+                              ScanController.DEFAULTS[default_key]))
 
     def _set_arg_from_cmd(self, attribute_name, arg_name=None):
         setattr(self,
@@ -77,11 +78,11 @@ class ScanPlan:
 
     def _set_arg_from_form(self, attribute_name, arg_name=None,
                            default_key=None):
+        default_key = default_key if default_key else attribute_name
         setattr(self,
                 attribute_name,
                 self.args.getvalue(arg_name if arg_name else attribute_name,
-                                   ScanController.DEFAULTS[default_key
-                                   if default_key else attribute_name]))
+                                   ScanController.DEFAULTS[default_key]))
 
     def _init_from_dict(self):
         self.cgi = False
@@ -171,8 +172,8 @@ class ScanController(Fetcher):
                             default=self.DEFAULTS["loglevel"],
                             help="logging level \n(default: 'INFO')")
         parser.add_argument("--clear", action="store_true",
-                            help="clear all data related to " +
-                                 "the specified environment prior to scanning\n" +
+                            help="clear all data related to the specified " +
+                                 "environment prior to scanning\n" +
                                  "(default: False)")
         parser.add_argument("--clear_all", action="store_true",
                             help="clear all data prior to scanning\n" +
@@ -181,11 +182,14 @@ class ScanController(Fetcher):
         # At most one of these arguments may be present
         scan_only_group = parser.add_mutually_exclusive_group()
         scan_only_group.add_argument("--inventory_only", action="store_true",
-                                     help="do only scan to inventory\n(default: False)")
+                                     help="do only scan to inventory\n" +
+                                          "(default: False)")
         scan_only_group.add_argument("--links_only", action="store_true",
-                                     help="do only links creation \n(default: False)")
+                                     help="do only links creation \n" +
+                                          "(default: False)")
         scan_only_group.add_argument("--cliques_only", action="store_true",
-                                     help="do only cliques creation \n(default: False)")
+                                     help="do only cliques creation \n" +
+                                          "(default: False)")
 
         return parser.parse_args()
 
@@ -226,7 +230,8 @@ class ScanController(Fetcher):
 
     def run(self, args: dict = None):
         args = Util.setup_args(args, self.DEFAULTS, self.get_args)
-        # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
+        # After this setup we assume args dictionary has
+        # all keys defined in self.DEFAULTS
 
         try:
             self.conf = Configuration(args['mongo_config'])
