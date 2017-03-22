@@ -33,18 +33,16 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
 
     def __init__(self, mongo_conf_file, env):
         super().__init__(mongo_conf_file)
-        self.config = Configuration()
-        conf = self.configuration
-        env_config = conf.env_config
-        self.mechanism_drivers = env_config['mechanism_drivers']
+        self.configuration = Configuration()
+        self.mechanism_drivers = \
+            self.configuration.env_config['mechanism_drivers']
         self.env = env
         self.monitoring_config = self.db.monitoring_config_templates
-        self.env_monitoring_config = self.config.get('Monitoring')
+        self.env_monitoring_config = self.configuration.get('Monitoring')
         self.local_host = self.env_monitoring_config['server_ip']
         self.replacements = self.env_monitoring_config
         self.inv = InventoryMgr()
-        config_collection = self.inv.get_coll_name('monitoring_config')
-        self.config_db = self.db[config_collection]
+        self.config_db = self.db[self.inv.get_coll_name('monitoring_config')]
         self.provision = self.provision_levels['none']
         if self.env_monitoring_config:
             provision = self.env_monitoring_config.get('provision', 'none')
@@ -74,7 +72,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         for doc in docs:
             if self.check_env_condition(doc):
                 content.update(doc)
-        self.replacements['app_path'] = self.config.env_config['app_path']
+        self.replacements['app_path'] = self.configuration.env_config['app_path']
         config = self.content_replace({'config': content['config']})
         return config
 

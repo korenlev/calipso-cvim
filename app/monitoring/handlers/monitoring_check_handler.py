@@ -22,7 +22,7 @@ class MonitoringCheckHandler(Logger, SpecialCharConverter):
     try:
       self.conf = Configuration(args.mongo_config)
       self.inv = InventoryMgr()
-      self.inv.set_inventory_collection(args.inventory)
+      self.inv.set_collections(args.inventory)
     except FileNotFoundError:
       sys.exit(1)
 
@@ -33,7 +33,7 @@ class MonitoringCheckHandler(Logger, SpecialCharConverter):
     return doc
 
   def doc_by_db_id(self, db_id, coll_name=None):
-    coll = self.inv.coll[coll_name] if coll_name else None
+    coll = self.inv.collections[coll_name] if coll_name else None
     doc = self.inv.find({'_id': ObjectId(db_id)},
                         get_single=True, collection=coll)
     if not doc:

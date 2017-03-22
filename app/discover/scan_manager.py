@@ -2,41 +2,39 @@ import argparse
 import datetime
 
 import time
-
-import re
+from functools import partial
 
 from discover.manager import Manager
+from utils.exceptions import ScanArgumentsError
 from utils.mongo_access import MongoAccess
 from discover.scan import ScanController
 
 
 class ScanManager(Manager):
-    ALLOWED_SCAN_STATUSES = [
-        'pending',
-        'running',
-        'completed',
-        'failed'
-    ]
+
+    DEFAULTS = {
+        "mongo_config": "",
+        "collection": "scans",
+        "interval": 1
+    }
 
     def __init__(self):
         super().__init__()
         self.args = None
         self.db_client = None
-        self.db = None
-        self.scan_controller = None
 
     @staticmethod
     def get_args():
         parser = argparse.ArgumentParser()
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
-                            default="",
+                            default=ScanManager.DEFAULTS["mongo_config"],
                             help="Name of config file " +
-                                 "with MongoDB server access details")
+                            "with MongoDB server access details")
         parser.add_argument("-c", "--collection", nargs="?", type=str,
-                            default="scans",
+                            default=ScanManager.DEFAULTS["collection"],
                             help="Scans collection to read from")
         parser.add_argument("-i", "--interval", nargs="?", type=float,
-                            default=1,
+                            default=ScanManager.DEFAULTS["interval"],
                             help="Interval between collection polls"
                                  "(must be more than {} seconds)"
                             .format(ScanManager.MIN_INTERVAL))
@@ -46,20 +44,15 @@ class ScanManager(Manager):
     def configure(self):
         self.args = self.get_args()
         self.db_client = MongoAccess(self.args.mongo_config)
-        self.db = MongoAccess.db
-        self.collection = self.db[self.args.collection]
+        self.collection = self.db_client.db[self.args.collection]
+        self._update_document = partial(MongoAccess.update_document, self.collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
-        self.scan_controller = ScanController()
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "Mongo config file path: {0}\n"
                       "Collection: {1}\n"
                       "Polling interval: {2} second(s)"
                       .format(self.args.mongo_config, self.collection.name, self.interval))
-
-    def _update_document(self, document):
-        self.collection.update_one({'_id': document['_id']},
-                                   {'$set': document}, upsert=True)
 
     def _build_scan_args(self, scan_request):
         args = {
@@ -87,44 +80,50 @@ class ScanManager(Manager):
 
     def do_action(self):
         while True:
-            scan_request = self.collection.find_one(
-                {'status': {'$not': re.compile('^completed$', re.IGNORECASE),
-                            '$in': [re.compile("^{0}$".format(regex), re.IGNORECASE)
-                                    for regex in self.ALLOWED_SCAN_STATUSES]}})
+            scan_request = self.collection.find_one({'status': 'pending',
+                                                     'submit_timestamp': {'$ne': None}})
 
             # if no scans are pending, sleep for some time
             if not scan_request:
                 time.sleep(self.interval)
-                continue
-
-            if scan_request['status'] == 'pending' or scan_request['status'] == 'failed':
+            else:
                 scan_request['start_timestamp'] = datetime.datetime.utcnow()
                 scan_request['status'] = 'running'
                 self._update_document(scan_request)
 
                 # Prepare scan arguments and run the scan with them
-                # Possible TODO: provide more feedback from scanning process?
                 try:
                     scan_args = self._build_scan_args(scan_request)
+
                     self.log.info("Starting scan for '{}' environment"
                                   .format(scan_args.get('env')))
                     self.log.debug("Scan arguments: {}".format(scan_args))
-                    ScanController().run(scan_args)
-                except Exception as e:
-                    self.log.error(e)
+                    result, message = ScanController().run(scan_args)
+                except ScanArgumentsError as e:
+                    self.log.error("Scan request '{id}' has invalid arguments. Errors:\n{errors}"
+                                   .format(id=scan_request['_id'],
+                                           errors=e))
                     scan_request['status'] = 'failed'
                     self._update_document(scan_request)
-                    time.sleep(self.interval)  # Temporary back-off after a failure
-                    continue
+                except Exception as e:
+                    self.log.exception(e)
+                    self.log.info("Scan request '{}' has failed.".format(scan_request['_id']))
+                    scan_request['status'] = 'failed'
+                    self._update_document(scan_request)
+                else:
+                    # Check is scan returned success
+                    if not result:
+                        self.log.error(message)
+                        self.log.info("Scan request '{}' has failed.".format(scan_request['_id']))
+                        scan_request['status'] = 'failed'
+                        self._update_document(scan_request)
 
-                # update the status and timestamps.
-                end_time = datetime.datetime.utcnow()
-                scan_request['status'] = 'completed'
-                scan_request['end_timestamp'] = end_time
-                scan_request['last_scanned'] = end_time
-                self._update_document(scan_request)
-
-                self.log.info("Request '{}' has been scanned.".format(scan_request['_id']))
+                    # update the status and timestamps.
+                    self.log.info("Request '{}' has been scanned.".format(scan_request['_id']))
+                    end_time = datetime.datetime.utcnow()
+                    scan_request['status'] = 'completed'
+                    scan_request['end_timestamp'] = end_time
+                    self._update_document(scan_request)
 
 
 if __name__ == "__main__":

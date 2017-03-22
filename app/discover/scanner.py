@@ -18,7 +18,6 @@ from utils.util import Util
 
 
 class Scanner(Util, Fetcher):
-    inventory = None
     config = None
     environment = None
     env = None
@@ -42,8 +41,6 @@ class Scanner(Util, Fetcher):
         """
         super(Scanner, self).__init__()
         self.types_to_fetch = types_to_fetch
-        if not Scanner.inventory:
-            Scanner.inventory = InventoryMgr()
         self.config = Configuration()
         self.inv = InventoryMgr()
 
@@ -193,7 +190,7 @@ class Scanner(Util, Fetcher):
                 # case of dynamic folder added by need
                 master_parent_type = o["master_parent_type"]
                 master_parent_id = o["master_parent_id"]
-                master_parent = self.inventory.get_by_id(self.get_env(),
+                master_parent = self.inv.get_by_id(self.get_env(),
                                                          master_parent_id)
                 if not master_parent:
                     self.log.error("failed to find master parent " +
@@ -219,7 +216,7 @@ class Scanner(Util, Fetcher):
                 # as they're there just ro help create the dynamic folder
                 o.pop("master_parent_type", True)
                 o.pop("master_parent_id", True)
-                Scanner.inventory.set(folder)
+                self.inv.set(folder)
             except KeyError:
                 pass
 
@@ -237,7 +234,7 @@ class Scanner(Util, Fetcher):
                 o["parent_type"] = parent["type"]
             elif "parent_id" in o and o["parent_id"] != parent["id"]:
                 # using alternate parent - fetch parent path from inventory
-                parent_obj = Scanner.inventory.get_by_id(environment,
+                parent_obj = self.inv.get_by_id(environment,
                                                          o["parent_id"])
                 if parent_obj:
                     parent_id_path = parent_obj["id_path"]
@@ -263,7 +260,7 @@ class Scanner(Util, Fetcher):
 
             if "create_object" not in o or o["create_object"]:
                 # add/update object in DB
-                Scanner.inventory.set(o)
+                self.inv.set(o)
                 self.inv.monitoring_setup_manager.create_setup(o)
 
             # add objects into children list.
@@ -321,8 +318,7 @@ class Scanner(Util, Fetcher):
             fetcher.add_links()
 
     def scan_cliques(self):
-        Scanner.inventory.scan_cliques(self.get_env())
+        self.inv.scan_cliques(self.get_env())
 
     def deploy_monitoring_setup(self):
-        if self.inv.monitoring_setup_manager:
-            self.inv.monitoring_setup_manager.handle_pending_setup_changes()
+        self.inv.monitoring_setup_manager.handle_pending_setup_changes()

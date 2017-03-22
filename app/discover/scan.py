@@ -8,17 +8,20 @@ import argparse
 import cgi
 
 import os
-import sys
 import time
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
 from utils.util import Util
 
 
 class ScanPlan:
+    """
+    @DynamicAttrs
+    """
 
     COMMON_ATTRIBUTES = (("loglevel",),
                          ("inventory_only",),
@@ -39,12 +42,25 @@ class ScanPlan:
         self.obj = None
         self.scanner_class = None
         self.args = args
+        for attribute in self.COMMON_ATTRIBUTES:
+            setattr(self, attribute[0], None)
+
         if "REQUEST_METHOD" in os.environ:
             self._init_from_cgi()
         elif isinstance(args, dict):
             self._init_from_dict()
         else:
             self._init_from_args()
+        self._validate_args()
+
+    def _validate_args(self):
+        errors = []
+        if (self.inventory_only and self.links_only) \
+                or (self.inventory_only and self.cliques_only) \
+                or (self.links_only and self.cliques_only):
+            errors.append("Only one of (inventory_only, links_only, cliques_only) can be True.")
+        if errors:
+            raise ScanArgumentsError("\n".join(errors))
 
     def _set_arg_from_dict(self, attribute_name, arg_name=None,
                            default_key=None):
@@ -68,7 +84,6 @@ class ScanPlan:
                                    if default_key else attribute_name]))
 
     def _init_from_dict(self):
-
         self.cgi = False
         for arg in self.COMMON_ATTRIBUTES:
             self._set_arg_from_dict(*arg)
@@ -90,7 +105,6 @@ class ScanPlan:
 
 
 class ScanController(Fetcher):
-
     DEFAULTS = {
         "env": "WebEX-Mirantis@Cisco",
         "cgi": False,
@@ -120,26 +134,26 @@ class ScanController(Fetcher):
         parser.add_argument("-c", "--cgi", nargs="?", type=bool,
                             default=self.DEFAULTS["cgi"],
                             help="read argument from CGI (true/false) \n" +
-                            "(default: false)")
+                                 "(default: false)")
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=self.DEFAULTS["mongo_config"],
                             help="name of config file " +
-                            "with MongoDB server access details")
+                                 "with MongoDB server access details")
         parser.add_argument("-e", "--env", nargs="?", type=str,
                             default=self.DEFAULTS["env"],
                             help="name of environment to scan \n" +
-                            "(default: " + self.DEFAULTS["env"] + ")")
+                                 "(default: " + self.DEFAULTS["env"] + ")")
         parser.add_argument("-t", "--type", nargs="?", type=str,
                             default=self.DEFAULTS["type"],
                             help="type of object to scan \n" +
-                            "(default: environment)")
+                                 "(default: environment)")
         parser.add_argument("-y", "--inventory", nargs="?", type=str,
                             default=self.DEFAULTS["inventory"],
                             help="name of inventory collection \n" +
-                            "(default: 'inventory')")
+                                 "(default: 'inventory')")
         parser.add_argument("-s", "--scan_self", action="store_true",
                             help="scan changes to a specific object \n" +
-                            "(default: False)")
+                                 "(default: False)")
         parser.add_argument("-i", "--id", nargs="?", type=str,
                             default=self.DEFAULTS["env"],
                             help="ID of object to scan (when scan_self=true)")
@@ -152,27 +166,31 @@ class ScanController(Fetcher):
         parser.add_argument("-f", "--id_field", nargs="?", type=str,
                             default=self.DEFAULTS["id_field"],
                             help="name of ID field (when scan_self=true) \n" +
-                            "(default: 'id', use 'name' for projects)")
+                                 "(default: 'id', use 'name' for projects)")
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=self.DEFAULTS["loglevel"],
                             help="logging level \n(default: 'INFO')")
-        parser.add_argument("--inventory_only", action="store_true",
-                            help="do only scan to inventory\n(default: False)")
-        parser.add_argument("--links_only", action="store_true",
-                            help="do only links creation \n(default: False)")
-        parser.add_argument("--cliques_only", action="store_true",
-                            help="do only cliques creation \n(default: False)")
         parser.add_argument("--clear", action="store_true",
                             help="clear all data related to " +
-                            "the specified environment prior to scanning\n" +
-                            "(default: False)")
+                                 "the specified environment prior to scanning\n" +
+                                 "(default: False)")
         parser.add_argument("--clear_all", action="store_true",
                             help="clear all data prior to scanning\n" +
-                            "(default: False)")
-        args = parser.parse_args()
-        return args
+                                 "(default: False)")
+
+        # At most one of these arguments may be present
+        scan_only_group = parser.add_mutually_exclusive_group()
+        scan_only_group.add_argument("--inventory_only", action="store_true",
+                                     help="do only scan to inventory\n(default: False)")
+        scan_only_group.add_argument("--links_only", action="store_true",
+                                     help="do only links creation \n(default: False)")
+        scan_only_group.add_argument("--cliques_only", action="store_true",
+                                     help="do only cliques creation \n(default: False)")
+
+        return parser.parse_args()
 
     def get_scan_plan(self, args):
+        # noinspection PyTypeChecker
         return self.prepare_scan_plan(ScanPlan(args))
 
     def prepare_scan_plan(self, plan):
@@ -206,32 +224,16 @@ class ScanController(Fetcher):
         plan.scanner_class = "Scan" + plan.object_type
         return plan
 
-    # Get arguments from CLI or another source and convert them to dict
-    # to enforce uniformity.
-    # Throws a TypeError if arguments can't be converted to dict.
-    def _setup_args(self, args: dict):
-        if args is None:
-            args = vars(self.get_args())
-        if not isinstance(args, dict):
-            try:
-                args = dict(args)
-            except TypeError:
-                try:
-                    args = vars(args)
-                except TypeError:
-                    raise TypeError("Wrong scan arguments format")
-        return dict(self.DEFAULTS, **args)
-
     def run(self, args: dict = None):
-        args = self._setup_args(args)
-        # assuming args dictionary has all keys defined in self.DEFAULTS
+        args = Util.setup_args(args, self.DEFAULTS, self.get_args)
+        # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
 
         try:
             self.conf = Configuration(args['mongo_config'])
             self.inv = InventoryMgr()
-            self.inv.set_inventory_collection(args['inventory'])
+            self.inv.set_collections(args['inventory'])
         except FileNotFoundError:
-            sys.exit(1)
+            return False, 'Mongo configuration file not found'
 
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:
@@ -282,6 +284,7 @@ class ScanController(Fetcher):
             print("Content-type: application/json\n\n")
             print(response)
             print("\n")
+        return True, 'ok'
 
 
 if __name__ == '__main__':

@@ -12,6 +12,7 @@ class Manager(Logger, ABC):
         super().__init__()
         self.conf = None
         self.collection = None
+        self._update_document = None
         self.interval = self.MIN_INTERVAL
 
     @abstractmethod

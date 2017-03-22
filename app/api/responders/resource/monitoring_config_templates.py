@@ -8,11 +8,16 @@ class MonitoringConfigTemplates(ResponderBase):
         super().__init__()
         self.ID = "_id"
         self.COLLECTION = "monitoring_config_templates"
+        self.PROJECTION = {
+            self.ID: True,
+            "side": True,
+            "type": True
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting monitoring config template")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
 
         sides = self.get_constants_by_name("monitoring_sides")
         filters_requirements = {
@@ -32,12 +37,10 @@ class MonitoringConfigTemplates(ResponderBase):
         if self.ID in query:
             template = self.get_object_by_id(self.COLLECTION, query,
                                              [ObjectId], self.ID)
-            if not template:
-                self.not_found()
             self.set_successful_response(resp, template)
         else:
-            templates = self.get_object_ids(self.COLLECTION, query,
-                                            page, page_size, self.ID)
+            templates = self.get_objects_list(self.COLLECTION, query,
+                                              page, page_size, self.PROJECTION)
             self.set_successful_response(
                 resp,
                 {"monitoring_config_templates": templates}

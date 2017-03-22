@@ -15,7 +15,7 @@ class Aggregates(ResponderBase):
     def on_get(self, req, resp):
         self.log.debug("Getting aggregates information")
 
-        filters = self.parse_query_params(req.params)
+        filters = self.parse_query_params(req)
         filters_requirements = {
             "env_name": self.require(str),
             "type": self.require(str, validate=DataValidate.LIST,
@@ -33,7 +33,8 @@ class Aggregates(ResponderBase):
         if query_type == "environment":
             env_name = query.get("env_name")
             if not env_name:
-                self.bad_request("environment name not specified")
+                self.bad_request("env_name must be specified")
+            self.check_environment_name(env_name)
 
         aggregates = self.AGGREGATES_MAP[query_type](query)
         self.set_successful_response(resp, aggregates)

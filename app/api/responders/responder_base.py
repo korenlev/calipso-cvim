@@ -1,16 +1,17 @@
 import json
-
+import re
 
 from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
+from dateutil import parser
+from pymongo import errors
 from utils.dict_naming_converter import DictNamingConverter
-from utils.logger import Logger
 from utils.inventory_mgr import InventoryMgr
-from utils.util import Util
+from utils.logger import Logger
+from urllib import parse
 
 
-class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
-
+class ResponderBase(DataValidate, Logger, DictNamingConverter):
     UNCHANGED_COLLECTIONS = ["monitoring_config_templates",
                              "environments_config",
                              "messages"]
@@ -22,7 +23,7 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
     def set_successful_response(self, resp, body="", status="200"):
         if not isinstance(body, str):
             try:
-                body = json.dumps(body)
+                body = self.jsonify(body)
             except Exception as e:
                 self.log.exception(e)
                 raise ValueError("The response body should be a string")
@@ -39,7 +40,7 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
                 "title": title
             }
         }
-        body = json.dumps(body)
+        body = self.jsonify(body)
         raise exceptions.OSDNAApiException(code, body, message)
 
     def not_found(self, message="Requested resource not found"):
@@ -55,37 +56,69 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
     def unauthorized(self, message="Request requires authorization"):
         self.set_error_response("Unauthorized", "401", message)
 
-    def validate_query_data(self, filters, filters_requirements):
-        # validate the filters in the query string
-        error_message = self.validate_data(filters, filters_requirements)
+    def validate_query_data(self, data, data_requirements,
+                            additional_key_reg=None):
+        error_message = self.validate_data(data, data_requirements,
+                                           additional_key_reg)
         if error_message:
             self.bad_request(error_message)
+
+    def check_and_convert_datetime(self, time_key, data):
+        time = data.get(time_key)
+
+        if time:
+            time = time.replace(' ', '+')
+            try:
+                data[time_key] = parser.parse(time)
+            except Exception:
+                self.bad_request("{0} must follow ISO 8610 date and time format,"
+                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
     def check_environment_name(self, env_name):
         query = {"name": env_name}
         objects = self.read("environments_config", query)
         if not objects:
-            return False
-        return True
+            self.bad_request("unkown environment: " + env_name)
 
     def get_object_by_id(self, collection, query, stringify_types, id):
+        if "environment" in query:
+            self.check_environment_name(query["environment"])
         objs = self.read(collection, query)
         if not objs:
-            return None
+            self.not_found()
         obj = objs[0]
         self.stringify_object_values_by_types(obj, stringify_types)
         if id is "_id":
             obj['id'] = obj.get('_id')
         return obj
 
-    def get_object_ids(self, collection, query, page, page_size, id):
-        objects = self.read(collection, query, {id: True}, page, page_size)
-        objects_ids = [str(obj[id]) for obj in objects]
-        return objects_ids
+    def get_objects_list(self, collection, query, page, page_size,
+                         projection):
+        if "environment" in query:
+            self.check_environment_name(query["environment"])
+        objects = self.read(collection, query, projection, page, page_size)
+        if not objects:
+            self.not_found()
+        for obj in objects:
+            if "id" not in obj and "_id" in obj:
+                obj["id"] = str(obj["_id"])
+            if "_id" in obj:
+                del obj["_id"]
+        return objects
 
-    def parse_query_params(self, params):
-        return self.change_dict_naming_convention(params,
-                                                  self.replace_colon_with_dot)
+    def parse_query_params(self, req):
+        query_string = req.query_string
+        if not query_string:
+            return {}
+        try:
+            query_params = dict((k, v if len(v) > 1 else v[0])
+                                for k, v in
+                                parse.parse_qs(query_string,
+                                               keep_blank_values=True,
+                                               strict_parsing=True).items())
+            return query_params
+        except ValueError as e:
+            self.bad_request(str("Invalid query string: {0}".format(str(e))))
 
     def replace_colon_with_dot(self, s):
         return s.replace(':', '.')
@@ -98,32 +131,41 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
     def update_query_with_filters(self, filters, filters_keys, query):
         for filter_key in filters_keys:
             filter = filters.get(filter_key)
-            if filter:
+            if filter is not None:
                 query.update({filter_key: filter})
 
     def get_content_from_request(self, req):
         error = ""
         content = ""
         if not req.content_length:
-            return {}
+            error = "No data found in the request body"
+            return error, content
+
         data = req.stream.read()
         content_string = data.decode()
         try:
             content = json.loads(content_string)
+            if not isinstance(content, dict):
+                error = "The data in the request body must be an object"
         except Exception:
             error = "The request can not be fulfilled due to bad syntax"
+
         return error, content
 
     def get_collection_by_name(self, name):
         if name in self.UNCHANGED_COLLECTIONS:
             return self.inv.db[name]
-        return self.inv.coll[name]
+        return self.inv.collections[name]
 
     def get_constants_by_name(self, name):
         constants = self.get_collection_by_name("constants").\
             find_one({"name": name})
         # consts = [d['value'] for d in constants['data']]
         consts = []
+        if not constants:
+            self.log.error('constant type: ' + name +
+                           'no constants exists')
+            return consts
         for d in constants['data']:
             try:
                 consts.append(d['value'])
@@ -139,8 +181,18 @@ class ResponderBase(DataValidate, Util, Logger, DictNamingConverter):
         return list(query)
 
     def write(self, document, collection="inventory"):
-        self.get_collection_by_name(collection).\
-            insert_one(document)
+        try:
+            self.get_collection_by_name(collection).\
+                insert_one(document)
+        except errors.DuplicateKeyError as e:
+            self.conflict("The key value ({0}) already exists".
+                          format(', '.
+                                 join(self.get_duplicate_key_values(e.details['errmsg']))))
+        except errors.WriteError as e:
+            self.bad_request('Failed to create resource for {0}'.format(str(e)))
+
+    def get_duplicate_key_values(self, err_msg):
+        return ["'{0}'".format(key) for key in re.findall(r'"([^",]+)"', err_msg)]
 
     def aggregate(self, pipeline, collection):
         collection = self.get_collection_by_name(collection)

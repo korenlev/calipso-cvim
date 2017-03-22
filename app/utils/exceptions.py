@@ -1,0 +1,4 @@
+
+
+class ScanArgumentsError(ValueError):
+    pass

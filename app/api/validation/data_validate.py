@@ -1,4 +1,9 @@
-class DataValidate:
+import re
+
+from utils.util import Util
+
+
+class DataValidate(Util):
     LIST = "list"
 
     def __init__(self):
@@ -53,12 +58,25 @@ class DataValidate:
             "error_messages": error_messages
         }
 
-    def validate_data(self, data, requirements):
+    def validate_data(self, data, requirements, additional_key_re=None):
+
+        illegal_keys = [key for key in data.keys()
+                        if key not in requirements.keys()]
+
+        if additional_key_re:
+            illegal_keys = [key for key in illegal_keys
+                            if not re.match(additional_key_re, key)]
+
+        if illegal_keys:
+            return 'Invalid key(s): {0}'.format(' and '.join(illegal_keys))
+
         for key, requirement in requirements.items():
             value = data.get(key)
             error_messages = requirement['error_messages']
 
             if not value:
+                if key in data:
+                    return "Invalid query string: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
                 mandatory_error = error_messages.get('mandatory')
                 error_message = self.mandatory_check(key,
