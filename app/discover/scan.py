@@ -29,14 +29,13 @@ class ScanPlan:
                          ("cliques_only",),
                          ("clear",),
                          ("clear_all",),
-                         ("object_type", "type", "type"),
+                         ("object_type", "object_type", "type"),
                          ("env",),
                          ("object_id", "id", "env"),
                          ("parent_id",),
-                         ("type_to_scan", "parent_type", "parent_type"),
+                         ("type_to_scan", "parent_type", "type"),
                          ("id_field",),
-                         ("scan_self",),
-                         ("child_type", "type", "type"))
+                         ("scan_self",))
 
     def __init__(self, args=None):
         self.obj = None
@@ -202,12 +201,14 @@ class ScanController(Fetcher):
         if not plan.scan_self:
             plan.scan_self = plan.object_type != "environment"
 
+        original_type = plan.object_type
         plan.object_type = plan.object_type.title().replace("_", "")
 
         if not plan.scan_self:
             plan.child_type = None
         else:
             plan.child_id = plan.object_id
+            plan.child_type = original_type
             plan.object_id = plan.parent_id
             if plan.type_to_scan.endswith("_folder"):
                 module = plan.child_type + "s_root"
