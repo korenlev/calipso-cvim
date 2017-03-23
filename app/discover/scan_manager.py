@@ -105,6 +105,7 @@ class ScanManager(Manager):
     def _complete_scan(self, scan_request: dict):
         return self._finalize_scan(scan_request, ScanStatus.COMPLETED, True)
 
+    # PyCharm type checker can't reliably check types of document
     # noinspection PyTypeChecker
     def _clean_up(self):
         # Find and fail all running scans

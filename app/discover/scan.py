@@ -196,6 +196,7 @@ class ScanController(Fetcher):
         return parser.parse_args()
 
     def get_scan_plan(self, args):
+        # PyCharm type checker can't reliably check types of document
         # noinspection PyTypeChecker
         return self.prepare_scan_plan(ScanPlan(args))
 
