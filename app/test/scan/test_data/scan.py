@@ -112,7 +112,6 @@ PREPARED_ENV_PLAN = {
 MODULE_NAME_FOR_IMPORT = 'scan_environment'
 SCANNER_CLASS = "ScanEnvironment"
 SCANNER_CLASS_FOR_ENV = "ScanEnvironment"
-MODULE_FILE_FOR_ENV = "scan_environment"
 OBJ_ID_FOR_ENV = "WebEX-Mirantis@Cisco"
 CHILD_TYPE_FOR_ENV = None
 CHILD_ID_FOR_ENV = None
@@ -205,7 +204,6 @@ SCAN_REGION_PLAN_TO_BE_PREPARED = {
 }
 
 SCANNER_CLASS_FOR_REGION = "ScanRegionsRoot"
-MODULE_FILE_FOR_REGION = "scan_regions_root"
 OBJ_ID_FOR_REGION = "WebEX-Mirantis@Cisco-regions"
 CHILD_TYPE_FOR_REGION = "region"
 CHILD_ID_FOR_REGION = "RegionOne"
@@ -239,7 +237,6 @@ SCAN_PROJECT_FOLDER_PLAN_TO_BE_PREPARED = {
 }
 
 SCANNER_CLASS_FOR_REGION_FOLDER = "ScanEnvironment"
-MODULE_FILE_FOR_REGION_FOLDER = "scan_environment"
 OBJ_ID_FOR_REGION_FOLDER = "WebEX-Mirantis@Cisco"
 CHILD_TYPE_FOR_REGION_FOLDER = "regions_folder"
 CHILD_ID_FOR_REGION_FOLDER = "WebEX-Mirantis@Cisco-regions"
