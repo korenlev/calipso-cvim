@@ -18,7 +18,7 @@ class TestFetch(unittest.TestCase):
         self.conf.use_env(self.env)
         self.conf.config = CONFIGURATIONS['configuration']
         self.inventory = InventoryMgr()
-        self.inventory.set_inventory_collection(self.inv)
+        self.inventory.set_collections(self.inv)
 
     def set_regions_for_fetcher(self, fetcher):
         fetcher.regions = REGIONS
