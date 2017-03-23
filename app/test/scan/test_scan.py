@@ -18,4 +18,4 @@ class TestScan(unittest.TestCase):
         self.conf.use_env(self.env)
         self.inv = InventoryMgr()
         self.conf.env_config = CONFIGURATIONS
-        self.inv.set_inventory_collection(self.inventory_collection)
+        self.inv.set_collections(self.inventory_collection)
