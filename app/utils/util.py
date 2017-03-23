@@ -1,5 +1,6 @@
 import importlib
 import json
+import signal
 from argparse import Namespace
 from typing import Dict, Callable
 
@@ -8,6 +9,17 @@ import re
 
 from bson.objectid import ObjectId
 from datetime import datetime
+
+
+class SignalHandler:
+
+    def __init__(self, signals=(signal.SIGTERM, signal.SIGINT)):
+        self.terminated = False
+        for sig in signals:
+            signal.signal(sig, self.handle)
+
+    def handle(self, signum, frame):
+        self.terminated = True
 
 
 class Util(object):

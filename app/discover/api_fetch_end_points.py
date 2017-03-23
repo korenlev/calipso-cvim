@@ -15,7 +15,7 @@ class ApiFetchEndPoints(ApiAccess, Util):
       return [] # XXX currently having problems authenticating to other tenants
     self.v2_auth_pwd(id)
     
-    environment = ApiAccess.config.get_env()
+    environment = ApiAccess.config.get_env_name()
     regions = []
     services = ApiAccess.body_hash['access']['serviceCatalog']
     endpoints = []

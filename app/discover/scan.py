@@ -23,6 +23,12 @@ class ScanPlan:
     @DynamicAttrs
     """
 
+    # Each tuple of COMMON_ATTRIBUTES consists of:
+    # attr_name, arg_name and def_key
+    #
+    # attr_name - name of class attribute to be set
+    # arg_name - corresponding name of argument (equal to attr_name if not set)
+    # def_key - corresponding key in DEFAULTS (equal to attr_name if not set)
     COMMON_ATTRIBUTES = (("loglevel",),
                          ("inventory_only",),
                          ("links_only",),
@@ -106,10 +112,10 @@ class ScanPlan:
 
 class ScanController(Fetcher):
     DEFAULTS = {
-        "env": "WebEX-Mirantis@Cisco",
+        "env": "",
         "cgi": False,
         "mongo_config": "",
-        "type": "environment",
+        "type": "",
         "inventory": "inventory",
         "scan_self": False,
         "parent_id": "",
@@ -193,7 +199,22 @@ class ScanController(Fetcher):
         # noinspection PyTypeChecker
         return self.prepare_scan_plan(ScanPlan(args))
 
+
     def prepare_scan_plan(self, plan):
+        # Find out object type if not specified in arguments
+        if not plan.object_type:
+            if not plan.object_id:
+                plan.object_type = "environment"
+            else:
+                # If we scan a specific object, it has to exist in db
+                scanned_object = self.inv.get_by_id(plan.env, plan.object_id)
+                if not scanned_object:
+                    raise ScanArgumentsError("No object found with specified id: '{}'"
+                                             .format(plan.object_id))
+                plan.object_type = scanned_object["type"]
+                plan.parent_id = scanned_object["parent_id"]
+                plan.type_to_scan = scanned_object["parent_type"]
+
         module = plan.object_type
         if not plan.scan_self:
             plan.scan_self = plan.object_type != "environment"
@@ -210,7 +231,6 @@ class ScanController(Fetcher):
             else:
                 module = plan.type_to_scan
             plan.object_type = module.title().replace("_", "")
-            plan.object_id = plan.parent_id
 
         if module == "environment":
             plan.obj = {"id": plan.env}
@@ -218,7 +238,7 @@ class ScanController(Fetcher):
             # fetch object from inventory
             obj = self.inv.get_by_id(plan.env, plan.object_id)
             if not obj:
-                raise ValueError("No match for object ID: " + plan.object_id)
+                raise ValueError("No match for object ID: {}".format(plan.object_id))
             plan.obj = obj
 
         plan.scanner_class = "Scan" + plan.object_type
@@ -268,10 +288,6 @@ class ScanController(Fetcher):
                 scan_plan.id_field,
                 scan_plan.child_id,
                 scan_plan.child_type)
-            if args['type'] == 'environment':
-                now = time.gmtime()
-                time_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", now)
-                self.conf.update_env({'last_scanned': time_str})
         if links_only or run_all:
             scanner.scan_links()
         if cliques_only or run_all:
