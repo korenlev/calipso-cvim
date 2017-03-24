@@ -1,9 +1,7 @@
 import re
 
-from utils.util import Util
 
-
-class DataValidate(Util):
+class DataValidate:
     LIST = "list"
 
     def __init__(self):
@@ -47,10 +45,13 @@ class DataValidate(Util):
 
     # get the requirement for validation
     # this requirement object will be used in validate_data method
-    def require(self, t, convert_to_type=False, validate=None,
-                requirement=None, mandatory=False, error_messages={}):
+    @staticmethod
+    def require(types, convert_to_type=False, validate=None,
+                requirement=None, mandatory=False, error_messages=None):
+        if error_messages is None:
+            error_messages = {}
         return {
-            "types": t,
+            "types": types,
             "convert_to_type": convert_to_type,
             "validate": validate,
             "requirement": requirement,
@@ -113,7 +114,8 @@ class DataValidate(Util):
                 return error_message
         return None
 
-    def mandatory_check(self, key, mandatory, error_message):
+    @staticmethod
+    def mandatory_check(key, mandatory, error_message):
         if mandatory:
             return error_message if error_message \
                     else "{} must be specified".format(key)
@@ -141,7 +143,8 @@ class DataValidate(Util):
         return self.VALIDATE_SWITCHER[validate](key, value, requirement,
                                                 error_message)
 
-    def validate_value_in_list(self, key, value,
+    @staticmethod
+    def validate_value_in_list(key, value,
                                required_list, error_message):
         if [v for v in value if v not in required_list]:
             return error_message if error_message else\

@@ -13,7 +13,7 @@ from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
-from utils.util import SignalHandler, Util
+from utils.util import SignalHandler, setup_args
 
 
 class EnvironmentListener(ConsumerMixin):
@@ -146,7 +146,7 @@ def listen(args: dict = None):
     from kombu import Connection
     logger = Logger()
 
-    args = Util.setup_args(args, EnvironmentListener.DEFAULTS, get_args)
+    args = setup_args(args, EnvironmentListener.DEFAULTS, get_args)
     if 'process_vars' not in args:
         args['process_vars'] = {}
 

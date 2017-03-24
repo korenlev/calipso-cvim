@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from discover.fetcher import Fetcher
+from utils.string_utils import jsonify
 
 
 class FolderFetcher(Fetcher):
@@ -23,4 +24,4 @@ class FolderFetcher(Fetcher):
             "parent_id": id,
             "parent_type": self.parent_type
         }
-        return self.jsonify([root_obj])
+        return jsonify([root_obj])

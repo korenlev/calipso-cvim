@@ -8,14 +8,13 @@ import argparse
 import cgi
 
 import os
-import time
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
-from utils.util import Util
+from utils.util import ClassResolver, setup_args
 
 
 class ScanPlan:
@@ -200,7 +199,6 @@ class ScanController(Fetcher):
         # noinspection PyTypeChecker
         return self.prepare_scan_plan(ScanPlan(args))
 
-
     def prepare_scan_plan(self, plan):
         # Find out object type if not specified in arguments
         if not plan.object_type:
@@ -246,7 +244,7 @@ class ScanController(Fetcher):
         return plan
 
     def run(self, args: dict = None):
-        args = Util.setup_args(args, self.DEFAULTS, self.get_args)
+        args = setup_args(args, self.DEFAULTS, self.get_args)
         # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
 
         try:
@@ -266,7 +264,7 @@ class ScanController(Fetcher):
 
         # generate ScanObject Class and instance.
         class_name = scan_plan.scanner_class
-        scanner = Util().get_instance_of_class(class_name)
+        scanner = ClassResolver.get_instance_of_class(class_name)
         scanner.set_env(env_name)
 
         # decide what scanning operations to do

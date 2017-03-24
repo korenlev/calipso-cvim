@@ -1,7 +1,7 @@
 import re
 
 
-class SpecialCharConverter():
+class SpecialCharConverter:
 
     translated_re = re.compile(r'---[.][.][0-9]+[.][.]---')
 
@@ -18,6 +18,7 @@ class SpecialCharConverter():
             match = m.group(0)
             char_code = match[5:len(match)-5]
             if char_code in replaced:
+                # TODO: This instruction does nothing!
                 next
             replaced.append(char_code)
             s = s.replace(match, chr(int(char_code)))
