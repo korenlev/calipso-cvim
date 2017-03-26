@@ -17,9 +17,7 @@ class SpecialCharConverter:
         for m in re.finditer(self.translated_re, s):
             match = m.group(0)
             char_code = match[5:len(match)-5]
-            if char_code in replaced:
-                # TODO: This instruction does nothing!
-                next
-            replaced.append(char_code)
-            s = s.replace(match, chr(int(char_code)))
+            if char_code not in replaced:
+                replaced.append(char_code)
+                s = s.replace(match, chr(int(char_code)))
         return s
