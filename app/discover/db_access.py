@@ -87,16 +87,6 @@ class DbAccess(Fetcher):
             rows.append(row)
         return rows
 
-        # TODO: This code is unreachable!
-        if isinstance(object_type, str):
-            ret = {"type": object_type, "rows": rows}
-        else:
-            # object_type is a hash of parameters, just add "rows" to it
-            ret = object_type
-            ret["rows"] = rows
-
-        return ret
-
     def get_objects_list(self, query, object_type):
         return self.get_objects_list_for_id(query, object_type, None)
 
