@@ -1,3 +1,5 @@
+import './loading.html';     
+
 Template.loading.rendered = function () {
     if ( ! Session.get('loadingSplash') ) {
         this.loading = window.pleaseWait({

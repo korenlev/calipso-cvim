@@ -3,6 +3,7 @@ import '/imports/startup/both';
 
 import '/imports/ui/store/store';
 import '/imports/ui/components/main/main';
+import '/imports/ui/components/loading/loading';
 import '/imports/ui/components/top-navbar-menu/top-navbar-menu';
 import '/imports/ui/components/environment/environment';
 import '/imports/ui/components/environment-wizard/environment-wizard';
