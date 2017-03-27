@@ -5,7 +5,6 @@
 # phase 2: either scan default environment, or scan specific object
 
 import argparse
-import cgi
 
 import os
 
@@ -50,9 +49,7 @@ class ScanPlan:
         for attribute in self.COMMON_ATTRIBUTES:
             setattr(self, attribute[0], None)
 
-        if "REQUEST_METHOD" in os.environ:
-            self._init_from_cgi()
-        elif isinstance(args, dict):
+        if isinstance(args, dict):
             self._init_from_dict()
         else:
             self._init_from_args()
@@ -89,30 +86,19 @@ class ScanPlan:
                                    if default_key else attribute_name]))
 
     def _init_from_dict(self):
-        self.cgi = False
         for arg in self.COMMON_ATTRIBUTES:
             self._set_arg_from_dict(*arg)
         self.child_id = None
 
     def _init_from_args(self):
-        self.cgi = False
         for arg in self.COMMON_ATTRIBUTES:
             self._set_arg_from_cmd(*arg[:2])
-        self.child_id = None
-
-    def _init_from_cgi(self):
-        self.args = cgi.FieldStorage()
-        self.cgi = True
-        for arg in self.COMMON_ATTRIBUTES:
-            self._set_arg_from_form(*arg)
-        self.child_type = None
         self.child_id = None
 
 
 class ScanController(Fetcher):
     DEFAULTS = {
         "env": "",
-        "cgi": False,
         "mongo_config": "",
         "type": "",
         "inventory": "inventory",
@@ -136,10 +122,6 @@ class ScanController(Fetcher):
     def get_args(self):
         # try to read scan plan from command line parameters
         parser = argparse.ArgumentParser()
-        parser.add_argument("-c", "--cgi", nargs="?", type=bool,
-                            default=self.DEFAULTS["cgi"],
-                            help="read argument from CGI (true/false) \n" +
-                                 "(default: false)")
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=self.DEFAULTS["mongo_config"],
                             help="name of config file " +
@@ -292,13 +274,6 @@ class ScanController(Fetcher):
         if cliques_only or run_all:
             scanner.scan_cliques()
         scanner.deploy_monitoring_setup()
-        if scan_plan.cgi:
-            response = {"success": not isinstance(results, bool),
-                        "results": [] if isinstance(results, bool) else results}
-
-            print("Content-type: application/json\n\n")
-            print(response)
-            print("\n")
         return True, 'ok'
 
 
