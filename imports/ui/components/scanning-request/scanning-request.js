@@ -44,6 +44,7 @@ Template.ScanningRequest.onCreated(function() {
     disabled: false,
     notifications: {},
     model: {},
+    beforeInsert: true
   });
 
   instance.autorun(function () {
@@ -92,6 +93,11 @@ Template.ScanningRequest.events({
  */
 
 Template.ScanningRequest.helpers({
+  getState: function (key) {
+    let instance = Template.instance();
+    return instance.state.get(key);
+  },
+
   notifications: function () {
     let instance = Template.instance();
     let notifications = instance.state.get('notifications');
@@ -284,6 +290,7 @@ function processActionResult(instance, error) {
     if (action === 'insert') {
       instance.state.set('message', 'Record had been added successfully');
       instance.state.set('disabled', true);
+      instance.state.set('beforeInsert', false);
     } else if (action === 'update') {
       instance.state.set('message', 'Record had been updated successfully');
     }

@@ -1,11 +1,13 @@
 <template name="ScanningRequest">
   <div class="os-scanning-request cards white">
+    {{#if (getState 'beforeInsert') }}
     {{#if notificationsExists}}
     <div class="sm-notification-panel alert alert-danger">
       {{#each note in notifications }}
       <div>{{ note }}</div>
       {{/each }}
     </div>
+    {{/if}}
     {{/if}}
 
     <h3>{{ pageHeader }}</h3>
