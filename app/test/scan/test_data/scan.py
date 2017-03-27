@@ -1,5 +1,4 @@
 DEFAULT_ARGUMENTS = {
-    "CGI": False,
     "MONGO_CONFIG": "",
     "ENV": "WebEX-Mirantis@Cisco",
     "TYPE": "environment",
@@ -17,7 +16,6 @@ DEFAULT_ARGUMENTS = {
 }
 
 SHORT_FLAGS_ARGUMENTS = {
-    "CGI": True,
     "MONGO_CONFIG": "mongo_config_file",
     "ENV": "Mirantis-Liberty-Xiaocong",
     "TYPE": "project",
@@ -31,7 +29,6 @@ SHORT_FLAGS_ARGUMENTS = {
 }
 
 ARGUMENTS_FULL = {
-    "CGI": True,
     "MONGO_CONFIG": "mongo_config_file",
     "ENV": "Mirantis-Liberty-Xiaocong",
     "TYPE": "project",
@@ -50,7 +47,6 @@ ARGUMENTS_FULL = {
 }
 
 ARGUMENTS_FULL_CLEAR_ALL = {
-    "CGI": True,
     "MONGO_CONFIG": "mongo_config_file",
     "ENV": "Mirantis-Liberty-Xiaocong",
     "TYPE": "project",
@@ -69,7 +65,6 @@ ARGUMENTS_FULL_CLEAR_ALL = {
 }
 
 ARGUMENTS_FULL_INVENTORY_ONLY = {
-    "CGI": True,
     "MONGO_CONFIG": "mongo_config_file",
     "ENV": "Mirantis-Liberty-Xiaocong",
     "TYPE": "project",
@@ -88,7 +83,6 @@ ARGUMENTS_FULL_INVENTORY_ONLY = {
 }
 
 ARGUMENTS_FULL_LINKS_ONLY = {
-    "CGI": True,
     "MONGO_CONFIG": "mongo_config_file",
     "ENV": "Mirantis-Liberty-Xiaocong",
     "TYPE": "project",
@@ -107,7 +101,6 @@ ARGUMENTS_FULL_LINKS_ONLY = {
 }
 
 ARGUMENTS_FULL_CLIQUES_ONLY = {
-    "CGI": True,
     "MONGO_CONFIG": "mongo_config_file",
     "ENV": "Mirantis-Liberty-Xiaocong",
     "TYPE": "project",
@@ -126,7 +119,6 @@ ARGUMENTS_FULL_CLIQUES_ONLY = {
 }
 
 FORM = {
-    "cgi": False,
     "loglevel": "INFO",
     "inventory_only": False,
     "links_only": False,
@@ -143,24 +135,7 @@ FORM = {
     "child_id": None
 }
 
-CGI_PLAN = {
-    'links_only': False,
-    'inventory_only': False,
-    'type_to_scan': 'regions_folder',
-    'id': 'RegionOne',
-    'scan_self': False,
-    'cgi': True,
-    'parent_id': 'WebEX-Mirantis@Cisco-regions',
-    'cliques_only': False,
-    'id_field': 'id',
-    'clear': True,
-    'object_type': 'region',
-    'env': 'WebEX-Mirantis@Cisco',
-    'loglevel': 'INFO'
-}
-
 SCAN_ENV_PLAN_TO_BE_PREPARED = {
-    "cgi": False,
     "loglevel": "INFO",
     "inventory_only": False,
     "links_only": False,
@@ -182,7 +157,6 @@ PREPARED_ENV_PLAN = {
         'id': 'WebEX-Mirantis@Cisco'
     },
     'child_id': None,
-    'cgi': False,
     'inventory_only': False,
     'clear': True,
     'links_only': False,
@@ -211,7 +185,6 @@ PREPARED_ENV_INVENTORY_ONLY_PLAN = {
         'id': 'WebEX-Mirantis@Cisco'
     },
     'child_id': None,
-    'cgi': False,
     'inventory_only': True,
     'clear': True,
     'links_only': False,
@@ -234,7 +207,6 @@ PREPARED_ENV_LINKS_ONLY_PLAN = {
         'id': 'WebEX-Mirantis@Cisco'
     },
     'child_id': None,
-    'cgi': False,
     'inventory_only': False,
     'clear': True,
     'links_only': True,
@@ -263,7 +235,6 @@ PREPARED_ENV_CLIQUES_ONLY_PLAN = {
 }
 
 SCAN_REGION_FOLDER_PLAN_TO_BE_PREPARED = {
-    "cgi": False,
     "loglevel": "INFO",
     "inventory_only": False,
     "links_only": False,
@@ -280,7 +251,6 @@ SCAN_REGION_FOLDER_PLAN_TO_BE_PREPARED = {
 }
 
 SCAN_REGION_PLAN_TO_BE_PREPARED = {
-    "cgi": False,
     "loglevel": "INFO",
     "inventory_only": False,
     "links_only": False,
@@ -314,7 +284,6 @@ REGIONS_FOLDER = {
 }
 
 SCAN_PROJECT_FOLDER_PLAN_TO_BE_PREPARED = {
-    "cgi": False,
     "loglevel": "INFO",
     "inventory_only": False,
     "links_only": False,
@@ -338,14 +307,14 @@ CHILD_ID_FOR_REGION_FOLDER = "WebEX-Mirantis@Cisco-regions"
 
 DEFAULT_COMMAND_ARGS = ["scanner.py"]
 
-SHORT_COMMAND_ARGS = ["scanner.py", "-c", "True", "-m", "mongo_config_file",
+SHORT_COMMAND_ARGS = ["scanner.py", "-m", "mongo_config_file",
                       "-e", "Mirantis-Liberty-Xiaocong", "-t", "project",
                       "-y", "Xiaocong-UT", "-s", "-i", "admin",
                       "-p", "RegionOne", "-a", "Region", "-f", "name",
                       "-l", "ERROR"]
 
 LONG_COMMAND_ARGS = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -353,7 +322,7 @@ LONG_COMMAND_ARGS = [
     "--clear"]
 
 LONG_COMMAND_ARGS_CLEAR_ALL = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -361,7 +330,7 @@ LONG_COMMAND_ARGS_CLEAR_ALL = [
     "--clear_all"]
 
 LONG_COMMAND_ARGS_INVENTORY_ONLY = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -369,7 +338,7 @@ LONG_COMMAND_ARGS_INVENTORY_ONLY = [
     "--clear"]
 
 LONG_COMMAND_ARGS_LINKS_ONLY = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -377,7 +346,7 @@ LONG_COMMAND_ARGS_LINKS_ONLY = [
     "--clear"]
 
 LONG_COMMAND_ARGS_CLIQUES_ONLY = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
