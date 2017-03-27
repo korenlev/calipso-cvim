@@ -73,20 +73,6 @@ class Util(object):
                 else:
                     self.stringify_object_values_by_type(value, object_type)
 
-    # when search in the mongo db, need to
-    # generate the ObjectId with the string
-    def generate_object_ids(self, keys, obj):
-        for key in keys:
-            if key in obj:
-                o = obj.pop(key)
-                if o:
-                    try:
-                        o = ObjectId(o)
-                    except Exception as e:
-                        raise Exception("{0} is not a valid object id".
-                                        format(o))
-                obj[key] = o
-
     # stringify datetime object
     def stringify_datetime(self, dt):
         return dt.strftime("%Y-%m-%dT%H:%M:%S.%f%z")

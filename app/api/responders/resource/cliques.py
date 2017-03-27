@@ -59,5 +59,4 @@ class Cliques(ResponderBase):
         if _id:
             query[self.ID] = _id
         query['environment'] = filters['env_name']
-        self.generate_object_ids(['links_detailed._id'], query)
         return query
