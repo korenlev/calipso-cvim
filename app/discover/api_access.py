@@ -7,6 +7,7 @@ import httplib2 as http
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
+from utils.string_utils import jsonify
 
 
 class ApiAccess(Fetcher):
@@ -176,7 +177,7 @@ class ApiAccess(Fetcher):
         return url
 
     def get_catalog(self, pretty):
-        return self.jsonify(self.regions, pretty)
+        return jsonify(self.regions, pretty)
 
     # find the endpoints for a given service name,
     # considering also alternative service names

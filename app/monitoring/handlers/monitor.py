@@ -45,9 +45,10 @@ else:
         raise ValueError("No input provided on stdin")
         exit(1)
 
-check_result = json.loads(input)
-check_client = check_result['client']
-check_result = check_result['check']
+check_result_full = json.loads(input)
+check_client = check_result_full['client']
+check_result = check_result_full['check']
+check_result['id'] = check_result_full['id']
 name = check_result['name']
 status = check_result['status']
 object_type = name[:name.index('_')]

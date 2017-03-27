@@ -2,12 +2,16 @@ import mysql.connector
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
-from utils.util import Util
+from utils.string_utils import jsonify
 
 
-class DbAccess(Fetcher, Util):
+class DbAccess(Fetcher):
     conn = None
     query_count_per_con = 0
+
+    # connection timeout set to 30 seconds,
+    # due to problems over long connections
+    TIMEOUT = 30
 
     def __init__(self):
         super().__init__()
@@ -28,15 +32,13 @@ class DbAccess(Fetcher, Util):
         if DbAccess.conn:
             return
         try:
-            # connection timeout set to 30 seconds,
-            # due to problems over long connections
-            TIMEOUT = 30
-            DbAccess.conn = mysql.connector.connect(host=_host, port=_port,
-                                                    connection_timeout=TIMEOUT,
-                                                    user=_user,
-                                                    password=_password,
-                                                    database=_database,
-                                                    raise_on_warnings=True)
+            connector = mysql.connector
+            DbAccess.conn = connector.connect(host=_host, port=_port,
+                                              connection_timeout=self.TIMEOUT,
+                                              user=_user,
+                                              password=_password,
+                                              database=_database,
+                                              raise_on_warnings=True)
             DbAccess.conn.ping(True)  # auto-reconnect if necessary
         except:
             self.log.critical("failed to connect to MySQL DB")
@@ -85,20 +87,11 @@ class DbAccess(Fetcher, Util):
             rows.append(row)
         return rows
 
-        if isinstance(object_type, str):
-            ret = {"type": object_type, "rows": rows}
-        else:
-            # object_type is a hash of parameters, just add "rows" to it
-            ret = object_type
-            ret["rows"] = rows
-
-        return ret
-
     def get_objects_list(self, query, object_type):
         return self.get_objects_list_for_id(query, object_type, None)
 
     def get_objects(self, qry, type, id):
-        return self.jsonify(self.get_objects_list(qry, type))
+        return jsonify(self.get_objects_list(qry, type))
 
     def get(self, id):
         # return list of available fetch types
@@ -113,7 +106,7 @@ class DbAccess(Fetcher, Util):
                 "az_hosts": "Host in availability_zone X (parameter: id)"
             }
         }
-        return self.jsonify(ret)
+        return jsonify(ret)
 
     def exec(self, query, table, field, values):
         try:

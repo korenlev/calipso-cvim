@@ -14,10 +14,10 @@ from discover.find_links_for_vedges import FindLinksForVedges
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.ssh_conn import SshConn
 from utils.inventory_mgr import InventoryMgr
-from utils.util import Util
+from utils.util import ClassResolver
 
 
-class Scanner(Util, Fetcher):
+class Scanner(Fetcher):
     config = None
     environment = None
     env = None
@@ -112,14 +112,14 @@ class Scanner(Util, Fetcher):
         fetcher = type_to_fetch["fetcher"]
         if isinstance(fetcher, str):
             fetcher_class = type_to_fetch["fetcher"]
-            fetcher = self.get_instance_of_class(fetcher_class)
+            fetcher = ClassResolver.get_instance_of_class(fetcher_class)
         fetcher.set_env(self.get_env())
 
         # get children_scanner instance
         try:
             children_scanner_class = type_to_fetch["children_scanner"]
             children_scanner = \
-                self.get_instance_of_class(children_scanner_class)
+                ClassResolver.get_instance_of_class(children_scanner_class)
             children_scanner.set_env(self.get_env())
         except KeyError:
             children_scanner = None
@@ -298,7 +298,7 @@ class Scanner(Util, Fetcher):
             scanner = item["scanner"]
             if isinstance(scanner, str):
                 # got name of scanner class - create an instance of it
-                scanner = self.get_instance_of_class(scanner)
+                scanner = ClassResolver.get_instance_of_class(scanner)
 
             # run scan recursively
             scanner.scan(item["object"], item["child_id_field"])

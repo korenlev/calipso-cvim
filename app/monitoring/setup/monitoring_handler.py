@@ -35,7 +35,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         super().__init__(mongo_conf_file)
         self.configuration = Configuration()
         self.mechanism_drivers = \
-            self.configuration.env_config['mechanism_drivers']
+            self.configuration.environment['mechanism_drivers']
         self.env = env
         self.monitoring_config = self.db.monitoring_config_templates
         self.env_monitoring_config = self.configuration.get('Monitoring')
@@ -72,7 +72,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         for doc in docs:
             if self.check_env_condition(doc):
                 content.update(doc)
-        self.replacements['app_path'] = self.configuration.env_config['app_path']
+        self.replacements['app_path'] = self.configuration.environment['app_path']
         config = self.content_replace({'config': content['config']})
         return config
 

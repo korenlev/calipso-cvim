@@ -5,7 +5,6 @@ import bson
 from discover.clique_finder import CliqueFinder
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
-from utils.util import Util
 
 
 def inv_initialization_required(func):
@@ -16,8 +15,7 @@ def inv_initialization_required(func):
     return decorated
 
 
-class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
-    prettify = False
+class InventoryMgr(MongoAccess, metaclass=Singleton):
 
     def __init__(self, mongo_config=""):
         super().__init__(mongo_config)
@@ -63,6 +61,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         self.set_collection("monitoring_config")
         self.set_collection("constants")
         self.set_collection("scans")
+        self.set_collection("messages")
 
     def clear(self, scan_plan):
         if scan_plan.inventory_only:
@@ -185,7 +184,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
                            {'$addToSet': {"projects": {'$each': projects}}},
                            upsert=True)
 
-    def check(self, obj, field_name):
+    @staticmethod
+    def check(obj, field_name):
         arg = obj[field_name]
         if not arg or not str(arg).rstrip():
             raise ValueError("Inventory item - " +
