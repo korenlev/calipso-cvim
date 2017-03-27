@@ -65,7 +65,7 @@ class TestInventory(TestBase):
         self.validate_get_request(inventory.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'page': base.NON_INT_PAGESIZE
+                                     'page_size': base.NON_INT_PAGESIZE
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -130,7 +130,7 @@ class TestInventory(TestBase):
         self.validate_get_request(inventory.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'id': inventory.ID
+                                     'id': inventory.NONEXISTENT_ID
                                   },
                                   mocks={
                                      read: [],
@@ -143,7 +143,7 @@ class TestInventory(TestBase):
     def test_get_object_with_unkown_env_name_and_id(self, check_env_name, read):
         self.validate_get_request(inventory.URL,
                                   params={
-                                      'env_name': base.ENV_NAME,
+                                      'env_name': base.UNKOWN_ENV,
                                       'id': inventory.ID
                                   },
                                   mocks={

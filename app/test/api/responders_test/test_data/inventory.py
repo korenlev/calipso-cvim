@@ -1,6 +1,7 @@
 URL = "/inventory"
 
 ID = "RegionOne-aggregates"
+NONEXISTENT_ID = "Unkown-Id"
 
 
 OBJECTS_LIST = [
