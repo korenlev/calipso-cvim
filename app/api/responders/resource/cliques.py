@@ -2,6 +2,8 @@ from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
 
+from utils.util import generate_object_ids
+
 
 class Cliques(ResponderBase):
     def __init__(self):

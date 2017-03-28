@@ -24,7 +24,7 @@ class MonitoringHost(MonitoringHandler):
         host_id = o['host']
         sub_dir = join('/host', host_id)
         config = copy.copy(self.env_monitoring_config)
-        env_name = self.configuration.env_config['name']
+        env_name = self.configuration.env_name
         client_name = env_name + '-' + o['id']
         client_ip = o['ip_address'] if 'ip_address' in o else o['id']
         self.replacements.update(config)

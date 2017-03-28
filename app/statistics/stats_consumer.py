@@ -20,7 +20,7 @@ class StatsConsumer(MongoAccess, Logger):
         self.set_loglevel(self.args.loglevel)
         self.conf = Configuration(self.args.mongo_config)
         self.inv = InventoryMgr()
-        self.inv.set_inventory_collection(self.args.inventory)
+        self.inv.set_collections(self.args.inventory)
         stats_coll = self.inv.get_coll_name('statistics')
         self.stats = self.db[stats_coll]
         # consume messages from topic

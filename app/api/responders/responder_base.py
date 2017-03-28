@@ -8,6 +8,7 @@ from pymongo import errors
 from utils.dict_naming_converter import DictNamingConverter
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from utils.string_utils import jsonify, stringify_object_values_by_types
 from urllib import parse
 
 
@@ -23,7 +24,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
     def set_successful_response(self, resp, body="", status="200"):
         if not isinstance(body, str):
             try:
-                body = self.jsonify(body)
+                body = jsonify(body)
             except Exception as e:
                 self.log.exception(e)
                 raise ValueError("The response body should be a string")
@@ -40,7 +41,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
                 "title": title
             }
         }
-        body = self.jsonify(body)
+        body = jsonify(body)
         raise exceptions.OSDNAApiException(code, body, message)
 
     def not_found(self, message="Requested resource not found"):
@@ -90,7 +91,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
                 self.bad_request("unkown environment: " + env_name)
             self.not_found()
         obj = objs[0]
-        self.stringify_object_values_by_types(obj, stringify_types)
+        stringify_object_values_by_types(obj, stringify_types)
         if id is "_id":
             obj['id'] = obj.get('_id')
         return obj
@@ -160,7 +161,7 @@ class ResponderBase(DataValidate, Logger, DictNamingConverter):
     def get_collection_by_name(self, name):
         if name in self.UNCHANGED_COLLECTIONS:
             return self.inv.db[name]
-        return self.inv.coll[name]
+        return self.inv.collections[name]
 
     def get_constants_by_name(self, name):
         constants = self.get_collection_by_name("constants").\
