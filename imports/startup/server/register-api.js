@@ -32,3 +32,6 @@ import '../../api/clique-types/methods.js';
 
 import '../../api/clique-constraints/server/publications';
 import '../../api/clique-constraints/methods.js';
+
+import '../../api/accounts/server/publications';
+import '../../api/accounts/methods';

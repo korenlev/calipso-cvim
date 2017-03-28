@@ -26,15 +26,21 @@ Template.alarmIcons.onCreated(function () {
  */  
 
 Template.alarmIcons.helpers({
-    notificationsCount: function(){
-        return Messages.find({level:'notify'}).count();
-    },
-    warningsCount: function(){
-        return Messages.find({level:'warn'}).count();
-    },
-    errorsCount: function(){
-        return Messages.find({level:'error'}).count();
-    },
+  isAdmin: function () {
+    return Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group'); 
+  },
+
+  notificationsCount: function(){
+      return Messages.find({level:'notify'}).count();
+  },
+
+  warningsCount: function(){
+      return Messages.find({level:'warn'}).count();
+  },
+
+  errorsCount: function(){
+      return Messages.find({level:'error'}).count();
+  },
 });
 
 })();

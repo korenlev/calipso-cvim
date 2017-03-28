@@ -1,5 +1,5 @@
 /*
- * Template Component: topnavbarmenu 
+ * Template Component: TopNavbarMenu 
  */
     
 import { Template } from 'meteor/templating';
@@ -17,13 +17,13 @@ import '/imports/ui/components/get-started/get-started';
 import '/imports/ui/components/env-form/env-form';
 import '/imports/ui/components/event-modals/event-modals';
 
-import './topnavbarmenu.html';
+import './top-navbar-menu.html';
 
 /*  
  * Lifecycles
  */   
 
-Template.topnavbarmenu.onCreated(function () {
+Template.TopNavbarMenu.onCreated(function () {
   let instance = this;
 
   instance.state = new ReactiveDict();
@@ -32,7 +32,7 @@ Template.topnavbarmenu.onCreated(function () {
   });
 });
 
-Template.topnavbarmenu.events = {
+Template.TopNavbarMenu.events = {
   /*
   'keypress #search': function  (event) {
     if (event.which === 13) {
@@ -67,7 +67,7 @@ Template.topnavbarmenu.events = {
   }
 };
 
-Template.topnavbarmenu.helpers({
+Template.TopNavbarMenu.helpers({
   createSearchAutoCompleteListArgs: function () {
     let instance = Template.instance();
 
@@ -90,7 +90,7 @@ Template.topnavbarmenu.helpers({
         }, 0);
       }
     };
-  }
+  },
 });
 
 /*

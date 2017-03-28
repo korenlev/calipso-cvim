@@ -1,3 +1,6 @@
+
+import './main.html';     
+
 Template.mainPage.rendered = function(){
     $(window).scroll(function(){
         var windowWidth = $(this).width();
