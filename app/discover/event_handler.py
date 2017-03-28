@@ -23,7 +23,7 @@ class EventHandler(Fetcher):
     def __init__(self, env, inventory_collection):
         super().__init__()
         self.inv = InventoryMgr()
-        self.inv.set_inventory_collection(inventory_collection)
+        self.inv.set_collections(inventory_collection)
         self.env = env
 
     def instance_add(self, notification):

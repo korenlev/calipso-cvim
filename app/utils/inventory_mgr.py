@@ -5,54 +5,55 @@ import bson
 from discover.clique_finder import CliqueFinder
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
-from utils.util import Util
 
 
 def inv_initialization_required(func):
     def decorated(self, *args, **kwargs):
-        if self.inv is None:
-            raise TypeError("Inv is not set.")
+        if self.inventory_collection is None:
+            raise TypeError("Inventory collection is not set.")
         return func(self, *args, **kwargs)
     return decorated
 
 
-class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
-    prettify = False
+class InventoryMgr(MongoAccess, metaclass=Singleton):
 
     def __init__(self, mongo_config=""):
         super().__init__(mongo_config)
-        self.inv = None
-        self.inventory_col = None
-        self.links = []
-        self.coll = {}
+        self.inventory_collection = None
+        self.inventory_collection_name = None
+        self.collections = {}
         self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
         self.clique_scanner = None
         self.monitoring_setup_manager = None
 
-    def set_collection(self, coll_type, collection_name=""):
-        if coll_type != "inventory":
-            collection_name = self.get_coll_name(coll_type)
+    def set_collection(self, collection_type, collection_name=""):
+
         # do not allow setting the collection more than once
-        if coll_type not in self.coll or not self.coll[coll_type]:
-            self.log.info("using " + coll_type + " collection: " +
-                          collection_name)
-            name = collection_name if collection_name else coll_type
-            self.coll[coll_type] = MongoAccess.db[name]
-            if coll_type == "inventory":
-                self.inventory_col = name
-        return self.coll[coll_type]
+        if not self.collections.get(collection_type):
+            if collection_type != "inventory":
+                collection_name = self.get_coll_name(collection_type)
+
+            self.log.info("using " + collection_type + " collection: " + collection_name)
+
+            name = collection_name if collection_name else collection_type
+            self.collections[collection_type] = MongoAccess.db[name]
+
+            if collection_type == "inventory":
+                self.inventory_collection_name = name
+
+        return self.collections[collection_type]
 
     def get_coll_name(self, coll_name):
-        if not self.inventory_col:
-            raise TypeError("inventory_col is not initialized")
+        if not self.inventory_collection_name:
+            raise TypeError("inventory_collection_name is not set")
 
-        return self.inventory_col.replace("inventory", coll_name) \
-            if self.inventory_col.startswith("inventory") \
-            else self.inventory_col + "_" + coll_name
+        return self.inventory_collection_name.replace("inventory", coll_name) \
+            if self.inventory_collection_name.startswith("inventory") \
+            else self.inventory_collection_name + "_" + coll_name
 
-    def set_inventory_collection(self, inventory_collection=""):
-        self.inv = self.set_collection("inventory", inventory_collection)
-        self.links = self.set_collection("links")
+    def set_collections(self, inventory_collection=""):
+        self.inventory_collection = self.set_collection("inventory", inventory_collection)
+        self.set_collection("links")
         self.set_collection("link_types")
         self.set_collection("clique_types")
         self.set_collection("clique_constraints")
@@ -60,6 +61,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         self.set_collection("monitoring_config")
         self.set_collection("constants")
         self.set_collection("scans")
+        self.set_collection("messages")
 
     def clear(self, scan_plan):
         if scan_plan.inventory_only:
@@ -72,72 +74,56 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
             collections = {"inventory", "links", "cliques"}
 
         env_cond = {} if scan_plan.clear_all else {"environment": scan_plan.env}
-        for c in collections:
-            col = self.coll[c]
-            self.log.info("clearing collection: " + col.full_name)
+
+        for collection_name in collections:
+            collection = self.collections[collection_name]
+            self.log.info("clearing collection: " + collection.full_name)
             # delete docs from the collection,
             # either all or just for the specified environment
-            col.delete_many(env_cond)
-
-    # return single match
-    def process_results(self, raw_results, get_single=False):
-        ret = []
-        for doc in raw_results:
-            doc["_id"] = str(doc["_id"])
-            if get_single:
-                return doc
-            ret.append(doc)
-        return ret
+            collection.delete_many(env_cond)
 
     # return single match
     def get_by_id(self, environment, item_id):
-        matches = self.find({
+        return self.find({
             "environment": environment,
             "id": item_id
-        })
-        return self.process_results(matches, True)
+        }, get_single=True)
 
     # return matches for ID in list of values
     def get_by_ids(self, environment, ids_list):
-        matches = self.find({
+        return self.find({
             "environment": environment,
             "id": {"$in": ids_list}
         })
-        return self.process_results(matches)
 
     def get_by_field(self, environment, item_type, field_name, field_value,
                      get_single=False):
-        if field_value and (not isinstance(field_value, str) or
-                            field_value > ""):
-            matches = self.find({"environment": environment,
-                                 "type": item_type,
-                                 field_name: field_value})
+        if field_value:
+            return self.find({"environment": environment,
+                              "type": item_type,
+                              field_name: field_value},
+                             get_single=get_single)
         else:
-            matches = self.find({
-                "environment": environment,
-                "type": item_type
-            })
-        return self.process_results(matches, get_single=get_single)
+            return self.find({"environment": environment,
+                              "type": item_type},
+                             get_single=get_single)
 
     def get(self, environment, item_type, item_id, get_single=False):
-        ret = self.get_by_field(environment, item_type, "id", item_id,
-                                get_single=get_single)
-        return ret
+        return self.get_by_field(environment, item_type, "id", item_id,
+                                 get_single=get_single)
 
     def get_children(self, environment, item_type, parent_id):
-        matches = []
-        if parent_id and parent_id > "" and not item_type:
-            matches = self.find({"environment": environment,
-                                "parent_id": parent_id})
-        else:
-            if parent_id and parent_id > "":
-                matches = self.find({"environment": environment,
-                                     "type": item_type,
-                                     "parent_id": parent_id})
+        if parent_id:
+            if not item_type:
+                return self.find({"environment": environment,
+                                  "parent_id": parent_id})
             else:
-                matches = self.find({"environment": environment,
-                                     "type": item_type})
-        return self.process_results(matches)
+                return self.find({"environment": environment,
+                                  "type": item_type,
+                                  "parent_id": parent_id})
+        else:
+            return self.find({"environment": environment,
+                              "type": item_type})
 
     def get_single(self, environment, item_type, item_id):
         matches = self.find({"environment": environment,
@@ -149,8 +135,7 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         if len(matches) == 0:
             raise ValueError("No matches for item: " +
                              "type=" + item_type + ", id=" + item_id)
-        ret = self.process_results(matches)
-        return ret[0]
+        return matches[0]
 
     # item must contain properties 'environment', 'type' and 'id'
     def set(self, item, collection=None):
@@ -160,22 +145,25 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         if "_id" in item:
             mongo_id = item.pop("_id", None)
 
-        if not collection or collection == self.coll['inventory']:
+        if not collection or collection == self.collections['inventory']:
             # make sure we have environment, type & id
             self.check(item, "environment")
             self.check(item, "type")
             self.check(item, "id")
+
             item["last_scanned"] = datetime.now()
-            try:
-                projects = item.pop("projects")
-            except KeyError:
-                projects = []
+            item.pop("projects", [])
+
             obj_name = item["name_path"]
             obj_name = obj_name[obj_name.rindex('/') + 1:]
-            item['object_name'] = item['object_name'] if 'object_name' in item \
-                else obj_name
-            self.set_inventory_collection()  # make sure we have it set
-            col = col if col else self.coll['inventory']
+
+            if 'object_name' not in item:
+                item['object_name'] = obj_name
+
+            self.set_collections()  # make sure we have all collections set
+            if not col:
+                col = self.collections['inventory']
+
             find_tuple = {"environment": item["environment"],
                           "type": item["type"], "id": item["id"]}
         else:
@@ -196,7 +184,8 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
                            {'$addToSet': {"projects": {'$each': projects}}},
                            upsert=True)
 
-    def check(self, obj, field_name):
+    @staticmethod
+    def check(obj, field_name):
         arg = obj[field_name]
         if not arg or not str(arg).rstrip():
             raise ValueError("Inventory item - " +
@@ -206,20 +195,32 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
     # note: to use general find, call find_items(),
     # which also does process_results
     @inv_initialization_required
-    def find(self, search, projection=None, collection=None):
-        coll = self.inv if not collection else self.coll[collection]
-        matches = coll.find(search, projection=projection)
-        decoded_matches = []
-        for m in matches:
-            decoded_matches.append(self.decode_mongo_keys(m))
-        return decoded_matches
+    def find(self, search, projection=None, collection=None, get_single=False):
+        coll = self.inventory_collection if not collection else self.collections[collection]
+        if get_single is True:
+            return self.decode_object_id(
+                self.decode_mongo_keys(
+                    coll.find_one(search, projection=projection)
+                )
+            )
+        else:
+            return list(
+                map(
+                    self.decode_object_id,
+                    map(
+                        self.decode_mongo_keys,
+                        coll.find(search, projection=projection))
+                    )
+            )
+
+    def find_one(self, search, projection=None, collection=None):
+        return self.find(search, projection, collection, True)
 
     def find_items(self, search,
                    projection=None,
                    get_single=False,
                    collection=None):
-        results = self.find(search, projection, collection)
-        return self.process_results(results, get_single=get_single)
+        return self.find(search, projection, collection, get_single)
 
     # record a link between objects in the inventory, to be used in graphs
     # returns - the new link document
@@ -266,19 +267,20 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
         }
         if "_id" in link:
             link.pop("_id", None)
-        result = self.links.update_one(find_tuple,
-                                       {'$set': self.encode_mongo_keys(link)},
-                                       upsert=True)
+        result = self.collections["links"].update_one(find_tuple,
+                                                      {'$set': self.encode_mongo_keys(link)},
+                                                      upsert=True)
         link['_id'] = result.upserted_id
         return link
 
     @inv_initialization_required
     def get_clique_finder(self):
         if not self.clique_scanner:
-            self.clique_scanner = CliqueFinder(self.inv, self.links,
-                                               self.coll["clique_types"],
-                                               self.coll["clique_constraints"],
-                                               self.coll["cliques"])
+            self.clique_scanner = CliqueFinder(self.inventory_collection,
+                                               self.collections["links"],
+                                               self.collections["clique_types"],
+                                               self.collections["clique_constraints"],
+                                               self.collections["cliques"])
         return self.clique_scanner
 
     def scan_cliques(self, environment):
@@ -298,21 +300,21 @@ class InventoryMgr(MongoAccess, Util, metaclass=Singleton):
 
     # perform replacement of substring in values of objects in the inventory
     # input:
-    # - search: dict with search parametes
+    # - search: dict with search parameters
     # - values_replacement: dict,
     #     - keys: names of keys for which to replace the values
     #     - values: dict with "from" (value to be replaced) and "to" (new value)
     @inv_initialization_required
     def values_replace(self, search, values_replacement):
-        for doc in self.inv.find(search):
+        for doc in self.inventory_collection.find(search):
             self.values_replace_in_object(doc, values_replacement)
 
-    def delete(self, coll, filter):
-        collection = self.coll[coll]
+    def delete(self, coll, query_filter):
+        collection = self.collections[coll]
         if not collection:
             self.log.warn('delete(): collection not found - ' + coll)
             return
-        result = collection.delete_many(filter)
+        result = collection.delete_many(query_filter)
         count = result.deleted_count
         self.log.info('delete(): ' + ('deleted ' + str(count) + ' documents'
                                       if count else 'no matching documents'))

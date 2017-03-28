@@ -3,15 +3,17 @@
 import argparse
 import json
 
+import time
 from kombu import Queue, Exchange
 from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
-from utils.util import Util
+from utils.util import SignalHandler, setup_args
 
 
 class EnvironmentListener(ConsumerMixin):
@@ -46,7 +48,7 @@ class EnvironmentListener(ConsumerMixin):
         self.inv = InventoryMgr()
 
     def set_env(self, env, inventory_collection):
-        self.inv.set_inventory_collection(inventory_collection)
+        self.inv.set_collections(inventory_collection)
         self.handler = EventHandler(env, inventory_collection)
         self.notification_responses = {
             "compute.instance.create.end": self.handler.instance_add,
@@ -144,7 +146,7 @@ def listen(args: dict = None):
     from kombu import Connection
     logger = Logger()
 
-    args = Util.setup_args(args, EnvironmentListener.DEFAULTS, get_args)
+    args = setup_args(args, EnvironmentListener.DEFAULTS, get_args)
     if 'process_vars' not in args:
         args['process_vars'] = {}
 
@@ -165,18 +167,24 @@ def listen(args: dict = None):
         try:
             print(conn)
             conn.connect()
-            args['process_vars']['operational'] = "running"
+            args['process_vars']['operational'] = OperationalStatus.RUNNING
+            terminator = SignalHandler()
             worker = EnvironmentListener(conn)
             worker.set_env(env_name, args["inventory"])
             worker.inv.monitoring_setup_manager = MonitoringSetupManager(args["mongo_config"], env_name)
             worker.inv.monitoring_setup_manager.server_setup()
             worker.run()
+            if terminator.terminated:
+                args.get('process_vars', {})['operational'] = OperationalStatus.STOPPED
         except KeyboardInterrupt:
             print('Stopped')
-            args['process_vars']['operational'] = "stopped"
+            args['process_vars']['operational'] = OperationalStatus.STOPPED
         except Exception as e:
-            logger.log.error(e)
-            args['process_vars']['operational'] = "error"
+            logger.log.exception(e)
+            args['process_vars']['operational'] = OperationalStatus.ERROR
+        finally:
+            # This should enable safe saving of shared variables
+            time.sleep(0.1)
 
 
 if __name__ == '__main__':

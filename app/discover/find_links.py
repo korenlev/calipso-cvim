@@ -16,6 +16,6 @@ class FindLinks(Fetcher):
         link = self.inv.create_link(env, host,
                                     source, source_id, target, target_id,
                                     link_type, link_name, state, link_weight,
-                                    extra_attributes)
+                                    extra_attributes=extra_attributes)
         if self.inv.monitoring_setup_manager:
             self.inv.monitoring_setup_manager.create_setup(link)

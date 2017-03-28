@@ -35,4 +35,5 @@ class HandleOtep(MonitoringCheckHandler):
             else 1 if 'Critical' in status_list or 'Warning' in status_list \
             else 0
         self.set_doc_status(doc, status, None, self.check_ts(check_result))
+        self.keep_message(doc, check_result)
         return status

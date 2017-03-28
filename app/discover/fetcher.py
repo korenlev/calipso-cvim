@@ -11,6 +11,7 @@ class Fetcher(Logger):
         self.env = None
         self.configuration = None
 
+    # TODO: is this method supposed to do nothing?
     @staticmethod
     def escape(string):
         return string
@@ -21,13 +22,3 @@ class Fetcher(Logger):
 
     def get_env(self):
         return self.env
-
-    @staticmethod
-    def jsonify(obj, prettify=False):
-        if prettify:
-            return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))
-        else:
-            return json.dumps(obj)
-
-    def set_logger(self, loglevel):
-        self.log.set_level(loglevel)
