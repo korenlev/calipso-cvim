@@ -129,12 +129,15 @@ class EnvironmentConfigs(ResponderBase):
             "name": self.require(str, mandatory=True),
             "operational": self.require(str, True, DataValidate.LIST,
                                         ["yes", "no"], mandatory=True),
+            "scanned": self.require(bool, True),
+            "last_scanned": self.require(str),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
                                          type_drivers, True)
         }
         self.validate_query_data(env_config,
                                  environment_config_requirement)
+        self.check_and_convert_datetime("last_scanned", env_config)
         # validate the configurations
         configurations = env_config['configuration']
         config_validation = self.validate_environment_config(configurations)
@@ -142,7 +145,9 @@ class EnvironmentConfigs(ResponderBase):
         if not config_validation['passed']:
             self.bad_request(config_validation['error_message'])
 
-        env_config['scanned'] = False
+        if "scanned" not in env_config:
+            env_config["scanned"] = False
+
         self.write(env_config, self.COLLECTION)
         self.set_successful_response(resp,
                                      {"message": "created environment_config "
