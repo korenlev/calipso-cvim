@@ -1,0 +1,40 @@
+<template name="UserList">
+<div class="os-user-list cards white">
+  <h3>User List</h3>
+  <a href="{{pathFor route='user' query=(asHash action='insert') }}">
+    <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new user
+  </a>
+  <table class="sm-user-list-table table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>User Name</th>
+        <th>Emails</th>
+        <th>Profile</th>
+        <th>Roles</th>
+      </tr> </thead>
+    <tbody> 
+      {{#each user in userList }}
+      <tr>
+        <td>{{ user._id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ toString user.emails }}</td>
+        <td>{{ toString user.profile }}</td>
+        <td>{{ toString user.roles }}</td>
+        <td>
+          <div class="sm-action-bar">
+            <a href="{{pathFor route='user' 
+                          query=(asHash id=(idToStr user._id) action='view') }}"
+                ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
+
+            <a href="{{pathFor route='user' 
+                          query=(asHash id=(idToStr user._id) action='remove') }}"
+                ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+      {{/each }}
+    </tbody>
+  </table>
+</div>
+</template>

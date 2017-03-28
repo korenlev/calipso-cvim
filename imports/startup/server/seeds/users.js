@@ -15,6 +15,7 @@ R.forEach((user) => {
     return;
   }
 
+  console.log('creating user', user);
   id = Accounts.createUser({
     username: user.username,
     email: user.email,
@@ -23,6 +24,7 @@ R.forEach((user) => {
   });
 
   if (user.roles.length > 0) {
+    console.log('adding roles to user', user, user.roles);
     Roles.addUsersToRoles(id, user.roles, 'default-group');
   }
 }, users);

@@ -90,7 +90,7 @@ Template.TopNavbarMenu.helpers({
         }, 0);
       }
     };
-  }
+  },
 });
 
 /*
