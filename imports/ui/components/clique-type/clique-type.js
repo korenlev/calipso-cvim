@@ -269,27 +269,30 @@ function processActionResult(instance, error) {
       instance.state.set('message', error.message);
     }
 
-  } else {
-    instance.state.set('isError', false);
-    instance.state.set('isSuccess', true);
-    instance.state.set('isMessage', true);
-
-    switch (action) {
-    case 'insert':
-      instance.state.set('message', 'Record had been added successfully');
-      instance.state.set('disabled', true);
-      break;  
-
-    case 'remove':
-      instance.state.set('message', 'Record had been removed successfully');
-      instance.state.set('disabled', true);
-      break;
-
-    case 'update':  
-      instance.state.set('message', 'Record had been updated successfully');
-      break;
-    }
+    return;
   }
+
+  instance.state.set('isError', false);
+  instance.state.set('isSuccess', true);
+  instance.state.set('isMessage', true);
+
+  switch (action) {
+  case 'insert':
+    instance.state.set('message', 'Record had been added successfully');
+    instance.state.set('disabled', true);
+    break;  
+
+  case 'remove':
+    instance.state.set('message', 'Record had been removed successfully');
+    instance.state.set('disabled', true);
+    break;
+
+  case 'update':  
+    instance.state.set('message', 'Record had been updated successfully');
+    break;
+  }
+
+  Router.go('/clique-types-list');
 }
 
 function calcActionLabel(action) {
