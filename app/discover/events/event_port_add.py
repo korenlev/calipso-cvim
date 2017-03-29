@@ -139,11 +139,11 @@ class EventPortAdd(EventBase):
         fetcher.set_env(env)
         namespace = 'q%s-%s' % (type, id)
         vnic_documents = fetcher.handle_service(host['id'], namespace, enable_cache=False)
-        if vnic_documents == []:
+        if not vnic_documents:
             self.inv.log.info("Vnic document not found in namespace.")
             return False
 
-        if mac_address != None:
+        if mac_address is not None:
             for doc in vnic_documents:
                 if doc['mac_address'] == mac_address:
                     # add a specific vnic document.
@@ -182,31 +182,30 @@ class EventPortAdd(EventBase):
         # add vnics folder.
         self.add_vnics_folder(env, host, network_id, network_name)
 
-        # add vnic docuemnt.
+        # add vnic document.
         self.add_vnic_document(env, host, network_id, network_name, mac_address=mac_address)
 
     def handle(self, env, notification):
-        self.project = notification['_context_project_name']
-        self.project_id = notification['_context_project_id']
-        self.payload = notification['payload']
-        self.port = self.payload['port']
-        self.network_id = self.port['network_id']
-        self.network_name = self.get_name_by_id(self.network_id)
-        self.mac_address = self.port['mac_address']
-        self.port_id = self.port['id']
+        project = notification['_context_project_name']
+        project_id = notification['_context_project_id']
+        payload = notification['payload']
+        port = payload['port']
+        network_id = port['network_id']
+        network_name = self.get_name_by_id(network_id)
+        mac_address = port['mac_address']
 
         # check ports folder document.
-        ports_folder = self.inv.get_by_id(env, self.network_id + '-ports')
+        ports_folder = self.inv.get_by_id(env, network_id + '-ports')
         if not ports_folder:
             self.log.info("ports folder not found, add ports folder first.")
-            self.add_ports_folder(env, self.project_id, self.network_id, self.network_name)
-        self.add_port_document(env, self.project, self.project_id, self.network_name, self.network_id, self.port)
+            self.add_ports_folder(env, project_id, network_id, network_name)
+        self.add_port_document(env, project, project_id, network_name, network_id, port)
 
         # update the port related documents.
-        if 'compute' in self.port['device_owner']:
+        if 'compute' in port['device_owner']:
             # update the instance related document.
-            host_id = self.port['binding:host_id']
-            instance_id = self.port['device_id']
+            host_id = port['binding:host_id']
+            instance_id = port['device_id']
             old_instance_doc = self.inv.get_by_id(env, instance_id)
             instances_root_id = host_id + '-instances'
             instances_root = self.inv.get_by_id(env, instances_root_id)
@@ -218,37 +217,35 @@ class EventPortAdd(EventBase):
             instance_fetcher = ApiFetchHostInstances()
             instance_fetcher.set_env(env)
             instance_docs = instance_fetcher.get(host_id + '-')
-            for instance in instance_docs:
-                if instance_id == instance['id']:
-                    old_instance_doc['network_info'] = instance['network_info']
-                    old_instance_doc['network'] = instance['network']
-                    if 'mac_address' not in old_instance_doc:
-                        old_instance_doc['mac_address'] = self.mac_address
-                    elif old_instance_doc['mac_address'] == None:
-                        old_instance_doc['mac_address'] = self.mac_address
+            instance = next(filter(lambda i: i['id'] == instance_id, instance_docs), None)
 
-                    self.inv.set(old_instance_doc)
-                    self.inv.log.info("update instance document")
-                    break
+            if instance:
+                old_instance_doc['network_info'] = instance['network_info']
+                old_instance_doc['network'] = instance['network']
+                if old_instance_doc.get('mac_address') is None:
+                    old_instance_doc['mac_address'] = mac_address
+
+                self.inv.set(old_instance_doc)
+                self.inv.log.info("update instance document")
 
             # add vnic document.
-            if self.port['binding:vif_type'] == 'vpp':
+            if port['binding:vif_type'] == 'vpp':
                 vnic_fetcher = CliFetchInstanceVnicsVpp()
             else:
                 # set ovs as default type.
                 vnic_fetcher = CliFetchInstanceVnics()
 
             vnic_fetcher.set_env(env)
-            vnic_docs = vnic_fetcher.get(instance_id + '-', enable_cache=False)
-            for vnic in vnic_docs:
-                if vnic['mac_address'] == self.mac_address:
-                    vnic['environment'] = env
-                    vnic['type'] = 'vnic'
-                    vnic['name_path'] = old_instance_doc['name_path'] + '/vNICs/' + vnic['name']
-                    vnic['id_path'] = old_instance_doc['id_path'] + '/%s/%s' % (old_instance_doc['id'], vnic['name'])
-                    self.inv.set(vnic)
-                    self.inv.log.info("add instance-vnic document, mac_address: %s" % self.mac_address)
-                    break
+            vnic_docs = vnic_fetcher.get(instance_id + '-')
+            vnic = next(filter(lambda vnic: vnic['mac_address'] == mac_address, vnic_docs), None)
+
+            if vnic:
+                vnic['environment'] = env
+                vnic['type'] = 'vnic'
+                vnic['name_path'] = old_instance_doc['name_path'] + '/vNICs/' + vnic['name']
+                vnic['id_path'] = old_instance_doc['id_path'] + '/%s/%s' % (old_instance_doc['id'], vnic['name'])
+                self.inv.set(vnic)
+                self.inv.log.info("add instance-vnic document, mac_address: %s" % mac_address)
 
             self.log.info("scanning for links")
             fetchers_implementing_add_links = [FindLinksForInstanceVnics(), FindLinksForVedges()]

@@ -6,11 +6,9 @@ from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
-from utils.inventory_mgr import InventoryMgr
 
 
 class EventRouterAdd(EventBase):
-
     def add_router_document(self, env, network_id, router_doc, host):
         router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id=%s" % router_doc['id']
         router_doc["environment"] = env
@@ -19,7 +17,7 @@ class EventRouterAdd(EventBase):
         router_doc['last_scanned'] = datetime.datetime.utcnow()
         router_doc['name_path'] = host['name_path'] + "/Vservices/Gateways/%s" % router_doc['name']
         router_doc['network'] = []
-        if network_id != None:
+        if network_id:
             router_doc['network'] = [network_id]
 
         router_doc['object_name'] = router_doc['name']
@@ -48,19 +46,21 @@ class EventRouterAdd(EventBase):
         port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name, type="router",
                                       router_name=router_doc['name'])
 
-        if add_port_return != False:
+        if add_port_return:
             add_vnic_return = port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
                                                              type="router", router_name=router_doc['name'])
-            if add_vnic_return == False:
+            if not add_vnic_return:
                 self.inv.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
                                                type="router", router_name=router_doc['name'])
         else:
             # in some cases, port has been created, but port doc can not be fetched by OpenStack API
             self.inv.log.info("Try to add port document again.")
+            # TODO: this never returns anything!
             add_port_return = port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name,
                                                             type="router", router_name=router_doc['name'])
-            if add_port_return == False:
+            # TODO: this will never evaluate to True!
+            if add_port_return is False:
                 self.inv.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
                                                type="router", router_name=router_doc['name'])
@@ -74,13 +74,14 @@ class EventRouterAdd(EventBase):
 
         fetcher = CliFetchHostVservice()
         fetcher.set_env(env)
-
         router_doc = fetcher.get_vservice(host_id, router_id)
         gateway_info = router['external_gateway_info']
+
         if gateway_info:
-            network_id = router['external_gateway_info']['network_id']
+            network_id = gateway_info['network_id']
             self.add_router_document(env, network_id, router_doc, host)
             self.add_children_documents(env, project_id, network_id, host, router_doc)
+        # TODO: this should go to 'else' probably?
         self.add_router_document(env, None, router_doc, host)
 
         # scan links and cliques

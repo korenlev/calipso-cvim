@@ -52,14 +52,14 @@ class EnvironmentListener(ConsumerMixin):
         self.handler = EventHandler(env, inventory_collection)
         self.notification_responses = {
             "compute.instance.create.end": self.handler.instance_add,
-            "compute.instance.delete.end": self.handler.instance_delete,
             "compute.instance.rebuild.end": self.handler.instance_update,
             "compute.instance.update": self.handler.instance_update,
+            "compute.instance.delete.end": self.handler.instance_delete,
 
             "servergroup.create": self.handler.region_add,
-            "servergroup.delete": self.handler.region_delete,
             "servergroup.update": self.handler.region_update,
             "servergroup.addmember": self.handler.region_update,
+            "servergroup.delete": self.handler.region_delete,
 
             "compute.instance.shutdown.start": self.handler.instance_down,
             "compute.instance.power_off.start": self.handler.instance_down,

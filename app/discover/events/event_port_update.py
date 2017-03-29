@@ -20,7 +20,7 @@ class EventPortUpdate(EventBase):
         else:
             port_document['status'] = 'DOWN'
 
-        port_document['binding:vnic_type']  = port['binding:vnic_type']
+        port_document['binding:vnic_type'] = port['binding:vnic_type']
 
         # update port document.
         self.inv.set(port_document)

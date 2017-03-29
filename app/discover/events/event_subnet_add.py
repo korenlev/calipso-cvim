@@ -9,7 +9,6 @@ from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
-from utils.inventory_mgr import InventoryMgr
 
 
 class EventSubnetAdd(EventBase):
@@ -23,12 +22,12 @@ class EventSubnetAdd(EventBase):
         fetcher.set_env(env)
         ports = fetcher.get(port_id)
 
-        if ports != []:
+        if ports:
             port = ports[0]
             project_id = port['tenant_id']
             network_id = port['network_id']
 
-            if network_name == None:
+            if not network_name:
                 network = self.inv.get_by_id(env, network_id)
                 network_name = network['name']
 
@@ -46,7 +45,6 @@ class EventSubnetAdd(EventBase):
             self.inv.log.info("add port document for port:%s" % port_id)
             return port
         return False
-
 
     def add_ports_folder(self, env, project_id, network_id, network_name):
         port_folder = {
@@ -118,7 +116,7 @@ class EventSubnetAdd(EventBase):
         self.inv.set(network_document)
 
         # Check DHCP enable, if true, scan network.
-        if subnet['enable_dhcp'] == True:
+        if subnet['enable_dhcp'] is True:
             # update network
             if len(ApiAccess.regions) == 0:
                 fetcher = ApiFetchRegions()

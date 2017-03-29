@@ -31,14 +31,14 @@ class EventHandler(Fetcher):
         handler = EventInstanceAdd()
         handler.handle(self.env, notification)
 
-    def instance_delete(self, notification):
-        self.log.info("instance_delete")
-        handler = EventInstanceDelete()
-        handler.handle(self.env, notification)
-
     def instance_update(self, notification):
         self.log.info("instance_update")
         handler = EventInstanceUpdate()
+        handler.handle(self.env, notification)
+
+    def instance_delete(self, notification):
+        self.log.info("instance_delete")
+        handler = EventInstanceDelete()
         handler.handle(self.env, notification)
 
     def instance_down(self, notification):
@@ -50,10 +50,10 @@ class EventHandler(Fetcher):
     def region_add(self, notification):
         pass
 
-    def region_delete(self, notification):
+    def region_update(self, notification):
         pass
 
-    def region_update(self, notification):
+    def region_delete(self, notification):
         pass
 
     def network_create(self, notification):

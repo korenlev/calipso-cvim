@@ -28,7 +28,7 @@ class EventDeleteBase(EventBase):
         links_using_object.extend([l['_id'] for l in matched_links_target])
 
         # find cliques using these links
-        if links_using_object != []:
+        if links_using_object:
             matched_cliques = clique_finder.find_cliques_by_link(links_using_object)
             # find cliques using these links and rebuild them
             for clique in matched_cliques:

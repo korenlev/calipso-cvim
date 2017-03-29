@@ -2,7 +2,6 @@ from discover.events.event_delete_base import EventDeleteBase
 
 
 class EventSubnetDelete(EventDeleteBase):
-
     def delete_children_documents(self, env, vservice_id):
         vnic_parent_id = vservice_id + '-vnics'
         vnic = self.inv.get_by_field(env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
@@ -24,13 +23,16 @@ class EventSubnetDelete(EventDeleteBase):
         # remove subnet_id from subnet_ids array
         network_document["subnet_ids"].remove(subnet_id)
 
+        # find the subnet in network_document by subnet_id
+        subnet = next(
+            filter(lambda s: s['id'] == subnet_id,
+                   network_document['subnets'].values()),
+            None)
+
         # remove cidr from cidrs and delete subnet document.
-        for subnet in network_document['subnets'].values():
-            if subnet['id'] == subnet_id:
-                network_document['cidrs'].remove(subnet['cidr'])
-                subnet_name = subnet['name']
-                del network_document['subnets'][subnet_name]
-                break
+        if subnet:
+            network_document['cidrs'].remove(subnet['cidr'])
+            del network_document['subnets'][subnet['name']]
 
         self.inv.set(network_document)
 

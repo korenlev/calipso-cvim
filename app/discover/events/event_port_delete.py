@@ -6,7 +6,7 @@ class EventPortDelete(EventDeleteBase):
 
     def delete_port(self, env, port_id):
         port_doc = self.inv.get_by_id(env, port_id)
-        if port_doc == []:
+        if not port_doc:
             self.log.info("Port document not found, aborting port deleting.")
             return None
 
@@ -20,7 +20,7 @@ class EventPortDelete(EventDeleteBase):
 
         # delete vnic and related document
         vnic_doc = self.inv.get_by_field(env, 'vnic', 'mac_address', port_doc['mac_address'], get_single=True)
-        if vnic_doc == []:
+        if not vnic_doc:
             self.log.info("Vnic document not found, aborting vnic deleting.")
             return None
         self.delete_handler(env, vnic_doc['id'], 'vnic')
@@ -30,8 +30,9 @@ class EventPortDelete(EventDeleteBase):
         # update instance document if port
         network_id = port_doc['network_id']
         instance_doc = self.inv.get_by_field(env, 'instance', 'network_info.id', port_doc['id'], get_single=True)
-        if len(instance_doc) != 0:
+        if instance_doc:
             port_num = 0
+
             for port in instance_doc['network_info']:
                 if port['network']['id'] == network_id:
                     port_num += 1
@@ -50,12 +51,12 @@ class EventPortDelete(EventDeleteBase):
                 host_id = port_doc['binding:host_id']
                 instance_id = port_doc['device_id']
                 instance_docs = instance_fetcher.get(host_id + '-')
-                for instance in instance_docs:
-                    if instance_id == instance['id']:
-                        if 'mac_address' not in instance:
-                            instance_doc['mac_address'] = None
-                        self.inv.log.info("update mac_address:%s of instance document." % instance_doc['mac_address'])
-                        break
+                instance = next(filter(lambda i: i['id'] == instance_id, instance_docs), None)
+                if instance:
+                    if 'mac_address' not in instance:
+                        instance_doc['mac_address'] = None
+                    self.inv.log.info("update mac_address:%s of instance document." % instance_doc['mac_address'])
+
             self.inv.set(instance_doc)
         else:
             self.inv.log.info("No instance document binding to network:%s." % network_id)

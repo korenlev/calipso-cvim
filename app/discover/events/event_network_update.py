@@ -17,7 +17,6 @@ class EventNetworkUpdate(EventBase):
                 network_document['name'] = name
                 network_document['object_name'] = name
 
-
                 name_path = network_document['name_path']
                 network_document['name_path'] = name_path[:name_path.rindex('/') + 1] + name
 

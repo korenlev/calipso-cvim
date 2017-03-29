@@ -17,13 +17,15 @@ class EventNetworkAdd(EventBase):
         parent_id = project_id + '-networks'
         network_name = network['name']
 
-        network['environment']  = env
+        network['environment'] = env
         network['type'] = 'network'
-        network['id_path'] = "/%s/%s-projects/%s/%s/%s" % (env, env, project_id, parent_id, network_id)
+        network['id_path'] = "/%s/%s-projects/%s/%s/%s" \
+                             % (env, env, project_id, parent_id, network_id)
         network['cidrs'] = []
         network['subnet_ids'] = []
         network['last_scanned'] = notification['timestamp']
-        network['name_path'] = "/%s/Projects/%s/Networks/%s" % (env, project_name, network_name)
+        network['name_path'] = "/%s/Projects/%s/Networks/%s" \
+                               % (env, project_name, network_name)
         network['network'] = network_id
         network['object_name'] = network_name
         network['parent_id'] = parent_id
