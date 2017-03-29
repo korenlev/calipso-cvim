@@ -69,7 +69,11 @@ simpleSchema.addValidator(function () {
     focal_point_type: that.field('focal_point_type').value
   });
 
-  if (! R.isNil(existing)) {
+  if (R.allPass([
+    R.pipe(R.isNil, R.not), 
+    R.pipe(R.propEq('_id', that.docId), R.not)
+  ])(existing)) { 
+
     return 'alreadyExists';
   }
 });
@@ -82,7 +86,11 @@ simpleSchema.addValidator(function () {
     name: that.field('name').value
   });
 
-  if (! R.isNil(existing)) {
+  if (R.allPass([
+    R.pipe(R.isNil, R.not), 
+    R.pipe(R.propEq('_id', that.docId), R.not)
+  ])(existing)) { 
+
     return 'alreadyExists';
   }
 });

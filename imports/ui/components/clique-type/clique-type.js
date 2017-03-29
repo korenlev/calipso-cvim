@@ -12,7 +12,7 @@ import { CliqueTypes } from '/imports/api/clique-types/clique-types';
 import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';
 import { LinkTypes } from '/imports/api/link-types/link-types';
-import { insert, remove } from '/imports/api/clique-types/methods';
+import { insert, update, remove } from '/imports/api/clique-types/methods';
 import { parseReqId } from '/imports/lib/utilities';
         
 import './clique-type.html';     
@@ -44,7 +44,7 @@ Template.CliqueType.onCreated(function() {
     let query = params.query;
 
     new SimpleSchema({
-      action: { type: String, allowedValues: ['insert', 'view', 'remove'] },
+      action: { type: String, allowedValues: ['insert', 'view', 'update', 'remove'] },
       env: { type: String, optional: true },
       id: { type: String, optional: true }
     }).validate(query);
@@ -56,6 +56,10 @@ Template.CliqueType.onCreated(function() {
 
     case 'view':
       initViewView(instance, query);
+      break;
+
+    case 'update':
+      initUpdateView(instance, query);
       break;
 
     case 'remove':
@@ -208,6 +212,22 @@ function initViewView(instance, query) {
 
 }
 
+function initUpdateView(instance, query) {
+  let reqId = parseReqId(query.id);
+
+  instance.state.set('action', query.action);
+  instance.state.set('env', query.env);
+  instance.state.set('id', reqId);
+
+  subscribeToOptionsData(instance);
+  instance.subscribe('constants');
+  instance.subscribe('clique_types?_id', reqId.id);
+
+  CliqueTypes.find({ _id: reqId.id }).forEach((model) => {
+    instance.state.set('model', model);
+  }); 
+}
+
 function initRemoveView(instance, query) {
   initViewView(instance, query);
 }
@@ -236,6 +256,16 @@ function submitItem(
   switch (action) {
   case 'insert':
     insert.call({
+      environment: env,
+      focal_point_type: focal_point_type,
+      link_types: link_types,
+      name: name
+    }, processActionResult.bind(null, instance));
+    break;
+
+  case 'update': 
+    update.call({
+      _id: id.id,
       environment: env,
       focal_point_type: focal_point_type,
       link_types: link_types,
@@ -301,6 +331,8 @@ function calcActionLabel(action) {
     return 'Add';
   case 'remove':
     return 'Remove';
+  case 'update':
+    return 'Update';
   default:
     return 'Submit';
   }
