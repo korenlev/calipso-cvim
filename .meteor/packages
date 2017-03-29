@@ -44,3 +44,4 @@ meteorhacks:aggregate
 momentjs:moment
 tsega:bootstrap3-datetimepicker
 alanning:roles
+percolate:migrations

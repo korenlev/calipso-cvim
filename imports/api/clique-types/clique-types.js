@@ -60,12 +60,26 @@ let schema = {
 };
 
 let simpleSchema = new SimpleSchema(schema);
+
 simpleSchema.addValidator(function () {
   let that = this;
 
   let existing = CliqueTypes.findOne({ 
     environment: that.field('environment').value,
     focal_point_type: that.field('focal_point_type').value
+  });
+
+  if (! R.isNil(existing)) {
+    return 'alreadyExists';
+  }
+});
+
+simpleSchema.addValidator(function () {
+  let that = this;
+
+  let existing = CliqueTypes.findOne({ 
+    environment: that.field('environment').value,
+    name: that.field('name').value
   });
 
   if (! R.isNil(existing)) {

@@ -35,3 +35,5 @@ import '../../api/clique-constraints/methods.js';
 
 import '../../api/accounts/server/publications';
 import '../../api/accounts/methods';
+
+import '../../api/migrations/migrations';
