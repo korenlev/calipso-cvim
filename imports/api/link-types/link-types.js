@@ -9,20 +9,6 @@ export const LinkTypes = new Mongo.Collection(
 
 let schema = {
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
-  user_id: { type: String }, 
-  /*
-  environment: {
-    type: String,
-    custom: function () {
-      let that = this;
-      let env = Environments.findOne({ name: that.value });
-
-      if (R.isNil(env)) {
-        return 'notAllowed';
-      }
-    }
-  },
-  */
   description: {
     type: String
   },

@@ -1,6 +1,7 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import * as R from 'ramda';
+//import * as R from 'ramda';
+import { Roles } from 'meteor/alanning:roles';
 
 let userSchema = new SimpleSchema({
   _id: { type: String },

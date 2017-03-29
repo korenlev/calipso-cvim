@@ -1,5 +1,6 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import * as R from 'ramda';
+import { Roles } from 'meteor/alanning:roles';
 
 import { LinkTypes } from './link-types';
 
@@ -20,8 +21,11 @@ export const insert = new ValidatedMethod({
     endPointA,
     endPointB
   }) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', 'default-group')) {
+      throw new Meteor.Error('unauthorized for inserting link type');
+    }
+
     let linkType = LinkTypes.schema.clean({
-      user_id: Meteor.user()._id
     });
 
     let type = calcTypeFromEndPoints(endPointA, endPointB);
@@ -48,13 +52,13 @@ export const remove = new ValidatedMethod({
   run({
     _id
   }) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', 'default-group')) {
+      throw new Meteor.Error('unauthorized for removing link type');
+    }
+
     let linkType = LinkTypes.findOne({ _id: _id });
     console.log('link type for remove: ', linkType);
     console.log('current user', Meteor.userId());
-
-    if (linkType.user_id !== Meteor.userId()) {
-      throw new Meteor.Error('not-auth', 'User not authorized to perform action');
-    }
 
     LinkTypes.remove({ _id: _id });
   }

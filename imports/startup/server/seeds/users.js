@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import { Roles } from 'meteor/alanning:roles';
 
 let users = [
   {
@@ -6,22 +7,24 @@ let users = [
     name: 'admin',
     email: 'admin@example.com',
     password: 'admin1234',
-    roles: ['manage-users']
+    roles: ['manage-users', 'manage-link-types']
   }
 ];
 
 R.forEach((user) => {
-  if (Meteor.users.findOne({ username: user.username })) {
-    return;
+  let id;
+  let userDb = Meteor.users.findOne({ username: user.username });
+  if (R.isNil(userDb)) {
+    console.log('creating user', user);
+    id = Accounts.createUser({
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      profile: { name: user.name }
+    });
+  } else {
+    id = userDb._id;
   }
-
-  console.log('creating user', user);
-  id = Accounts.createUser({
-    username: user.username,
-    email: user.email,
-    password: user.password,
-    profile: { name: user.name }
-  });
 
   if (user.roles.length > 0) {
     console.log('adding roles to user', user, user.roles);
