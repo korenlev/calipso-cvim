@@ -26,6 +26,7 @@
           <label class="cl-field-label">Environment</label>
           <select name="env" class="sm-input-env cl-input" 
             {{ getAttrDisabled }} >
+            <option value="" selected disabled hidden></option>
             {{#each env in envsList }}
             <option value="{{ env.name }}"
               {{ getAttrSelected env.name (getModelField 'environment') }}
