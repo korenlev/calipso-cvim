@@ -11,7 +11,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { LinkTypes } from '/imports/api/link-types/link-types';
 //import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';
-import { insert, remove } from '/imports/api/link-types/methods';
+import { insert, remove, update } from '/imports/api/link-types/methods';
 import { parseReqId } from '/imports/lib/utilities';
 
         
@@ -44,7 +44,7 @@ Template.LinkType.onCreated(function() {
     let query = params.query;
 
     new SimpleSchema({
-      action: { type: String, allowedValues: ['insert', 'view', 'remove'] },
+      action: { type: String, allowedValues: ['insert', 'view', 'remove', 'update'] },
       //env: { type: String, optional: true },
       id: { type: String, optional: true }
     }).validate(query);
@@ -56,6 +56,10 @@ Template.LinkType.onCreated(function() {
 
     case 'view':
       initViewView(instance, query);
+      break;
+
+    case 'update':
+      initUpdateView(instance, query);
       break;
 
     case 'remove':
@@ -192,6 +196,23 @@ function initViewView(instance, query) {
 
 }
 
+function initUpdateView(instance, query) {
+  let reqId = parseReqId(query.id);
+
+  instance.state.set('action', query.action);
+  //instance.state.set('env', query.env);
+  instance.state.set('id', reqId);
+
+  subscribeToOptionsData(instance);
+  instance.subscribe('constants');
+  instance.subscribe('link_types?_id', reqId.id);
+
+  LinkTypes.find({ _id: reqId.id }).forEach((model) => {
+    instance.state.set('model', model);
+  }); 
+
+}
+
 function initRemoveView(instance, query) {
   initViewView(instance, query);
 }
@@ -219,6 +240,15 @@ function submitItem(
   case 'insert':
     insert.call({
       //environment: env,
+      description: desc,
+      endPointA: endPointA,
+      endPointB: endPointB,
+    }, processActionResult.bind(null, instance));
+    break;
+
+  case 'update': 
+    update.call({
+      _id: id.id,
       description: desc,
       endPointA: endPointA,
       endPointB: endPointB,
@@ -283,6 +313,8 @@ function calcActionLabel(action) {
     return 'Add';
   case 'remove':
     return 'Remove';
+  case 'update':
+    return 'Update';
   default:
     return 'Submit';
   }

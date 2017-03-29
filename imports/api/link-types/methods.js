@@ -10,14 +10,12 @@ export const insert = new ValidatedMethod({
     .pick([
       //'environment',
       'description',
-      'folder_text',
       'endPointA',
       'endPointB',
     ]).validator({ clean: true, filter: false }),
   run({
     //environment,
     description,
-    folder_text,
     endPointA,
     endPointB
   }) {
@@ -31,9 +29,7 @@ export const insert = new ValidatedMethod({
     let type = calcTypeFromEndPoints(endPointA, endPointB);
 
     linkType = R.merge(linkType, {
-      //environment,
       description,
-      folder_text,
       endPointA,
       endPointB,
       type 
@@ -61,6 +57,47 @@ export const remove = new ValidatedMethod({
     console.log('current user', Meteor.userId());
 
     LinkTypes.remove({ _id: _id });
+  }
+});
+
+export const update = new ValidatedMethod({
+  name: 'links_types.update',
+  validate: LinkTypes.simpleSchema()
+    .pick([
+      '_id',
+      'description',
+      'endPointA',
+      'endPointB',
+    ]).validator({ clean: true, filter: false }),
+  run({
+    _id,
+    description,
+    endPointA,
+    endPointB
+  }) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', 'default-group')) {
+      throw new Meteor.Error('unauthorized for removing link type');
+    }
+
+    let linkType = LinkTypes.findOne({ _id: _id });
+    console.log('link type for update: ', linkType);
+    console.log('current user', Meteor.userId());
+
+    let type = calcTypeFromEndPoints(endPointA, endPointB);
+
+    linkType = R.merge(R.pick([
+      'description', 
+      'endPointA', 
+      'endPointB', 
+      'type'
+    ], linkType), {
+      description,
+      endPointA,
+      endPointB,
+      type 
+    });
+
+    LinkTypes.update({ _id: _id }, { $set: linkType });
   }
 });
 
