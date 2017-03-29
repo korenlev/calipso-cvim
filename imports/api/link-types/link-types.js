@@ -39,5 +39,40 @@ let schema = {
   }
 };
 
-LinkTypes.schema = new SimpleSchema(schema);
+let simpleSchema = new SimpleSchema(schema);
+
+simpleSchema.addValidator(function () {
+  let that = this;
+
+  let existing = LinkTypes.findOne({
+    _id: { $ne: that.docId },
+    endPointA: that.field('endPointA').value,
+    endPointB: that.field('endPointB').value
+  });
+
+  if (R.allPass([
+    R.pipe(R.isNil, R.not), 
+    R.pipe(R.propEq('_id', that.docId), R.not)
+  ])(existing)) { 
+
+    return 'alreadyExists';
+  }
+
+  existing = LinkTypes.findOne({
+    _id: { $ne: that.docId },
+    endPointA: that.field('endPointB').value,
+    endPointB: that.field('endPointA').value
+  });
+
+  if (R.allPass([
+    R.pipe(R.isNil, R.not), 
+    R.pipe(R.propEq('_id', that.docId), R.not)
+  ])(existing)) { 
+
+    return 'alreadyExists';
+  }
+});
+
+LinkTypes.schema = simpleSchema;
+
 LinkTypes.attachSchema(LinkTypes.schema);
