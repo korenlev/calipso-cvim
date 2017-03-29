@@ -142,7 +142,7 @@ class TestLinks(TestBase):
     def test_get_links_list_with_unknown_env_name(self, read, check_env_name):
         self.validate_get_request(links.URL,
                                   params={
-                                      'env_name': base.UNKOWN_ENV
+                                      'env_name': base.UNKNOWN_ENV
                                   },
                                   mocks={
                                       read: [],
@@ -169,7 +169,7 @@ class TestLinks(TestBase):
     def test_get_link_with_unknown_env_name(self, read, check_env_name):
         self.validate_get_request(links.URL,
                                   params={
-                                      'env_name': base.UNKOWN_ENV
+                                      'env_name': base.UNKNOWN_ENV
                                   },
                                   mocks={
                                       read: [],

@@ -143,7 +143,7 @@ class TestInventory(TestBase):
     def test_get_object_with_unkown_env_name_and_id(self, check_env_name, read):
         self.validate_get_request(inventory.URL,
                                   params={
-                                      'env_name': base.UNKOWN_ENV,
+                                      'env_name': base.UNKNOWN_ENV,
                                       'id': inventory.ID
                                   },
                                   mocks={

@@ -163,8 +163,8 @@ class TestMessage(TestBase):
     def test_get_messages_list_with_unknown_env_name(self, read, check_env_name):
         self.validate_get_request(messages.URL,
                                   params={
-                                      'env_name': base.UNKOWN_ENV,
-                                      'related_object': messages.NONEXISTENT_RELATED_OBJECT
+                                      'env_name': base.UNKNOWN_ENV,
+                                      'related_object': messages.RELATED_OBJECT
                                   },
                                   mocks={
                                       read: [],
@@ -191,7 +191,7 @@ class TestMessage(TestBase):
     def test_get_message_with_unknown_env_name_and_id(self, read, check_env_name):
         self.validate_get_request(messages.URL,
                                   params={
-                                      'env_name': base.ENV_NAME,
+                                      'env_name': base.UNKNOWN_ENV,
                                       'id': messages.NONEXISTENT_MESSAGE_ID
                                   },
                                   mocks={

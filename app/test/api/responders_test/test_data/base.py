@@ -7,7 +7,7 @@ UNAUTHORIZED_CODE = "401"
 CREATED_CODE = "201"
 
 ENV_NAME = "Mirantis-Liberty-API"
-UNKOWN_ENV = "Unkown-Environment"
+UNKNOWN_ENV = "Unkown-Environment"
 NON_INT_PAGE = 1.4
 INT_PAGE = 1
 NON_INT_PAGESIZE = 300.4
