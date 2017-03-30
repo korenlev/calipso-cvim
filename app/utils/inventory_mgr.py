@@ -33,7 +33,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if collection_type != "inventory":
                 collection_name = self.get_coll_name(collection_type)
 
-            self.log.info("using " + collection_type + " collection: " + collection_name)
+            self.log.info("using " + collection_type + " collection: " +
+                          collection_name)
 
             name = collection_name if collection_name else collection_type
             self.collections[collection_type] = MongoAccess.db[name]
@@ -52,7 +53,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             else self.inventory_collection_name + "_" + coll_name
 
     def set_collections(self, inventory_collection=""):
-        self.inventory_collection = self.set_collection("inventory", inventory_collection)
+        self.inventory_collection = self.set_collection("inventory",
+                                                        inventory_collection)
         self.set_collection("links")
         self.set_collection("link_types")
         self.set_collection("clique_types")
@@ -196,7 +198,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
     # which also does process_results
     @inv_initialization_required
     def find(self, search, projection=None, collection=None, get_single=False):
-        coll = self.inventory_collection if not collection else self.collections[collection]
+        coll = self.inventory_collection if not collection \
+            else self.collections[collection]
         if get_single is True:
             return self.decode_object_id(
                 self.decode_mongo_keys(
@@ -267,20 +270,22 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         }
         if "_id" in link:
             link.pop("_id", None)
-        result = self.collections["links"].update_one(find_tuple,
-                                                      {'$set': self.encode_mongo_keys(link)},
-                                                      upsert=True)
+        link_encoded = self.encode_mongo_keys(link)
+        links_col = self.collections["links"]
+        result = links_col.update_one(find_tuple, {'$set': link_encoded},
+                                      upsert=True)
         link['_id'] = result.upserted_id
         return link
 
     @inv_initialization_required
     def get_clique_finder(self):
         if not self.clique_scanner:
-            self.clique_scanner = CliqueFinder(self.inventory_collection,
-                                               self.collections["links"],
-                                               self.collections["clique_types"],
-                                               self.collections["clique_constraints"],
-                                               self.collections["cliques"])
+            self.clique_scanner = \
+                CliqueFinder(self.inventory_collection,
+                             self.collections["links"],
+                             self.collections["clique_types"],
+                             self.collections["clique_constraints"],
+                             self.collections["cliques"])
         return self.clique_scanner
 
     def scan_cliques(self, environment):
