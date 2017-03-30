@@ -35,8 +35,12 @@ class EnvironmentConfigs(ResponderBase):
                                      ["development", "product"],
                                      mandatory=True),
             "osdna_path": self.require(str, mandatory=True),
+            "api_port": self.require(int, True, mandatory=True),
             "rabbitmq_pass": self.require(str, mandatory=True),
             "rabbitmq_user": self.require(str, mandatory=True),
+            "ssh_port": self.require(int, True, mandatory=True),
+            "ssh_pass": self.require(str, mandatory=True),
+            "ssh_user": self.require(str, mandatory=True),
             "server_ip": self.require(str, mandatory=True),
             "server_name": self.require(str, mandatory=True),
             "type": self.require(str, mandatory=True)
@@ -53,8 +57,9 @@ class EnvironmentConfigs(ResponderBase):
                 ["name", "host", "port", "user", "password"],
             "Monitoring":
                 ["name", "app_path", "config_folder", "debug",
-                "env_type", "osdna_path", "port",
+                "env_type", "osdna_path", "api_port",
                 "rabbitmq_pass", "rabbitmq_user",
+                 "ssh_port", "ssh_password", "ssh_user",
                 "server_ip", "server_name", "type"]
         }
 
