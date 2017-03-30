@@ -15,6 +15,8 @@ class SshConnection(BinaryConverter, Logger):
     max_call_count_per_con = 100
     timeout = 15  # timeout for exec in seconds
 
+    DEFAULT_PORT = 22
+
     def __init__(self, _host, _user, _pwd=None, _key=None, _port=None):
         super().__init__()
         self.host = _host
@@ -58,7 +60,7 @@ class SshConnection(BinaryConverter, Logger):
     def connect(self):
         if self.host in self.connections:
             self.ssh = self.connections[self.host]
-        if self.ssh:
+        if self.ssh is not None:
             if self.call_count_per_con[self.host] < self.max_call_count_per_con:
                 return
             self.log.info("CliAccess: ****** forcing reconnect, " +
@@ -74,9 +76,13 @@ class SshConnection(BinaryConverter, Logger):
         if self.key:
             k = paramiko.RSAKey.from_private_key_file(self.key)
             self.ssh.connect(hostname=self.host, username=self.user, pkey=k,
+                             port=self.port if self.port is not None
+                             else self.DEFAULT_PORT,
                              password=self.pwd, timeout=30)
         else:
             self.ssh.connect(self.host, username=self.user, password=self.pwd,
+                             port=self.port if self.port is not None
+                             else self.DEFAULT_PORT,
                              timeout=30)
         self.call_count_per_con[self.host] = 0
 
@@ -108,8 +114,11 @@ class SshConnection(BinaryConverter, Logger):
             self.ftp = self.ssh.open_sftp()
         try:
             self.ftp.put(local_path, remote_path)
+            remote_file = self.ftp.file(remote_path, 'a+')
             if mode:
-                remote_file = self.ftp.file(remote_path, 'a+')
                 remote_file.chmod(mode)
         except IOError:
             self.log.error('failed to copy file to remote host ' + self.host)
+
+    def is_gateway_host(self, host):
+        return True
