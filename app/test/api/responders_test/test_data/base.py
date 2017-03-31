@@ -10,8 +10,8 @@ ENV_NAME = "Mirantis-Liberty-API"
 UNKNOWN_ENV = "Unkown-Environment"
 NON_INT_PAGE = 1.4
 INT_PAGE = 1
-NON_INT_PAGESIZE = 300.4
-INT_PAGESIZE = 300
+NON_INT_PAGESIZE = 2.4
+INT_PAGESIZE = 2
 
 WRONG_LINK_TYPE = "instance-host"
 CORRECT_LINK_TYPE= "instance-vnic"

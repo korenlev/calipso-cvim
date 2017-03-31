@@ -53,7 +53,7 @@ class TestCliques(TestBase):
         self.validate_get_request(cliques.URL,
                                   params={
                                      "env_name": base.ENV_NAME,
-                                     "page": base.INT_PAGESIZE
+                                     "page_size": base.INT_PAGESIZE
                                   },
                                   mocks={
                                      read: cliques.CLIQUES
@@ -77,10 +77,10 @@ class TestCliques(TestBase):
                                      "id": cliques.CORRECT_CLIQUE_ID
                                   },
                                   mocks={
-                                     read: cliques.CLIQUES
+                                     read: cliques.CLIQUES_WITH_SPECIFIC_ID
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=cliques.CLIQUES[0]
+                                  expected_response=cliques.CLIQUES_WITH_SPECIFIC_ID[0]
                                   )
 
     def test_get_cliques_list_with_wrong_focal_point(self):
@@ -99,10 +99,12 @@ class TestCliques(TestBase):
                                      "focal_point": cliques.CORRECT_FOCAL_POINT
                                   },
                                   mocks={
-                                     read: cliques.CLIQUES
+                                     read: cliques.CLIQUES_WITH_SPECIFIC_FOCAL_POINT
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=cliques.CLIQUES_RESPONSE)
+                                  expected_response=cliques.
+                                     CLIQUES_WITH_SPECIFIC_FOCAL_POINT_RESPONSE
+                                  )
 
     def test_get_cliques_list_with_wrong_focal_point_type(self):
         self.validate_get_request(cliques.URL,
@@ -117,13 +119,14 @@ class TestCliques(TestBase):
         self.validate_get_request(cliques.URL,
                                   params={
                                      "env_name": base.ENV_NAME,
-                                     "focal_point_type": cliques.FOCAL_POINT_TYPE
+                                     "focal_point_type": cliques.CORRECT_FOCAL_POINT_TYPE
                                   },
                                   mocks={
-                                     read: cliques.CLIQUES
+                                     read: cliques.CLIQUES_WITH_SPECIFIC_FOCAL_POINT_TYPE
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=cliques.CLIQUES_RESPONSE
+                                  expected_response=cliques.
+                                     CLIQUES_WITH_SPECIFIC_FOCAL_POINT_TYPE_RESPONSE
                                   )
 
     def test_get_cliques_list_with_wrong_link_type(self):
@@ -139,13 +142,14 @@ class TestCliques(TestBase):
         self.validate_get_request(cliques.URL,
                                   params={
                                       "env_name": base.ENV_NAME,
-                                      "link_type": base.CORRECT_LINK_TYPE
+                                      "link_type": cliques.CORRECT_LINK_TYPE
                                   },
                                   mocks={
-                                      read: cliques.CLIQUES
+                                      read: cliques.CLIQUES_WITH_SPECIFIC_LINK_TYPE
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=cliques.CLIQUES_RESPONSE
+                                  expected_response=cliques.
+                                     CLIQUES_WITH_SPECIFIC_LINK_TYPE_RESPONSE
                                   )
 
     def test_get_cliques_list_with_wrong_link_id(self):
@@ -164,10 +168,12 @@ class TestCliques(TestBase):
                                      "link_id": cliques.CORRECT_LINK_ID
                                   },
                                   mocks={
-                                     read: cliques.CLIQUES
+                                     read: cliques.CLIQUES_WITH_SPECIFIC_LINK_ID
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=cliques.CLIQUES_RESPONSE)
+                                  expected_response=cliques.
+                                     CLIQUES_WITH_SPECIFIC_LINK_ID_RESPONSE
+                                  )
 
     @patch(base.RESPONDER_BASE_CHECK_ENVIRONMENT_NAME)
     @patch(base.RESPONDER_BASE_READ)

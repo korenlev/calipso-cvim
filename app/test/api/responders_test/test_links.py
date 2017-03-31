@@ -22,7 +22,7 @@ class TestLinks(TestBase):
         self.validate_get_request(links.URL,
                                   params={
                                       'env_name': base.ENV_NAME,
-                                      'link_type': base.WRONG_LINK_TYPE
+                                      'link_type': links.WRONG_TYPE
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -31,19 +31,21 @@ class TestLinks(TestBase):
         self.validate_get_request(links.URL,
                                   params={
                                       'env_name': base.ENV_NAME,
-                                      'link_type': base.CORRECT_LINK_TYPE
+                                      'link_type': links.CORRECT_TYPE
                                   },
                                   mocks={
-                                      read: links.LINKS
+                                      read: links.LINKS_WITH_SPECIFIC_TYPE
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=links.LINKS_LIST_RESPONSE)
+                                  expected_response=links.
+                                       LINKS_WITH_SPECIFIC_TYPE_RESPONSE
+                                  )
 
     def test_get_links_list_with_wrong_state(self):
         self.validate_get_request(links.URL,
                                   params={
                                       'env_name': base.ENV_NAME,
-                                      'state': base.WRONG_LINK_STATE
+                                      'state': links.WRONG_STATE
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -52,13 +54,15 @@ class TestLinks(TestBase):
         self.validate_get_request(links.URL,
                                   params={
                                       'env_name': base.ENV_NAME,
-                                      'state': base.CORRECT_LINK_STATE
+                                      'state': links.CORRECT_STATE
                                   },
                                   mocks={
-                                      read: links.LINKS,
+                                      read: links.LINKS_WITH_SPECIFIC_STATE,
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=links.LINKS_LIST_RESPONSE)
+                                  expected_response=links.
+                                      LINKS_WITH_SPECIFIC_STATE_RESPONSE
+                                  )
 
     def test_get_link_with_env_name_and_wrong_link_id(self):
         self.validate_get_request(links.URL,
@@ -76,10 +80,12 @@ class TestLinks(TestBase):
                                       'id': links.LINK_ID
                                   },
                                   mocks={
-                                      read: links.LINKS
+                                      read: links.LINKS_WITH_SPECIFIC_ID
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=links.LINKS[0])
+                                  expected_response=links.
+                                      LINKS_WITH_SPECIFIC_ID[0]
+                                  )
 
     def test_get_links_list_with_non_int_page(self):
         self.validate_get_request(links.URL,

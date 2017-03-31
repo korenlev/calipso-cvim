@@ -22,7 +22,7 @@ class TestMessage(TestBase):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'start_time': base.WRONG_FORMAT_TIME
+                                     'start_time': messages.WRONG_FORMAT_TIME
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -31,19 +31,21 @@ class TestMessage(TestBase):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'start_time': base.CORRECT_FORMAT_TIME
+                                     'start_time': messages.CORRECT_FORMAT_TIME
                                   },
                                   mocks={
-                                     read: messages.MESSAGES
+                                     read: messages.MESSAGES_WITH_SPECIFIC_TIME
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=messages.MESSAGES_RESPONSE)
+                                  expected_response=
+                                     messages.MESSAGES_WITH_SPECIFIC_TIME_RESPONSE
+                                  )
 
     def test_get_messages_list_with_wrong_format_end_time(self):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'end_time': base.WRONG_FORMAT_TIME
+                                     'end_time': messages.WRONG_FORMAT_TIME
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -52,19 +54,21 @@ class TestMessage(TestBase):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'end_time': base.CORRECT_FORMAT_TIME
+                                     'end_time': messages.CORRECT_FORMAT_TIME
                                   },
                                   mocks={
-                                     read: messages.MESSAGES
+                                     read: messages.MESSAGES_WITH_SPECIFIC_TIME
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=messages.MESSAGES_RESPONSE)
+                                  expected_response=
+                                     messages.MESSAGES_WITH_SPECIFIC_TIME_RESPONSE
+                                  )
 
     def test_get_messages_list_with_wrong_level(self):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'level': base.WRONG_MESSAGE_SEVERITY
+                                     'level': messages.WRONG_SEVERITY
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -73,19 +77,22 @@ class TestMessage(TestBase):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'level': base.CORRECT_MESSAGE_SEVERITY
+                                     'level': messages.CORRECT_SEVERITY
                                   },
                                   mocks={
-                                     read: messages.MESSAGES
+                                     read: messages.MESSAGES_WITH_SPECIFIC_SEVERITY
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=messages.MESSAGES_RESPONSE)
+                                  expected_response=messages.
+                                     MESSAGES_WITH_SPECIFIC_SEVERITY_RESPONSE
+                                  )
 
     def test_get_messages_list_with_wrong_related_object_type(self):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'related_object_type': base.WRONG_OBJECT_TYPE
+                                     'related_object_type':
+                                         messages.WRONG_RELATED_OBJECT_TYPE
                                   },
                                   expected_code=base.BAD_REQUEST_CODE)
 
@@ -94,13 +101,17 @@ class TestMessage(TestBase):
         self.validate_get_request(messages.URL,
                                   params={
                                      'env_name': base.ENV_NAME,
-                                     'related_object_type': base.CORRECT_OBJECT_TYPE
+                                     'related_object_type':
+                                         messages.CORRECT_RELATED_OBJECT_TYPE
                                   },
                                   mocks={
-                                     read: messages.MESSAGES
+                                     read: messages.
+                                        MESSAGES_WITH_SPECIFIC_RELATED_OBJECT_TYPE
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=messages.MESSAGES_RESPONSE)
+                                  expected_response=messages.
+                                        MESSAGES_WITH_SPECIFIC_RELATED_OBJECT_TYPE_RESPONSE
+                                  )
 
     def test_get_messages_list_with_non_int_page(self):
         self.validate_get_request(messages.URL,
@@ -192,7 +203,7 @@ class TestMessage(TestBase):
         self.validate_get_request(messages.URL,
                                   params={
                                       'env_name': base.UNKNOWN_ENV,
-                                      'id': messages.NONEXISTENT_MESSAGE_ID
+                                      'id': messages.MESSAGE_ID
                                   },
                                   mocks={
                                       read: [],
@@ -209,8 +220,8 @@ class TestMessage(TestBase):
                                       'id': messages.MESSAGE_ID
                                   },
                                   mocks={
-                                      read: messages.MESSAGES,
+                                      read: messages.MESSAGES_WITH_SPECIFIC_ID,
                                       check_env_name: False
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=messages.MESSAGES[0])
+                                  expected_response=messages.MESSAGES_WITH_SPECIFIC_ID[0])
