@@ -23,15 +23,15 @@
   <div class="form-group">
     <label for="" 
       class="col-sm-2 control-label"
-      >Port</label>
+      >Api Port</label>
 
     <div class="col-sm-3">
       {{> InputModel(createInputArgs
-            value=model.port 
-            key="port"
+            value=model.api_port 
+            key="api_port"
             type="text"
             disabled=disabled
-            placeholder="Port")
+            placeholder="Api port")
       }}
     </div>
 
@@ -178,6 +178,66 @@
 
     <div class="col-sm-4">
       <p>Config folder</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >SSH Port</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.ssh_port 
+            key="ssh_port"
+            type="text"
+            disabled=disabled
+            placeholder="SSH port")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>SSH Port</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >SSH User</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.ssh_user 
+            key="ssh_user"
+            type="text"
+            disabled=disabled
+            placeholder="SSH User")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>SSH User</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >SSH Password</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.ssh_password 
+            key="ssh_password"
+            type="password"
+            disabled=disabled
+            placeholder="SSH Password")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>SSH Password</p>
     </div>
   </div>
 

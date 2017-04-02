@@ -32,7 +32,7 @@ export const MonitoringSchema = new SimpleSchema({
     },
   },
 
-  port: {
+  api_port: {
     type: String,
     defaultValue: 4567,
     regEx: portRegEx,
@@ -84,5 +84,23 @@ export const MonitoringSchema = new SimpleSchema({
         return 'notAllowed';
       }
     },
-  }
+  },
+
+  ssh_port: {
+    type: String,
+    defaultValue: '20022',
+    optional: true
+  },
+
+  ssh_user: {
+    type: String,
+    defaultValue: 'root',
+    optional: true
+  },
+
+  ssh_password: {
+    type: String,
+    defaultValue: 'osdna',
+    optional: true
+  },
 });
