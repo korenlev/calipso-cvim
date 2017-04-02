@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 from test.scan.test_scan import TestScan
 from test.scan.test_data.scan import *
 from discover.scan import ScanController, ScanPlan
-from test.scan import mock_module
 from test.scan.mock_module import ScanEnvironment
 
 
