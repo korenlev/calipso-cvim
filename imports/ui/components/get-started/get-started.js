@@ -12,11 +12,11 @@ import '/imports/ui/components/accordion-wiki-menu/accordion-wiki-menu';
 
 import './get-started.html';
 
-Template.breadcrumb.onCreated(function () {
+Template.getstarted.onCreated(function () {
 });
 
-Template.breadcrumb.onDestroyed(function () {
+Template.getstarted.onDestroyed(function () {
 });
 
-Template.breadcrumb.helpers({
+Template.getstarted.helpers({
 });

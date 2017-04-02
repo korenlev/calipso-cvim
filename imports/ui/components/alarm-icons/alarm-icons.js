@@ -4,8 +4,9 @@
 
 import '/imports/ui/components/breadcrumb/breadcrumb';
 import { Messages } from '/imports/api/messages/messages';
+import { Roles } from 'meteor/alanning:roles';
 
-(function () {
+import './alarm-icons.html';     
 
 /*
  * Lifecycle
@@ -31,16 +32,14 @@ Template.alarmIcons.helpers({
   },
 
   notificationsCount: function(){
-      return Messages.find({level:'notify'}).count();
+    return Messages.find({level:'notify'}).count();
   },
 
   warningsCount: function(){
-      return Messages.find({level:'warn'}).count();
+    return Messages.find({level:'warn'}).count();
   },
 
   errorsCount: function(){
-      return Messages.find({level:'error'}).count();
+    return Messages.find({level:'error'}).count();
   },
 });
-
-})();
