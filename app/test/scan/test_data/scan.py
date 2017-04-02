@@ -338,14 +338,14 @@ CHILD_ID_FOR_REGION_FOLDER = "WebEX-Mirantis@Cisco-regions"
 
 DEFAULT_COMMAND_ARGS = ["scanner.py"]
 
-SHORT_COMMAND_ARGS = ["scanner.py", "-c", "True", "-m", "mongo_config_file",
+SHORT_COMMAND_ARGS = ["scanner.py", "-m", "mongo_config_file",
                       "-e", "Mirantis-Liberty-Xiaocong", "-t", "project",
                       "-y", "Xiaocong-UT", "-s", "-i", "admin",
                       "-p", "RegionOne", "-a", "Region", "-f", "name",
                       "-l", "ERROR"]
 
 LONG_COMMAND_ARGS = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -353,7 +353,7 @@ LONG_COMMAND_ARGS = [
     "--clear"]
 
 LONG_COMMAND_ARGS_CLEAR_ALL = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -361,7 +361,7 @@ LONG_COMMAND_ARGS_CLEAR_ALL = [
     "--clear_all"]
 
 LONG_COMMAND_ARGS_INVENTORY_ONLY = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -369,7 +369,7 @@ LONG_COMMAND_ARGS_INVENTORY_ONLY = [
     "--clear"]
 
 LONG_COMMAND_ARGS_LINKS_ONLY = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
@@ -377,7 +377,7 @@ LONG_COMMAND_ARGS_LINKS_ONLY = [
     "--clear"]
 
 LONG_COMMAND_ARGS_CLIQUES_ONLY = [
-    "scanner.py", "--cgi", "True","--mongo_config", "mongo_config_file",
+    "scanner.py", "--mongo_config", "mongo_config_file",
     "--env", "Mirantis-Liberty-Xiaocong", "--type", "project",
     "--inventory", "Xiaocong-UT", "--scan_self", "--id", "admin",
     "--parent_id", "RegionOne", "--parent_type", "Region",
