@@ -7,7 +7,6 @@ import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import { Constants } from '/imports/api/constants/constants';
 import { LinkTypes } from '/imports/api/link-types/link-types';
 //import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';

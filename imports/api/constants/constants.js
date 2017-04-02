@@ -12,6 +12,7 @@ import { EnvTypes } from './data/env-types';
 import { Statuses as ScansStatuses } from './data/scans-statuses';
 import { EnvironmentMonitoringTypes } from './data/environment-monitoring-types';
 import { EnvProvisionTypes } from './data/environment-provision-types';
+import { MessageSourceSystems } from './data/message-source-systems';
 
 export const Constants = new Mongo.Collection('constants', { idGeneration: 'MONGO' });
 
@@ -48,6 +49,9 @@ let constantsDefaults = [{
 }, {
   name: 'environment_provision_types',
   values: EnvProvisionTypes
+}, {
+  name: 'message_source_systems',
+  values: MessageSourceSystems
 }];
 
 Constants.schema = schema;

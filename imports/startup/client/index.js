@@ -21,3 +21,5 @@ import '/imports/ui/components/clique-constraints-list/clique-constraints-list';
 import '/imports/ui/components/clique-constraint/clique-constraint';
 import '/imports/ui/components/user-list/user-list';
 import '/imports/ui/components/user/user';
+import '/imports/ui/components/messages-list/messages-list';
+import '/imports/ui/components/message/message';

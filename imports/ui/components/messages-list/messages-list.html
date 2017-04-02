@@ -1,0 +1,53 @@
+<template name="MessagesList">
+<div class="os-messages-list cards white">
+  <h3>Messages</h3>
+  <table class="sm-messages-table table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Environment</th>
+        <th>Id</th>
+        <th>Viewed</th>
+        <th>Display Context</th>
+        <th>Message</th>
+        <th>Source System</th>
+        <th>Level</th>
+        <th>Timestamp</th>
+        <th>Related Object Type</th>
+        <th>Related Object</th>
+      </tr> </thead>
+    <tbody> 
+      {{#each message in messages }}
+      <tr>
+        <td>{{ message._id }}</td>
+        <td>{{ message.environment }}</td>
+        <td>{{ message.id }}</td>
+        <td>{{ message.viewed }}</td>
+        <td>{{ message.display_context }}</td>
+        <td>{{ message.message }}</td>
+        <td>{{ message.source_system }}</td>
+        <td>{{ message.level }}</td>
+        <td>{{ message.timestamp }}</td>
+        <td>{{ message.related_object_type }}</td>
+        <td><a href="{{pathFor route='enviroment' query=(asHash env=message.environment nodeid=message.related_object) }}">{{ message.related_object }}</a></td>
+        <td>
+          <div class="sm-action-bar">
+            <a href="{{pathFor route='message' 
+                          query=(asHash id=(idToStr message._id) action='view') }}"
+                ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
+
+            <!--a href="{{pathFor route='message' 
+                          query=(asHash id=(idToStr message._id) action='update') }}"
+                ><i class="cl-action-icon fa fa-pencil" area-hidden="true"></i></a-->
+
+            <!--a href="{{pathFor route='message' 
+                          query=(asHash id=(idToStr message._id) action='remove') }}"
+                ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a-->
+          </div>
+        </td>
+      </tr>
+      {{/each }}
+    </tbody>
+  </table>
+</div>
+</template>

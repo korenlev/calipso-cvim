@@ -9,6 +9,14 @@ Meteor.publish('messages', function () {
   return Messages.find({});
 });
 
+Meteor.publish('messages?_id', function (_id) {
+  console.log('server subscribtion to: messages?_id');
+  console.log('_id', _id);
+
+  let query = { _id: _id };
+  return Messages.find(query);
+});
+
 Meteor.publish('messages?level', function (level) {
   var query = {
     level: level
