@@ -117,29 +117,36 @@ class EnvironmentConfigs(ResponderBase):
         mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
         type_drivers = self.get_constants_by_name("type_drivers")
         environment_config_requirement = {
+            "app_path": self.require(str, mandatory=True),
             "configuration": self.require(list, mandatory=True),
             "distribution": self.require(str, False, DataValidate.LIST,
                                          distributions, True),
-            "last_scanned": self.require(str, mandatory=True),
+            "listen": self.require(bool, True, mandatory=True),
+            "user": self.require(str, mandatory=True),
             "mechanism_drivers": self.require(list, False, DataValidate.LIST,
                                               mechanism_drivers, True),
             "monitoring_setup_done": self.require(bool, True, mandatory=True),
             "name": self.require(str, mandatory=True),
             "operational": self.require(str, True, DataValidate.LIST,
                                         ["yes", "no"], mandatory=True),
-            "scanned": self.require(bool, True, mandatory=True),
+            "scanned": self.require(bool, True),
+            "last_scanned": self.require(str),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
                                          type_drivers, True)
         }
         self.validate_query_data(env_config,
                                  environment_config_requirement)
+        self.check_and_convert_datetime("last_scanned", env_config)
         # validate the configurations
         configurations = env_config['configuration']
         config_validation = self.validate_environment_config(configurations)
 
         if not config_validation['passed']:
             self.bad_request(config_validation['error_message'])
+
+        if "scanned" not in env_config:
+            env_config["scanned"] = False
 
         self.write(env_config, self.COLLECTION)
         self.set_successful_response(resp,
