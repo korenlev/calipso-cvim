@@ -6,6 +6,7 @@ from multiprocessing import Process, Manager as SharedManager
 
 from discover.manager import Manager
 from discover.environment_listener import listen
+from utils.constants import OperationalStatus
 from utils.mongo_access import MongoAccess
 
 
@@ -62,7 +63,7 @@ class EventManager(Manager):
                       "Polling interval: {2} second(s)"
                       .format(self.args.mongo_config, self.collection.name, self.interval))
 
-    def listen_to_events(self, env_name, process_vars):
+    def listen_to_events(self, env_name: str, process_vars: dict):
         listen({
             'env': env_name,
             'mongo_config': self.args.mongo_config,
@@ -73,24 +74,59 @@ class EventManager(Manager):
         })
 
     @staticmethod
-    def _get_operational(process):
+    def _get_operational(process: dict) -> OperationalStatus:
         return process.get("vars", {})\
-                      .get("operational", "")\
-                      .lower()
+                      .get("operational")
 
-    def _update_operational_status(self, status):
+    def _update_operational_status(self, status: OperationalStatus):
         self.collection.update_many(
             {"name": {"$in": [process.get("name")
                               for process
                               in self.processes
                               if self._get_operational(process) == status]}},
-            {"$set": {"operational": status}}
+            {"$set": {"operational": status.value}}
         )
 
     def update_operational_statuses(self):
-        self._update_operational_status("running")
-        self._update_operational_status("error")
-        self._update_operational_status("stopped")
+        self._update_operational_status(OperationalStatus.RUNNING)
+        self._update_operational_status(OperationalStatus.ERROR)
+        self._update_operational_status(OperationalStatus.STOPPED)
+
+    def cleanup_processes(self):
+        # Query for envs that are no longer eligible for listening
+        # (scanned == false and/or listen == false)
+        dropped_envs = [env['name']
+                        for env
+                        in self.collection
+                               .find(filter={'$or': [{'scanned': False},
+                                                     {'listen': False}]},
+                                     projection=['name'])]
+
+        live_processes = []
+        stopped_processes = []
+        # Drop already terminated processes
+        # and for all others perform filtering
+        for process in [p for p in self.processes if p['process'].is_alive()]:
+            # If env no longer qualifies for listening,
+            # stop the listener.
+            # Otherwise, keep the process
+            if process['name'] in dropped_envs:
+                process['process'].terminate()
+                stopped_processes.append(process)
+            else:
+                live_processes.append(process)
+
+        # Update all 'operational' statuses
+        # for processes stopped on the previous step
+        self.collection.update_many(
+            {"name": {"$in": [process.get("name")
+                              for process
+                              in stopped_processes]}},
+            {"$set": {"operational": OperationalStatus.STOPPED.value}}
+        )
+
+        # Keep the living processes
+        self.processes = live_processes
 
     def do_action(self):
         try:
@@ -99,11 +135,9 @@ class EventManager(Manager):
                 # so that we keep last statuses of env listeners before they were terminated
                 self.update_operational_statuses()
 
-                # Remove dead processes from memory so that they are fetched freshly from db later
-                self.processes = [process
-                                  for process
-                                  in self.processes
-                                  if process.get("process").is_alive()]
+                # Perform a cleanup that filters out all processes
+                # that are no longer eligible for listening
+                self.cleanup_processes()
 
                 envs = self.collection.find({'scanned': True, 'listen': True})
 
@@ -121,21 +155,25 @@ class EventManager(Manager):
                     self.processes.append({"process": p, "name": name, "vars": process_vars})
                     self.log.info("Starting event listener for '{0}' env".format(name))
                     p.start()
+
+                # Make sure statuses are up-to-date before event manager goes to sleep
+                self.update_operational_statuses()
                 time.sleep(self.interval)
         finally:
             # Gracefully stop processes
-            for p in self.processes:
-                self.log.info("Stopping '{0}' event listener".format(p.get("name")))
-                p.get("process").terminate()
+            for process in [p for p in self.processes if p['process'].is_alive()]:
+                self.log.info("Stopping '{0}' event listener".format(process.get("name")))
+                process.get("process").terminate()
 
-            # Updating operational statuses for manually stopped processes
+            # Updating operational statuses for stopped processes
             self.collection.update_many(
                 {"name": {"$in": [process.get("name")
                                   for process
                                   in self.processes
-                                  if self._get_operational(process) != "error"]}},
-                {"$set": {"operational": "stopped"}}
+                                  if self._get_operational(process) != OperationalStatus.ERROR]}},
+                {"$set": {"operational": OperationalStatus.STOPPED.value}}
             )
+            self._update_operational_status(OperationalStatus.ERROR)
 
 if __name__ == "__main__":
     EventManager().run()

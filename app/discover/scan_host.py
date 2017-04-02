@@ -14,7 +14,7 @@ class ScanHost(Scanner, metaclass=Singleton):
             # before fetch of vService vNICs
             {
                 "type": "vservices_folder",
-                "fetcher": FolderFetcher("vservices", "host"),
+                "fetcher": FolderFetcher("vservices", "host", "vServices"),
                 "children_scanner": "ScanInstancesRoot"
             },
             {

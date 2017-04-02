@@ -47,7 +47,7 @@ class FindLinksForOteps(FindLinks):
         target = vconnector["_id"]
         target_id = vconnector["id"]
         link_type = "otep-vconnector"
-        link_name = otep["name"] + otep["vconnector"]
+        link_name = otep["name"] + "-" + otep["vconnector"]
         state = "up"  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(), otep["host"],

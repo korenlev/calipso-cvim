@@ -17,7 +17,7 @@ class FindLinksForVconnectors(FindLinks):
                 self.add_vconnector_pnic_link(vconnector, interface)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
-        mechanism_drivers = self.configuration.env_config['mechanism_drivers']
+        mechanism_drivers = self.configuration.environment['mechanism_drivers']
         is_ovs = mechanism_drivers and mechanism_drivers[0] == 'OVS'
         if is_ovs:
             # interface ID for OVS
