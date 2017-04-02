@@ -20,7 +20,8 @@ Template.accordionTreeNodeChildren.onCreated(function () {
   });
 
   instance.autorun(function () {
-    let node = instance.data.node;
+    let data = Template.currentData();
+    let node = data.node;
     instance.subscribe('inventory.children',
       node.id, node.type, node.name, node.environment);
 
