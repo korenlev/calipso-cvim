@@ -1,4 +1,4 @@
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 
 
 class EventNetworkAdd(EventBase):
@@ -9,7 +9,7 @@ class EventNetworkAdd(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if network_document:
             self.log.info('network already existed, aborting network add')
-            return None
+            return EventResult(result=False, retry=False)
 
         # build network document for adding network
         project_name = notification['_context_project_name']
@@ -36,3 +36,4 @@ class EventNetworkAdd(EventBase):
         network['subnets'] = {}
 
         self.inv.set(network)
+        return EventResult(result=True)

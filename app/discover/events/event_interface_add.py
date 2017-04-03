@@ -3,7 +3,7 @@ import time
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -68,7 +68,7 @@ class EventInterfaceAdd(EventBase):
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
             self.inv.log.info("network document not found, aborting interface adding")
-            return
+            return EventResult(result=False, retry=True)
         network_name = network_document['name']
         network_id = network_document['id']
 
@@ -101,3 +101,4 @@ class EventInterfaceAdd(EventBase):
         FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
         ScanNetwork().scan_cliques()
         self.log.info("Finished router-interface added.")
+        return EventResult(result=True)

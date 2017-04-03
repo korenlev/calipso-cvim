@@ -1,7 +1,7 @@
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_subnet_add import EventSubnetAdd
@@ -21,7 +21,7 @@ class EventSubnetUpdate(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet update')
-            return None
+            return EventResult(result=False, retry=True)
 
         # update network document.
         subnets = network_document['subnets']
@@ -70,3 +70,4 @@ class EventSubnetUpdate(EventBase):
                 subnets[subnet['name']] = subnet
 
             self.inv.set(network_document)
+            return EventResult(result=True)

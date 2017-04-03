@@ -26,102 +26,102 @@ class EventHandler(Fetcher):
         self.inv.set_collections(inventory_collection)
         self.env = env
 
-    def instance_add(self, notification):
+    def instance_add(self, notification) -> EventResult:
         self.log.info("instance_add")
         handler = EventInstanceAdd()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def instance_update(self, notification):
+    def instance_update(self, notification) -> EventResult:
         self.log.info("instance_update")
         handler = EventInstanceUpdate()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def instance_delete(self, notification):
+    def instance_delete(self, notification) -> EventResult:
         self.log.info("instance_delete")
         handler = EventInstanceDelete()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def instance_down(self, notification):
+    def instance_down(self, notification) -> EventResult:
         pass
 
-    def instance_up(self, notification):
+    def instance_up(self, notification) -> EventResult:
         pass
 
-    def region_add(self, notification):
+    def region_add(self, notification) -> EventResult:
         pass
 
-    def region_update(self, notification):
+    def region_update(self, notification) -> EventResult:
         pass
 
-    def region_delete(self, notification):
+    def region_delete(self, notification) -> EventResult:
         pass
 
-    def network_create(self, notification):
+    def network_create(self, notification) -> EventResult:
         self.log.info("network_add")
         handler = EventNetworkAdd()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def network_update(self, notification):
+    def network_update(self, notification) -> EventResult:
         self.log.info("network_update")
         handler = EventNetworkUpdate()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def network_delete(self, notification):
+    def network_delete(self, notification) -> EventResult:
         self.log.info("network_delete")
         handler = EventNetworkDelete()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def subnet_create(self, notification):
+    def subnet_create(self, notification) -> EventResult:
         self.log.info("subnet_add")
         handler = EventSubnetAdd()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def subnet_update(self, notification):
+    def subnet_update(self, notification) -> EventResult:
         self.log.info("subnet_update")
         handler = EventSubnetUpdate()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def subnet_delete(self, notification):
+    def subnet_delete(self, notification) -> EventResult:
         self.log.info("subnet_delete")
         handler = EventSubnetDelete()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def port_create(self, notification):
+    def port_create(self, notification) -> EventResult:
         self.log.info("port_add")
         handler = EventPortAdd()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def port_update(self, notification):
+    def port_update(self, notification) -> EventResult:
         self.log.info("port_update")
         handler = EventPortUpdate()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def port_delete(self, notification):
+    def port_delete(self, notification) -> EventResult:
         self.log.info("port_delete")
         handler = EventPortDelete()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def router_create(self, notification):
+    def router_create(self, notification) -> EventResult:
         self.log.info("router_add")
         handler = EventRouterAdd()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def router_update(self, notification):
+    def router_update(self, notification) -> EventResult:
         self.log.info("router_update")
         handler = EventRouterUpdate()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def router_delete(self, notification):
+    def router_delete(self, notification) -> EventResult:
         self.log.info("router_delete")
         handler = EventRouterDelete()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def router_interface_create(self, notification):
+    def router_interface_create(self, notification) -> EventResult:
         self.log.info("router_interface_add")
         handler = EventInterfaceAdd()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)
 
-    def router_interface_delete(self, notification):
+    def router_interface_delete(self, notification) -> EventResult:
         self.log.info("router_interface_delete")
         handler = EventInterfaceDelete()
-        handler.handle(self.env, notification)
+        return handler.handle(self.env, notification)

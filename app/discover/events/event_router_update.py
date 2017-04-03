@@ -1,5 +1,5 @@
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -16,7 +16,7 @@ class EventRouterUpdate(EventBase):
         host_id = values["publisher_id"].replace("network.", "", 1)
         if not router_doc:
             self.log.info("Router document not found, aborting router updating")
-            return None
+            return EventResult(result=False, retry=True)
 
         router_doc['admin_state_up'] = router['admin_state_up']
         router_doc['name'] = router['name']
@@ -60,3 +60,4 @@ class EventRouterUpdate(EventBase):
         # update the cliques.
         ScanNetwork().scan_cliques()
         self.log.info("Finished router update.")
+        return EventResult(result=True)

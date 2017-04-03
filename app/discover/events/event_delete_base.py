@@ -1,16 +1,16 @@
 import re
 
 from bson.objectid import ObjectId
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 
 
 class EventDeleteBase(EventBase):
 
-    def delete_handler(self, env, id, type):
-        item = self.inv.get_by_id(env, id)
+    def delete_handler(self, env, object_id, object_type) -> EventResult:
+        item = self.inv.get_by_id(env, object_id)
         if not item:
-            self.inv.log.info('%s document is not found, aborting %s delete' % (type, type))
-            return None
+            self.inv.log.info('%s document is not found, aborting %s delete' % (object_type, object_type))
+            return EventResult(result=False, retry=False)
 
         db_id = ObjectId(item['_id'])
         id_path = item['id_path'] + '/'
@@ -44,3 +44,4 @@ class EventDeleteBase(EventBase):
         # remove children
         regexp = re.compile('^' + id_path)
         self.inv.delete('inventory', {'id_path': {'$regex': regexp}})
+        return EventResult(result=True)

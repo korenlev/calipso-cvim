@@ -1,4 +1,4 @@
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 
 
 class EventPortUpdate(EventBase):
@@ -10,7 +10,7 @@ class EventPortUpdate(EventBase):
         port_document = self.inv.get_by_id(env, port_id)
         if not port_document:
             self.log.info('port document does not exist, aborting port update')
-            return None
+            return EventResult(result=False, retry=True)
 
         # build port document
         port_document['name'] = port['name']
@@ -24,3 +24,4 @@ class EventPortUpdate(EventBase):
 
         # update port document.
         self.inv.set(port_document)
+        return EventResult(result=True)

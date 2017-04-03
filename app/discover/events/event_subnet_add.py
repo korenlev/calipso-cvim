@@ -4,7 +4,7 @@ from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -101,7 +101,7 @@ class EventSubnetAdd(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet add')
-            return None
+            return EventResult(result=False, retry=True)
         network_name = network_document['name']
 
         # build subnet document for adding network
@@ -118,6 +118,7 @@ class EventSubnetAdd(EventBase):
         # Check DHCP enable, if true, scan network.
         if subnet['enable_dhcp'] is True:
             # update network
+            # TODO: ask Cheng
             if len(ApiAccess.regions) == 0:
                 fetcher = ApiFetchRegions()
                 fetcher.set_env(env)
@@ -134,3 +135,4 @@ class EventSubnetAdd(EventBase):
 
         ScanNetwork().scan_cliques()
         self.log.info("Finished subnet added.")
+        return EventResult(result=True)

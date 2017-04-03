@@ -1,4 +1,5 @@
 from discover.api_fetch_host_instances import ApiFetchHostInstances
+from discover.events.event_base import EventResult
 from discover.events.event_delete_base import EventDeleteBase
 
 
@@ -8,7 +9,7 @@ class EventPortDelete(EventDeleteBase):
         port_doc = self.inv.get_by_id(env, port_id)
         if not port_doc:
             self.log.info("Port document not found, aborting port deleting.")
-            return None
+            return EventResult(result=False, retry=False)
 
         # if port is binding to a instance, instance document needs to be updated.
         if 'compute' in port_doc['device_owner']:
@@ -22,9 +23,10 @@ class EventPortDelete(EventDeleteBase):
         vnic_doc = self.inv.get_by_field(env, 'vnic', 'mac_address', port_doc['mac_address'], get_single=True)
         if not vnic_doc:
             self.log.info("Vnic document not found, aborting vnic deleting.")
-            return None
-        self.delete_handler(env, vnic_doc['id'], 'vnic')
+            return EventResult(result=False, retry=False)
+        result = self.delete_handler(env, vnic_doc['id'], 'vnic')
         self.inv.log.info('Finished port deleting')
+        return result
 
     def update_instance(self, env, port_doc):
         # update instance document if port
@@ -63,4 +65,4 @@ class EventPortDelete(EventDeleteBase):
 
     def handle(self, env, notification):
         port_id = notification['payload']['port_id']
-        self.delete_port(env, port_id)
+        return self.delete_port(env, port_id)

@@ -4,11 +4,14 @@ import argparse
 import json
 
 import time
+from collections import defaultdict
+
 from kombu import Queue, Exchange
 from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
+from discover.events.event_base import EventResult
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
@@ -23,7 +26,8 @@ class EnvironmentListener(ConsumerMixin):
         "mongo_config": "",
         "inventory": "inventory",
         "loglevel": "INFO",
-        "environments_collection": "environments_config"
+        "environments_collection": "environments_config",
+        "retry_limit": 10
     }
 
     event_queues = [
@@ -41,10 +45,12 @@ class EnvironmentListener(ConsumerMixin):
               durable=False, routing_key='#')
     ]
 
-    def __init__(self, connection):
+    def __init__(self, connection, retry_limit):
         self.connection = connection
+        self.retry_limit = retry_limit
         self.handler = None
         self.notification_responses = {}
+        self.failing_messages = defaultdict(int)
         self.inv = InventoryMgr()
 
     def set_env(self, env, inventory_collection):
@@ -108,14 +114,49 @@ class EnvironmentListener(ConsumerMixin):
         if processable:
             with open("/tmp/listener.log", "a") as f:
                 f.write(body['oslo.message'] + "\n")
-            self.handle_event(event_data["event_type"], event_data)
-            message.ack()
+            event_result = self.handle_event(event_data["event_type"], event_data)
 
-    def handle_event(self, type, notification):
+            # Check whether the event was fully handled
+            # and, if not, whether it should be retried later
+            if event_result.result:
+                message.ack()
+            elif event_result.retry:
+                if 'message_id' not in event_data:
+                    message.reject()
+                else:
+                    # Track message retry count
+                    message_id = event_data['message_id']
+                    self.failing_messages[message_id] += 1
+
+                    # Retry handling the message
+                    if self.failing_messages[message_id] <= self.retry_limit:
+                        self.inv.log.info("Retrying handling message with id '{}'"
+                                          .format(message_id))
+                        message.requeue()
+                    # Discard the message if it's not accepted
+                    # after specified number of trials
+                    else:
+                        self.inv.log.warn("Discarding message with id '{}' as it's exceeded the retry limit"
+                                          .format(message_id))
+                        message.reject()
+                        del self.failing_messages[message_id]
+            else:
+                message.reject()
+
+    # This method passes the event to its handler.
+    # Returns a (result, retry) tuple:
+    # 'Result' flag is True if handler has finished successfully, False otherwise
+    # 'Retry' flag specifies if the error is recoverable or not
+    # 'Retry' flag is checked only is 'result' is False
+    def handle_event(self, type, notification) -> EventResult:
         print("got notification, event_type: " + type + '\n' + str(notification))
         if type not in self.notification_responses.keys():
-            return ""
-        return self.notification_responses[type](notification)
+            return EventResult(result=False, retry=False)
+        try:
+            return self.notification_responses[type](notification)
+        except Exception as e:
+            self.inv.log.exception(e)
+            return EventResult(result=False, retry=True)
 
 
 def get_args():
@@ -138,6 +179,11 @@ def get_args():
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["loglevel"],
                         help="Logging level \n(default: 'INFO')")
+    parser.add_argument("-r", "--retry_limit", nargs="?", type=str,
+                        default=EnvironmentListener.DEFAULTS["retry_limit"],
+                        help="Maximum number of times the OpenStack message "
+                             "should be requeued before being discarded \n(default: {})"
+                        .format(EnvironmentListener.DEFAULTS["retry_limit"]))
     args = parser.parse_args()
     return args
 
@@ -169,7 +215,7 @@ def listen(args: dict = None):
             conn.connect()
             args['process_vars']['operational'] = OperationalStatus.RUNNING
             terminator = SignalHandler()
-            worker = EnvironmentListener(conn)
+            worker = EnvironmentListener(conn, args["retry_limit"])
             worker.set_env(env_name, args["inventory"])
             worker.inv.monitoring_setup_manager = MonitoringSetupManager(args["mongo_config"], env_name)
             worker.inv.monitoring_setup_manager.server_setup()

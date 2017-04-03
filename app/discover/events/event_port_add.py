@@ -4,7 +4,7 @@ from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from discover.cli_fetch_instance_vnics_vpp import CliFetchInstanceVnicsVpp
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
 from discover.scan_instances_root import ScanInstancesRoot
@@ -211,7 +211,7 @@ class EventPortAdd(EventBase):
             instances_root = self.inv.get_by_id(env, instances_root_id)
             if not instances_root:
                 self.log.info('instance document not found, aborting port adding')
-                return None
+                return EventResult(result=False, retry=True)
 
             # update instance
             instance_fetcher = ApiFetchHostInstances()
@@ -252,4 +252,4 @@ class EventPortAdd(EventBase):
             for fetcher in fetchers_implementing_add_links:
                 fetcher.add_links()
             ScanInstancesRoot().scan_cliques()
-            return True
+        return EventResult(result=True)
