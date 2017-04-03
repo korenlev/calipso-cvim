@@ -66,7 +66,7 @@ class EventSubnetUpdate(EventBase):
             if subnet['name'] == subnets[key]['name']:
                 subnets[key] = subnet
             else:
-                # TODO: shouldn't we remove the old one?
+                # TODO: #AskCheng shouldn't we remove the old one?
                 subnets[subnet['name']] = subnet
 
             self.inv.set(network_document)

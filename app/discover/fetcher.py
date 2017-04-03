@@ -11,7 +11,6 @@ class Fetcher(Logger):
         self.env = None
         self.configuration = None
 
-    # TODO: is this method supposed to do nothing?
     @staticmethod
     def escape(string):
         return string

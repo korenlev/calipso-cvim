@@ -27,7 +27,8 @@ class EnvironmentListener(ConsumerMixin):
         "inventory": "inventory",
         "loglevel": "INFO",
         "environments_collection": "environments_config",
-        "retry_limit": 10
+        "retry_limit": 10,
+        "consume_all": False
     }
 
     event_queues = [
@@ -45,9 +46,10 @@ class EnvironmentListener(ConsumerMixin):
               durable=False, routing_key='#')
     ]
 
-    def __init__(self, connection, retry_limit):
+    def __init__(self, connection, retry_limit, consume_all):
         self.connection = connection
         self.retry_limit = retry_limit
+        self.consume_all = consume_all
         self.handler = None
         self.notification_responses = {}
         self.failing_messages = defaultdict(int)
@@ -111,7 +113,10 @@ class EnvironmentListener(ConsumerMixin):
 
     def process_task(self, body, message):
         processable, event_data = self._extract_event_data(body)
-        if processable:
+        # If env listener can't process the message
+        # or it's not intended for env listener to handle,
+        # leave the message in the queue
+        if processable and event_data["event_type"] in self.notification_responses:
             with open("/tmp/listener.log", "a") as f:
                 f.write(body['oslo.message'] + "\n")
             event_result = self.handle_event(event_data["event_type"], event_data)
@@ -142,20 +147,21 @@ class EnvironmentListener(ConsumerMixin):
                         del self.failing_messages[message_id]
             else:
                 message.reject()
+        elif self.consume_all:
+            message.reject()
 
     # This method passes the event to its handler.
     # Returns a (result, retry) tuple:
     # 'Result' flag is True if handler has finished successfully, False otherwise
     # 'Retry' flag specifies if the error is recoverable or not
     # 'Retry' flag is checked only is 'result' is False
-    def handle_event(self, type, notification) -> EventResult:
-        print("got notification, event_type: " + type + '\n' + str(notification))
-        if type not in self.notification_responses.keys():
-            return EventResult(result=False, retry=False)
+    def handle_event(self, event_type, notification) -> EventResult:
+        print("Got notification.\nEvent_type: {}\nNotification:\n{}".format(event_type, notification))
         try:
             return self.notification_responses[type](notification)
         except Exception as e:
             self.inv.log.exception(e)
+            # TODO: an exception-causing handler should rather be fixed than retried (it's ok for now)
             return EventResult(result=False, retry=True)
 
 
@@ -179,11 +185,17 @@ def get_args():
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["loglevel"],
                         help="Logging level \n(default: 'INFO')")
-    parser.add_argument("-r", "--retry_limit", nargs="?", type=str,
+    parser.add_argument("-r", "--retry_limit", nargs="?", type=int,
                         default=EnvironmentListener.DEFAULTS["retry_limit"],
                         help="Maximum number of times the OpenStack message "
                              "should be requeued before being discarded \n(default: {})"
                         .format(EnvironmentListener.DEFAULTS["retry_limit"]))
+    parser.add_argument("--consume_all", action="store_true",
+                        help="If this flag is set, environment listener will try to consume"
+                             "all messages from OpenStack event queue "
+                             "and reject incompatible messages."
+                             "Otherwise they'll just be ignored.",
+                        default=EnvironmentListener.DEFAULTS["consume_all"])
     args = parser.parse_args()
     return args
 
@@ -215,7 +227,9 @@ def listen(args: dict = None):
             conn.connect()
             args['process_vars']['operational'] = OperationalStatus.RUNNING
             terminator = SignalHandler()
-            worker = EnvironmentListener(conn, args["retry_limit"])
+            worker = EnvironmentListener(connection=conn,
+                                         retry_limit=args["retry_limit"],
+                                         consume_all=args["consume_all"])
             worker.set_env(env_name, args["inventory"])
             worker.inv.monitoring_setup_manager = MonitoringSetupManager(args["mongo_config"], env_name)
             worker.inv.monitoring_setup_manager.server_setup()

@@ -56,10 +56,10 @@ class EventRouterAdd(EventBase):
         else:
             # in some cases, port has been created, but port doc can not be fetched by OpenStack API
             self.inv.log.info("Try to add port document again.")
-            # TODO: this never returns anything!
+            # TODO: #AskCheng - this never returns anything!
             add_port_return = port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name,
                                                             type="router", router_name=router_doc['name'])
-            # TODO: this will never evaluate to True!
+            # TODO: #AskCheng - this will never evaluate to True!
             if add_port_return is False:
                 self.inv.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
@@ -81,7 +81,7 @@ class EventRouterAdd(EventBase):
             network_id = gateway_info['network_id']
             self.add_router_document(env, network_id, router_doc, host)
             self.add_children_documents(env, project_id, network_id, host, router_doc)
-        # TODO: this should go to 'else' probably?
+        # TODO: #AskCheng - this should go to 'else' probably?
         self.add_router_document(env, None, router_doc, host)
 
         # scan links and cliques
