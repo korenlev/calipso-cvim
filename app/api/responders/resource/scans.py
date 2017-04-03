@@ -75,7 +75,8 @@ class Scans(ResponderBase):
         self.validate_query_data(scan, scan_requirements)
 
         env_name = scan["environment"]
-        self.check_environment_name(env_name)
+        if not self.check_environment_name(env_name):
+            self.bad_request("unkown environment: " + env_name)
 
         scan["scan_completed"] = False
         scan["submit_timestamp"] = datetime.now()

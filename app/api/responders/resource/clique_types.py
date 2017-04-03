@@ -67,7 +67,8 @@ class CliqueTypes(ResponderBase):
         self.validate_query_data(clique_type, clique_type_requirements)
 
         env_name = clique_type['environment']
-        self.check_environment_name(env_name)
+        if not self.check_environment_name(env_name):
+            self.bad_request("unkown environment: " + env_name)
 
         self.write(clique_type, self.COLLECTION)
         self.set_successful_response(resp,

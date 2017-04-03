@@ -1,14 +1,11 @@
 import os
 
-import paramiko
-
 from discover.configuration import Configuration
-from utils.binary_converter import BinaryConverter
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.ssh_connection import SshConnection
 
 
-class SshConn(BinaryConverter, Logger):
+class SshConn(SshConnection):
     config = None
     ssh = None
     connections = {}
@@ -18,33 +15,37 @@ class SshConn(BinaryConverter, Logger):
     timeout = 15  # timeout for exec in seconds
 
     def __init__(self, host_name):
-        super().__init__()
         self.config = Configuration()
         self.env_config = self.config.get_env_config()
         self.env = self.env_config['name']
         self.conf = self.config.get('CLI')
-        self.set_host_conf(host_name)
+        self.host_details = None
+        self.host = None
+        self.host_conf = self.get_host_conf(host_name)
         self.ssh = None
         self.ftp = None
         self.key = None
+        self.port = None
         self.user = None
         self.pwd = None
         self.check_definitions()
+        super().__init__(self.host, self.user, _pwd=self.pwd, _key=self.key,
+                         _port=self.port)
         self.inv = InventoryMgr()
         if host_name in self.connections and not self.ssh:
             self.ssh = self.connections[host_name]
         self.fetched_host_details = False
 
-    def set_host_conf(self, host_name):
+    def get_host_conf(self, host_name):
         if 'hosts' in self.conf:
             if not host_name:
                 raise ValueError('SshConn(): host must be specified ' +
                                  'if multi-host CLI config is used')
             if host_name not in self.conf['hosts']:
                 raise ValueError('host details missing: ' + host_name)
-            self.host_conf = self.conf['hosts'][host_name]
+            return self.conf['hosts'][host_name]
         else:
-            self.host_conf = self.conf
+            return self.conf
 
     def check_definitions(self):
         try:
@@ -70,15 +71,6 @@ class SshConn(BinaryConverter, Logger):
         if not self.key and not self.pwd:
             raise ValueError('Must specify key or password for CLI access')
 
-    @staticmethod
-    def disconnect_all():
-        for ssh in SshConn.connections.values():
-            ssh.close()
-        SshConn.connections = {}
-
-    def get_host(self):
-        return self.host
-
     def get_host_details(self):
         if not self.fetched_host_details:
             host = self.inv.get_by_id(self.env, self.host)
@@ -90,9 +82,6 @@ class SshConn(BinaryConverter, Logger):
             self.host_details = host
             self.fetched_host_details = True
         return self.host_details
-
-    def get_user(self):
-        return self.user
 
     def is_gateway_host(self, host):
         gateway_host = self.host
@@ -107,61 +96,3 @@ class SshConn(BinaryConverter, Logger):
             return True
         return False
 
-    def connect(self):
-        if self.host in self.connections:
-            self.ssh = self.connections[self.host]
-        if self.ssh:
-            if self.call_count_per_con[self.host] < self.max_call_count_per_con:
-                return
-            self.log.info("CliAccess: ****** forcing reconnect, " +
-                          "call count: %s ******",
-                          self.call_count_per_con[self.host])
-            self.ssh.close()
-            if self.host in self.connections:
-                self.connections.pop(self.host)
-            self.ssh = None
-        self.ssh = paramiko.SSHClient()
-        self.connections[self.host] = self.ssh
-        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if (self.key):
-            k = paramiko.RSAKey.from_private_key_file(self.key)
-            self.ssh.connect(hostname=self.host, username=self.user, pkey=k,
-                             password=self.pwd, timeout=30)
-        else:
-            self.ssh.connect(self.host, username=self.user, password=self.pwd,
-                             timeout=30)
-        self.call_count_per_con[self.host] = 0
-
-    def exec(self, cmd):
-        self.connect()
-        self.call_count_per_con[self.host] += 1
-        self.log.debug("call count: %s, running call:\n%s\n",
-                       str(self.call_count_per_con[self.host]), cmd)
-        stdin, stdout, stderr = self.ssh.exec_command(cmd, timeout=self.timeout)
-        stdin.close()
-        err = self.binary2str(stderr.read())
-        if err:
-            # ignore messages about loading plugin
-            err_lines = [l for l in err.splitlines()
-                         if 'Loaded plugin: ' not in l]
-            if err_lines:
-                self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
-                stderr.close()
-                stdout.close()
-                return ""
-        ret = self.binary2str(stdout.read())
-        stderr.close()
-        stdout.close()
-        return ret
-
-    def copy_file(self, local_path, remote_path, mode=None):
-        self.connect()
-        if not self.ftp:
-            self.ftp = self.ssh.open_sftp()
-        try:
-            self.ftp.put(local_path, remote_path)
-            if mode:
-                remote_file = self.ftp.file(remote_path, 'a+')
-                remote_file.chmod(mode)
-        except Exception:
-            self.log.error('failed to copy file to remote host ' + self.host)

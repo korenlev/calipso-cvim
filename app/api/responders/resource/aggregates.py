@@ -34,7 +34,8 @@ class Aggregates(ResponderBase):
             env_name = query.get("env_name")
             if not env_name:
                 self.bad_request("env_name must be specified")
-            self.check_environment_name(env_name)
+            if not self.check_environment_name(env_name):
+                self.bad_request("unkown environment: " + env_name)
 
         aggregates = self.AGGREGATES_MAP[query_type](query)
         self.set_successful_response(resp, aggregates)
