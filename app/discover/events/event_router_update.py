@@ -1,10 +1,9 @@
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
-from utils.inventory_mgr import InventoryMgr
 
 
 class EventRouterUpdate(EventBase):
@@ -15,22 +14,22 @@ class EventRouterUpdate(EventBase):
         router_id = "qrouter-%s" % router['id']
         router_doc = self.inv.get_by_id(env, router_id)
         host_id = values["publisher_id"].replace("network.", "", 1)
-        if len(router_doc) == 0:
+        if not router_doc:
             self.log.info("Router document not found, aborting router updating")
-            return None
+            return EventResult(result=False, retry=True)
 
         router_doc['admin_state_up'] = router['admin_state_up']
         router_doc['name'] = router['name']
-        gateway_info = router['external_gateway_info']
+        gateway_info = router.get('external_gateway_info')
         if gateway_info is None:
             # when delete gateway, need to delete the port relate document.
-            port_doc = []
-            if router_doc['gw_port_id']:
+            port_doc = {}
+            if router_doc.get('gw_port_id'):
                 port_doc = self.inv.get_by_id(env, router_doc['gw_port_id'])
                 EventPortDelete().delete_port(env, router_doc['gw_port_id'])
 
-            if router_doc.get('network')is not None:
-                if len(port_doc):
+            if router_doc.get('network'):
+                if port_doc:
                     router_doc['network'].remove(port_doc['network_id'])
                 router_doc['gw_port_id'] = None
 
@@ -61,3 +60,4 @@ class EventRouterUpdate(EventBase):
         # update the cliques.
         ScanNetwork().scan_cliques()
         self.log.info("Finished router update.")
+        return EventResult(result=True)
