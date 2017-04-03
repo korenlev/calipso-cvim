@@ -158,7 +158,7 @@ class EnvironmentListener(ConsumerMixin):
     def handle_event(self, event_type, notification) -> EventResult:
         print("Got notification.\nEvent_type: {}\nNotification:\n{}".format(event_type, notification))
         try:
-            return self.notification_responses[type](notification)
+            return self.notification_responses[event_type](notification)
         except Exception as e:
             self.inv.log.exception(e)
             # TODO: an exception-causing handler should rather be fixed than retried (it's ok for now)

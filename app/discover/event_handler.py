@@ -1,3 +1,4 @@
+from discover.events.event_base import EventResult
 from discover.events.event_instance_add import EventInstanceAdd
 from discover.events.event_instance_delete import EventInstanceDelete
 from discover.events.event_instance_update import EventInstanceUpdate
