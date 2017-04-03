@@ -115,7 +115,7 @@ class EnvironmentListener(ConsumerMixin):
         processable, event_data = self._extract_event_data(body)
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
-        # leave the message in the queue
+        # leave the message in the queue unless "consume_all" flag is set
         if processable and event_data["event_type"] in self.notification_responses:
             with open("/tmp/listener.log", "a") as f:
                 f.write(body['oslo.message'] + "\n")
