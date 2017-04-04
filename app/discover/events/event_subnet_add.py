@@ -4,12 +4,11 @@ from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
-from utils.inventory_mgr import InventoryMgr
 
 
 class EventSubnetAdd(EventBase):
@@ -23,12 +22,12 @@ class EventSubnetAdd(EventBase):
         fetcher.set_env(env)
         ports = fetcher.get(port_id)
 
-        if ports != []:
+        if ports:
             port = ports[0]
             project_id = port['tenant_id']
             network_id = port['network_id']
 
-            if network_name == None:
+            if not network_name:
                 network = self.inv.get_by_id(env, network_id)
                 network_name = network['name']
 
@@ -46,7 +45,6 @@ class EventSubnetAdd(EventBase):
             self.inv.log.info("add port document for port:%s" % port_id)
             return port
         return False
-
 
     def add_ports_folder(self, env, project_id, network_id, network_name):
         port_folder = {
@@ -103,7 +101,7 @@ class EventSubnetAdd(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet add')
-            return None
+            return EventResult(result=False, retry=True)
         network_name = network_document['name']
 
         # build subnet document for adding network
@@ -118,8 +116,9 @@ class EventSubnetAdd(EventBase):
         self.inv.set(network_document)
 
         # Check DHCP enable, if true, scan network.
-        if subnet['enable_dhcp'] == True:
+        if subnet['enable_dhcp'] is True:
             # update network
+            # TODO: #AskCheng - why is this necessary?
             if len(ApiAccess.regions) == 0:
                 fetcher = ApiFetchRegions()
                 fetcher.set_env(env)
@@ -136,3 +135,4 @@ class EventSubnetAdd(EventBase):
 
         ScanNetwork().scan_cliques()
         self.log.info("Finished subnet added.")
+        return EventResult(result=True)

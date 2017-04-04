@@ -6,4 +6,4 @@ class EventInstanceDelete(EventDeleteBase):
     def handle(self, env, values):
         # find the corresponding object
         id = values['payload']['instance_id']
-        self.delete_handler(env, id, "instance")
+        return self.delete_handler(env, id, "instance")

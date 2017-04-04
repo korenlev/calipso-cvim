@@ -239,6 +239,7 @@ class ScanController(Fetcher):
         # After this setup we assume args dictionary has
         # all keys defined in self.DEFAULTS
         args = setup_args(args, self.DEFAULTS, self.get_args)
+        # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
 
         try:
             self.conf = Configuration(args['mongo_config'])

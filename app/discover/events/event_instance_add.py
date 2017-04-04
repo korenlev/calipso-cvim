@@ -1,4 +1,4 @@
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.scan_host import ScanHost
 from discover.scan_instances_root import ScanInstancesRoot
 
@@ -13,7 +13,7 @@ class EventInstanceAdd(EventBase):
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
             self.log.info('instances root not found, aborting instance add')
-            return None
+            return EventResult(result=False, retry=True)
 
         # scan instance
         instances_scanner = ScanInstancesRoot()
@@ -30,4 +30,4 @@ class EventInstanceAdd(EventBase):
         host_scanner.scan_from_queue()
         host_scanner.scan_links()
         host_scanner.scan_cliques()
-        return True
+        return EventResult(result=True)
