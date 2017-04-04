@@ -271,7 +271,8 @@ class ScanController(Fetcher):
         # setup monitoring server
         self.inv.monitoring_setup_manager = \
             MonitoringSetupManager(args['mongo_config'], env_name)
-        self.inv.monitoring_setup_manager.server_setup()
+        if run_all or monitoring_setup_only:
+            self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
         if inventory_only or run_all:
