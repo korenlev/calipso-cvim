@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from test.scan.test_scan import TestScan
 from test.scan.test_data.scan import *
 from discover.scan import ScanController, ScanPlan
-from test.scan.mock_module import ScanEnvironment
+from discover.scanner import Scanner
 
 
 class TestScanController(TestScan):
@@ -115,49 +115,62 @@ class TestScanController(TestScan):
                                CHILD_TYPE_FOR_REGION_FOLDER,
                                CHILD_ID_FOR_REGION_FOLDER)
 
-    def check_scan_counts(self, run_scan_count, scan_cliques_count,
-                          scan_links_count):
-        self.assertEqual(ScanEnvironment.run_scan_count, run_scan_count,
-                         'run_scan count is wrong')
-        self.assertEqual(ScanEnvironment.scan_cliques_count, scan_cliques_count,
-                         'scan_cliques count is wrong')
-        self.assertEqual(ScanEnvironment.scan_links_count, scan_links_count,
-                         'scan_links count is wrong')
+    def check_scan_method_calls(self, mock, count):
+        if count:
+            mock.assert_called()
+        else:
+            mock.assert_not_called()
+
+    def check_scan_counts(self, run_scan_count, scan_links_count,
+                          scan_cliques_count, deploy_monitoring_setup_count):
+        self.check_scan_method_calls(Scanner.scan, run_scan_count)
+        self.check_scan_method_calls(Scanner.scan_links, scan_links_count)
+        self.check_scan_method_calls(Scanner.scan_cliques, scan_cliques_count)
+        self.check_scan_method_calls(Scanner.deploy_monitoring_setup,
+                                     deploy_monitoring_setup_count)
+
+    @staticmethod
+    def prepare_scan_mocks():
+        Scanner.scan = MagicMock()
+        Scanner.scan_links = MagicMock()
+        Scanner.scan_cliques = MagicMock()
+        Scanner.deploy_monitoring_setup = MagicMock()
 
     def test_scan(self):
         self.scan_controller.get_args = MagicMock()
-        self.scan_controller.get_scan_plan = \
-            MagicMock(return_value=PREPARED_ENV_PLAN)
+        plan = self.scan_controller.prepare_scan_plan(ScanPlan(PREPARED_ENV_PLAN))
+        self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
+        self.prepare_scan_mocks()
 
         self.scan_controller.run()
-        self.check_scan_counts(1, 1, 1)
-        ScanEnvironment.reset_counts()
+        self.check_scan_counts(1, 1, 1, 1)
 
     def test_scan_with_inventory_only(self):
         self.scan_controller.get_args = MagicMock()
-        self.scan_controller.get_scan_plan = \
-            MagicMock(return_value=ScanPlan(PREPARED_ENV_INVENTORY_ONLY_PLAN))
+        scan_plan = ScanPlan(PREPARED_ENV_INVENTORY_ONLY_PLAN)
+        plan = self.scan_controller.prepare_scan_plan(scan_plan)
+        self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
+        self.prepare_scan_mocks()
 
         self.scan_controller.run()
-        self.check_scan_counts(1, 0, 0)
-        ScanEnvironment.reset_counts()
+        self.check_scan_counts(1, 0, 0, 0)
 
     def test_scan_with_links_only(self):
         self.scan_controller.get_args = MagicMock()
-        self.scan_controller.get_scan_plan = \
-            MagicMock(return_value=ScanPlan(PREPARED_ENV_LINKS_ONLY_PLAN))
+        scan_plan = ScanPlan(PREPARED_ENV_LINKS_ONLY_PLAN)
+        plan = self.scan_controller.prepare_scan_plan(scan_plan)
+        self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
+        self.prepare_scan_mocks()
 
         self.scan_controller.run()
-        self.check_scan_counts(0, 0, 1)
-        ScanEnvironment.reset_counts()
+        self.check_scan_counts(0, 1, 0, 0)
 
     def test_scan_with_cliques_only(self):
         self.scan_controller.get_args = MagicMock()
         scan_plan = ScanPlan(PREPARED_ENV_CLIQUES_ONLY_PLAN)
         plan = self.scan_controller.prepare_scan_plan(scan_plan)
         self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
+        self.prepare_scan_mocks()
 
         self.scan_controller.run()
-        self.check_scan_counts(0, 1, 0)
-        ScanEnvironment.reset_counts()
-
+        self.check_scan_counts(0, 0, 1, 0)
