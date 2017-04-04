@@ -15,61 +15,75 @@ class TestScanner(TestScan):
     def test_check_type_env_without_environment_condition(self):
         result = self.scanner.check_type_env(TYPE_TO_FETCH_WITHOUT_ENV_CON)
 
-        self.assertEqual(result, True, "Can't get true when the type_to_fetch doesn't contain environment condition")
+        self.assertEqual(result, True,
+                         "Can't get true when the type_to_fetch " +
+                         "doesn't contain environment condition")
 
     def test_check_type_with_error_value(self):
         # store original method
         original_get_env_config = self.scanner.config.get_env_config
 
         # mock get_env_config method
-        self.scanner.config.get_env_config = MagicMock(return_value=CONFIGURATIONS)
+        self.scanner.config.get_env_config =\
+            MagicMock(return_value=CONFIGURATIONS)
 
         result = self.scanner.check_type_env(TYPE_TO_FETCH_WITH_ERROR_VALUE)
 
         # reset get_env_config method
         self.scanner.config.get_env_config = original_get_env_config
 
-        self.assertEqual(result, False, "Can't get false when the type_to_fetch contain error value")
+        self.assertEqual(result, False,
+                         "Can't get false when the type_to_fetch " +
+                         "contain error value")
 
     def test_check_type_env_without_mechanism_drivers_in_env_config(self):
         # store original method
         original_get_env_config = self.scanner.config.get_env_config
 
         # mock get_env_config_method
-        self.scanner.config.get_env_config = MagicMock(return_value=CONFIGURATIONS_WITHOUT_MECHANISM_DRIVERS)
+        self.scanner.config.get_env_config =\
+            MagicMock(return_value=CONFIGURATIONS_WITHOUT_MECHANISM_DRIVERS)
 
         result = self.scanner.check_type_env(TYPE_TO_FETCH)
         # reset get_env_config method
         self.scanner.check_type_env = original_get_env_config
 
-        self.assertEqual(result, False, "Can't get false when configuration doesn't contain mechanism drivers")
+        self.assertEqual(result, False,
+                         "Can't get false when configuration " +
+                         "doesn't contain mechanism drivers")
 
-    def test_check_type_env_with_wrong_mechanism_drivers_in_environment_condition(self):
+    def test_check_type_env_with_wrong_mech_drivers_in_env_condition(self):
         # store original method
         original_get_env_config = self.scanner.config.get_env_config
 
         # mock get_env_config_method
-        self.scanner.config.get_env_config = MagicMock(return_value=CONFIGURATIONS)
+        self.scanner.config.get_env_config =\
+            MagicMock(return_value=CONFIGURATIONS)
 
-        result = self.scanner.check_type_env(TYPE_TO_FETCH_WITH_WRONG_ENVIRONMENT_CONDITION)
+        result = self.scanner.\
+            check_type_env(TYPE_TO_FETCH_WITH_WRONG_ENVIRONMENT_CONDITION)
         # reset get_env_config method
         self.scanner.check_type_env = original_get_env_config
 
-        self.assertEqual(result, False, "Can't get false when the mechanism drivers in type_to_fetch doesn't exist in configurations")
+        self.assertEqual(result, False, "Can't get false when the mechanism " +
+                         "drivers in type_to_fetch " +
+                         "don't exist in configurations")
 
     def test_check_type_env(self):
         # store original method
         original_get_env_config = self.scanner.config.get_env_config
 
         # mock method
-        self.scanner.config.get_env_config = MagicMock(return_value=CONFIGURATIONS)
+        self.scanner.config.get_env_config =\
+            MagicMock(return_value=CONFIGURATIONS)
 
         result = self.scanner.check_type_env(TYPE_TO_FETCH)
 
         # reset method
         self.scanner.config.get_env_config = original_get_env_config
 
-        self.assertEqual(result, True, "Can't get True when the type_to_fetch is correct")
+        self.assertEqual(result, True,
+                         "Can't get True when the type_to_fetch is correct")
 
     def test_scan_error_type(self):
         # store original method
@@ -78,17 +92,21 @@ class TestScanner(TestScan):
         # mock method
         self.scanner.check_type_env = MagicMock(return_value=False)
 
-        result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
+        result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT,
+                                        ID_FIELD)
 
         # reset method
         self.scanner.check_type_env = original_check_type_env
 
-        self.assertEqual(result, [], "Can't get [], when the type_to_fetch is wrong")
+        self.assertEqual(result, [],
+                         "Can't get [], when the type_to_fetch is wrong")
 
     def test_scan_type_without_parent_id(self):
         try:
-            self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT_WITHOUT_ID, ID_FIELD)
-            self.fail("Can't get error when the parent doesn't contain id attribute")
+            self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT,
+                                   PARENT_WITHOUT_ID, ID_FIELD)
+            self.fail("Can't get error when the parent " +
+                      "doesn't contain id attribute")
         except:
             pass
 
@@ -97,8 +115,10 @@ class TestScanner(TestScan):
         fetcher_get.side_effect = Exception("get exception")
 
         try:
-            result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
-            self.assertEqual(result, [], "Can't get [] when it has get exception")
+            result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT,
+                                            PARENT, ID_FIELD)
+            self.assertEqual(result, [],
+                             "Can't get [] when it has get exception")
         except:
             self.fail("Get unexpected exception, the test failed")
 
@@ -113,12 +133,14 @@ class TestScanner(TestScan):
         # mock methods
         self.scanner.inventory.get_by_id = MagicMock(return_value=[])
 
-        result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
+        result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT,
+                                        ID_FIELD)
 
         # reset methods
         self.scanner.inventory.get_by_id = original_get_by_id
         self.scanner.inventory.set = original_set
-        self.assertEqual(result, [], "Can't get [], when the master parent doesn't exist in database")
+        self.assertEqual(result, [], "Can't get [], when the master parent " +
+                         "doesn't exist in database")
 
     @patch("discover.folder_fetcher.FolderFetcher.get")
     def test_scan_type_with_master_parent(self, fetcher_get):
@@ -152,8 +174,10 @@ class TestScanner(TestScan):
         self.scanner.inventory.set = MagicMock()
 
         self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
-        self.assertIn("projects", DB_RESULTS_WITH_PROJECT[0], "Can't get the projects from DB result")
-        self.assertNotIn(PROJECT_KEY, DB_RESULTS_WITH_PROJECT[0], "Can't delete the project key in the object")
+        self.assertIn("projects", DB_RESULTS_WITH_PROJECT[0],
+                      "Can't get the projects from DB result")
+        self.assertNotIn(PROJECT_KEY, DB_RESULTS_WITH_PROJECT[0],
+                         "Can't delete the project key in the object")
 
         self.scanner.inventory.set = original_set
 
@@ -166,7 +190,8 @@ class TestScanner(TestScan):
         self.scanner.inventory.set = MagicMock()
         self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
 
-        self.assertEqual(self.scanner.inventory.set.call_count, 0, "Set the object when the create object is false")
+        self.assertEqual(self.scanner.inventory.set.call_count, 0,
+                         "Set the object when the create object is false")
 
         self.scanner.inventory.set = original_set
 
@@ -179,7 +204,8 @@ class TestScanner(TestScan):
         self.scanner.inventory.set = MagicMock()
         self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
 
-        self.assertEqual(self.scanner.inventory.set.call_count, 1, "Set the object when the create object is false")
+        self.assertEqual(self.scanner.inventory.set.call_count, 1,
+                         "Set the object when the create object is false")
 
         self.scanner.inventory.set = original_set
 
@@ -195,7 +221,8 @@ class TestScanner(TestScan):
 
         self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
 
-        self.assertEqual(self.scanner.queue_for_scan.call_count, 1, "Can't put children scanner in the queue")
+        self.assertEqual(self.scanner.queue_for_scan.call_count, 1,
+                         "Can't put children scanner in the queue")
 
         self.scanner.inventory.set = original_set
         self.scanner.queue_for_scan = original_queue_for_scan
@@ -210,9 +237,11 @@ class TestScanner(TestScan):
         self.scanner.inventory.set = MagicMock()
         self.scanner.queue_for_scan = MagicMock()
 
-        self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT_WITHOUT_CHILDREN_FETCHER, PARENT, ID_FIELD)
+        self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENV_WITHOUT_CHILDREN_FETCHER,
+                               PARENT, ID_FIELD)
 
-        self.assertEqual(self.scanner.queue_for_scan.call_count, 0, "Can't put children scanner in the queue")
+        self.assertEqual(self.scanner.queue_for_scan.call_count, 0,
+                         "Can't put children scanner in the queue")
 
         self.scanner.inventory.set = original_set
         self.scanner.queue_for_scan = original_queue_for_scan
@@ -227,7 +256,8 @@ class TestScanner(TestScan):
         self.scanner.inventory.set = MagicMock()
         self.scanner.queue_for_scan = MagicMock()
 
-        result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT, ID_FIELD)
+        result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT, PARENT,
+                                        ID_FIELD)
 
         self.assertNotEqual(result, [], "Can't get children form scan_type")
 
@@ -245,7 +275,8 @@ class TestScanner(TestScan):
         self.scanner.scan(PARENT, limit_to_child_type=limit_to_child_type)
 
         # only scan the limit child type
-        self.scanner.scan_type.assert_called_with(TYPES_TO_FETCH[0], PARENT, ID_FIELD)
+        self.scanner.scan_type.assert_called_with(TYPES_TO_FETCH[0], PARENT,
+                                                  ID_FIELD)
 
         self.scanner.scan_type = original_scan_type
 
@@ -256,7 +287,8 @@ class TestScanner(TestScan):
 
         self.scanner.scan_type = MagicMock(return_value=SCAN_TYPE_RESULTS)
 
-        children = self.scanner.scan(PARENT, id_field=ID_FIELD, limit_to_child_id=limit_to_child_id)
+        children = self.scanner.scan(PARENT, id_field=ID_FIELD,
+                                     limit_to_child_id=limit_to_child_id)
 
         # only get the limit child
         self.assertEqual(children, SCAN_TYPE_RESULTS[0])
@@ -268,7 +300,8 @@ class TestScanner(TestScan):
 
         result = self.scanner.scan(PARENT)
 
-        self.assertEqual(PARENT, result, "Can't get the original parent after the scan")
+        self.assertEqual(PARENT, result,
+                         "Can't get the original parent after the scan")
 
         self.scanner.scan_type = original_scan_type
 
@@ -281,9 +314,12 @@ class TestScanner(TestScan):
         self.scanner.scan_from_queue = MagicMock()
         SshConn.disconnect_all = MagicMock()
 
-        self.scanner.run_scan(PARENT, ID_FIELD, LIMIT_TO_CHILD_ID, LIMIT_TO_CHILD_TYPE)
+        self.scanner.run_scan(PARENT, ID_FIELD, LIMIT_TO_CHILD_ID,
+                              LIMIT_TO_CHILD_TYPE)
 
-        self.scanner.scan.assert_called_with(PARENT, ID_FIELD, LIMIT_TO_CHILD_ID, LIMIT_TO_CHILD_TYPE)
+        self.scanner.scan.assert_called_with(PARENT, ID_FIELD,
+                                             LIMIT_TO_CHILD_ID,
+                                             LIMIT_TO_CHILD_TYPE)
         self.scanner.scan_from_queue.assert_any_call()
         SshConn.disconnect_all.assert_any_call()
 
@@ -300,6 +336,7 @@ class TestScanner(TestScan):
 
         self.scanner.scan_from_queue()
 
-        self.assertEqual(self.scanner.scan.call_count, QUEUE_SIZE, "Can't scan all the objects in the queue")
+        self.assertEqual(self.scanner.scan.call_count, QUEUE_SIZE,
+                         "Can't scan all the objects in the queue")
 
         self.scanner.scan = original_scan
