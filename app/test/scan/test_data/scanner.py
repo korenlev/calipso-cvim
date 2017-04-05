@@ -1,6 +1,8 @@
 import queue
 from discover.folder_fetcher import FolderFetcher
 
+MONGO_CONGIF = 'mongo_config_file.txt'
+
 TYPE_TO_FETCH = {
     "type": "pnic",
     "fetcher": "CliFetchHostPnicsVpp",
@@ -181,7 +183,7 @@ TYPE_TO_FETCH_FOR_ENVIRONMENT = {
     "children_scanner": "ScanRegionsRoot"
 }
 
-TYPE_TO_FETCH_FOR_ENVIRONMENT_WITHOUT_CHILDREN_FETCHER = {
+TYPE_TO_FETCH_FOR_ENV_WITHOUT_CHILDREN_FETCHER = {
     "type": "regions_folder",
     "fetcher": FolderFetcher("regions", "environment")
 }
