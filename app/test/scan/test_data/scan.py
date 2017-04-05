@@ -1,6 +1,8 @@
 UNIT_TESTS_ENV = "WebEX-Mirantis@Cisco"
 UNIT_TESTS_INVENTORY = 'unit_tests'
 
+MONGO_CONFIG = 'mongo_config_file.txt'
+
 DEFAULT_ARGUMENTS = {
     "MONGO_CONFIG": "",
     "ENV": UNIT_TESTS_ENV,
