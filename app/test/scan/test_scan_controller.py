@@ -14,8 +14,6 @@ class TestScanController(TestScan):
         self.configure_environment()
         self.scan_controller = ScanController()
         self.inv = InventoryMgr(MONGO_CONFIG)
-        self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(args['mongo_config'], env_name)
 
     def arg_validate(self, args, expected, key, err=None):
         if key not in expected:
