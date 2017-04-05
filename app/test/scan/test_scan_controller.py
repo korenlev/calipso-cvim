@@ -5,6 +5,7 @@ from test.scan.test_scan import TestScan
 from test.scan.test_data.scan import *
 from discover.scan import ScanController, ScanPlan
 from discover.scanner import Scanner
+from utils.inventory_mgr import InventoryMgr
 
 
 class TestScanController(TestScan):
@@ -12,6 +13,9 @@ class TestScanController(TestScan):
     def setUp(self):
         self.configure_environment()
         self.scan_controller = ScanController()
+        self.inv = InventoryMgr(MONGO_CONFIG)
+        self.inv.monitoring_setup_manager = \
+            MonitoringSetupManager(args['mongo_config'], env_name)
 
     def arg_validate(self, args, expected, key, err=None):
         if key not in expected:
