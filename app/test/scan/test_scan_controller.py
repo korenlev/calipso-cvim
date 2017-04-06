@@ -1,10 +1,11 @@
 import sys
-
 from unittest.mock import MagicMock
-from test.scan.test_scan import TestScan
-from test.scan.test_data.scan import *
+
 from discover.scan import ScanController, ScanPlan
 from discover.scanner import Scanner
+from test.scan.test_scan import TestScan
+from test.scan.test_data.scan import *
+from test.scan.config.local_config import MONGODB_CONFIG
 from utils.inventory_mgr import InventoryMgr
 
 
@@ -13,7 +14,7 @@ class TestScanController(TestScan):
     def setUp(self):
         self.configure_environment()
         self.scan_controller = ScanController()
-        self.inv = InventoryMgr(MONGO_CONFIG)
+        self.inv = InventoryMgr(MONGODB_CONFIG)
 
     def arg_validate(self, args, expected, key, err=None):
         if key not in expected:

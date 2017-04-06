@@ -1,6 +1,7 @@
 from discover.scanner import Scanner
 from test.scan.test_scan import TestScan
 from unittest.mock import MagicMock, patch
+from test.scan.config.local_config import MONGODB_CONFIG
 from test.scan.test_data.scanner import *
 from discover.ssh_conn import SshConn
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
@@ -14,7 +15,7 @@ class TestScanner(TestScan):
         self.scanner.set_env(self.env)
         MonitoringSetupManager.create_setup = MagicMock()
         self.scanner.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(MONGO_CONGIF, self.env)
+            MonitoringSetupManager(MONGODB_CONFIG, self.env)
 
     def test_check_type_env_without_environment_condition(self):
         result = self.scanner.check_type_env(TYPE_TO_FETCH_WITHOUT_ENV_CON)
