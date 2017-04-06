@@ -1,8 +1,6 @@
 import queue
 from discover.folder_fetcher import FolderFetcher
 
-MONGO_CONGIF = 'mongo_config_file.txt'
-
 TYPE_TO_FETCH = {
     "type": "pnic",
     "fetcher": "CliFetchHostPnicsVpp",
