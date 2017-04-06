@@ -50,7 +50,7 @@ class Scans(ResponderBase):
             self.bad_request(error)
 
         scan_statuses = self.get_constants_by_name("scan_statuses")
-        log_leveles = self.get_constants_by_name("log_levels")
+        log_levels = self.get_constants_by_name("log_levels")
 
         scan_requirements = {
             "status": self.require(str,
@@ -59,7 +59,7 @@ class Scans(ResponderBase):
                                    mandatory=True),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
-                                      requirement=log_leveles),
+                                      requirement=log_levels),
             "clear": self.require(bool, True),
             "scan_only_inventory": self.require(bool, True),
             "scan_only_links": self.require(bool, True),
