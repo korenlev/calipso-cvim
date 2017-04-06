@@ -59,18 +59,14 @@ class Scans(ResponderBase):
                                    mandatory=True),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
-                                      requirement=log_leveles,
-                                      mandatory=True),
-            "clear": self.require(bool, True, mandatory=True),
-            "scan_only_inventory": self.require(bool, True,
-                                                mandatory=True),
-            "scan_only_links": self.require(bool, True,
-                                            mandatory=True),
-            "scan_only_cliques": self.require(bool, True,
-                                              mandatory=True),
+                                      requirement=log_leveles),
+            "clear": self.require(bool, True),
+            "scan_only_inventory": self.require(bool, True),
+            "scan_only_links": self.require(bool, True),
+            "scan_only_cliques": self.require(bool, True),
             "environment": self.require(str, mandatory=True),
-            "inventory": self.require(str, mandatory=True),
-            "object_id": self.require(str, mandatory=True)
+            "inventory": self.require(str),
+            "object_id": self.require(str)
         }
         self.validate_query_data(scan, scan_requirements)
 
