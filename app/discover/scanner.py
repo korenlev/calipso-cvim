@@ -102,10 +102,10 @@ class Scanner(Fetcher):
             return []
 
         if not parent:
-            id = None
+            obj_id = None
         else:
-            id = str(parent[id_field])
-            if not id or not id.rstrip():
+            obj_id = str(parent[id_field])
+            if not obj_id or not obj_id.rstrip():
                 raise ValueError("Object missing " + id_field + " attribute")
 
         # get Fetcher instance
@@ -124,12 +124,12 @@ class Scanner(Fetcher):
         except KeyError:
             children_scanner = None
 
-        escaped_id = fetcher.escape(str(id)) if id else id
+        escaped_id = fetcher.escape(str(obj_id)) if obj_id else obj_id
         self.log.info(
             "scanning : type=%s, parent: (type=%s, name=%s, id=%s)",
             type_to_fetch["type"],
-            "environment" if "type" not in parent else parent["type"],
-            "" if "name" not in parent else parent["name"],
+            parent.get('type', 'environment'),
+            parent.get('name', ''),
             escaped_id)
 
         # fetch data from environment by CLI, API or MySQL
@@ -276,7 +276,8 @@ class Scanner(Fetcher):
     # before continuing to next level
     # for example, get host ID from API os-hypervisors call, so later
     # we can use this ID in the "os-hypervisors/<ID>/servers" call
-    def queue_for_scan(self, o, child_id_field, children_scanner):
+    @staticmethod
+    def queue_for_scan(o, child_id_field, children_scanner):
         if o["id"] in Scanner.scan_queue_track:
             return
         Scanner.scan_queue_track[o["type"] + ";" + o["id"]] = 1
