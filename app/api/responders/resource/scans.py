@@ -69,6 +69,11 @@ class Scans(ResponderBase):
             "object_id": self.require(str)
         }
         self.validate_query_data(scan, scan_requirements)
+        scan_only_keys = [k for k in scan if k.startswith("scan_only_")]
+        if len(scan_only_keys) > 1:
+            self.bad_request("multiple scan_only_* flags found: {0}. "
+                             "only one of them can be set."
+                             .format(", ".join(scan_only_keys)))
 
         env_name = scan["environment"]
         if not self.check_environment_name(env_name):
