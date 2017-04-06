@@ -16,7 +16,6 @@ SCANS = [
         "status": "pending",
         "environment": "Mirantis-Liberty-API",
         "id": "58c96a075eb66a121cc4e75f",
-        "scan_completed": True
     },
     {
         "status": "completed",
@@ -35,7 +34,6 @@ SCANS_WITH_SPECIFIC_ID = [
         "status": "pending",
         "environment": "Mirantis-Liberty-API",
         "id": CORRECT_ID,
-        "scan_completed": True
     }
 ]
 
@@ -50,7 +48,8 @@ SCANS_WITH_SPECIFIC_BASE_OBJ = [
         "status": "completed",
         "environment": "Mirantis-Liberty-API",
         "id": "58c96a075eb66a121cc4e75e",
-        "object_id": BASE_OBJECT
+        "object_id": BASE_OBJECT,
+        "scan_completed": True
     }
 ]
 
@@ -63,6 +62,7 @@ SCANS_WITH_SPECIFIC_STATUS = [
         "status": CORRECT_STATUS,
         "environment": "Mirantis-Liberty-API",
         "id": "58c96a075eb66a121cc4e75f",
+        "scan_completed": True
     },
     {
         "status": CORRECT_STATUS,
@@ -83,8 +83,6 @@ SCAN = {
        "log_level": "warning",
        "clear": True,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
@@ -95,8 +93,6 @@ SCAN_WITHOUT_ENV = {
        "log_level": "warning",
        "clear": True,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "inventory": "inventory",
        "object_id": "ff"
 }
@@ -106,8 +102,6 @@ SCAN_WITH_UNKNOWN_ENV = {
        "log_level": "warning",
        "clear": True,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "environment": base.UNKNOWN_ENV,
        "inventory": "inventory",
        "object_id": "ff"
@@ -117,8 +111,6 @@ SCAN_WITHOUT_STATUS = {
        "log_level": "warning",
        "clear": True,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
@@ -129,19 +121,6 @@ SCAN_WITH_WRONG_STATUS = {
        "log_level": "warning",
        "clear": True,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "inventory": "inventory",
-       "object_id": "ff"
-}
-
-SCAN_WITHOUT_LOG_LEVEL = {
-       "status": "pending",
-       "clear": True,
-       "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
@@ -152,19 +131,6 @@ SCAN_WITH_WRONG_LOG_LEVEL = {
        "log_level": base.WRONG_LOG_LEVEL,
        "clear": True,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "inventory": "inventory",
-       "object_id": "ff"
-}
-
-SCAN_WITHOUT_CLEAR = {
-       "status": "pending",
-       "log_level": "warning",
-       "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
@@ -175,42 +141,17 @@ SCAN_WITH_NON_BOOL_CLEAR = {
        "log_level": "warning",
        "clear": base.NON_BOOL,
        "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
 }
 
-SCAN_WITHOUT_SCAN_ONLY_INVENTORY = {
-       "status": "pending",
-       "log_level": "warning",
-       "clear": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "inventory": "inventory",
-       "object_id": "ff"
-}
 
 SCAN_WITH_NON_BOOL_SCAN_ONLY_INVENTORY = {
        "status": "pending",
        "log_level": "warning",
        "clear": True,
        "scan_only_inventory": base.NON_BOOL,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "inventory": "inventory",
-       "object_id": "ff"
-}
-
-SCAN_WITHOUT_SCAN_ONLY_LINKS = {
-       "status": "pending",
-       "log_level": "warning",
-       "clear": True,
-       "scan_only_inventory": True,
-       "scan_only_cliques": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
@@ -220,20 +161,7 @@ SCAN_WITH_NON_BOOL_SCAN_ONLY_LINKS = {
        "status": "pending",
        "log_level": "warning",
        "clear": True,
-       "scan_only_inventory": True,
        "scan_only_links": base.NON_BOOL,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "inventory": "inventory",
-       "object_id": "ff"
-}
-
-SCAN_WITHOUT_SCAN_ONLY_CLIQUES = {
-       "status": "pending",
-       "log_level": "warning",
-       "clear": True,
-       "scan_only_inventory": True,
-       "scan_only_links": True,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
@@ -243,32 +171,8 @@ SCAN_WITH_NON_BOOL_SCAN_ONLY_CLIQUES = {
        "status": "pending",
        "log_level": "warning",
        "clear": True,
-       "scan_only_inventory": True,
-       "scan_only_links": True,
        "scan_only_cliques": base.NON_BOOL,
        "environment": "Mirantis-Liberty-API",
        "inventory": "inventory",
        "object_id": "ff"
-}
-
-SCAN_WITHOUT_INVENTORY_NAME = {
-       "status": "pending",
-       "log_level": "warning",
-       "clear": True,
-       "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "object_id": "ff"
-}
-
-SCAN_WITHOUT_OBJ_ID = {
-       "status": "pending",
-       "log_level": "warning",
-       "clear": True,
-       "scan_only_inventory": True,
-       "scan_only_links": True,
-       "scan_only_cliques": True,
-       "environment": "Mirantis-Liberty-API",
-       "inventory": "inventory",
 }

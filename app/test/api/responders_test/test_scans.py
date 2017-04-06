@@ -193,19 +193,9 @@ class TestScans(TestBase):
                                    body=json.dumps(scans.SCAN_WITH_WRONG_STATUS),
                                    expected_code=base.BAD_REQUEST_CODE)
 
-    def test_post_scan_without_log_level(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_LOG_LEVEL),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
     def test_post_scan_with_wrong_log_level(self):
         self.validate_post_request(scans.URL,
                                    body=json.dumps(scans.SCAN_WITH_WRONG_LOG_LEVEL),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_scan_without_clear(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_CLEAR),
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_scan_with_non_bool_clear(self):
@@ -213,19 +203,9 @@ class TestScans(TestBase):
                                    body=json.dumps(scans.SCAN_WITH_NON_BOOL_CLEAR),
                                    expected_code=base.BAD_REQUEST_CODE)
 
-    def test_post_scan_without_scan_only_inventory(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_SCAN_ONLY_INVENTORY),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
     def test_post_scan_with_non_bool_scan_only_inventory(self):
         self.validate_post_request(scans.URL,
                                    body=json.dumps(scans.SCAN_WITH_NON_BOOL_SCAN_ONLY_INVENTORY),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_scan_without_scan_only_links(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_SCAN_ONLY_LINKS),
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_scan_with_non_bool_scan_only_links(self):
@@ -233,24 +213,9 @@ class TestScans(TestBase):
                                    body=json.dumps(scans.SCAN_WITH_NON_BOOL_SCAN_ONLY_LINKS),
                                    expected_code=base.BAD_REQUEST_CODE)
 
-    def test_post_scan_without_scan_only_cliques(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_SCAN_ONLY_CLIQUES),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
     def test_post_scan_with_non_bool_scan_only_cliques(self):
         self.validate_post_request(scans.URL,
                                    body=json.dumps(scans.SCAN_WITH_NON_BOOL_SCAN_ONLY_CLIQUES),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_scan_without_inventory(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_INVENTORY_NAME),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_scan_without_object_id(self):
-        self.validate_post_request(scans.URL,
-                                   body=json.dumps(scans.SCAN_WITHOUT_OBJ_ID),
                                    expected_code=base.BAD_REQUEST_CODE)
 
     @patch(base.RESPONDER_BASE_CHECK_ENVIRONMENT_NAME)
