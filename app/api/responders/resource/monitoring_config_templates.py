@@ -22,7 +22,7 @@ class MonitoringConfigTemplates(ResponderBase):
         sides = self.get_constants_by_name("monitoring_sides")
         filters_requirements = {
             "id": self.require(ObjectId, True),
-            "order": self.require(str),
+            "order": self.require(int, True),
             "side": self.require(str, validate=DataValidate.LIST,
                                  requirement=sides),
             "type": self.require(str),
