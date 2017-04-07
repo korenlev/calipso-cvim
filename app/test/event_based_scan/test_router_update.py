@@ -40,11 +40,11 @@ class TestRouterUpdate(TestEvent):
             ApiFetchPort.get = original_get_port
             # assert router document
             router_doc = self.handler.inv.get_by_id(self.env, self.router_id)
-            self.assertNotEqual(router_doc, [], "router_doc not found.")
+            self.assertIsNotNone(router_doc, msg="router_doc not found.")
             self.assertEqual(self.router['name'], router_doc['name'])
             self.assertEqual(self.router['admin_state_up'], router_doc['admin_state_up'])
 
-            if self.router['external_gateway_info'] == None:
+            if self.router['external_gateway_info'] is None:
                 self.assertEqual(router_doc['gw_port_id'], None)
                 self.assertEqual(router_doc['network'], [])
             else:
