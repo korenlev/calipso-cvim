@@ -54,6 +54,7 @@ CORRECT_FORMAT_TIME = "2017-01-25T14:28:32.400Z"
 
 NON_BOOL = "falses"
 BOOL = False
+NON_DICT_OBJ = ""
 
 # fake constants
 CONSTANTS_BY_NAMES = {
