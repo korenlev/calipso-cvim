@@ -19,8 +19,8 @@ CORRECT_LINK_TYPE= "instance-vnic"
 WRONG_LINK_STATE = "wrong"
 CORRECT_LINK_STATE = "up"
 
-WRONG_SCAN_STATE = "error"
-CORRECT_SCAN_STATE = "completed"
+WRONG_SCAN_STATUS = "error"
+CORRECT_SCAN_STATUS = "completed"
 
 WRONG_MONITORING_SIDE = "wrong-side"
 CORRECT_MONITORING_SIDE = "client"
@@ -35,7 +35,7 @@ WRONG_MECHANISM_DRIVER = "wrong-mechanism-dirver"
 CORRECT_MECHANISM_DRIVER = "ovs"
 
 WRONG_LOG_LEVEL = "wrong-log-level"
-CORRECT_LOG_LEVEL = "CRITICAL"
+CORRECT_LOG_LEVEL = "critical"
 
 WRONG_OBJECT_TYPE = "wrong-object-type"
 CORRECT_OBJECT_TYPE = "vnic"
@@ -112,12 +112,12 @@ CONSTANTS_BY_NAMES = {
         "Nexus"
     ],
     "log_levels": [
-        "CRITICAL",
-        "ERROR",
-        "WARNING",
-        "INFO",
-        "DEBUG",
-        "NOTSET"
+        "critical",
+        "error",
+        "warning",
+        "info",
+        "debug",
+        "notset"
     ],
     "object_types": [
         "vnic",
