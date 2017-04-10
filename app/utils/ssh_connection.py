@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import os
 
 import paramiko
@@ -10,7 +12,7 @@ class SshConnection(BinaryConverter, Logger):
     config = None
     ssh = None
     connections = {}
-    call_count_per_con = {}
+    call_count_per_con = defaultdict(int)
 
     max_call_count_per_con = 100
     timeout = 15  # timeout for exec in seconds

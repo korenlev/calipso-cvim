@@ -9,11 +9,15 @@ from discover.scan_network import ScanNetwork
 class EventRouterUpdate(EventBase):
 
     def handle(self, env, values):
+        payload = values['payload']
+        router = payload['router']
+
         project_id = values['_context_project_id']
-        router = values['payload']['router']
-        router_id = "qrouter-%s" % router['id']
-        router_doc = self.inv.get_by_id(env, router_id)
         host_id = values["publisher_id"].replace("network.", "", 1)
+        router_id = payload['id'] if 'id' in payload else router['id']
+
+        router_full_id = "-".join([host_id, "qrouter", router_id])
+        router_doc = self.inv.get_by_id(env, router_full_id)
         if not router_doc:
             self.log.info("Router document not found, aborting router updating")
             return EventResult(result=False, retry=True)
@@ -34,7 +38,7 @@ class EventRouterUpdate(EventBase):
                 router_doc['gw_port_id'] = None
 
                 # remove related links
-                self.inv.delete('links', {'source_id': router_id})
+                self.inv.delete('links', {'source_id': router_full_id})
         else:
             if 'network' in router_doc:
                 if gateway_info['network_id'] not in router_doc['network']:
@@ -47,14 +51,15 @@ class EventRouterUpdate(EventBase):
             # add gw_port_id info and port document.
             fetcher = CliFetchHostVservice()
             fetcher.set_env(env)
-            router_vservice = fetcher.get_vservice(host_id, router_id)
-            router_doc['gw_port_id'] = router_vservice['gw_port_id']
+            router_vservice = fetcher.get_vservice(host_id, router_full_id)
+            if router_vservice.get('gw_port_id'):
+                router_doc['gw_port_id'] = router_vservice['gw_port_id']
 
             host = self.inv.get_by_id(env, host_id)
             EventRouterAdd().add_children_documents(env, project_id, gateway_info['network_id'], host, router_doc)
 
             # rescan the vnic links.
-            FindLinksForVserviceVnics().add_links(search={'parent_id': router_id + '-vnics'})
+            FindLinksForVserviceVnics().add_links(search={'parent_id': router_full_id + '-vnics'})
         self.inv.set(router_doc)
 
         # update the cliques.

@@ -126,3 +126,8 @@ class EventHandler(Fetcher):
         self.log.info("router_interface_delete")
         handler = EventInterfaceDelete()
         return handler.handle(self.env, notification)
+
+    def not_implemented(self, notification) -> EventResult:
+        self.log.info(notification.get('event_type', 'unknown event'))
+        self.log.info("Handler for this event is not implemented yet")
+        return EventResult(result=False, retry=False)
