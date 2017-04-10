@@ -14,7 +14,8 @@ class TestRouterUpdate(TestEvent):
             self.values = values
             self.payload = self.values['payload']
             self.router = self.payload['router']
-            self.router_id = "qrouter-" + self.router['id']
+            host_id = self.values['publisher_id'].replace("network.", "", 1)
+            self.router_id = "-".join([host_id, "qrouter", self.router['id']])
             self.item_ids.append(self.router_id)
 
             # add document for testing

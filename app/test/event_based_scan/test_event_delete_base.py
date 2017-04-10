@@ -17,7 +17,9 @@ class TestEventDeleteBase(TestEvent):
         payload = self.values['payload']
         self.item_id = payload['{}_id'.format(object_type)]
         if object_type == 'router':
-            self.item_id = "qrouter-{}".format(self.item_id)
+            host_id = self.values['publisher_id'].replace("network.", "", 1)
+            self.item_id = "-".join([host_id, "qrouter", self.item_id])
+            document['id'] = "-".join([host_id, document['id']])
 
         self.assertEqual(document['id'], self.item_id, msg="Document id and payload id are different")
 
