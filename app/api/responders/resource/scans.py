@@ -50,7 +50,7 @@ class Scans(ResponderBase):
             self.bad_request(error)
 
         scan_statuses = self.get_constants_by_name("scan_statuses")
-        log_leveles = self.get_constants_by_name("log_levels")
+        log_levels = self.get_constants_by_name("log_levels")
 
         scan_requirements = {
             "status": self.require(str,
@@ -59,20 +59,21 @@ class Scans(ResponderBase):
                                    mandatory=True),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
-                                      requirement=log_leveles,
-                                      mandatory=True),
-            "clear": self.require(bool, True, mandatory=True),
-            "scan_only_inventory": self.require(bool, True,
-                                                mandatory=True),
-            "scan_only_links": self.require(bool, True,
-                                            mandatory=True),
-            "scan_only_cliques": self.require(bool, True,
-                                              mandatory=True),
+                                      requirement=log_levels),
+            "clear": self.require(bool, True),
+            "scan_only_inventory": self.require(bool, True),
+            "scan_only_links": self.require(bool, True),
+            "scan_only_cliques": self.require(bool, True),
             "environment": self.require(str, mandatory=True),
-            "inventory": self.require(str, mandatory=True),
-            "object_id": self.require(str, mandatory=True)
+            "inventory": self.require(str),
+            "object_id": self.require(str)
         }
         self.validate_query_data(scan, scan_requirements)
+        scan_only_keys = [k for k in scan if k.startswith("scan_only_")]
+        if len(scan_only_keys) > 1:
+            self.bad_request("multiple scan_only_* flags found: {0}. "
+                             "only one of them can be set."
+                             .format(", ".join(scan_only_keys)))
 
         env_name = scan["environment"]
         if not self.check_environment_name(env_name):
