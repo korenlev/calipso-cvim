@@ -77,12 +77,24 @@ class EnvironmentListener(ConsumerMixin):
             "compute.instance.suspend.start": self.handler.not_implemented,  # self.handler.instance_down,
             "compute.instance.suspend.end": self.handler.not_implemented,  # self.handler.instance_up,
 
+            "network.create": self.handler.network_create,
+            "network.create.start": self.handler.network_create,
             "network.create.end": self.handler.network_create,
+            "network.update": self.handler.network_update,
+            "network.update.start": self.handler.network_update,
             "network.update.end": self.handler.network_update,
+            "network.delete": self.handler.network_delete,
+            "network.delete.start": self.handler.network_delete,
             "network.delete.end": self.handler.network_delete,
 
+            "subnet.create": self.handler.subnet_create,
+            "subnet.create.start": self.handler.subnet_create,
             "subnet.create.end": self.handler.subnet_create,
+            "subnet.update": self.handler.subnet_update,
+            "subnet.update.start": self.handler.subnet_update,
             "subnet.update.end": self.handler.subnet_update,
+            "subnet.delete": self.handler.subnet_delete,
+            "subnet.delete.start": self.handler.subnet_delete,
             "subnet.delete.end": self.handler.subnet_delete,
 
             "port.create.end": self.handler.port_create,
@@ -124,6 +136,8 @@ class EnvironmentListener(ConsumerMixin):
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
         # leave the message in the queue unless "consume_all" flag is set
+        if 'event_type' in body or event_data and 'event_type' in event_data:
+            self.inv.log.info(body['event_type'] if 'event_type' in body else event_data['event_type'])
         if processable and event_data["event_type"] in self.notification_responses:
             with open("/tmp/listener.log", "a") as f:
                 f.write("{}\n".format(event_data))

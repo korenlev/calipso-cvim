@@ -6,7 +6,7 @@ class EventSubnetDelete(EventDeleteBase):
     def delete_children_documents(self, env, vservice_id):
         vnic_parent_id = vservice_id + '-vnics'
         vnic = self.inv.get_by_field(env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
-        if len(vnic) == 0:
+        if not vnic:
             self.inv.log.info("Vnic document not found, aborting subnet deleting.")
             return EventResult(result=False, retry=False)
 
@@ -17,7 +17,7 @@ class EventSubnetDelete(EventDeleteBase):
     def handle(self, env, notification):
         subnet_id = notification['payload']['subnet_id']
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
-        if len(network_document) == 0:
+        if not network_document:
             self.log.info("network document not found, aborting subnet deleting")
             return EventResult(result=False, retry=False)
 
