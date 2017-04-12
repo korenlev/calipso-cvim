@@ -9,7 +9,6 @@ class SshConn(SshConnection):
     config = None
     ssh = None
     connections = {}
-    call_count_per_con = {}
 
     max_call_count_per_con = 100
     timeout = 15  # timeout for exec in seconds

@@ -64,16 +64,18 @@ class EnvironmentListener(ConsumerMixin):
             "compute.instance.update": self.handler.instance_update,
             "compute.instance.delete.end": self.handler.instance_delete,
 
-            "servergroup.create": self.handler.region_add,
-            "servergroup.update": self.handler.region_update,
-            "servergroup.addmember": self.handler.region_update,
-            "servergroup.delete": self.handler.region_delete,
+            # TODO: implement these handlers
+            "servergroup.create": self.handler.not_implemented,  # self.handler.region_add,
+            "servergroup.update": self.handler.not_implemented,  # self.handler.region_update,
+            "servergroup.addmember": self.handler.not_implemented,  # self.handler.region_update,
+            "servergroup.delete": self.handler.not_implemented,  # self.handler.region_delete,
 
-            "compute.instance.shutdown.start": self.handler.instance_down,
-            "compute.instance.power_off.start": self.handler.instance_down,
-            "compute.instance.power_on.end": self.handler.instance_up,
-            "compute.instance.suspend.start": self.handler.instance_down,
-            "compute.instance.suspend.end": self.handler.instance_up,
+            # TODO: implement these handlers
+            "compute.instance.shutdown.start": self.handler.not_implemented,  # self.handler.instance_down,
+            "compute.instance.power_off.start": self.handler.not_implemented,  # self.handler.instance_down,
+            "compute.instance.power_on.end": self.handler.not_implemented,  # self.handler.instance_up,
+            "compute.instance.suspend.start": self.handler.not_implemented,  # self.handler.instance_down,
+            "compute.instance.suspend.end": self.handler.not_implemented,  # self.handler.instance_up,
 
             "network.create.end": self.handler.network_create,
             "network.update.end": self.handler.network_update,
@@ -87,8 +89,14 @@ class EnvironmentListener(ConsumerMixin):
             "port.update.end": self.handler.port_update,
             "port.delete.end": self.handler.port_delete,
 
+            "router.create": self.handler.router_create,
+            "router.create.start": self.handler.router_create,
             "router.create.end": self.handler.router_create,
+            "router.update": self.handler.router_update,
+            "router.update.start": self.handler.router_update,
             "router.update.end": self.handler.router_update,
+            "router.delete": self.handler.router_delete,
+            "router.delete.start": self.handler.router_delete,
             "router.delete.end": self.handler.router_delete,
 
             "router.interface.create": self.handler.router_interface_create,
@@ -106,7 +114,7 @@ class EnvironmentListener(ConsumerMixin):
     def _extract_event_data(body):
         if "event_type" in body:
             return True, body
-        elif "event_type" in body["oslo.message"]:
+        elif "event_type" in body.get("oslo.message", ""):
             return True, json.loads(body["oslo.message"])
         else:
             return False, None
@@ -118,7 +126,7 @@ class EnvironmentListener(ConsumerMixin):
         # leave the message in the queue unless "consume_all" flag is set
         if processable and event_data["event_type"] in self.notification_responses:
             with open("/tmp/listener.log", "a") as f:
-                f.write(body['oslo.message'] + "\n")
+                f.write("{}\n".format(event_data))
             event_result = self.handle_event(event_data["event_type"], event_data)
 
             # Check whether the event was fully handled
@@ -158,7 +166,8 @@ class EnvironmentListener(ConsumerMixin):
     def handle_event(self, event_type, notification) -> EventResult:
         print("Got notification.\nEvent_type: {}\nNotification:\n{}".format(event_type, notification))
         try:
-            return self.notification_responses[event_type](notification)
+            result = self.notification_responses[event_type](notification)
+            return result if result else EventResult(result=False, retry=False)
         except Exception as e:
             self.inv.log.exception(e)
             # TODO: an exception-causing handler should rather be fixed than retried (it's ok for now)

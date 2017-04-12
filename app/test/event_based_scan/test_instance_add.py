@@ -24,7 +24,7 @@ class TestInstanceAdd(TestEvent):
         # check instance document
         instance = self.handler.inv.get_by_id(self.env, self.instance_id)
         if instance:
-            self.handler.log.info('instance document has existed, delete it first.')
+            self.handler.log.info('instance document exists, delete it first.')
             self.handler.inv.delete('inventory', {'id': self.instance_id})
 
             instance = self.handler.inv.get_by_id(self.env, self.instance_id)

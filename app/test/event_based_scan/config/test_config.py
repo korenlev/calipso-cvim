@@ -1,8 +1,8 @@
 # local config info for test.
 
 
-MONGODB_CONFIG = "/Users/chengli2/OSDNA/app/config/osdna_mongo_access.conf"
+MONGODB_CONFIG = 'your-mongo-config-path-here'
 
-ENV_CONFIG = 'Mirantis-Liberty'
+ENV_CONFIG = 'your-env-name-here'
 
-COLLECTION_CONFIG = 'update-test'
+COLLECTION_CONFIG = 'your-inventory-collection-name-here'
