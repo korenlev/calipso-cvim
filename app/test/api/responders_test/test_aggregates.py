@@ -26,7 +26,8 @@ class TestAggregates(TestBase):
                                   expected_code=base.BAD_REQUEST_CODE)
 
     @patch(base.RESPONDER_BASE_CHECK_ENVIRONMENT_NAME)
-    def test_get_environment_aggregates_with_unknown_env_name(self, check_env_name):
+    def test_get_environment_aggregates_with_unknown_env_name(self,
+                                                              check_env_name):
         self.validate_get_request(aggregates.URL,
                                   params={
                                       "type": aggregates.ENV_TYPE,
@@ -48,12 +49,12 @@ class TestAggregates(TestBase):
                                   },
                                   mocks={
                                       check_env_name: True,
-                                      aggregates_method: aggregates.
-                                        ENVIRONMENT_AGGREGATES
+                                      aggregates_method:
+                                          aggregates.ENVIRONMENT_AGGREGATES
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=aggregates.
-                                    ENVIRONMENT_AGGREGATES_RESPONSE
+                                  expected_response=
+                                  aggregates.ENVIRONMENT_AGGREGATES_RESPONSE
                                   )
 
     @patch(base.RESPONDER_BASE_AGGREGATE)
@@ -62,13 +63,13 @@ class TestAggregates(TestBase):
                                   params={
                                       "type": aggregates.MESSAGE_TYPE
                                   },
-                                  methods_side_effects={
-                                      aggregate: [aggregates.MESSAGE_ENV_AGGREGATES,
-                                                  aggregates.MESSAGE_LEVEL_AGGREGATES]
+                                  side_effects={aggregate: [
+                                      aggregates.MESSAGE_ENV_AGGREGATES,
+                                      aggregates.MESSAGE_LEVEL_AGGREGATES]
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=aggregates.
-                                    MESSAGE_AGGREGATES_RESPONSE
+                                  expected_response=
+                                  aggregates.MESSAGE_AGGREGATES_RESPONSE
                                   )
 
     @patch(base.RESPONDER_BASE_AGGREGATE)
@@ -81,8 +82,8 @@ class TestAggregates(TestBase):
                                       aggregate: aggregates.CONSTANT_AGGREGATES
                                   },
                                   expected_code=base.SUCCESSFUL_CODE,
-                                  expected_response=aggregates.
-                                    CONSTANT_AGGREGATES_RESPONSE
+                                  expected_response=
+                                  aggregates.CONSTANT_AGGREGATES_RESPONSE
                                   )
 
     def test_get_unknown_aggregates(self):
