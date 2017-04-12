@@ -136,8 +136,6 @@ class EnvironmentListener(ConsumerMixin):
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
         # leave the message in the queue unless "consume_all" flag is set
-        if 'event_type' in body or event_data and 'event_type' in event_data:
-            self.inv.log.info(body['event_type'] if 'event_type' in body else event_data['event_type'])
         if processable and event_data["event_type"] in self.notification_responses:
             with open("/tmp/listener.log", "a") as f:
                 f.write("{}\n".format(event_data))
