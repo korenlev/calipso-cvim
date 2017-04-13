@@ -52,11 +52,7 @@ class TestScanProjectsRoot(TestScan):
         }
     ]
 
-    def setUp(self):
-        super().setUp()
-        self.configure_environment()
-
-    def test_scan_proj_root_type_for_env_condition(self):
+    def test_scan_projects_root(self):
 
         scanner = ScanProjectsRoot()
         scanner.set_env(self.env)
@@ -71,7 +67,8 @@ class TestScanProjectsRoot(TestScan):
         }
         scanner.scan(projects_folder)
         queue = scanner.scan_queue_track
-        self.assertEqual(len(queue), 1,
+        expected_saves = len(self.API_PROJECTS_RESULT)
+        self.assertEqual(len(queue.keys()), expected_saves,
                          'expected 1 result from ScanRegionsRoot')
         self.assertListEqual(list(queue.keys()), [
             'project;9bb12590b58d4c729871dc0c41c5a0f3',
@@ -79,7 +76,6 @@ class TestScanProjectsRoot(TestScan):
             'project;67796509be634932acef545fd1426a22',
             'project;052eb1d73ba44677b118da7ee0089be1',
         ])
-        expected_saves = len(self.API_PROJECTS_RESULT)
         self.assertEqual(expected_saves, self.inv.set.call_count,
                          'expected {} objects to be saved'.
                          format(str(expected_saves)))
