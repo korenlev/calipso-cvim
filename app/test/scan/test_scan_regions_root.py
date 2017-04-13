@@ -41,9 +41,6 @@ class TestScanRegionsRoot(TestScan):
         }
     ]
 
-    def setUp(self):
-        self.configure_environment()
-
     def test_scan_regions_root(self):
 
         scanner = ScanRegionsRoot()

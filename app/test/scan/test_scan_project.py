@@ -1,23 +1,25 @@
-from copy import deepcopy
+from unittest.mock import MagicMock
 
+from discover.api_fetch_availability_zones import ApiFetchAvailabilityZones
+from discover.api_fetch_project_hosts import ApiFetchProjectHosts
 from discover.scan_project import ScanProject
-
+from test.scan.test_data.scan import UNIT_TESTS_ENV
 from test.scan.test_scan import TestScan
 
 
 class TestScanProject(TestScan):
-    def setUp(self):
-        self.configure_environment()
 
-    def test_scan_project_type_for_env_condition(self):
+    def test_scan_project(self):
 
-        self.scan_proj = ScanProject()
-        self.scan_proj.set_env(self.env)
-
-        types_to_fetch = deepcopy(self.scan_proj.types_to_fetch)
-
-        result = self.scan_proj.check_type_env(types_to_fetch[0])
-
-        # types to fetch don't have environment_condition hence it will return True
-        self.assertEqual(result, True)
-
+        scanner = ScanProject()
+        scanner.set_env(UNIT_TESTS_ENV)
+        scanner.scan_from_queue = MagicMock()
+        ApiFetchAvailabilityZones.get = MagicMock(return_value=self.AZ_RESULT)
+        ApiFetchProjectHosts.get = MagicMock(return_value=
+                                             self.PROJECT_HOSTS_RESULT)
+        project = {
+            'id': '9bb12590b58d4c729871dc0c41c5a0f3',
+            'type': 'project',
+            'parent_type': 'projects_folder',
+            'parent_id': UNIT_TESTS_ENV + '-projects'
+        }
