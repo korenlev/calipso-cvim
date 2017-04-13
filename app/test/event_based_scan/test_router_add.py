@@ -14,7 +14,7 @@ class TestRouterAdd(TestEvent):
         self.values = EVENT_PAYLOAD_ROUTER_ADD
         self.payload = self.values['payload']
         self.router = self.payload['router']
-        self.router_id = "qrouter-"+self.router['id']
+        self.router_id = "qrouter-" + self.router['id']
 
         self.set_item(HOST_DOC)
         self.host_id = HOST_DOC['id']
@@ -45,13 +45,13 @@ class TestRouterAdd(TestEvent):
 
         # assert router document
         router_doc = self.handler.inv.get_by_id(self.env, self.router_id)
-        self.assertNotEqual(router_doc, [], "router_doc not found.")
+        self.assertIsNotNone(router_doc, msg="router_doc not found.")
         self.assertEqual(ROUTER_DOCUMENT['name'], router_doc['name'])
         self.assertEqual(ROUTER_DOCUMENT['gw_port_id'], router_doc['gw_port_id'])
 
         # assert children documents
         vnics_folder = self.handler.inv.get_by_id(self.env, self.router_id+'-vnics')
-        self.assertNotEqual(vnics_folder, [], "Vnics folder not found.")
+        self.assertIsNotNone(vnics_folder, msg="Vnics folder not found.")
 
     def tearDown(self):
         self.item_ids = [self.network_id, self.host_id, self.network_id+"-ports", self.gw_port_id,
@@ -59,9 +59,9 @@ class TestRouterAdd(TestEvent):
         for item_id in self.item_ids:
             self.handler.inv.delete('inventory', {'id': item_id})
             item = self.handler.inv.get_by_id(self.env, item_id)
-            self.assertEqual(item, [])
+            self.assertIsNone(item)
 
         # delete vnics document
         self.handler.inv.delete('inventory', {'parent_id': self.router_id+'-vnics'})
-        item = self.handler.inv.get_by_field(self.env, 'vnic', 'parent_id', self.router_id+'-vnics')
-        self.assertEqual(item, [])
+        item = self.handler.inv.get_by_field(self.env, 'vnic', 'parent_id', self.router_id+'-vnics', get_single=True)
+        self.assertIsNone(item)

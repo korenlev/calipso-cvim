@@ -25,7 +25,7 @@ ROUTER_DOCUMENT = {
     "environment": ENV_CONFIG,
     "gw_port_id": None,
     "host": "node-6.cisco.com",
-    "id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
+    "id": "node-6.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones/internal" +
                "/node-6.cisco.com/node-6.cisco.com-vservices/node-6.cisco.com-vservices-routers/qrouter-bde87a5a" +
                "-7968-4f3b-952c-e87681a96078",
