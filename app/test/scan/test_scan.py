@@ -27,6 +27,9 @@ class TestScan(unittest.TestCase):
             MonitoringSetupManager(MONGODB_CONFIG, self.env)
         MonitoringSetupManager.create_setup = MagicMock()
 
+    def setUp(self):
+        self.configure_environment()
+
     def test_folder_object(self, scanner, expected_queue):
         scanner.set_env(self.env)
         Scanner.scan_from_queue = MagicMock()
