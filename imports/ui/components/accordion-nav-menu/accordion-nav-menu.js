@@ -25,6 +25,7 @@ import {
   endOpenEnvTreeNode,
   startCloseEnvTreeNode,
   endCloseEnvTreeNode,
+  setEnvChildDetectedTreeNode,
 } from '/imports/ui/actions/environment-panel.actions';
 
 import './accordion-nav-menu.html';
@@ -281,6 +282,8 @@ Template.accordionNavMenu.helpers({
       openState: node.openState,
       node: node.nodeInfo,
       children: node.children,
+      childDetected: node.childDetected,
+      level: node.level,
       onResetChildren: function (nodePath) {
         store.dispatch(resetEnvTreeNodeChildren(R.tail(nodePath)));
       },
@@ -298,6 +301,9 @@ Template.accordionNavMenu.helpers({
       },
       onClosingDone: (nodePath) => {
         store.dispatch(endCloseEnvTreeNode(R.tail(nodePath)));
+      },
+      onChildDetected: (nodePath) => {
+        store.dispatch(setEnvChildDetectedTreeNode(R.tail(nodePath)));
       },
     };
   }

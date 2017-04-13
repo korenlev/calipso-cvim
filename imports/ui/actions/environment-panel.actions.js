@@ -7,6 +7,7 @@ export const START_OPEN_ENV_TREE_NODE = 'START_OPEN_ENV_TREE_NODE';
 export const END_OPEN_ENV_TREE_NODE = 'END_OPEN_ENV_TREE_NODE';
 export const START_CLOSE_ENV_TREE_NODE = 'START_CLOSE_ENV_TREE_NODE';
 export const END_CLOSE_ENV_TREE_NODE = 'END_CLOSE_ENV_TREE_NODE';
+export const SET_ENV_CHILD_DETECTED_TREE_NODE = 'SET_ENV_CHILD_DETECTED_TREE_NODE';
 
 export function setEnvName(envName) {
   return {
@@ -68,6 +69,15 @@ export function endCloseEnvTreeNode(nodePath) {
     type: END_CLOSE_ENV_TREE_NODE,
     payload: {
       nodePath: nodePath,
+    }
+  };
+}
+
+export function setEnvChildDetectedTreeNode(nodePath) {
+  return {
+    type: SET_ENV_CHILD_DETECTED_TREE_NODE,
+    payload: {
+      nodePath: nodePath
     }
   };
 }

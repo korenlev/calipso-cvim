@@ -6,13 +6,15 @@ export const START_OPEN_TREE_NODE = 'START_OPEN_TREE_NODE';
 export const END_OPEN_TREE_NODE = 'END_OPEN_TREE_NODE';
 export const START_CLOSE_TREE_NODE = 'START_CLOSE_TREE_NODE';
 export const END_CLOSE_TREE_NODE = 'END_CLOSE_TREE_NODE';
+export const SET_CHILD_DETECTED_TREE_NODE = 'SET_CHILD_DETECTED_TREE_NODE';
 
-export function addUpdateTreeNode(nodePath, nodeInfo) {
+export function addUpdateTreeNode(nodePath, nodeInfo, level) {
   return {
     type: ADD_UPDATE_TREE_NODE,
     payload: {
       nodePath: nodePath,
       nodeInfo: nodeInfo,
+      level: level
     }
   };
 }
@@ -58,6 +60,15 @@ export function endCloseTreeNode(nodePath) {
     type: END_CLOSE_TREE_NODE,
     payload: {
       nodePath: nodePath,
+    }
+  };
+}
+
+export function setChildDetectedTreeNode(nodePath) {
+  return {
+    type: SET_CHILD_DETECTED_TREE_NODE,
+    payload: {
+      nodePath: nodePath
     }
   };
 }

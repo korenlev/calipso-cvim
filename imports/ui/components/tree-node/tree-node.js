@@ -37,12 +37,15 @@ Template.TreeNode.onCreated(function() {
       openState: { type: String },
       node: { type: Object, blackbox: true },
       children: { type: [Object], blackbox: true },
+      childDetected: { type: Boolean },
+      level: { type: Number },
       onResetChildren: { type: Function },
       onChildRead: { type: Function },
       onStartOpenReq: { type: Function },
       onOpeningDone: { type: Function },
       onStartCloseReq: { type: Function },
       onClosingDone: { type: Function },
+      onChildDetected: { type: Function },
     }).validate(data);
 
     instance.state.set('openState', data.openState);
@@ -90,9 +93,9 @@ Template.TreeNode.onCreated(function() {
       });
     } else {
       instance.data.behavior.subscribeGetFirstChildFn(instance, order.data.node);
+      // todo: let childDetectedSubmited = false;
       instance.data.behavior.getChildrenFn(order.data.node).forEach((_child) => {
-        //instance.data.onChildPresenceDetected([order.data.node._id._str]);
-        // todo
+        instance.data.onChildDetected([order.data.node._id._str]);
       });
     }
   });
@@ -171,6 +174,8 @@ Template.TreeNode.helpers({
       openState: child.openState,
       node: child.nodeInfo,
       children: child.children,
+      childDetected: child.childDetected,
+      level: child.level,
       onChildRead: function (reqPath, nodeInfo) {
         data.onChildRead(R.prepend(node._id._str, reqPath), nodeInfo);
       },
@@ -189,19 +194,37 @@ Template.TreeNode.helpers({
       onClosingDone: (reqPath) => {
         data.onClosingDone(R.prepend(node._id._str, reqPath));
       },
+      onChildDetected: (reqPath) => {
+        data.onChildDetected(R.prepend(node._id._str, reqPath));
+      },
     };
-  },
-
-  hasChildren: function () {
-    //let instance = Template.instance();
-    let data = Template.currentData();
-    return data.children.length > 0;
   },
 
   isOpen: function () {
     let instance = Template.instance();
     return R.equals('opened', instance.state.get('openState'));
-  }
+  },
+
+  calcColor: function (level) {
+    let r = 11;
+    let g = 122;
+    let b = 209;
+    //let a = 1;
+    let factor = level / 15;
+    factor = factor < 0 ? 0 : 1 - factor;
+
+    let nR = Math.floor(r * factor);
+    let nG = Math.floor(g * factor);
+    let nB = Math.floor(b * factor);
+    //let nA = a;
+    let colorStr = R.reduce((acc, colorPart) => { 
+      let digits =  colorPart.toString(16); 
+      if (colorPart < 16) { digits = '0' + digits; }
+      return acc + digits;
+    }, '#', [nR, nG, nB]); 
+    
+    return colorStr;
+  },
 }); // end: helpers
 
 function issueOrder(instance, name, data) {

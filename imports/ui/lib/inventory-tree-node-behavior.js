@@ -6,6 +6,11 @@ export let InventoryTreeNodeBehavior = {
       parent.id, parent.type, parent.name, parent.environment);
   },
 
+  subscribeGetFirstChildFn: function (instance, parent) {
+    instance.subscribe('inventory.first-child', 
+      parent.id, parent.type, parent.name, parent.environment);
+  },
+
   getChildrenFn: function (parent) {
     let query = {
       $or: [{
@@ -17,11 +22,6 @@ export let InventoryTreeNodeBehavior = {
     };
 
     return Inventory.find(query);
-  },
-
-  subscribeGetFirstChildFn: function (instance, parent) {
-    instance.subscribe('inventory.first-child', 
-      parent.id, parent.type, parent.name, parent.environment);
   },
 
   hasChildrenFn: function (parent) {

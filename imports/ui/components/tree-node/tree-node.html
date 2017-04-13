@@ -1,11 +1,11 @@
 <template name="TreeNode">
-<div class="os-tree-node">
+  <div class="os-tree-node" style="background-color: {{ calcColor level }};">
 
   {{#if showDetailsLine }}
   <div class="sm-details-line">
     <div class="sm-node-desc">
       <div class="sm-type-icon">
-        {{#if hasChildren }}
+        {{#if childDetected }}
         <i class="material-icons">class</i>
         {{else }}
         <i class="material-icons">description</i>
@@ -15,6 +15,7 @@
       <div class="sm-node-name">{{ node.name }}</div>
     </div>
 
+    {{#if childDetected }}
     <div class="sm-node-open-button">
       {{#if isOpen }}
       <i class="fa fa-minus" aria-hidden="true"></i>
@@ -22,6 +23,7 @@
       <i class="fa fa-plus" aria-hidden="true"></i>
       {{/if }}
     </div>
+    {{/if }}
   </div>
   {{/if }}
 

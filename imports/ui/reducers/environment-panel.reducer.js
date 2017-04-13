@@ -8,7 +8,8 @@ import {
   startOpenTreeNode,
   endOpenTreeNode,
   startCloseTreeNode,
-  endCloseTreeNode
+  endCloseTreeNode,
+  setChildDetectedTreeNode,
 } 
 from '/imports/ui/actions/tree-node.actions';
 
@@ -25,7 +26,7 @@ export function reducer(state = defaultState, action) {
   case actions.ADD_UPDATE_ENV_TREE_NODE:
     return R.assoc('treeNode',
       treeNode(state.treeNode, 
-        addUpdateTreeNode(action.payload.nodePath, action.payload.nodeInfo)),
+        addUpdateTreeNode(action.payload.nodePath, action.payload.nodeInfo, 0)),
       state);
 
   case actions.RESET_ENV_TREE_NODE_CHILDREN:
@@ -51,9 +52,16 @@ export function reducer(state = defaultState, action) {
       treeNode(state.treeNode, startCloseTreeNode(action.payload.nodePath)),
       state
     );
+
   case actions.END_CLOSE_ENV_TREE_NODE:
     return R.assoc('treeNode',
       treeNode(state.treeNode, endCloseTreeNode(action.payload.nodePath)),
+      state
+    );
+
+  case actions.SET_ENV_CHILD_DETECTED_TREE_NODE:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, setChildDetectedTreeNode(action.payload.nodePath)),
       state
     );
 

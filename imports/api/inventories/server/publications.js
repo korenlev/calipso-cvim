@@ -159,6 +159,7 @@ Meteor.publish('inventory.children', function (id, type, name, env) {
     $or: 
     [
       {
+        environment: env,
         parent_id: id
       }, 
     ]
@@ -173,6 +174,7 @@ Meteor.publish('inventory.children', function (id, type, name, env) {
 
     query = R.merge(query, {
       $or: R.append({
+        environment: env,
         parent_id: realParent.id
       }, query.$or)
     });
@@ -194,6 +196,7 @@ Meteor.publish('inventory.first-child', function (id, type, name, env) {
   var query = {
     $or: [
       {
+        environment: env,
         parent_id: id
       }
     ]
@@ -208,6 +211,7 @@ Meteor.publish('inventory.first-child', function (id, type, name, env) {
 
     query = R.merge(query, {
       $or: R.append({
+        environment: env,
         parent_id: realParent.id
       }, query.$or)
     });
@@ -217,6 +221,7 @@ Meteor.publish('inventory.first-child', function (id, type, name, env) {
   console.log('server subscribing to counter: ' + counterName);
 
 // todo: eyaltask: all criteria
+  console.log('query: ', R.toString(query));
   return Inventory.find(query, { limit: 1 });
 });
 
