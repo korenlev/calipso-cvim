@@ -15,10 +15,12 @@ import { Environments } from '/imports/api/environments/environments';
 
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
-import { setEnvName } from '/imports/ui/actions/environment-panel.actions';
+import { setEnvName, addUpdateEnvTreeNode, startOpenEnvTreeNode } 
+  from '/imports/ui/actions/environment-panel.actions';
+import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
 import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 
-import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+import '/imports/ui/components/accordion-nav-menu/accordion-nav-menu';
 import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
 import '/imports/ui/components/vedge-info-window/vedge-info-window';
 import '/imports/ui/components/env-delete-modal/env-delete-modal';
@@ -56,6 +58,14 @@ Template.Environment.onCreated(function () {
     if (envName !== instance.state.get('envName')) {
       instance.state.set('envName', envName);
       store.dispatch(setEnvName(envName));
+      store.dispatch(addUpdateEnvTreeNode([], {
+        _id: { _str: 'environment-node:' + envName + '-mockid' },
+        id: envName,
+        type: 'environment',
+        name: envName,
+        environment: envName
+      }));
+      store.dispatch(startOpenEnvTreeNode([]));
 
       if (query.graph) {
         let node24IdPath =
@@ -97,6 +107,7 @@ Template.Environment.onCreated(function () {
     instance.subscribe('environments?name', envName);
 
     Environments.find({ name: envName }).forEach((env) => {
+      store.dispatch(setMainAppSelectedEnvironment(env._id, env.name));
       instance.state.set('_id', env._id);
     });
   });
@@ -141,9 +152,10 @@ Template.Environment.helpers({
     return instance.state.get('childNodeRequested');
   },
 
-  createNavMenuArgs: function (childNodeRequested) {
+  argsNavMenu: function (childNodeRequested, envName) {
     let instance = Template.instance();
     return {
+      envName: envName,
       childNodeRequested: childNodeRequested,
       onNodeClick: function (node) {
         if (R.contains(node.type, ['project', 'aggregate', 'region', 'host', 

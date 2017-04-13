@@ -2,7 +2,10 @@
  * Template Component: envForm
  */
 
+import * as R from 'ramda';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Environments } from '/imports/api/environments/environments';
+import { parseReqId } from '/imports/lib/utilities';
 
 import './env-form.html';
 
@@ -12,8 +15,26 @@ import './env-form.html';
 
 Template.envForm.onCreated(function () {
   var instance = this;
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    selectedEnv: null
+  });
+
 
   instance.autorun(function() {
+    let data = R.when(R.isNil, R.always({}), Template.currentData());
+
+    new SimpleSchema({
+      selectedEnvironment: {
+        type: Object,
+        blackbox: true,
+        optional: true
+      },
+      onEnvSelected: { type: Function }
+    }).validate(data);
+
+    instance.state.set('selectedEnv', data.selectedEnvironment);
+
     instance.subscribe('environments_config');
   });
 });
@@ -23,29 +44,23 @@ Template.envForm.onCreated(function () {
  */  
 
 Template.envForm.events = {
-    // "change #envList": function(event,template){
-    //     //console.log(event.target.value);
-    //     //Session.set("currEnv",event.target.value);
-    //     event.preventDefault();
-    //     menuTree.init();
-    //     Router.go('home',{_id:1},{query: 'env='+event.target.value});
-    //     Meteor.setTimeout( function(){
-    //         window.location.reload();
-    //     },100);
+  'click .os-env-form-dropdown-menu .sm-env-item': function (event, _instance) {
+    event.preventDefault();
 
+    let envName = R.path(['target','dataset', 'envName'], event);
+    let _id = R.path(['target', 'dataset', 'envId'], event);
 
-    //     //Router.go('/home?'+'env='+event.target.value);
-    //     //window.location.reload();
-    //     //$( '#menu' ).multilevelpushmenu( 'redraw' );
-    //     //menuTree.init();
-    // },
+    if (R.isNil(envName)) { return; }
+    _id = parseReqId(_id);
 
-    //"click .envList": function(event,template){
-        //event.preventDefault();
-        //menuTree.init();
-        //Router.go('enviroment',{_id:1},{query: 'env='+event.target.innerText});
-
-    //},
+    let data = Template.currentData();
+    if (data.onEnvSelected) {
+      data.onEnvSelected({
+        _id: _id.id,
+        name: envName
+      });
+    }
+  }
 };
 
 /*
@@ -53,14 +68,19 @@ Template.envForm.events = {
  */   
 
 Template.envForm.helpers({
-  envName: function () {
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName') || 'My Environments';
+  selectedEnvName: function () {
+    let instance = Template.instance();
+    let selectedEnv = instance.state.get('selectedEnv');
+
+    let envName = R.when(
+      R.isNil, 
+      R.always('My Environments')
+    )(R.path(['name'], selectedEnv));
 
     return envName;
   },
+
   envList: function () {
-    //return Environments.find({type:"environment"});
     return Environments.find({});
   },
 });

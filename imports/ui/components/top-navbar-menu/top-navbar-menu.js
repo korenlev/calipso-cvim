@@ -11,7 +11,6 @@ import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
 
-
 import '/imports/ui/components/search-auto-complete-list/search-auto-complete-list';
 import '/imports/ui/components/get-started/get-started';
 import '/imports/ui/components/env-form/env-form';
@@ -29,8 +28,21 @@ Template.TopNavbarMenu.onCreated(function () {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    isAutoCompleteOpen: false
+    isAutoCompleteOpen: false,
+    selectedEnvironment: null
   });
+
+  instance.storeUnsubscribe = store.subscribe(() => {
+    let state = store.getState();
+
+    let selectedEnvironment = state.components.mainApp.selectedEnvironment;
+    instance.state.set('selectedEnvironment', selectedEnvironment);
+  });
+});
+
+Template.TopNavbarMenu.onDestroyed(function () {
+  let instance = this;
+  instance.storeUnsubscribe();
 });
 
 Template.TopNavbarMenu.events = {
@@ -92,25 +104,17 @@ Template.TopNavbarMenu.helpers({
       }
     };
   },
-});
 
-/*
-function showNodeEffectInTree(searchValue) {
-  //var selectedVal = $('#search').val();
-  var node = d3Graph.svg.selectAll('.node');
-  if (searchValue == 'none') {
-    node.style('stroke', 'white').style('stroke-width', '1');
-  } else {
-    var selected = node.filter(function (d) {
-      return d.object_name.indexOf(searchValue)<0;
-      //return d.name != searchValue;
-    });
-    selected.style('opacity', '0');
-    var link = d3Graph.svg.selectAll('.link');
-    link.style('opacity', '0');
-    d3.selectAll('.node, .link').transition()
-        .duration(5000)
-        .style('opacity', 1);
+  argsEnvForm: function () {
+    let instance = Template.instance();
+    let selectedEnvironment = instance.state.get('selectedEnvironment');
+
+    return {
+      selectedEnvironment: selectedEnvironment,
+      onEnvSelected: function (env) {
+        Router.go('enviroment', {}, { query: `env=${ env.name }` });
+      }
+    };
   }
-}
-*/
+
+}); // end: helpers

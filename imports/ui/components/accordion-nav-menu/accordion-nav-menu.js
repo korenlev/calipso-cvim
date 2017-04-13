@@ -9,28 +9,55 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 //import { Tracker } from 'meteor/tracker';
 //import { Session } from 'meteor/session';
+import { InventoryTreeNodeBehavior } from '/imports/ui/lib/inventory-tree-node-behavior';
+//import { Inventory } from '/imports/api/inventories/inventories';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import '/imports/ui/components/tree-node/tree-node';
 import '/imports/ui/components/accordionTreeNode/accordionTreeNode';
 import '/imports/ui/components/d3graph/d3graph';
 
-import { store } from '/imports/ui/store/store';
-import { setCurrentNodeFromTreeControl } from '/imports/ui/actions/navigation';
+import { store } from '/imports/ui/store/store'; import { setCurrentNodeFromTreeControl } from '/imports/ui/actions/navigation';
+import { 
+  resetEnvTreeNodeChildren, 
+  addUpdateEnvTreeNode,
+  startOpenEnvTreeNode,
+  endOpenEnvTreeNode,
+  startCloseEnvTreeNode,
+  endCloseEnvTreeNode,
+} from '/imports/ui/actions/environment-panel.actions';
 
-import './accordionNavMenu.html';
+import './accordion-nav-menu.html';
 
 Template.accordionNavMenu.onCreated(function () {
   let instance = this;
 
   instance.state = new ReactiveDict();
   instance.state.setDefault ({
-    selectedNode: null
+    selectedNode: null,
+    rootNode: null,
+    mainNode: null
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
-    let envName = controller.state.get('envName');
+    let data = Template.currentData();
 
-    instance.subscribe('inventory?id', envName);
+    new SimpleSchema({
+      envName: { type: String },
+      childNodeRequested: { type: Object, blackbox: true, optional: true },
+      onNodeClick: { type: Function },
+      onToggleGraphReq: { type: Function }
+    }).validate(data);
+
+    instance.subscribe('inventory?id', data.envName);
+
+    let rootNode = {
+      id: data.envName,
+      type: 'environment',
+      name: data.envName,
+      environment: data.envName
+    };
+    instance.state.set('rootNode', rootNode);
   });
 
   instance.storeUnsubscribe = store.subscribe(() => {
@@ -41,6 +68,9 @@ Template.accordionNavMenu.onCreated(function () {
       selectedNode = R.slice(1, Infinity, nodeChain);
     }
     instance.state.set('selectedNode', selectedNode);
+
+    let mainNode = store.getState().components.environmentPanel.treeNode;
+    instance.state.set('mainNode', mainNode);
   });
 
   let selectedNode = null;
@@ -215,25 +245,14 @@ Template.accordionNavMenu.events({
  */
 
 Template.accordionNavMenu.helpers({
-  envName: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    return envName;
+  rootNode: function () {
+    let instance = Template.instance();
+    return instance.state.get('rootNode');
   },
 
-  rootNode: function () {
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-
-    if (R.isNil(envName)) { return null; }
-
-    return {
-      id: envName,
-      type: 'environment',
-      name: envName,
-      environment: envName
-    };
-    //return Inventory.findOne({ id: envName });
+  mainNode: function () {
+    let instance = Template.instance();
+    return instance.state.get('mainNode');
   },
 
   createNodeArgs: function (node) {
@@ -250,33 +269,36 @@ Template.accordionNavMenu.helpers({
         onNodeClick(childNode);
         },
     };
+  },
+
+  argsTreeNode: function (node) {
+    //let instance = Template.instance();
+    //let treeNode = store.getState().components.environmentPanel.treeNode;
+
+    return {
+      behavior: InventoryTreeNodeBehavior,
+      showDetailsLine: false,
+      openState: node.openState,
+      node: node.nodeInfo,
+      children: node.children,
+      onResetChildren: function (nodePath) {
+        store.dispatch(resetEnvTreeNodeChildren(R.tail(nodePath)));
+      },
+      onChildRead: function (nodePath, childNode) {
+        store.dispatch(addUpdateEnvTreeNode(R.tail(nodePath), childNode));
+      },
+      onStartOpenReq: (nodePath) => {
+        store.dispatch(startOpenEnvTreeNode(R.tail(nodePath)));
+      },
+      onOpeningDone: (nodePath) => {
+        store.dispatch(endOpenEnvTreeNode(R.tail(nodePath)));
+      },
+      onStartCloseReq: (nodePath) => {
+        store.dispatch(startCloseEnvTreeNode(R.tail(nodePath)));
+      },
+      onClosingDone: (nodePath) => {
+        store.dispatch(endCloseEnvTreeNode(R.tail(nodePath)));
+      },
+    };
   }
 });
-
-// refactored to accordionTreeNode
-/*
-Template.accordionNavMenuTreeNodeTemplate.helpers({
-  hasClique: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    if(Inventory.find({parent_id: this.id, parent_type:this.type,environment: envName,clique:true,show_in_tree:true}).count() > 0){
-      console.log("clique=True");
-      return "true";
-    }
-    else{
-      return "false";
-    }
-
-  },
-  hasChildren: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    return Inventory.find({parent_id: this.id, parent_type:this.type,environment: envName,show_in_tree:true}).count() > 0;
-  },
-  children: function(){
-    var controller = Iron.controller();
-    var envName = controller.state.get('envName');
-    return Inventory.find({parent_id: this.id ,parent_type:this.type,environment: envName,show_in_tree:true});
-  }
-});
-*/

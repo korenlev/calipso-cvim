@@ -16,6 +16,7 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
         
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
+import '/imports/ui/components/list-info-box/list-info-box';
 import './environment-dashboard.html';     
     
 /*  

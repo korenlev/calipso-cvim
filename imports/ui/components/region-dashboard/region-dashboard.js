@@ -13,7 +13,7 @@ import { regexEscape } from '/imports/lib/regex-utils';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 //import { setCurrentNode } from '/imports/ui/actions/navigation';
 
-import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+import '/imports/ui/components/accordion-nav-menu/accordion-nav-menu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/list-info-box/list-info-box';
         

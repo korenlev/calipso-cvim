@@ -12,7 +12,7 @@ import * as R from 'ramda';
 import { store } from '/imports/ui/store/store';
 import { Icon } from '/imports/lib/icon';
         
-import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+//import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/list-info-box/list-info-box';
 

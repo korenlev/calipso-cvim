@@ -14,7 +14,8 @@ import { store } from '/imports/ui/store/store';
 import { Icon } from '/imports/lib/icon';
 import { regexEscape } from '/imports/lib/regex-utils';
         
-import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
+import '/imports/ui/components/accordion-nav-menu/accordion-nav-menu';
+
 import '/imports/ui/components/network-info-box/network-info-box';
 import '/imports/ui/components/event-modals/event-modals';
 

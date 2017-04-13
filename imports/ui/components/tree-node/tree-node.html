@@ -1,0 +1,34 @@
+<template name="TreeNode">
+<div class="os-tree-node">
+
+  {{#if showDetailsLine }}
+  <div class="sm-details-line">
+    <div class="sm-node-desc">
+      <div class="sm-type-icon">
+        {{#if hasChildren }}
+        <i class="material-icons">class</i>
+        {{else }}
+        <i class="material-icons">description</i>
+        {{/if }}
+      </div>
+      <div class="sm-space-a"></div>
+      <div class="sm-node-name">{{ node.name }}</div>
+    </div>
+
+    <div class="sm-node-open-button">
+      {{#if isOpen }}
+      <i class="fa fa-minus" aria-hidden="true"></i>
+      {{else }}
+      <i class="fa fa-plus" aria-hidden="true"></i>
+      {{/if }}
+    </div>
+  </div>
+  {{/if }}
+
+  <div class="sm-children-list {{#if isOpen }} cl-opened {{else }} cl-closed {{/if }}">
+    {{#each child in children }}
+      {{>TreeNode (argsChild child node) }}
+    {{/each }}
+  </div>
+</div>
+</template>

@@ -3,7 +3,7 @@
     <div id="left-nav-menu" class="left-nav-menu">
       <div class="menu-header">
         <p>
-            {{envName}}
+            {{ envName }}
         </p>
         <a href="#"><i class="material-icons">menu</i></a>
       </div>
@@ -11,6 +11,12 @@
         <li><a class="sm-toggle-graph-button toggleGraph" href="#"><i class="material-icons">share</i>Toggle Graph</a></li>
         <li><a href="{{ pathFor route='enviroment' query='env=' }}{{ envName  }}&resetDashboard=true"
             ><i class="material-icons">home</i>Dashboard</a></li>
+
+        {{#if mainNode }}
+        <div class="sm-inventory-tree">
+          {{>TreeNode (argsTreeNode mainNode) }}
+        </div>
+        {{/if }}
 
         {{#if rootNode }}
           {{>accordionTreeNode (createNodeArgs rootNode)}}

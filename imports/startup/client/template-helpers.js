@@ -1,12 +1,8 @@
-import * as R from 'ramda';
+//import * as R from 'ramda';
+import * as utils from '/imports/lib/utilities';
 
 Template.registerHelper('asHash', function (params) {
   return params.hash;
 });
 
-Template.registerHelper('idToStr', function (orgId) {
-  return R.ifElse(R.is(Mongo.ObjectID),
-    function (id) { return id.toHexString() + ':' + 'objectid'; },
-    R.identity
-  )(orgId); 
-});
+Template.registerHelper('idToStr', utils.idToStr);
