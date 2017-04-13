@@ -69,7 +69,8 @@ class TestScanProjectsRoot(TestScan):
         queue = scanner.scan_queue_track
         expected_saves = len(self.API_PROJECTS_RESULT)
         self.assertEqual(len(queue.keys()), expected_saves,
-                         'expected 1 result from ScanRegionsRoot')
+                         'expected {} result from ScanRegionsRoot'.
+                         format(expected_saves))
         self.assertListEqual(list(queue.keys()), [
             'project;9bb12590b58d4c729871dc0c41c5a0f3',
             'project;329e0576da594c62a911d0dccb1238a7',
