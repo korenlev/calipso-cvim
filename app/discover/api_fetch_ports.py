@@ -7,7 +7,7 @@ class ApiFetchPorts(ApiAccess):
         super(ApiFetchPorts, self).__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id):
+    def get(self, project_id):
         # use project admin credentials, to be able to fetch all ports
         token = self.v2_auth_pwd(self.admin_project)
         if not token:
