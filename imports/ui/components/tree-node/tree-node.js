@@ -88,6 +88,9 @@ Template.TreeNode.onCreated(function() {
       instance.data.behavior.subscribeGetChildrenFn(instance, order.data.node);
 
       instance.data.behavior.getChildrenFn(order.data.node).forEach((child) => {
+        // todo: aggregate the collection into threshold and then dispatch. 
+        // debounce/throttle
+        // https://lodash.com/docs#debounce
         instance.data.onChildRead(
           [order.data.node._id._str, child._id._str], child);
       });
