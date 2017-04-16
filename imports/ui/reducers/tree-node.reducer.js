@@ -4,6 +4,7 @@ import * as R from 'ramda';
 import * as actions from '/imports/ui/actions/tree-node.actions';
 
 const defaultState = {
+  _id: null,
   nodeInfo: {},
   openState: 'closed', // opened, start_close, closed, start_open
   children: [],
@@ -14,50 +15,46 @@ const defaultState = {
 export function reducer(state = defaultState, action) {
   let nodeId;
   let rest;
-  let child;
-  let index;
+  //let child;
+  //let index;
 
   if (R.isNil(action)) { return defaultState; }
 
   switch (action.type) {
 
-  case actions.ADD_UPDATE_TREE_NODE:
+  case actions.UPDATE_TREE_NODE_INFO:
+    return R.merge(state, {
+      _id: action.payload.nodeInfo._id._str,
+      nodeInfo: action.payload.nodeInfo,
+      level: action.payload.level
+    });
+
+  case actions.ADD_UPDATE_CHILDREN_TREE_NODE:
     nodeId = R.head(action.payload.nodePath);
     rest = R.tail(action.payload.nodePath);
 
     if (R.isNil(nodeId)) {
+      let actionChildren = R.map((childInfo) => {
+        let existingChild = R.find(
+          R.pathEq(['nodeInfo', '_id', '_str'], childInfo._id._str), state.children);
+
+        return reducer(existingChild,  
+            actions.updateTreeNodeInfo(childInfo, action.payload.level + 1));
+      }, action.payload.childrenInfo);
+
+      let allChildren = R.unionWith(R.eqBy(R.path(['nodeInfo', '_id', '_str'])), 
+        actionChildren, state.children);
+
       return R.merge(state, {
-        nodeInfo: action.payload.nodeInfo,
-        level: action.payload.level
+        children: allChildren,
+        childDetected: R.length(allChildren) > 0
       });
     }
 
-    index = R.findIndex(R.propEq('id', nodeId), state.children);
-    // todo: relie on below dispatch to update child after adition.  
-    if (index < 0) {
-      return R.merge(state, {
-        children:
-          R.append(
-            R.merge(reducer(), { 
-              id: nodeId, 
-              nodeInfo: action.payload.nodeInfo,
-              level: action.payload.level + 1
-            }),
-            state.children
-          ),
-        childDetected: true,
-      });
-    }
-
-    child = state.children[index];
-    return R.merge(state, {
-      children:
-        R.update(index,
-          reducer(child, actions.addUpdateTreeNode(
-            rest, action.payload.nodeInfo, action.payload.level + 1)),
-          state.children),
-      childDetected: true
-    });
+    return reduceActionOnChild(state, 
+      actions.addUpdateChildrenTreeNode(
+        rest, action.payload.childrenInfo, action.payload.level + 1), 
+      nodeId);
 
   case actions.RESET_TREE_NODE_CHILDREN:
     nodeId = R.head(action.payload.nodePath);
@@ -128,7 +125,8 @@ export function reducer(state = defaultState, action) {
 }
 
 function reduceActionOnChild(state, action, nodeId) {
-  let index = R.findIndex(R.propEq('id', nodeId), state.children);
+  let index = R.findIndex(R.pathEq(['nodeInfo', '_id', '_str'], nodeId), state.children);
+  if (index < 0) throw 'error in reduce action on child';
   let child = state.children[index];
 
   return R.assoc('children',

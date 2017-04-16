@@ -3,7 +3,8 @@ import * as R from 'ramda';
 import * as actions from '/imports/ui/actions/environment-panel.actions';
 import { reducer as treeNode } from './tree-node.reducer';
 import { 
-  addUpdateTreeNode, 
+  updateTreeNodeInfo,
+  addUpdateChildrenTreeNode, 
   resetTreeNodeChildren, 
   startOpenTreeNode,
   endOpenTreeNode,
@@ -23,10 +24,16 @@ export function reducer(state = defaultState, action) {
   case actions.SET_ENV_NAME:
     return R.assoc('envName', action.payload.envName, state);
 
-  case actions.ADD_UPDATE_ENV_TREE_NODE:
+  case actions.UPDATE_ENV_TREE_NODE:
     return R.assoc('treeNode',
       treeNode(state.treeNode, 
-        addUpdateTreeNode(action.payload.nodePath, action.payload.nodeInfo, 0)),
+        updateTreeNodeInfo(action.payload.nodeInfo, 0)),
+      state);
+
+  case actions.ADD_UPDATE_CHILDREN_ENV_TREE_NODE:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, 
+        addUpdateChildrenTreeNode(action.payload.nodePath, action.payload.childrenInfo, 0)),
       state);
 
   case actions.RESET_ENV_TREE_NODE_CHILDREN:

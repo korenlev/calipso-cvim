@@ -1,6 +1,7 @@
 //import * as R from 'ramda';
 
-export const ADD_UPDATE_TREE_NODE = 'ADD_UPDATE_TREE_NODE';
+export const UPDATE_TREE_NODE_INFO = 'UPDATE_TREE_NODE_INFO';
+export const ADD_UPDATE_CHILDREN_TREE_NODE = 'ADD_UPDATE_CHILDREN_TREE_NODE';
 export const RESET_TREE_NODE_CHILDREN = 'RESET_TREE_NODE_CHILDREN';
 export const START_OPEN_TREE_NODE = 'START_OPEN_TREE_NODE';
 export const END_OPEN_TREE_NODE = 'END_OPEN_TREE_NODE';
@@ -8,14 +9,24 @@ export const START_CLOSE_TREE_NODE = 'START_CLOSE_TREE_NODE';
 export const END_CLOSE_TREE_NODE = 'END_CLOSE_TREE_NODE';
 export const SET_CHILD_DETECTED_TREE_NODE = 'SET_CHILD_DETECTED_TREE_NODE';
 
-export function addUpdateTreeNode(nodePath, nodeInfo, level) {
+export function updateTreeNodeInfo(nodeInfo, level) {
   return {
-    type: ADD_UPDATE_TREE_NODE,
+    type: UPDATE_TREE_NODE_INFO,
     payload: {
-      nodePath: nodePath,
       nodeInfo: nodeInfo,
       level: level
     }
+  };
+}
+
+export function addUpdateChildrenTreeNode(nodePath, childrenInfo, level) {
+  return {
+    type: ADD_UPDATE_CHILDREN_TREE_NODE,
+    payload: {
+      nodePath: nodePath,
+      childrenInfo: childrenInfo,
+      level: level
+    },
   };
 }
 

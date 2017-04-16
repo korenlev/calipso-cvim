@@ -8,6 +8,7 @@ import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { InventoryTreeNodeBehavior } from '/imports/ui/lib/inventory-tree-node-behavior';
 import * as R from 'ramda';
+import { calcColorMem } from '/imports/lib/utilities';
 
 import './tree-node.html';
 
@@ -25,8 +26,15 @@ Template.TreeNode.onCreated(function() {
     needOpenCloseAnimation: { counter: 0, data: { type: 'opening', node: null } },
   });
 
+  //console.log('tree-node - on create', R.path(['data', 'node', '_id', '_str'], instance));
+
+  //let oldData = null;
+
+  createAttachedFns(instance);
+
   instance.autorun(function () {
     let data = Template.currentData();
+    //let data = instance.data;
 
     new SimpleSchema({
       behavior: {
@@ -41,6 +49,7 @@ Template.TreeNode.onCreated(function() {
       level: { type: Number },
       onResetChildren: { type: Function },
       onChildRead: { type: Function },
+      onChildrenRead: { type: Function },
       onStartOpenReq: { type: Function },
       onOpeningDone: { type: Function },
       onStartCloseReq: { type: Function },
@@ -50,6 +59,24 @@ Template.TreeNode.onCreated(function() {
 
     instance.state.set('openState', data.openState);
     instance.state.set('node', data.node);
+
+    //console.log('tree-node - main autorun - ' + data.node._id._str);
+
+    /*
+    R.forEach((keyName) => {
+      if (R.isNil(oldData)) { return; }
+
+      if (! R.equals(R.prop(keyName, data), R.prop(keyName, oldData)) ) {
+        console.log('tree-node - main autorun - prop change: ' + keyName);
+          //R.path([keyName], data), R.path([keyName], oldData));
+      }
+    }, R.keys(data));
+
+    if (oldData !== data) { console.log('tree-node - main autorn - data ob change'); }
+
+    oldData = data;
+    */
+
   });
 
   instance.autorun(function () {
@@ -87,12 +114,22 @@ Template.TreeNode.onCreated(function() {
     if (order.data.forOpen) {
       instance.data.behavior.subscribeGetChildrenFn(instance, order.data.node);
 
+      let children = [];
+      let onChildReadThrottle = _.throttle(() => {
+        instance.data.onChildrenRead([ order.data.node._id._str ], children);
+        children = [];
+      }, 100);
+
       instance.data.behavior.getChildrenFn(order.data.node).forEach((child) => {
         // todo: aggregate the collection into threshold and then dispatch. 
         // debounce/throttle
         // https://lodash.com/docs#debounce
-        instance.data.onChildRead(
-          [order.data.node._id._str, child._id._str], child);
+        
+        //instance.data.onChildRead(
+        //  [order.data.node._id._str, child._id._str], child);
+
+        children = R.append(child, children);
+        onChildReadThrottle();
       });
     } else {
       instance.data.behavior.subscribeGetFirstChildFn(instance, order.data.node);
@@ -167,9 +204,9 @@ Template.TreeNode.events({
  */
 
 Template.TreeNode.helpers({
-  argsChild: function (child, node) {
-    //let instance = Template.instance();
-    let data = Template.currentData();
+  argsChild: function (child, _node) {
+    let instance = Template.instance();
+    //let data = Template.currentData();
 
     return {
       behavior: InventoryTreeNodeBehavior,
@@ -179,27 +216,14 @@ Template.TreeNode.helpers({
       children: child.children,
       childDetected: child.childDetected,
       level: child.level,
-      onChildRead: function (reqPath, nodeInfo) {
-        data.onChildRead(R.prepend(node._id._str, reqPath), nodeInfo);
-      },
-      onResetChildren: function (reqPath) {
-        data.onResetChildren(R.prepend(node._id._str, reqPath));
-      },
-      onStartOpenReq: (reqPath) => {
-        data.onStartOpenReq(R.prepend(node._id._str, reqPath));
-      },
-      onOpeningDone: (reqPath) => {
-        data.onOpeningDone(R.prepend(node._id._str, reqPath));
-      },
-      onStartCloseReq: (reqPath) => {
-        data.onStartCloseReq(R.prepend(node._id._str, reqPath));
-      },
-      onClosingDone: (reqPath) => {
-        data.onClosingDone(R.prepend(node._id._str, reqPath));
-      },
-      onChildDetected: (reqPath) => {
-        data.onChildDetected(R.prepend(node._id._str, reqPath));
-      },
+      onChildRead: instance._fns.onChildRead,
+      onChildrenRead: instance._fns.onChildrenRead,
+      onResetChildren: instance._fns.onResetChildren,
+      onStartOpenReq: instance._fns.onStartOpenReq,
+      onOpeningDone: instance._fns.onOpeningDone,
+      onStartCloseReq: instance._fns.onStartCloseReq,
+      onClosingDone: instance._fns.onClosingDone,
+      onChildDetected: instance._fns.onChildDetected
     };
   },
 
@@ -209,24 +233,7 @@ Template.TreeNode.helpers({
   },
 
   calcColor: function (level) {
-    let r = 11;
-    let g = 122;
-    let b = 209;
-    //let a = 1;
-    let factor = level / 15;
-    factor = factor < 0 ? 0 : 1 - factor;
-
-    let nR = Math.floor(r * factor);
-    let nG = Math.floor(g * factor);
-    let nB = Math.floor(b * factor);
-    //let nA = a;
-    let colorStr = R.reduce((acc, colorPart) => { 
-      let digits =  colorPart.toString(16); 
-      if (colorPart < 16) { digits = '0' + digits; }
-      return acc + digits;
-    }, '#', [nR, nG, nB]); 
-    
-    return colorStr;
+    return calcColorMem(level);
   },
 }); // end: helpers
 
@@ -238,4 +245,42 @@ function issueOrder(instance, name, data) {
   });
   
   instance.state.set(name, val);
+}
+
+function createAttachedFns(instance) {
+
+  instance._fns = {
+    onChildRead: function (reqPath, nodeInfo) {
+      instance.data.onChildRead(
+        R.prepend(instance.data.node._id._str, reqPath), nodeInfo);
+    },
+    onChildrenRead: function (reqPath, childrenInfo) {
+      instance.data.onChildrenRead(
+        R.prepend(instance.data.node._id._str, reqPath), childrenInfo);
+    },
+    onResetChildren: function (reqPath) {
+      instance.data.onResetChildren(
+        R.prepend(instance.data.node._id._str, reqPath));
+    },
+    onStartOpenReq: (reqPath) => {
+      instance.data.onStartOpenReq(
+        R.prepend(instance.data.node._id._str, reqPath));
+    },
+    onOpeningDone: (reqPath) => {
+      instance.data.onOpeningDone(
+        R.prepend(instance.data.node._id._str, reqPath));
+    },
+    onStartCloseReq: (reqPath) => {
+      instance.data.onStartCloseReq(
+        R.prepend(instance.data.node._id._str, reqPath));
+    },
+    onClosingDone: (reqPath) => {
+      instance.data.onClosingDone(
+        R.prepend(instance.data.node._id._str, reqPath));
+    },
+    onChildDetected: (reqPath) => {
+      instance.data.onChildDetected(
+        R.prepend(instance.data.node._id._str, reqPath));
+    },
+  };
 }

@@ -21,6 +21,7 @@ import { store } from '/imports/ui/store/store'; import { setCurrentNodeFromTree
 import { 
   resetEnvTreeNodeChildren, 
   addUpdateEnvTreeNode,
+  addUpdateChildrenEnvTreeNode,
   startOpenEnvTreeNode,
   endOpenEnvTreeNode,
   startCloseEnvTreeNode,
@@ -39,6 +40,8 @@ Template.accordionNavMenu.onCreated(function () {
     rootNode: null,
     mainNode: null
   });
+
+  createAttachedFns(instance);
 
   instance.autorun(function () {
     let data = Template.currentData();
@@ -273,7 +276,7 @@ Template.accordionNavMenu.helpers({
   },
 
   argsTreeNode: function (node) {
-    //let instance = Template.instance();
+    let instance = Template.instance();
     //let treeNode = store.getState().components.environmentPanel.treeNode;
 
     return {
@@ -284,27 +287,44 @@ Template.accordionNavMenu.helpers({
       children: node.children,
       childDetected: node.childDetected,
       level: node.level,
-      onResetChildren: function (nodePath) {
-        store.dispatch(resetEnvTreeNodeChildren(R.tail(nodePath)));
-      },
-      onChildRead: function (nodePath, childNode) {
-        store.dispatch(addUpdateEnvTreeNode(R.tail(nodePath), childNode));
-      },
-      onStartOpenReq: (nodePath) => {
-        store.dispatch(startOpenEnvTreeNode(R.tail(nodePath)));
-      },
-      onOpeningDone: (nodePath) => {
-        store.dispatch(endOpenEnvTreeNode(R.tail(nodePath)));
-      },
-      onStartCloseReq: (nodePath) => {
-        store.dispatch(startCloseEnvTreeNode(R.tail(nodePath)));
-      },
-      onClosingDone: (nodePath) => {
-        store.dispatch(endCloseEnvTreeNode(R.tail(nodePath)));
-      },
-      onChildDetected: (nodePath) => {
-        store.dispatch(setEnvChildDetectedTreeNode(R.tail(nodePath)));
-      },
+      onResetChildren: instance._fns.onResetChildren,
+      onChildRead: instance._fns.onChildRead,
+      onChildrenRead: instance._fns.onChildrenRead,
+      onStartOpenReq: instance._fns.onStartOpenReq,
+      onOpeningDone: instance._fns.onOpeningDone,
+      onStartCloseReq: instance._fns.onStartCloseReq, 
+      onClosingDone: instance._fns.onClosingDone,
+      onChildDetected: instance._fns.onChildDetected
     };
   }
 });
+
+function createAttachedFns(instance) {
+
+  instance._fns = {
+    onResetChildren: function (nodePath) {
+      store.dispatch(resetEnvTreeNodeChildren(R.tail(nodePath)));
+    },
+    onChildRead: function (nodePath, childNode) {
+      store.dispatch(addUpdateEnvTreeNode(R.tail(nodePath), childNode));
+    },
+    onChildrenRead: function (nodePath, childrenInfo) {
+      store.dispatch(addUpdateChildrenEnvTreeNode(R.tail(nodePath), childrenInfo));
+    },
+    onStartOpenReq: (nodePath) => {
+      store.dispatch(startOpenEnvTreeNode(R.tail(nodePath)));
+    },
+    onOpeningDone: (nodePath) => {
+      store.dispatch(endOpenEnvTreeNode(R.tail(nodePath)));
+    },
+    onStartCloseReq: (nodePath) => {
+      store.dispatch(startCloseEnvTreeNode(R.tail(nodePath)));
+    },
+    onClosingDone: (nodePath) => {
+      store.dispatch(endCloseEnvTreeNode(R.tail(nodePath)));
+    },
+    onChildDetected: (nodePath) => {
+      store.dispatch(setEnvChildDetectedTreeNode(R.tail(nodePath)));
+    },
+  };
+}

@@ -15,7 +15,7 @@ import { Environments } from '/imports/api/environments/environments';
 
 import { store } from '/imports/ui/store/store';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
-import { setEnvName, addUpdateEnvTreeNode, startOpenEnvTreeNode } 
+import { setEnvName, updateEnvTreeNode, startOpenEnvTreeNode } 
   from '/imports/ui/actions/environment-panel.actions';
 import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
 import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
@@ -58,7 +58,7 @@ Template.Environment.onCreated(function () {
     if (envName !== instance.state.get('envName')) {
       instance.state.set('envName', envName);
       store.dispatch(setEnvName(envName));
-      store.dispatch(addUpdateEnvTreeNode([], {
+      store.dispatch(updateEnvTreeNode({
         _id: { _str: 'environment-node:' + envName + '-mockid' },
         id: envName,
         type: 'environment',

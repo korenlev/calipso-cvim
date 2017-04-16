@@ -1,7 +1,8 @@
 //import * as R from 'ramda';
 
 export const SET_ENV_NAME = 'SET_ENV_NAME';
-export const ADD_UPDATE_ENV_TREE_NODE = 'ADD_UPDATE_ENV_TREE_NODE';
+export const UPDATE_ENV_TREE_NODE = 'UPDATE_ENV_TREE_NODE';
+export const ADD_UPDATE_CHILDREN_ENV_TREE_NODE = 'ADD_UPDATE_CHILDREN_ENV_TREE_NODE';
 export const RESET_ENV_TREE_NODE_CHILDREN = 'RESET_ENV_TREE_NODE_CHILDREN';
 export const START_OPEN_ENV_TREE_NODE = 'START_OPEN_ENV_TREE_NODE';
 export const END_OPEN_ENV_TREE_NODE = 'END_OPEN_ENV_TREE_NODE';
@@ -18,13 +19,22 @@ export function setEnvName(envName) {
   };
 }
 
-export function addUpdateEnvTreeNode(nodePath, nodeInfo) {
+export function updateEnvTreeNode(nodeInfo) {
   return {
-    type: ADD_UPDATE_ENV_TREE_NODE,
+    type: UPDATE_ENV_TREE_NODE,
     payload: {
-      nodePath: nodePath,
       nodeInfo: nodeInfo
     }
+  };
+}
+
+export function addUpdateChildrenEnvTreeNode(nodePath, childrenInfo) {
+  return {
+    type: ADD_UPDATE_CHILDREN_ENV_TREE_NODE,
+    payload: {
+      nodePath: nodePath,
+      childrenInfo: childrenInfo
+    },
   };
 }
 

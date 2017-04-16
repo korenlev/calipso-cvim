@@ -21,3 +21,26 @@ export function parseReqId(pId) {
     };
   }
 }
+
+function calcColor(level) {
+  let r = 11;
+  let g = 122;
+  let b = 209;
+  //let a = 1;
+  let factor = level / 15;
+  factor = factor < 0 ? 0 : 1 - factor;
+
+  let nR = Math.floor(r * factor);
+  let nG = Math.floor(g * factor);
+  let nB = Math.floor(b * factor);
+  //let nA = a;
+  let colorStr = R.reduce((acc, colorPart) => { 
+    let digits =  colorPart.toString(16); 
+    if (colorPart < 16) { digits = '0' + digits; }
+    return acc + digits;
+  }, '#', [nR, nG, nB]); 
+  
+  return colorStr;
+}
+
+export let calcColorMem = R.memoize(calcColor);
