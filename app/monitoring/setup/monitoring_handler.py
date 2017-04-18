@@ -246,7 +246,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.move_setup_files_to_remote_host(host, local_dir)
             # restart the Sensu client on the remote host,
             # so it takes the new setup
-            self.run('sudo /etc/init.d/sensu-service client restart',
+            self.run('sudo /etc/init.d/sensu-client restart',
                      ssh_to_host=host)
 
     def run_cmd_locally(self, cmd):
