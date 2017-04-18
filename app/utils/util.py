@@ -80,3 +80,11 @@ def setup_args(args: dict,
                 raise TypeError("Wrong arguments format")
 
     return dict(defaults, **args)
+
+
+def encode_router_id(host_id: str, uuid: str):
+    return '-'.join([host_id, 'qrouter', uuid])
+
+
+def decode_router_id(router_id: str):
+    return router_id.split('qrouter-')[-1]

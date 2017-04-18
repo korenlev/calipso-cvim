@@ -6,6 +6,7 @@ from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
+from utils.util import decode_router_id, encode_router_id
 
 
 class EventRouterAdd(EventBase):
@@ -31,7 +32,7 @@ class EventRouterAdd(EventBase):
 
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
-        router_id = router_doc['id'].replace("qrouter-", "", 1)
+        router_id = decode_router_id(router_doc['id'])
 
         # add port for binding to vservice:router
         subnet_handler = EventSubnetAdd()
@@ -69,7 +70,7 @@ class EventRouterAdd(EventBase):
         router = values['payload']['router']
         host_id = values["publisher_id"].replace("network.", "", 1)
         project_id = values['_context_project_id']
-        router_id = "qrouter-%s" % router['id']
+        router_id = encode_router_id(host_id, router['id'])
         host = self.inv.get_by_id(env, host_id)
 
         fetcher = CliFetchHostVservice()

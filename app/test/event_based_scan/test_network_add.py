@@ -17,7 +17,7 @@ class TestNetworkAdd(TestEvent):
             self.handler.inv.delete('inventory', {'id': self.network_id})
 
             network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-            self.assertEqual(network_document, [])
+            self.assertIsNone(network_document)
 
         # build network document for adding network
         project_name = self.values['_context_project_name']
@@ -30,7 +30,7 @@ class TestNetworkAdd(TestEvent):
 
         # check network document
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-        self.assertNotEqual(network_document, [])
+        self.assertIsNotNone(network_document)
         self.assertEqual(network_document["project"], project_name)
         self.assertEqual(network_document["parent_id"], parent_id)
         self.assertEqual(network_document["name"], network_name)

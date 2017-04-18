@@ -4,6 +4,7 @@ from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
+from utils.util import encode_router_id
 
 
 class EventRouterUpdate(EventBase):
@@ -16,7 +17,7 @@ class EventRouterUpdate(EventBase):
         host_id = values["publisher_id"].replace("network.", "", 1)
         router_id = payload['id'] if 'id' in payload else router['id']
 
-        router_full_id = "-".join([host_id, "qrouter", router_id])
+        router_full_id = encode_router_id(host_id, router_id)
         router_doc = self.inv.get_by_id(env, router_full_id)
         if not router_doc:
             self.log.info("Router document not found, aborting router updating")

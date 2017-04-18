@@ -36,12 +36,12 @@ class TestInstanceAdd(TestEvent):
         # save the original method.
         original_method = ScanHost.scan_links
         ScanHost.scan_links = MagicMock()
-        ret  = handler.handle(self.env, self.values)
+        ret = handler.handle(self.env, self.values)
 
         # reset the method in case of affecting other unit tests.
         ScanHost.scan_links = original_method
 
-        self.assertEqual(ret, True)
+        self.assertEqual(ret.result, True)
 
         # check host document
         host = self.handler.inv.get_by_id(self.env, host_id)

@@ -224,17 +224,17 @@ PORT_DOC = {
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "children_url": "/osdna_dev/discover.py?type=tree&id=node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
     "host": "node-251.cisco.com",
-    "id": "qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "id": "node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones/internal" +
-               "/node-251.cisco.com/node-251.cisco.com-vservices/node-251.cisco.com-vservices-routers/qrouter-bde87" +
+               "/node-251.cisco.com/node-251.cisco.com-vservices/node-251.cisco.com-vservices-routers/node-251.cisco.com-qrouter-bde87" +
                "a5a-7968-4f3b-952c-e87681a96078",
     "last_scanned": 0,
-    "local_service_id": "qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "local_service_id": "node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "master_parent_id": "node-251.cisco.com-vservices",
     "master_parent_type": "vservices_folder",
     "name": "1234",

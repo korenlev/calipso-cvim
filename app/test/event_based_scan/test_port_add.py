@@ -4,7 +4,7 @@ from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
 from discover.scan_instances_root import ScanInstancesRoot
 from discover.api_fetch_host_instances import ApiFetchHostInstances
-from discover.cli_fetch_instance_vnics_ovs import CliFetchInstanceVnicsOvs
+from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from test.event_based_scan.test_data.event_payload_port_add import EVENT_PAYLOAD_PORT_INSTANCE_ADD, NETWORK_DOC, \
     INSTANCE_DOC, INSTANCES_ROOT, VNIC_DOCS, INSTANCE_DOCS
 from test.event_based_scan.test_event import TestEvent
@@ -28,8 +28,8 @@ class TestPortAdd(TestEvent):
         original_get_instance = ApiFetchHostInstances.get
         ApiFetchHostInstances.get = MagicMock(return_value=INSTANCE_DOCS)
 
-        original_get_vnic = CliFetchInstanceVnicsOvs.get
-        CliFetchInstanceVnicsOvs.get = MagicMock(return_value=VNIC_DOCS)
+        original_get_vnic = CliFetchInstanceVnics.get
+        CliFetchInstanceVnics.get = MagicMock(return_value=VNIC_DOCS)
 
         original_find_link_instance = FindLinksForInstanceVnics.add_links
         original_find_link_vedge = FindLinksForVedges.add_links
@@ -53,10 +53,10 @@ class TestPortAdd(TestEvent):
         self.assertEqual(instance["network"], INSTANCE_DOCS[0]["network"])
 
         vnic = self.handler.inv.get_by_field(self.env, 'vnic', 'mac_address', self.port['mac_address'])
-        self.assertNotEqual(vnic, [])
+        self.assertIsNotNone(vnic)
 
         FindLinksForVedges.add_links = original_find_link_vedge
         FindLinksForInstanceVnics.add_links = original_find_link_instance
         ScanInstancesRoot.scan_cliques = orginal_scan
-        CliFetchInstanceVnicsOvs.get  = original_get_vnic
+        CliFetchInstanceVnics.get = original_get_vnic
         ApiFetchHostInstances.get = original_get_instance

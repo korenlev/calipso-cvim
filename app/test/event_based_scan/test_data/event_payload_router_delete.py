@@ -20,7 +20,7 @@ EVENT_PAYLOAD_ROUTER_DELETE = {
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
+    "children_url": "/osdna_dev/discover.py?type=tree&id=node-6.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": None,
@@ -30,7 +30,7 @@ ROUTER_DOCUMENT = {
                "/node-6.cisco.com/node-6.cisco.com-vservices/node-6.cisco.com-vservices-routers/qrouter-bde87a5a" +
                "-7968-4f3b-952c-e87681a96078",
     "last_scanned": 0,
-    "local_service_id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
+    "local_service_id": "node-6.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "master_parent_id": "node-6.cisco.com-vservices",
     "master_parent_type": "vservices_folder",
     "name": "1234",
