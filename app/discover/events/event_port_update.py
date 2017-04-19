@@ -1,7 +1,10 @@
+from discover.events.constants import PORT_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 
 
 class EventPortUpdate(EventBase):
+
+    OBJECT_TYPE = PORT_OBJECT_TYPE
 
     def handle(self, env, notification):
         # check port document.
@@ -10,7 +13,7 @@ class EventPortUpdate(EventBase):
         port_document = self.inv.get_by_id(env, port_id)
         if not port_document:
             self.log.info('port document does not exist, aborting port update')
-            return EventResult(result=False, retry=True)
+            return self.construct_event_result(result=False, retry=True, object_id=port_id)
 
         # build port document
         port_document['name'] = port['name']
@@ -24,4 +27,6 @@ class EventPortUpdate(EventBase):
 
         # update port document.
         self.inv.set(port_document)
-        return EventResult(result=True)
+        return self.construct_event_result(result=True,
+                                           object_id=port_id,
+                                           document_id=port_document.get('_id'))

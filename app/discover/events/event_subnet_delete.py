@@ -1,14 +1,18 @@
+from discover.events.constants import SUBNET_OBJECT_TYPE
 from discover.events.event_base import EventResult
 from discover.events.event_delete_base import EventDeleteBase
 
 
 class EventSubnetDelete(EventDeleteBase):
+
+    OBJECT_TYPE = SUBNET_OBJECT_TYPE
+
     def delete_children_documents(self, env, vservice_id):
         vnic_parent_id = vservice_id + '-vnics'
         vnic = self.inv.get_by_field(env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
         if not vnic:
             self.inv.log.info("Vnic document not found, aborting subnet deleting.")
-            return EventResult(result=False, retry=False)
+            return self.construct_event_result(result=False, retry=False)
 
         # delete port and vnic together by mac address.
         self.inv.delete('inventory', {"mac_address": vnic.get("mac_address")})
@@ -19,7 +23,7 @@ class EventSubnetDelete(EventDeleteBase):
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
             self.log.info("network document not found, aborting subnet deleting")
-            return EventResult(result=False, retry=False)
+            return self.construct_event_result(result=False, retry=False, object_id=subnet_id)
 
         # remove subnet_id from subnet_ids array
         network_document["subnet_ids"].remove(subnet_id)
@@ -40,5 +44,10 @@ class EventSubnetDelete(EventDeleteBase):
         # when network does not have any subnet, delete vservice DHCP, port and vnic documents.
         if len(network_document["subnet_ids"]) == 0:
             vservice_dhcp_id = 'qdhcp-' + network_document['id']
-            return self.delete_children_documents(env, vservice_dhcp_id)
-        return EventResult(result=True)
+            result = self.delete_children_documents(env, vservice_dhcp_id)
+            result.object_id = subnet_id
+            result.document_id = network_document.get('_id')  # TODO: is this correct?
+            return result
+        return self.construct_event_result(result=True,
+                                           object_id=subnet_id,
+                                           document_id=network_document.get('_id'))  # TODO: is this correct?

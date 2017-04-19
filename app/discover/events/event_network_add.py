@@ -1,7 +1,10 @@
+from discover.events.constants import NETWORK_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 
 
 class EventNetworkAdd(EventBase):
+
+    OBJECT_TYPE = NETWORK_OBJECT_TYPE
 
     def handle(self, env, notification):
         network = notification['payload']['network']
@@ -9,7 +12,7 @@ class EventNetworkAdd(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if network_document:
             self.log.info('network already existed, aborting network add')
-            return EventResult(result=False, retry=False)
+            return self.construct_event_result(result=False, retry=False, object_id=network_id)
 
         # build network document for adding network
         project_name = notification['_context_project_name']
@@ -36,4 +39,7 @@ class EventNetworkAdd(EventBase):
         network['subnets'] = {}
 
         self.inv.set(network)
-        return EventResult(result=True)
+        network_document = self.inv.get_by_id(env, network_id)
+        return self.construct_event_result(result=True,
+                                           object_id=network_id,
+                                           document_id=network_document.get('_id'))
