@@ -99,7 +99,9 @@ class SshConnection(BinaryConverter, Logger):
             err_lines = [l for l in err.splitlines()
                          if 'Loaded plugin: ' not in l]
             if err_lines:
-                self.log.error("CLI access: " + err + ",cmd:\n" + cmd)
+                self.log.error("CLI access: \n" +
+                               "Host: {}\nCommand: {}\nError: {}\n".
+                               format(self.host, cmd, err))
                 stderr.close()
                 stdout.close()
                 return ""
