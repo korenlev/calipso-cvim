@@ -9,10 +9,10 @@ import subprocess
 
 from boltons.iterutils import remap
 
-from discover.cli_access import CliAccess
 from discover.configuration import Configuration
 from discover.ssh_conn import SshConn
 from utils.binary_converter import BinaryConverter
+from utils.cli_access import CliAccess
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
