@@ -24,7 +24,7 @@ class TestSubnetDelete(TestEvent):
         # add document for subnet deleting test.
         self.set_item(self.network_doc)
         network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-        self.assertNotEqual(network_document, [], "add network document failed")
+        self.assertIsNotNone(network_document, "add network document failed")
 
         # delete subnet
         self.handler.subnet_delete(self.values)
@@ -37,8 +37,8 @@ class TestSubnetDelete(TestEvent):
         # assert children documents
         vservice_dhcp_id = 'qdhcp-' + network_document['id']
         dhcp_doc = self.handler.inv.get_by_id(self.env, vservice_dhcp_id)
-        self.assertEqual(dhcp_doc,[])
+        self.assertIsNone(dhcp_doc)
 
         vnic_parent_id = vservice_dhcp_id + '-vnics'
         vnic = self.handler.inv.get_by_field(self.env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
-        self.assertEqual(vnic, [])
+        self.assertIsNone(vnic)

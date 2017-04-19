@@ -24,7 +24,7 @@ class TestInstanceAdd(TestEvent):
         # check instance document
         instance = self.handler.inv.get_by_id(self.env, self.instance_id)
         if instance:
-            self.handler.log.info('instance document has existed, delete it first.')
+            self.handler.log.info('instance document exists, delete it first.')
             self.handler.inv.delete('inventory', {'id': self.instance_id})
 
             instance = self.handler.inv.get_by_id(self.env, self.instance_id)
@@ -36,12 +36,12 @@ class TestInstanceAdd(TestEvent):
         # save the original method.
         original_method = ScanHost.scan_links
         ScanHost.scan_links = MagicMock()
-        ret  = handler.handle(self.env, self.values)
+        ret = handler.handle(self.env, self.values)
 
         # reset the method in case of affecting other unit tests.
         ScanHost.scan_links = original_method
 
-        self.assertEqual(ret, True)
+        self.assertEqual(ret.result, True)
 
         # check host document
         host = self.handler.inv.get_by_id(self.env, host_id)

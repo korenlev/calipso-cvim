@@ -18,7 +18,7 @@ class TestPortUpdate(TestEvent):
 
         # check network document
         port_document = self.handler.inv.get_by_id(self.env, self.port_id)
-        self.assertNotEqual(port_document, [])
+        self.assertIsNotNone(port_document)
         self.assertEqual(port_document["name"], self.port['name'])
         self.assertEqual(port_document['admin_state_up'], self.port['admin_state_up'])
         self.assertEqual(port_document['binding:vnic_type'], self.port['binding:vnic_type'])

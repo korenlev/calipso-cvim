@@ -13,7 +13,7 @@ EVENT_PAYLOAD_INTERFACE_DELETE = {
     '_context_roles': ['_member_', 'admin'], '_context_domain': None,
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_project_domain': None,
     '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_user_name': 'admin',
-    'publisher_id': 'network.node-6.cisco.com', '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
+    'publisher_id': 'network.node-251.cisco.com', '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_context_tenant_name': 'OSDNA-project', 'priority': 'INFO',
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_context_show_deleted': False,
@@ -224,17 +224,17 @@ PORT_DOC = {
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "children_url": "/osdna_dev/discover.py?type=tree&id=node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
     "host": "node-251.cisco.com",
-    "id": "qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "id": "node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones/internal" +
-               "/node-251.cisco.com/node-251.cisco.com-vservices/node-251.cisco.com-vservices-routers/qrouter-bde8" +
+               "/node-251.cisco.com/node-251.cisco.com-vservices/node-251.cisco.com-vservices-routers/node-251.cisco.com-qrouter-bde8" +
                "7a5a-7968-4f3b-952c-e87681a96078",
     "last_scanned": 0,
-    "local_service_id": "qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "local_service_id": "node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "master_parent_id": "node-251.cisco.com-vservices",
     "master_parent_type": "vservices_folder",
     "name": "1234",

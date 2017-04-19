@@ -31,6 +31,7 @@ class ScanPlan:
                          ("inventory_only",),
                          ("links_only",),
                          ("cliques_only",),
+                         ("monitoring_setup_only",),
                          ("clear",),
                          ("clear_all",),
                          ("object_type", "type", "type"),
@@ -110,6 +111,7 @@ class ScanController(Fetcher):
         "inventory_only": False,
         "links_only": False,
         "cliques_only": False,
+        "monitoring_setup_only": False,
         "clear": False,
         "clear_all": False
     }
@@ -164,15 +166,21 @@ class ScanController(Fetcher):
         parser.add_argument("--clear_all", action="store_true",
                             help="clear all data prior to scanning\n" +
                                  "(default: False)")
+        parser.add_argument("--monitoring_setup_only", action="store_true",
+                            help="do only monitoring setup deployment \n" +
+                                 "(default: False)")
 
         # At most one of these arguments may be present
         scan_only_group = parser.add_mutually_exclusive_group()
         scan_only_group.add_argument("--inventory_only", action="store_true",
-                                     help="do only scan to inventory\n(default: False)")
+                                     help="do only scan to inventory\n" +
+                                          "(default: False)")
         scan_only_group.add_argument("--links_only", action="store_true",
-                                     help="do only links creation \n(default: False)")
+                                     help="do only links creation \n" +
+                                          "(default: False)")
         scan_only_group.add_argument("--cliques_only", action="store_true",
-                                     help="do only cliques creation \n(default: False)")
+                                     help="do only cliques creation \n" +
+                                          "(default: False)")
 
         return parser.parse_args()
 
@@ -253,9 +261,9 @@ class ScanController(Fetcher):
         inventory_only = scan_plan.inventory_only
         links_only = scan_plan.links_only
         cliques_only = scan_plan.cliques_only
-        results = []
+        monitoring_setup_only = scan_plan.monitoring_setup_only
         run_all = False if inventory_only or links_only or cliques_only \
-            else True
+            or monitoring_setup_only else True
 
         # setup monitoring server
         self.inv.monitoring_setup_manager = \
@@ -273,7 +281,8 @@ class ScanController(Fetcher):
             scanner.scan_links()
         if cliques_only or run_all:
             scanner.scan_cliques()
-        scanner.deploy_monitoring_setup()
+        if not (inventory_only or links_only or cliques_only):
+            scanner.deploy_monitoring_setup()
         return True, 'ok'
 
 
