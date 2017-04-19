@@ -13,8 +13,7 @@ class ApiFetchEndPoints(ApiAccess):
 
         environment = ApiAccess.config.get_env_name()
         regions = []
-        # TODO: refactor legacy code (Unresolved reference - ApiAccess.body_hash)
-        services = ApiAccess.body_hash['access']['serviceCatalog']
+        services = ApiAccess.auth_response['access']['serviceCatalog']
         endpoints = []
         for s in services:
             if s["type"] != "identity":
