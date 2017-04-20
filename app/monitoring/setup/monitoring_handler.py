@@ -198,9 +198,6 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
 
     def handle_pending_host_setup_changes(self, host_changes):
         hosts = {}
-        local_dir = None
-        is_local_host = False
-        is_container = False
         if self.provision < self.provision_levels['deploy']:
             self.log.info('Monitoring config not deployed to remote host')
         for file_type, changes in host_changes.items():
