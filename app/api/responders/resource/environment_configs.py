@@ -246,6 +246,15 @@ class EnvironmentConfigs(ResponderBase):
             validation['passed'] = False
             validation['error_message'] = "configuration must have name"
             return validation
+
+        unknown_configs = [config['name'] for config in configurations
+                           if config['name'] not in self.CONFIGURATIONS_NAMES]
+        if unknown_configs:
+            validation['passed'] = False
+            validation['error_message'] = 'Unknown configurations: {0}'. \
+                format(' and '.join(unknown_configs))
+            return validation
+
         for name in self.CONFIGURATIONS_NAMES:
             if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
                 configuration = self.get_configuration_by_name(name,
