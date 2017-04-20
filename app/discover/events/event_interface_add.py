@@ -108,4 +108,4 @@ class EventInterfaceAdd(EventBase):
         self.log.info("Finished router-interface added.")
         return self.construct_event_result(result=True,
                                            object_id=interface['id'],
-                                           document_id=router_doc.get('_id'))  # TODO: verify that this is the correct document id
+                                           document_id=network_document.get('_id'))

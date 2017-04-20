@@ -262,6 +262,10 @@ class EventPortAdd(EventBase):
             ScanInstancesRoot().scan_cliques()
 
         port_document = self.inv.get_by_id(env, port['id'])
+        if not port_document:
+            self.log.error("Port {} failed to add".format(port['id']))
+            return self.construct_event_result(result=False, retry=True, object_id=port['id'])
+
         return self.construct_event_result(result=True,
                                            object_id=port['id'],
                                            document_id=port_document.get('_id'))  # TODO: related document_id?
