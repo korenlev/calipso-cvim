@@ -9,7 +9,7 @@ class EventDeleteBase(EventBase):
     def delete_handler(self, env, object_id, object_type) -> EventResult:
         item = self.inv.get_by_id(env, object_id)
         if not item:
-            self.inv.log.info('{0} document is not found, aborting {0} delete'.format(object_type))
+            self.log.info('{0} document is not found, aborting {0} delete'.format(object_type))
             return self.construct_event_result(result=False, retry=False, object_id=object_id)
 
         db_id = ObjectId(item['_id'])

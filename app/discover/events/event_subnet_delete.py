@@ -11,7 +11,7 @@ class EventSubnetDelete(EventDeleteBase):
         vnic_parent_id = vservice_id + '-vnics'
         vnic = self.inv.get_by_field(env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
         if not vnic:
-            self.inv.log.info("Vnic document not found, aborting subnet deleting.")
+            self.log.info("Vnic document not found, aborting subnet deleting.")
             return self.construct_event_result(result=False, retry=False)
 
         # delete port and vnic together by mac address.

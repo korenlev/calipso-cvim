@@ -44,7 +44,7 @@ class EventSubnetUpdate(EventBase):
                     fetcher.set_env(env)
                     fetcher.get(None)
 
-                self.inv.log.info("add port binding to DHCP server.")
+                self.log.info("add port binding to DHCP server.")
                 port_id = DbFetchPort().get_id_by_field(network_id, """device_owner LIKE "%dhcp" """)
                 port = EventSubnetAdd().add_port_document(env, port_id, network_name=network_document['name'],
                                                    project_name=project)
@@ -58,13 +58,13 @@ class EventSubnetUpdate(EventBase):
             if subnet['enable_dhcp'] is False and subnets[key]['enable_dhcp']:
                 # delete existed related DHCP documents.
                 self.inv.delete("inventory", {'id': "qdhcp-%s" % subnet['network_id']})
-                self.inv.log.info("delete DHCP document: qdhcp-%s" % subnet['network_id'])
+                self.log.info("delete DHCP document: qdhcp-%s" % subnet['network_id'])
 
                 port = self.inv.find_items({'network_id': subnet['network_id'],
                                             'device_owner': 'network:dhcp'}, get_single=True)
                 if 'id' in port:
                     EventPortDelete().delete_port(env, port['id'])
-                    self.inv.log.info("delete port binding to DHCP server.")
+                    self.log.info("delete port binding to DHCP server.")
 
             if subnet['name'] == subnets[key]['name']:
                 subnets[key] = subnet

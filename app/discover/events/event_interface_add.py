@@ -39,7 +39,7 @@ class EventInterfaceAdd(EventBase):
                                                router_name=router_doc['name'], mac_address=mac_address)
         if not ret:
             time.sleep(self.delay)
-            self.inv.log.info("Wait %s second, and then fetch vnic document again." % self.delay)
+            self.log.info("Wait %s second, and then fetch vnic document again." % self.delay)
             EventPortAdd().add_vnic_document(env, host, object_id=device_id, network_name=network_name, object_type="router",
                                              router_name=router_doc['name'], mac_address=mac_address)
 
@@ -61,7 +61,7 @@ class EventInterfaceAdd(EventBase):
                     self.add_gateway_port(env, project, network_name, router_doc, host_id)
             self.inv.set(router_doc)
         else:
-            self.inv.log.info("router document not found, aborting interface adding")
+            self.log.info("router document not found, aborting interface adding")
 
     def handle(self, env, values):
         interface = values['payload']['router_interface']
@@ -73,7 +73,7 @@ class EventInterfaceAdd(EventBase):
 
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
-            self.inv.log.info("network document not found, aborting interface adding")
+            self.log.info("network document not found, aborting interface adding")
             return self.construct_event_result(result=False, retry=True, object_id=interface['id'])
         network_name = network_document['name']
         network_id = network_document['id']
@@ -96,7 +96,7 @@ class EventInterfaceAdd(EventBase):
         if ret is False:
             # try it again to fetch vnic document, vnic will be created a little bit late before CLI fetch.
             time.sleep(self.delay)
-            self.inv.log.info("Wait %s second, and then fetch vnic document again." % self.delay)
+            self.log.info("Wait %s second, and then fetch vnic document again." % self.delay)
             EventPortAdd().add_vnic_document(env, host, object_id=interface['id'], network_name=network_name, object_type="router",
                                              router_name=router_doc['name'], mac_address=mac_address)
         # update the router document: gw_port_id, network.

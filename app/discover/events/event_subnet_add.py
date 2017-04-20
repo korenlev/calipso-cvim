@@ -45,7 +45,7 @@ class EventSubnetAdd(EventBase):
             port['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
                                 (env, project_name, network_name, port_id)
             self.inv.set(port)
-            self.inv.log.info("add port document for port:%s" % port_id)
+            self.log.info("add port document for port:%s" % port_id)
             return port
         return False
 

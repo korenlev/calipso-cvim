@@ -55,18 +55,18 @@ class EventRouterAdd(EventBase):
             add_vnic_return = port_handler.add_vnic_document(env, host, object_id=router_id, network_name=network_name,
                                                              object_type="router", router_name=router_doc['name'])
             if not add_vnic_return:
-                self.inv.log.info("Try to add vnic document again.")
+                self.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, object_id=router_id, network_name=network_name,
                                                object_type="router", router_name=router_doc['name'])
         else:
             # in some cases, port has been created, but port doc can not be fetched by OpenStack API
-            self.inv.log.info("Try to add port document again.")
+            self.log.info("Try to add port document again.")
             # TODO: #AskCheng - this never returns anything!
             add_port_return = port_handler.add_vnics_folder(env, host, object_id=router_id, network_name=network_name,
                                                             object_type="router", router_name=router_doc['name'])
             # TODO: #AskCheng - this will never evaluate to True!
             if add_port_return is False:
-                self.inv.log.info("Try to add vnic document again.")
+                self.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, object_id=router_id, network_name=network_name,
                                                object_type="router", router_name=router_doc['name'])
 
