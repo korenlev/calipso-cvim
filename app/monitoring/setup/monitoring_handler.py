@@ -9,10 +9,10 @@ import subprocess
 
 from boltons.iterutils import remap
 
-from discover.cli_access import CliAccess
 from discover.configuration import Configuration
 from discover.ssh_conn import SshConn
 from utils.binary_converter import BinaryConverter
+from utils.cli_access import CliAccess
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
@@ -243,7 +243,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.move_setup_files_to_remote_host(host, local_dir)
             # restart the Sensu client on the remote host,
             # so it takes the new setup
-            self.run('sudo /etc/init.d/sensu-service client restart',
+            self.run('sudo /etc/init.d/sensu-client restart',
                      ssh_to_host=host)
 
     def run_cmd_locally(self, cmd):

@@ -7,6 +7,7 @@ from discover.events.event_subnet_add import EventSubnetAdd
 from test.event_based_scan.test_data.event_payload_router_add import EVENT_PAYLOAD_ROUTER_ADD, ROUTER_DOCUMENT, \
     HOST_DOC, NETWORK_DOC
 from test.event_based_scan.test_event import TestEvent
+from utils.util import encode_router_id
 
 
 class TestRouterAdd(TestEvent):
@@ -14,7 +15,8 @@ class TestRouterAdd(TestEvent):
         self.values = EVENT_PAYLOAD_ROUTER_ADD
         self.payload = self.values['payload']
         self.router = self.payload['router']
-        self.router_id = "qrouter-" + self.router['id']
+        self.host_id = self.values["publisher_id"].replace("network.", "", 1)
+        self.router_id = encode_router_id(self.host_id, self.router['id'])
 
         self.set_item(HOST_DOC)
         self.host_id = HOST_DOC['id']
@@ -50,7 +52,8 @@ class TestRouterAdd(TestEvent):
         self.assertEqual(ROUTER_DOCUMENT['gw_port_id'], router_doc['gw_port_id'])
 
         # assert children documents
-        vnics_folder = self.handler.inv.get_by_id(self.env, self.router_id+'-vnics')
+        vnics_id = '-'.join(['qrouter', self.router['id'], 'vnics'])
+        vnics_folder = self.handler.inv.get_by_id(self.env, vnics_id)
         self.assertIsNotNone(vnics_folder, msg="Vnics folder not found.")
 
     def tearDown(self):

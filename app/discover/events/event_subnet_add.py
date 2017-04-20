@@ -97,6 +97,9 @@ class EventSubnetAdd(EventBase):
         subnet = notification['payload']['subnet']
         project_id = subnet['tenant_id']
         network_id = subnet['network_id']
+        if 'id' not in subnet:
+            self.log.info('Subnet payload doesn\'t have id, aborting subnet add')
+            return EventResult(result=False, retry=False)
 
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
@@ -107,7 +110,7 @@ class EventSubnetAdd(EventBase):
         # build subnet document for adding network
         if subnet['cidr'] not in network_document['cidrs']:
             network_document['cidrs'].append(subnet['cidr'])
-        if network_document['subnets'] == []:
+        if not network_document.get('subnets'):
             network_document['subnets'] = {}
 
         network_document['subnets'][subnet['name']] = subnet

@@ -38,8 +38,8 @@ EVENT_PAYLOAD_ROUTER_ADD = {
     '_context_user_name': 'admin', '_context_resource_uuid': None}
 
 ROUTER_DOCUMENT = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name': 'router-test-router-add',
-                   'id': 'qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
-                   'local_service_id': 'qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
+                   'id': 'node-250.cisco.com-qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
+                   'local_service_id': 'node-250.cisco.com-qrouter-c485d5f4-dfec-430f-8ad8-409c7034b46d',
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE',
                    'master_parent_type': 'vservices_folder',
                    'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1,

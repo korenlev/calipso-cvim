@@ -1,5 +1,6 @@
 from discover.events.event_base import EventResult
 from discover.events.event_delete_base import EventDeleteBase
+from utils.util import encode_router_id
 
 
 class EventRouterDelete(EventDeleteBase):
@@ -23,5 +24,5 @@ class EventRouterDelete(EventDeleteBase):
             self.log.error("Router id is not in payload. Aborting router delete")
             return EventResult(result=False, retry=False)
 
-        router_full_id = "-".join([host_id, 'qrouter', router_id])
+        router_full_id = encode_router_id(host_id, router_id)
         return self.delete_handler(env, router_full_id, "vservice")

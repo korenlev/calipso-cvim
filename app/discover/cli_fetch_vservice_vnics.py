@@ -1,6 +1,6 @@
 import re
 
-from discover.cli_access import CliAccess
+from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 

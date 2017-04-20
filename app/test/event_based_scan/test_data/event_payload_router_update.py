@@ -22,8 +22,8 @@ EVENT_PAYLOAD_ROUTER_UPDATE = {
     'timestamp': '2016-10-28 20:29:39.986161'}
 
 ROUTER_VSERVICE = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name': '1234',
-                   'id': 'qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
-                   'local_service_id': 'qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
+                   'id': 'node-250.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
+                   'local_service_id': 'node-250.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078',
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE',
                    'master_parent_type': 'vservices_folder',
                    'admin_state_up': 1, 'parent_type': 'vservice_routers_folder', 'enable_snat': 1,
@@ -34,7 +34,7 @@ ROUTER_VSERVICE = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
+    "children_url": "/osdna_dev/discover.py?type=tree&id=node-250.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
@@ -44,7 +44,7 @@ ROUTER_DOCUMENT = {
                "/node-250.cisco.com/node-250.cisco.com-vservices/node-250.cisco.com-vservices-routers/qrouter-bde87a5a" +
                "-7968-4f3b-952c-e87681a96078",
     "last_scanned": 0,
-    "local_service_id": "qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
+    "local_service_id": "node-250.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "master_parent_id": "node-250.cisco.com-vservices",
     "master_parent_type": "vservices_folder",
     "name": "1234",

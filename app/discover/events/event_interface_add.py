@@ -8,6 +8,7 @@ from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
+from utils.util import decode_router_id, encode_router_id
 
 
 class EventInterfaceAdd(EventBase):
@@ -20,7 +21,7 @@ class EventInterfaceAdd(EventBase):
         fetcher.set_env(env)
         router_id = router_doc['id']
         router = fetcher.get_vservice(host_id, router_id)
-        device_id = router_id.replace('qrouter-', '', 1)
+        device_id = decode_router_id(router_id)
         router_doc['gw_port_id'] = router['gw_port_id']
 
         # add gateway port documents.
@@ -61,9 +62,10 @@ class EventInterfaceAdd(EventBase):
     def handle(self, env, values):
         interface = values['payload']['router_interface']
         project = values['_context_project_name']
+        host_id = values["publisher_id"].replace("network.", "", 1)
         port_id = interface['port_id']
         subnet_id = interface['subnet_id']
-        router_id = 'qrouter-' + interface['id']
+        router_id = encode_router_id(host_id, interface['id'])
 
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
@@ -82,7 +84,6 @@ class EventInterfaceAdd(EventBase):
         mac_address = port_doc['mac_address'] if port_doc else None
 
         # add vnic document
-        host_id = values["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
         router_doc = self.inv.get_by_id(env, router_id)
         ret = EventPortAdd().add_vnic_document(env, host, id=interface['id'], network_name=network_name, type="router",
