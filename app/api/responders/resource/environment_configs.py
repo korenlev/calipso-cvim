@@ -1,3 +1,4 @@
+from api.validation import regex
 from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
@@ -16,7 +17,7 @@ class EnvironmentConfigs(ResponderBase):
         }
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
-                                     "CLI", "AMQP", "Monitoring"]
+                                     "CLI", "AMQP", "Monitoring", "NFV_provider"]
         self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring", "NFV_provider"]
 
         self.provision_types = self.\
@@ -36,36 +37,65 @@ class EnvironmentConfigs(ResponderBase):
         self.CONFIGURATIONS_REQUIREMENTS = {
             "mysql": {
                 "name": self.require(str, mandatory=True),
-                "host": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.IP,
+                                     mandatory=True),
                 "password": self.require(str, mandatory=True),
-                "port": self.require(int, True, mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     DataValidate.REGEX,
+                                     regex.PORT,
+                                     mandatory=True),
                 "user": self.require(str, mandatory=True)
             },
             "OpenStack": {
                 "name": self.require(str, mandatory=True),
                 "admin_token": self.require(str, mandatory=True),
-                "host": self.require(str, mandatory=True),
-                "port": self.require(int, True, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.IP,
+                                     mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.PORT,
+                                     mandatory=True),
                 "pwd": self.require(str, mandatory=True),
                 "user": self.require(str, mandatory=True)
             },
             "CLI": {
                 "name": self.require(str, mandatory=True),
-                "host": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
                 "user": self.require(str, mandatory=True),
                 "pwd": self.require(str),
-                "key": self.require(str)
+                "key": self.require(str,
+                                    validate=DataValidate.REGEX,
+                                    requirement=regex.PATH)
             },
             "AMQP": {
                 "name": self.require(str, mandatory=True),
-                "host": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.IP,
+                                     mandatory=True),
                 "password": self.require(str, mandatory=True),
-                "port": self.require(int, True, mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.PORT,
+                                     mandatory=True),
                 "user": self.require(str, mandatory=True)
             },
             "Monitoring": {
                 "name": self.require(str, mandatory=True),
-                "config_folder": self.require(str, mandatory=True),
+                "config_folder": self.require(str,
+                                              validate=DataValidate.REGEX,
+                                              requirement=regex.PATH,
+                                              mandatory=True),
                 "provision": self.require(str,
                                           validate=DataValidate.LIST,
                                           requirement=self.provision_types,
@@ -77,10 +107,16 @@ class EnvironmentConfigs(ResponderBase):
                 "api_port": self.require(int, True, mandatory=True),
                 "rabbitmq_pass": self.require(str, mandatory=True),
                 "rabbitmq_user": self.require(str, mandatory=True),
-                "ssh_port": self.require(int, True),
+                "ssh_port": self.require(int,
+                                         True,
+                                         validate=DataValidate.REGEX,
+                                         requirement=regex.PORT),
                 "ssh_user": self.require(str),
                 "ssh_password": self.require(str),
-                "server_ip": self.require(str, mandatory=True),
+                "server_ip": self.require(str,
+                                          validate=DataValidate.REGEX,
+                                          requirement=[regex.IP, regex.HOSTNAME],
+                                          mandatory=True),
                 "server_name": self.require(str, mandatory=True),
                 "type": self.require(str,
                                      validate=DataValidate.LIST,
@@ -89,9 +125,16 @@ class EnvironmentConfigs(ResponderBase):
             },
             "NFV_provider": {
                 "name": self.require(str, mandatory=True),
-                "host": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.IP,
+                                     mandatory=True),
                 "nfv_token": self.require(str, mandatory=True),
-                "port": self.require(int, True, mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     DataValidate.REGEX,
+                                     regex.PORT,
+                                     True),
                 "user": self.require(str, mandatory=True),
                 "pwd": self.require(str, mandatory=True)
             }
