@@ -8,7 +8,10 @@ Status: "OK" if "up" is detected in the interface line, CRITICAL otherwise
 return full text of "vppctl show hardware-interfaces"
 """
 
+import re
 import subprocess
+
+NAME_RE = '^[a-zA-Z]*GigabitEthernet'
 
 def binary2str(txt):
     if not isinstance(txt, bytes):
@@ -27,7 +30,8 @@ try:
                                   shell=True)
     out = binary2str(out)
     lines = out.splitlines()
-    matching_lines = [l for l in lines if l.startswith('GigabitEthernet')]
+    name_re = re.compile(NAME_RE)
+    matching_lines = [l for l in lines if name_re.search(l)]
     matching_line = matching_lines[0] if matching_lines else None
     if matching_line:
         rc = 0 if "up" in matching_line.split() else 2
@@ -35,7 +39,7 @@ try:
     else:
         rc = 2
         print('Error: failed to find pNic in output of ' +
-	      '"vppctl show hardware-interfaces": ' + out)
+              '"vppctl show hardware-interfaces": ' + out)
 except subprocess.CalledProcessError as e:
     print("Error running 'vppctl show hardware-interfaces': " + binary2str(e.output))
     rc = 2

@@ -1,16 +1,15 @@
 import datetime
 
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_network import ScanNetwork
-from utils.inventory_mgr import InventoryMgr
+from utils.util import decode_router_id, encode_router_id
 
 
 class EventRouterAdd(EventBase):
-
     def add_router_document(self, env, network_id, router_doc, host):
         router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id=%s" % router_doc['id']
         router_doc["environment"] = env
@@ -19,7 +18,7 @@ class EventRouterAdd(EventBase):
         router_doc['last_scanned'] = datetime.datetime.utcnow()
         router_doc['name_path'] = host['name_path'] + "/Vservices/Gateways/%s" % router_doc['name']
         router_doc['network'] = []
-        if network_id != None:
+        if network_id:
             router_doc['network'] = [network_id]
 
         router_doc['object_name'] = router_doc['name']
@@ -33,7 +32,7 @@ class EventRouterAdd(EventBase):
 
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
-        router_id = router_doc['id'].replace("qrouter-", "", 1)
+        router_id = decode_router_id(router_doc['id'])
 
         # add port for binding to vservice:router
         subnet_handler = EventSubnetAdd()
@@ -48,19 +47,21 @@ class EventRouterAdd(EventBase):
         port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name, type="router",
                                       router_name=router_doc['name'])
 
-        if add_port_return != False:
+        if add_port_return:
             add_vnic_return = port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
                                                              type="router", router_name=router_doc['name'])
-            if add_vnic_return == False:
+            if not add_vnic_return:
                 self.inv.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
                                                type="router", router_name=router_doc['name'])
         else:
             # in some cases, port has been created, but port doc can not be fetched by OpenStack API
             self.inv.log.info("Try to add port document again.")
+            # TODO: #AskCheng - this never returns anything!
             add_port_return = port_handler.add_vnics_folder(env, host, id=router_id, network_name=network_name,
                                                             type="router", router_name=router_doc['name'])
-            if add_port_return == False:
+            # TODO: #AskCheng - this will never evaluate to True!
+            if add_port_return is False:
                 self.inv.log.info("Try to add vnic document again.")
                 port_handler.add_vnic_document(env, host, id=router_id, network_name=network_name,
                                                type="router", router_name=router_doc['name'])
@@ -69,21 +70,23 @@ class EventRouterAdd(EventBase):
         router = values['payload']['router']
         host_id = values["publisher_id"].replace("network.", "", 1)
         project_id = values['_context_project_id']
-        router_id = "qrouter-%s" % router['id']
+        router_id = encode_router_id(host_id, router['id'])
         host = self.inv.get_by_id(env, host_id)
 
         fetcher = CliFetchHostVservice()
         fetcher.set_env(env)
-
         router_doc = fetcher.get_vservice(host_id, router_id)
         gateway_info = router['external_gateway_info']
+
         if gateway_info:
-            network_id = router['external_gateway_info']['network_id']
+            network_id = gateway_info['network_id']
             self.add_router_document(env, network_id, router_doc, host)
             self.add_children_documents(env, project_id, network_id, host, router_doc)
+        # TODO: #AskCheng - this should go to 'else' probably?
         self.add_router_document(env, None, router_doc, host)
 
         # scan links and cliques
         FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
         ScanNetwork().scan_cliques()
         self.log.info("Finished router added.")
+        return EventResult(result=True)
