@@ -47,3 +47,7 @@ class TestInstanceAdd(TestEvent):
         # check host document
         host = self.handler.inv.get_by_id(self.env, host_id)
         self.assertIsNotNone(host)
+
+        # check instance document
+        instance_document = self.handler.inv.get_by_id(self.env, self.instance_id)
+        self.assertIsNotNone(instance_document)
