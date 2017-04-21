@@ -9,10 +9,10 @@ import subprocess
 
 from boltons.iterutils import remap
 
-from discover.cli_access import CliAccess
 from discover.configuration import Configuration
 from discover.ssh_conn import SshConn
 from utils.binary_converter import BinaryConverter
+from utils.cli_access import CliAccess
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
@@ -198,9 +198,6 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
 
     def handle_pending_host_setup_changes(self, host_changes):
         hosts = {}
-        local_dir = None
-        is_local_host = False
-        is_container = False
         if self.provision < self.provision_levels['deploy']:
             self.log.info('Monitoring config not deployed to remote host')
         for file_type, changes in host_changes.items():

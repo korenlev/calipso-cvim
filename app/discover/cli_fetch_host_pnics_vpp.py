@@ -1,11 +1,15 @@
+import re
+
 from discover.fetcher import Fetcher
 from utils.inventory_mgr import InventoryMgr
 
+NAME_RE = '^[a-zA-Z]*GigabitEthernet'
 
 class CliFetchHostPnicsVpp(Fetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
+        self.name_re = re.compile(NAME_RE)
 
     def get(self, id):
         host_id = id[:id.rindex("-")]
@@ -19,8 +23,7 @@ class CliFetchHostPnicsVpp(Fetcher):
         for vedge in vedges:
             pnic_ports = vedge['ports']
             for pnic_name in pnic_ports:
-                if not pnic_name.startswith('TenGigabitEthernet') and \
-                       not pnic_name.startswith('GigabitEthernet'):
+                if not self.name_re.search(pnic_name):
                     continue
                 pnic = pnic_ports[pnic_name]
                 pnic['host'] = host_id
