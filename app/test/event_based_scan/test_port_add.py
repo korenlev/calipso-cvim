@@ -44,7 +44,7 @@ class TestPortAdd(TestEvent):
 
         # check network document
         port_document = self.handler.inv.get_by_id(self.env, self.port_id)
-        self.assertNotEqual(port_document, [])
+        self.assertIsNotNone(port_document)
         self.assertEqual(port_document["name"], self.port['name'])
 
         instance = self.handler.inv.get_by_id(self.env, INSTANCE_DOC['id'])
