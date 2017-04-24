@@ -1,6 +1,7 @@
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
+from discover.events.constants import SUBNET_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_delete import EventPortDelete
@@ -10,6 +11,8 @@ from discover.scan_network import ScanNetwork
 
 
 class EventSubnetUpdate(EventBase):
+
+    OBJECT_TYPE = SUBNET_OBJECT_TYPE
 
     def handle(self, env, notification):
         # check for network document.
@@ -21,7 +24,7 @@ class EventSubnetUpdate(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet update')
-            return EventResult(result=False, retry=True)
+            return self.construct_event_result(result=False, retry=True, object_id=subnet_id)
 
         # update network document.
         subnets = network_document['subnets']
@@ -41,7 +44,7 @@ class EventSubnetUpdate(EventBase):
                     fetcher.set_env(env)
                     fetcher.get(None)
 
-                self.inv.log.info("add port binding to DHCP server.")
+                self.log.info("add port binding to DHCP server.")
                 port_id = DbFetchPort().get_id_by_field(network_id, """device_owner LIKE "%dhcp" """)
                 port = EventSubnetAdd().add_port_document(env, port_id, network_name=network_document['name'],
                                                    project_name=project)
@@ -55,13 +58,13 @@ class EventSubnetUpdate(EventBase):
             if subnet['enable_dhcp'] is False and subnets[key]['enable_dhcp']:
                 # delete existed related DHCP documents.
                 self.inv.delete("inventory", {'id': "qdhcp-%s" % subnet['network_id']})
-                self.inv.log.info("delete DHCP document: qdhcp-%s" % subnet['network_id'])
+                self.log.info("delete DHCP document: qdhcp-%s" % subnet['network_id'])
 
                 port = self.inv.find_items({'network_id': subnet['network_id'],
                                             'device_owner': 'network:dhcp'}, get_single=True)
                 if 'id' in port:
                     EventPortDelete().delete_port(env, port['id'])
-                    self.inv.log.info("delete port binding to DHCP server.")
+                    self.log.info("delete port binding to DHCP server.")
 
             if subnet['name'] == subnets[key]['name']:
                 subnets[key] = subnet
@@ -70,4 +73,6 @@ class EventSubnetUpdate(EventBase):
                 subnets[subnet['name']] = subnet
 
             self.inv.set(network_document)
-            return EventResult(result=True)
+            return self.construct_event_result(result=True,
+                                               object_id=subnet_id,
+                                               document_id=network_document.get('_id'))

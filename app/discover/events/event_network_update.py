@@ -1,9 +1,12 @@
 import re
 
+from discover.events.constants import NETWORK_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 
 
 class EventNetworkUpdate(EventBase):
+
+    OBJECT_TYPE = NETWORK_OBJECT_TYPE
 
     def handle(self, env, notification):
         network = notification['payload']['network']
@@ -12,7 +15,7 @@ class EventNetworkUpdate(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('Network document not found, aborting network update')
-            return EventResult(result=False, retry=True)
+            return self.construct_event_result(result=False, retry=True, object_id=network_id)
 
         # update network document
         name = network['name']
@@ -30,4 +33,6 @@ class EventNetworkUpdate(EventBase):
 
         network_document['admin_state_up'] = network['admin_state_up']
         self.inv.set(network_document)
-        return EventResult(result=True)
+        return self.construct_event_result(result=True,
+                                           object_id=network_id,
+                                           document_id=network_document.get('_id'))

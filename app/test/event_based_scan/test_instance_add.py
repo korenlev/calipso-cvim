@@ -1,7 +1,6 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from discover.events.event_instance_add import EventInstanceAdd
-from discover.scan_host import ScanHost
 from test.event_based_scan.test_data.event_payload_instance_add \
     import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT, HOST, INSTANCE_DOCUMENT
 from test.event_based_scan.test_event import TestEvent
