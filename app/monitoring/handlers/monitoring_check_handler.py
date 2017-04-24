@@ -1,12 +1,12 @@
 # handle monitoring event
 import datetime
 import sys
-
-from bson import ObjectId
 from time import gmtime, strftime
 
+from bson import ObjectId
+
 from discover.configuration import Configuration
-from utils.message import Message
+from discover.message import Message
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.special_char_converter import SpecialCharConverter

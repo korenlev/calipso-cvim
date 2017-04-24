@@ -1,8 +1,9 @@
 import datetime
+from functools import partial
 
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.events.constants import ROUTER_OBJECT_TYPE
-from discover.events.event_base import EventBase, EventResult
+from discover.events.event_base import EventBase
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -11,7 +12,6 @@ from utils.util import decode_router_id, encode_router_id
 
 
 class EventRouterAdd(EventBase):
-
     OBJECT_TYPE = ROUTER_OBJECT_TYPE
 
     def add_router_document(self, env, network_id, router_doc, host):
@@ -44,31 +44,43 @@ class EventRouterAdd(EventBase):
         if not ports_folder:
             self.log.info("Ports_folder not found.")
             subnet_handler.add_ports_folder(env, project_id, network_id, network_name)
-        add_port_return = subnet_handler.add_port_document(env, router_doc['gw_port_id'], network_name=network_name)
+        add_port_return = subnet_handler.add_port_document(env,
+                                                           router_doc['gw_port_id'],
+                                                           network_name=network_name)
 
         # add vnics folder and vnic document
         port_handler = EventPortAdd()
-        port_handler.add_vnics_folder(env, host, object_id=router_id, network_name=network_name, object_type="router",
-                                      router_name=router_doc['name'])
+        add_vnic_folder = partial(port_handler.add_vnics_folder,
+                                  env=env,
+                                  host=host,
+                                  object_id=router_id,
+                                  object_type='router',
+                                  network_name=network_name,
+                                  router_name=router_doc['name'])
+        add_vnic_document = partial(port_handler.add_vnic_document,
+                                    env=env,
+                                    host=host,
+                                    object_id=router_id,
+                                    object_type='router',
+                                    network_name=network_name,
+                                    router_name=router_doc['name'])
 
+        add_vnic_folder()
         if add_port_return:
-            add_vnic_return = port_handler.add_vnic_document(env, host, object_id=router_id, network_name=network_name,
-                                                             object_type="router", router_name=router_doc['name'])
+            add_vnic_return = add_vnic_document()
             if not add_vnic_return:
                 self.log.info("Try to add vnic document again.")
-                port_handler.add_vnic_document(env, host, object_id=router_id, network_name=network_name,
-                                               object_type="router", router_name=router_doc['name'])
+                add_vnic_document()
         else:
-            # in some cases, port has been created, but port doc can not be fetched by OpenStack API
+            # in some cases, port has been created,
+            # but port doc cannot be fetched by OpenStack API
             self.log.info("Try to add port document again.")
             # TODO: #AskCheng - this never returns anything!
-            add_port_return = port_handler.add_vnics_folder(env, host, object_id=router_id, network_name=network_name,
-                                                            object_type="router", router_name=router_doc['name'])
+            add_port_return = add_vnic_folder()
             # TODO: #AskCheng - this will never evaluate to True!
             if add_port_return is False:
                 self.log.info("Try to add vnic document again.")
-                port_handler.add_vnic_document(env, host, object_id=router_id, network_name=network_name,
-                                               object_type="router", router_name=router_doc['name'])
+                add_vnic_document()
 
     def handle(self, env, values):
         router = values['payload']['router']

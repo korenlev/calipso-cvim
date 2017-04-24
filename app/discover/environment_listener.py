@@ -3,7 +3,6 @@
 import argparse
 import datetime
 import json
-
 import time
 from collections import defaultdict
 
@@ -13,7 +12,7 @@ from kombu.mixins import ConsumerMixin
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
-from utils.message import Message
+from discover.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr

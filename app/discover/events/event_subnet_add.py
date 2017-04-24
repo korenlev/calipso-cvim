@@ -143,4 +143,4 @@ class EventSubnetAdd(EventBase):
         self.log.info("Finished subnet added.")
         return self.construct_event_result(result=True,
                                            object_id=subnet['id'],
-                                           document_id=network_document.get('_id'))  # TODO: is this correct?
+                                           document_id=network_document.get('_id'))
