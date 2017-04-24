@@ -17,7 +17,43 @@ import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/list-info-box/list-info-box';
 
 import './zone-dashboard.html';     
-    
+let infoBoxes = [{
+  header: ['components', 'zoneDashboard', 'infoBoxes', 'instances', 'header'],
+  dataSource: 'instancesCount',
+  icon: { type: 'fa', name: 'desktop' },
+  theme: 'dark'
+}, {
+  header: ['components', 'zoneDashboard', 'infoBoxes', 'vServices', 'header'],
+  dataSource: 'vServicesCount',
+  icon: { type: 'fa', name: 'object-group' },
+  theme: 'dark'
+}, {
+  header: ['components', 'zoneDashboard', 'infoBoxes', 'hosts', 'header'],
+  dataSource: 'hostsCount',
+  icon: { type: 'fa', name: 'server' },
+  theme: 'dark'
+}, {
+  header: ['components', 'zoneDashboard', 'infoBoxes', 'vConnectors', 'header'],
+  dataSource: 'vConnectorsCount',
+  icon: { type: 'fa', name: 'compress' },
+  theme: 'dark'
+}, {
+  header: ['components', 'zoneDashboard', 'infoBoxes', 'vEdges', 'header'],
+  dataSource: 'vEdgesCount',
+  icon: { type: 'fa', name: 'external-link' },
+  theme: 'dark'
+}]; 
+
+let listInfoBoxes = [{
+  header: ['components', 'zoneDashboard', 'listInfoBoxes', 'hosts', 'header'],
+  listName: 'hosts',
+  listItemFormat: { 
+    getLabelFn: (item) => { return item.name; },
+    getValueFn: (item) => { return item._id._str; },
+  },
+  icon: { type: 'material', name: 'developer_board' },
+}];
+
 /*  
  * Lifecycles
  */   
@@ -27,41 +63,8 @@ Template.ZoneDashboard.onCreated(function() {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    infoBoxes: [{
-      header: ['components', 'zoneDashboard', 'infoBoxes', 'instances', 'header'],
-      dataSource: 'instancesCount',
-      icon: { type: 'fa', name: 'desktop' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'zoneDashboard', 'infoBoxes', 'vServices', 'header'],
-      dataSource: 'vServicesCount',
-      icon: { type: 'fa', name: 'object-group' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'zoneDashboard', 'infoBoxes', 'hosts', 'header'],
-      dataSource: 'hostsCount',
-      icon: { type: 'fa', name: 'server' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'zoneDashboard', 'infoBoxes', 'vConnectors', 'header'],
-      dataSource: 'vConnectorsCount',
-      icon: { type: 'fa', name: 'compress' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'zoneDashboard', 'infoBoxes', 'vEdges', 'header'],
-      dataSource: 'vEdgesCount',
-      icon: { type: 'fa', name: 'external-link' },
-      theme: 'dark'
-    }], 
-
-    listInfoBoxes: [{
-      header: ['components', 'zoneDashboard', 'listInfoBoxes', 'hosts', 'header'],
-      listName: 'hosts',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'developer_board' },
-    }
-    ],
-    zone_id_path: null,
+    _id: null,
+    id_path: null,
     instancesCount: 0,
     vServicesCount: 0,
     hostsCount: 0,
@@ -73,45 +76,54 @@ Template.ZoneDashboard.onCreated(function() {
     let data = Template.currentData();
 
     new SimpleSchema({
-      id_path: { type: String },
+      _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+      onNodeSelected: { type: Function },
     }).validate(data);
 
-    let zone_id_path = data.id_path;
-    instance.state.set('zone_id_path', zone_id_path);
+    instance.state.set('_id', data._id);
+  });
 
-    instance.subscribe('inventory?id_path', zone_id_path);
-    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'instance');
-    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'vservice');
-    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'host');
-    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'vconnector');
-    instance.subscribe('inventory?id_path_start&type', zone_id_path, 'vedge');
+  instance.autorun(function () {
+    let _id = instance.state.get('_id');
 
-    let idPathExp = new RegExp(`^${regexEscape(zone_id_path)}`);
+    instance.subscribe('inventory?_id', _id);
+    Inventory.find({ _id: _id }).forEach((zone) => {
+      instance.state.set('id_path', zone.id_path);
 
-    instance.state.set('instancesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'instance'
-    }).count());
+      instance.subscribe('inventory?id_path', zone.id_path);
+      instance.subscribe('inventory?id_path_start&type', zone.id_path, 'instance');
+      instance.subscribe('inventory?id_path_start&type', zone.id_path, 'vservice');
+      instance.subscribe('inventory?id_path_start&type', zone.id_path, 'host');
+      instance.subscribe('inventory?id_path_start&type', zone.id_path, 'vconnector');
+      instance.subscribe('inventory?id_path_start&type', zone.id_path, 'vedge');
 
-    instance.state.set('vServicesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vservice'
-    }).count());
+      let idPathExp = new RegExp(`^${regexEscape(zone.id_path)}`);
 
-    instance.state.set('hostsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'host'
-    }).count());
+      instance.state.set('instancesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'instance'
+      }).count());
 
-    instance.state.set('vConnectorsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vconnector'
-    }).count());
+      instance.state.set('vServicesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vservice'
+      }).count());
 
-    instance.state.set('vEdgesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vedge'
-    }).count());
+      instance.state.set('hostsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'host'
+      }).count());
+
+      instance.state.set('vConnectorsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vconnector'
+      }).count());
+
+      instance.state.set('vEdgesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vedge'
+      }).count());
+    });
   });
 });  
 
@@ -134,19 +146,17 @@ Template.ZoneDashboard.events({
 Template.ZoneDashboard.helpers({    
   zone: function () {
     let instance = Template.instance();
-    let zone_id_path = instance.state.get('zone_id_path');
+    let _id = instance.state.get('_id');
 
-    return Inventory.findOne({ id_path: zone_id_path });
+    return Inventory.findOne({ _id: _id });
   },
 
   infoBoxes: function () {
-    let instance = Template.instance();
-    return instance.state.get('infoBoxes');
+    return infoBoxes;
   },
 
   listInfoBoxes: function () {
-    let instance = Template.instance();
-    return instance.state.get('listInfoBoxes');
+    return listInfoBoxes;
   },
 
   argsInfoBox: function (infoBox) {
@@ -162,7 +172,8 @@ Template.ZoneDashboard.helpers({
 
   argsListInfoBox: function (listInfoBox) {
     let instance = Template.instance();
-    let zone_id_path = instance.state.get('zone_id_path');
+    let data = Template.currentData();
+    let zone_id_path = instance.state.get('id_path');
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
@@ -172,7 +183,7 @@ Template.ZoneDashboard.helpers({
       //theme: infoBox.theme
       listItemFormat: listInfoBox.listItemFormat,
       onItemSelected: function (itemKey) {
-        Router.go(`/host?id_path=${itemKey}`);
+        data.onNodeSelected(new Mongo.ObjectID(itemKey));
       }
     };
   }

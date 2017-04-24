@@ -26,7 +26,10 @@ export function reducer(state = defaultState, action) {
     return R.merge(state, {
       _id: action.payload.nodeInfo._id._str,
       nodeInfo: action.payload.nodeInfo,
-      level: action.payload.level
+      openState: 'closed',
+      children: [],
+      childDetected: false,
+      level: action.payload.level,
     });
 
   case actions.ADD_UPDATE_CHILDREN_TREE_NODE:
@@ -44,11 +47,28 @@ export function reducer(state = defaultState, action) {
 
       let allChildren = R.unionWith(R.eqBy(R.path(['nodeInfo', '_id', '_str'])), 
         actionChildren, state.children);
+      
+      /*
+      R.forEach((actionChild) => {
+        let index = R.findIndex(R.pathEq(['nodeInfo', '_id', '_str'], actionChild._id._str),state.children);
+        if (index < 0) {
+          state.children.push(actionChild);
+        } else {
+          state.children[index] = actionChild;
+        }
+      }, actionChildren);
+      let allChildren = state.children;
+      */
 
       return R.merge(state, {
         children: allChildren,
         childDetected: R.length(allChildren) > 0
       });
+      
+      /*
+      state.childDetected = R.length(allChildren) > 0;
+      return state;
+      */
     }
 
     return reduceActionOnChild(state, 

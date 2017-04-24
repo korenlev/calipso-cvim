@@ -19,6 +19,47 @@ import '/imports/ui/components/icon/icon';
 import '/imports/ui/components/list-info-box/list-info-box';
 import './environment-dashboard.html';     
     
+
+let briefInfoList =  [{
+  header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
+  dataSource: 'infoInstancesCount',
+  icon: new Icon({ type: 'fa', name: 'desktop' }),
+}, {
+  header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
+  dataSource: 'infoVServicesCount',
+  icon: new Icon({ type: 'fa', name: 'object-group' }),
+}, {
+  header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
+  dataSource: 'infoHostsCount',
+  icon: new Icon({ type: 'fa', name: 'server' }),
+}, {
+  header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
+  dataSource: 'infoVConnectorsCount',
+  icon: new Icon({ type: 'fa', name: 'compress' }),
+}, {
+  header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
+  dataSource: 'infoLastScanning',
+  icon: new Icon({ type: 'fa', name: 'search' }),
+}];
+
+let listInfoBoxes = [{
+  header: ['components', 'environment', 'listInfoBoxes', 'regions', 'header'],
+  listName: 'regions',
+  listItemFormat: { 
+    getLabelFn: (item) => { return item.name; },
+    getValueFn: (item) => { return item._id._str; },
+  },
+  icon: { type: 'material', name: 'public' },
+}, {
+  header: ['components', 'environment', 'listInfoBoxes', 'projects', 'header'],
+  listName: 'projects',
+  listItemFormat: { 
+    getLabelFn: (item) => { return item.name; },
+    getValueFn: (item) => { return item._id._str; },
+  },
+  icon: { type: 'material', name: 'folder' },
+}];
+
 /*  
  * Lifecycles
  */   
@@ -30,53 +71,23 @@ Template.EnvironmentDashboard.onCreated(function() {
   instance.state.setDefault({
     _id: null,
     envName: null,
-    briefInfoList: [{
-      header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
-      dataSource: 'infoInstancesCount',
-      icon: new Icon({ type: 'fa', name: 'desktop' }),
-    }, {
-      header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
-      dataSource: 'infoVServicesCount',
-      icon: new Icon({ type: 'fa', name: 'object-group' }),
-    }, {
-      header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
-      dataSource: 'infoHostsCount',
-      icon: new Icon({ type: 'fa', name: 'server' }),
-    }, {
-      header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
-      dataSource: 'infoVConnectorsCount',
-      icon: new Icon({ type: 'fa', name: 'compress' }),
-    }, {
-      header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
-      dataSource: 'infoLastScanning',
-      icon: new Icon({ type: 'fa', name: 'search' }),
-    }],
-
-    listInfoBoxes: [{
-      header: ['components', 'environment', 'listInfoBoxes', 'regions', 'header'],
-      listName: 'regions',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'public' },
-    }, {
-      header: ['components', 'environment', 'listInfoBoxes', 'projects', 'header'],
-      listName: 'projects',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'folder' },
-    }],
-
   });
 
   instance.autorun(function () {
     let data = Template.currentData();
     new SimpleSchema({
       _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+      onNodeSelected: { type: Function },
     }).validate(data);
 
     instance.state.set('_id', data._id);
+  });
 
-    instance.subscribe('environments?_id', data._id);
+  instance.autorun(function () {
+    let _id = instance.state.get('_id');
 
-    Environments.find({ _id: data._id }).forEach((env) => {
+    instance.subscribe('environments?_id', _id);
+    Environments.find({ _id: _id }).forEach((env) => {
       instance.state.set('envName', env.name);
       instance.state.set('infoLastScanning', env.last_scanned);
 
@@ -155,6 +166,14 @@ Template.EnvironmentDashboard.helpers({
     return instance.state.get(key);
   },
 
+  getListInfoBoxes: function () {
+    return listInfoBoxes;
+  },
+  
+  getBriefInfoList: function () {
+    return briefInfoList;
+  },
+
   notificationsCount: function(){
     let instance = Template.instance();
     let envName = instance.state.get('envName');
@@ -213,18 +232,19 @@ Template.EnvironmentDashboard.helpers({
 
   argsListInfoBox: function (listInfoBox) {
     let instance = Template.instance();
+    let data = Template.currentData();
     let envName = instance.state.get('envName');
 
-    let lastScanned = calcLastScanned(listInfoBox.listName, envName);
+    //let lastScanned = calcLastScanned(listInfoBox.listName, envName);
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
       list: getList(listInfoBox.listName, envName),
       icon: new Icon(listInfoBox.icon),
       listItemFormat: listInfoBox.listItemFormat,
-      lastScanning: lastScanned,      
+      //lastScanning: lastScanned,      
       onItemSelected: function (itemKey) {
-        Router.go(buildRoute(listInfoBox.listName, itemKey));
+        data.onNodeSelected(new Mongo.ObjectID(itemKey));
       }
     };
   },
@@ -249,6 +269,7 @@ function getList(listName, envName) {
   }
 }
 
+/*
 function calcLastScanned(listName, envName) {
   switch (listName) {
   case 'regions':
@@ -267,22 +288,4 @@ function calcLastScanned(listName, envName) {
     throw 'unknown';
   }
 }
-
-function buildRoute(listName, itemKey) {
-  switch (listName) {
-  case 'regions':
-    return buildRouteRegion(itemKey);
-  case 'projects':
-    return buildRouteProject(itemKey);
-  default:
-    throw 'unknowned list name';
-  }
-}
-
-function buildRouteRegion(id_path) {
-  return `/region?id_path=${id_path}`;
-}
-
-function buildRouteProject(id_path) {
-  return `/project?id_path=${id_path}`;
-}
+*/

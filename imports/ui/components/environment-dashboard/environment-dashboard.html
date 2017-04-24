@@ -21,7 +21,7 @@
 
 <div class="sm-items-segment mainContentData flex-box">
 
-{{#each briefInfo in (getState 'briefInfoList') }}
+{{#each briefInfo in (getBriefInfoList) }}
   {{> DataCubic (argsBriefInfo briefInfo) }}
 {{/each }}
 
@@ -70,7 +70,7 @@
 </div>
 
 <div class="sm-list-info-boxes mainContentData">
-{{#each listInfoBox in (getState 'listInfoBoxes') }}
+{{#each listInfoBox in (getListInfoBoxes) }}
   {{> ListInfoBox (argsListInfoBox listInfoBox) }}
 {{/each }}
 </div>

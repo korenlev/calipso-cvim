@@ -96,7 +96,7 @@
             <tbody>
             {{#each messagesErrors}}
                 <tr>
-                    <td>{{message}}</td>
+                    <td>{{message_id}}</td>
                     <td>{{timestamp}}</td>
                     <td><a data-toggle="modal" href="{{pathFor route='enviroment' query='env='}}{{environment}}&graph=true">Show on graph</a></td>
                 </tr>

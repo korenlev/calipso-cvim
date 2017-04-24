@@ -19,6 +19,46 @@ import '/imports/ui/components/list-info-box/list-info-box';
         
 import './region-dashboard.html';     
     
+let infoBoxes = [{
+  header: ['components', 'regionDashboard', 'infoBoxes', 'instances', 'header'],
+  dataSource: 'instancesCount',
+  icon: { type: 'fa', name: 'desktop' },
+  theme: 'dark'
+}, {
+  header: ['components', 'regionDashboard', 'infoBoxes', 'vServices', 'header'],
+  dataSource: 'vServicesCount',
+  icon: { type: 'fa', name: 'object-group' },
+  theme: 'dark'
+}, {
+  header: ['components', 'regionDashboard', 'infoBoxes', 'hosts', 'header'],
+  dataSource: 'hostsCount',
+  icon: { type: 'fa', name: 'server' },
+  theme: 'dark'
+}, {
+  header: ['components', 'regionDashboard', 'infoBoxes', 'vConnectors', 'header'],
+  dataSource: 'vConnectorsCount',
+  icon: { type: 'fa', name: 'compress' },
+  theme: 'dark'
+}];
+
+let listInfoBoxes = [{
+  header: ['components', 'regionDashboard', 'listInfoBoxes', 'availabilityZones', 'header'],
+  listName: 'availabilityZones',
+  listItemFormat: { 
+    getLabelFn: (item) => { return item.name; },
+    getValueFn: (item) => { return item._id._str; },
+  },
+  icon: { type: 'material', name: 'developer_board' },
+}, {
+  header: ['components', 'regionDashboard', 'listInfoBoxes', 'aggregates', 'header'],
+  listName: 'aggregates',
+  listItemFormat: { 
+    getLabelFn: (item) => { return item.name; },
+    getValueFn: (item) => { return item._id._str; },
+  },
+  icon: { type: 'material', name: 'storage' },
+}];
+
 /*  
  * Lifecycles
  */   
@@ -28,85 +68,62 @@ Template.RegionDashboard.onCreated(function() {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    infoBoxes: [{
-      header: ['components', 'regionDashboard', 'infoBoxes', 'instances', 'header'],
-      dataSource: 'instancesCount',
-      icon: { type: 'fa', name: 'desktop' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'regionDashboard', 'infoBoxes', 'vServices', 'header'],
-      dataSource: 'vServicesCount',
-      icon: { type: 'fa', name: 'object-group' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'regionDashboard', 'infoBoxes', 'hosts', 'header'],
-      dataSource: 'hostsCount',
-      icon: { type: 'fa', name: 'server' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'regionDashboard', 'infoBoxes', 'vConnectors', 'header'],
-      dataSource: 'vConnectorsCount',
-      icon: { type: 'fa', name: 'compress' },
-      theme: 'dark'
-    }, 
-    ],
-    region_id_path: null,
+    _id: null,
+    id_path: null,
     instancesCount: 0,
     vServicesCount: 0,
     hostsCount: 0,
     vConnectors: 0,
-    listInfoBoxes: [{
-      header: ['components', 'regionDashboard', 'listInfoBoxes', 'availabilityZones', 'header'],
-      listName: 'availabilityZones',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'developer_board' },
-    }, {
-      header: ['components', 'regionDashboard', 'listInfoBoxes', 'aggregates', 'header'],
-      listName: 'aggregates',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'storage' },
-    }]
   });
 
   instance.autorun(function () {
     let data = Template.currentData();
     new SimpleSchema({
-      id_path: { type: String },
+      _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+      onNodeSelected: { type: Function },
     }).validate(data);
 
-    let region_id_path = data.id_path;
+    instance.state.set('_id', data._id);
+  });
 
-    instance.state.set('region_id_path', region_id_path);
+  instance.autorun(function () {
+    let _id = instance.state.get('_id');
 
-    instance.subscribe('inventory?id_path', region_id_path);
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'instance');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'vservice');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'host');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'vconnector');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'availability_zone');
-    instance.subscribe('inventory?id_path_start&type', region_id_path, 'aggregate');
+    instance.subscribe('inventory?_id', _id);
+    Inventory.find({ _id: _id }).forEach((region) => {
+      instance.state.set('id_path', region.id_path);
 
-    let idPathExp = new RegExp(`^${regexEscape(region_id_path)}`);
+      instance.subscribe('inventory?id_path', region.id_path);
+      instance.subscribe('inventory?id_path_start&type', region.id_path, 'instance');
+      instance.subscribe('inventory?id_path_start&type', region.id_path, 'vservice');
+      instance.subscribe('inventory?id_path_start&type', region.id_path, 'host');
+      instance.subscribe('inventory?id_path_start&type', region.id_path, 'vconnector');
+      instance.subscribe('inventory?id_path_start&type', region.id_path, 'availability_zone');
+      instance.subscribe('inventory?id_path_start&type', region.id_path, 'aggregate');
 
-    instance.state.set('instancesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'instance'
-    }).count());
+      let idPathExp = new RegExp(`^${regexEscape(region.id_path)}`);
 
-    instance.state.set('vServicesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vservice'
-    }).count());
+      instance.state.set('instancesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'instance'
+      }).count());
 
-    instance.state.set('hostsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'host'
-    }).count());
+      instance.state.set('vServicesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vservice'
+      }).count());
 
-    instance.state.set('vConnectorsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vconnector'
-    }).count());
+      instance.state.set('hostsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'host'
+      }).count());
+
+      instance.state.set('vConnectorsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vconnector'
+      }).count());
+    });
+
   });
 
 });  
@@ -130,19 +147,17 @@ Template.RegionDashboard.events({
 Template.RegionDashboard.helpers({    
   region: function () {
     let instance = Template.instance();
-    let region_id_path = instance.state.get('region_id_path');
+    let _id = instance.state.get('_id');
 
-    return Inventory.findOne({ id_path: region_id_path });
+    return Inventory.findOne({ _id: _id });
   },
 
   infoBoxes: function () {
-    let instance = Template.instance();
-    return instance.state.get('infoBoxes');
+    return infoBoxes;
   },
 
   listInfoBoxes: function () {
-    let instance = Template.instance();
-    return instance.state.get('listInfoBoxes');
+    return listInfoBoxes;
   },
   
   argsInfoBox: function (infoBox) {
@@ -158,7 +173,8 @@ Template.RegionDashboard.helpers({
 
   argsListInfoBox: function (listInfoBox) {
     let instance = Template.instance();
-    let region_id_path = instance.state.get('region_id_path');
+    let data = Template.currentData();
+    let region_id_path = instance.state.get('id_path');
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
@@ -168,7 +184,7 @@ Template.RegionDashboard.helpers({
       //theme: infoBox.theme
       listItemFormat: listInfoBox.listItemFormat,
       onItemSelected: function (itemKey) {
-        Router.go(buildRoute(itemKey, listInfoBox.listName));
+        data.onNodeSelected(new Mongo.ObjectID(itemKey));
       }
     };
   },
@@ -193,23 +209,4 @@ function getList(listName, parentIdPath) {
   default:
     throw 'unknowned list type';
   }
-}
-
-function buildRoute(itemKey, listName) {
-  switch (listName) {
-  case 'availabilityZones':
-    return buildRouteZone(itemKey);
-  case 'aggregates':
-    return buildRouteAggregate(itemKey);
-  default:
-    throw 'unknowned list name';
-  }
-}
-
-function buildRouteZone(id_path) {
-  return `/zone?id_path=${id_path}`;
-}
-
-function buildRouteAggregate(id_path) {
-  return `/aggregate?id_path=${id_path}`;
 }

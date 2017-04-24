@@ -8,9 +8,16 @@
         <a href="#"><i class="material-icons">menu</i></a>
       </div>
       <ul class="sm-menu-items-list">
-        <li><a class="sm-toggle-graph-button toggleGraph" href="#"><i class="material-icons">share</i>Toggle Graph</a></li>
-        <li><a href="{{ pathFor route='enviroment' query='env=' }}{{ envName  }}&resetDashboard=true"
-            ><i class="material-icons">home</i>Dashboard</a></li>
+        <li>
+          <a class="sm-toggle-graph-button toggleGraph" href="#">
+            <span><i class="material-icons">share</i>Toggle Graph</span>
+          </a>
+        </li>
+        <li>
+          <a class="sm-btn-dashboard">
+            <span><i class="material-icons">home</i>Dashboard</span>
+          </a>
+        </li>
 
         {{#if mainNode }}
         <div class="sm-inventory-tree">

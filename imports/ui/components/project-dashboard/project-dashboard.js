@@ -30,6 +30,8 @@ Template.ProjectDashboard.onCreated(function() {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
+    _id: null,
+    id_path: null,
     infoBoxes: [{
       header: ['components', 'projectDashboard', 'infoBoxes', 'networks', 'header'],
       dataSource: 'networksCount',
@@ -41,7 +43,6 @@ Template.ProjectDashboard.onCreated(function() {
       icon: { type: 'material', name: 'settings_input_hdmi' },
       theme: 'dark'
     }],
-    project_id_path: null,
     networksCount: 0,
     portsCount: 0,
   });
@@ -50,28 +51,37 @@ Template.ProjectDashboard.onCreated(function() {
     let data = Template.currentData();
 
     new SimpleSchema({
-      id_path: { type: String },
+      _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+      onNodeSelected: { type: Function },
     }).validate(data);
 
-    let project_id_path = data.id_path;
+    instance.state.set('_id', data._id);
+  });
 
-    instance.state.set('project_id_path', project_id_path);
+  instance.autorun(function () {
+    let _id = instance.state.get('_id');
 
-    instance.subscribe('inventory?id_path', project_id_path);
-    instance.subscribe('inventory?id_path_start&type', project_id_path, 'network');
-    instance.subscribe('inventory?id_path_start&type', project_id_path, 'port');
+    instance.subscribe('inventory?_id', _id);
+    
+    Inventory.find({ _id: _id }).forEach((project) => {
+      instance.state.set('id_path', project.id_path);
 
-    let idPathExp = new RegExp(`^${regexEscape(project_id_path)}`);
+      instance.subscribe('inventory?id_path', project.id_path);
+      instance.subscribe('inventory?id_path_start&type', project.id_path, 'network');
+      instance.subscribe('inventory?id_path_start&type', project.id_path, 'port');
 
-    instance.state.set('networksCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'network'
-    }).count());
+      let idPathExp = new RegExp(`^${regexEscape(project.id_path)}`);
 
-    instance.state.set('portsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'port'
-    }).count());
+      instance.state.set('networksCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'network'
+      }).count());
+
+      instance.state.set('portsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'port'
+      }).count());
+    });
   });
 });  
 
@@ -94,9 +104,8 @@ Template.ProjectDashboard.events({
 Template.ProjectDashboard.helpers({    
   project: function () {
     let instance = Template.instance();
-    let project_id_path = instance.state.get('project_id_path');
-
-    return Inventory.findOne({ id_path: project_id_path });
+    let _id = instance.state.get('_id');
+    return Inventory.findOne({ _id: _id });
   },
 
   infoBoxes: function () {
@@ -106,7 +115,7 @@ Template.ProjectDashboard.helpers({
 
   networks: function () {
     let instance = Template.instance();
-    let project_id_path = instance.state.get('project_id_path');
+    let project_id_path = instance.state.get('id_path');
     let idPathExp = new RegExp(`^${regexEscape(project_id_path)}`);
     return Inventory.find({ 
       id_path: idPathExp,

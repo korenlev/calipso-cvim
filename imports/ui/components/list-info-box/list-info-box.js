@@ -5,7 +5,10 @@
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
+import { LocalCollection } from 'meteor/minimongo';
+import { Icon } from '/imports/lib/icon';
         
 import './list-info-box.html';     
     
@@ -14,6 +17,25 @@ import './list-info-box.html';
  */   
   
 Template.ListInfoBox.onCreated(function() {
+  let instance = this;
+  instance.autorun(function () {
+    let data = Template.currentData();
+    new SimpleSchema({
+      header: { type: String },
+      list: { type: LocalCollection.Cursor, blackbox: true },
+      icon: { type: Icon, blackbox: true },
+      listItemFormat: {
+        type: {
+          getLabelFn: { type: Function },
+          getValueFn: { type: Function },
+        },
+        blackbox: true
+      },
+      onItemSelected: { type: Function },
+
+    }).validate(data);
+
+  });
 });  
 
 /*
@@ -43,8 +65,8 @@ Template.ListInfoBox.helpers({
 
     let options = R.map((listItem) => {
       return { 
-        label: listItem[listItemFormat.label], 
-        value: listItem[listItemFormat.value] 
+        label: listItemFormat.getLabelFn(listItem), 
+        value: listItemFormat.getValueFn(listItem) 
       };
     }, list.fetch());
 
@@ -52,7 +74,6 @@ Template.ListInfoBox.helpers({
   },
 
   itemsCount: function () {
-
     let instance = Template.instance();
     return instance.data.list.count();
   },
@@ -62,8 +83,8 @@ Template.ListInfoBox.helpers({
 
     let options = R.map((listItem) => {
       return { 
-        label: listItem[listItemFormat.label], 
-        value: listItem[listItemFormat.value] 
+        label: listItemFormat.getLabelFn(listItem), 
+        value: listItemFormat.getValueFn(listItem) 
       };
     }, list.fetch());
 

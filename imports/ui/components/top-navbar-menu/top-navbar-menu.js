@@ -10,6 +10,7 @@ import { store } from '/imports/ui/store/store';
 //import { setSearchTerm } from '/imports/ui/actions/search-interested-parties';
 import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
+import { idToStr } from '/imports/lib/utilities';
 
 import '/imports/ui/components/search-auto-complete-list/search-auto-complete-list';
 import '/imports/ui/components/get-started/get-started';
@@ -112,7 +113,7 @@ Template.TopNavbarMenu.helpers({
     return {
       selectedEnvironment: selectedEnvironment,
       onEnvSelected: function (env) {
-        Router.go('enviroment', {}, { query: `env=${ env.name }` });
+        Router.go('environment', { _id: idToStr(env._id) }, { });
       }
     };
   }

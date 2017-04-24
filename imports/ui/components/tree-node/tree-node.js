@@ -4,7 +4,9 @@
 
 //import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
+//import { EJSON } from 'meteor/ejson';
 //import { ReactiveDict } from 'meteor/reactive-dict';
+import { ReactiveVar } from 'meteor/reactive-var';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { InventoryTreeNodeBehavior } from '/imports/ui/lib/inventory-tree-node-behavior';
 import * as R from 'ramda';
@@ -32,8 +34,18 @@ Template.TreeNode.onCreated(function() {
 
   createAttachedFns(instance);
 
+  //instance.currentData = new ReactiveVar(null, EJSON.equals);
+  instance.currentData = new ReactiveVar(null, R.equals);
+
+  instance.autorun((function(_this) {
+    return function(_computation) {
+      return _this.currentData.set(Template.currentData());
+    };
+  })(instance));
+
   instance.autorun(function () {
-    let data = Template.currentData();
+    //let data = Template.currentData();
+    let data = instance.currentData.get();
     //let data = instance.data;
 
     new SimpleSchema({
@@ -55,6 +67,7 @@ Template.TreeNode.onCreated(function() {
       onStartCloseReq: { type: Function },
       onClosingDone: { type: Function },
       onChildDetected: { type: Function },
+      onNodeSelected: { type: Function },
     }).validate(data);
 
     instance.state.set('openState', data.openState);
@@ -87,7 +100,7 @@ Template.TreeNode.onCreated(function() {
     case 'start_open':
       issueOrder(instance, 'orderDataSubscribe', { node: node, forOpen: true });
       setTimeout(() => { 
-        instance.data.onOpeningDone([node._id._str]);
+        instance.data.onOpeningDone([node._id._str], node);
       }, 100);
       break;
     case 'opened':
@@ -110,6 +123,7 @@ Template.TreeNode.onCreated(function() {
     if (order.counter == 0) { return; }
 
     instance.data.onResetChildren(R.append(R.path(['_id', '_str'], order.data.node), []));
+    // console.log('reset children in autoron order data sub: ' + order.data.node._id._str);
 
     if (order.data.forOpen) {
       instance.data.behavior.subscribeGetChildrenFn(instance, order.data.node);
@@ -118,7 +132,7 @@ Template.TreeNode.onCreated(function() {
       let onChildReadThrottle = _.throttle(() => {
         instance.data.onChildrenRead([ order.data.node._id._str ], children);
         children = [];
-      }, 100);
+      }, 200);
 
       instance.data.behavior.getChildrenFn(order.data.node).forEach((child) => {
         // todo: aggregate the collection into threshold and then dispatch. 
@@ -196,6 +210,8 @@ Template.TreeNode.events({
       )(data.onStartOpenReq);
       break;
     }
+
+    data.onNodeSelected(data.node);
   }
 });
 
@@ -223,7 +239,8 @@ Template.TreeNode.helpers({
       onOpeningDone: instance._fns.onOpeningDone,
       onStartCloseReq: instance._fns.onStartCloseReq,
       onClosingDone: instance._fns.onClosingDone,
-      onChildDetected: instance._fns.onChildDetected
+      onChildDetected: instance._fns.onChildDetected,
+      onNodeSelected: instance._fns.onNodeSelected,
     };
   },
 
@@ -266,9 +283,9 @@ function createAttachedFns(instance) {
       instance.data.onStartOpenReq(
         R.prepend(instance.data.node._id._str, reqPath));
     },
-    onOpeningDone: (reqPath) => {
+    onOpeningDone: (reqPath, nodeInfo) => {
       instance.data.onOpeningDone(
-        R.prepend(instance.data.node._id._str, reqPath));
+        R.prepend(instance.data.node._id._str, reqPath), nodeInfo);
     },
     onStartCloseReq: (reqPath) => {
       instance.data.onStartCloseReq(
@@ -281,6 +298,9 @@ function createAttachedFns(instance) {
     onChildDetected: (reqPath) => {
       instance.data.onChildDetected(
         R.prepend(instance.data.node._id._str, reqPath));
+    },
+    onNodeSelected: (nodeInfo) => {
+      instance.data.onNodeSelected(nodeInfo);
     },
   };
 }

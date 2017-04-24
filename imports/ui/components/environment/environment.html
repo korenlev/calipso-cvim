@@ -2,13 +2,20 @@
   
   <div class="sm-environment-container flex-box justify-content-between">
     <div class="flex-box-1 site-sidenav">
-      {{> accordionNavMenu (argsNavMenu childNodeRequested envName) }}
+      {{#if isLoaded }}
+        {{> accordionNavMenu (argsNavMenu envName mainNode) }}
+      {{/if }}
     </div>
 
     <div class="flex-box-3 main-layout-no-nav">
         <div class="sp-breadcrumb-segment">
           {{> breadcrumb }}
         </div>
+
+        {{#if selectedNodeType }}
+          {{> UI.dynamic template=dashboardTemplate 
+                         data=(argsDashboard rdxSelectedNodeId) }}
+        {{/if }}
 
         {{#if (getState 'showGraph') }}
 
@@ -26,27 +33,6 @@
 
             <div>Node does not have a graph data</div>
 
-          {{/if }}
-
-        {{else }} 
-
-          {{#if isShowDashboard 'environment' }}
-            {{> EnvironmentDashboard argsEnvDashboard }}
-          {{/if }}
-          {{#if isShowDashboard 'project' }}
-            {{> ProjectDashboard argsInventoryNodeDashboard }} 
-          {{/if }}
-          {{#if isShowDashboard 'aggregate' }}
-            {{> AggregateDashboard argsInventoryNodeDashboard }}
-          {{/if }}
-          {{#if isShowDashboard 'region' }}
-            {{> RegionDashboard argsInventoryNodeDashboard }}
-          {{/if }}
-          {{#if isShowDashboard 'host' }}
-            {{> HostDashboard argsInventoryNodeDashboard }}
-          {{/if }}
-          {{#if isShowDashboard 'availability_zone' }}
-            {{> ZoneDashboard argsInventoryNodeDashboard }}
           {{/if }}
 
         {{/if }}

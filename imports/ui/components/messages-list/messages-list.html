@@ -29,7 +29,9 @@
         <td>{{ message.level }}</td>
         <td>{{ message.timestamp }}</td>
         <td>{{ message.related_object_type }}</td>
-        <td><a href="{{pathFor route='enviroment' query=(asHash env=message.environment nodeid=message.related_object) }}">{{ message.related_object }}</a></td>
+        <td><a href="{{pathFor route='environment' 
+                               data=(getEnvId message.environment) 
+                               query=(asHash selectedNodeId=message.related_object) }}">{{ message.related_object }}</a></td>
         <td>
           <div class="sm-action-bar">
             <a href="{{pathFor route='message' 

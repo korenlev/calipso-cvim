@@ -12,11 +12,17 @@ import {
   endCloseTreeNode,
   setChildDetectedTreeNode,
 } 
-from '/imports/ui/actions/tree-node.actions';
+  from '/imports/ui/actions/tree-node.actions';
 
 const defaultState = {
+  _id: null,
   envName: null,
-  treeNode: treeNode()
+  isLoaded: false,
+  treeNode: treeNode(),
+  selectedNode: {
+    _id: null,
+    type: null
+  }
 };
 
 export function reducer(state = defaultState, action) {
@@ -71,6 +77,38 @@ export function reducer(state = defaultState, action) {
       treeNode(state.treeNode, setChildDetectedTreeNode(action.payload.nodePath)),
       state
     );
+
+  case actions.SET_ENV_SELECTED_NODE:
+    return R.merge(state, {
+      selectedNode: { 
+        _id: action.payload.nodeId,
+        type: action.payload.nodeType
+      }
+    });
+
+  case actions.SET_ENV_SELECTED_NODE_TYPE:
+    return R.merge(state, {
+      selectedNode: R.merge(state.selectedNode, {
+        type: action.payload.type
+      })
+    });
+
+  case actions.SET_ENV_SELECTED_NODE_AS_ENV:
+    return R.merge(state, {
+      selectedNode: {
+        _id: state._id,
+        type: 'environment'
+      }
+    });
+
+  case actions.SET_ENV_ENV_ID:
+    return R.assoc('_id', action.payload._id, state);
+
+  case actions.SET_ENV_AS_LOADED:
+    return R.assoc('isLoaded', true, state);
+
+  case actions.SET_ENV_AS_NOT_LOADED:
+    return R.assoc('isLoaded', false, state);
 
   default:
     return state;

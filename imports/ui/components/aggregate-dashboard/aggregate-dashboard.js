@@ -18,6 +18,40 @@ import '/imports/ui/components/list-info-box/list-info-box';
 
 import './aggregate-dashboard.html';     
     
+let infoBoxes = [{
+  header: ['components', 'aggregateDashboard', 'infoBoxes', 'instances', 'header'],
+  dataSource: 'instancesCount',
+  icon: { type: 'fa', name: 'desktop' },
+  theme: 'dark'
+}, {
+  header: ['components', 'aggregateDashboard', 'infoBoxes', 'vServices', 'header'],
+  dataSource: 'vServicesCount',
+  icon: { type: 'fa', name: 'object-group' },
+  theme: 'dark'
+}, {
+  header: ['components', 'aggregateDashboard', 'infoBoxes', 'hosts', 'header'],
+  dataSource: 'hostsCount',
+  icon: { type: 'fa', name: 'server' },
+  theme: 'dark'
+}, {
+  header: ['components', 'aggregateDashboard', 'infoBoxes', 'vConnectors', 'header'],
+  dataSource: 'vConnectorsCount',
+  icon: { type: 'fa', name: 'compress' },
+  theme: 'dark'
+}, {
+  header: ['components', 'aggregateDashboard', 'infoBoxes', 'vEdges', 'header'],
+  dataSource: 'vEdgesCount',
+  icon: { type: 'fa', name: 'external-link' },
+  theme: 'dark'
+}]; 
+
+let listInfoBoxes = [{
+  header: ['components', 'aggregateDashboard', 'listInfoBoxes', 'hosts', 'header'],
+  listName: 'hosts',
+  listItemFormat: { label: 'name', value: 'id_path' },
+  icon: { type: 'material', name: 'developer_board' },
+}];
+
 /*  
  * Lifecycles
  */   
@@ -27,41 +61,8 @@ Template.AggregateDashboard.onCreated(function() {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    infoBoxes: [{
-      header: ['components', 'aggregateDashboard', 'infoBoxes', 'instances', 'header'],
-      dataSource: 'instancesCount',
-      icon: { type: 'fa', name: 'desktop' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'aggregateDashboard', 'infoBoxes', 'vServices', 'header'],
-      dataSource: 'vServicesCount',
-      icon: { type: 'fa', name: 'object-group' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'aggregateDashboard', 'infoBoxes', 'hosts', 'header'],
-      dataSource: 'hostsCount',
-      icon: { type: 'fa', name: 'server' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'aggregateDashboard', 'infoBoxes', 'vConnectors', 'header'],
-      dataSource: 'vConnectorsCount',
-      icon: { type: 'fa', name: 'compress' },
-      theme: 'dark'
-    }, {
-      header: ['components', 'aggregateDashboard', 'infoBoxes', 'vEdges', 'header'],
-      dataSource: 'vEdgesCount',
-      icon: { type: 'fa', name: 'external-link' },
-      theme: 'dark'
-    }], 
-
-    listInfoBoxes: [{
-      header: ['components', 'aggregateDashboard', 'listInfoBoxes', 'hosts', 'header'],
-      listName: 'hosts',
-      listItemFormat: { label: 'name', value: 'id_path' },
-      icon: { type: 'material', name: 'developer_board' },
-    }
-    ],
-    aggregate_id_path: null,
+    _id: null,
+    id_path: null,
     instancesCount: 0,
     vServicesCount: 0,
     hostsCount: 0,
@@ -73,46 +74,54 @@ Template.AggregateDashboard.onCreated(function() {
     let data = Template.currentData();
 
     new SimpleSchema({
-      id_path: { type: String },
+      _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+      onNodeSelected: { type: Function },
     }).validate(data);
 
-    let aggregate_id_path = data.id_path;
+    instance.state.set('_id', data._id);
+  });
 
-    instance.state.set('aggregate_id_path', aggregate_id_path);
+  instance.autorun(function () {
+    let _id = instance.state.get('_id');
 
-    instance.subscribe('inventory?id_path', aggregate_id_path);
-    instance.subscribe('inventory?id_path_start&type', aggregate_id_path, 'instance');
-    instance.subscribe('inventory?id_path_start&type', aggregate_id_path, 'vservice');
-    instance.subscribe('inventory?id_path_start&type', aggregate_id_path, 'host');
-    instance.subscribe('inventory?id_path_start&type', aggregate_id_path, 'vconnector');
-    instance.subscribe('inventory?id_path_start&type', aggregate_id_path, 'vedge');
+    instance.subscribe('inventory?_id', _id);
+    Inventory.find({ _id: _id }).forEach((aggr) => {
+      instance.state.set('id_path', aggr.id_path);
 
-    let idPathExp = new RegExp(`^${regexEscape(aggregate_id_path)}`);
+      instance.subscribe('inventory?id_path', aggr.id_path);
+      instance.subscribe('inventory?id_path_start&type', aggr.id_path, 'instance');
+      instance.subscribe('inventory?id_path_start&type', aggr.id_path, 'vservice');
+      instance.subscribe('inventory?id_path_start&type', aggr.id_path, 'host');
+      instance.subscribe('inventory?id_path_start&type', aggr.id_path, 'vconnector');
+      instance.subscribe('inventory?id_path_start&type', aggr.id_path, 'vedge');
 
-    instance.state.set('instancesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'instance'
-    }).count());
+      let idPathExp = new RegExp(`^${regexEscape(aggr.id_path)}`);
 
-    instance.state.set('vServicesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vservice'
-    }).count());
+      instance.state.set('instancesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'instance'
+      }).count());
 
-    instance.state.set('hostsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'host'
-    }).count());
+      instance.state.set('vServicesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vservice'
+      }).count());
 
-    instance.state.set('vConnectorsCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vconnector'
-    }).count());
+      instance.state.set('hostsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'host'
+      }).count());
 
-    instance.state.set('vEdgesCount', Inventory.find({ 
-      id_path: idPathExp,
-      type: 'vedge'
-    }).count());
+      instance.state.set('vConnectorsCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vconnector'
+      }).count());
+
+      instance.state.set('vEdgesCount', Inventory.find({ 
+        id_path: idPathExp,
+        type: 'vedge'
+      }).count());
+    });
   });
 });  
 
@@ -135,19 +144,17 @@ Template.AggregateDashboard.events({
 Template.AggregateDashboard.helpers({    
   aggregate: function () {
     let instance = Template.instance();
-    let aggregate_id_path = instance.state.get('aggregate_id_path');
+    let aggregate_id_path = instance.state.get('id_path');
 
     return Inventory.findOne({ id_path: aggregate_id_path });
   },
 
   infoBoxes: function () {
-    let instance = Template.instance();
-    return instance.state.get('infoBoxes');
+    return infoBoxes;
   },
 
   listInfoBoxes: function () {
-    let instance = Template.instance();
-    return instance.state.get('listInfoBoxes');
+    return listInfoBoxes;
   },
 
   argsInfoBox: function (infoBox) {
@@ -163,7 +170,8 @@ Template.AggregateDashboard.helpers({
 
   argsListInfoBox: function (listInfoBox) {
     let instance = Template.instance();
-    let aggregate_id_path = instance.state.get('aggregate_id_path');
+    let data = Template.currentData();
+    let aggregate_id_path = instance.state.get('id_path');
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
@@ -173,7 +181,7 @@ Template.AggregateDashboard.helpers({
       //theme: infoBox.theme
       listItemFormat: listInfoBox.listItemFormat,
       onItemSelected: function (itemKey) {
-        Router.go(`/host?id_path=${itemKey}`);
+        data.onNodeSelected(new Mongo.ObjectID(itemKey));
       }
     };
   }
