@@ -7,8 +7,8 @@ class ApiFetchPort(ApiAccess):
         super(ApiFetchPort, self).__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id):
-        if id == None:
+    def get(self, project_id):
+        if not project_id:
             self.log.info("Get method needs ID parameter")
             return []
         # use project admin credentials, to be able to fetch all ports
@@ -17,7 +17,7 @@ class ApiFetchPort(ApiAccess):
             return []
         ret = []
         for region in self.regions:
-            ret.append(self.get_port(region, token, id))
+            ret.append(self.get_port(region, token, project_id))
         if ret == []:
             self.log.info("ApiFetchPort: Port not found.")
         return ret

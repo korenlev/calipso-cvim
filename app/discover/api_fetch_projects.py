@@ -5,7 +5,7 @@ class ApiFetchProjects(ApiAccess):
     def __init__(self):
         super(ApiFetchProjects, self).__init__()
 
-    def get(self, id):
+    def get(self, project_id):
         token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
@@ -17,7 +17,10 @@ class ApiFetchProjects(ApiAccess):
             if projects_for_user else ret
 
     def get_projects_for_api_user(self, region, token):
+        # TODO: why is token redefined?
         token = self.v2_auth_pwd(self.admin_project)
+        if not token:
+            return []
         endpoint = self.get_region_url_nover(region, "keystone")
         headers = {
             'X-Auth-Project-Id': self.admin_project,

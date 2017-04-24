@@ -5,14 +5,13 @@ class ApiFetchAvailabilityZones(ApiAccess):
     def __init__(self):
         super(ApiFetchAvailabilityZones, self).__init__()
 
-    def get(self, id):
-        project = id
-        token = self.v2_auth_pwd(project)
+    def get(self, project_id):
+        token = self.v2_auth_pwd(project_id)
         if not token:
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(project, region, token))
+            ret.extend(self.get_for_region(project_id, region, token))
         return ret
 
     def get_for_region(self, project, region, token):
@@ -29,7 +28,7 @@ class ApiFetchAvailabilityZones(ApiAccess):
         if "status" in response and int(response["status"]) != 200:
             return []
         ret = []
-        if not "availabilityZoneInfo" in response:
+        if "availabilityZoneInfo" not in response:
             return []
         azs = response["availabilityZoneInfo"]
         if not azs:
