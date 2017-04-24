@@ -6,7 +6,7 @@ from time import gmtime, strftime
 from bson import ObjectId
 
 from discover.configuration import Configuration
-from discover.message import Message
+from messages.message import Message
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.special_char_converter import SpecialCharConverter
