@@ -19,7 +19,7 @@ class TestInstanceUpdate(TestEvent):
             # add instance document for updating
             self.set_item(INSTANCE_DOCUMENT)
             instance = self.handler.inv.get_by_id(self.env, self.instance_id)
-            self.assertNotEqual(instance, [])
+            self.assertIsNotNone(instance)
             self.assertEqual(instance['name'], INSTANCE_DOCUMENT['name'])
 
         name_path = instance['name_path']
