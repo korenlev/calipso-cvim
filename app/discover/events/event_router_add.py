@@ -15,12 +15,16 @@ class EventRouterAdd(EventBase):
     OBJECT_TYPE = ROUTER_OBJECT_TYPE
 
     def add_router_document(self, env, network_id, router_doc, host):
-        router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id=%s" % router_doc['id']
+        router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id={}"\
+                                     .format(router_doc['id'])
         router_doc["environment"] = env
-        router_doc["id_path"] = host['id_path'] + "/%s-vservices/%s-vservices-routers/%s" % (host['id'], host['id'],
-                                                                                             router_doc['id'])
+        router_doc["id_path"] = "{}/{}-vservices/{}-vservices-routers/{}"\
+                                .format(host['id_path'], host['id'],
+                                        host['id'], router_doc['id'])
         router_doc['last_scanned'] = datetime.datetime.utcnow()
-        router_doc['name_path'] = host['name_path'] + "/Vservices/Gateways/%s" % router_doc['name']
+        router_doc['name_path'] = "{}/Vservices/Gateways/{}"\
+                                  .format(host['name_path'],
+                                          router_doc['name'])
         router_doc['network'] = []
         if network_id:
             router_doc['network'] = [network_id]
