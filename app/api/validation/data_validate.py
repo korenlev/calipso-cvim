@@ -82,7 +82,7 @@ class DataValidate:
 
             if value is None:
                 if key in data:
-                    return "Invalid query string: value of {0} key doesn't exist ".format(key)
+                    return "Invalid data: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
                 mandatory_error = error_messages.get('mandatory')
                 error_message = self.mandatory_check(key,

@@ -48,3 +48,7 @@ def stringify_object_values_by_type(obj, object_type):
 def stringify_object_values_by_types(obj, object_types):
     for object_type in object_types:
         stringify_object_values_by_type(obj, object_type)
+
+
+def convert_to_uppercase(s):
+    return s.upper()
