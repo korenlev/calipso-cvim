@@ -281,6 +281,8 @@ class ScanController(Fetcher):
             scanner.scan_links()
         if cliques_only or run_all:
             scanner.scan_cliques()
+        if monitoring_setup_only:
+            self.inv.monitoring_setup_manager.simulate_track_changes()
         if not (inventory_only or links_only or cliques_only):
             scanner.deploy_monitoring_setup()
         return True, 'ok'
