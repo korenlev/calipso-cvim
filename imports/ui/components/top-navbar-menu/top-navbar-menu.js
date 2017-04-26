@@ -73,7 +73,7 @@ Template.TopNavbarMenu.events = {
   },
 
   'click .sm-dashboard-link': function () {
-    Router.go('dashboard');
+    Router.go('Dashboard');
   },
 
   'click .sm-get-started-link': function () {

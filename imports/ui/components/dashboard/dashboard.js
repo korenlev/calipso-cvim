@@ -149,7 +149,6 @@ Template.Dashboard.helpers({
     return Counts.get('messages?level!counter?' +
       'level=' + 'error');
   },
-
 /*
   notificationsTimestamp: function(){
     var msgTimestamp = Messages.findOne({state:'added'},{fields: {'timestamp': 1} });
@@ -163,4 +162,4 @@ Template.Dashboard.helpers({
   },
 */
 
-});
+}); // end: helpers

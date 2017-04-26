@@ -37,7 +37,13 @@
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                                     {{#each regionItem in regoins (envItem.name) }}
-                                        <li><a href="{{pathFor route='region' query='id_path='}}{{ regionItem.id_path }}">{{ regionItem.object_name }}</a></li>
+                                      <li>
+                                        <a href="{{pathFor route='environment' 
+                                            data=(asHash _id=(idToStr envItem._id))
+                                            query=(asHash 
+                                              selectedNodeId=(idToStr regionItem._id ) ) }}"
+                                              >{{ regionItem.object_name }}</a>
+                                      </li>
                                     {{/each}}
                                 </ul>
                             </div>
@@ -52,9 +58,14 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    {{#each projectItem in projects (envItem.name) }}
-                                        <li><a href="{{pathFor route='project' query='id_path='}}{{ projectItem.id_path }}">{{ projectItem.object_name }}</a></li>
-                                    {{/each}}
+                                  {{#each projectItem in projects (envItem.name) }}
+                                  <li>
+                                    <a href="{{pathFor route='environment' 
+                                         data=(asHash _id=(idToStr envItem._id)) 
+                                         query=(asHash selectedNodeId=(idToStr projectItem._id)) }}"
+                                       >{{ projectItem.object_name }}</a>
+                                  </li>
+                                  {{/each}}
                                 </ul>
                             </div>
 
