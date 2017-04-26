@@ -82,6 +82,15 @@ class SshConn(SshConnection):
             self.fetched_host_details = True
         return self.host_details
 
+    gateway_hosts = {}
+
+    @staticmethod
+    def get_gateway_host(host):
+        if not SshConn.gateway_hosts.get(host, None):
+            ssh = SshConn(host)
+            SshConn.gateway_hosts[host] = ssh.host
+        return SshConn.gateway_hosts[host]
+
     def is_gateway_host(self, host):
         gateway_host = self.host
         if host == gateway_host:
