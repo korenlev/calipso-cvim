@@ -121,8 +121,11 @@ class SshConnection(BinaryConverter, Logger):
             remote_file = self.ftp.file(remote_path, 'a+')
             if mode:
                 remote_file.chmod(mode)
-        except IOError:
-            self.log.error('failed to copy file to remote host ' + self.host)
+        except IOError as e:
+            self.log.error('failed to copy file: ' +
+                           'local: ' + local_path +
+                           ', remote host: ' + self.host +
+                           ', error: ' + str(e))
 
     def is_gateway_host(self, host):
         return True
