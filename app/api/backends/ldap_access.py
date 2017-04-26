@@ -68,6 +68,11 @@ class LDAPAccess(Logger, metaclass=Singleton):
         connection = Connection(self.server, user=user_dn, password=password)
         # validate the user by binding
         # bound is true if binding succeed, otherwise false
-        bound = connection.bind()
-        connection.unbind()
+        bound = False
+        try:
+            bound = connection.bind()
+            connection.unbind()
+        except Exception as e:
+            self.log.error('Failed to bind the server for {0}'.format(str(e)))
+
         return bound
