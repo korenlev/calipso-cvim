@@ -30,6 +30,9 @@ import {
   setEnvAsLoaded,
   setEnvAsNotLoaded,
   setEnvSelectedNodeAsEnv,
+  toggleEnvShow,
+//  setShowDashboard,
+//  setShowGraph,
 } from '/imports/ui/actions/environment-panel.actions';
 //import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
 import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
@@ -70,7 +73,6 @@ Template.Environment.onCreated(function () {
     vedgeInfoWindow: { node: null, left: 0, top: 0, show: false },
     dashboardName: 'environment',
     clickedNode: null,
-    showGraph: false,
   });
 
   createAttachedFns(instance);
@@ -94,6 +96,9 @@ Template.Environment.onCreated(function () {
 
   const isLoadedSelector = (state) => (state.components.environmentPanel.isLoaded);
   instance.rdxIsLoaded = factory(isLoadedSelector, store);
+
+  const showTypeSelector = (state) => (state.components.environmentPanel.showType);
+  instance.rdxShowType = factory(showTypeSelector, store);
 
   // Autorun component input
   instance.autorun(function () {
@@ -188,6 +193,7 @@ Template.Environment.onDestroyed(function () {
   instance.rdxSelectedNodeId.cancel();
   instance.rdxEnvName.cancel();
   instance.rdxIsLoaded.cancel();
+  instance.rdxShowType.cancel();
 });
 
 Template.Environment.rendered = function(){
@@ -230,9 +236,7 @@ Template.Environment.helpers({
       mainNode: mainNode,
       onNodeSelected: instance._fns.onNodeSelected,
       onToggleGraphReq: function () {
-        let showGraph = instance.state.get('showGraph');
-        showGraph = !showGraph;
-        instance.state.set('showGraph', showGraph);
+        store.dispatch(toggleEnvShow());
       },
 
       onResetSelectedNodeReq: function () {
@@ -362,6 +366,12 @@ Template.Environment.helpers({
     };
   },
 
+  getShow: function (qShowType) {
+    let instance = Template.instance();
+    let showType = instance.rdxShowType.get();
+
+    return R.equals(showType, qShowType);
+  },
 }); // end: helpers
 
 

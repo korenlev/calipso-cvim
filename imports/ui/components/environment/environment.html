@@ -13,28 +13,27 @@
         </div>
 
         {{#if selectedNodeType }}
-          {{> UI.dynamic template=dashboardTemplate 
-                         data=(argsDashboard rdxSelectedNodeId) }}
-        {{/if }}
-
-        {{#if (getState 'showGraph') }}
-
-          {{#if isClickedNodeAGraph }}
-
-            {{> d3graph argsD3Graph }}
-
-            {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
-
-            {{#if showVedgeInfoWindow }}
-              {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
-            {{/if }}
-          
-          {{else }}
-
-            <div>Node does not have a graph data</div>
-
+          {{#if (getShow 'dashboard') }}
+            {{> UI.dynamic template=dashboardTemplate 
+                           data=(argsDashboard rdxSelectedNodeId) }}
           {{/if }}
+          {{#if (getShow 'graph') }}
+            {{#if isClickedNodeAGraph }}
 
+              {{> d3graph argsD3Graph }}
+
+              {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+
+              {{#if showVedgeInfoWindow }}
+                {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+              {{/if }}
+            
+            {{else }}
+
+              <div>Node does not have a graph data</div>
+
+            {{/if }}
+          {{/if }}
         {{/if }}
 
     </div>

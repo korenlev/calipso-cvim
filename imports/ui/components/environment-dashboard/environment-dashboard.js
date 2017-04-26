@@ -248,7 +248,7 @@ Template.EnvironmentDashboard.helpers({
       }
     };
   },
-});
+}); // end: helpers
 
 function getList(listName, envName) {
   switch (listName) {

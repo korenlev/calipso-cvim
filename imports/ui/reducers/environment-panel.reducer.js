@@ -22,7 +22,8 @@ const defaultState = {
   selectedNode: {
     _id: null,
     type: null
-  }
+  },
+  showType: 'dashboard'
 };
 
 export function reducer(state = defaultState, action) {
@@ -109,6 +110,20 @@ export function reducer(state = defaultState, action) {
 
   case actions.SET_ENV_AS_NOT_LOADED:
     return R.assoc('isLoaded', false, state);
+
+  case actions.SET_SHOW_DASHBOARD:
+    return R.assoc('showType', 'dashboard', state);
+
+  case actions.SET_SHOW_GRAPH:
+    return R.assoc('showType', 'graph', state);
+
+  case actions.TOGGLE_ENV_SHOW:
+    return R.pipe(
+      R.ifElse(R.equals('dashboard'), 
+        R.always('graph'), 
+        R.always('dashboard')),
+      R.assoc('showType', R.__, state)
+    )(state.showType);
 
   default:
     return state;

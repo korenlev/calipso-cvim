@@ -15,6 +15,9 @@ export const SET_ENV_SELECTED_NODE_TYPE = 'SET_ENV_SELECTED_NODE_TYPE';
 export const SET_ENV_AS_LOADED = 'SET_ENV_AS_LOADED';
 export const SET_ENV_AS_NOT_LOADED = 'SET_ENV_AS_NOT_LOADED';
 export const SET_ENV_SELECTED_NODE_AS_ENV = 'SET_ENV_SELECTED_NODE_AS_ENV';
+export const SET_SHOW_DASHBOARD = 'SET_SHOW_DASHBOARD';
+export const SET_SHOW_GRAPH = 'SET_SHOW_GRAPH';
+export const TOGGLE_ENV_SHOW = 'TOGGLE_ENV_SHOW';
 
 export function setEnvName(envName) {
   return {
@@ -141,5 +144,23 @@ export function setEnvAsLoaded() {
 export function setEnvAsNotLoaded() {
   return {
     type: SET_ENV_AS_NOT_LOADED
+  };
+}
+
+export function setShowDashboard() {
+  return {
+    type: SET_SHOW_DASHBOARD
+  };
+}
+
+export function setShowGraph() {
+  return {
+    type: SET_SHOW_GRAPH
+  };
+}
+
+export function toggleEnvShow() {
+  return {
+    type: TOGGLE_ENV_SHOW
   };
 }
