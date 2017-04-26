@@ -8,7 +8,6 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 
 import { store } from '/imports/ui/store/store';
 //import { setSearchTerm } from '/imports/ui/actions/search-interested-parties';
-import { setCurrentNode } from '/imports/ui/actions/navigation';
 import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
 import { idToStr } from '/imports/lib/utilities';
 
@@ -93,15 +92,9 @@ Template.TopNavbarMenu.helpers({
         let searchInput = instance.$('input#search');  
         searchInput.val(node.name_path);
 
-        let envName = store.getState().components.environmentPanel.envName;
-        Router.go(`/enviroment?env=${envName}`);
-
-        // environment screen is opening with default selected node.
-        // after that we need to set the current node.
-        // todo: make env screen be aware of other state in redux (not only router) ?
-        setTimeout(function () {
-          store.dispatch(setCurrentNode(node));
-        }, 0);
+        Router.go('environment', { _id: idToStr(node._envId) }, { 
+          query: { selectedNodeId: idToStr(node._id) }
+        });
       }
     };
   },

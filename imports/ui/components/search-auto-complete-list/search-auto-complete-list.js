@@ -73,6 +73,7 @@ Template.SearchAutoCompleteList.helpers({
 
   createAutoSearchResultLineArgs: function (resultItem) {
     let instance = Template.instance();
+
     return {
       namePath: resultItem.name_path,
       objectName: resultItem.object_name,
@@ -89,24 +90,25 @@ function performSearch(searchTerm, envName, state) {
   let results = [];
   incInvocationCounter(state);
   let invocationId = state.get('invocationCounter');
-  Meteor.apply('inventorySearch', [ searchTerm, envName ], { wait: false }, function (err, res) {
-    if (invocationId < state.get('invocationCounter')) {
-      return;
-    }
+  Meteor.apply('inventorySearch', 
+    [ searchTerm, envName ], { wait: false }, function (err, res) {
+      if (invocationId < state.get('invocationCounter')) {
+        return;
+      }
 
-    if (err) {
-      console.error(err);
-      return;
-    }
+      if (err) {
+        console.error(err);
+        return;
+      }
 
-    state.set('lastSearchTerm', searchTerm);
-   
-    R.forEach((resultItem) => {
-      results = R.append(resultItem, results);
-    }, res);
+      state.set('lastSearchTerm', searchTerm);
+     
+      R.forEach((resultItem) => {
+        results = R.append(resultItem, results);
+      }, res);
 
-    state.set('results', results);
-  });
+      state.set('results', results);
+    });
 }
 
 function incInvocationCounter(state) {
