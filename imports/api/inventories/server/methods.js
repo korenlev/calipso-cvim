@@ -30,5 +30,27 @@ Meteor.methods({
       });
     }, results);
 
-  }
+  },
+
+  'expandNodePath': function(nodeId) {
+    console.log('method server: expandNodePath', R.toString(nodeId));
+
+    //check(nodeId, MongoI);
+    this.unblock();
+
+    let node = Inventory.findOne({ _id: nodeId });
+    if (R.isNil(node)) { 
+      console.log('method server: expandNodePath - no node');
+      return null; 
+    }
+
+    let idList = R.pipe(R.split('/'), R.drop(2))(node.id_path);
+    let result = R.map((partId) => {
+      return Inventory.findOne({ environment: node.environment, id: partId });
+    }, idList);
+    
+    console.log('method server: expandNodePath - results', result);
+    return result;
+  },
 });
+

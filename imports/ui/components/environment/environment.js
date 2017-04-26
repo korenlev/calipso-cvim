@@ -351,7 +351,17 @@ Template.Environment.helpers({
         store.dispatch(setEnvSelectedNode(selectedNodeId, null));
       }
     };
-  }
+  },
+
+  argsBreadCrumb: function (selectedNodeId) {
+    return {
+      nodeId: selectedNodeId,
+      onNodeSelected: function (node) {
+        store.dispatch(setEnvSelectedNode(node._id, null));
+      }
+    };
+  },
+
 }); // end: helpers
 
 
