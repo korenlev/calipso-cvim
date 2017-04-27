@@ -328,10 +328,10 @@ let d3Graph = {
     //.attr('xlink:href', 'https://github.com/favicon.ico')
         .attr('xlink:href', function(d) {
           if(imageByGroup[d.type]){
-            return imageByGroup[d.type];
+            return `/${imageByGroup[d.type]}`;
           }
           else{
-            return imageByGroup['default'];
+            return `/${imageByGroup['default']}`;
           }
 
         })
