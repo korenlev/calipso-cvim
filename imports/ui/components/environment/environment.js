@@ -8,9 +8,10 @@
 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-//import { ReactiveVar } from 'meteor/reactive-var';
+import { ReactiveVar } from 'meteor/reactive-var';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
+import { EJSON } from 'meteor/ejson';
 import factory from 'reactive-redux';
 import { _idFieldDef } from '/imports/lib/simple-schema-utils';
 //import { idToStr } from '/imports/lib/utilities';
@@ -26,7 +27,7 @@ import {
   setEnvName, 
   updateEnvTreeNode, 
   startOpenEnvTreeNode,
-  setEnvSelectedNodeType,
+  setEnvSelectedNodeInfo,
   setEnvAsLoaded,
   setEnvAsNotLoaded,
   setEnvSelectedNodeAsEnv,
@@ -57,6 +58,7 @@ var nodeTypesForSelection = [
   'aggregate',
   'host',
   'region',
+  'instance'
 ];
 
 /*
@@ -72,8 +74,8 @@ Template.Environment.onCreated(function () {
     graphTooltipWindow: { label: '', title: '', left: 0, top: 0, show: false },
     vedgeInfoWindow: { node: null, left: 0, top: 0, show: false },
     dashboardName: 'environment',
-    clickedNode: null,
   });
+  instance.currentData = new ReactiveVar(null, EJSON.equals);
 
   createAttachedFns(instance);
 
@@ -100,9 +102,28 @@ Template.Environment.onCreated(function () {
   const showTypeSelector = (state) => (state.components.environmentPanel.showType);
   instance.rdxShowType = factory(showTypeSelector, store);
 
+  const selectedNodeCliqueSelector = 
+    (state) => (state.components.environmentPanel.selectedNode.clique);
+  instance.rdxSelectedNodeClique = factory(selectedNodeCliqueSelector, store);
+
+  const selectedNodeIdPathSelector = 
+    (state) => (state.components.environmentPanel.selectedNode.id_path);
+  instance.rdxSelectedNodeIdPath = factory(selectedNodeIdPathSelector, store);
+
+  instance.autorun((function(_this) {
+    return function(_computation) {
+      return _this.currentData.set(Template.currentData());
+    };
+  })(instance));
+
+  let lastData = null;
+
   // Autorun component input
   instance.autorun(function () {
-    let data = Template.currentData();
+    let data = instance.currentData.get();
+
+    if (R.equals(data, lastData)) { return; }
+    lastData = data;  
     
     new SimpleSchema({
       _id: _idFieldDef, 
@@ -134,18 +155,29 @@ Template.Environment.onCreated(function () {
   // Autorun selected node
   instance.autorun(function () {
     let selectedNodeId = instance.rdxSelectedNodeId.get(); 
-    let selectedNodeType = instance.rdxSelectedNodeType.get();
+    //let selectedNodeType = instance.rdxSelectedNodeType.get();
 
     if (R.isNil(selectedNodeId)) { return; }
-    if (selectedNodeType === 'environment') { return; }
+    //if (selectedNodeType === 'environment') { return; }
 
     instance.subscribe('inventory?_id', selectedNodeId);
     Inventory.find({ _id: selectedNodeId }).forEach((selectedNode) => {
-      store.dispatch(setEnvSelectedNodeType(selectedNode.type));
+      store.dispatch(setEnvSelectedNodeInfo(selectedNode));
 
-      let path = R.split('/', selectedNode.id_path);
-      path = R.drop(2, path); // drop '' and 'envName'.
-      openTreeNode([R.head(path)], R.tail(path), 0);
+      Meteor.apply('expandNodePath', 
+        [ selectedNode._id ], 
+        { wait: false }, 
+        function (err, res) {
+          if (err) { 
+            console.error(err);
+            return;
+          }
+
+          if (R.isNil(res)) { return; }
+          
+          let idList = R.map(R.path(['_id', '_str']), res);
+          openTreeNode([R.head(idList)], R.tail(idList), 0);
+        });
     });
   });
 
@@ -194,6 +226,7 @@ Template.Environment.onDestroyed(function () {
   instance.rdxEnvName.cancel();
   instance.rdxIsLoaded.cancel();
   instance.rdxShowType.cancel();
+  instance.rdxSelectedNodeIdPath.cancel();
 });
 
 Template.Environment.rendered = function(){
@@ -238,7 +271,6 @@ Template.Environment.helpers({
       onToggleGraphReq: function () {
         store.dispatch(toggleEnvShow());
       },
-
       onResetSelectedNodeReq: function () {
         store.dispatch(setEnvSelectedNodeAsEnv());
       },
@@ -285,9 +317,10 @@ Template.Environment.helpers({
 
   argsD3Graph: function () {
     let instance = Template.instance();
+    let idPath = instance.rdxSelectedNodeIdPath.get();
 
     return {
-      id_path: R.path(['id_path'], instance.state.get('clickedNode'))
+      id_path: idPath
     };
   },
 
@@ -297,11 +330,11 @@ Template.Environment.helpers({
     return ! R.isNil(node);
   },
 
-  isClickedNodeAGraph: function () {
+  isSelectedNodeAGraph: function () {
     let instance = Template.instance();
-    let node = instance.state.get('clickedNode');
+    let nodeClique = instance.rdxSelectedNodeClique.get();
 
-    return !R.isNil(node.clique);
+    return !R.isNil(nodeClique);
   },
 
   dashboardTemplate: function () {
@@ -387,7 +420,12 @@ function openTreeNode(path, rest, trialCount) {
     .treeNode;
 
   let node = getNodeInTree(path, tree);
-  if (R.isNil(node)) { return; }
+  if (R.isNil(node)) { 
+    setTimeout(() => {
+      openTreeNode(path, rest, trialCount + 1);
+    }, 800);
+    return; 
+  }
   
   if (node.openState === 'closed') {
     store.dispatch(startOpenEnvTreeNode(path)); 
@@ -409,7 +447,7 @@ function getNodeInTree(path, tree) {
 
   let first = R.head(path);
   let rest = R.tail(path);
-  let child = R.find(R.pathEq(['nodeInfo', 'id'], first), 
+  let child = R.find(R.pathEq(['nodeInfo', '_id', '_str'], first), 
     tree.children); 
 
   if (R.isNil(child)) { return null; }

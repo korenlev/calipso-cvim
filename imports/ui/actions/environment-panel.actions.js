@@ -11,7 +11,7 @@ export const END_CLOSE_ENV_TREE_NODE = 'END_CLOSE_ENV_TREE_NODE';
 export const SET_ENV_CHILD_DETECTED_TREE_NODE = 'SET_ENV_CHILD_DETECTED_TREE_NODE';
 export const SET_ENV_SELECTED_NODE = 'SET_ENV_SELECTED_NODE';
 export const SET_ENV_ENV_ID = 'SET_ENV_ENV_ID';
-export const SET_ENV_SELECTED_NODE_TYPE = 'SET_ENV_SELECTED_NODE_TYPE';
+export const SET_ENV_SELECTED_NODE_INFO = 'SET_ENV_SELECTED_NODE_INFO';
 export const SET_ENV_AS_LOADED = 'SET_ENV_AS_LOADED';
 export const SET_ENV_AS_NOT_LOADED = 'SET_ENV_AS_NOT_LOADED';
 export const SET_ENV_SELECTED_NODE_AS_ENV = 'SET_ENV_SELECTED_NODE_AS_ENV';
@@ -126,11 +126,11 @@ export function setEnvEnvId(_id) {
   };
 }
 
-export function setEnvSelectedNodeType(type) {
+export function setEnvSelectedNodeInfo(nodeInfo) {
   return {
-    type: SET_ENV_SELECTED_NODE_TYPE,
+    type: SET_ENV_SELECTED_NODE_INFO,
     payload: {
-      type: type
+      nodeInfo: nodeInfo
     }
   };
 }

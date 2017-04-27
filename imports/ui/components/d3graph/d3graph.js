@@ -24,7 +24,8 @@ Template.d3graph.onCreated(function() {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    id_path: null 
+    id_path: null,
+    ready: false
   });
 
   instance.autorun(function () {
@@ -34,6 +35,7 @@ Template.d3graph.onCreated(function() {
       id_path: { type: String },
     }).validate(data);
 
+    instance.state.set('ready', false);
     let id_path = data.id_path;
 
     instance.subscribe('inventory?id_path', id_path);
@@ -69,6 +71,8 @@ Template.d3graph.onCreated(function() {
                   instance.subscribe('attributes_for_hover_on_data?type', invItem.type);
                 });
               });
+
+              instance.state.set('ready', true);
             });
         }
       }
@@ -78,21 +82,21 @@ Template.d3graph.onCreated(function() {
 
 Template.d3graph.rendered = function () {
   let instance = Template.instance();
-  d3Graph.creategraphdata();
-  var initgraph = true;
+  d3Graph.createGraphData();
 
   Tracker.autorun(function () {
     var nodeId = instance.state.get('_id');
-    //var nodeId = Session.get('currNodeId');
-    
-    if(! R.isNil(nodeId)){
-      var graphData = d3Graph.getGraphDataByClique(nodeId._str);
-      if(!initgraph){
-        //d3Graph.start();
+    var ready = instance.state.get('ready');
+
+    if (! ready) { return; }
+    if(R.isNil(nodeId)) { return; }
+
+    setTimeout(() => {
+      let graphData = d3Graph.getGraphDataByClique(nodeId._str);
+      setTimeout(() => {
         d3Graph.updateNetworkGraph(graphData);
-      }
-    }
-    initgraph = false;
+      }, 100);
+    }, 500);
   });
 };
 

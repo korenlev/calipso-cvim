@@ -26,6 +26,8 @@ const defaultState = {
   showType: 'dashboard'
 };
 
+let newState;
+
 export function reducer(state = defaultState, action) {
   switch (action.type) {
   case actions.SET_ENV_NAME:
@@ -87,12 +89,20 @@ export function reducer(state = defaultState, action) {
       }
     });
 
-  case actions.SET_ENV_SELECTED_NODE_TYPE:
-    return R.merge(state, {
+  case actions.SET_ENV_SELECTED_NODE_INFO:
+    newState = R.merge(state, {
       selectedNode: R.merge(state.selectedNode, {
-        type: action.payload.type
+        type: action.payload.nodeInfo.type,
+        clique: action.payload.nodeInfo.clique,
+        id_path: action.payload.nodeInfo.id_path
       })
     });
+
+    if (! R.isNil(action.payload.nodeInfo.clique)) {
+      newState = R.assoc('showType', 'graph', newState);
+    }
+
+    return newState;
 
   case actions.SET_ENV_SELECTED_NODE_AS_ENV:
     return R.merge(state, {

@@ -86,6 +86,7 @@ Template.TopNavbarMenu.helpers({
 
     return {
       isOpen: instance.state.get('isAutoCompleteOpen'),
+
       onResultSelected(node) {
         instance.state.set('isAutoCompleteOpen', false);
 

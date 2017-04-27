@@ -47,6 +47,7 @@ let d3Graph = {
     node.classed('selected', false);
   },
 
+  /* depreacted - not used ?
   getGraphData:function(nodeId){
 
     var invNodes = Inventory.find({ 'type': 'instance', $and: [ { 'host': nodeId } ] });
@@ -85,6 +86,7 @@ let d3Graph = {
     this.graph.links = edges_new;
 
   },
+  */
 
   getGraphDataByClique:function(nodeObjId){
     var cliques = Cliques.find({ focal_point: new Mongo.ObjectID(nodeObjId) }).fetch();
@@ -144,7 +146,7 @@ let d3Graph = {
 
   },
 
-  creategraphdata: function (){
+  createGraphData: function (){
     //var self = this;
     var width = 500;
     var height = 500;

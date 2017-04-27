@@ -4,7 +4,7 @@
 
 //import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-//import { EJSON } from 'meteor/ejson';
+import { EJSON } from 'meteor/ejson';
 //import { ReactiveDict } from 'meteor/reactive-dict';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
@@ -34,8 +34,7 @@ Template.TreeNode.onCreated(function() {
 
   createAttachedFns(instance);
 
-  //instance.currentData = new ReactiveVar(null, EJSON.equals);
-  instance.currentData = new ReactiveVar(null, R.equals);
+  instance.currentData = new ReactiveVar(null, EJSON.equals);
 
   instance.autorun((function(_this) {
     return function(_computation) {
