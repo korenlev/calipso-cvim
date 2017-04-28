@@ -3,7 +3,6 @@ import base64
 from api.responders.responder_base import ResponderBase
 from api.auth.auth import Auth
 from api.auth.token import Token
-from utils.string_utils import convert_to_uppercase
 
 
 class AuthenticationMiddleware(ResponderBase):
@@ -19,7 +18,7 @@ class AuthenticationMiddleware(ResponderBase):
 
         self.log.debug("Authentication middleware is processing the request")
         headers = self.change_dict_naming_convention(req.headers,
-                                                     convert_to_uppercase)
+                                                     lambda s: s.upper())
         auth_error = None
         if self.BASIC_AUTH in headers:
             # basic authentication

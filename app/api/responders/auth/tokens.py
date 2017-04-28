@@ -6,7 +6,7 @@ from api.auth.auth import Auth
 from api.auth.token import Token
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
-from utils.string_utils import stringify_object_values_by_types, convert_to_uppercase
+from utils.string_utils import stringify_object_values_by_types
 
 
 class Tokens(ResponderBase):
@@ -83,7 +83,7 @@ class Tokens(ResponderBase):
 
     def on_delete(self, req, resp):
         headers = self.change_dict_naming_convention(req.headers,
-                                                     convert_to_uppercase)
+                                                     lambda s: s.upper())
         if Token.FIELD not in headers:
             self.unauthorized('Authentication failed')
 
