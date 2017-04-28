@@ -80,7 +80,7 @@ class DataValidate:
             value = data.get(key)
             error_messages = requirement['error_messages']
 
-            if value is None:
+            if not value and value is not False and value is not 0:
                 if key in data:
                     return "Invalid data: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
