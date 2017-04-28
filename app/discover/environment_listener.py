@@ -5,8 +5,10 @@ import datetime
 import json
 import time
 from collections import defaultdict
+from typing import List
 
-from kombu import Queue, Exchange
+import os
+from kombu import Connection, Queue, Exchange
 from kombu.mixins import ConsumerMixin
 
 from discover.configuration import Configuration
@@ -18,16 +20,19 @@ from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.string_utils import stringify_datetime
-from utils.util import SignalHandler, setup_args
+from utils.util import SignalHandler, setup_args, MetadataParser, get_extension
 
 
 class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
+    METADATA_FILE_EXTENSIONS = ["py", "json"]
+
     DEFAULTS = {
         "env": "Mirantis-Liberty",
         "mongo_config": "",
+        "metadata_file": os.path.join("discover", "plugins", "default_config.py"),
         "inventory": "inventory",
         "loglevel": "INFO",
         "environments_collection": "environments_config",
@@ -35,22 +40,9 @@ class EnvironmentListener(ConsumerMixin):
         "consume_all": False
     }
 
-    event_queues = [
-        Queue('notifications.nova',
-              Exchange('nova', 'topic', durable=False),
-              durable=False, routing_key='#'),
-        Queue('notifications.neutron',
-              Exchange('neutron', 'topic', durable=False),
-              durable=False, routing_key='#'),
-        Queue('notifications.neutron',
-              Exchange('dhcp_agent', 'topic', durable=False),
-              durable=False, routing_key='#'),
-        Queue('notifications.info',
-              Exchange('info', 'topic', durable=False),
-              durable=False, routing_key='#')
-    ]
-
-    def __init__(self, connection,
+    def __init__(self, connection: Connection,
+                 event_handler: EventHandler,
+                 event_queues: List,
                  env_name: str = DEFAULTS["env"],
                  inventory_collection: str = DEFAULTS["inventory"],
                  mongo_config: str = DEFAULTS["mongo_config"],
@@ -61,78 +53,12 @@ class EnvironmentListener(ConsumerMixin):
         self.retry_limit = retry_limit
         self.env_name = env_name
         self.consume_all = consume_all
-        self.handler = None
-        self.notification_responses = {}
+        self.handler = event_handler
+        self.event_queues = event_queues
         self.failing_messages = defaultdict(int)
+
         self.inv = InventoryMgr()
-
-        self._set_collections(inventory_collection)
-        self._set_default_handler(inventory_collection)
-        self._set_monitoring(mongo_config)
-
-    def _set_collections(self, inventory_collection: str):
         self.inv.set_collections(inventory_collection)
-
-    def _set_default_handler(self, inventory_collection: str):
-        self.handler = EventHandler(self.env_name, inventory_collection)
-        self.notification_responses = {
-            "compute.instance.create.end": self.handler.instance_add,
-            "compute.instance.rebuild.end": self.handler.instance_update,
-            "compute.instance.update": self.handler.instance_update,
-            "compute.instance.delete.end": self.handler.instance_delete,
-
-            # TODO: implement these handlers
-            "servergroup.create": self.handler.not_implemented,  # self.handler.region_add,
-            "servergroup.update": self.handler.not_implemented,  # self.handler.region_update,
-            "servergroup.addmember": self.handler.not_implemented,  # self.handler.region_update,
-            "servergroup.delete": self.handler.not_implemented,  # self.handler.region_delete,
-
-            # TODO: implement these handlers
-            "compute.instance.shutdown.start": self.handler.not_implemented,  # self.handler.instance_down,
-            "compute.instance.power_off.start": self.handler.not_implemented,  # self.handler.instance_down,
-            "compute.instance.power_on.end": self.handler.not_implemented,  # self.handler.instance_up,
-            "compute.instance.suspend.start": self.handler.not_implemented,  # self.handler.instance_down,
-            "compute.instance.suspend.end": self.handler.not_implemented,  # self.handler.instance_up,
-
-            "network.create": self.handler.network_create,
-            "network.create.start": self.handler.network_create,
-            "network.create.end": self.handler.network_create,
-            "network.update": self.handler.network_update,
-            "network.update.start": self.handler.network_update,
-            "network.update.end": self.handler.network_update,
-            "network.delete": self.handler.network_delete,
-            "network.delete.start": self.handler.network_delete,
-            "network.delete.end": self.handler.network_delete,
-
-            "subnet.create": self.handler.subnet_create,
-            "subnet.create.start": self.handler.subnet_create,
-            "subnet.create.end": self.handler.subnet_create,
-            "subnet.update": self.handler.subnet_update,
-            "subnet.update.start": self.handler.subnet_update,
-            "subnet.update.end": self.handler.subnet_update,
-            "subnet.delete": self.handler.subnet_delete,
-            "subnet.delete.start": self.handler.subnet_delete,
-            "subnet.delete.end": self.handler.subnet_delete,
-
-            "port.create.end": self.handler.port_create,
-            "port.update.end": self.handler.port_update,
-            "port.delete.end": self.handler.port_delete,
-
-            "router.create": self.handler.router_create,
-            "router.create.start": self.handler.router_create,
-            "router.create.end": self.handler.router_create,
-            "router.update": self.handler.router_update,
-            "router.update.start": self.handler.router_update,
-            "router.update.end": self.handler.router_update,
-            "router.delete": self.handler.router_delete,
-            "router.delete.start": self.handler.router_delete,
-            "router.delete.end": self.handler.router_delete,
-
-            "router.interface.create": self.handler.router_interface_create,
-            "router.interface.delete": self.handler.router_interface_delete,
-        }
-
-    def _set_monitoring(self, mongo_config: str):
         self.inv.monitoring_setup_manager = MonitoringSetupManager(mongo_config, self.env_name)
         self.inv.monitoring_setup_manager.server_setup()
 
@@ -158,7 +84,7 @@ class EnvironmentListener(ConsumerMixin):
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
         # leave the message in the queue unless "consume_all" flag is set
-        if processable and event_data["event_type"] in self.notification_responses:
+        if processable and event_data["event_type"] in self.handler.handlers:
             with open("/tmp/listener.log", "a") as f:
                 f.write("{}\n".format(event_data))
             event_result = self.handle_event(event_data["event_type"], event_data)
@@ -205,7 +131,7 @@ class EnvironmentListener(ConsumerMixin):
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
         print("Got notification.\nEvent_type: {}\nNotification:\n{}".format(event_type, notification))
         try:
-            result = self.notification_responses[event_type](notification)
+            result = self.handler.handle(event_name=event_type, notification=notification)
             return result if result else EventResult(result=False, retry=False)
         except Exception as e:
             self.inv.log.exception(e)
@@ -240,6 +166,9 @@ def get_args():
     parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["mongo_config"],
                         help="Name of config file with MongoDB server access details")
+    parser.add_argument("--metadata_file", nargs="?", type=str,
+                        default=EnvironmentListener.DEFAULTS["metadata_file"],
+                        help="Name of custom configuration metadata file")
     parser.add_argument("-c", "--environments_collection", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["environments_collection"],
                         help="Name of collection where selected environment is taken from \n(default: {})"
@@ -269,27 +198,56 @@ def get_args():
     return args
 
 
+def import_metadata(file_path: str):
+    extension = get_extension(file_path)
+    extensions = EnvironmentListener.METADATA_FILE_EXTENSIONS
+    if not extension or extension not in extensions:
+        raise ValueError("Extension '{}' is not supported. "
+                         "Please specify a file with one of the following extensions: ({})"
+                         .format(extension, ", ".join(extensions)))
+
+    # TODO: restrict filesystem walks to project dirs
+    if not os.path.isfile(file_path):
+        raise ValueError("Couldn't load metadata file. File '{}' doesn't exist or is not a file"
+                         .format(file_path))
+
+    parser = MetadataParser()
+    parser.parse_metadata_file(file_path)
+    return parser.handlers_package, parser.queues, parser.event_handlers
+
+
 def listen(args: dict = None):
-    from kombu import Connection
     logger = Logger()
 
     args = setup_args(args, EnvironmentListener.DEFAULTS, get_args)
     if 'process_vars' not in args:
         args['process_vars'] = {}
 
-    logger.set_loglevel(args["loglevel"])
+    env_name = args["env"]
+    inventory_collection = args["inventory"]
 
     conf = Configuration(args["mongo_config"], args["environments_collection"])
-
-    env_name = args["env"]
     conf.use_env(env_name)
 
+    handlers_package, queues, event_handlers = import_metadata(args['metadata_file'])
+    event_handler = EventHandler(env_name, inventory_collection,
+                                 event_handlers, handlers_package)
+    # TODO: revise queues format
+    event_queues = [
+        Queue(q[0],
+              Exchange(q[1], 'topic', durable=False),
+              durable=False, routing_key='#') for q in queues
+    ]
+
+    logger.set_loglevel(args["loglevel"])
+
     amqp_config = conf.get("AMQP")
-    host = amqp_config["host"]
-    port = amqp_config["port"]
-    user = amqp_config["user"]
-    pwd = amqp_config["password"]
-    connect_url = 'amqp://' + user + ':' + pwd + '@' + host + ':' + port + '//'
+    connect_url = 'amqp://{user}:{pwd}@{host}:{port}//'\
+                  .format(user=amqp_config["user"],
+                          pwd=amqp_config["password"],
+                          host=amqp_config["host"],
+                          port=amqp_config["port"])
+
     with Connection(connect_url) as conn:
         try:
             print(conn)
@@ -297,10 +255,12 @@ def listen(args: dict = None):
             args['process_vars']['operational'] = OperationalStatus.RUNNING
             terminator = SignalHandler()
             worker = EnvironmentListener(connection=conn,
+                                         event_handler=event_handler,
+                                         event_queues=event_queues,
                                          retry_limit=args["retry_limit"],
                                          consume_all=args["consume_all"],
                                          mongo_config=args["mongo_config"],
-                                         inventory_collection=args["inventory"],
+                                         inventory_collection=inventory_collection,
                                          env_name=env_name)
             worker.run()
             if terminator.terminated:

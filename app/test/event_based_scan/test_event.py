@@ -4,7 +4,9 @@ import re
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
-from test.event_based_scan.config.test_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+from test.event_based_scan.config.test_config import DEFAULT_METADATA_FILE, \
+    MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+from utils.util import MetadataParser
 
 
 class TestEvent(unittest.TestCase):
@@ -15,7 +17,13 @@ class TestEvent(unittest.TestCase):
 
         self.conf = Configuration(self.mongo_config)
         self.conf.use_env(self.env)
-        self.handler = EventHandler(ENV_CONFIG, self.collection)
+
+        metadata_parser = MetadataParser()
+        metadata_parser.parse_metadata_file(DEFAULT_METADATA_FILE)
+        # TODO: refactor test cases to use new event handler
+        self.handler = EventHandler(env=ENV_CONFIG,
+                                    inventory_collection=self.collection,
+                                    event_handlers=metadata_parser.event_handlers)
         self.item_ids = []
 
     def set_item(self, document):
