@@ -11,13 +11,13 @@ class Token:
         Token.token_lifetime = lifetime
 
     @classmethod
-    def new_uuid_token(cls, methods):
+    def new_uuid_token(cls, method):
         token = {}
         token['issued_at'] = datetime.datetime.now()
         token['expires_at'] = token['issued_at'] +\
                               datetime.timedelta(seconds=Token.token_lifetime)
         token['token'] = uuid.uuid4().hex
-        token['methods'] = methods
+        token['method'] = method
         return token
 
     @classmethod

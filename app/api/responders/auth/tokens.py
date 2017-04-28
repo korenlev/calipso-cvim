@@ -49,7 +49,7 @@ class Tokens(ResponderBase):
         if auth_error:
             self.unauthorized(auth_error)
 
-        new_token = Token.new_uuid_token(auth['methods'])
+        new_token = Token.new_uuid_token(auth['method'])
         write_error = self.auth.write_token(new_token)
 
         if write_error:
@@ -65,19 +65,27 @@ class Tokens(ResponderBase):
         credentials = auth.get('credentials')
         token = auth.get('token')
 
+        if not token and not credentials:
+            return 'must provide credentials or token'
+
         if 'credentials' in methods:
             if not credentials:
-                error = 'credentials must be provided for credentials method'
+                return'credentials must be provided for credentials method'
             else:
                 if not self.auth.validate_credentials(credentials['username'],
                                                        credentials['password']):
                     error = 'authentication failed'
+                else:
+                    auth['method'] = "credentials"
+                    return None
 
         if 'token' in methods:
             if not token:
-                error = 'token must be provided for token method'
+                return 'token must be provided for token method'
             else:
                 error = self.auth.validate_token(token)
+                if not error:
+                    auth['method'] = 'token'
 
         return error
 
