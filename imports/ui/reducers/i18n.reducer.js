@@ -16,6 +16,7 @@ const defaultState = {
   },
   components: {
     environment: {
+      noGraphForLeafMsg: 'No clique for this focal_point',
       briefInfos: {
         lastScanning: {
           header: 'Last scanning'

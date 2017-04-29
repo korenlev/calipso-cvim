@@ -110,6 +110,9 @@ Template.Environment.onCreated(function () {
     (state) => (state.components.environmentPanel.selectedNode.id_path);
   instance.rdxSelectedNodeIdPath = factory(selectedNodeIdPathSelector, store);
 
+  const i18nSelector = (state) => (state.api.i18n);
+  instance.rdxI18n = factory(i18nSelector, store);
+
   instance.autorun((function(_this) {
     return function(_computation) {
       return _this.currentData.set(Template.currentData());
@@ -404,6 +407,12 @@ Template.Environment.helpers({
     let showType = instance.rdxShowType.get();
 
     return R.equals(showType, qShowType);
+  },
+
+  i18n: function () {
+    let instance = Template.instance();
+    return instance.rdxI18n.get();
+
   },
 }); // end: helpers
 
