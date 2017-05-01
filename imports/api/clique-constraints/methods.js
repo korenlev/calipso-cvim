@@ -44,3 +44,35 @@ export const remove = new ValidatedMethod({
     CliqueConstraints.remove({ _id: _id });
   }
 });
+
+export const update = new ValidatedMethod({
+  name: 'clique_constraints.update',
+  validate: CliqueConstraints.simpleSchema()
+    .pick([
+      '_id',
+      'focal_point_type',
+      'constraints',
+      'constraints.$',
+    ]).validator({ clean: true, filter: false }),
+  run({
+    _id,
+    focal_point_type,
+    constraints,
+  }) {
+
+    let item = CliqueConstraints.findOne({ _id: _id });
+    console.log('clique constraints for update: ', item);
+    console.log('current user', Meteor.userId());
+
+    item = R.merge(
+      R.pick([
+        'focal_point_type',
+        'constraints',
+      ], item), {
+        focal_point_type,
+        constraints,
+      });
+
+    CliqueConstraints.update({ _id: _id }, { $set: item });
+  }
+});

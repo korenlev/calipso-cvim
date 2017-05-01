@@ -10,7 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { CliqueConstraints } from '/imports/api/clique-constraints/clique-constraints';
 //import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';
-import { insert, remove } from '/imports/api/clique-constraints/methods';
+import { insert, remove, update } from '/imports/api/clique-constraints/methods';
 import { parseReqId } from '/imports/lib/utilities';
         
 import './clique-constraint.html';     
@@ -42,7 +42,7 @@ Template.CliqueConstraint.onCreated(function() {
     let query = params.query;
 
     new SimpleSchema({
-      action: { type: String, allowedValues: ['insert', 'view', 'remove'] },
+      action: { type: String, allowedValues: ['insert', 'view', 'remove', 'update'] },
       id: { type: String, optional: true }
     }).validate(query);
 
@@ -53,6 +53,10 @@ Template.CliqueConstraint.onCreated(function() {
 
     case 'view':
       initViewView(instance, query);
+      break;
+
+    case 'update':
+      initUpdateView(instance, query);
       break;
 
     case 'remove':
@@ -197,6 +201,20 @@ function initViewView(instance, query) {
   }); 
 }
 
+function initUpdateView(instance, query) {
+  let reqId = parseReqId(query.id);
+
+  instance.state.set('action', query.action);
+  instance.state.set('id', reqId);
+
+  subscribeToOptionsData(instance);
+  instance.subscribe('clique_constraints?_id', reqId.id);
+
+  CliqueConstraints.find({ _id: reqId.id }).forEach((model) => {
+    instance.state.set('model', model);
+  }); 
+}
+
 function initRemoveView(instance, query) {
   initViewView(instance, query);
 }
@@ -224,6 +242,14 @@ function submitItem(
   switch (action) {
   case 'insert':
     insert.call({
+      focal_point_type: focal_point_type,
+      constraints: constraints,
+    }, processActionResult.bind(null, instance));
+    break;
+
+  case 'update': 
+    update.call({
+      _id: id.id,
       focal_point_type: focal_point_type,
       constraints: constraints,
     }, processActionResult.bind(null, instance));
@@ -287,6 +313,8 @@ function calcActionLabel(action) {
     return 'Add';
   case 'remove':
     return 'Remove';
+  case 'update':
+    return 'Update';
   default:
     return 'Submit';
   }
