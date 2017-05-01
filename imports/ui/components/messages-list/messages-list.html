@@ -5,7 +5,6 @@
     <thead>
       <tr>
         <th>Environment</th>
-        <th>Id</th>
         <th>Viewed</th>
         <th>Display Context</th>
         <th>Message</th>
@@ -14,22 +13,24 @@
         <th>Timestamp</th>
         <th>Related Object Type</th>
         <th>Related Object</th>
+        <th>Actions</th>
       </tr> </thead>
     <tbody> 
       {{#each message in messages }}
       <tr>
         <td>{{ message.environment }}</td>
-        <td>{{ message.id }}</td>
         <td>{{ message.viewed }}</td>
-        <td>{{ message.display_context }}</td>
+        <td>
+          <a class="cl-link sm-display-context-link" 
+             data-env-name="{{ message.environment }}"
+             data-item-id="{{ idToStr message.display_context }}">Link to node</a>
+        </td>
         <td>{{ message.message }}</td>
         <td>{{ message.source_system }}</td>
         <td>{{ message.level }}</td>
         <td>{{ message.timestamp }}</td>
         <td>{{ message.related_object_type }}</td>
-        <td><a href="{{pathFor route='environment' 
-                               data=(getEnvId message.environment) 
-                               query=(asHash selectedNodeId=message.related_object) }}">{{ message.related_object }}</a></td>
+        <td>{{ message.related_object }}</td>
         <td>
           <div class="sm-action-bar">
             <a href="{{pathFor route='message' 

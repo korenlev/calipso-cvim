@@ -8,6 +8,8 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Messages } from '/imports/api/messages/messages';
+import { Environments } from '/imports/api/environments/environments';
+import { idToStr } from '/imports/lib/utilities';
         
 import './messages-list.html';     
     
@@ -36,6 +38,7 @@ Template.MessagesList.onCreated(function() {
     }).validate(query);
 
     instance.subscribe('messages');
+    instance.subscribe('environments_config');
   });
 });  
 
@@ -49,6 +52,20 @@ Template.MessagesList.rendered = function() {
  */
 
 Template.MessagesList.events({
+  'click .sm-display-context-link': function (event, _instance) {
+    event.preventDefault();
+    let envName = event.target.dataset.envName;
+    let nodeId = event.target.dataset.itemId;
+
+    let environment = Environments.findOne({ name: envName });
+    Router.go('environment', { 
+      _id: idToStr(environment._id) 
+    }, { 
+      query: {
+        selectedNodeId: idToStr(nodeId)
+      } 
+    });
+  }
 });
    
 /*  
