@@ -8,7 +8,7 @@ import { pathRegEx } from '/imports/lib/general-regex';
 
 export const MonitoringSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'Monitoring'; } },
-  //app_path: { type: String, autoValue: function () { return '/etc/osdna/monitoring'; } },
+  //app_path: { type: String, autoValue: function () { return '/etc/calipso/monitoring'; } },
   
   config_folder: { 
     type: String, 
@@ -100,7 +100,7 @@ export const MonitoringSchema = new SimpleSchema({
 
   ssh_password: {
     type: String,
-    defaultValue: 'osdna',
+    defaultValue: 'calipso',
     optional: true
   },
 });

@@ -8,7 +8,7 @@ import { reducer as graphTooltipWindow } from './graph-tooltip-window.reducer';
 import { reducer as vedgeInfoWindow } from './vedge-info-window.reducer';
 import { reducer as mainApp } from './main-app.reducer';
 
-const osdnaApp = combineReducers({
+const calipsoApp = combineReducers({
   api: combineReducers({
     navigation,
     searchInterestedParties,
@@ -22,4 +22,4 @@ const osdnaApp = combineReducers({
   })
 });
 
-export default osdnaApp;
+export default calipsoApp;

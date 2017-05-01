@@ -12,4 +12,4 @@ tar \
   --exclude='./.meteor/local' \
   --exclude='./node_modules' \
   --exclude='./.git' \
-  -zcvf $OS_TARGET_PATH/osdna-source-$(date +%Y-%m-%d-%s).tar.gz .
+  -zcvf $OS_TARGET_PATH/calipso-source-$(date +%Y-%m-%d-%s).tar.gz .

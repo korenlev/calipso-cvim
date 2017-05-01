@@ -1,4 +1,4 @@
-meteor OSDNA UI branch
+meteor Calipso UI branch
 ================
 
 contacts:
