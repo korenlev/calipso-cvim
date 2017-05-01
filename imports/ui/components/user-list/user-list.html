@@ -7,7 +7,6 @@
   <table class="sm-user-list-table table">
     <thead>
       <tr>
-        <th>#</th>
         <th>User Name</th>
         <th>Emails</th>
         <th>Profile</th>
@@ -16,7 +15,6 @@
     <tbody> 
       {{#each user in userList }}
       <tr>
-        <td>{{ user._id }}</td>
         <td>{{ user.username }}</td>
         <td>{{ toString user.emails }}</td>
         <td>{{ toString user.profile }}</td>
