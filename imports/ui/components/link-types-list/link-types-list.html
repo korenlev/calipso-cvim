@@ -5,10 +5,8 @@
     <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new link type
   </a>
   <table class="sm-link-types-table table">
-    <caption>Link types</caption>
     <thead>
       <tr>
-        <th>#</th>
         <th>Description</th>
         <th>Type</th>
         <th>Endpoint A</th>
@@ -18,7 +16,6 @@
     <tbody> 
       {{#each linkType in linkTypes }}
       <tr>
-        <td>{{ linkType._id }}</td>
         <td>{{ linkType.description }}</td>
         <td>{{ linkType.type }}</td>
         <td>{{ linkType.endPointA }}</td>
