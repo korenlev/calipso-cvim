@@ -8,7 +8,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { parseReqId } from '/imports/lib/utilities';
 import * as R from 'ramda';
-import { remove, insert } from '/imports/api/accounts/methods';
+import { remove, insert, update } from '/imports/api/accounts/methods';
         
 import './user.html';     
     
@@ -39,7 +39,7 @@ Template.User.onCreated(function() {
     let query = params.query;
 
     new SimpleSchema({
-      action: { type: String, allowedValues: ['insert', 'view', 'remove'] },
+      action: { type: String, allowedValues: ['insert', 'view', 'remove', 'update'] },
       //env: { type: String, optional: true },
       id: { type: String, optional: true }
     }).validate(query);
@@ -51,6 +51,10 @@ Template.User.onCreated(function() {
 
     case 'view':
       initViewView(instance, query);
+      break;
+
+    case 'update':
+      initUpdateView(instance, query);
       break;
 
     case 'remove':
@@ -169,6 +173,25 @@ function initViewView(instance, query) {
   }); 
 }
 
+function initUpdateView(instance, query) {
+  let reqId = parseReqId(query.id);
+
+  instance.state.set('action', query.action);
+  //instance.state.set('env', query.env);
+  instance.state.set('id', reqId);
+
+  //subscribeToOptionsData(instance);
+  //instance.subscribe('constants');
+  //instance.subscribe('link_types?_id', reqId.id);
+
+  Meteor.users.find({ _id: reqId.id }).forEach((model) => {
+    instance.state.set('model', {
+      username: model.username,
+      password: ''
+    });
+  }); 
+}
+
 function initRemoveView(instance, query) {
   initViewView(instance, query);
 }
@@ -195,6 +218,13 @@ function submitItem(
   case 'insert':
     insert.call({
       username: username,
+      password: password,
+    }, processActionResult.bind(null, instance));
+    break;
+
+  case 'update': 
+    update.call({
+      _id: id.id,
       password: password,
     }, processActionResult.bind(null, instance));
     break;

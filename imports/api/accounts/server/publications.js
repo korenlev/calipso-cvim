@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import * as R from 'ramda';
+//import * as R from 'ramda';
 
 Meteor.publish('users', function () {
   console.log('server subscribtion to: users');

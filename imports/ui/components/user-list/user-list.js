@@ -5,7 +5,7 @@
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+//import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
         
 import './user-list.html';     
