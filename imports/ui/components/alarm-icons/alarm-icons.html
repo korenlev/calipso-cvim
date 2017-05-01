@@ -39,8 +39,6 @@
         <div class="dropdown">
             <div class="material-icons dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">settings</div>
             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                <li class="dropdown-header">Impact Analysis</li>
-                <!--li role="separator" class="divider"></li-->
                 <li class="dropdown-header"
                   ><a href="{{pathFor route='scans-list' query=''}}" >Scans</a></li>
                 <li class="dropdown-header"
@@ -56,9 +54,8 @@
 
                 {{#if isAdmin }}
                 <li class="dropdown-header">
-                  <div>Admin</div>
-                </li>
-                <li><a href="{{pathFor route='user-list' query=''}}">Users</a></li> 
+                  <a href="{{pathFor route='user-list' query=''}}">Users</a>
+                </li> 
                 {{/if }}
             </ul>
         </div>
