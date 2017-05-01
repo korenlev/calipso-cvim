@@ -10,6 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Messages } from '/imports/api/messages/messages';
 import { Constants } from '/imports/api/constants/constants';
 import { Environments } from '/imports/api/environments/environments';
+import { idToStr } from '/imports/lib/utilities';
 //import { insert, update, remove } from '/imports/api/clique-types/methods';
 import { parseReqId } from '/imports/lib/utilities';
 //import { store } from '/imports/ui/store/store';
@@ -82,11 +83,21 @@ Template.Message.rendered = function() {
  */
 
 Template.Message.events({
-  'click .sm-field-group-related-object': function (event, instance) {
-    let model = instance.state.get('model');
+  'click .sm-field-group-display-context': function (event, instance) {
+    event.preventDefault();
 
-    Router.go(`/enviroment?env=${ model.environment }&nodeid=${ model.related_object }`);
-  }
+    let model = instance.state.get('model');
+    let environment = Environments.findOne({ name: model.environment });
+
+    Router.go('environment', {
+      _id: idToStr(environment._id)
+    }, {
+      query: {
+        selectedNodeId: idToStr(model.display_context)
+      }
+    });
+  },
+
 });
    
 /*  

@@ -58,6 +58,7 @@ Template.MessagesList.events({
     let nodeId = event.target.dataset.itemId;
 
     let environment = Environments.findOne({ name: envName });
+
     Router.go('environment', { 
       _id: idToStr(environment._id) 
     }, { 
