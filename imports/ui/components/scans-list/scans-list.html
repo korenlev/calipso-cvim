@@ -1,7 +1,7 @@
 <template name="ScansList">
-<div class="os-scans-list">
+<div class="os-scans-list cards white">
   <h3>Scans</h3>
-  <table class="table">
+  <table class="sm-scans-table table">
     <thead>
       <tr>
         <th>Status</th>
@@ -37,7 +37,7 @@
         <td>{{ scan.object_id }}</td>
         <td><a href="{{pathFor route='scanning-request' 
                           query=(asHash env=scan.environment id=scan._id action='view') }}"
-                ><i class="fa fa-eye" area-hidden="true"></i></a>
+                ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
         </td>
       </tr>
       {{/each }}
