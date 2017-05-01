@@ -5,10 +5,8 @@
     <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new clique constraint
   </a>
   <table class="sm-clique-constraints-table table">
-    <caption>Clique constraints</caption>
     <thead>
       <tr>
-        <th>#</th>
         <th>Focal Point Type</th>
         <th>Constraints</th>
         <th>Actions</th>
@@ -16,7 +14,6 @@
     <tbody> 
       {{#each cliqueConstraint in cliqueConstraints }}
       <tr>
-        <td>{{ cliqueConstraint._id }}</td>
         <td>{{ cliqueConstraint.focal_point_type }}</td>
         <td>{{ cliqueConstraint.constraints }}</td>
         <td>
