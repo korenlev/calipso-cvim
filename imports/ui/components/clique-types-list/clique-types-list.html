@@ -5,10 +5,8 @@
     <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new clique type
   </a>
   <table class="sm-clique-types-table table">
-    <caption>Clique types</caption>
     <thead>
       <tr>
-        <th>#</th>
         <th>Environment</th>
         <th>Focal Point Type</th>
         <th>Link Types</th>
@@ -18,7 +16,6 @@
     <tbody> 
       {{#each cliqueType in cliqueTypes }}
       <tr>
-        <td>{{ cliqueType._id }}</td>
         <td>{{ cliqueType.environment }}</td>
         <td>{{ cliqueType.focal_point_type }}</td>
         <td>{{ cliqueType.link_types }}</td>
