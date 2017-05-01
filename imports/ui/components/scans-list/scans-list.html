@@ -2,10 +2,8 @@
 <div class="os-scans-list">
   <h3>Scans</h3>
   <table class="table">
-    <caption>Scans request </caption>
     <thead>
       <tr>
-        <th>#</th>
         <th>Status</th>
         <th>Log Level</th>
         <th>Clear</th>
@@ -24,7 +22,6 @@
     <tbody> 
       {{#each scan in scans }}
       <tr>
-        <td>{{ scan._id }}</td>
         <td>{{ scan.status }}</td>
         <td>{{ scan.log_level }}</td>
         <td>{{ scan.clear }}</td>
