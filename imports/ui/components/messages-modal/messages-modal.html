@@ -1,5 +1,5 @@
 <template name="MessagesModal">
-<div class="modal fade" 
+<div class="os-messages-modal modal fade" 
   id="messagesModalGlobal" 
   tabindex="-1" 
   role="dialog" 
@@ -28,12 +28,17 @@
                     </thead>
                     <tbody>
                     {{#each message in messages }}
-                        <tr>
-                            <td>{{ message.id }}</td>
-                            <td>{{ message.timestamp }}</td>
-                            <td>{{ message.environment }}</td>
-                            <td>Link mock</td>
-                        </tr>
+                      <tr>
+                        <td>{{ message.id }}</td>
+                        <td>{{ message.timestamp }}</td>
+                        <td>{{ message.environment }}</td>
+                        <td>
+                          <a class="cl-link sm-display-context-link" 
+                             data-env-name="{{ message.environment }}"
+                             data-item-id="{{ idToStr message.display_context }}"
+                             >Node</a>
+                        </td>
+                      </tr>
                     {{/each}}
                     </tbody>
                 </table>

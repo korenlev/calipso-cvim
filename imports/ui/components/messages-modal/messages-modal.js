@@ -7,6 +7,8 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
 import { Messages } from '/imports/api/messages/messages';
+import { Environments } from '/imports/api/environments/environments';
+import { idToStr } from '/imports/lib/utilities';
         
 import './messages-modal.html';     
     
@@ -45,6 +47,24 @@ Template.MessagesModal.events({
     let data = event.relatedTarget.dataset;
     setParams(data.messageLevel, instance);
   },
+
+  'click .sm-display-context-link': function (event, instance) {
+    event.preventDefault();
+    let envName = event.target.dataset.envName;
+    let nodeId = event.target.dataset.itemId;
+
+    let environment = Environments.findOne({ name: envName });
+
+    Router.go('environment', { 
+      _id: idToStr(environment._id) 
+    }, { 
+      query: {
+        selectedNodeId: idToStr(nodeId)
+      } 
+    });
+
+    instance.$('#messagesModalGlobal').modal('hide');
+  }
 });
    
 /*  
