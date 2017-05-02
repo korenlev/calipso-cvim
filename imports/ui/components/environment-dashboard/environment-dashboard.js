@@ -12,6 +12,7 @@ import { Icon } from '/imports/lib/icon';
 import { store } from '/imports/ui/store/store';
 import { Environments } from '/imports/api/environments/environments';
 import { Inventory } from '/imports/api/inventories/inventories';
+import { Messages } from '/imports/api/messages/messages';
 import { Counts } from 'meteor/tmeasday:publish-counts';
         
 import '/imports/ui/components/data-cubic/data-cubic';
@@ -248,6 +249,15 @@ Template.EnvironmentDashboard.helpers({
       }
     };
   },
+
+  lastMessageTimestamp: function (level, envName) {
+    if (R.any(R.isNil)([level, envName])) { return ''; }
+
+    let message =  Messages.findOne({ environment: envName, level: level }, {
+      sort: { timestamp: -1 } });
+
+    return R.prop('timestamp', message);
+  }
 }); // end: helpers
 
 function getList(listName, envName) {
