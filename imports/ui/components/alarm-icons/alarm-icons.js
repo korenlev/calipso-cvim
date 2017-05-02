@@ -17,7 +17,7 @@ Template.alarmIcons.onCreated(function () {
   let instance = this;
 
   instance.autorun(function () {
-    instance.subscribe('messages?level', 'notify');
+    instance.subscribe('messages?level', 'info');
     instance.subscribe('messages?level', 'warn');
     instance.subscribe('messages?level', 'error');
   });
@@ -32,8 +32,8 @@ Template.alarmIcons.helpers({
     return Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group'); 
   },
 
-  notificationsCount: function(){
-    return Messages.find({level:'notify'}).count();
+  infosCount: function(){
+    return Messages.find({level:'info'}).count();
   },
 
   warningsCount: function(){

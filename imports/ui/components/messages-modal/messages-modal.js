@@ -100,6 +100,8 @@ function calcIconType(messageLevel) {
   switch (messageLevel) {
   case 'notify':
     return 'notifications';
+  case 'info':
+    return 'notifications';
   case 'warn':
     return 'warning';
   case 'error':
@@ -113,6 +115,8 @@ function calcListHeader(messageLevel) {
   switch (messageLevel) {
   case 'notify':
     return 'List of notifications';
+  case 'info':
+    return 'List of info messages';
   case 'warn':
     return 'List of warnings';
   case 'error':
