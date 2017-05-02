@@ -98,7 +98,7 @@ Template.EnvironmentDashboard.onCreated(function() {
       instance.subscribe('inventory?env+type', env.name, 'vconnector');
       instance.subscribe('inventory?env+type', env.name, 'project');
       instance.subscribe('inventory?env+type', env.name, 'region');
-      instance.subscribe('messages?env+level', env.name, 'notify');
+      instance.subscribe('messages?env+level', env.name, 'info');
       instance.subscribe('messages?env+level', env.name, 'warn');
       instance.subscribe('messages?env+level', env.name, 'error');
 
@@ -175,13 +175,13 @@ Template.EnvironmentDashboard.helpers({
     return briefInfoList;
   },
 
-  notificationsCount: function(){
+  infoMessagesCount: function(){
     let instance = Template.instance();
     let envName = instance.state.get('envName');
     if (R.isNil(envName)) { return; }
 
     return Counts.get('messages?env+level!counter?env=' +
-     envName + '&level=' + 'notify');
+     envName + '&level=' + 'info');
   },
 
   warningsCount: function(){
