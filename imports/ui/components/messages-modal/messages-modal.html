@@ -1,0 +1,50 @@
+<template name="MessagesModal">
+<div class="modal fade" 
+  id="messagesModalGlobal" 
+  tabindex="-1" 
+  role="dialog" 
+  aria-labelledby="myModalLabel"
+  >
+    <div class="modal-dialog" 
+      role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label
+                        ="Close"><span aria-hidden="true">&times;</span></button>
+                <i class="material-icons">{{ iconType }}</i>
+            </div>
+
+            <div class="modal-body">
+                <h5 class="modal-title" id="myModalLabel"
+                                        >{{ listHeader }}</h5>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Timestamp</th>
+                        <th>Environment</th>
+                        <th>Link</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each message in messages }}
+                        <tr>
+                            <td>{{ message.id }}</td>
+                            <td>{{ message.timestamp }}</td>
+                            <td>{{ message.environment }}</td>
+                            <td>Link mock</td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" 
+                  class="mdl-button mdl-js-button" 
+                  data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</template>

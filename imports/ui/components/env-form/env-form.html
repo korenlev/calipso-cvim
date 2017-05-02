@@ -10,9 +10,9 @@
   aria-labelledby="dLabel" 
   style="color: black; padding: 10px;" >
 
-  <li><a href="{{pathFor route='wizard'}}" class="droplist">Add new enviroment</a></li>
+  <li><a href="{{pathFor route='wizard'}}" class="droplist">Add new environment</a></li>
   <li class="divider"></li>
-  <li style="border-bottom: 3px solid  #2196f3;">Existing enviroments:</li>
+  <li style="border-bottom: 3px solid  #2196f3;">Existing environments:</li>
   {{#each envItem in envList}}
     <li><a class="sm-env-item envList droplist" 
            data-env-name="{{ envItem.name }}"
