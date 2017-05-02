@@ -1,3 +1,4 @@
+from discover.events.event_network_update import EventNetworkUpdate
 from test.event_based_scan.test_data.event_payload_network_update import EVENT_PAYLOAD_NETWORK_UPDATE, \
     NETWORK_DOCUMENT
 from test.event_based_scan.test_event import TestEvent
@@ -16,8 +17,8 @@ class TestNetworkUpdate(TestEvent):
         self.item_ids.append(self.network_id)
         self.set_item(NETWORK_DOCUMENT)
 
-        self.handler.network_update(self.values)
+        EventNetworkUpdate().handle(self.env, self.values)
 
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
+        network_document = self.inv.get_by_id(self.env, self.network_id)
         self.assertEqual(network_document['name'], name)
         self.assertEqual(network_document['admin_state_up'], status)
