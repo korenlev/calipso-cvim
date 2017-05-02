@@ -10,10 +10,11 @@ class TestBase(TestCase):
     def setUp(self):
         super().setUp()
         log_level = 'debug'
-        self.app = App(log_level=log_level).get_app()
         ResponderBase.get_constants_by_name = MagicMock(side_effect=
                                                         lambda name: base.CONSTANTS_BY_NAMES[name]
                                                         )
+        self.app = App(log_level=log_level).get_app()
+
 
     def validate_get_request(self, url, params={}, headers=None, mocks={},
                              side_effects={},
