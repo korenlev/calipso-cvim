@@ -1,7 +1,8 @@
 <template name="CliqueConstraintsList">
 <div class="os-clique-constraints-list cards white">
   <h3>Clique Constraints</h3>
-  <a href="{{pathFor route='clique-constraint' query=(asHash action='insert') }}">
+  <a class="sm-add-new-link" 
+     href="{{pathFor route='clique-constraint' query=(asHash action='insert') }}">
     <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new clique constraint
   </a>
   <table class="sm-clique-constraints-table table">

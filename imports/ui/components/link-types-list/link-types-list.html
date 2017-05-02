@@ -1,7 +1,8 @@
 <template name="LinkTypesList">
 <div class="os-link-types-list cards white">
   <h3>Link Types</h3>
-  <a href="{{pathFor route='link-type' query=(asHash action='insert') }}">
+  <a class="sm-add-new-link" 
+    href="{{pathFor route='link-type' query=(asHash action='insert') }}">
     <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new link type
   </a>
   <table class="sm-link-types-table table">

@@ -1,7 +1,8 @@
 <template name="UserList">
 <div class="os-user-list cards white">
   <h3>User List</h3>
-  <a href="{{pathFor route='user' query=(asHash action='insert') }}">
+  <a class="sm-add-new-link" 
+     href="{{pathFor route='user' query=(asHash action='insert') }}">
     <i class="cl-action-icon fa fa-plus" area-hidden="true"></i> Create new user
   </a>
   <table class="sm-user-list-table table">
