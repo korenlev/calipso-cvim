@@ -80,9 +80,9 @@ class DataValidate:
             value = data.get(key)
             error_messages = requirement['error_messages']
 
-            if value is None:
+            if not value and value is not False and value is not 0:
                 if key in data:
-                    return "Invalid query string: value of {0} key doesn't exist ".format(key)
+                    return "Invalid data: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
                 mandatory_error = error_messages.get('mandatory')
                 error_message = self.mandatory_check(key,
