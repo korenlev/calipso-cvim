@@ -289,7 +289,6 @@ class Scanner(Fetcher):
 
         # run children scanner from queue.
         self.scan_from_queue()
-        SshConn.disconnect_all()
         return results
 
     def scan_from_queue(self):

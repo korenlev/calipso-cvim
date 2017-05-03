@@ -6,13 +6,12 @@
 
 import argparse
 
-import os
-
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
+from utils.ssh_connection import SshConnection
 from utils.util import ClassResolver, setup_args
 
 
@@ -285,6 +284,7 @@ class ScanController(Fetcher):
             self.inv.monitoring_setup_manager.simulate_track_changes()
         if not (inventory_only or links_only or cliques_only):
             scanner.deploy_monitoring_setup()
+        SshConnection.disconnect_all()
         return True, 'ok'
 
 
