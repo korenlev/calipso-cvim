@@ -19,8 +19,9 @@ from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from utils.metadata_parser import MetadataParser
 from utils.string_utils import stringify_datetime
-from utils.util import SignalHandler, setup_args, MetadataParser, get_extension
+from utils.util import SignalHandler, setup_args, get_extension
 
 
 class EnvironmentListener(ConsumerMixin):
@@ -232,10 +233,10 @@ def listen(args: dict = None):
     handlers_package, queues, event_handlers = import_metadata(args['metadata_file'])
     event_handler = EventHandler(env_name, inventory_collection,
                                  event_handlers, handlers_package)
-    # TODO: revise queues format
+
     event_queues = [
-        Queue(q[0],
-              Exchange(q[1], 'topic', durable=False),
+        Queue(q['queue'],
+              Exchange(q['exchange'], 'topic', durable=False),
               durable=False, routing_key='#') for q in queues
     ]
 

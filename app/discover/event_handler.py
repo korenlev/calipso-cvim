@@ -18,17 +18,11 @@ class EventHandler(Logger):
         self.handlers = {}
         self._discover_handlers(handlers_package, event_handlers)
 
-    # Extract (event_name, handler_class_name) pairs
-    # from custom data structure
-    @staticmethod
-    def _extract_handlers(event_handlers) -> iter:
-        return iter(event_handlers)
-
     def _discover_handlers(self, handlers_package, event_handlers):
         if not event_handlers:
             raise TypeError("Event handlers list is empty")
 
-        for event_name, handler_name in self._extract_handlers(event_handlers):
+        for event_name, handler_name in event_handlers:
             handler = ClassResolver.get_instance_of_class(handler_name, handlers_package)
             if not issubclass(handler.__class__, EventBase):
                 raise TypeError("Event handler '{}' is not a subclass of EventBase"
