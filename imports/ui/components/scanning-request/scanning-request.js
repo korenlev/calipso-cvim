@@ -44,7 +44,8 @@ Template.ScanningRequest.onCreated(function() {
     disabled: false,
     notifications: {},
     model: {},
-    beforeInsert: true
+    beforeInsert: true,
+    scan_only_flag: null,
   });
 
   instance.autorun(function () {
@@ -136,8 +137,26 @@ Template.ScanningRequest.helpers({
       placeholder: params.hash.placeholder,
       disabled: params.hash.disabled,
       setModel: function (value) {
-        let model = instance.state.get('model');
-        let newModel = R.assoc(params.hash.key, value, model);
+        let key = params.hash.key;
+        let newModel = instance.state.get('model');
+
+        if(key.startsWith('scan_only_')) {
+          let current_flag = instance.state.get('scan_only_flag');
+          let next_flag = null;
+
+          if(value) {
+
+            if(current_flag) {
+              newModel = R.assoc(current_flag, false, newModel);
+            }
+
+            next_flag = key;
+          }
+
+          instance.state.set('scan_only_flag', next_flag);
+        }
+
+        newModel = R.assoc(key, value, newModel);
         instance.state.set('model', newModel);
       },
     };

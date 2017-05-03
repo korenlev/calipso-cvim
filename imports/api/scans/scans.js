@@ -95,15 +95,15 @@ let schema = {
   },
   scan_only_inventory: {
     type: Boolean,
-    defaultValue: true,
+    defaultValue: false,
   },
   scan_only_links: {
     type: Boolean,
-    defaultValue: true,
+    defaultValue: false,
   },
   scan_only_cliques: {
     type: Boolean,
-    defaultValue: true,
+    defaultValue: false,
   },
   submit_timestamp: {
     type: Date,
