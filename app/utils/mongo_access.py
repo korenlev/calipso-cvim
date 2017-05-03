@@ -14,7 +14,7 @@ from utils.logger import Logger
 class MongoAccess(Logger, DictNamingConverter):
     client = None
     db = None
-    default_conf_file = 'osdna_mongo_access.conf'
+    default_conf_file = '/local_dir/osdna_mongo_access.conf'
 
     def __init__(self, config_file_path=""):
         super().__init__()
@@ -31,16 +31,17 @@ class MongoAccess(Logger, DictNamingConverter):
         }
 
         if not config_file_path:
-            config_file_path = ConfigFile.get(self.default_conf_file)
-        if config_file_path:
-            try:
-                config_file = ConfigFile(config_file_path)
-                # read connection parameters from config file
-                config_params = config_file.read_config()
-                self.connect_params.update(config_params)
-            except Exception as e:
-                self.log.exception(e)
-                raise
+            config_file_path = self.default_conf_file
+
+        try:
+            config_file = ConfigFile(config_file_path)
+            # read connection parameters from config file
+            config_params = config_file.read_config()
+            self.connect_params.update(config_params)
+        except Exception as e:
+            self.log.exception(e)
+            raise
+
         self.prepare_connect_uri()
         MongoAccess.client = MongoClient(
             self.connect_params["server"],
