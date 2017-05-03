@@ -8,8 +8,8 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
     def __init__(self):
         super(ApiFetchProjectHosts, self).__init__()
 
-    def get(self, id):
-        if id != self.admin_project:
+    def get(self, project_id):
+        if project_id != self.admin_project:
             # do not scan hosts except under project 'admin'
             return []
         token = self.v2_auth_pwd(self.admin_project)

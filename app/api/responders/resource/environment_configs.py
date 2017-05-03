@@ -1,3 +1,4 @@
+from api.validation import regex
 from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
@@ -16,71 +17,152 @@ class EnvironmentConfigs(ResponderBase):
         }
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
-                                     "CLI", "AMQP", "Monitoring"]
-        self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring"]
-        self.REQUIREMENTS = {
-            "name": self.require(str, mandatory=True),
-            "host": self.require(str, mandatory=True),
-            "password": self.require(str, mandatory=True),
-            "port": self.require(int, True, mandatory=True),
-            "user": self.require(str, mandatory=True),
-            "admin_project": self.require(str, mandatory=True),
-            "admin_token": self.require(str, mandatory=True),
-            "pwd": self.require(str, mandatory=True),
-            "key": self.require(str, mandatory=True),
-            "app_path": self.require(str, mandatory=True),
-            "config_folder": self.require(str, mandatory=True),
-            "debug": self.require(bool, True, mandatory=True),
-            "env_type": self.require(str, False, DataValidate.LIST,
-                                     ["development", "product"],
+                                     "CLI", "AMQP", "Monitoring", "NFV_provider"]
+        self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring", "NFV_provider"]
+
+        self.provision_types = self.\
+            get_constants_by_name("environment_provision_types")
+        self.env_types = self.get_constants_by_name("env_types")
+        self.monitoring_types = self.\
+            get_constants_by_name("environment_monitoring_types")
+        self.distributions = self.\
+            get_constants_by_name("distributions")
+        self.mechanism_drivers = self.\
+            get_constants_by_name("mechanism_drivers")
+        self.operational_values = self.\
+            get_constants_by_name("environment_operational_status")
+        self.type_drivers = self.\
+            get_constants_by_name("type_drivers")
+
+        self.CONFIGURATIONS_REQUIREMENTS = {
+            "mysql": {
+                "name": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
                                      mandatory=True),
-            "osdna_path": self.require(str, mandatory=True),
-            "api_port": self.require(int, True, mandatory=True),
-            "rabbitmq_pass": self.require(str, mandatory=True),
-            "rabbitmq_user": self.require(str, mandatory=True),
-            "ssh_port": self.require(int, True, mandatory=True),
-            "ssh_pass": self.require(str, mandatory=True),
-            "ssh_user": self.require(str, mandatory=True),
-            "server_ip": self.require(str, mandatory=True),
-            "server_name": self.require(str, mandatory=True),
-            "type": self.require(str, mandatory=True)
-        }
-        self.CONFIGURATIONS_KEYS = {
-            "mysql":
-                ["name", "host", "password", "port", "user"],
-            "OpenStack":
-                ["name", "host", "admin_project", "admin_token",
-                 "port", "user", "pwd"],
-            "CLI":
-                ["name", "host", "key", "pwd", "user"],
-            "AMQP":
-                ["name", "host", "port", "user", "password"],
-            "Monitoring":
-                ["name", "app_path", "config_folder", "debug",
-                "env_type", "osdna_path", "api_port",
-                "rabbitmq_pass", "rabbitmq_user",
-                 "ssh_port", "ssh_password", "ssh_user",
-                "server_ip", "server_name", "type"]
+                "password": self.require(str, mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     DataValidate.REGEX,
+                                     regex.PORT,
+                                     mandatory=True),
+                "user": self.require(str, mandatory=True)
+            },
+            "OpenStack": {
+                "name": self.require(str, mandatory=True),
+                "admin_token": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.PORT,
+                                     mandatory=True),
+                "pwd": self.require(str, mandatory=True),
+                "user": self.require(str, mandatory=True)
+            },
+            "CLI": {
+                "name": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
+                "user": self.require(str, mandatory=True),
+                "pwd": self.require(str),
+                "key": self.require(str,
+                                    validate=DataValidate.REGEX,
+                                    requirement=regex.PATH)
+            },
+            "AMQP": {
+                "name": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
+                "password": self.require(str, mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     validate=DataValidate.REGEX,
+                                     requirement=regex.PORT,
+                                     mandatory=True),
+                "user": self.require(str, mandatory=True)
+            },
+            "Monitoring": {
+                "name": self.require(str, mandatory=True),
+                "config_folder": self.require(str,
+                                              validate=DataValidate.REGEX,
+                                              requirement=regex.PATH,
+                                              mandatory=True),
+                "provision": self.require(str,
+                                          validate=DataValidate.LIST,
+                                          requirement=self.provision_types,
+                                          mandatory=True),
+                "env_type": self.require(str,
+                                         validate=DataValidate.LIST,
+                                         requirement=self.env_types,
+                                         mandatory=True),
+                "api_port": self.require(int, True, mandatory=True),
+                "rabbitmq_pass": self.require(str, mandatory=True),
+                "rabbitmq_user": self.require(str, mandatory=True),
+                "ssh_port": self.require(int,
+                                         True,
+                                         validate=DataValidate.REGEX,
+                                         requirement=regex.PORT),
+                "ssh_user": self.require(str),
+                "ssh_password": self.require(str),
+                "server_ip": self.require(str,
+                                          validate=DataValidate.REGEX,
+                                          requirement=[regex.IP, regex.HOSTNAME],
+                                          mandatory=True),
+                "server_name": self.require(str, mandatory=True),
+                "type": self.require(str,
+                                     validate=DataValidate.LIST,
+                                     requirement=self.monitoring_types,
+                                     mandatory=True)
+            },
+            "NFV_provider": {
+                "name": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
+                "nfv_token": self.require(str, mandatory=True),
+                "port": self.require(int,
+                                     True,
+                                     DataValidate.REGEX,
+                                     regex.PORT,
+                                     True),
+                "user": self.require(str, mandatory=True),
+                "pwd": self.require(str, mandatory=True)
+            }
         }
 
     def on_get(self, req, resp):
         self.log.debug("Getting environment config")
         filters = self.parse_query_params(req)
 
-        distributions = self.get_constants_by_name("distributions")
-        mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
-        type_drivers = self.get_constants_by_name("type_drivers")
-
         filters_requirements = {
             "name": self.require(str),
-            "distribution": self.require(str, False, DataValidate.LIST, distributions),
-            "mechanism_drivers": self.require([str, list], False, DataValidate.LIST, mechanism_drivers),
-            "type_drivers": self.require(str, False, DataValidate.LIST, type_drivers),
+            "distribution": self.require(str, False,
+                                         DataValidate.LIST,
+                                         self.distributions),
+            "mechanism_drivers": self.require([str, list],
+                                              False,
+                                              DataValidate.LIST,
+                                              self.mechanism_drivers),
+            "type_drivers": self.require(str, False,
+                                         DataValidate.LIST,
+                                         self.type_drivers),
             "user": self.require(str),
             "listen": self.require(bool, True),
             "scanned": self.require(bool, True),
             "monitoring_setup_done": self.require(bool, True),
-            "operational": self.require(str, False, DataValidate.LIST, ["yes", "no"])
+            "operational": self.require(str, False,
+                                        DataValidate.LIST,
+                                        self.operational_values)
         }
 
         self.validate_query_data(filters, filters_requirements)
@@ -118,27 +200,23 @@ class EnvironmentConfigs(ResponderBase):
         if error:
             self.bad_request(error)
 
-        distributions = self.get_constants_by_name("distributions")
-        mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
-        type_drivers = self.get_constants_by_name("type_drivers")
         environment_config_requirement = {
             "app_path": self.require(str, mandatory=True),
             "configuration": self.require(list, mandatory=True),
             "distribution": self.require(str, False, DataValidate.LIST,
-                                         distributions, True),
+                                         self.distributions, True),
             "listen": self.require(bool, True, mandatory=True),
-            "user": self.require(str, mandatory=True),
+            "user": self.require(str),
             "mechanism_drivers": self.require(list, False, DataValidate.LIST,
-                                              mechanism_drivers, True),
-            "monitoring_setup_done": self.require(bool, True, mandatory=True),
+                                              self.mechanism_drivers, True),
             "name": self.require(str, mandatory=True),
             "operational": self.require(str, True, DataValidate.LIST,
-                                        ["yes", "no"], mandatory=True),
+                                        self.operational_values, mandatory=True),
             "scanned": self.require(bool, True),
             "last_scanned": self.require(str),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
-                                         type_drivers, True)
+                                         self.type_drivers, True)
         }
         self.validate_query_data(env_config,
                                  environment_config_requirement)
@@ -168,6 +246,15 @@ class EnvironmentConfigs(ResponderBase):
             validation['passed'] = False
             validation['error_message'] = "configuration must have name"
             return validation
+
+        unknown_configs = [config['name'] for config in configurations
+                           if config['name'] not in self.CONFIGURATIONS_NAMES]
+        if unknown_configs:
+            validation['passed'] = False
+            validation['error_message'] = 'Unknown configurations: {0}'. \
+                format(' and '.join(unknown_configs))
+            return validation
+
         for name in self.CONFIGURATIONS_NAMES:
             if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
                 configuration = self.get_configuration_by_name(name,
@@ -191,8 +278,14 @@ class EnvironmentConfigs(ResponderBase):
             error_message = self.validate_configuration(name, config)
             if error_message:
                 validation['passed'] = False
-                validation['error_message'] = error_message
+                validation['error_message'] = "{0} error: {1}".\
+                    format(name, error_message)
                 break
+            if name is 'CLI':
+                if 'key' not in config and 'pwd' not in config:
+                    validation['passed'] = False
+                    validation['error_message'] = 'CLI error: either key ' \
+                                                  'or pwd must be provided'
         return validation
 
     def get_configuration_by_name(self, name, configurations, is_mandatory,
@@ -216,7 +309,5 @@ class EnvironmentConfigs(ResponderBase):
         return configurations[0]
 
     def validate_configuration(self, name, configuration):
-        requirements = {}
-        for key in self.CONFIGURATIONS_KEYS[name]:
-            requirements[key] = self.REQUIREMENTS[key]
-        return self.validate_data(configuration, requirements)
+        return self.validate_data(configuration,
+                                  self.CONFIGURATIONS_REQUIREMENTS[name])

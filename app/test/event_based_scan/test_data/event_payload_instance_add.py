@@ -84,6 +84,23 @@ INSTANCES_ROOT = {
     "type": "instances_folder"
 }
 
+INSTANCE_DOCUMENT = {
+    'projects': ['OSDNA-project'],
+    'network': [],
+    'host': 'node-252.cisco.com', 'parent_type': 'instances_folder',
+    'children_url': '/osdna_dev/discover.py?type=tree&id=27a87908-bc1b-45cc-9238-09ad1ae686a7',
+    '_id': '57e421194a0a8a3fbe3bd2d0', 'mac_address': 'fa:16:3e:5e:9e:db', 'type': 'instance',
+    'name': 'name-change',
+    'uuid': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'environment': ENV_CONFIG,
+    'ip_address': '192.168.0.4', 'local_name': 'instance-00000020', 'object_name': 'test8',
+    'parent_id': 'node-223.cisco.com-instances', 'project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
+    'name_path': '/'+ENV_CONFIG+'/Regions/RegionOne/Availability Zones' +
+                 '/osdna-zone/node-252.cisco.com/Instances/name-change',
+    'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
+    'id_path': '/'+ENV_CONFIG+'/'+ENV_CONFIG+'-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+               '/node-223.cisco.com/node-223.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
+    'show_in_tree': True}
+
 HOST = {
     'name_path': '/'+ ENV_CONFIG +'/Regions/RegionOne/Availability Zones/osdna-zone/node-252.cisco.com',
     'children_url': '/osdna_dev/discover.py?type=tree&id=node-252.cisco.com',

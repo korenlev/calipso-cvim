@@ -1,9 +1,9 @@
 # handle monitoring event
 import datetime
 import sys
+from time import gmtime, strftime
 
 from bson import ObjectId
-from time import gmtime, strftime
 
 from discover.configuration import Configuration
 from messages.message import Message

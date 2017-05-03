@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import datetime
 import json
-
 import time
 from collections import defaultdict
 
@@ -12,14 +12,18 @@ from kombu.mixins import ConsumerMixin
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
+from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
 
 
 class EnvironmentListener(ConsumerMixin):
+
+    SOURCE_SYSTEM = "OpenStack"
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
@@ -46,18 +50,31 @@ class EnvironmentListener(ConsumerMixin):
               durable=False, routing_key='#')
     ]
 
-    def __init__(self, connection, retry_limit, consume_all):
+    def __init__(self, connection,
+                 env_name: str = DEFAULTS["env"],
+                 inventory_collection: str = DEFAULTS["inventory"],
+                 mongo_config: str = DEFAULTS["mongo_config"],
+                 retry_limit: int = DEFAULTS["retry_limit"],
+                 consume_all: bool = DEFAULTS["consume_all"]):
+
         self.connection = connection
         self.retry_limit = retry_limit
+        self.env_name = env_name
         self.consume_all = consume_all
         self.handler = None
         self.notification_responses = {}
         self.failing_messages = defaultdict(int)
         self.inv = InventoryMgr()
 
-    def set_env(self, env, inventory_collection):
+        self._set_collections(inventory_collection)
+        self._set_default_handler(inventory_collection)
+        self._set_monitoring(mongo_config)
+
+    def _set_collections(self, inventory_collection: str):
         self.inv.set_collections(inventory_collection)
-        self.handler = EventHandler(env, inventory_collection)
+
+    def _set_default_handler(self, inventory_collection: str):
+        self.handler = EventHandler(self.env_name, inventory_collection)
         self.notification_responses = {
             "compute.instance.create.end": self.handler.instance_add,
             "compute.instance.rebuild.end": self.handler.instance_update,
@@ -115,6 +132,10 @@ class EnvironmentListener(ConsumerMixin):
             "router.interface.delete": self.handler.router_interface_delete,
         }
 
+    def _set_monitoring(self, mongo_config: str):
+        self.inv.monitoring_setup_manager = MonitoringSetupManager(mongo_config, self.env_name)
+        self.inv.monitoring_setup_manager.server_setup()
+
     def get_consumers(self, consumer, channel):
         return [consumer(queues=self.event_queues,
                          accept=['json'],
@@ -132,6 +153,7 @@ class EnvironmentListener(ConsumerMixin):
             return False, None
 
     def process_task(self, body, message):
+        received_timestamp = stringify_datetime(datetime.datetime.now())
         processable, event_data = self._extract_event_data(body)
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
@@ -140,6 +162,11 @@ class EnvironmentListener(ConsumerMixin):
             with open("/tmp/listener.log", "a") as f:
                 f.write("{}\n".format(event_data))
             event_result = self.handle_event(event_data["event_type"], event_data)
+            finished_timestamp = stringify_datetime(datetime.datetime.now())
+            self.save_message(message_body=event_data,
+                              result=event_result,
+                              started=received_timestamp,
+                              finished=finished_timestamp)
 
             # Check whether the event was fully handled
             # and, if not, whether it should be retried later
@@ -175,15 +202,36 @@ class EnvironmentListener(ConsumerMixin):
     # 'Result' flag is True if handler has finished successfully, False otherwise
     # 'Retry' flag specifies if the error is recoverable or not
     # 'Retry' flag is checked only is 'result' is False
-    def handle_event(self, event_type, notification) -> EventResult:
+    def handle_event(self, event_type: str, notification: dict) -> EventResult:
         print("Got notification.\nEvent_type: {}\nNotification:\n{}".format(event_type, notification))
         try:
             result = self.notification_responses[event_type](notification)
             return result if result else EventResult(result=False, retry=False)
         except Exception as e:
             self.inv.log.exception(e)
-            # TODO: an exception-causing handler should rather be fixed than retried (it's ok for now)
-            return EventResult(result=False, retry=True)
+            return EventResult(result=False, retry=False)
+
+    def save_message(self, message_body: dict, result: EventResult, started: str, finished: str):
+        try:
+            message = Message(
+                msg_id=message_body.get('message_id'),
+                env=self.env_name,
+                source=self.SOURCE_SYSTEM,
+                object_id=result.object_id,
+                object_type=result.object_type,
+                display_context=result.document_id,
+                level=message_body.get('priority'),
+                msg=message_body,
+                ts=message_body.get('timestamp'),
+                received_ts=started,
+                finished_ts=finished
+            )
+            self.inv.collections['messages'].insert_one(message.get())
+            return True
+        except Exception as e:
+            self.inv.log.error("Failed to save message")
+            self.inv.log.exception(e)
+            return False
 
 
 def get_args():
@@ -250,10 +298,10 @@ def listen(args: dict = None):
             terminator = SignalHandler()
             worker = EnvironmentListener(connection=conn,
                                          retry_limit=args["retry_limit"],
-                                         consume_all=args["consume_all"])
-            worker.set_env(env_name, args["inventory"])
-            worker.inv.monitoring_setup_manager = MonitoringSetupManager(args["mongo_config"], env_name)
-            worker.inv.monitoring_setup_manager.server_setup()
+                                         consume_all=args["consume_all"],
+                                         mongo_config=args["mongo_config"],
+                                         inventory_collection=args["inventory"],
+                                         env_name=env_name)
             worker.run()
             if terminator.terminated:
                 args.get('process_vars', {})['operational'] = OperationalStatus.STOPPED

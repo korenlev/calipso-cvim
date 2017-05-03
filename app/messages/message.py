@@ -1,10 +1,14 @@
-import datetime
+from typing import Union
+
+from bson import ObjectId
 
 
 class Message:
 
-    def __init__(self, msg_id, env, source, object_id, object_type,
-                 display_context, level, msg, ts):
+    def __init__(self, msg_id: str, env: str, source: str,
+                 object_id: Union[str, ObjectId], object_type: str,
+                 display_context: Union[str, ObjectId], level: str, msg: dict,
+                 ts: str, received_ts: str = None, finished_ts: str = None):
         self.id = msg_id
         self.environment = env
         self.source_system = source
@@ -13,7 +17,9 @@ class Message:
         self.display_context = display_context
         self.level = level
         self.message = msg
-        self.timestamp = ts
+        self.timestamp = ts if ts else received_ts
+        self.received_timestamp = received_ts
+        self.finished_timestamp = finished_ts
         self.viewed = False
 
     def get(self):
@@ -27,5 +33,7 @@ class Message:
             "level": self.level,
             "message": self.message,
             "timestamp": self.timestamp,
+            "received_timestamp": self.received_timestamp,
+            "finished_timestamp": self.finished_timestamp,
             "viewed": self.viewed
         }

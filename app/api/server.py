@@ -44,6 +44,9 @@ def get_args():
                         default="inventory",
                         help="name of inventory collection \n" +
                              "(default: 'inventory')")
+    parser.add_argument("-t", "--token-lifetime", nargs="?", type=int,
+                        default=86400,
+                        help="lifetime of the token")
     args = parser.parse_args()
     return args
 
@@ -57,5 +60,6 @@ if __name__ == "__main__":
     app = App(args.mongo_config,
               args.ldap_config,
               args.loglevel,
-              args.inventory).get_app()
+              args.inventory,
+              args.token_lifetime).get_app()
     StandaloneApplication(app, options).run()
