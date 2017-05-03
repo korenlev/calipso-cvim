@@ -200,18 +200,6 @@ def get_args():
 
 
 def import_metadata(file_path: str):
-    extension = get_extension(file_path)
-    extensions = EnvironmentListener.METADATA_FILE_EXTENSIONS
-    if not extension or extension not in extensions:
-        raise ValueError("Extension '{}' is not supported. "
-                         "Please specify a file with one of the following extensions: ({})"
-                         .format(extension, ", ".join(extensions)))
-
-    # TODO: restrict filesystem walks to project dirs
-    if not os.path.isfile(file_path):
-        raise ValueError("Couldn't load metadata file. File '{}' doesn't exist or is not a file"
-                         .format(file_path))
-
     parser = MetadataParser()
     parser.parse_metadata_file(file_path)
     return parser.handlers_package, parser.queues, parser.event_handlers
@@ -231,6 +219,7 @@ def listen(args: dict = None):
     conf.use_env(env_name)
 
     handlers_package, queues, event_handlers = import_metadata(args['metadata_file'])
+
     event_handler = EventHandler(env_name, inventory_collection,
                                  event_handlers, handlers_package)
 

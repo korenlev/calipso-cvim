@@ -60,19 +60,25 @@ class MetadataParser:
         # TODO: provide json parser
         pass
 
-    def not_implemented(self, file_path: str):
-        raise ValueError("Extension '{}' is not supported"
-                         .format(get_extension(file_path)))
-
     PARSERS = {
         'py': _parse_python_file,
         'json': _parse_json_file,
     }
 
     def parse_metadata_file(self, file_path: str):
+
         extension = get_extension(file_path)
+        if extension not in self.PARSERS.keys():
+            raise ValueError("Extension '{}' is not supported. "
+                             "Please specify a file with one of the following extensions: ({})"
+                             .format(extension, ", ".join(self.PARSERS.keys())))
+
+        if not os.path.isfile(file_path):
+            raise ValueError("Couldn't load metadata file. Path '{}' doesn't exist or is not a file"
+                             .format(file_path))
+
         # Try to parse metadata file if it has one of the supported extensions
-        self.PARSERS.get(extension, self.not_implemented)(self, file_path)
+        self.PARSERS[extension](self, file_path)
         if self.errors:
             raise TypeError("Errors encountered during metadata file parsing:\n{}"
                             .format("\n".join(self.errors)))
