@@ -143,6 +143,20 @@ CONSTANTS_BY_NAMES = {
         "Mirantis-8.0",
         "Mirantis-9.0",
         "RDO-Juno"
+    ],
+    "environment_operational_status": [
+        "stopped",
+        "running",
+        "error"
+    ],
+    "environment_provision_types": [
+        "None",
+        "Deploy",
+        "Files",
+        "DB"
+    ],
+    "environment_monitoring_types": [
+       "Sensu"
     ]
 }
 
