@@ -5,9 +5,11 @@
 # phase 2: either scan default environment, or scan specific object
 
 import argparse
+import sys
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
+from discover.scan_error import ScanError
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
@@ -270,24 +272,28 @@ class ScanController(Fetcher):
         self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
-        if inventory_only or run_all:
-            results = scanner.run_scan(
-                scan_plan.obj,
-                scan_plan.id_field,
-                scan_plan.child_id,
-                scan_plan.child_type)
-        if links_only or run_all:
-            scanner.scan_links()
-        if cliques_only or run_all:
-            scanner.scan_cliques()
-        if monitoring_setup_only:
-            self.inv.monitoring_setup_manager.simulate_track_changes()
-        if not (inventory_only or links_only or cliques_only):
-            scanner.deploy_monitoring_setup()
+        try:
+            if inventory_only or run_all:
+                scanner.run_scan(
+                    scan_plan.obj,
+                    scan_plan.id_field,
+                    scan_plan.child_id,
+                    scan_plan.child_type)
+            if links_only or run_all:
+                scanner.scan_links()
+            if cliques_only or run_all:
+                scanner.scan_cliques()
+            if monitoring_setup_only:
+                self.inv.monitoring_setup_manager.simulate_track_changes()
+            if not (inventory_only or links_only or cliques_only):
+                scanner.deploy_monitoring_setup()
+        except ScanError as e:
+            return False, "scan error: " + str(e)
         SshConnection.disconnect_all()
         return True, 'ok'
 
 
 if __name__ == '__main__':
     scan_manager = ScanController()
-    scan_manager.run()
+    ret, msg = scan_manager.run()
+    sys.exit(0 if ret else 1)

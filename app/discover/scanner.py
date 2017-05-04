@@ -12,8 +12,8 @@ from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vconnectors import FindLinksForVconnectors
 from discover.find_links_for_vedges import FindLinksForVedges
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
+from discover.scan_error import ScanError
 from utils.inventory_mgr import InventoryMgr
-from utils.ssh_conn import SshConn
 from utils.util import ClassResolver
 
 
@@ -150,7 +150,7 @@ class Scanner(Fetcher):
                            escaped_id,
                            e)
             traceback.print_exc()
-            return []
+            raise ScanError(str(e))
 
         # format results
         if isinstance(db_results, dict):
