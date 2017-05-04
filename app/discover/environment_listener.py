@@ -5,7 +5,7 @@ import datetime
 import json
 import time
 from collections import defaultdict
-from typing import List
+from typing import List, Tuple
 
 import os
 from kombu import Connection, Queue, Exchange
@@ -21,19 +21,19 @@ from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
 from utils.metadata_parser import MetadataParser
 from utils.string_utils import stringify_datetime
-from utils.util import SignalHandler, setup_args, get_extension
+from utils.util import SignalHandler, setup_args
 
 
 class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
-    METADATA_FILE_EXTENSIONS = ["py", "json"]
+    COMMON_METADATA_FILE = os.path.join("discover", "plugins", "default_config.py")
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
         "mongo_config": "",
-        "metadata_file": os.path.join("discover", "plugins", "default_config.py"),
+        "metadata_file": "",
         "inventory": "inventory",
         "loglevel": "INFO",
         "environments_collection": "environments_config",
@@ -199,10 +199,25 @@ def get_args():
     return args
 
 
-def import_metadata(file_path: str):
+def parse_metadata_file(file_path: str) -> Tuple[str, List[dict], dict]:
     parser = MetadataParser()
     parser.parse_metadata_file(file_path)
     return parser.handlers_package, parser.queues, parser.event_handlers
+
+
+# Imports metadata from file,
+# updates event handler with new handlers
+# and event queues with new queues
+def import_metadata(event_handler: EventHandler,
+                    event_queues: List[Queue],
+                    metadata_file_path: str) -> None:
+    handlers_package, queues, event_handlers = parse_metadata_file(metadata_file_path)
+    event_handler.discover_handlers(handlers_package, event_handlers)
+    event_queues.extend([
+        Queue(q['queue'],
+              Exchange(q['exchange'], 'topic', durable=False),
+              durable=False, routing_key='#') for q in queues
+    ])
 
 
 def listen(args: dict = None):
@@ -218,16 +233,15 @@ def listen(args: dict = None):
     conf = Configuration(args["mongo_config"], args["environments_collection"])
     conf.use_env(env_name)
 
-    handlers_package, queues, event_handlers = import_metadata(args['metadata_file'])
+    event_handler = EventHandler(env_name, inventory_collection)
+    event_queues = []
 
-    event_handler = EventHandler(env_name, inventory_collection,
-                                 event_handlers, handlers_package)
+    # import common metadata
+    import_metadata(event_handler, event_queues, EnvironmentListener.COMMON_METADATA_FILE)
 
-    event_queues = [
-        Queue(q['queue'],
-              Exchange(q['exchange'], 'topic', durable=False),
-              durable=False, routing_key='#') for q in queues
-    ]
+    # import custom metadata if supplied
+    if args["metadata_file"]:
+        import_metadata(event_handler, event_queues, args["metadata_file"])
 
     logger.set_loglevel(args["loglevel"])
 

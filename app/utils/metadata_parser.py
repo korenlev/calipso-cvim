@@ -1,3 +1,6 @@
+import json
+from typing import List
+
 import os
 
 from utils.util import get_extension
@@ -5,16 +8,52 @@ from utils.util import get_extension
 
 class MetadataParser:
 
-    REQUIRED_EXPORTS = {
-        'py': ('HANDLERS_PACKAGE', 'QUEUES', 'EVENT_HANDLERS')
-    }
+    HANDLERS_PACKAGE = 'handlers_package'
+    QUEUES = 'queues'
+    EVENT_HANDLERS = 'event_handlers'
 
+    REQUIRED_EXPORTS = (HANDLERS_PACKAGE, EVENT_HANDLERS)
 
     def __init__(self):
         self.handlers_package = None
         self.queues = []
         self.event_handlers = []
         self.errors = []
+
+    def _validate_required_fields(self, handlers_package, event_handlers):
+        if not handlers_package \
+           or not isinstance(handlers_package, str):
+            self.errors.append("Handlers package '{}' is invalid"
+                               .format(handlers_package))
+
+        if not event_handlers \
+           or not isinstance(event_handlers, dict):
+            self.errors.append("Event handlers variable is invalid or empty"
+                               "(should be a non-empty dict)")
+
+        return len(self.errors) == 0
+
+    def _finalize_parsing(self,
+                          handlers_package: str,
+                          queues: List[dict],
+                          event_handlers: dict):
+        # We shouldn't continue parsing if metadata file has any errors
+        if not self._validate_required_fields(handlers_package, event_handlers):
+            return
+
+        # Convert variables to EventHandler-friendly format
+        self.handlers_package = handlers_package
+
+        try:
+            if queues and isinstance(queues, list):
+                self.queues = [{"queue": q["queue"],
+                                "exchange": q["exchange"]}
+                               for q in queues]
+        except KeyError:
+            self.errors.append("Queues variable has invalid format")
+            return
+
+        self.event_handlers = event_handlers
 
     def _parse_python_file(self, file_path: str):
         import importlib.util
@@ -26,39 +65,32 @@ class MetadataParser:
         spec.loader.exec_module(module)
 
         # make sure metadata module exports all variables we need
-        if not all([variable in dir(module) for variable in self.REQUIRED_EXPORTS['py']]):
+        if not all([variable in dir(module) for variable in self.REQUIRED_EXPORTS]):
             self.errors.append("Metadata file should export all of ({}) variables"
-                               .format(', '.join(self.REQUIRED_EXPORTS['py'])))
+                               .format(', '.join(self.REQUIRED_EXPORTS)))
             return
 
-        if not module.HANDLERS_PACKAGE \
-           or not isinstance(module.HANDLERS_PACKAGE, str):
-            self.errors.append("Handlers package '{}' is invalid"
-                               .format(module.HANDLERS_PACKAGE))
+        handlers_package = getattr(module, self.HANDLERS_PACKAGE, None)
+        queues = getattr(module, self.QUEUES, None)
+        event_handlers = getattr(module, self.EVENT_HANDLERS, None)
 
-        if not module.QUEUES \
-           or not isinstance(module.QUEUES, list):
-            self.errors.append("Queues variable is invalid or empty "
-                               "(should be a non-empty list)")
-
-        if not module.EVENT_HANDLERS \
-           or not isinstance(module.EVENT_HANDLERS, dict):
-            self.errors.append("Event handlers variable is invalid or empty"
-                               "(should be a non-empty dict)")
-
-        # We shouldn't continue parsing if metadata file has any errors
-        if self.errors:
-            return
-
-        # Prepare variables for EventHandler-friendly format
-        self.handlers_package = module.HANDLERS_PACKAGE
-        self.queues = [{"queue": q[0], "exchange": q[1]}
-                       for q in module.QUEUES]
-        self.event_handlers = list(module.EVENT_HANDLERS.items())
+        self._finalize_parsing(handlers_package, queues, event_handlers)
 
     def _parse_json_file(self, file_path: str):
-        # TODO: provide json parser
-        pass
+        with open(file_path) as data_file:
+            payload = json.load(data_file)
+
+        # make sure metadata payload contains all fields we need
+        if not all([field in payload for field in self.REQUIRED_EXPORTS]):
+            self.errors.append("Metadata json should contain all of ({}) fields"
+                               .format(', '.join(self.REQUIRED_EXPORTS)))
+            return
+
+        handlers_package = payload[self.HANDLERS_PACKAGE]
+        queues = payload.get(self.QUEUES, None)
+        event_handlers = payload[self.EVENT_HANDLERS]
+
+        self._finalize_parsing(handlers_package, queues, event_handlers)
 
     PARSERS = {
         'py': _parse_python_file,

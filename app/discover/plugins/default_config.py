@@ -1,11 +1,11 @@
-HANDLERS_PACKAGE = 'discover.events'
+handlers_package = 'discover.events'
 
-QUEUES = [('notifications.nova', 'nova'),
-          ('notifications.neutron', 'neutron'),
-          ('notifications.neutron', 'dhcp_agent'),
-          ('notifications.info', 'info')]
+queues = [{'queue': 'notifications.nova', 'exchange': 'nova'},
+          {'queue': 'notifications.neutron', 'exchange': 'neutron'},
+          {'queue': 'notifications.neutron', 'exchange': 'dhcp_agent'},
+          {'queue': 'notifications.info', 'exchange': 'info'}]
 
-EVENT_HANDLERS = {'compute.instance.create.end': 'EventInstanceAdd',
+event_handlers = {'compute.instance.create.end': 'EventInstanceAdd',
                   'compute.instance.rebuild.end': 'EventInstanceAdd',
                   'compute.instance.update': 'EventInstanceUpdate',
                   'compute.instance.delete.end': 'EventInstanceDelete',
