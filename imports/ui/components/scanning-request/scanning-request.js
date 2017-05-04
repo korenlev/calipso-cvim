@@ -44,8 +44,7 @@ Template.ScanningRequest.onCreated(function() {
     disabled: false,
     notifications: {},
     model: {},
-    beforeInsert: true,
-    scan_only_flag: null,
+    beforeInsert: true
   });
 
   instance.autorun(function () {
@@ -138,25 +137,15 @@ Template.ScanningRequest.helpers({
       disabled: params.hash.disabled,
       setModel: function (value) {
         let key = params.hash.key;
-        let newModel = instance.state.get('model');
+        let model = instance.state.get('model');
+        let newModel = model;
 
-        if(key.startsWith('scan_only_')) {
-          let current_flag = instance.state.get('scan_only_flag');
-          let next_flag = null;
-
-          if(value) {
-
-            if(current_flag) {
-              newModel = R.assoc(current_flag, false, newModel);
-            }
-
-            next_flag = key;
-          }
-
-          instance.state.set('scan_only_flag', next_flag);
+        if(R.indexOf(key, Scans.scansOnlyFields) >= 0) {
+          newModel = setRadioValues(Scans.scansOnlyFields, key, value, model)
+        }else {
+          newModel = R.assoc(key, value, newModel);
         }
 
-        newModel = R.assoc(key, value, newModel);
         instance.state.set('model', newModel);
       },
     };
@@ -285,6 +274,18 @@ function submitItem(instance) {
       // todo
     break;
   }
+}
+
+function setRadioValues(radioFields, key, value, modal) {
+  let newModal = modal;
+  let currentRadioFields = R.filter(f => modal[f], radioFields);
+
+  for(let field of currentRadioFields) {
+    newModal = R.assoc(field, false, newModal)
+  }
+
+  newModal = R.assoc(key, value, newModal);
+  return newModal;
 }
 
 function processActionResult(instance, error) {
