@@ -39,7 +39,7 @@ import {
 //  setShowDashboard,
 //  setShowGraph,
 } from '/imports/ui/actions/environment-panel.actions';
-//import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
+import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
 import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 import { setEnvSelectedNode } 
   from '/imports/ui/actions/environment-panel.actions';
@@ -159,6 +159,7 @@ Template.Environment.onCreated(function () {
       store.dispatch(updateEnvTreeNode(env));
       store.dispatch(setEnvAsLoaded());
       store.dispatch(startOpenEnvTreeNode([]));
+      store.dispatch(setMainAppSelectedEnvironment(env._id));
     });
   });
 

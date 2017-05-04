@@ -1,6 +1,6 @@
 //import * as R from 'ramda';
 
-import { check } from 'meteor/check';
+//import { check } from 'meteor/check';
 import * as R from 'ramda';
 import { Inventory } from '../inventories';
 import { Environments } from '/imports/api/environments/environments';
@@ -11,25 +11,53 @@ const AUTO_COMPLETE_RESULTS_LIMIT = 5;
 
 
 Meteor.methods({
-  'inventorySearch': function(searchTerm, envName) {
-    check(searchTerm, String);
-    this.unblock();
-    let searchExp = new RegExp(regexEscape(searchTerm), 'i');
-    let env = Environments.findOne({ name: envName });
+  'inventorySearch': function(searchTerm, envId, opCounter) {
+    console.log('inventorySearch');
+    console.log('searchTerm', R.toString(searchTerm));
+    console.log('envId', R.toString(envId));
+    console.log('opCounter', R.toString(opCounter));
 
-    let results = Inventory.find({ 
-      environment: envName, 
+    this.unblock();
+
+    if (R.anyPass([R.isNil, R.isEmpty])(searchTerm)) {
+      return {
+        searchResults: [],
+        opCounter: opCounter
+      };
+    }
+
+    let searchExp = new RegExp(regexEscape(searchTerm), 'i');
+
+    let query = {
       name: searchExp 
-    }, {
+    };
+
+    if (! R.isNil(envId)) {
+      let env = Environments.findOne({ _id: envId });
+      query = R.merge(query, {
+        environment: env.name  
+      });
+    }
+
+    let searchResults = Inventory.find(query, {
       limit: AUTO_COMPLETE_RESULTS_LIMIT 
     }).fetch();
 
-    return R.map((inventory) => {
-      return R.merge(inventory, {
-        _envId: env._id
-      });
-    }, results);
+    searchResults = R.map((inventory) => {
+      console.log('search result');
+      console.log(R.toString(inventory));
 
+      let itemEnv = Environments.findOne({ name: inventory.environment });
+
+      return R.merge(inventory, {
+        _envId: itemEnv._id
+      });
+    }, searchResults);
+
+    return {
+      opCounter: opCounter, 
+      searchResults: searchResults,
+    };
   },
 
   'expandNodePath': function(nodeId) {

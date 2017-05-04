@@ -8,8 +8,9 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 
 import { store } from '/imports/ui/store/store';
 //import { setSearchTerm } from '/imports/ui/actions/search-interested-parties';
-import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
+//import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
 import { idToStr } from '/imports/lib/utilities';
+import factory from 'reactive-redux';
 
 import '/imports/ui/components/search-auto-complete-list/search-auto-complete-list';
 import '/imports/ui/components/get-started/get-started';
@@ -28,41 +29,30 @@ Template.TopNavbarMenu.onCreated(function () {
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     isAutoCompleteOpen: false,
-    selectedEnvironment: null
+    searchTerm: null
   });
 
-  instance.storeUnsubscribe = store.subscribe(() => {
-    let state = store.getState();
+  const mainEnvIdSelector = (state) => (state.components.mainApp.selectedEnvironment._id);
+  instance.rdxMainEnvId = factory(mainEnvIdSelector, store);
 
-    let selectedEnvironment = state.components.mainApp.selectedEnvironment;
-    instance.state.set('selectedEnvironment', selectedEnvironment);
-  });
+  instance.tempSearchTerm = null;
+  instance.searchDebounced = _.debounce(function () {
+    instance.state.set('searchTerm', instance.tempSearchTerm);
+    instance.state.set('isAutoCompleteOpen', true);
+  }, 250);
 });
 
 Template.TopNavbarMenu.onDestroyed(function () {
-  let instance = this;
-  instance.storeUnsubscribe();
+  //let instance = this;
 });
 
 Template.TopNavbarMenu.events = {
-  /*
-  'keypress #search': function  (event) {
-    if (event.which === 13) {
-      var instance = Template.instance(),
-        searchTerm =  instance.$(event.target).val();
-      console.log('temp val is ' + searchTerm);
-
-      store.dispatch(setSearchTerm(searchTerm));
-      showNodeEffectInTree(searchTerm);
-    }
-  },
-  */
-
   'keyup #search': function  (event) {
     let instance = Template.instance();
     let searchTerm =  instance.$(event.target).val();
-    store.dispatch(notifySearchAutoCompleteTermChanged(searchTerm));
-    instance.state.set('isAutoCompleteOpen', true);
+
+    instance.tempSearchTerm = searchTerm;
+    instance.searchDebounced();
   },
 
   'click .os-nav-link': function () {
@@ -80,12 +70,23 @@ Template.TopNavbarMenu.events = {
 };
 
 Template.TopNavbarMenu.helpers({
-  createSearchAutoCompleteListArgs: function () {
+  envId: function () {
+    let instance = Template.instance();
+    return instance.rdxMainEnvId.get();
+  },
+
+  searchTerm: function () {
+    let instance = Template.instance();
+    return instance.state.get('searchTerm');
+  }, 
+
+  argsSearch: function (envId, searchTerm) {
     let instance = Template.instance();
 
     return {
       isOpen: instance.state.get('isAutoCompleteOpen'),
-
+      envId: envId,
+      searchTerm: searchTerm,
       onResultSelected(node) {
         instance.state.set('isAutoCompleteOpen', false);
 

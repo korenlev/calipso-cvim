@@ -6,8 +6,12 @@
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { EJSON } from 'meteor/ejson';
+import { _idFieldDef } from '/imports/lib/simple-schema-utils';
         
-import { store } from '/imports/ui/store/store';
+//import { store } from '/imports/ui/store/store';
 
 import '../auto-search-result-line/auto-search-result-line';
 
@@ -22,26 +26,51 @@ Template.SearchAutoCompleteList.onCreated(function() {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
+    isOpen: false,
+    envId: null,
+    searchTerm: null,
     results: [],
-    invocationCounter: 0,
-    lastSearchTerm: null
   });
 
-  instance.storeUnsubscribe = store.subscribe(() => {
-    let state = store.getState();
-    let searchTerm = state.api.searchInterestedParties.searchAutoCompleteTerm;
-    if (searchTerm !== instance.state.get('lastSearchTerm')) {
-      if (R.isNil(searchTerm) || R.isEmpty(searchTerm)) {
-        instance.state.set('results', []); 
-        instance.state.set('lastSearchTerm', searchTerm);
-        incInvocationCounter(instance.state);
-      } else {
-        // do query and set result in the state
-        performSearch(searchTerm, 
-          state.components.environmentPanel.envName, instance.state);
-      }
-    }
+  instance.currentData = new ReactiveVar(null, EJSON.equals);
+  instance.autorun((function(_this) {
+    return function(_computation) {
+      return _this.currentData.set(Template.currentData());
+    };
+  })(instance));
+
+  instance.autorun(function () {
+    let data = instance.currentData.get();
+
+    new SimpleSchema({
+      isOpen: { type: Boolean },
+      envId: R.merge(_idFieldDef, { optional: true }), 
+      searchTerm: { type: String, optional: true },
+      onResultSelected: { type: Function },
+    }).validate(data);
+
+    instance.state.set('isOpen', data.isOpen);
+    instance.state.set('envId', data.envId);
+    instance.state.set('searchTerm', data.searchTerm);
   });
+
+  instance.opCounter = 0;
+
+  instance.autorun(function () {
+    let envId = instance.state.get('envId');
+    let searchTerm = instance.state.get('searchTerm');
+    performSearch(searchTerm, envId,
+      function getLastOpCounter() {
+        return instance.opCounter;
+      },
+      function setLastOpCounter(opCounter) {
+        instance.opCounter = opCounter;
+      }
+    ).then(function (results) {
+      instance.state.set('results', results);
+    });
+  });
+
 });  
 
 /*
@@ -86,33 +115,40 @@ Template.SearchAutoCompleteList.helpers({
   }
 });
 
-function performSearch(searchTerm, envName, state) {
-  let results = [];
-  incInvocationCounter(state);
-  let invocationId = state.get('invocationCounter');
-  Meteor.apply('inventorySearch', 
-    [ searchTerm, envName ], { wait: false }, function (err, res) {
-      if (invocationId < state.get('invocationCounter')) {
-        return;
-      }
+function performSearch(
+  searchTerm, 
+  envId, 
+  getLastOpCounterFn, 
+  setLastOpCounterFn
+) {
+  return new Promise((resolve, reject) => {
+    let results = [];
+    let opCounter = getLastOpCounterFn() + 1;
+    setLastOpCounterFn(opCounter);
 
+    Meteor.apply('inventorySearch', [ 
+      searchTerm, envId, opCounter, 
+    ], { 
+      wait: false 
+    }, function (err, res) {
       if (err) {
-        console.error(err);
+        console.error(R.toString(err));
+        reject(err);
         return;
       }
 
-      state.set('lastSearchTerm', searchTerm);
-     
+      let currentOpCounter = getLastOpCounterFn();
+      if (res.opCounter !== currentOpCounter) {
+        reject('stale search result');
+        return;
+      }
+       
       R.forEach((resultItem) => {
         results = R.append(resultItem, results);
-      }, res);
+      }, res.searchResults);
 
-      state.set('results', results);
+      resolve(results);
+      return;
     });
+  });
 }
-
-function incInvocationCounter(state) {
-  let invocationCounter = state.get('invocationCounter');
-  state.set('invocationCounter',  invocationCounter + 1);
-}
-

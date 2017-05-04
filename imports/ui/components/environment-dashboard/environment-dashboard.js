@@ -256,7 +256,7 @@ Template.EnvironmentDashboard.helpers({
     let message =  Messages.findOne({ environment: envName, level: level }, {
       sort: { timestamp: -1 } });
 
-    return R.prop('timestamp', message);
+    return R.path(['timestamp'], message);
   }
 }); // end: helpers
 

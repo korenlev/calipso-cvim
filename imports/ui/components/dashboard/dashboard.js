@@ -7,6 +7,8 @@ import { Template } from 'meteor/templating';
 import { Inventory } from '/imports/api/inventories/inventories';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 //import { Messages } from '/imports/api/messages/messages';
+import { store } from '/imports/ui/store/store';
+import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
 
 import './dashboard.html';     
 
@@ -32,6 +34,8 @@ Template.Dashboard.onCreated(function () {
     instance.subscribe('messages?level', 'notify');
     instance.subscribe('messages?level', 'warn');
     instance.subscribe('messages?level', 'error');
+
+    store.dispatch(setMainAppSelectedEnvironment(null));
   });
 });
 

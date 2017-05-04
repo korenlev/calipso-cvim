@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import * as actions from '/imports/ui/actions/main-app.actions';
 
 const defaultState = {
-  selectedEnvironment: null
+  selectedEnvironment: {}, 
 };
 
 export function reducer(state = defaultState, action) {
