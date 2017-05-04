@@ -14,7 +14,7 @@ from utils.string_utils import stringify_datetime
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %Z'
 SOURCE_SYSTEM = 'Sensu'
-ERROR_LEVEL = ['info', 'warning', 'critical']
+ERROR_LEVEL = ['info', 'warn', 'error']
 
 
 class MonitoringCheckHandler(Logger, SpecialCharConverter):
