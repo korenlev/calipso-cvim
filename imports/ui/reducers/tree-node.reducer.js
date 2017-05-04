@@ -9,7 +9,10 @@ const defaultState = {
   openState: 'closed', // opened, start_close, closed, start_open
   children: [],
   childDetected: false,
-  level: 1
+  level: 1,
+  positionNeeded: false,
+  position: null,
+  scrollToNodeIsNeeded: false
 };
 
 export function reducer(state = defaultState, action) {
@@ -138,6 +141,54 @@ export function reducer(state = defaultState, action) {
     }
 
     return reduceActionOnChild(state, actions.setChildDetectedTreeNode(rest), nodeId);
+
+  case actions.SET_POSITION_REPORT_IS_NEEDED_AS_ON:
+    nodeId = R.head(action.payload.nodePath);
+    rest = R.tail(action.payload.nodePath);
+
+    if (R.isNil(nodeId)) {
+      return R.assoc('positionNeeded', true, state);
+    }
+
+    return reduceActionOnChild(state, actions.setPositionReportIsNeededAsOn(rest), nodeId);
+
+  case actions.REPORT_NODE_POSITION_RETRIEVED:
+    nodeId = R.head(action.payload.nodePath);
+    rest = R.tail(action.payload.nodePath);
+
+    if (R.isNil(nodeId)) {
+      return R.merge(state, {
+        position: {
+          top: action.payload.rect.top,
+          bottom: action.payload.rect.bottom,
+          height: action.payload.rect.height,
+        },
+        positionNeeded: false
+      });
+    }
+
+    return reduceActionOnChild(state, 
+        actions.reportNodePositionRetrieved(rest, action.payload.rect), nodeId);
+
+  case actions.SET_SCROLL_TO_NODE_IS_NEEDED_AS_ON:
+    nodeId = R.head(action.payload.nodePath);
+    rest = R.tail(action.payload.nodePath);
+
+    if (R.isNil(nodeId)) {
+      return R.assoc('scrollToNodeIsNeeded', true, state);
+    }
+
+    return reduceActionOnChild(state, actions.setScrollToNodeIsNeededAsOn(rest), nodeId);
+
+  case actions.REPORT_SCROLL_TO_NODE_PERFORMED:
+    nodeId = R.head(action.payload.nodePath);
+    rest = R.tail(action.payload.nodePath);
+
+    if (R.isNil(nodeId)) {
+      return R.assoc('scrollToNodeIsNeeded', false, state);
+    }
+
+    return reduceActionOnChild(state, actions.reportScrollToNodePerformed(rest), nodeId);
 
   default:
     return state;

@@ -18,6 +18,10 @@ export const SET_ENV_SELECTED_NODE_AS_ENV = 'SET_ENV_SELECTED_NODE_AS_ENV';
 export const SET_SHOW_DASHBOARD = 'SET_SHOW_DASHBOARD';
 export const SET_SHOW_GRAPH = 'SET_SHOW_GRAPH';
 export const TOGGLE_ENV_SHOW = 'TOGGLE_ENV_SHOW';
+export const SET_ENV_POSITION_REPORT_IS_NEEDED_AS_ON = 'SET_ENV_POSITION_REPORT_IS_NEEDED_AS_ON';
+export const REPORT_ENV_NODE_POSITION_RETRIEVED = 'REPORT_ENV_NODE_POSITION_RETRIEVED';
+export const SET_ENV_SCROLL_TO_NODE_IS_NEEDED_AS_ON = 'SET_ENV_SCROLL_TO_NODE_IS_NEEDED_AS_ON';
+export const REPORT_ENV_SCROLL_TO_NODE_PERFORMED = 'REPORT_ENV_SCROLL_TO_NODE_PERFORMED';
 
 export function setEnvName(envName) {
   return {
@@ -162,5 +166,42 @@ export function setShowGraph() {
 export function toggleEnvShow() {
   return {
     type: TOGGLE_ENV_SHOW
+  };
+}
+
+export function setEnvPositionReportIsNeededAsOn(nodePath) {
+  return {
+    type: SET_ENV_POSITION_REPORT_IS_NEEDED_AS_ON,
+    payload: {
+      nodePath: nodePath
+    }
+  };
+}
+
+export function reportEnvNodePositionRetrieved(nodePath, rect) {
+  return {
+    type: REPORT_ENV_NODE_POSITION_RETRIEVED,
+    payload: {
+      nodePath: nodePath,
+      rect: rect
+    }
+  };
+}
+
+export function setEnvScrollToNodeIsNeededAsOn(nodePath) {
+  return {
+    type: SET_ENV_SCROLL_TO_NODE_IS_NEEDED_AS_ON,
+    payload: {
+      nodePath: nodePath
+    }
+  };
+}
+
+export function reportEnvScrollToNodePerformed(nodePath) {
+  return {
+    type: REPORT_ENV_SCROLL_TO_NODE_PERFORMED,
+    payload: {
+      nodePath: nodePath
+    }
   };
 }

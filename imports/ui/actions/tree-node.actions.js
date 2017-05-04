@@ -8,6 +8,10 @@ export const END_OPEN_TREE_NODE = 'END_OPEN_TREE_NODE';
 export const START_CLOSE_TREE_NODE = 'START_CLOSE_TREE_NODE';
 export const END_CLOSE_TREE_NODE = 'END_CLOSE_TREE_NODE';
 export const SET_CHILD_DETECTED_TREE_NODE = 'SET_CHILD_DETECTED_TREE_NODE';
+export const SET_POSITION_REPORT_IS_NEEDED_AS_ON = 'SET_POSITION_REPORT_IS_NEEDED_AS_ON';
+export const REPORT_NODE_POSITION_RETRIEVED = 'REPORT_NODE_POSITION_RETRIEVED';
+export const SET_SCROLL_TO_NODE_IS_NEEDED_AS_ON = 'SET_SCROLL_TO_NODE_IS_NEEDED_AS_ON';
+export const REPORT_SCROLL_TO_NODE_PERFORMED = 'REPORT_SCROLL_TO_NODE_PERFORMED';
 
 export function updateTreeNodeInfo(nodeInfo, level) {
   return {
@@ -78,6 +82,43 @@ export function endCloseTreeNode(nodePath) {
 export function setChildDetectedTreeNode(nodePath) {
   return {
     type: SET_CHILD_DETECTED_TREE_NODE,
+    payload: {
+      nodePath: nodePath
+    }
+  };
+}
+
+export function setPositionReportIsNeededAsOn(nodePath) {
+  return {
+    type: SET_POSITION_REPORT_IS_NEEDED_AS_ON,
+    payload: {
+      nodePath: nodePath
+    }
+  };
+}
+
+export function reportNodePositionRetrieved(nodePath, rect) {
+  return {
+    type: REPORT_NODE_POSITION_RETRIEVED,
+    payload: {
+      nodePath: nodePath, 
+      rect: rect
+    }
+  };
+}
+
+export function setScrollToNodeIsNeededAsOn(nodePath) {
+  return {
+    type: SET_SCROLL_TO_NODE_IS_NEEDED_AS_ON,
+    payload: {
+      nodePath: nodePath 
+    }
+  };
+}
+
+export function reportScrollToNodePerformed(nodePath) {
+  return {
+    type: REPORT_SCROLL_TO_NODE_PERFORMED,
     payload: {
       nodePath: nodePath
     }

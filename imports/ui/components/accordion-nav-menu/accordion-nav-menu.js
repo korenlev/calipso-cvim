@@ -24,7 +24,6 @@ import {
   addUpdateEnvTreeNode,
   addUpdateChildrenEnvTreeNode,
   startOpenEnvTreeNode,
-  endOpenEnvTreeNode,
   startCloseEnvTreeNode,
   endCloseEnvTreeNode,
   setEnvChildDetectedTreeNode,
@@ -46,9 +45,12 @@ Template.accordionNavMenu.onCreated(function () {
     new SimpleSchema({
       envName: { type: String },
       mainNode: { type: Object, blackbox: true },
+      onOpeningDone: { type: Function },
       onNodeSelected: { type: Function },
       onToggleGraphReq: { type: Function },
-      onResetSelectedNodeReq: { type: Function }
+      onResetSelectedNodeReq: { type: Function },
+      onPositionRetrieved: { type: Function },
+      onScrollToNodePerformed: { type: Function },
     }).validate(data);
   });
 
@@ -94,15 +96,19 @@ Template.accordionNavMenu.helpers({
       children: node.children,
       childDetected: node.childDetected,
       level: node.level,
+      positionNeeded: node.positionNeeded,
+      scrollToNodeIsNeeded: node.scrollToNodeIsNeeded,
       onResetChildren: instance._fns.onResetChildren,
       onChildRead: instance._fns.onChildRead,
       onChildrenRead: instance._fns.onChildrenRead,
       onStartOpenReq: instance._fns.onStartOpenReq,
-      onOpeningDone: instance._fns.onOpeningDone,
       onStartCloseReq: instance._fns.onStartCloseReq, 
       onClosingDone: instance._fns.onClosingDone,
       onChildDetected: instance._fns.onChildDetected,
+      onOpeningDone: data.onOpeningDone,
       onNodeSelected: data.onNodeSelected,
+      onPositionRetrieved: data.onPositionRetrieved,
+      onScrollToNodePerformed: data.onScrollToNodePerformed,
     };
   }
 }); // end: helpers
@@ -122,9 +128,6 @@ function createAttachedFns(instance) {
     onStartOpenReq: (nodePath) => {
       store.dispatch(startOpenEnvTreeNode(R.tail(nodePath)));
     },
-    onOpeningDone: (nodePath, _nodeInfo) => {
-      store.dispatch(endOpenEnvTreeNode(R.tail(nodePath)));
-    },
     onStartCloseReq: (nodePath) => {
       store.dispatch(startCloseEnvTreeNode(R.tail(nodePath)));
     },
@@ -134,6 +137,5 @@ function createAttachedFns(instance) {
     onChildDetected: (nodePath) => {
       store.dispatch(setEnvChildDetectedTreeNode(R.tail(nodePath)));
     },
-
   };
 }

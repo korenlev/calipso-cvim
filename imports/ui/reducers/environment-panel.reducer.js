@@ -11,6 +11,10 @@ import {
   startCloseTreeNode,
   endCloseTreeNode,
   setChildDetectedTreeNode,
+  setPositionReportIsNeededAsOn,
+  reportNodePositionRetrieved,
+  setScrollToNodeIsNeededAsOn,
+  reportScrollToNodePerformed,
 } 
   from '/imports/ui/actions/tree-node.actions';
 
@@ -134,6 +138,33 @@ export function reducer(state = defaultState, action) {
         R.always('dashboard')),
       R.assoc('showType', R.__, state)
     )(state.showType);
+
+  case actions.SET_ENV_POSITION_REPORT_IS_NEEDED_AS_ON:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, setPositionReportIsNeededAsOn(action.payload.nodePath)),
+      state
+    );
+
+  case actions.REPORT_ENV_NODE_POSITION_RETRIEVED:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, reportNodePositionRetrieved(
+        action.payload.nodePath, action.payload.rect)),
+      state
+    );
+  
+  case actions.SET_ENV_SCROLL_TO_NODE_IS_NEEDED_AS_ON:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, setScrollToNodeIsNeededAsOn(
+        action.payload.nodePath)),
+      state
+    );
+
+  case actions.REPORT_ENV_SCROLL_TO_NODE_PERFORMED:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, reportScrollToNodePerformed(
+        action.payload.nodePath)),
+      state
+    );
 
   default:
     return state;

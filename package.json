@@ -8,6 +8,7 @@
     "bson": "^1.0.4",
     "d3": "^4.5.0",
     "jquery": "^1.9.1",
+    "jquery.scrollto": "^2.1.2",
     "meteor-node-stubs": "^0.2.1",
     "ramda": "^0.22.1",
     "reactive-redux": "^1.1.0",

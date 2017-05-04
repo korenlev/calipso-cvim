@@ -11,6 +11,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { InventoryTreeNodeBehavior } from '/imports/ui/lib/inventory-tree-node-behavior';
 import * as R from 'ramda';
 import { calcColorMem } from '/imports/lib/utilities';
+import 'jquery.scrollto';
 
 import './tree-node.html';
 
@@ -26,6 +27,8 @@ Template.TreeNode.onCreated(function() {
     openState: 'closed',
     orderDataSubscribe: { counter: 0, data: { node: null, forOpen: false } },
     needOpenCloseAnimation: { counter: 0, data: { type: 'opening', node: null } },
+    positionNeeded: false,
+    scrollToNodeIsNeeded: false,
   });
 
   //console.log('tree-node - on create', R.path(['data', 'node', '_id', '_str'], instance));
@@ -58,6 +61,8 @@ Template.TreeNode.onCreated(function() {
       children: { type: [Object], blackbox: true },
       childDetected: { type: Boolean },
       level: { type: Number },
+      positionNeeded: { type: Boolean },
+      scrollToNodeIsNeeded: { type: Boolean },
       onResetChildren: { type: Function },
       onChildRead: { type: Function },
       onChildrenRead: { type: Function },
@@ -67,10 +72,14 @@ Template.TreeNode.onCreated(function() {
       onClosingDone: { type: Function },
       onChildDetected: { type: Function },
       onNodeSelected: { type: Function },
+      onPositionRetrieved: { type: Function },
+      onScrollToNodePerformed: { type: Function },
     }).validate(data);
 
     instance.state.set('openState', data.openState);
     instance.state.set('node', data.node);
+    instance.state.set('positionNeeded', data.positionNeeded);
+    instance.state.set('scrollToNodeIsNeeded', data.scrollToNodeIsNeeded);
 
     //console.log('tree-node - main autorun - ' + data.node._id._str);
 
@@ -100,7 +109,7 @@ Template.TreeNode.onCreated(function() {
       issueOrder(instance, 'orderDataSubscribe', { node: node, forOpen: true });
       setTimeout(() => { 
         instance.data.onOpeningDone([node._id._str], node);
-      }, 100);
+      }, 400);
       break;
     case 'opened':
       issueOrder(instance, 'needOpenCloseAnimation', { type: 'opening', node: node});  
@@ -150,6 +159,44 @@ Template.TreeNode.onCreated(function() {
       instance.data.behavior.getChildrenFn(order.data.node).forEach((_child) => {
         instance.data.onChildDetected([order.data.node._id._str]);
       });
+    }
+  });
+
+  instance.autorun(function () {
+    let positionNeeded = instance.state.get('positionNeeded'); 
+      
+    if (positionNeeded) {
+      let el = instance.$('>.os-tree-node')[0];
+      let rect = el.getBoundingClientRect();
+      instance.data.onPositionRetrieved([instance.data.node._id._str], rect);  
+    }
+  });
+
+  instance.autorun(function () {
+    let scrollToNodeIsNeeded = instance.state.get('scrollToNodeIsNeeded'); 
+      
+    if (scrollToNodeIsNeeded) {
+      let el = instance.$('>.os-tree-node')[0];
+      let rect = el.getBoundingClientRect();
+      if (rect.top < 0) {
+        //window.scroll(0, el.offsetTop);
+        $(window).scrollTo(el, 50);
+        instance.data.onScrollToNodePerformed([instance.data.node._id._str]);
+        return;
+      }
+
+      let childrenCont = instance.$('>.os-tree-node > .sm-children-list')[0];
+      let childrenRect = childrenCont.getBoundingClientRect();
+      if (childrenRect.bottom > window.innerHeight) {
+        let scrollPos = childrenRect.bottom - window.innerHeight;
+        scrollPos = window.scrollY + scrollPos;
+        if ((window.scrollY + rect.top) < scrollPos) {
+          scrollPos = window.scrollY + rect.top;
+        }
+        $(window).scrollTo(scrollPos, 50);
+      }
+
+      instance.data.onScrollToNodePerformed([instance.data.node._id._str]);
     }
   });
 
@@ -231,6 +278,8 @@ Template.TreeNode.helpers({
       children: child.children,
       childDetected: child.childDetected,
       level: child.level,
+      positionNeeded: child.positionNeeded,
+      scrollToNodeIsNeeded: child.scrollToNodeIsNeeded,
       onChildRead: instance._fns.onChildRead,
       onChildrenRead: instance._fns.onChildrenRead,
       onResetChildren: instance._fns.onResetChildren,
@@ -240,6 +289,8 @@ Template.TreeNode.helpers({
       onClosingDone: instance._fns.onClosingDone,
       onChildDetected: instance._fns.onChildDetected,
       onNodeSelected: instance._fns.onNodeSelected,
+      onPositionRetrieved: instance._fns.onPositionRetrieved,
+      onScrollToNodePerformed: instance._fns.onScrollToNodePerformed,
     };
   },
 
@@ -301,5 +352,16 @@ function createAttachedFns(instance) {
     onNodeSelected: (nodeInfo) => {
       instance.data.onNodeSelected(nodeInfo);
     },
+    onPositionRetrieved: (reqPath, rect) => {
+      instance.data.onPositionRetrieved(
+        R.prepend(instance.data.node._id._str, reqPath),
+        rect
+      );
+    },
+    onScrollToNodePerformed: (reqPath) => {
+      instance.data.onScrollToNodePerformed(
+        R.prepend(instance.data.node._id._str, reqPath)
+      );
+    }
   };
 }

@@ -32,6 +32,10 @@ import {
   setEnvAsNotLoaded,
   setEnvSelectedNodeAsEnv,
   toggleEnvShow,
+  endOpenEnvTreeNode,
+  reportEnvNodePositionRetrieved,
+  setEnvScrollToNodeIsNeededAsOn,
+  reportEnvScrollToNodePerformed,
 //  setShowDashboard,
 //  setShowGraph,
 } from '/imports/ui/actions/environment-panel.actions';
@@ -76,6 +80,9 @@ Template.Environment.onCreated(function () {
     dashboardName: 'environment',
   });
   instance.currentData = new ReactiveVar(null, EJSON.equals);
+  instance.onNodeOpeningDone = _.debounce(() => {
+    scrollTreeToLastOpenedChild(instance);
+  }, 400);
 
   createAttachedFns(instance);
 
@@ -270,6 +277,7 @@ Template.Environment.helpers({
     return {
       envName: envName,
       mainNode: mainNode,
+      onOpeningDone: instance._fns.onOpeningDone,
       onNodeSelected: instance._fns.onNodeSelected,
       onToggleGraphReq: function () {
         store.dispatch(toggleEnvShow());
@@ -277,6 +285,8 @@ Template.Environment.helpers({
       onResetSelectedNodeReq: function () {
         store.dispatch(setEnvSelectedNodeAsEnv());
       },
+      onPositionRetrieved: instance._fns.onPositionRetrieved,
+      onScrollToNodePerformed: instance._fns.onScrollToNodePerformed,
     };
   },
 
@@ -466,10 +476,29 @@ function getNodeInTree(path, tree) {
 
 function createAttachedFns(instance) {
   instance._fns = {
+    onOpeningDone: (nodePath, _nodeInfo) => {
+      store.dispatch(endOpenEnvTreeNode(R.tail(nodePath)));
+      instance.lastOpenedNodePath = nodePath;
+      instance.onNodeOpeningDone();
+    },
+
     onNodeSelected: (nodeInfo) => {
       if (R.contains(nodeInfo.type, nodeTypesForSelection)) {
         store.dispatch(setEnvSelectedNode(nodeInfo._id, null));
       }
     },
+
+    onPositionRetrieved: (nodePath, rect) => {
+      store.dispatch(
+        reportEnvNodePositionRetrieved(R.tail(nodePath), rect));
+    },
+
+    onScrollToNodePerformed: (nodePath) => {
+      store.dispatch(reportEnvScrollToNodePerformed(R.tail(nodePath)));
+    },
   };
+}
+
+function scrollTreeToLastOpenedChild(instance) {
+  store.dispatch(setEnvScrollToNodeIsNeededAsOn(R.tail(instance.lastOpenedNodePath)));
 }
