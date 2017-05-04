@@ -51,6 +51,7 @@ Template.accordionNavMenu.onCreated(function () {
       onResetSelectedNodeReq: { type: Function },
       onPositionRetrieved: { type: Function },
       onScrollToNodePerformed: { type: Function },
+      onOpenLinkReq: { type: Function },
     }).validate(data);
   });
 
@@ -95,6 +96,7 @@ Template.accordionNavMenu.helpers({
       node: node.nodeInfo,
       children: node.children,
       childDetected: node.childDetected,
+      linkDetected: node.linkDetected,
       level: node.level,
       positionNeeded: node.positionNeeded,
       scrollToNodeIsNeeded: node.scrollToNodeIsNeeded,
@@ -109,6 +111,7 @@ Template.accordionNavMenu.helpers({
       onNodeSelected: data.onNodeSelected,
       onPositionRetrieved: data.onPositionRetrieved,
       onScrollToNodePerformed: data.onScrollToNodePerformed,
+      onOpenLinkReq: data.onOpenLinkReq,
     };
   }
 }); // end: helpers

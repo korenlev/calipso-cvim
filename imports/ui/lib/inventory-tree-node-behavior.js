@@ -1,4 +1,5 @@
 import { Inventory } from '/imports/api/inventories/inventories';
+import * as R from 'ramda';
 
 export let InventoryTreeNodeBehavior = {
   subscribeGetChildrenFn: function (instance, parent) {
@@ -20,6 +21,25 @@ export let InventoryTreeNodeBehavior = {
         show_in_tree: true
       }]
     };
+
+    /*
+    if (R.equals('host_ref', parent.type)) {
+      let realParent = Inventory.findOne({ 
+        name: parent.name,
+        environment: parent.environment,
+        type: 'host'
+      });
+
+      if (! R.isNil(realParent)) {
+        query = R.merge(query, {
+          $or: R.append({
+            environment: parent.environment,
+            parent_id: realParent.id
+          }, query.$or)
+        });
+      }
+    }
+    */
 
     return Inventory.find(query);
   },

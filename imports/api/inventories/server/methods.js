@@ -1,14 +1,12 @@
 //import * as R from 'ramda';
 
-//import { check } from 'meteor/check';
+import { check } from 'meteor/check';
 import * as R from 'ramda';
 import { Inventory } from '../inventories';
 import { Environments } from '/imports/api/environments/environments';
 import { regexEscape } from '/imports/lib/regex-utils';
 
 const AUTO_COMPLETE_RESULTS_LIMIT = 5;
-
-
 
 Meteor.methods({
   'inventorySearch': function(searchTerm, envId, opCounter) {
@@ -79,6 +77,22 @@ Meteor.methods({
     
     console.log('method server: expandNodePath - results', result);
     return result;
+  },
+
+  'inventoryFindNode?type&env&name': function(type, envName, nodeName) {
+    console.log('method server: inventoryFindNode', 
+      R.toString(type), R.toString(envName), R.toString(nodeName));
+
+    check(envName, String);
+    check(nodeName, String);
+    this.unblock();
+
+    let query = { type: type, environment: envName, name: nodeName };
+    let node = Inventory.findOne(query);
+
+    return {
+      node: node
+    };
   },
 });
 

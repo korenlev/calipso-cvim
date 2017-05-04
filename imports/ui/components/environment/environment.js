@@ -288,6 +288,7 @@ Template.Environment.helpers({
       },
       onPositionRetrieved: instance._fns.onPositionRetrieved,
       onScrollToNodePerformed: instance._fns.onScrollToNodePerformed,
+      onOpenLinkReq: instance._fns.onOpenLinkReq,
     };
   },
 
@@ -496,6 +497,21 @@ function createAttachedFns(instance) {
 
     onScrollToNodePerformed: (nodePath) => {
       store.dispatch(reportEnvScrollToNodePerformed(R.tail(nodePath)));
+    },
+
+    onOpenLinkReq: (envName, nodeName) => {
+      Meteor.apply('inventoryFindNode?type&env&name', [
+        'host', envName, nodeName
+      ], {
+        wait: false
+      }, function (err, res) {
+        if (err) { 
+          console.log('error in inventoryFindNode', err);
+          return;
+        }
+        
+        store.dispatch(setEnvSelectedNode(res.node._id, null));
+      });
     },
   };
 }

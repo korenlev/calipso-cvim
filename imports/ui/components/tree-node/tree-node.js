@@ -60,6 +60,7 @@ Template.TreeNode.onCreated(function() {
       node: { type: Object, blackbox: true },
       children: { type: [Object], blackbox: true },
       childDetected: { type: Boolean },
+      linkDetected: { type: Boolean },
       level: { type: Number },
       positionNeeded: { type: Boolean },
       scrollToNodeIsNeeded: { type: Boolean },
@@ -74,6 +75,7 @@ Template.TreeNode.onCreated(function() {
       onNodeSelected: { type: Function },
       onPositionRetrieved: { type: Function },
       onScrollToNodePerformed: { type: Function },
+      onOpenLinkReq: { type: Function },
     }).validate(data);
 
     instance.state.set('openState', data.openState);
@@ -243,21 +245,26 @@ Template.TreeNode.events({
 
     let data = Template.currentData();
 
-    switch(data.openState) {
-    case 'opened':
-      R.when(R.pipe(R.isNil, R.not),
-        (fn) => fn([data.node._id._str])
-      )(data.onStartCloseReq);
-      break;
+    if (R.pathEq(['type'], 'host_ref')(data.node)) {
+      data.onOpenLinkReq(data.node.environment, data.node.name); 
 
-    case 'closed':
-      R.when(R.pipe(R.isNil, R.not),
-        (fn) => fn([data.node._id._str])
-      )(data.onStartOpenReq);
-      break;
+    } else {
+      switch(data.openState) {
+      case 'opened':
+        R.when(R.pipe(R.isNil, R.not),
+          (fn) => fn([data.node._id._str])
+        )(data.onStartCloseReq);
+        break;
+
+      case 'closed':
+        R.when(R.pipe(R.isNil, R.not),
+          (fn) => fn([data.node._id._str])
+        )(data.onStartOpenReq);
+        break;
+      }
+
+      data.onNodeSelected(data.node);
     }
-
-    data.onNodeSelected(data.node);
   }
 });
 
@@ -277,6 +284,7 @@ Template.TreeNode.helpers({
       node: child.nodeInfo,
       children: child.children,
       childDetected: child.childDetected,
+      linkDetected: child.linkDetected,
       level: child.level,
       positionNeeded: child.positionNeeded,
       scrollToNodeIsNeeded: child.scrollToNodeIsNeeded,
@@ -291,6 +299,7 @@ Template.TreeNode.helpers({
       onNodeSelected: instance._fns.onNodeSelected,
       onPositionRetrieved: instance._fns.onPositionRetrieved,
       onScrollToNodePerformed: instance._fns.onScrollToNodePerformed,
+      onOpenLinkReq: instance._fns.onOpenLinkReq,
     };
   },
 
@@ -302,6 +311,18 @@ Template.TreeNode.helpers({
   calcColor: function (level) {
     return calcColorMem(level);
   },
+
+  linkRefName: function () {
+    let instance = Template.instance();
+    let node = instance.state.get('node');
+
+    if (R.isNil(node)) { return ''; }
+    if (R.propEq('type', 'host_ref', node)) {
+      return node.name;
+    }
+
+    return '';
+  }
 }); // end: helpers
 
 function issueOrder(instance, name, data) {
@@ -362,6 +383,10 @@ function createAttachedFns(instance) {
       instance.data.onScrollToNodePerformed(
         R.prepend(instance.data.node._id._str, reqPath)
       );
-    }
+    },
+
+    onOpenLinkReq: (envName, nodeName) => {
+      instance.data.onOpenLinkReq(envName, nodeName);
+    },
   };
 }

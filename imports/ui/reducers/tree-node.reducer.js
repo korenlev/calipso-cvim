@@ -9,6 +9,7 @@ const defaultState = {
   openState: 'closed', // opened, start_close, closed, start_open
   children: [],
   childDetected: false,
+  linkDetected: false,
   level: 1,
   positionNeeded: false,
   position: null,
@@ -32,6 +33,7 @@ export function reducer(state = defaultState, action) {
       openState: 'closed',
       children: [],
       childDetected: false,
+      linkDetected: R.propEq('type', 'host_ref', action.payload.nodeInfo), 
       level: action.payload.level,
     });
 

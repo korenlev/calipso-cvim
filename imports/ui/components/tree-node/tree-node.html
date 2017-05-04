@@ -15,15 +15,27 @@
       <div class="sm-node-name">{{ node.object_name }}</div>
     </div>
 
-    {{#if childDetected }}
-    <div class="sm-node-open-button">
-      {{#if isOpen }}
-      <i class="fa fa-minus" aria-hidden="true"></i>
-      {{else }}
-      <i class="fa fa-plus" aria-hidden="true"></i>
+    <div class="sm-actions-segment">
+      {{#if linkDetected }}
+      <div class="sm-link-icon"
+        data-toggle="tooltip"
+        data-placement="right"
+        title="Link to {{ linkRefName }} under zone."
+        >
+        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+      </div>
+      {{/if }}
+
+      {{#if childDetected }}
+      <div class="sm-node-open-button">
+        {{#if isOpen }}
+        <i class="fa fa-minus" aria-hidden="true"></i>
+        {{else }}
+        <i class="fa fa-plus" aria-hidden="true"></i>
+        {{/if }}
+      </div>
       {{/if }}
     </div>
-    {{/if }}
   </div>
   {{/if }}
 
