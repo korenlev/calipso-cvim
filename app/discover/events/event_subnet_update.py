@@ -24,7 +24,7 @@ class EventSubnetUpdate(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet update')
-            return self.construct_event_result(result=False, retry=True, object_id=subnet_id)
+            return self.construct_event_result(result=False, retry=True)
 
         # update network document.
         subnets = network_document['subnets']
@@ -74,5 +74,5 @@ class EventSubnetUpdate(EventBase):
 
             self.inv.set(network_document)
             return self.construct_event_result(result=True,
-                                               object_id=subnet_id,
-                                               document_id=network_document.get('_id'))
+                                               related_object=subnet['name'],
+                                               display_context=network_document.get('id'))

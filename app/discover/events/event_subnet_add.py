@@ -107,7 +107,7 @@ class EventSubnetAdd(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet add')
-            return self.construct_event_result(result=False, retry=True, object_id=subnet['id'])
+            return self.construct_event_result(result=False, retry=True)
         network_name = network_document['name']
 
         # build subnet document for adding network
@@ -142,5 +142,5 @@ class EventSubnetAdd(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished subnet added.")
         return self.construct_event_result(result=True,
-                                           object_id=subnet['id'],
-                                           document_id=network_document.get('_id'))
+                                           related_object=subnet['name'],
+                                           display_context=network_document.get('id'))

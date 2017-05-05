@@ -15,7 +15,7 @@ class EventNetworkUpdate(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('Network document not found, aborting network update')
-            return self.construct_event_result(result=False, retry=True, object_id=network_id)
+            return self.construct_event_result(result=False, retry=True)
 
         # update network document
         name = network['name']
@@ -34,5 +34,5 @@ class EventNetworkUpdate(EventBase):
         network_document['admin_state_up'] = network['admin_state_up']
         self.inv.set(network_document)
         return self.construct_event_result(result=True,
-                                           object_id=network_id,
-                                           document_id=network_document.get('_id'))
+                                           related_object=network_document.get('name'),
+                                           display_context=network_document.get('id'))

@@ -24,7 +24,7 @@ class EventRouterUpdate(EventBase):
         router_doc = self.inv.get_by_id(env, router_full_id)
         if not router_doc:
             self.log.info("Router document not found, aborting router updating")
-            return self.construct_event_result(result=False, retry=True, object_id=router_full_id)
+            return self.construct_event_result(result=False, retry=True)
 
         router_doc['admin_state_up'] = router['admin_state_up']
         router_doc['name'] = router['name']
@@ -70,5 +70,5 @@ class EventRouterUpdate(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished router update.")
         return self.construct_event_result(result=True,
-                                           object_id=router_full_id,
-                                           document_id=router_doc.get('_id'))
+                                           related_object=router_doc.get('name'),
+                                           display_context=router_doc.get('id'))

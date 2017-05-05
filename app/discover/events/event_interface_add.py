@@ -83,7 +83,7 @@ class EventInterfaceAdd(EventBase):
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
             self.log.info("network document not found, aborting interface adding")
-            return self.construct_event_result(result=False, retry=True, object_id=interface['id'])
+            return self.construct_event_result(result=False, retry=True)
         network_name = network_document['name']
         network_id = network_document['id']
 
@@ -123,6 +123,8 @@ class EventInterfaceAdd(EventBase):
         FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
         ScanNetwork().scan_cliques()
         self.log.info("Finished router-interface added.")
+
+        # interface doesn't have a name, using id
         return self.construct_event_result(result=True,
-                                           object_id=interface['id'],
-                                           document_id=network_document.get('_id'))
+                                           related_object=interface['id'],
+                                           display_context=network_document.get('id'))

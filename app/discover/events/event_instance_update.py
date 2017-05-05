@@ -18,7 +18,7 @@ class EventInstanceUpdate(EventBase):
         old_state = payload['old_state']
 
         if state == 'building':
-            return self.construct_event_result(result=False, retry=False, object_id=instance_id)
+            return self.construct_event_result(result=False, retry=False)
 
         if state == 'active' and old_state == 'building':
             return EventInstanceAdd().handle(env, values)
@@ -30,7 +30,7 @@ class EventInstanceUpdate(EventBase):
         instance = self.inv.get_by_id(env, instance_id)
         if not instance:
             self.log.info('instance document not found, aborting instance update')
-            return self.construct_event_result(result=False, retry=True, object_id=instance_id)
+            return self.construct_event_result(result=False, retry=True)
 
         instance['name'] = name
         instance['object_name'] = name
@@ -45,5 +45,5 @@ class EventInstanceUpdate(EventBase):
                 {"name_path": {"from": name_path, "to": instance['name_path']}})
         self.inv.set(instance)
         return self.construct_event_result(result=True,
-                                           object_id=instance_id,
-                                           document_id=instance.get('_id'))
+                                           related_object=instance.get('name'),
+                                           display_context=instance.get('id'))

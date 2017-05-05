@@ -12,7 +12,7 @@ class EventPortDelete(EventDeleteBase):
         port_doc = self.inv.get_by_id(env, port_id)
         if not port_doc:
             self.log.info("Port document not found, aborting port deleting.")
-            return self.construct_event_result(result=False, retry=False, object_id=port_id)
+            return self.construct_event_result(result=False, retry=False)
 
         # if port is binding to a instance, instance document needs to be updated.
         if 'compute' in port_doc['device_owner']:
@@ -26,10 +26,10 @@ class EventPortDelete(EventDeleteBase):
         vnic_doc = self.inv.get_by_field(env, 'vnic', 'mac_address', port_doc['mac_address'], get_single=True)
         if not vnic_doc:
             self.log.info("Vnic document not found, aborting vnic deleting.")
-            return self.construct_event_result(result=False, retry=False, object_id=port_id)
+            return self.construct_event_result(result=False, retry=False)
         result = self.delete_handler(env, vnic_doc['id'], 'vnic')
-        result.object_id = port_id
-        result.document_id = port_doc.get('_id')
+        result.related_object = port_doc.get('name')
+        result.display_context = port_doc.get('network_id')
         self.log.info('Finished port deleting')
         return result
 

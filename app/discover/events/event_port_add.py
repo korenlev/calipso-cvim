@@ -246,7 +246,7 @@ class EventPortAdd(EventBase):
             instances_root = self.inv.get_by_id(env, instances_root_id)
             if not instances_root:
                 self.log.info('instance document not found, aborting port adding')
-                return self.construct_event_result(result=False, retry=True, object_id=port['id'])
+                return self.construct_event_result(result=False, retry=True)
 
             # update instance
             instance_fetcher = ApiFetchHostInstances()
@@ -294,8 +294,8 @@ class EventPortAdd(EventBase):
         port_document = self.inv.get_by_id(env, port['id'])
         if not port_document:
             self.log.error("Port {} failed to add".format(port['id']))
-            return self.construct_event_result(result=False, retry=True, object_id=port['id'])
+            return self.construct_event_result(result=False, retry=True)
 
         return self.construct_event_result(result=True,
-                                           object_id=port['id'],
-                                           document_id=port_document.get('_id'))
+                                           related_object=port_document.get('name'),
+                                           display_context=port_document.get('network_id'))

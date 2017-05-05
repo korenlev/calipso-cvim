@@ -19,7 +19,7 @@ class EventInterfaceDelete(EventDeleteBase):
         port_doc = self.inv.get_by_id(env, port_id)
         if not port_doc:
             self.log.info("Interface deleting handler: port document not found.")
-            return self.construct_event_result(result=False, retry=False, object_id=interface['id'])
+            return self.construct_event_result(result=False, retry=False)
         network_id = port_doc['network_id']
 
         router_doc = self.inv.get_by_id(env, router_id)
@@ -29,10 +29,11 @@ class EventInterfaceDelete(EventDeleteBase):
 
         # delete port document
         result = EventPortDelete().delete_port(env, port_id)
-        result.object_id = interface['id']
+        # interface doesn't have a name, using id
+        result.related_object = interface['id']
 
         network_document = self.inv.get_by_id(env, network_id)
         if network_document:
-            result.document_id = network_document.get('_id')
+            result.display_context = network_document.get('id')
 
         return result

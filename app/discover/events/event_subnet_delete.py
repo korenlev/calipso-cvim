@@ -23,7 +23,7 @@ class EventSubnetDelete(EventDeleteBase):
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
             self.log.info("network document not found, aborting subnet deleting")
-            return self.construct_event_result(result=False, retry=False, object_id=subnet_id)
+            return self.construct_event_result(result=False, retry=False)
 
         # remove subnet_id from subnet_ids array
         network_document["subnet_ids"].remove(subnet_id)
@@ -45,9 +45,9 @@ class EventSubnetDelete(EventDeleteBase):
         if len(network_document["subnet_ids"]) == 0:
             vservice_dhcp_id = 'qdhcp-' + network_document['id']
             result = self.delete_children_documents(env, vservice_dhcp_id)
-            result.object_id = subnet_id
-            result.document_id = network_document.get('_id')
+            result.related_object = subnet['name']
+            result.display_context = network_document.get('id')
             return result
         return self.construct_event_result(result=True,
-                                           object_id=subnet_id,
-                                           document_id=network_document.get('_id'))
+                                           related_object=subnet['name'],
+                                           display_context=network_document.get('id'))

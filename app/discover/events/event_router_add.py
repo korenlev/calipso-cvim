@@ -112,5 +112,5 @@ class EventRouterAdd(EventBase):
 
         router_document = self.inv.get_by_id(env, router_id)
         return self.construct_event_result(result=True,
-                                           object_id=router_id,
-                                           document_id=router_document.get('_id'))
+                                           related_object=router_document.get('name'),
+                                           display_context=router_document.get('id'))

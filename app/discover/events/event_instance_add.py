@@ -16,9 +16,7 @@ class EventInstanceAdd(EventBase):
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
             self.log.info('instances root not found, aborting instance add')
-            return self.construct_event_result(result=False,
-                                               retry=True,
-                                               object_id=instance_id)
+            return self.construct_event_result(result=False, retry=True)
 
         # scan instance
         instances_scanner = ScanInstancesRoot()
@@ -38,5 +36,5 @@ class EventInstanceAdd(EventBase):
 
         instance_document = self.inv.get_by_id(env, instance_id)
         return self.construct_event_result(result=True,
-                                           object_id=instance_id,
-                                           document_id=instance_document.get('_id'))
+                                           related_object=instance_document.get('name'),
+                                           display_context=instance_document.get('id'))
