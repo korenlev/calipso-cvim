@@ -12,30 +12,38 @@ class SshConnection(BinaryConverter, Logger):
     config = None
     ssh = None
     connections = {}
-    call_count_per_con = defaultdict(int)
+    cli_connections = {}
+    sftp_connections = {}
 
     max_call_count_per_con = 100
     timeout = 15  # timeout for exec in seconds
 
     DEFAULT_PORT = 22
 
-    def __init__(self, _host, _user, _pwd=None, _key=None, _port=None):
+    def __init__(self, _host: str, _user: str, _pwd: str=None, _key: str = None,
+                 _port: int = None,  _call_count_limit: int=None,
+                 for_sftp: bool = False):
         super().__init__()
         self.host = _host
         self.ssh = None
         self.ftp = None
+        self.for_sftp = for_sftp
         self.key = _key
         self.port = _port
         self.user = _user
         self.pwd = _pwd
         self.check_definitions()
-        if self.host in self.connections and not self.ssh:
-            self.ssh = self.connections[self.host]
         self.fetched_host_details = False
+        self.call_count = 0
+        self.call_count_limit = 0 if for_sftp \
+            else (SshConnection.max_call_count_per_con
+                  if _call_count_limit is None else _call_count_limit)
+        if for_sftp:
+            self.sftp_connections[_host] = self
+        else:
+            self.cli_connections[_host] = self
 
     def check_definitions(self):
-        if self.host in self.connections:
-            self.ssh = self.connections[self.host]
         if not self.host:
             raise ValueError('Missing definition of host for CLI access')
         if not self.user:
@@ -48,10 +56,24 @@ class SshConnection(BinaryConverter, Logger):
                              'for CLI access to host {}'.format(self.host))
 
     @staticmethod
+    def get_ssh(host, for_sftp=False):
+        if for_sftp:
+            return SshConnection.cli_connections.get(host)
+        return SshConnection.sftp_connections.get(host)
+
+    @staticmethod
+    def get_connection(host, for_sftp=False):
+        key = ('sftp-' if for_sftp else '') + host
+        return SshConnection.connections.get(key)
+
+    @staticmethod
     def disconnect_all():
-        for ssh in SshConnection.connections.values():
-            ssh.close()
-        SshConnection.connections = {}
+        for ssh in SshConnection.cli_connections.values():
+            ssh.ssh.close()
+        SshConnection.cli_connections = {}
+        for ssh in SshConnection.sftp_connections.values():
+            ssh.ssh.close()
+        SshConnection.sftp_connections = {}
 
     def get_host(self):
         return self.host
@@ -59,21 +81,28 @@ class SshConnection(BinaryConverter, Logger):
     def get_user(self):
         return self.user
 
-    def connect(self):
-        if self.host in self.connections:
-            self.ssh = self.connections[self.host]
-        if self.ssh is not None:
-            if self.call_count_per_con[self.host] < self.max_call_count_per_con:
+    def set_call_limit(self, _limit: int):
+        self.call_count_limit = _limit
+
+    def connect(self, reconnect=False):
+        connection = self.get_connection(self.host, self.for_sftp)
+        if connection:
+            self.ssh = connection
+            if reconnect:
+                self.log.info("SshConnection: " +
+                              "****** forcing reconnect: %s ******",
+                              self.host)
+            elif self.call_count >= self.call_count_limit > 0:
+                self.log.info("SshConnection: ****** reconnecting: %s, " +
+                              "due to call count: %s ******",
+                              self.host, self.call_count)
+            else:
                 return
-            self.log.info("CliAccess: ****** forcing reconnect, " +
-                          "call count: %s ******",
-                          self.call_count_per_con[self.host])
-            self.ssh.close()
-            if self.host in self.connections:
-                self.connections.pop(self.host)
+            connection.close()
             self.ssh = None
         self.ssh = paramiko.SSHClient()
-        self.connections[self.host] = self.ssh
+        connection_key = ('sftp-' if self.for_sftp else '') + self.host
+        SshConnection.connections[connection_key] = self.ssh
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         if self.key:
             k = paramiko.RSAKey.from_private_key_file(self.key)
@@ -86,13 +115,13 @@ class SshConnection(BinaryConverter, Logger):
                              port=self.port if self.port is not None
                              else self.DEFAULT_PORT,
                              timeout=30)
-        self.call_count_per_con[self.host] = 0
+        self.call_count = 0
 
     def exec(self, cmd):
         self.connect()
-        self.call_count_per_con[self.host] += 1
+        self.call_count += 1
         self.log.debug("call count: %s, running call:\n%s\n",
-                       str(self.call_count_per_con[self.host]), cmd)
+                       str(self.call_count), cmd)
         stdin, stdout, stderr = self.ssh.exec_command(cmd, timeout=self.timeout)
         stdin.close()
         err = self.binary2str(stderr.read())
@@ -118,11 +147,32 @@ class SshConnection(BinaryConverter, Logger):
             self.ftp = self.ssh.open_sftp()
         try:
             self.ftp.put(local_path, remote_path)
+        except IOError as e:
+            self.log.error('SFTP copy_file failed to copy file: ' +
+                           'local: ' + local_path +
+                           ', remote host: ' + self.host +
+                           ', error: ' + str(e))
+            return str(e)
+        try:
             remote_file = self.ftp.file(remote_path, 'a+')
+        except IOError as e:
+            self.log.error('SFTP copy_file failed to open file after put(): ' +
+                           'local: ' + local_path +
+                           ', remote host: ' + self.host +
+                           ', error: ' + str(e))
+            return str(e)
+        try:
             if mode:
                 remote_file.chmod(mode)
-        except IOError:
-            self.log.error('failed to copy file to remote host ' + self.host)
+        except IOError as e:
+            self.log.error('SFTP copy_file failed to chmod file: ' +
+                           'local: ' + local_path +
+                           ', remote host: ' + self.host +
+                           ', error: ' + str(e))
+            return str(e)
+        self.log.info('SFTP copy_file success: host={},{} -> {}'.format(
+                      str(self.host), str(local_path), str(remote_path)))
+        return ''
 
     def is_gateway_host(self, host):
         return True

@@ -13,7 +13,7 @@ class SshConn(SshConnection):
     max_call_count_per_con = 100
     timeout = 15  # timeout for exec in seconds
 
-    def __init__(self, host_name):
+    def __init__(self, host_name, for_sftp=False):
         self.config = Configuration()
         self.env_config = self.config.get_env_config()
         self.env = self.env_config['name']
@@ -23,13 +23,14 @@ class SshConn(SshConnection):
         self.host_conf = self.get_host_conf(host_name)
         self.ssh = None
         self.ftp = None
+        self.for_sftp = for_sftp
         self.key = None
         self.port = None
         self.user = None
         self.pwd = None
         self.check_definitions()
         super().__init__(self.host, self.user, _pwd=self.pwd, _key=self.key,
-                         _port=self.port)
+                         _port=self.port, for_sftp=for_sftp)
         self.inv = InventoryMgr()
         if host_name in self.connections and not self.ssh:
             self.ssh = self.connections[host_name]
@@ -81,6 +82,15 @@ class SshConn(SshConnection):
             self.host_details = host
             self.fetched_host_details = True
         return self.host_details
+
+    gateway_hosts = {}
+
+    @staticmethod
+    def get_gateway_host(host):
+        if not SshConn.gateway_hosts.get(host, None):
+            ssh = SshConn(host)
+            SshConn.gateway_hosts[host] = ssh.host
+        return SshConn.gateway_hosts[host]
 
     def is_gateway_host(self, host):
         gateway_host = self.host

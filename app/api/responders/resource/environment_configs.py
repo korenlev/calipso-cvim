@@ -162,7 +162,9 @@ class EnvironmentConfigs(ResponderBase):
             "monitoring_setup_done": self.require(bool, True),
             "operational": self.require(str, False,
                                         DataValidate.LIST,
-                                        self.operational_values)
+                                        self.operational_values),
+            "page": self.require(int, True),
+            "page_size": self.require(int, True)
         }
 
         self.validate_query_data(filters, filters_requirements)

@@ -2,8 +2,8 @@ import re
 import time
 
 from discover.fetcher import Fetcher
-from discover.ssh_conn import SshConn
 from utils.binary_converter import BinaryConverter
+from utils.ssh_conn import SshConn
 
 
 class CliAccess(BinaryConverter, Fetcher):
@@ -17,7 +17,8 @@ class CliAccess(BinaryConverter, Fetcher):
     def __init__(self):
         super().__init__()
 
-    def is_gateway_host(self, ssh_to_host):
+    @staticmethod
+    def is_gateway_host(ssh_to_host):
         ssh_conn = SshConn(ssh_to_host)
         return ssh_conn.is_gateway_host(ssh_to_host)
 

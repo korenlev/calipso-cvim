@@ -1,3 +1,6 @@
+import copy
+
+
 from api.app import App
 from api.responders.responder_base import ResponderBase
 from falcon.testing import TestCase
@@ -10,10 +13,10 @@ class TestBase(TestCase):
     def setUp(self):
         super().setUp()
         log_level = 'debug'
-        self.app = App(log_level=log_level).get_app()
         ResponderBase.get_constants_by_name = MagicMock(side_effect=
                                                         lambda name: base.CONSTANTS_BY_NAMES[name]
                                                         )
+        self.app = App(log_level=log_level).get_app()
 
     def validate_get_request(self, url, params={}, headers=None, mocks={},
                              side_effects={},
@@ -43,3 +46,14 @@ class TestBase(TestCase):
                               expected_code=base.CREATED_CODE, expected_response=None):
         self.validate_request("POST", url, {}, headers, body, mocks, side_effects,
                               expected_code, expected_response)
+
+    def get_updated_data(self, original_data, deleted_keys=[], updates={}):
+        copy_data = copy.deepcopy(original_data)
+
+        for key in deleted_keys:
+            del copy_data[key]
+
+        for key, value in updates.items():
+            copy_data[key] = value
+
+        return copy_data
