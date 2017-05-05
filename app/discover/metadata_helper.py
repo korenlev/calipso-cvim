@@ -75,7 +75,8 @@ class MetadataParser:
         extension = get_extension(file_path)
         if extension != 'json':
             raise ValueError("Extension '{}' is not supported. "
-                             "Please provide a .json metadata file.")
+                             "Please provide a .json metadata file."
+                             .format(extension))
 
         if not os.path.isfile(file_path):
             raise ValueError("Couldn't load metadata file. Path '{}' doesn't exist or is not a file"

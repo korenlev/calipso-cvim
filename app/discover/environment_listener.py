@@ -28,7 +28,7 @@ class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
-    COMMON_METADATA_FILE = os.path.join("discover", "plugins", "default_config.py")
+    COMMON_METADATA_FILE = os.path.join("discover", "plugins", "default_config.json")
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
