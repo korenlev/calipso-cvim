@@ -29,7 +29,7 @@ class EventHandler(Logger):
 
     def handle(self, event_name: str, notification: dict) -> EventResult:
         if event_name not in self.handlers:
-            raise ValueError("No handler is able to process event of type '{}'"
-                             .format(event_name))
+            self.log.info("No handler is able to process event of type '{}'"
+                          .format(event_name))
         return self.handlers[event_name].handle(self.env, notification)
 

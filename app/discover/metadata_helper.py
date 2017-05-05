@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Tuple
 
 import os
 
@@ -55,62 +55,40 @@ class MetadataParser:
 
         self.event_handlers = event_handlers
 
-    def _parse_python_file(self, file_path: str):
-        import importlib.util
-
-        # import metadata file as a python module
-        module_name = os.path.splitext(os.path.split(file_path)[1])[0]
-        spec = importlib.util.spec_from_file_location(module_name, file_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-
-        # make sure metadata module exports all variables we need
-        if not all([variable in dir(module) for variable in self.REQUIRED_EXPORTS]):
-            self.errors.append("Metadata file should export all of ({}) variables"
-                               .format(', '.join(self.REQUIRED_EXPORTS)))
-            return
-
-        handlers_package = getattr(module, self.HANDLERS_PACKAGE, None)
-        queues = getattr(module, self.QUEUES, None)
-        event_handlers = getattr(module, self.EVENT_HANDLERS, None)
-
-        self._finalize_parsing(handlers_package, queues, event_handlers)
-
     def _parse_json_file(self, file_path: str):
         with open(file_path) as data_file:
-            payload = json.load(data_file)
+            metadata = json.load(data_file)
 
-        # make sure metadata payload contains all fields we need
-        if not all([field in payload for field in self.REQUIRED_EXPORTS]):
-            self.errors.append("Metadata json should contain all of ({}) fields"
+        # make sure metadata json contains all fields we need
+        if not all([field in metadata for field in self.REQUIRED_EXPORTS]):
+            self.errors.append("Metadata json should contain all the following fields: {}"
                                .format(', '.join(self.REQUIRED_EXPORTS)))
             return
 
-        handlers_package = payload[self.HANDLERS_PACKAGE]
-        queues = payload.get(self.QUEUES, None)
-        event_handlers = payload[self.EVENT_HANDLERS]
+        handlers_package = metadata[self.HANDLERS_PACKAGE]
+        queues = metadata.get(self.QUEUES, None)
+        event_handlers = metadata[self.EVENT_HANDLERS]
 
         self._finalize_parsing(handlers_package, queues, event_handlers)
 
-    PARSERS = {
-        'py': _parse_python_file,
-        'json': _parse_json_file,
-    }
-
     def parse_metadata_file(self, file_path: str):
-
         extension = get_extension(file_path)
-        if extension not in self.PARSERS.keys():
+        if extension != 'json':
             raise ValueError("Extension '{}' is not supported. "
-                             "Please specify a file with one of the following extensions: ({})"
-                             .format(extension, ", ".join(self.PARSERS.keys())))
+                             "Please provide a .json metadata file.")
 
         if not os.path.isfile(file_path):
             raise ValueError("Couldn't load metadata file. Path '{}' doesn't exist or is not a file"
                              .format(file_path))
 
         # Try to parse metadata file if it has one of the supported extensions
-        self.PARSERS[extension](self, file_path)
+        self._parse_json_file(file_path)
         if self.errors:
             raise TypeError("Errors encountered during metadata file parsing:\n{}"
                             .format("\n".join(self.errors)))
+
+
+def parse_metadata_file(file_path: str) -> Tuple[str, List[dict], dict]:
+    parser = MetadataParser()
+    parser.parse_metadata_file(file_path)
+    return parser.handlers_package, parser.queues, parser.event_handlers

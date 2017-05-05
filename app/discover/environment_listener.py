@@ -5,7 +5,7 @@ import datetime
 import json
 import time
 from collections import defaultdict
-from typing import List, Tuple
+from typing import List
 
 import os
 from kombu import Connection, Queue, Exchange
@@ -14,12 +14,12 @@ from kombu.mixins import ConsumerMixin
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
+from discover.metadata_helper import parse_metadata_file
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
-from utils.metadata_parser import MetadataParser
 from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
 
@@ -197,12 +197,6 @@ def get_args():
                         default=EnvironmentListener.DEFAULTS["consume_all"])
     args = parser.parse_args()
     return args
-
-
-def parse_metadata_file(file_path: str) -> Tuple[str, List[dict], dict]:
-    parser = MetadataParser()
-    parser.parse_metadata_file(file_path)
-    return parser.handlers_package, parser.queues, parser.event_handlers
 
 
 # Imports metadata from file,

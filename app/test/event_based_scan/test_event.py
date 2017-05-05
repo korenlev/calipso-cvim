@@ -3,11 +3,10 @@ import unittest
 import re
 
 from discover.configuration import Configuration
-from test.event_based_scan.config.test_config import DEFAULT_METADATA_FILE, \
-    MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+from test.event_based_scan.config.test_config \
+    import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
-from utils.util import MetadataParser
 
 
 class TestEvent(unittest.TestCase):
@@ -20,8 +19,6 @@ class TestEvent(unittest.TestCase):
         self.conf = Configuration(self.mongo_config)
         self.conf.use_env(self.env)
 
-        metadata_parser = MetadataParser()
-        metadata_parser.parse_metadata_file(DEFAULT_METADATA_FILE)
         self.inv = InventoryMgr()
         self.inv.set_collections(self.collection)
         self.item_ids = []
@@ -39,7 +36,7 @@ class TestEvent(unittest.TestCase):
             item = self.inv.get_by_id(self.env, item_id)
             # delete children
             if item:
-                regexp = re.compile('^' + item['id_path'])
+                regexp = re.compile('^{}/'.format(item['id_path']))
                 self.inv.delete('inventory', {'id_path': {'$regex': regexp}})
 
             # delete target item
