@@ -14,7 +14,7 @@ from kombu.mixins import ConsumerMixin
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
-from discover.metadata_helper import parse_metadata_file
+from discover.event_metadata_helper import parse_metadata_file
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus

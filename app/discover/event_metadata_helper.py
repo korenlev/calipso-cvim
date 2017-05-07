@@ -6,7 +6,7 @@ import os
 from utils.util import get_extension
 
 
-class MetadataParser:
+class EventMetadataParser:
 
     HANDLERS_PACKAGE = 'handlers_package'
     QUEUES = 'queues'
@@ -90,6 +90,6 @@ class MetadataParser:
 
 
 def parse_metadata_file(file_path: str) -> Tuple[str, List[dict], dict]:
-    parser = MetadataParser()
+    parser = EventMetadataParser()
     parser.parse_metadata_file(file_path)
     return parser.handlers_package, parser.queues, parser.event_handlers
