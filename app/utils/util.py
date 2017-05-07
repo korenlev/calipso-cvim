@@ -3,8 +3,8 @@ import signal
 from argparse import Namespace
 from typing import Dict, Callable
 
+import os
 import re
-
 
 from bson.objectid import ObjectId
 
@@ -88,3 +88,7 @@ def encode_router_id(host_id: str, uuid: str):
 
 def decode_router_id(router_id: str):
     return router_id.split('qrouter-')[-1]
+
+
+def get_extension(file_path: str) -> str:
+    return os.path.splitext(file_path)[1][1:]

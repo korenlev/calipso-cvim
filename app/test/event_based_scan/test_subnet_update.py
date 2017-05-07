@@ -20,7 +20,7 @@ class TestSubnetUpdate(TestEvent):
         self.set_item(NETWORK_DOC)
 
         # check network document
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
+        network_document = self.inv.get_by_id(self.env, self.network_id)
         self.assertIsNotNone(network_document)
 
         # check region data.
@@ -31,6 +31,6 @@ class TestSubnetUpdate(TestEvent):
         handler.handle(self.env, self.values)
 
         # check network document
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
+        network_document = self.inv.get_by_id(self.env, self.network_id)
         self.assertIn(self.subnet['name'], network_document['subnets'])
         self.assertEqual(self.subnet['gateway_ip'], network_document['subnets'][self.subnet['name']]['gateway_ip'])

@@ -1,8 +1,6 @@
-from typing import Callable
-
 from bson import ObjectId
 
-from discover.events.event_base import EventResult
+from discover.events.event_base import EventBase
 from test.event_based_scan.test_event import TestEvent
 
 
@@ -22,28 +20,27 @@ class TestEventDeleteBase(TestEvent):
 
         self.assertEqual(document['id'], self.item_id, msg="Document id and payload id are different")
 
-        item = self.handler.inv.get_by_id(self.env, self.item_id)
+        item = self.inv.get_by_id(self.env, self.item_id)
         if not item:
-            self.handler.log.info('{} document is not found, add document for deleting.'.format(object_type))
+            self.log.info('{} document is not found, add document for deleting.'.format(object_type))
 
             # add network document for deleting.
             self.set_item(document)
-            item = self.handler.inv.get_by_id(self.env, self.item_id)
+            item = self.inv.get_by_id(self.env, self.item_id)
             self.assertIsNotNone(item)
 
-    def handle_delete(self,
-                      handler: Callable[[dict], EventResult]):
+    def handle_delete(self, handler: EventBase):
 
-        item = self.handler.inv.get_by_id(self.env, self.item_id)
+        item = self.inv.get_by_id(self.env, self.item_id)
         db_id = ObjectId(item['_id'])
-        clique_finder = self.handler.inv.get_clique_finder()
+        clique_finder = self.inv.get_clique_finder()
 
         # delete item
-        event_result = handler(self.values)
+        event_result = handler.handle(self.env, self.values)
         self.assertTrue(event_result.result)
 
         # check instance delete result.
-        item = self.handler.inv.get_by_id(self.env, self.item_id)
+        item = self.inv.get_by_id(self.env, self.item_id)
         self.assertIsNone(item)
 
         # check links
@@ -53,5 +50,5 @@ class TestEventDeleteBase(TestEvent):
         self.assertEqual(matched_links_target.count(), 0)
 
         # check children
-        matched_children = self.handler.inv.get_children(self.env, None, self.item_id)
+        matched_children = self.inv.get_children(self.env, None, self.item_id)
         self.assertEqual(len(matched_children), 0)
