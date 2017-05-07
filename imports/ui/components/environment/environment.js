@@ -37,7 +37,7 @@ import {
   setEnvScrollToNodeIsNeededAsOn,
   reportEnvScrollToNodePerformed,
   resetEnvNeedChildDetection,
-//  setShowDashboard,
+  setShowDashboard,
 //  setShowGraph,
 } from '/imports/ui/actions/environment-panel.actions';
 import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
@@ -161,6 +161,7 @@ Template.Environment.onCreated(function () {
       store.dispatch(setEnvAsLoaded());
       store.dispatch(startOpenEnvTreeNode([]));
       store.dispatch(setMainAppSelectedEnvironment(env._id));
+      store.dispatch(setShowDashboard());
     });
   });
 
