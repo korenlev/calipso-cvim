@@ -94,5 +94,21 @@ Meteor.methods({
       node: node
     };
   },
+  
+  'inventoryFindNode?env&id': function (envName, nodeId) {
+    console.log('method server: inventoryFindNode?env&id', 
+      R.toString(envName), R.toString(nodeId));
+
+    check(envName, String);
+    check(nodeId, String);
+    this.unblock();
+
+    let query = { environment: envName, id: nodeId };
+    let node = Inventory.findOne(query);
+
+    return {
+      node: node
+    };
+  },
 });
 

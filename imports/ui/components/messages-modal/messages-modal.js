@@ -55,15 +55,34 @@ Template.MessagesModal.events({
 
     let environment = Environments.findOne({ name: envName });
 
-    Router.go('environment', { 
-      _id: idToStr(environment._id) 
-    }, { 
-      query: {
-        selectedNodeId: idToStr(nodeId)
-      } 
+    Meteor.apply('inventoryFindNode?env&id', [
+      environment.name,
+      nodeId,
+    ], {
+      wait: false
+    }, function (err, resp) {
+      if (err) { 
+        console.error(R.toString(err));
+        return; 
+      }
+
+      if (R.isNil(resp.node)) {
+        console.error('error finding node related to message', R.toString(nodeId));
+        return;
+      }
+
+      Router.go('environment', { 
+        _id: idToStr(environment._id) 
+      }, { 
+        query: {
+          selectedNodeId: idToStr(resp.node._id)
+        } 
+      });
+
+      instance.$('#messagesModalGlobal').modal('hide');
+
     });
 
-    instance.$('#messagesModalGlobal').modal('hide');
   }
 });
    

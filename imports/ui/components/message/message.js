@@ -88,14 +88,34 @@ Template.Message.events({
 
     let model = instance.state.get('model');
     let environment = Environments.findOne({ name: model.environment });
+    let nodeId = model.display_context;
 
-    Router.go('environment', {
-      _id: idToStr(environment._id)
-    }, {
-      query: {
-        selectedNodeId: idToStr(model.display_context)
+    Meteor.apply('inventoryFindNode?env&id', [
+      environment.name,
+      nodeId,
+    ], {
+      wait: false
+    }, function (err, resp) {
+      if (err) { 
+        console.error(R.toString(err));
+        return; 
       }
+
+      if (R.isNil(resp.node)) {
+        console.error('error finding node related to message', R.toString(nodeId));
+        return;
+      }
+
+      Router.go('environment', { 
+        _id: idToStr(environment._id) 
+      }, { 
+        query: {
+          selectedNodeId: idToStr(resp.node._id)
+        } 
+      });
+
     });
+
   },
 
 });
