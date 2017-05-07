@@ -1,14 +1,42 @@
 import { Meteor } from 'meteor/meteor';
 import * as R from 'ramda';
+import { Roles } from 'meteor/alanning:roles';
 
 import { Environments } from '../environments.js';
 
 Meteor.publish('environments_config', function () {
   console.log('server subscribtion to: environments_config');
+  let userId = this.userId;
+
   let query = {
-    type:'environment',
-    user: this.userId
+    type: 'environment',
   };
+
+  if (! Roles.userIsInRole(userId, 'view-env', null)) {
+    query = R.merge(query, {
+      'auth.view-env': { 
+        $in: [ userId ] 
+      }
+    });
+  }
+
+  console.log('-query: ', R.toString(query));
+  return Environments.find(query);
+});
+
+Meteor.publish('environments.view-env&userId', function (userId) {
+  let query = {};
+
+  if (! Roles.userIsInRole(userId, 'manage-users', 'default-group')) {
+    this.error('unauthorized for this subscription');
+  }
+
+  query = R.merge(query, {
+    'auth.view-env': { 
+      $in: [ userId ] 
+    }
+  });
+
   return Environments.find(query);
 });
 

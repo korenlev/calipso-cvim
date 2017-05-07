@@ -74,10 +74,12 @@ export const update = new ValidatedMethod({
     mechanism_drivers,
     listen,
   }) {
-    const env = Environments.findOne({ _id: _id });
+    Environments.findOne({ _id: _id });
+    /*
     if (env.user !== Meteor.userId()) { 
       throw new Meteor.Error('not-auth', 'User not authorized to perform action');
     }
+    */
 
     Environments.update(_id, {
       $set: {
@@ -102,9 +104,11 @@ export const remove = new ValidatedMethod({
   }) {
     const env = Environments.findOne({ _id: _id });
     console.log('environment for remove: ', env);
+    /*
     if (env.user !== Meteor.userId()) { 
       throw new Meteor.Error('not-auth', 'User not authorized to perform action');
     }
+    */
 
     Inventory.remove({ environment: env.name }); 
     Links.remove({ environment: env.name });

@@ -9,6 +9,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { parseReqId } from '/imports/lib/utilities';
 import * as R from 'ramda';
 import { remove, insert, update } from '/imports/api/accounts/methods';
+import { Environments } from '/imports/api/environments/environments';
         
 import './user.html';     
     
@@ -30,7 +31,8 @@ Template.User.onCreated(function() {
     disabled: false,
     notifications: {},
     model: {},
-    pageHeader: 'User'
+    pageHeader: 'User',
+    viewEnvs: [],
   });
 
   instance.autorun(function () {
@@ -83,11 +85,14 @@ Template.User.events({
     let _id = instance.state.get('id');
     let username = instance.$('.sm-input-username')[0].value;
     let password = instance.$('.sm-input-password')[0].value; 
+    let viewEnvs = R.map(R.prop('value'), 
+      instance.$('.sm-input-view-envs')[0].selectedOptions);
 
     submitItem(instance,
       _id,
       username,
-      password
+      password,
+      viewEnvs
     ); 
   }
 });
@@ -130,8 +135,39 @@ Template.User.helpers({
     let instance = Template.instance();
     let action = instance.state.get('action');
     return calcActionLabel(action);
-  }
-});
+  },
+
+  viewEnvs: function () {
+    let instance = Template.instance();
+    return instance.state.get('viewEnvs');
+  },
+
+  envs: function () {
+    return Environments.find({});
+  },
+
+  getAttrSelected: function (optionValue, modelValue) {
+    let result = {};
+
+    if (optionValue === modelValue) {
+      result = R.assoc('selected', 'selected', result);
+    }
+
+    return result;
+  },
+
+  getAttrSelectedMultiple: function (optionValue, modelValues) {
+    let result = {};
+
+    if (R.isNil(modelValues)) { return result; }
+
+    if (R.contains(optionValue, modelValues)) {
+      result = R.assoc('selected', 'selected', result);
+    }
+
+    return result;
+  },
+}); // end: helpers
 
 
 function initInsertView(instance, query) {
@@ -161,16 +197,11 @@ function initViewView(instance, query) {
   //instance.state.set('env', query.env);
   instance.state.set('id', reqId);
 
-  //subscribeToOptionsData(instance);
+  subscribeToOptionsData(instance);
+  subscribeToModel(instance, reqId.id);
   //instance.subscribe('constants');
   //instance.subscribe('link_types?_id', reqId.id);
 
-  Meteor.users.find({ _id: reqId.id }).forEach((model) => {
-    instance.state.set('model', {
-      username: model.username,
-      password: ''
-    });
-  }); 
 }
 
 function initUpdateView(instance, query) {
@@ -180,31 +211,44 @@ function initUpdateView(instance, query) {
   //instance.state.set('env', query.env);
   instance.state.set('id', reqId);
 
-  //subscribeToOptionsData(instance);
+  subscribeToOptionsData(instance);
+  subscribeToModel(instance, reqId.id);
   //instance.subscribe('constants');
   //instance.subscribe('link_types?_id', reqId.id);
-
-  Meteor.users.find({ _id: reqId.id }).forEach((model) => {
-    instance.state.set('model', {
-      username: model.username,
-      password: ''
-    });
-  }); 
 }
 
 function initRemoveView(instance, query) {
   initViewView(instance, query);
 }
 
-function subscribeToOptionsData(_instance) {
-  //instance.subscribe('environments_config');
+function subscribeToOptionsData(instance) {
+  instance.subscribe('constants');
+  instance.subscribe('environments_config');
+}
+
+function subscribeToModel(instance, id) {
+  Meteor.users.find({ _id: id }).forEach((model) => {
+    instance.state.set('model', {
+      username: model.username,
+      password: ''
+    });
+
+    instance.subscribe('environments.view-env&userId', model._id);
+
+    let viewEnvsList = [];
+    Environments.find({ 'auth.view-env': { $in: [ model._id  ] }}).forEach((viewEnv) => {
+      viewEnvsList = R.union(viewEnvsList, [ viewEnv.name ]);
+      instance.state.set('viewEnvs', viewEnvsList);
+    });
+  }); 
 }
 
 function submitItem(
   instance, 
   id, 
   username,
-  password
+  password,
+  viewEnvs
   ){
 
   let action = instance.state.get('action');
@@ -219,6 +263,7 @@ function submitItem(
     insert.call({
       username: username,
       password: password,
+      viewEnvs: viewEnvs,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -226,6 +271,7 @@ function submitItem(
     update.call({
       _id: id.id,
       password: password,
+      viewEnvs: viewEnvs,
     }, processActionResult.bind(null, instance));
     break;
 

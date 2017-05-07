@@ -7,7 +7,11 @@ let users = [
     name: 'admin',
     email: 'admin@example.com',
     password: 'admin1234',
-    roles: ['manage-users', 'manage-link-types']
+    roles: [
+      { role: 'manage-users', group: 'default-group' },
+      { role: 'manage-link-types', group: 'default-group' },
+      { role: 'view-env', group: Roles.GLOBAL_GROUP },
+    ]
   }
 ];
 
@@ -28,6 +32,9 @@ R.forEach((user) => {
 
   if (user.roles.length > 0) {
     console.log('adding roles to user', user, user.roles);
-    Roles.addUsersToRoles(id, user.roles, 'default-group');
+
+    R.forEach((roleItem) => {
+      Roles.addUsersToRoles(id, roleItem.role, roleItem.group);
+    }, user.roles);
   }
 }, users);
