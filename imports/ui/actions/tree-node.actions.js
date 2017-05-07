@@ -12,6 +12,7 @@ export const SET_POSITION_REPORT_IS_NEEDED_AS_ON = 'SET_POSITION_REPORT_IS_NEEDE
 export const REPORT_NODE_POSITION_RETRIEVED = 'REPORT_NODE_POSITION_RETRIEVED';
 export const SET_SCROLL_TO_NODE_IS_NEEDED_AS_ON = 'SET_SCROLL_TO_NODE_IS_NEEDED_AS_ON';
 export const REPORT_SCROLL_TO_NODE_PERFORMED = 'REPORT_SCROLL_TO_NODE_PERFORMED';
+export const RESET_NEED_CHILD_DETECTION = 'RESET_NEED_CHILD_DETECTION';
 
 export function updateTreeNodeInfo(nodeInfo, level) {
   return {
@@ -119,6 +120,15 @@ export function setScrollToNodeIsNeededAsOn(nodePath) {
 export function reportScrollToNodePerformed(nodePath) {
   return {
     type: REPORT_SCROLL_TO_NODE_PERFORMED,
+    payload: {
+      nodePath: nodePath
+    }
+  };
+}
+
+export function resetNeedChildDetection(nodePath) {
+  return {
+    type: RESET_NEED_CHILD_DETECTION,
     payload: {
       nodePath: nodePath
     }

@@ -60,6 +60,7 @@ Template.TreeNode.onCreated(function() {
       node: { type: Object, blackbox: true },
       children: { type: [Object], blackbox: true },
       childDetected: { type: Boolean },
+      needChildDetection: { type: Boolean },
       linkDetected: { type: Boolean },
       level: { type: Number },
       positionNeeded: { type: Boolean },
@@ -76,12 +77,14 @@ Template.TreeNode.onCreated(function() {
       onPositionRetrieved: { type: Function },
       onScrollToNodePerformed: { type: Function },
       onOpenLinkReq: { type: Function },
+      onResetNeedChildDetection: { type: Function },
     }).validate(data);
 
     instance.state.set('openState', data.openState);
     instance.state.set('node', data.node);
     instance.state.set('positionNeeded', data.positionNeeded);
     instance.state.set('scrollToNodeIsNeeded', data.scrollToNodeIsNeeded);
+    instance.state.set('needChildDetection', data.needChildDetection);
 
     //console.log('tree-node - main autorun - ' + data.node._id._str);
 
@@ -155,13 +158,21 @@ Template.TreeNode.onCreated(function() {
         children = R.append(child, children);
         onChildReadThrottle();
       });
-    } else {
-      instance.data.behavior.subscribeGetFirstChildFn(instance, order.data.node);
-      // todo: let childDetectedSubmited = false;
-      instance.data.behavior.getChildrenFn(order.data.node).forEach((_child) => {
-        instance.data.onChildDetected([order.data.node._id._str]);
-      });
     }
+  });
+
+  instance.autorun(() => {
+    //let needChildDetection = 
+    instance.state.get('needChildDetection');
+    let data = instance.data;
+
+    instance.data.behavior.subscribeGetFirstChildFn(instance, data.node);
+    // todo: let childDetectedSubmited = false;
+    instance.data.behavior.getChildrenFn(data.node).forEach((_child) => {
+      instance.data.onChildDetected([data.node._id._str]);
+    });
+
+    instance.data.onResetNeedChildDetection([data.node._id._str]);
   });
 
   instance.autorun(function () {
@@ -284,6 +295,7 @@ Template.TreeNode.helpers({
       node: child.nodeInfo,
       children: child.children,
       childDetected: child.childDetected,
+      needChildDetection: child.needChildDetection,
       linkDetected: child.linkDetected,
       level: child.level,
       positionNeeded: child.positionNeeded,
@@ -300,6 +312,7 @@ Template.TreeNode.helpers({
       onPositionRetrieved: instance._fns.onPositionRetrieved,
       onScrollToNodePerformed: instance._fns.onScrollToNodePerformed,
       onOpenLinkReq: instance._fns.onOpenLinkReq,
+      onResetNeedChildDetection: instance._fns.onResetNeedChildDetection,
     };
   },
 
@@ -388,5 +401,11 @@ function createAttachedFns(instance) {
     onOpenLinkReq: (envName, nodeName) => {
       instance.data.onOpenLinkReq(envName, nodeName);
     },
+
+    onResetNeedChildDetection: (reqPath) => {
+      instance.data.onResetNeedChildDetection(
+        R.prepend(instance.data.node._id._str, reqPath)
+      );
+    }
   };
 }

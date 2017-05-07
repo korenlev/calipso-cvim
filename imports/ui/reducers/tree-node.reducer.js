@@ -9,6 +9,7 @@ const defaultState = {
   openState: 'closed', // opened, start_close, closed, start_open
   children: [],
   childDetected: false,
+  needChildDetection: true,
   linkDetected: false,
   level: 1,
   positionNeeded: false,
@@ -33,6 +34,7 @@ export function reducer(state = defaultState, action) {
       openState: 'closed',
       children: [],
       childDetected: false,
+      needChildDetection: true,
       linkDetected: R.propEq('type', 'host_ref', action.payload.nodeInfo), 
       level: action.payload.level,
     });
@@ -88,7 +90,8 @@ export function reducer(state = defaultState, action) {
     if (R.isNil(nodeId)) {
       return R.merge(state, { 
         children: [],
-        childDetected: false
+        childDetected: false,
+        needChildDetection: true,
       });
     }
 
@@ -191,6 +194,17 @@ export function reducer(state = defaultState, action) {
     }
 
     return reduceActionOnChild(state, actions.reportScrollToNodePerformed(rest), nodeId);
+
+  case actions.RESET_NEED_CHILD_DETECTION:
+    nodeId = R.head(action.payload.nodePath);
+    rest = R.tail(action.payload.nodePath);
+
+    if (R.isNil(nodeId)) {
+      return R.assoc('needChildDetection', false, state);
+    }
+
+    return reduceActionOnChild(state, actions.resetNeedChildDetection(rest), nodeId);
+
 
   default:
     return state;

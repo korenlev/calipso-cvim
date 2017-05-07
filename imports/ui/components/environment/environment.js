@@ -36,6 +36,7 @@ import {
   reportEnvNodePositionRetrieved,
   setEnvScrollToNodeIsNeededAsOn,
   reportEnvScrollToNodePerformed,
+  resetEnvNeedChildDetection,
 //  setShowDashboard,
 //  setShowGraph,
 } from '/imports/ui/actions/environment-panel.actions';
@@ -289,6 +290,7 @@ Template.Environment.helpers({
       onPositionRetrieved: instance._fns.onPositionRetrieved,
       onScrollToNodePerformed: instance._fns.onScrollToNodePerformed,
       onOpenLinkReq: instance._fns.onOpenLinkReq,
+      onResetNeedChildDetection: instance._fns.onResetNeedChildDetection,
     };
   },
 
@@ -513,6 +515,10 @@ function createAttachedFns(instance) {
         store.dispatch(setEnvSelectedNode(res.node._id, null));
       });
     },
+
+    onResetNeedChildDetection: (nodePath) => {
+      store.dispatch(resetEnvNeedChildDetection(R.tail(nodePath)));
+    }
   };
 }
 

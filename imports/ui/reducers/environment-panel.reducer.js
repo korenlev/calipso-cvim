@@ -15,6 +15,7 @@ import {
   reportNodePositionRetrieved,
   setScrollToNodeIsNeededAsOn,
   reportScrollToNodePerformed,
+  resetNeedChildDetection,
 } 
   from '/imports/ui/actions/tree-node.actions';
 
@@ -162,6 +163,13 @@ export function reducer(state = defaultState, action) {
   case actions.REPORT_ENV_SCROLL_TO_NODE_PERFORMED:
     return R.assoc('treeNode',
       treeNode(state.treeNode, reportScrollToNodePerformed(
+        action.payload.nodePath)),
+      state
+    );
+
+  case actions.RESET_ENV_NEED_CHILD_DETECTION:
+    return R.assoc('treeNode',
+      treeNode(state.treeNode, resetNeedChildDetection(
         action.payload.nodePath)),
       state
     );

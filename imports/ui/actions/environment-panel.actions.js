@@ -22,6 +22,7 @@ export const SET_ENV_POSITION_REPORT_IS_NEEDED_AS_ON = 'SET_ENV_POSITION_REPORT_
 export const REPORT_ENV_NODE_POSITION_RETRIEVED = 'REPORT_ENV_NODE_POSITION_RETRIEVED';
 export const SET_ENV_SCROLL_TO_NODE_IS_NEEDED_AS_ON = 'SET_ENV_SCROLL_TO_NODE_IS_NEEDED_AS_ON';
 export const REPORT_ENV_SCROLL_TO_NODE_PERFORMED = 'REPORT_ENV_SCROLL_TO_NODE_PERFORMED';
+export const RESET_ENV_NEED_CHILD_DETECTION = 'RESET_ENV_NEED_CHILD_DETECTION';
 
 export function setEnvName(envName) {
   return {
@@ -200,6 +201,15 @@ export function setEnvScrollToNodeIsNeededAsOn(nodePath) {
 export function reportEnvScrollToNodePerformed(nodePath) {
   return {
     type: REPORT_ENV_SCROLL_TO_NODE_PERFORMED,
+    payload: {
+      nodePath: nodePath
+    }
+  };
+}
+
+export function resetEnvNeedChildDetection(nodePath) {
+  return {
+    type: RESET_ENV_NEED_CHILD_DETECTION,
     payload: {
       nodePath: nodePath
     }
