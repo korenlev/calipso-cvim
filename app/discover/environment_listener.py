@@ -28,7 +28,8 @@ class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
-    COMMON_METADATA_FILE = os.path.join("discover", "plugins", "default_config.json")
+    COMMON_METADATA_FILE = os.path.join("discover", "plugins",
+                                        "default_config.json")
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
@@ -60,7 +61,8 @@ class EnvironmentListener(ConsumerMixin):
 
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
-        self.inv.monitoring_setup_manager = MonitoringSetupManager(mongo_config, self.env_name)
+        self.inv.monitoring_setup_manager = \
+            MonitoringSetupManager(mongo_config, self.env_name)
         self.inv.monitoring_setup_manager.server_setup()
 
     def get_consumers(self, consumer, channel):
@@ -88,7 +90,8 @@ class EnvironmentListener(ConsumerMixin):
         if processable and event_data["event_type"] in self.handler.handlers:
             with open("/tmp/listener.log", "a") as f:
                 f.write("{}\n".format(event_data))
-            event_result = self.handle_event(event_data["event_type"], event_data)
+            event_result = self.handle_event(event_data["event_type"],
+                                             event_data)
             finished_timestamp = stringify_datetime(datetime.datetime.now())
             self.save_message(message_body=event_data,
                               result=event_result,
@@ -109,14 +112,15 @@ class EnvironmentListener(ConsumerMixin):
 
                     # Retry handling the message
                     if self.failing_messages[message_id] <= self.retry_limit:
-                        self.inv.log.info("Retrying handling message with id '{}'"
-                                          .format(message_id))
+                        self.inv.log.info("Retrying handling message " +
+                                          "with id '{}'".format(message_id))
                         message.requeue()
                     # Discard the message if it's not accepted
                     # after specified number of trials
                     else:
-                        self.inv.log.warn("Discarding message with id '{}' as it's exceeded the retry limit"
-                                          .format(message_id))
+                        self.inv.log.warn("Discarding message with id '{}' ".
+                                          format(message_id) +
+                                          "as it's exceeded the retry limit")
                         message.reject()
                         del self.failing_messages[message_id]
             else:
@@ -126,19 +130,23 @@ class EnvironmentListener(ConsumerMixin):
 
     # This method passes the event to its handler.
     # Returns a (result, retry) tuple:
-    # 'Result' flag is True if handler has finished successfully, False otherwise
+    # 'Result' flag is True if handler has finished successfully,
+    #                  False otherwise
     # 'Retry' flag specifies if the error is recoverable or not
     # 'Retry' flag is checked only is 'result' is False
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
-        print("Got notification.\nEvent_type: {}\nNotification:\n{}".format(event_type, notification))
+        print("Got notification.\nEvent_type: {}\nNotification:\n{}".
+              format(event_type, notification))
         try:
-            result = self.handler.handle(event_name=event_type, notification=notification)
+            result = self.handler.handle(event_name=event_type,
+                                         notification=notification)
             return result if result else EventResult(result=False, retry=False)
         except Exception as e:
             self.inv.log.exception(e)
             return EventResult(result=False, retry=False)
 
-    def save_message(self, message_body: dict, result: EventResult, started: str, finished: str):
+    def save_message(self, message_body: dict, result: EventResult,
+                     started: str, finished: str):
         try:
             message = Message(
                 msg_id=message_body.get('message_id'),
@@ -166,31 +174,37 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["mongo_config"],
-                        help="Name of config file with MongoDB server access details")
+                        help="Name of config file with MongoDB access details")
     parser.add_argument("--metadata_file", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["metadata_file"],
                         help="Name of custom configuration metadata file")
+    def_env_collection = EnvironmentListener.DEFAULTS["environments_collection"]
     parser.add_argument("-c", "--environments_collection", nargs="?", type=str,
-                        default=EnvironmentListener.DEFAULTS["environments_collection"],
-                        help="Name of collection where selected environment is taken from \n(default: {})"
-                        .format(EnvironmentListener.DEFAULTS["environments_collection"]))
+                        default=def_env_collection,
+                        help="Name of collection where selected environment " +
+                             "is taken from \n(default: {})"
+                        .format(def_env_collection))
     parser.add_argument("-e", "--env", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["env"],
-                        help="Name of target listener environment \n(default: {})"
+                        help="Name of target listener environment \n" +
+                             "(default: {})"
                         .format(EnvironmentListener.DEFAULTS["env"]))
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["inventory"],
-                        help="Name of inventory collection \n(default: 'inventory')")
+                        help="Name of inventory collection \n"" +"
+                             "(default: 'inventory')")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["loglevel"],
                         help="Logging level \n(default: 'INFO')")
     parser.add_argument("-r", "--retry_limit", nargs="?", type=int,
                         default=EnvironmentListener.DEFAULTS["retry_limit"],
                         help="Maximum number of times the OpenStack message "
-                             "should be requeued before being discarded \n(default: {})"
+                             "should be requeued before being discarded \n" +
+                             "(default: {})"
                         .format(EnvironmentListener.DEFAULTS["retry_limit"]))
     parser.add_argument("--consume_all", action="store_true",
-                        help="If this flag is set, environment listener will try to consume"
+                        help="If this flag is set, " +
+                             "environment listener will try to consume"
                              "all messages from OpenStack event queue "
                              "and reject incompatible messages."
                              "Otherwise they'll just be ignored.",
@@ -205,7 +219,8 @@ def get_args():
 def import_metadata(event_handler: EventHandler,
                     event_queues: List[Queue],
                     metadata_file_path: str) -> None:
-    handlers_package, queues, event_handlers = parse_metadata_file(metadata_file_path)
+    handlers_package, queues, event_handlers = \
+        parse_metadata_file(metadata_file_path)
     event_handler.discover_handlers(handlers_package, event_handlers)
     event_queues.extend([
         Queue(q['queue'],
@@ -231,7 +246,8 @@ def listen(args: dict = None):
     event_queues = []
 
     # import common metadata
-    import_metadata(event_handler, event_queues, EnvironmentListener.COMMON_METADATA_FILE)
+    import_metadata(event_handler, event_queues,
+                    EnvironmentListener.COMMON_METADATA_FILE)
 
     # import custom metadata if supplied
     if args["metadata_file"]:
@@ -252,17 +268,19 @@ def listen(args: dict = None):
             conn.connect()
             args['process_vars']['operational'] = OperationalStatus.RUNNING
             terminator = SignalHandler()
-            worker = EnvironmentListener(connection=conn,
-                                         event_handler=event_handler,
-                                         event_queues=event_queues,
-                                         retry_limit=args["retry_limit"],
-                                         consume_all=args["consume_all"],
-                                         mongo_config=args["mongo_config"],
-                                         inventory_collection=inventory_collection,
-                                         env_name=env_name)
+            worker = \
+                EnvironmentListener(connection=conn,
+                                    event_handler=event_handler,
+                                    event_queues=event_queues,
+                                    retry_limit=args["retry_limit"],
+                                    consume_all=args["consume_all"],
+                                    mongo_config=args["mongo_config"],
+                                    inventory_collection=inventory_collection,
+                                    env_name=env_name)
             worker.run()
             if terminator.terminated:
-                args.get('process_vars', {})['operational'] = OperationalStatus.STOPPED
+                args.get('process_vars', {})['operational'] =\
+                    OperationalStatus.STOPPED
         except KeyboardInterrupt:
             print('Stopped')
             args['process_vars']['operational'] = OperationalStatus.STOPPED
