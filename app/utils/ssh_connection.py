@@ -66,13 +66,17 @@ class SshConnection(BinaryConverter, Logger):
         key = ('sftp-' if for_sftp else '') + host
         return SshConnection.connections.get(key)
 
+    def disconnect(self):
+        if self.ssh:
+            self.ssh.close()
+
     @staticmethod
     def disconnect_all():
         for ssh in SshConnection.cli_connections.values():
-            ssh.ssh.close()
+            ssh.disconnect()
         SshConnection.cli_connections = {}
         for ssh in SshConnection.sftp_connections.values():
-            ssh.ssh.close()
+            ssh.disconnect()
         SshConnection.sftp_connections = {}
 
     def get_host(self):

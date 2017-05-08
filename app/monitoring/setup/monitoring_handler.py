@@ -360,7 +360,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         self.run(cmd, ssh_to_host=host, ssh=ssh)
 
     def make_remote_dir(self, host, path, path_is_file=False):
-        ssh = self.get_ssh(host)
+        ssh = self.get_ssh(host, for_sftp=True)
         self.make_remote_dir_on_host(ssh, host, path, path_is_file)
 
     def copy_to_remote_host(self, host, local_path, remote_path, mode=None,
