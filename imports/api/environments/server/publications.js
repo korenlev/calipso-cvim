@@ -40,6 +40,22 @@ Meteor.publish('environments.view-env&userId', function (userId) {
   return Environments.find(query);
 });
 
+Meteor.publish('environments.edit-env&userId', function (userId) {
+  let query = {};
+
+  if (! Roles.userIsInRole(userId, 'manage-users', 'default-group')) {
+    this.error('unauthorized for this subscription');
+  }
+
+  query = R.merge(query, {
+    'auth.edit-env': { 
+      $in: [ userId ] 
+    }
+  });
+
+  return Environments.find(query);
+});
+
 Meteor.publish('environments?name', function (name) {
   console.log('server subscribtion to: environments?name=' + name.toString());
   let query = {

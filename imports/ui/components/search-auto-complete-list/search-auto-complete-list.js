@@ -79,8 +79,6 @@ Template.SearchAutoCompleteList.rendered = function() {
 */
 
 Template.SearchAutoCompleteList.onDestroyed(() => {
-  let instance = this;
-  instance.storeUnsubscribe();
 });
 
 /*

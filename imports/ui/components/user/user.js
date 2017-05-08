@@ -33,6 +33,7 @@ Template.User.onCreated(function() {
     model: {},
     pageHeader: 'User',
     viewEnvs: [],
+    editEnvs: [],
   });
 
   instance.autorun(function () {
@@ -87,12 +88,15 @@ Template.User.events({
     let password = instance.$('.sm-input-password')[0].value; 
     let viewEnvs = R.map(R.prop('value'), 
       instance.$('.sm-input-view-envs')[0].selectedOptions);
+    let editEnvs = R.map(R.prop('value'), 
+      instance.$('.sm-input-edit-envs')[0].selectedOptions);
 
     submitItem(instance,
       _id,
       username,
       password,
-      viewEnvs
+      viewEnvs,
+      editEnvs
     ); 
   }
 });
@@ -140,6 +144,11 @@ Template.User.helpers({
   viewEnvs: function () {
     let instance = Template.instance();
     return instance.state.get('viewEnvs');
+  },
+
+  editEnvs: function () {
+    let instance = Template.instance();
+    return instance.state.get('editEnvs');
   },
 
   envs: function () {
@@ -227,18 +236,28 @@ function subscribeToOptionsData(instance) {
 }
 
 function subscribeToModel(instance, id) {
+  instance.subscribe('users');
+
   Meteor.users.find({ _id: id }).forEach((model) => {
     instance.state.set('model', {
+      _id: model._id,
       username: model.username,
-      password: ''
+      password: '******'
     });
 
     instance.subscribe('environments.view-env&userId', model._id);
+    instance.subscribe('environments.edit-env&userId', model._id);
 
     let viewEnvsList = [];
     Environments.find({ 'auth.view-env': { $in: [ model._id  ] }}).forEach((viewEnv) => {
       viewEnvsList = R.union(viewEnvsList, [ viewEnv.name ]);
       instance.state.set('viewEnvs', viewEnvsList);
+    });
+
+    let editEnvsList = [];
+    Environments.find({ 'auth.edit-env': { $in: [ model._id  ] }}).forEach((editEnv) => {
+      editEnvsList = R.union(editEnvsList, [ editEnv.name ]);
+      instance.state.set('editEnvs', editEnvsList);
     });
   }); 
 }
@@ -248,7 +267,8 @@ function submitItem(
   id, 
   username,
   password,
-  viewEnvs
+  viewEnvs,
+  editEnvs
   ){
 
   let action = instance.state.get('action');
@@ -264,14 +284,16 @@ function submitItem(
       username: username,
       password: password,
       viewEnvs: viewEnvs,
+      editEnvs: editEnvs,
     }, processActionResult.bind(null, instance));
     break;
 
   case 'update': 
     update.call({
       _id: id.id,
-      password: password,
+      //password: password,
       viewEnvs: viewEnvs,
+      editEnvs: editEnvs,
     }, processActionResult.bind(null, instance));
     break;
 

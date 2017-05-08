@@ -8,7 +8,8 @@ let userSchema = new SimpleSchema({
   _id: { type: String },
   username: { type: String },
   password: { type: String },
-  viewEnvs: { type: [ String ] }
+  viewEnvs: { type: [ String ] },
+  editEnvs: { type: [ String ] },
 });
 
 export const insert = new ValidatedMethod({
@@ -34,47 +35,28 @@ export const insert = new ValidatedMethod({
       password: password
     });
 
-    R.forEach((envName) => {
-      let env = Environments.findOne({ name: envName });
-      let auth = R.assocPath([ 'view-env', userId ], env.auth);
-      Environments.update(env._id, {  $set: { auth: auth } });
-    }, viewEnvs);
+    addRole(viewEnvs, 'view-env', userId);
   }
 });
 
-export const remove = new ValidatedMethod({
-  name: 'accounts.remove',
-  validate: userSchema
-    .pick([
-      '_id',
-    ]).validator({ clean: true, filter: false }),
-  run({
-    _id
-  }) {
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
-      throw new Meteor.Error('unauthorized for removing users');
-    }
 
-    let user = Meteor.users.findOne({ _id: _id });
-    console.log('user for remove: ', user);
-
-    Meteor.users.remove({ _id: _id });
-  }
-});
 
 export const update = new ValidatedMethod({
   name: 'accounts.update',
   validate: userSchema
     .pick([
       '_id',
-      'password',
+     // 'password',
       'viewEnvs',
       'viewEnvs.$',
+      'editEnvs',
+      'editEnvs.$',
     ]).validator({ clean: true, filter: false }),
   run({
     _id,
-    _password,
+    //_password,
     viewEnvs,
+    editEnvs,
   }) {
     //throw new Meteor.Error('unimplemented');
     if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
@@ -107,63 +89,91 @@ export const update = new ValidatedMethod({
     let viewEnvsForDelete = R.difference(currentViewEnvs, viewEnvs);
     let viewEnvsForAdd = R.difference(viewEnvs, currentViewEnvs);
 
-    R.forEach((envName) => {
-      let env = Environments.findOne({ name: envName });
-      let auth = env.auth;
-      if (R.isNil(auth)) { auth = { }; }
-      if (R.isNil(R.path(['view-env'], auth))) {
-        auth = R.assoc('view-env', [], auth);
-      }
-      auth = R.merge(auth, {
-        'view-env': R.reject(R.equals(_id), auth['view-env'])
-      });
-      //let newEnv = R.merge(env, { auth: auth });
-      console.log('update env. set: ' + R.toString(auth));
-      try {
-      Environments.update(env._id, {  
-        $set: { 
-          auth: auth,
-          configuration: env.configuration,
-          //distribution: distribution,
-          //name: name,
-          type_drivers: env.type_drivers,
-          mechanism_drivers: env.mechanism_drivers,
-          listen: env.listen,
-        } 
-      });
-      } catch(e) {
-        console.error('error in update: ' + R.toString(e));
-        throw (e);
-      }
-    }, viewEnvsForDelete);
+    removeRole(viewEnvsForDelete, 'view-env', _id);
+    addRole(viewEnvsForAdd, 'view-env', _id);
 
-    R.forEach((envName) => {
-      let env = Environments.findOne({ name: envName });
-      let auth = env.auth;
-      if (R.isNil(auth)) { auth = { }; }
-      if (R.isNil(R.path(['view-env'], auth))) {
-        auth = R.assoc('view-env', [], auth);
-      }
-      auth = R.merge(auth, {
-        'view-env': R.append(_id, auth['view-env'])
-      });
-      console.log('update env. set: ' + R.toString(auth));
-      try {
-      Environments.update(env._id, {  
-        $set: { 
-          auth: auth,
-          configuration: env.configuration,
-          //distribution: distribution,
-          //name: name,
-          type_drivers: env.type_drivers,
-          mechanism_drivers: env.mechanism_drivers,
-          listen: env.listen,
-        } 
-      });
-      } catch(e) {
-        console.error('error in update: ' + R.toString(e));
-        throw (e);
-      }
-    }, viewEnvsForAdd);
+    //
+    
+    let currentEditEnvs = R.map((env) => {
+      return env.name;
+    }, Environments.find({ 'auth.edit-env': { $in: [ _id  ] }}).fetch());
+
+    let editEnvsForDelete = R.difference(currentEditEnvs, editEnvs);
+    let editEnvsForAdd = R.difference(editEnvs, currentEditEnvs);
+
+    removeRole(editEnvsForDelete, 'edit-env', _id);
+    addRole(editEnvsForAdd, 'edit-env', _id);
   }
 });
+
+export const remove = new ValidatedMethod({
+  name: 'accounts.remove',
+  validate: userSchema
+    .pick([
+      '_id',
+    ]).validator({ clean: true, filter: false }),
+  run({
+    _id
+  }) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
+      throw new Meteor.Error('unauthorized for removing users');
+    }
+
+    let user = Meteor.users.findOne({ _id: _id });
+    console.log('user for remove: ', user);
+
+    Meteor.users.remove({ _id: _id });
+  }
+});
+
+function removeRole(rolesForRemoval, roleName, userId) {
+  R.forEach((envName) => {
+    let env = Environments.findOne({ name: envName });
+    let auth = env.auth;
+    if (R.isNil(auth)) { auth = { }; }
+    if (R.isNil(R.path([roleName], auth))) {
+      auth = R.assoc(roleName, [], auth);
+    }
+    auth = R.assoc(roleName, R.reject(R.equals(userId), auth[roleName]), auth);
+
+    updateEnv(auth, env);
+    //let newEnv = R.merge(env, { auth: auth });
+
+  }, rolesForRemoval);
+}
+
+function addRole(rolesForAdd, roleName, userId) {
+  R.forEach((envName) => {
+    let env = Environments.findOne({ name: envName });
+    let auth = env.auth;
+    if (R.isNil(auth)) { auth = { }; }
+    if (R.isNil(R.path([roleName], auth))) {
+      auth = R.assoc(roleName, [], auth);
+    }
+    auth = R.assoc(roleName, R.append(userId, auth[roleName]), auth);
+
+    updateEnv(auth, env);
+    //let newEnv = R.merge(env, { auth: auth });
+
+  }, rolesForAdd);
+}
+
+function updateEnv(auth, env) {
+  console.log('update env. set: ' + R.toString(auth));
+  try {
+    Environments.update(env._id, {  
+      $set: { 
+        auth: auth,
+        configuration: env.configuration,
+        //distribution: distribution,
+        //name: name,
+        type_drivers: env.type_drivers,
+        mechanism_drivers: env.mechanism_drivers,
+        listen: env.listen,
+      } 
+    });
+  } catch(e) {
+    console.error('error in update: ' + R.toString(e));
+    throw (e);
+  }
+}

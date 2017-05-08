@@ -63,6 +63,22 @@
           <div class="cl-field-desc">View role for environments</div>
         </div>
 
+        <div class="sm-field-group-edit-env-roles cl-field-group">
+          <label class="cl-field-label">Allowed environments : editing</label>
+          <select name="editEnvs" 
+                  class="sm-input-edit-envs cl-input" 
+                  multiple
+                  size="3"
+            {{ getAttrDisabled }} >
+            {{#each env in envs }}
+            <option value="{{ env.name }}"
+              {{ getAttrSelectedMultiple env.name editEnvs }}
+              >{{ env.name }}</option>
+            {{/each }}
+          </select>
+          <div class="cl-field-desc">Edit/Delete role for environments</div>
+        </div>
+
         {{#if isUpdateableAction }}
         <button type="submit" 
           class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
