@@ -63,7 +63,8 @@ var nodeTypesForSelection = [
   'aggregate',
   'host',
   'region',
-  'instance'
+  'instance',
+  'network'
 ];
 
 /*
