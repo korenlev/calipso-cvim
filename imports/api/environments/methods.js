@@ -11,6 +11,7 @@ import { Cliques } from '/imports/api/cliques/cliques';
 import { CliqueTypes } from '/imports/api/clique-types/clique-types';
 import { Messages } from '/imports/api/messages/messages';
 import { Scans } from '/imports/api/scans/scans';
+import { Roles } from 'meteor/alanning:roles';
 
 export const insert = new ValidatedMethod({
   name: 'environments.insert',
@@ -74,12 +75,13 @@ export const update = new ValidatedMethod({
     mechanism_drivers,
     listen,
   }) {
-    Environments.findOne({ _id: _id });
-    /*
-    if (env.user !== Meteor.userId()) { 
-      throw new Meteor.Error('not-auth', 'User not authorized to perform action');
+    let env = Environments.findOne({ _id: _id });
+
+    if (! Roles.userIsInRole(Meteor.userId(), 'edit-env', 'default-group')) {
+      if (! R.contains(Meteor.userId(), R.path(['auth', 'edit-env'], env) )) {
+        throw new Meteor.Error('not-auth', 'unauthorized for updating env');
+      }
     }
-    */
 
     Environments.update(_id, {
       $set: {
@@ -104,11 +106,12 @@ export const remove = new ValidatedMethod({
   }) {
     const env = Environments.findOne({ _id: _id });
     console.log('environment for remove: ', env);
-    /*
-    if (env.user !== Meteor.userId()) { 
-      throw new Meteor.Error('not-auth', 'User not authorized to perform action');
+
+    if (! Roles.userIsInRole(Meteor.userId(), 'edit-env', 'default-group')) {
+      if (! R.contains(Meteor.userId(), R.path(['auth', 'edit-env'], env) )) {
+        throw new Meteor.Error('not-auth', 'unauthorized for updating env');
+      }
     }
-    */
 
     Inventory.remove({ environment: env.name }); 
     Links.remove({ environment: env.name });

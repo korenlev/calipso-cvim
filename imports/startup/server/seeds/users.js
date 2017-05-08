@@ -11,6 +11,7 @@ let users = [
       { role: 'manage-users', group: 'default-group' },
       { role: 'manage-link-types', group: 'default-group' },
       { role: 'view-env', group: Roles.GLOBAL_GROUP },
+      { role: 'edit-env', group: Roles.GLOBAL_GROUP },
     ]
   }
 ];

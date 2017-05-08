@@ -1,6 +1,6 @@
 <template name="EnvironmentDashboard">
 
-<div class="mainContentData flex">
+<div class="os-environment-dashboard mainContentData flex">
   <div class="sm-env-header-line cards white title">
     <div class="sm-env-header-name-cmp">
       <h4>Enviroment name: {{ getState 'envName' }}</h4>
@@ -9,11 +9,11 @@
     <a class="sm-scan-button cl-action-button btn btn-app"
        ><i class="fa fa-search-plus" aria-hidden="true"></i></a>
 
-    <a class="sm-edit-button cl-action-button btn btn-app"
-      ><i class="fa fa-fw fa-edit"></i></a>
+    <a class="sm-edit-button cl-action-button btn btn-app {{#if notAllowEdit}}cl-action-disabled{{/if}}"
+       ><i class="fa fa-fw fa-edit"></i></a>
 
-    <a class="sm-delete-button cl-action-button btn btn-app"
-      href="#" data-toggle="modal" data-target="#env-delete-modal">
+    <a class="sm-delete-button cl-action-button btn btn-app {{#if notAllowEdit}}cl-action-disabled{{/if}}"
+      href="#" >
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     </a>
   </div>

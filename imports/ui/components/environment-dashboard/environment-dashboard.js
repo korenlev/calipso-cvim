@@ -14,6 +14,7 @@ import { Environments } from '/imports/api/environments/environments';
 import { Inventory } from '/imports/api/inventories/inventories';
 import { Messages } from '/imports/api/messages/messages';
 import { Counts } from 'meteor/tmeasday:publish-counts';
+import { Roles } from 'meteor/alanning:roles';
         
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
@@ -72,6 +73,7 @@ Template.EnvironmentDashboard.onCreated(function() {
   instance.state.setDefault({
     _id: null,
     envName: null,
+    allowEdit: false,
   });
 
   instance.autorun(function () {
@@ -91,6 +93,17 @@ Template.EnvironmentDashboard.onCreated(function() {
     Environments.find({ _id: _id }).forEach((env) => {
       instance.state.set('envName', env.name);
       instance.state.set('infoLastScanning', env.last_scanned);
+
+      let allowEdit = false;
+      let auth = R.path(['auth', 'edit-env'], env);
+      if (auth && R.contains(Meteor.userId(), auth)) {
+        allowEdit = true;
+      }
+      if (Roles.userIsInRole(Meteor.userId(), 'edit-env', 'default-group')) {
+        allowEdit = true;
+      }
+
+      instance.state.set('allowEdit', allowEdit );
 
       instance.subscribe('inventory?env+type', env.name, 'instance');
       instance.subscribe('inventory?env+type', env.name, 'vservice');
@@ -148,6 +161,9 @@ Template.EnvironmentDashboard.rendered = function() {
 Template.EnvironmentDashboard.events({
   'click .sm-edit-button': function (event, instance) {
     let envName = instance.state.get('envName');
+    let allowEdit = instance.state.get('allowEdit');
+    if (! allowEdit) { return; }
+
     Router.go('/wizard/' + envName,{},{});
   },
 
@@ -155,6 +171,14 @@ Template.EnvironmentDashboard.events({
     let envName = instance.state.get('envName');
     Router.go('scanning-request',{},{ query: { env: envName, action: 'insert' } });
   },
+
+  'click .sm-delete-button': function (event, instance) {
+    let allowEdit = instance.state.get('allowEdit');
+    if (! allowEdit) { return; }
+
+    let $deleteModal = instance.$('#env-delete-modal');
+    $deleteModal.modal({ show: true });
+  }
 });
    
 /*  
@@ -257,7 +281,14 @@ Template.EnvironmentDashboard.helpers({
       sort: { timestamp: -1 } });
 
     return R.path(['timestamp'], message);
+  },
+
+  notAllowEdit: function () {
+    let instance = Template.instance();
+    let allowEdit = instance.state.get('allowEdit');
+    return ! allowEdit;
   }
+
 }); // end: helpers
 
 function getList(listName, envName) {
