@@ -136,8 +136,16 @@ Template.ScanningRequest.helpers({
       placeholder: params.hash.placeholder,
       disabled: params.hash.disabled,
       setModel: function (value) {
+        let key = params.hash.key;
         let model = instance.state.get('model');
-        let newModel = R.assoc(params.hash.key, value, model);
+        let newModel = model;
+
+        if(R.indexOf(key, Scans.scansOnlyFields) >= 0) {
+          newModel = setRadioValues(Scans.scansOnlyFields, key, value, model)
+        }else {
+          newModel = R.assoc(key, value, newModel);
+        }
+
         instance.state.set('model', newModel);
       },
     };
@@ -266,6 +274,18 @@ function submitItem(instance) {
       // todo
     break;
   }
+}
+
+function setRadioValues(radioFields, key, value, modal) {
+  let newModal = modal;
+  let currentRadioFields = R.filter(f => modal[f], radioFields);
+
+  for(let field of currentRadioFields) {
+    newModal = R.assoc(field, false, newModal)
+  }
+
+  newModal = R.assoc(key, value, newModal);
+  return newModal;
 }
 
 function processActionResult(instance, error) {

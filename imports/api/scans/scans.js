@@ -52,6 +52,8 @@ Scans.schemaRelated = {
   },
 };
 
+Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques'];
+
 let schema = {
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
   environment: { 
@@ -95,15 +97,15 @@ let schema = {
   },
   scan_only_inventory: {
     type: Boolean,
-    defaultValue: true,
+    defaultValue: false,
   },
   scan_only_links: {
     type: Boolean,
-    defaultValue: true,
+    defaultValue: false,
   },
   scan_only_cliques: {
     type: Boolean,
-    defaultValue: true,
+    defaultValue: false,
   },
   submit_timestamp: {
     type: Date,
@@ -131,6 +133,18 @@ Scans.schema.addValidator(function () {
       message: 'There is already a scan in progress.'
     };
   }
+
+  let scanOnlyFields = R.filter( f => that.field(f).value, Scans.scansOnlyFields);
+
+  if(scanOnlyFields.length > 1) {
+    throw {
+      isError: true,
+      type: 'conflict',
+      data: scanOnlyFields,
+      message: 'Only one of the scan only fields can be selected'
+    }
+  }
+
 });
 
 Scans.attachSchema(Scans.schema);
