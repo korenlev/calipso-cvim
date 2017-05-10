@@ -1,4 +1,3 @@
-from discover.events.constants import INTERFACE_OBJECT_TYPE
 from discover.events.event_base import EventResult
 from discover.events.event_delete_base import EventDeleteBase
 from discover.events.event_port_delete import EventPortDelete
@@ -6,8 +5,6 @@ from utils.util import encode_router_id
 
 
 class EventInterfaceDelete(EventDeleteBase):
-
-    OBJECT_TYPE = INTERFACE_OBJECT_TYPE
 
     def handle(self, env, values):
         interface = values['payload']['router_interface']
@@ -19,7 +16,7 @@ class EventInterfaceDelete(EventDeleteBase):
         port_doc = self.inv.get_by_id(env, port_id)
         if not port_doc:
             self.log.info("Interface deleting handler: port document not found.")
-            return self.construct_event_result(result=False, retry=False, object_id=interface['id'])
+            return EventResult(result=False, retry=False)
         network_id = port_doc['network_id']
 
         router_doc = self.inv.get_by_id(env, router_id)
@@ -29,10 +26,6 @@ class EventInterfaceDelete(EventDeleteBase):
 
         # delete port document
         result = EventPortDelete().delete_port(env, port_id)
-        result.object_id = interface['id']
-
-        network_document = self.inv.get_by_id(env, network_id)
-        if network_document:
-            result.document_id = network_document.get('_id')
-
+        result.related_object = interface['id']
+        result.display_context = network_id
         return result

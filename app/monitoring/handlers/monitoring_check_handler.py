@@ -72,7 +72,9 @@ class MonitoringCheckHandler(Logger, SpecialCharConverter):
         level = error_level if error_level else ERROR_LEVEL[check_result['status']]
         dt = datetime.datetime.utcfromtimestamp(check_result['executed'])
         ts = stringify_datetime(dt)
-        message = Message(msg_id, self.env, SOURCE_SYSTEM, obj_id, doc['type'],
-                          display_context, level, check_result, ts)
+        message = Message(msg_id=msg_id, env=self.env, source=SOURCE_SYSTEM,
+                          object_id=obj_id, object_type=doc['type'],
+                          display_context=display_context, level=level,
+                          msg=check_result, ts=ts)
         collection = self.inv.collections['messages']
         collection.insert_one(message.get())

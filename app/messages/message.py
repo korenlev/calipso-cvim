@@ -9,9 +9,11 @@ class Message:
     DEFAULT_LEVEL = LEVELS[0]
 
     def __init__(self, msg_id: str, env: str, source: str,
-                 object_id: Union[str, ObjectId], object_type: str,
-                 display_context: Union[str, ObjectId], level: str, msg: dict,
-                 ts: str, received_ts: str = None, finished_ts: str = None):
+                 object_id: Union[str, ObjectId],
+                 display_context: Union[str, ObjectId],
+                 msg: dict, level: str = DEFAULT_LEVEL,
+                 object_type: str = None, ts: str = None,
+                 received_ts: str = None, finished_ts: str = None):
 
         if level and level.lower() in self.LEVELS:
             self.level = level.lower()

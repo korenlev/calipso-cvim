@@ -1,12 +1,9 @@
-from discover.events.constants import INSTANCE_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.scan_host import ScanHost
 from discover.scan_instances_root import ScanInstancesRoot
 
 
 class EventInstanceAdd(EventBase):
-
-    OBJECT_TYPE = INSTANCE_OBJECT_TYPE
 
     def handle(self, env, values):
         # find the host, to serve as parent
@@ -16,9 +13,7 @@ class EventInstanceAdd(EventBase):
         instances_root = self.inv.get_by_id(env, instances_root_id)
         if not instances_root:
             self.log.info('instances root not found, aborting instance add')
-            return self.construct_event_result(result=False,
-                                               retry=True,
-                                               object_id=instance_id)
+            return EventResult(result=False, retry=True)
 
         # scan instance
         instances_scanner = ScanInstancesRoot()
@@ -36,7 +31,6 @@ class EventInstanceAdd(EventBase):
         host_scanner.scan_links()
         host_scanner.scan_cliques()
 
-        instance_document = self.inv.get_by_id(env, instance_id)
-        return self.construct_event_result(result=True,
-                                           object_id=instance_id,
-                                           document_id=instance_document.get('_id'))
+        return EventResult(result=True,
+                           related_object=instance_id,
+                           display_context=instance_id)

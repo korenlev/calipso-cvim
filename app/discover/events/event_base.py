@@ -1,7 +1,5 @@
 from abc import abstractmethod, ABC
-from bson import ObjectId
 
-from discover.events.constants import DEFAULT_OBJECT_TYPE
 from discover.fetcher import Fetcher
 from utils.inventory_mgr import InventoryMgr
 
@@ -9,19 +7,16 @@ from utils.inventory_mgr import InventoryMgr
 class EventResult:
     def __init__(self,
                  result: bool, retry: bool = False, message: str = None,
-                 object_id: str = None, object_type: str = DEFAULT_OBJECT_TYPE,
-                 document_id: ObjectId = None):
+                 related_object: str = None,
+                 display_context: str = None):
         self.result = result
         self.retry = retry
         self.message = message
-        self.object_id = object_id
-        self.object_type = object_type
-        self.document_id = document_id
+        self.related_object = related_object
+        self.display_context = display_context
 
 
 class EventBase(Fetcher, ABC):
-
-    OBJECT_TYPE = DEFAULT_OBJECT_TYPE
 
     def __init__(self):
         super().__init__()
@@ -30,11 +25,3 @@ class EventBase(Fetcher, ABC):
     @abstractmethod
     def handle(self, env, values) -> EventResult:
         pass
-
-    def construct_event_result(self, result: bool, retry: bool = False,
-                               object_id: str = None, document_id: str = None):
-        document_id = ObjectId(document_id) if ObjectId.is_valid(document_id) else None
-        return EventResult(result=result, retry=retry,
-                           object_id=object_id, object_type=self.OBJECT_TYPE,
-                           document_id=document_id)
-
