@@ -1,14 +1,11 @@
 import re
 
-from discover.events.constants import INSTANCE_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_instance_add import EventInstanceAdd
 from discover.events.event_instance_delete import EventInstanceDelete
 
 
 class EventInstanceUpdate(EventBase):
-
-    OBJECT_TYPE = INSTANCE_OBJECT_TYPE
 
     def handle(self, env, values):
         # find the host, to serve as parent
@@ -18,7 +15,7 @@ class EventInstanceUpdate(EventBase):
         old_state = payload['old_state']
 
         if state == 'building':
-            return self.construct_event_result(result=False, retry=False)
+            return EventResult(result=False, retry=False)
 
         if state == 'active' and old_state == 'building':
             return EventInstanceAdd().handle(env, values)
@@ -30,7 +27,7 @@ class EventInstanceUpdate(EventBase):
         instance = self.inv.get_by_id(env, instance_id)
         if not instance:
             self.log.info('instance document not found, aborting instance update')
-            return self.construct_event_result(result=False, retry=True)
+            return EventResult(result=False, retry=True)
 
         instance['name'] = name
         instance['object_name'] = name
@@ -44,6 +41,6 @@ class EventInstanceUpdate(EventBase):
                 "name_path": {"$regex": r"^" + re.escape(name_path + '/')}},
                 {"name_path": {"from": name_path, "to": instance['name_path']}})
         self.inv.set(instance)
-        return self.construct_event_result(result=True,
-                                           related_object=instance_id,
-                                           display_context=instance_id)
+        return EventResult(result=True,
+                           related_object=instance_id,
+                           display_context=instance_id)

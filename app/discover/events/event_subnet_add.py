@@ -4,7 +4,6 @@ from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
-from discover.events.constants import SUBNET_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
@@ -13,8 +12,6 @@ from discover.scan_network import ScanNetwork
 
 
 class EventSubnetAdd(EventBase):
-
-    OBJECT_TYPE = SUBNET_OBJECT_TYPE
 
     def add_port_document(self, env, port_id, network_name=None, project_name=''):
         # when add router-interface port, network_name need to be given to enhance efficiency.
@@ -102,12 +99,12 @@ class EventSubnetAdd(EventBase):
         network_id = subnet['network_id']
         if 'id' not in subnet:
             self.log.info('Subnet payload doesn\'t have id, aborting subnet add')
-            return self.construct_event_result(result=False, retry=False)
+            return EventResult(result=False, retry=False)
 
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet add')
-            return self.construct_event_result(result=False, retry=True)
+            return EventResult(result=False, retry=True)
         network_name = network_document['name']
 
         # build subnet document for adding network
@@ -141,6 +138,6 @@ class EventSubnetAdd(EventBase):
 
         ScanNetwork().scan_cliques()
         self.log.info("Finished subnet added.")
-        return self.construct_event_result(result=True,
-                                           related_object=subnet['id'],
-                                           display_context=network_id)
+        return EventResult(result=True,
+                           related_object=subnet['id'],
+                           display_context=network_id)

@@ -1,5 +1,4 @@
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.constants import ROUTER_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
@@ -9,8 +8,6 @@ from utils.util import encode_router_id
 
 
 class EventRouterUpdate(EventBase):
-
-    OBJECT_TYPE = ROUTER_OBJECT_TYPE
 
     def handle(self, env, values):
         payload = values['payload']
@@ -24,7 +21,7 @@ class EventRouterUpdate(EventBase):
         router_doc = self.inv.get_by_id(env, router_full_id)
         if not router_doc:
             self.log.info("Router document not found, aborting router updating")
-            return self.construct_event_result(result=False, retry=True)
+            return EventResult(result=False, retry=True)
 
         router_doc['admin_state_up'] = router['admin_state_up']
         router_doc['name'] = router['name']
@@ -69,6 +66,6 @@ class EventRouterUpdate(EventBase):
         # update the cliques.
         ScanNetwork().scan_cliques()
         self.log.info("Finished router update.")
-        return self.construct_event_result(result=True,
-                                           related_object=router_full_id,
-                                           display_context=router_full_id)
+        return EventResult(result=True,
+                           related_object=router_full_id,
+                           display_context=router_full_id)

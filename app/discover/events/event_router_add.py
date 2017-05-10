@@ -2,8 +2,7 @@ import datetime
 from functools import partial
 
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.constants import ROUTER_OBJECT_TYPE
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -12,7 +11,6 @@ from utils.util import decode_router_id, encode_router_id
 
 
 class EventRouterAdd(EventBase):
-    OBJECT_TYPE = ROUTER_OBJECT_TYPE
 
     def add_router_document(self, env, network_id, router_doc, host):
         router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id={}"\
@@ -110,6 +108,6 @@ class EventRouterAdd(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished router added.")
 
-        return self.construct_event_result(result=True,
-                                           related_object=router_id,
-                                           display_context=router_id)
+        return EventResult(result=True,
+                           related_object=router_id,
+                           display_context=router_id)

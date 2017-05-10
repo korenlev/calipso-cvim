@@ -1,7 +1,6 @@
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
-from discover.events.constants import SUBNET_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_delete import EventPortDelete
@@ -11,8 +10,6 @@ from discover.scan_network import ScanNetwork
 
 
 class EventSubnetUpdate(EventBase):
-
-    OBJECT_TYPE = SUBNET_OBJECT_TYPE
 
     def handle(self, env, notification):
         # check for network document.
@@ -24,7 +21,7 @@ class EventSubnetUpdate(EventBase):
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
             self.log.info('network document does not exist, aborting subnet update')
-            return self.construct_event_result(result=False, retry=True)
+            return EventResult(result=False, retry=True)
 
         # update network document.
         subnets = network_document['subnets']
@@ -46,8 +43,9 @@ class EventSubnetUpdate(EventBase):
 
                 self.log.info("add port binding to DHCP server.")
                 port_id = DbFetchPort().get_id_by_field(network_id, """device_owner LIKE "%dhcp" """)
-                port = EventSubnetAdd().add_port_document(env, port_id, network_name=network_document['name'],
-                                                   project_name=project)
+                port = EventSubnetAdd().add_port_document(env, port_id,
+                                                          network_name=network_document['name'],
+                                                          project_name=project)
                 if port:
                     port_handler.add_vnic_document(env, host, network_id, network_name=network_document['name'],
                                                    mac_address=port['mac_address'])
@@ -73,6 +71,6 @@ class EventSubnetUpdate(EventBase):
                 subnets[subnet['name']] = subnet
 
             self.inv.set(network_document)
-            return self.construct_event_result(result=True,
-                                               related_object=subnet['id'],
-                                               display_context=network_id)
+            return EventResult(result=True,
+                               related_object=subnet['id'],
+                               display_context=network_id)

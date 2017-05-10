@@ -1,18 +1,15 @@
-from discover.events.constants import SUBNET_OBJECT_TYPE
 from discover.events.event_base import EventResult
 from discover.events.event_delete_base import EventDeleteBase
 
 
 class EventSubnetDelete(EventDeleteBase):
 
-    OBJECT_TYPE = SUBNET_OBJECT_TYPE
-
     def delete_children_documents(self, env, vservice_id):
         vnic_parent_id = vservice_id + '-vnics'
         vnic = self.inv.get_by_field(env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
         if not vnic:
             self.log.info("Vnic document not found, aborting subnet deleting.")
-            return self.construct_event_result(result=False, retry=False)
+            return EventResult(result=False, retry=False)
 
         # delete port and vnic together by mac address.
         self.inv.delete('inventory', {"mac_address": vnic.get("mac_address")})
@@ -23,7 +20,7 @@ class EventSubnetDelete(EventDeleteBase):
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
             self.log.info("network document not found, aborting subnet deleting")
-            return self.construct_event_result(result=False, retry=False)
+            return EventResult(result=False, retry=False)
 
         # remove subnet_id from subnet_ids array
         network_document["subnet_ids"].remove(subnet_id)
@@ -48,6 +45,6 @@ class EventSubnetDelete(EventDeleteBase):
             result.related_object = subnet['id']
             result.display_context = network_document.get('id')
             return result
-        return self.construct_event_result(result=True,
-                                           related_object=subnet['id'],
-                                           display_context=network_document.get('id'))
+        return EventResult(result=True,
+                           related_object=subnet['id'],
+                           display_context=network_document.get('id'))

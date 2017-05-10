@@ -4,7 +4,6 @@ from functools import partial
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.constants import INTERFACE_OBJECT_TYPE
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
@@ -14,8 +13,6 @@ from utils.util import decode_router_id, encode_router_id
 
 
 class EventInterfaceAdd(EventBase):
-
-    OBJECT_TYPE = INTERFACE_OBJECT_TYPE
 
     def __init__(self):
         super().__init__()
@@ -83,7 +80,7 @@ class EventInterfaceAdd(EventBase):
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
         if not network_document:
             self.log.info("network document not found, aborting interface adding")
-            return self.construct_event_result(result=False, retry=True)
+            return EventResult(result=False, retry=True)
         network_name = network_document['name']
         network_id = network_document['id']
 
@@ -124,6 +121,6 @@ class EventInterfaceAdd(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished router-interface added.")
 
-        return self.construct_event_result(result=True,
-                                           related_object=interface['id'],
-                                           display_context=network_id)
+        return EventResult(result=True,
+                           related_object=interface['id'],
+                           display_context=network_id)

@@ -218,7 +218,6 @@ class EnvironmentListener(ConsumerMixin):
                 env=self.env_name,
                 source=self.SOURCE_SYSTEM,
                 object_id=result.related_object,
-                object_type=result.related_object_type,
                 display_context=result.display_context,
                 level=message_body.get('priority'),
                 msg=message_body,
