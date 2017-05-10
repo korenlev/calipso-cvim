@@ -48,10 +48,7 @@ class MetadataParser(metaclass=ABCMeta):
 
         # Try to parse metadata file if it has one of the supported extensions
         metadata = self._parse_json_file(file_path)
-        if self.errors:
-            raise TypeError("Errors encountered during "
-                            "metadata file parsing:\n{}"
-                            .format("\n".join(self.errors)))
+        self.check_errors()
         return metadata
 
     def check_errors(self):
