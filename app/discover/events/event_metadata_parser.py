@@ -57,10 +57,11 @@ class EventMetadataParser(MetadataParser):
     def parse_metadata_file(self, file_path: str) -> dict:
         metadata = super().parse_metadata_file(file_path)
         self._finalize_parsing(metadata)
+        super().check_errors()
         return metadata
 
 
 def parse_metadata_file(file_path: str) -> Tuple[str, List[dict], dict]:
     parser = EventMetadataParser()
     parser.parse_metadata_file(file_path)
-    return Tuple[parser.handlers_package, parser.queues, parser.event_handlers]
+    return parser.handlers_package, parser.queues, parser.event_handlers
