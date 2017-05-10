@@ -39,7 +39,6 @@ class EventNetworkAdd(EventBase):
         network['subnets'] = {}
 
         self.inv.set(network)
-        network_document = self.inv.get_by_id(env, network_id)
         return self.construct_event_result(result=True,
-                                           related_object=network_document.get('name'),
-                                           display_context=network_document.get('id'))
+                                           related_object=network_id,
+                                           display_context=network_id)

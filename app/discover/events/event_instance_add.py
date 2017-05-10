@@ -34,7 +34,6 @@ class EventInstanceAdd(EventBase):
         host_scanner.scan_links()
         host_scanner.scan_cliques()
 
-        instance_document = self.inv.get_by_id(env, instance_id)
         return self.construct_event_result(result=True,
-                                           related_object=instance_document.get('name'),
-                                           display_context=instance_document.get('id'))
+                                           related_object=instance_id,
+                                           display_context=instance_id)

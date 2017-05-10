@@ -124,7 +124,6 @@ class EventInterfaceAdd(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished router-interface added.")
 
-        # interface doesn't have a name, using id
         return self.construct_event_result(result=True,
                                            related_object=interface['id'],
-                                           display_context=network_document.get('id'))
+                                           display_context=network_id)

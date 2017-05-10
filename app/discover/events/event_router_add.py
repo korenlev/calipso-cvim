@@ -110,7 +110,6 @@ class EventRouterAdd(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished router added.")
 
-        router_document = self.inv.get_by_id(env, router_id)
         return self.construct_event_result(result=True,
-                                           related_object=router_document.get('name'),
-                                           display_context=router_document.get('id'))
+                                           related_object=router_id,
+                                           display_context=router_id)

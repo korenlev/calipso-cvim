@@ -27,8 +27,9 @@ class EventPortDelete(EventDeleteBase):
         if not vnic_doc:
             self.log.info("Vnic document not found, aborting vnic deleting.")
             return self.construct_event_result(result=False, retry=False)
+
         result = self.delete_handler(env, vnic_doc['id'], 'vnic')
-        result.related_object = port_doc.get('name')
+        result.related_object = port_id
         result.display_context = port_doc.get('network_id')
         self.log.info('Finished port deleting')
         return result

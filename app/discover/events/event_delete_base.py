@@ -45,5 +45,5 @@ class EventDeleteBase(EventBase):
         regexp = re.compile('^' + id_path)
         self.inv.delete('inventory', {'id_path': {'$regex': regexp}})
         return self.construct_event_result(result=True,
-                                           related_object=item.get('name'),
-                                           display_context=item.get('id'))
+                                           related_object=object_id,
+                                           display_context=object_id)

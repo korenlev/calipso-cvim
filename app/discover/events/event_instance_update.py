@@ -45,5 +45,5 @@ class EventInstanceUpdate(EventBase):
                 {"name_path": {"from": name_path, "to": instance['name_path']}})
         self.inv.set(instance)
         return self.construct_event_result(result=True,
-                                           related_object=instance.get('name'),
-                                           display_context=instance.get('id'))
+                                           related_object=instance_id,
+                                           display_context=instance_id)

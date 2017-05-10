@@ -74,5 +74,5 @@ class EventSubnetUpdate(EventBase):
 
             self.inv.set(network_document)
             return self.construct_event_result(result=True,
-                                               related_object=subnet['name'],
-                                               display_context=network_document.get('id'))
+                                               related_object=subnet['id'],
+                                               display_context=network_id)

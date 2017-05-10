@@ -45,9 +45,9 @@ class EventSubnetDelete(EventDeleteBase):
         if len(network_document["subnet_ids"]) == 0:
             vservice_dhcp_id = 'qdhcp-' + network_document['id']
             result = self.delete_children_documents(env, vservice_dhcp_id)
-            result.related_object = subnet['name']
+            result.related_object = subnet['id']
             result.display_context = network_document.get('id')
             return result
         return self.construct_event_result(result=True,
-                                           related_object=subnet['name'],
+                                           related_object=subnet['id'],
                                            display_context=network_document.get('id'))

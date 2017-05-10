@@ -297,5 +297,5 @@ class EventPortAdd(EventBase):
             return self.construct_event_result(result=False, retry=True)
 
         return self.construct_event_result(result=True,
-                                           related_object=port_document.get('name'),
-                                           display_context=port_document.get('network_id'))
+                                           related_object=port['id'],
+                                           display_context=network_id)

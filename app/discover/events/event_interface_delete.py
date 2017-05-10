@@ -29,11 +29,6 @@ class EventInterfaceDelete(EventDeleteBase):
 
         # delete port document
         result = EventPortDelete().delete_port(env, port_id)
-        # interface doesn't have a name, using id
         result.related_object = interface['id']
-
-        network_document = self.inv.get_by_id(env, network_id)
-        if network_document:
-            result.display_context = network_document.get('id')
-
+        result.display_context = network_id
         return result

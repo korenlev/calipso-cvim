@@ -142,5 +142,5 @@ class EventSubnetAdd(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished subnet added.")
         return self.construct_event_result(result=True,
-                                           related_object=subnet['name'],
-                                           display_context=network_document.get('id'))
+                                           related_object=subnet['id'],
+                                           display_context=network_id)

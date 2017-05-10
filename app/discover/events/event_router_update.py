@@ -70,5 +70,5 @@ class EventRouterUpdate(EventBase):
         ScanNetwork().scan_cliques()
         self.log.info("Finished router update.")
         return self.construct_event_result(result=True,
-                                           related_object=router_doc.get('name'),
-                                           display_context=router_doc.get('id'))
+                                           related_object=router_full_id,
+                                           display_context=router_full_id)

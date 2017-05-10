@@ -28,5 +28,5 @@ class EventPortUpdate(EventBase):
         # update port document.
         self.inv.set(port_document)
         return self.construct_event_result(result=True,
-                                           related_object=port_document.get('name'),
+                                           related_object=port_id,
                                            display_context=port_document.get('network_id'))
