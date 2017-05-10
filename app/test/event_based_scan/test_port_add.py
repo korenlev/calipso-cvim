@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
 
+from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
 from discover.scan_instances_root import ScanInstancesRoot
@@ -40,19 +41,19 @@ class TestPortAdd(TestEvent):
         ScanInstancesRoot.scan_cliques = MagicMock(return_value=None)
 
         # add network document
-        self.handler.port_create(self.values)
+        EventPortAdd().handle(self.env, self.values)
 
         # check network document
-        port_document = self.handler.inv.get_by_id(self.env, self.port_id)
+        port_document = self.inv.get_by_id(self.env, self.port_id)
         self.assertIsNotNone(port_document)
         self.assertEqual(port_document["name"], self.port['name'])
 
-        instance = self.handler.inv.get_by_id(self.env, INSTANCE_DOC['id'])
+        instance = self.inv.get_by_id(self.env, INSTANCE_DOC['id'])
         self.assertEqual(instance["network_info"][0]['devname'], INSTANCE_DOCS[0]["network_info"][0]['devname'])
         self.assertEqual(instance["network_info"], INSTANCE_DOCS[0]["network_info"])
         self.assertEqual(instance["network"], INSTANCE_DOCS[0]["network"])
 
-        vnic = self.handler.inv.get_by_field(self.env, 'vnic', 'mac_address', self.port['mac_address'])
+        vnic = self.inv.get_by_field(self.env, 'vnic', 'mac_address', self.port['mac_address'])
         self.assertIsNotNone(vnic)
 
         FindLinksForVedges.add_links = original_find_link_vedge

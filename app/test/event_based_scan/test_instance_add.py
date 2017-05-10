@@ -26,12 +26,12 @@ class TestInstanceAdd(TestEvent):
         self.set_item(HOST)
 
         # check instance document
-        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
+        instance = self.inv.get_by_id(self.env, self.instance_id)
         if instance:
-            self.handler.log.info('instance document exists, delete it first.')
-            self.handler.inv.delete('inventory', {'id': self.instance_id})
+            self.log.info('instance document exists, delete it first.')
+            self.inv.delete('inventory', {'id': self.instance_id})
 
-            instance = self.handler.inv.get_by_id(self.env, self.instance_id)
+            instance = self.inv.get_by_id(self.env, self.instance_id)
             self.assertIsNone(instance)
 
         # simulate instance insertion after host scan
@@ -44,9 +44,9 @@ class TestInstanceAdd(TestEvent):
         self.assertEqual(ret.result, True)
 
         # check host document
-        host = self.handler.inv.get_by_id(self.env, host_id)
+        host = self.inv.get_by_id(self.env, host_id)
         self.assertIsNotNone(host)
 
         # check instance document
-        instance_document = self.handler.inv.get_by_id(self.env, self.instance_id)
+        instance_document = self.inv.get_by_id(self.env, self.instance_id)
         self.assertIsNotNone(instance_document)
