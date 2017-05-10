@@ -53,3 +53,9 @@ class MetadataParser(metaclass=ABCMeta):
                             "metadata file parsing:\n{}"
                             .format("\n".join(self.errors)))
         return metadata
+
+    def check_errors(self):
+        if self.errors:
+            raise ValueError("Errors encountered during "
+                             "metadata file parsing:\n{}"
+                             .format("\n".join(self.errors)))
