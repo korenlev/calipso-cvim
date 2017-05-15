@@ -13,6 +13,7 @@ from discover.find_links_for_vconnectors import FindLinksForVconnectors
 from discover.find_links_for_vedges import FindLinksForVedges
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_error import ScanError
+from discover.scan_metadata_parser import ScanMetadataParser
 from utils.inventory_mgr import InventoryMgr
 from utils.util import ClassResolver
 
@@ -25,34 +26,27 @@ class Scanner(Fetcher):
     scan_queue = queue.Queue()
     scan_queue_track = {}
 
-    def __init__(self, types_to_fetch):
+    def __init__(self):
         """
         Scanner is the base class for scanners.
-        :param types_to_fetch:  types_to_fetch is a list,
-        which contains many dictionaries.
-        Each dictionary has some key:value pairs like:
-        {
-            "type": "project",
-            "fetcher": "ApiFetchProjects",
-            "object_id_to_use_in_child": "name",
-            "children_scanner": "ScanProject"
-        }
-        The key:value pairs indicate that which data should be scanned.
         """
-        super(Scanner, self).__init__()
-        self.types_to_fetch = types_to_fetch
+        super().__init__()
         self.config = Configuration()
         self.inv = InventoryMgr()
+        self.scanners_package = None
+        self.scanners = {}
+        self.load_metadata()
 
-    def scan(self, obj, id_field="id",
+    def scan(self, scanner_type, obj, id_field="id",
              limit_to_child_id=None, limit_to_child_type=None):
+        types_to_fetch = self.get_scanner(scanner_type)
         types_children = []
         if not limit_to_child_type:
             limit_to_child_type = []
         elif isinstance(limit_to_child_type, str):
             limit_to_child_type = [limit_to_child_type]
         try:
-            for t in self.types_to_fetch:
+            for t in types_to_fetch:
                 if limit_to_child_type and t["type"] not in limit_to_child_type:
                     continue
                 children = self.scan_type(t, obj, id_field)
@@ -116,13 +110,7 @@ class Scanner(Fetcher):
         fetcher.set_env(self.get_env())
 
         # get children_scanner instance
-        try:
-            children_scanner_class = type_to_fetch["children_scanner"]
-            children_scanner = \
-                ClassResolver.get_instance_of_class(children_scanner_class)
-            children_scanner.set_env(self.get_env())
-        except KeyError:
-            children_scanner = None
+        children_scanner = type_to_fetch.get("children_scanner")
 
         escaped_id = fetcher.escape(str(id)) if id else id
         self.log.info(
@@ -284,8 +272,8 @@ class Scanner(Fetcher):
                                 "child_id_field": child_id_field,
                                 "scanner": children_scanner})
 
-    def run_scan(self, obj, id_field, child_id, child_type):
-        results = self.scan(obj, id_field, child_id, child_type)
+    def run_scan(self, scanner_type, obj, id_field, child_id, child_type):
+        results = self.scan(scanner_type, obj, id_field, child_id, child_type)
 
         # run children scanner from queue.
         self.scan_from_queue()
@@ -294,13 +282,10 @@ class Scanner(Fetcher):
     def scan_from_queue(self):
         while not Scanner.scan_queue.empty():
             item = Scanner.scan_queue.get()
-            scanner = item["scanner"]
-            if isinstance(scanner, str):
-                # got name of scanner class - create an instance of it
-                scanner = ClassResolver.get_instance_of_class(scanner)
+            scanner_type = item["scanner"]
 
-            # run scan recursively
-            scanner.scan(item["object"], item["child_id_field"])
+            # scan the queued item
+            self.scan(scanner_type, item["object"], item["child_id_field"])
         self.log.info("Scan complete")
 
     def scan_links(self):
@@ -322,3 +307,18 @@ class Scanner(Fetcher):
 
     def deploy_monitoring_setup(self):
         self.inv.monitoring_setup_manager.handle_pending_setup_changes()
+
+    def load_metadata(self):
+        parser = ScanMetadataParser(self.inv)
+        conf = self.config.get_env_config()
+        scanners_file = conf.get('scanners_file',
+                                 '/etc/osdna/config/scanners.json')
+        metadata = parser.parse_metadata_file(scanners_file)
+        self.scanners_package = metadata[ScanMetadataParser.SCANNERS_PACKAGE]
+        self.scanners = metadata[ScanMetadataParser.SCANNERS]
+
+    def get_scanner_package(self):
+        return self.scanners_package
+
+    def get_scanner(self, scanner_type: str) -> dict:
+        return self.scanners.get(scanner_type)
