@@ -1,7 +1,6 @@
 import json
 import os
 from abc import abstractmethod, ABCMeta
-
 from utils.util import get_extension
 
 
@@ -18,9 +17,9 @@ class MetadataParser(metaclass=ABCMeta):
         # make sure metadata json contains all fields we need
         required_fields = self.get_required_fields()
         if not all([field in metadata for field in required_fields]):
-            self.errors.append("Metadata json should contain "
-                               "all the following fields: {}"
-                               .format(', '.join(required_fields)))
+            self.add_error("Metadata json should contain "
+                           "all the following fields: {}"
+                           .format(', '.join(required_fields)))
             return False
         return True
 
@@ -53,3 +52,12 @@ class MetadataParser(metaclass=ABCMeta):
                             "metadata file parsing:\n{}"
                             .format("\n".join(self.errors)))
         return metadata
+
+    def add_error(self, msg):
+        self.errors.append(msg)
+
+    def check_errors(self):
+        if self.errors:
+            raise ValueError("Errors encountered during "
+                             "metadata file parsing:\n{}"
+                             .format("\n".join(self.errors)))

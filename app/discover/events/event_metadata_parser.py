@@ -25,13 +25,12 @@ class EventMetadataParser(MetadataParser):
 
         package = metadata.get(self.HANDLERS_PACKAGE)
         if not package or not isinstance(package, str):
-            self.errors.append("Handlers package '{}' is invalid".
-                               format(package))
+            self.add_error("Handlers package '{}' is invalid".format(package))
 
         event_handlers = metadata.get(self.EVENT_HANDLERS)
         if not event_handlers or not isinstance(event_handlers, dict):
-            self.errors.append("Event handlers attribute is invalid or empty"
-                               "(should be a non-empty dict)")
+            self.add_error("Event handlers attribute is invalid or empty"
+                           "(should be a non-empty dict)")
 
         return len(self.errors) == 0
 
@@ -49,7 +48,7 @@ class EventMetadataParser(MetadataParser):
                                 "exchange": q["exchange"]}
                                for q in queues]
         except KeyError:
-            self.errors.append("Queues variable has invalid format")
+            self.add_error("Queues variable has invalid format")
             return
 
         self.event_handlers = event_handlers
