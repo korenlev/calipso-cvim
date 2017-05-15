@@ -36,8 +36,9 @@ class ClassResolver:
             return ClassResolver.instances[class_name]
         module_file = ClassResolver.get_module_file_by_class_name(class_name)
         module_parts = [package, module_file]
-        module = importlib.import_module(".".join(module_parts))
-        clazz = getattr(module, class_name)
+        module_name = ".".join(module_parts)
+        class_module = importlib.import_module(module_name)
+        clazz = getattr(class_module, class_name)
         instance = clazz()
         ClassResolver.instances[class_name] = instance
         return instance
