@@ -68,3 +68,29 @@ class TestTokens(TestBase):
                                        write_token: None
                                    },
                                    expected_code=base.CREATED_CODE)
+
+    def test_delete_token_without_token(self):
+        self.validate_delete_request(tokens.URL,
+                                     headers=tokens.HEADER_WITHOUT_TOKEN,
+                                     expected_code=base.UNAUTHORIZED_CODE
+                                     )
+
+    @patch(base.AUTH_VALIDATE_TOKEN)
+    def test_delete_token_with_wrong_token(self, validate_token):
+        self.validate_delete_request(tokens.URL,
+                                     headers=tokens.HEADER_WITH_WRONG_TOKEN,
+                                     mocks={
+                                         validate_token: 'token error'
+                                     },
+                                     expected_code=base.UNAUTHORIZED_CODE)
+
+    @patch(base.AUTH_VALIDATE_TOKEN)
+    @patch(base.AUTH_DELETE_TOKEN)
+    def test_delete_token_with_correct_token(self, delete_token, validate_token):
+        self.validate_delete_request(tokens.URL,
+                                     headers=tokens.HEADER_WITH_CORRECT_TOKEN,
+                                     mocks={
+                                         validate_token: None,
+                                         delete_token: None
+                                     },
+                                     expected_code=base.SUCCESSFUL_CODE)

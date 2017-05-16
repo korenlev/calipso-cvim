@@ -54,3 +54,14 @@ AUTH_OBJ_WITH_CORRECT_TOKEN = {
     }
 }
 
+HEADER_WITHOUT_TOKEN = {
+
+}
+
+HEADER_WITH_WRONG_TOKEN = {
+    'X-Auth-Token': 'wrong token'
+}
+
+HEADER_WITH_CORRECT_TOKEN = {
+    'X-Auth-Token': '17dfa88789aa47f6bb8501865d905f13'
+}

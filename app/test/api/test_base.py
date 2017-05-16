@@ -58,6 +58,14 @@ class TestBase(TestCase):
         self.validate_request("POST", url, {}, headers, body, mocks, side_effects,
                               expected_code, expected_response)
 
+    def validate_delete_request(self, url, params={}, headers={}, mocks={},
+                                side_effects={},
+                                expected_code=base.SUCCESSFUL_CODE, expected_response=None):
+        self.validate_request("DELETE", url, params, headers, "",
+                              mocks, side_effects,
+                              expected_code,
+                              expected_response)
+
     def get_updated_data(self, original_data, deleted_keys=[], updates={}):
         copy_data = copy.deepcopy(original_data)
 
