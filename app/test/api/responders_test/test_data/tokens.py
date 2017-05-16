@@ -65,3 +65,10 @@ HEADER_WITH_WRONG_TOKEN = {
 HEADER_WITH_CORRECT_TOKEN = {
     'X-Auth-Token': '17dfa88789aa47f6bb8501865d905f13'
 }
+
+AUTH_BASE_PATH = 'api.auth.auth.Auth'
+AUTH_GET_TOKEN = AUTH_BASE_PATH + '.get_token'
+AUTH_WRITE_TOKEN = AUTH_BASE_PATH + '.write_token'
+AUTH_DELETE_TOKEN = AUTH_BASE_PATH + '.delete_token'
+AUTH_VALIDATE_CREDENTIALS = AUTH_BASE_PATH + '.validate_credentials'
+AUTH_VALIDATE_TOKEN = AUTH_BASE_PATH + '.validate_token'

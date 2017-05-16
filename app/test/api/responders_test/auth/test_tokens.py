@@ -1,10 +1,10 @@
 import json
-
-
-from test.api.test_base import TestBase
-from test.api.auth_test.test_data import base
-from test.api.auth_test.test_data import tokens
 from unittest.mock import patch
+
+from test.api.responders_test.test_data import base
+
+from test.api.responders_test.test_data import tokens
+from test.api.test_base import TestBase
 
 
 class TestTokens(TestBase):
@@ -29,7 +29,7 @@ class TestTokens(TestBase):
                                    body=json.dumps(tokens.AUTH_OBJ_WITHOUT_TOKEN),
                                    expected_code=base.UNAUTHORIZED_CODE)
 
-    @patch(base.AUTH_VALIDATE_CREDENTIALS)
+    @patch(tokens.AUTH_VALIDATE_CREDENTIALS)
     def test_create_token_with_wrong_credentials(self, validate_credentials):
         self.validate_post_request(tokens.URL,
                                    body=json.dumps(tokens.AUTH_OBJ_WITH_WRONG_CREDENTIALS),
@@ -38,7 +38,7 @@ class TestTokens(TestBase):
                                    },
                                    expected_code=base.UNAUTHORIZED_CODE)
 
-    @patch(base.AUTH_VALIDATE_TOKEN)
+    @patch(tokens.AUTH_VALIDATE_TOKEN)
     def test_create_token_with_wrong_token(self, validate_token):
         self.validate_post_request(tokens.URL,
                                    body=json.dumps(tokens.AUTH_OBJ_WITH_WRONG_TOKEN),
@@ -47,8 +47,8 @@ class TestTokens(TestBase):
                                    },
                                    expected_code=base.UNAUTHORIZED_CODE)
 
-    @patch(base.AUTH_WRITE_TOKEN)
-    @patch(base.AUTH_VALIDATE_CREDENTIALS)
+    @patch(tokens.AUTH_WRITE_TOKEN)
+    @patch(tokens.AUTH_VALIDATE_CREDENTIALS)
     def test_create_token_with_correct_credentials(self, validate_credentials, write_token):
         self.validate_post_request(tokens.URL,
                                    body=json.dumps(tokens.AUTH_OBJ_WITH_CORRECT_CREDENTIALS),
@@ -58,8 +58,8 @@ class TestTokens(TestBase):
                                    },
                                    expected_code=base.CREATED_CODE)
 
-    @patch(base.AUTH_WRITE_TOKEN)
-    @patch(base.AUTH_VALIDATE_TOKEN)
+    @patch(tokens.AUTH_WRITE_TOKEN)
+    @patch(tokens.AUTH_VALIDATE_TOKEN)
     def test_create_token_with_correct_token(self, validate_token, write_token):
         self.validate_post_request(tokens.URL,
                                    body=json.dumps(tokens.AUTH_OBJ_WITH_CORRECT_TOKEN),
@@ -75,7 +75,7 @@ class TestTokens(TestBase):
                                      expected_code=base.UNAUTHORIZED_CODE
                                      )
 
-    @patch(base.AUTH_VALIDATE_TOKEN)
+    @patch(tokens.AUTH_VALIDATE_TOKEN)
     def test_delete_token_with_wrong_token(self, validate_token):
         self.validate_delete_request(tokens.URL,
                                      headers=tokens.HEADER_WITH_WRONG_TOKEN,
@@ -84,8 +84,8 @@ class TestTokens(TestBase):
                                      },
                                      expected_code=base.UNAUTHORIZED_CODE)
 
-    @patch(base.AUTH_VALIDATE_TOKEN)
-    @patch(base.AUTH_DELETE_TOKEN)
+    @patch(tokens.AUTH_VALIDATE_TOKEN)
+    @patch(tokens.AUTH_DELETE_TOKEN)
     def test_delete_token_with_correct_token(self, delete_token, validate_token):
         self.validate_delete_request(tokens.URL,
                                      headers=tokens.HEADER_WITH_CORRECT_TOKEN,
