@@ -20,11 +20,14 @@ export const insert = new ValidatedMethod({
       'password',
       'viewEnvs',
       'viewEnvs.$',
+      'editEnvs',
+      'editEnvs.$',
     ]).validator({ clean: true, filter: false }),
   run({
     username,
     password,
     viewEnvs,
+    editEnvs,
   }) {
     if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
       throw new Meteor.Error('unauthorized for removing users');
@@ -36,6 +39,7 @@ export const insert = new ValidatedMethod({
     });
 
     addRole(viewEnvs, 'view-env', userId);
+    addRole(editEnvs, 'edit-env', userId);
   }
 });
 
@@ -174,6 +178,7 @@ function updateEnv(auth, env) {
     });
   } catch(e) {
     console.error('error in update: ' + R.toString(e));
-    throw (e);
+    throw new Meteor.Error('enviornment update error', 
+      `unable to update ACL for environment - ${env.name}. Please check envrironment info.`);
   }
 }
