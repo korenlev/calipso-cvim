@@ -40,6 +40,15 @@ export const insert = new ValidatedMethod({
       user: Meteor.userId()
     });
 
+    let auth = {
+      'view-env': [
+        Meteor.userId()
+      ],
+      'edit-env': [
+        Meteor.userId()
+      ]
+    };
+
     environment = R.merge(environment, {
       configuration,
       distribution,
@@ -47,6 +56,7 @@ export const insert = new ValidatedMethod({
       type_drivers,
       mechanism_drivers,
       listen,
+      auth
     });
 
     Environments.insert(environment);

@@ -26,7 +26,16 @@ export const optionalConfGroups = [
 
 Environments.schema = new SimpleSchema({
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
-  auth: { type: Object, blackbox: true },
+  auth: { 
+    type: Object, 
+    blackbox: true,
+    defaultValue: {
+      'view-env': [
+      ],
+      'edit-env': [
+      ]
+    }
+  },
   configuration: { 
     type: [Object],
     blackbox: true,
