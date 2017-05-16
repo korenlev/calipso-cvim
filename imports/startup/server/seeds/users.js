@@ -6,7 +6,7 @@ let users = [
     username: 'admin',
     name: 'admin',
     email: 'admin@example.com',
-    password: 'admin1234',
+    password: '123456',
     roles: [
       { role: 'manage-users', group: 'default-group' },
       { role: 'manage-link-types', group: 'default-group' },
