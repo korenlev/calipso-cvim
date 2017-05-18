@@ -29,7 +29,6 @@ tls_req_cert allow
 group_member_attribute member" > /home/calipso/ldap.conf
 
 #unzip /home/calipso/calipso-initial-db.zip
-# or replace with mongoimport of json files ...
 
 docker run \
 -d \
@@ -37,14 +36,14 @@ docker run \
 -p 27017:27017 \
 -p 28017:28017 \
 --name calipso-mongo \
-korenlev/osdna:mongo
+korenlev/calipso:mongo
 
 docker run \
 -d \
 -v /home/calipso:/local_dir \
 -p 389:389 \
 --name calipso-ldap \
-korenlev/osdna:ldap
+korenlev/calipso:ldap
 
 docker run \
 -d \
@@ -56,28 +55,28 @@ docker run \
 -p 8000:8000 \
 -p 40022:22 \
 --name calipso-api \
-korenlev/osdna:api
+korenlev/calipso:api
 
 docker run \
 -d \
 -v /home/calipso:/local_dir \
 -e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
--e PYTHONPATH=/home/scan/osdna_prod/app \
+-e PYTHONPATH=/home/scan/calipso_prod/app \
 -p 30022:22 \
 --name calipso-scan \
-korenlev/osdna:scan
+korenlev/calipso:scan
 
 docker run \
 -d \
 -v /home/calipso:/local_dir \
--e PYTHONPATH=/home/scan/osdna_prod/app \
+-e PYTHONPATH=/home/scan/calipso_prod/app \
 -p 20022:22 \
 -p 3000:3000 \
 -p 4567:4567 \
 -p 5671:5671 \
 -p 15672:15672 \
 --name calipso-sensu \
-korenlev/osdna:sensu
+korenlev/calipso:sensu
 
 docker run \
 -d \
@@ -88,4 +87,4 @@ docker run \
 -v /home/calipso/osdna_ui:/bundle \
 -p 80:80 \
 --name calipso-ui \
-korenlev/osdna:ui
+korenlev/calipso:ui
