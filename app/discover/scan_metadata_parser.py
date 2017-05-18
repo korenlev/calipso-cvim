@@ -140,7 +140,7 @@ class ScanMetadataParser(MetadataParser):
 
         # type must be valid object type
         self.validate_constant(scanner_name, scan_type[self.TYPE],
-                               'object_types', 'types')
+                               'scan_object_types', 'types')
         self.validate_fetcher(scanner_name, scan_type, type_index, package)
         self.validate_children_scanner(scanner_name, type_index, scanners)
         self.validate_environment_condition(scanner_name, type_index,
@@ -162,7 +162,8 @@ class ScanMetadataParser(MetadataParser):
                           value_to_check: str,
                           constant_type: str,
                           items_desc: str = None):
-        values_list = self.get_constants(scanner_name, items_desc, constant_type)
+        values_list = self.get_constants(scanner_name, items_desc,
+                                         constant_type)
         values = [t['value'] for t in values_list['data']]
         if value_to_check not in values:
             self.add_error('scanner {}: value not in {}: {}'
