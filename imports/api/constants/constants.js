@@ -6,7 +6,7 @@ import { Distributions } from './data/distributions';
 //import { NetworkPlugins } from './data/network-plugins';
 import { LogLevels } from './data/log-levels';
 import { MechanismDrivers } from './data/mechanism-drivers';
-import { ObjectTypes } from './data/object-types';
+import { ObjectTypesForLinks } from './data/object-types-for-links';
 import { TypeDrivers } from './data/type-drivers';
 import { EnvTypes } from './data/env-types';
 import { Statuses as ScansStatuses } from './data/scans-statuses';
@@ -41,8 +41,8 @@ let constantsDefaults = [{
   name: 'mechanism_drivers',
   values: MechanismDrivers
 }, {
-  name: 'object_types',
-  values: ObjectTypes
+  name: 'object_types_for_links',
+  values: ObjectTypesForLinks
 }, {
   name: 'type_drivers',
   values: TypeDrivers

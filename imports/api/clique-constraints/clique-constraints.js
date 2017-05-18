@@ -13,7 +13,7 @@ let schema = {
     type: String,
     custom: function () {
       let that = this;
-      let values = Constants.findOne({ name: 'object_types' }).data;
+      let values = Constants.findOne({ name: 'object_types_for_links' }).data;
 
       if (R.isNil(R.find(R.propEq('value', that.value), values))) {
         return 'notAllowed';
@@ -26,7 +26,7 @@ let schema = {
     minCount: 1,
     custom: function () {
       let that = this;
-      let objectTypes = Constants.findOne({ name: 'object_types' }).data;
+      let objectTypes = Constants.findOne({ name: 'object_types_for_links' }).data;
 
       let findResult = R.intersection(that.value, R.pluck('value', objectTypes));
       if (findResult.length !== that.value.length) { return 'notAllowed'; }

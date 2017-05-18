@@ -27,7 +27,7 @@ let schema = {
     type: String,
     custom: function () {
       let that = this;
-      let values = Constants.findOne({ name: 'object_types' }).data;
+      let values = Constants.findOne({ name: 'object_types_for_links' }).data;
 
       if (R.isNil(R.find(R.propEq('value', that.value), values))) {
         return 'notAllowed';

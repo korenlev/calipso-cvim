@@ -1,4 +1,4 @@
-export const ObjectTypes = [{
+export const ObjectTypesForLinks = [{
   label: 'vnic', 
   value: 'vnic', 
 }, {

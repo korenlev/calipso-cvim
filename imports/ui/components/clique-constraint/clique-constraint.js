@@ -116,7 +116,7 @@ Template.CliqueConstraint.helpers({
 
   objectTypesList: function () {
     return R.ifElse(R.isNil, R.always([]), R.prop('data')
-      )(Constants.findOne({ name: 'object_types' }));
+      )(Constants.findOne({ name: 'object_types_for_links' }));
   },
 
   /*
