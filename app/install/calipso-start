@@ -1,0 +1,91 @@
+#!/bin/bash
+
+if [ $# -ne 5 ]; then
+    echo $0: usage: calipso-start host host_port mongo_port proxy proxy_port
+    exit 1
+fi
+
+host=$1
+host_port=$2
+mongo_port=$3
+proxy=$4
+proxy_port=$5
+
+echo "server $1
+user osdna
+password osdna_default
+auth_db osdna" > /home/calipso/osdna_mongo_access.conf
+
+
+echo "user admin
+password password
+url ldap://$host:389
+user_id_attribute CN
+user_pass_attribute userpassword
+user_objectclass inetOrgPerson
+user_tree_dn OU=Users,DC=openstack,DC=org
+query_scope one
+tls_req_cert allow
+group_member_attribute member" > /home/calipso/ldap.conf
+
+#unzip /home/calipso/calipso-initial-db.zip
+# or replace with mongoimport of json files ...
+
+docker run \
+-d \
+-v /home/calipso/db:/data/db \
+-p 27017:27017 \
+-p 28017:28017 \
+--name calipso-mongo \
+korenlev/osdna:mongo
+
+docker run \
+-d \
+-v /home/calipso:/local_dir \
+-p 389:389 \
+--name calipso-ldap \
+korenlev/osdna:ldap
+
+docker run \
+-d \
+-e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
+-e LDAP_CONFIG=/local_dir/ldap.conf \
+-e LOG_LEVEL=DEBUG \
+-e BIND=0.0.0.0:8000 \
+-v /home/calipso:/local_dir \
+-p 8000:8000 \
+-p 40022:22 \
+--name calipso-api \
+korenlev/osdna:api
+
+docker run \
+-d \
+-v /home/calipso:/local_dir \
+-e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
+-e PYTHONPATH=/home/scan/osdna_prod/app \
+-p 30022:22 \
+--name calipso-scan \
+korenlev/osdna:scan
+
+docker run \
+-d \
+-v /home/calipso:/local_dir \
+-e PYTHONPATH=/home/scan/osdna_prod/app \
+-p 20022:22 \
+-p 3000:3000 \
+-p 4567:4567 \
+-p 5671:5671 \
+-p 15672:15672 \
+--name calipso-sensu \
+korenlev/osdna:sensu
+
+docker run \
+-d \
+-e ROOT_URL=http://$host:$host_port \
+-e MONGO_URL=mongodb://osdna:osdna_default@$host:$mongo_port/osdna \
+-e HTTP_PROXY=http://$proxy:8080 \
+-e HTTPS_PROXY=http://$proxy:8080 \
+-v /home/calipso/osdna_ui:/bundle \
+-p 80:80 \
+--name calipso-ui \
+korenlev/osdna:ui
