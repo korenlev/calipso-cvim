@@ -104,3 +104,5 @@ class Tokens(ResponderBase):
 
         if delete_error:
             self.bad_request(delete_error)
+
+        self.set_successful_response(resp)
