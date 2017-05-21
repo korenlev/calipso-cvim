@@ -49,11 +49,14 @@ class TestPortAdd(TestEvent):
         self.assertEqual(port_document["name"], self.port['name'])
 
         instance = self.inv.get_by_id(self.env, INSTANCE_DOC['id'])
-        self.assertEqual(instance["network_info"][0]['devname'], INSTANCE_DOCS[0]["network_info"][0]['devname'])
-        self.assertEqual(instance["network_info"], INSTANCE_DOCS[0]["network_info"])
+        self.assertEqual(instance["network_info"][0]['devname'],
+                         INSTANCE_DOCS[0]["network_info"][0]['devname'])
+        self.assertEqual(instance["network_info"],
+                         INSTANCE_DOCS[0]["network_info"])
         self.assertEqual(instance["network"], INSTANCE_DOCS[0]["network"])
 
-        vnic = self.inv.get_by_field(self.env, 'vnic', 'mac_address', self.port['mac_address'])
+        vnic = self.inv.get_by_field(self.env, 'vnic', 'mac_address',
+                                     self.port['mac_address'])
         self.assertIsNotNone(vnic)
 
         FindLinksForVedges.add_links = original_find_link_vedge
