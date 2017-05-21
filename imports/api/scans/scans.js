@@ -50,6 +50,11 @@ Scans.schemaRelated = {
     label: 'Scan only cliques',
     description: 'do only cliques creation',
   },
+  scans_details: {
+    label: 'Scan Description',
+    description: 'Scan\'s message output',
+    disabled: true,
+  },
 };
 
 Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques'];
@@ -110,10 +115,13 @@ let schema = {
   submit_timestamp: {
     type: Date,
     defaultValue: null
+  },
+
+  scans_details: {
+    type: String,
+    defaultValue: null
   }
 };
-
-
 
 Scans.schema = new SimpleSchema(schema);
 Scans.schema.addValidator(function () {
@@ -142,7 +150,7 @@ Scans.schema.addValidator(function () {
       type: 'conflict',
       data: scanOnlyFields,
       message: 'Only one of the scan only fields can be selected'
-    }
+    };
   }
 
 });
@@ -155,4 +163,3 @@ Scans.schemaRelated = R.mapObjIndexed((relatedItem, key) => {
   });
 
 }, Scans.schemaRelated);
-
