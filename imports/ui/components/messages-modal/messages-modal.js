@@ -22,14 +22,20 @@ Template.MessagesModal.onCreated(function() {
   instance.state.setDefault({
     messageLevel: null,
     iconType: null,
-    listHeader: null
+    listHeader: null,
+    envName: null
   });
 
   instance.autorun(function () {
     let messageLevel = instance.state.get('messageLevel');
+    let envName = instance.state.get('envName');
     if (R.isNil(messageLevel)) { return; }
 
-    instance.subscribe('messages?level', messageLevel);
+    if (R.isNil(envName)) {
+      instance.subscribe('messages?level', messageLevel);
+    } else {
+      instance.subscribe('messages?env+level', envName, messageLevel);
+    }
   });
 });  
 
@@ -45,7 +51,7 @@ Template.MessagesModal.rendered = function() {
 Template.MessagesModal.events({
   'show.bs.modal #messagesModalGlobal': function (event, instance) {
     let data = event.relatedTarget.dataset;
-    setParams(data.messageLevel, instance);
+    setParams(data.messageLevel, data.envName, instance);
   },
 
   'click .sm-display-context-link': function (event, instance) {
@@ -101,18 +107,29 @@ Template.MessagesModal.helpers({
     return instance.state.get('listHeader');
   },
 
+  envName: function () {
+    let instance = Template.instance();
+    return instance.state.get('envName');
+  },
+
   messages: function () {
     let instance = Template.instance();
     let level = instance.state.get('messageLevel');
+    let envName = instance.state.get('envName');
 
-    return Messages.find({ level: level });
+    if (R.isNil(envName)) {
+      return Messages.find({ level: level });
+    } else {
+      return Messages.find({ level: level, environment: envName });
+    }
   },
 }); // end: helpers
 
-function setParams(messageLevel, instance) {
+function setParams(messageLevel, envName, instance) {
   instance.state.set('messageLevel', messageLevel);
   instance.state.set('iconType', calcIconType(messageLevel));
-  instance.state.set('listHeader', calcListHeader(messageLevel));
+  instance.state.set('listHeader', calcListHeader(messageLevel, envName));
+  instance.state.set('envName', envName);
 }
 
 function calcIconType(messageLevel) {
@@ -121,7 +138,7 @@ function calcIconType(messageLevel) {
     return 'notifications';
   case 'info':
     return 'notifications';
-  case 'warn':
+  case 'warning':
     return 'warning';
   case 'error':
     return 'error';
@@ -130,17 +147,29 @@ function calcIconType(messageLevel) {
   }
 }
 
-function calcListHeader(messageLevel) {
+function calcListHeader(messageLevel, envName) {
+  let header;
+
   switch (messageLevel) {
   case 'notify':
-    return 'List of notifications';
+    header = 'List of notifications';
+    break;
   case 'info':
-    return 'List of info messages';
-  case 'warn':
-    return 'List of warnings';
+    header = 'List of info messages';
+    break;
+  case 'warning':
+    header = 'List of warnings';
+    break;
   case 'error':
-    return 'List of errors';
+    header = 'List of errors';
+    break;
   default:
     throw 'unimplemented message level for list header';
   }
+
+  if (! R.isNil(envName)) {
+    header = header + ` for environment ${envName}.`;
+  }
+
+  return header;
 }
