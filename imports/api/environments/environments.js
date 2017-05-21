@@ -169,7 +169,7 @@ Environments.schema = new SimpleSchema({
   app_path: { 
     type: String, 
     autoValue: function () { 
-      return '/etc/osdna/monitoring'; 
+      return '/home/scan/calipso_prod/app'; 
     } 
   },
   listen: { 
