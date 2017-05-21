@@ -4,13 +4,15 @@ from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from discover.cli_fetch_instance_vnics_vpp import CliFetchInstanceVnicsVpp
 from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
-from discover.events.event_base import EventBase, EventResult
+from discover.events.constants import PORT_OBJECT_TYPE
+from discover.events.event_base import EventBase
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
-from discover.scan_instances_root import ScanInstancesRoot
+from discover.scanner import Scanner
 
 
 class EventPortAdd(EventBase):
+    OBJECT_TYPE = PORT_OBJECT_TYPE
 
     def get_name_by_id(self, object_id):
         item = self.inv.get_by_id(self.env, object_id)
@@ -18,7 +20,8 @@ class EventPortAdd(EventBase):
             return item['name']
         return None
 
-    def add_port_document(self, env, project_name, project_id, network_name, network_id, port):
+    def add_port_document(self, env, project_name, project_id, network_name,
+                          network_id, port):
         # add other data for port document
         port['type'] = 'port'
         port['environment'] = env
@@ -63,9 +66,11 @@ class EventPortAdd(EventBase):
             "object_name": "Ports",
         }
         self.inv.set(port_folder)
-        self.log.info("add ports_folder document for network: {}.".format(network_id))
+        self.log.info("add ports_folder document for network: {}."
+                      .format(network_id))
 
-    def add_network_services_folder(self, env, project_id, network_id, network_name):
+    def add_network_services_folder(self, env, project_id, network_id,
+                                    network_name):
         network_services_folder = {
             "create_object": True,
             "environment": env,
@@ -85,11 +90,13 @@ class EventPortAdd(EventBase):
             "type": "network_services_folder"
         }
         self.inv.set(network_services_folder)
-        self.log.info("add network services folder for network:{}".format(network_id))
+        self.log.info("add network services folder for network:{}"
+                      .format(network_id))
 
     def add_dhcp_document(self, env, host, network_id, network_name):
         dhcp_document = {
-            "children_url": "/osdna_dev/discover.py?type=tree&id=qdhcp-" + network_id,
+            "children_url": "/osdna_dev/discover.py?type=tree&id=qdhcp-" +
+                            network_id,
             "environment": env,
             "host": host['id'],
             "id": "qdhcp-" + network_id,
@@ -99,7 +106,8 @@ class EventPortAdd(EventBase):
             "last_scanned": datetime.datetime.utcnow(),
             "local_service_id": "qdhcp-" + network_id,
             "name": "dhcp-" + network_name,
-            "name_path": host['name_path'] + "/Vservices/DHCP servers/dhcp-" + network_name,
+            "name_path": host['name_path'] +
+            "/Vservices/DHCP servers/dhcp-" + network_name,
             "network": [network_id],
             "object_name": "dhcp-" + network_name,
             "parent_id": host['id'] + "-vservices-dhcps",
@@ -160,7 +168,8 @@ class EventPortAdd(EventBase):
         fetcher = CliFetchVserviceVnics()
         fetcher.set_env(env)
         namespace = 'q{}-{}'.format(object_type, object_id)
-        vnic_documents = fetcher.handle_service(host['id'], namespace, enable_cache=False)
+        vnic_documents = fetcher.handle_service(host['id'], namespace,
+                                                enable_cache=False)
         if not vnic_documents:
             self.log.info("Vnic document not found in namespace.")
             return False
@@ -170,10 +179,10 @@ class EventPortAdd(EventBase):
                 if doc['mac_address'] == mac_address:
                     # add a specific vnic document.
                     doc["environment"] = env
-                    doc["id_path"] = "{}/{}-vservices/{}-vservices-{}s/{}/{}-vnics/{}"\
-                                     .format(host['id_path'], host['id'],
-                                             host['id'], object_type, namespace,
-                                             namespace, doc["id"])
+                    doc["id_path"] = \
+                        "{}/{}-vservices/{}-vservices-{}s/{}/{}-vnics/{}".\
+                        format(host['id_path'], host['id'], host['id'],
+                               object_type, namespace, namespace, doc["id"])
                     doc["name_path"] = "{}/Vservices/{}/{}/vNICs/{}" \
                                        .format(host['name_path'],
                                                type_map[object_type][0],
@@ -191,10 +200,10 @@ class EventPortAdd(EventBase):
             for doc in vnic_documents:
                 # add all vnic documents.
                 doc["environment"] = env
-                doc["id_path"] = "{}/{}-vservices/{}-vservices-{}s/{}/{}-vnics/{}" \
-                                 .format(host['id_path'], host['id'],
-                                         host['id'], object_type,
-                                         namespace, namespace, doc["id"])
+                doc["id_path"] = \
+                    "{}/{}-vservices/{}-vservices-{}s/{}/{}-vnics/{}".\
+                    format(host['id_path'], host['id'], host['id'], object_type,
+                           namespace, namespace, doc["id"])
                 doc["name_path"] = "{}/Vservices/{}/{}/vNICs/{}" \
                                    .format(host['name_path'],
                                            type_map[object_type][0],
@@ -205,7 +214,8 @@ class EventPortAdd(EventBase):
                               .format(doc["mac_address"]))
             return True
 
-    def handle_dhcp_device(self, env, notification, network_id, network_name, mac_address=None):
+    def handle_dhcp_device(self, env, notification, network_id, network_name,
+                           mac_address=None):
         # add dhcp vservice document.
         host_id = notification["publisher_id"].replace("network.", "", 1)
         host = self.inv.get_by_id(env, host_id)
@@ -216,7 +226,8 @@ class EventPortAdd(EventBase):
         self.add_vnics_folder(env, host, network_id, network_name)
 
         # add vnic document.
-        self.add_vnic_document(env, host, network_id, network_name, mac_address=mac_address)
+        self.add_vnic_document(env, host, network_id, network_name,
+                               mac_address=mac_address)
 
     def handle(self, env, notification):
         project = notification['_context_project_name']
@@ -232,7 +243,8 @@ class EventPortAdd(EventBase):
         if not ports_folder:
             self.log.info("ports folder not found, add ports folder first.")
             self.add_ports_folder(env, project_id, network_id, network_name)
-        self.add_port_document(env, project, project_id, network_name, network_id, port)
+        self.add_port_document(env, project, project_id, network_name,
+                               network_id, port)
 
         # update the port related documents.
         if 'compute' in port['device_owner']:
@@ -243,14 +255,17 @@ class EventPortAdd(EventBase):
             instances_root_id = host_id + '-instances'
             instances_root = self.inv.get_by_id(env, instances_root_id)
             if not instances_root:
-                self.log.info('instance document not found, aborting port adding')
-                return EventResult(result=False, retry=True)
+                self.log.info('instance document not found, '
+                              'aborting port adding')
+                return self.construct_event_result(result=False, retry=True,
+                                                   object_id=port['id'])
 
             # update instance
             instance_fetcher = ApiFetchHostInstances()
             instance_fetcher.set_env(env)
             instance_docs = instance_fetcher.get(host_id + '-')
-            instance = next(filter(lambda i: i['id'] == instance_id, instance_docs), None)
+            instance = next(filter(lambda i: i['id'] == instance_id,
+                                   instance_docs), None)
 
             if instance:
                 old_instance_doc['network_info'] = instance['network_info']
@@ -270,12 +285,14 @@ class EventPortAdd(EventBase):
 
             vnic_fetcher.set_env(env)
             vnic_docs = vnic_fetcher.get(instance_id + '-')
-            vnic = next(filter(lambda vnic: vnic['mac_address'] == mac_address, vnic_docs), None)
+            vnic = next(filter(lambda vnic: vnic['mac_address'] == mac_address,
+                               vnic_docs), None)
 
             if vnic:
                 vnic['environment'] = env
                 vnic['type'] = 'vnic'
-                vnic['name_path'] = old_instance_doc['name_path'] + '/vNICs/' + vnic['name']
+                vnic['name_path'] = old_instance_doc['name_path'] + \
+                    '/vNICs/' + vnic['name']
                 vnic['id_path'] = '{}/{}/{}'.format(old_instance_doc['id_path'],
                                                     old_instance_doc['id'],
                                                     vnic['name'])
@@ -284,16 +301,20 @@ class EventPortAdd(EventBase):
                               .format(mac_address))
 
             self.log.info("scanning for links")
-            fetchers_implementing_add_links = [FindLinksForInstanceVnics(), FindLinksForVedges()]
+            fetchers_implementing_add_links = [FindLinksForInstanceVnics(),
+                                               FindLinksForVedges()]
             for fetcher in fetchers_implementing_add_links:
                 fetcher.add_links()
-            ScanInstancesRoot().scan_cliques()
+            scanner = Scanner()
+            scanner.set_env(env)
+            scanner.scan_cliques()
 
         port_document = self.inv.get_by_id(env, port['id'])
         if not port_document:
             self.log.error("Port {} failed to add".format(port['id']))
-            return EventResult(result=False, retry=True)
+            return self.construct_event_result(result=False, retry=True,
+                                               object_id=port['id'])
 
-        return EventResult(result=True,
-                           related_object=port['id'],
-                           display_context=network_id)
+        return self.construct_event_result(result=True,
+                                           object_id=port['id'],
+                                           document_id=port_document.get('_id'))

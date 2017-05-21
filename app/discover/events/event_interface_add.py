@@ -4,15 +4,18 @@ from functools import partial
 from discover.api_access import ApiAccess
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.event_base import EventBase, EventResult
+from discover.events.constants import INTERFACE_OBJECT_TYPE
+from discover.events.event_base import EventBase
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 from utils.util import decode_router_id, encode_router_id
 
 
 class EventInterfaceAdd(EventBase):
+
+    OBJECT_TYPE = INTERFACE_OBJECT_TYPE
 
     def __init__(self):
         super().__init__()
@@ -27,7 +30,9 @@ class EventInterfaceAdd(EventBase):
         router_doc['gw_port_id'] = router['gw_port_id']
 
         # add gateway port documents.
-        port_doc = EventSubnetAdd().add_port_document(env, router_doc['gw_port_id'], project_name=project)
+        port_doc = EventSubnetAdd(). \
+            add_port_document(env, router_doc['gw_port_id'],
+                              project_name=project)
 
         mac_address = port_doc['mac_address'] if port_doc else None
 
@@ -46,10 +51,12 @@ class EventInterfaceAdd(EventBase):
         ret = add_vnic_document()
         if not ret:
             time.sleep(self.delay)
-            self.log.info("Wait %s second, and then fetch vnic document again." % self.delay)
+            self.log.info("Wait {}s second, and then "
+                          "fetch vnic document again.".format(self.delay))
             add_vnic_document()
 
-    def update_router(self, env, project, network_id, network_name, router_doc, host_id):
+    def update_router(self, env, project, network_id, network_name, router_doc,
+                      host_id):
         if router_doc:
             if 'network' in router_doc:
                 if network_id not in router_doc['network']:
@@ -59,15 +66,19 @@ class EventInterfaceAdd(EventBase):
 
             # if gw_port_id is None, add gateway port first.
             if not router_doc.get('gw_port_id'):
-                self.add_gateway_port(env, project, network_name, router_doc, host_id)
+                self.add_gateway_port(env, project, network_name, router_doc,
+                                      host_id)
             else:
-                # check the gateway port document, add it if document does not exist.
+                # check the gateway port document,
+                # add it if document does not exist.
                 port = self.inv.get_by_id(env, router_doc['gw_port_id'])
                 if not port:
-                    self.add_gateway_port(env, project, network_name, router_doc, host_id)
+                    self.add_gateway_port(env, project, network_name,
+                                          router_doc, host_id)
             self.inv.set(router_doc)
         else:
-            self.log.info("router document not found, aborting interface adding")
+            self.log.info("router document not found, "
+                          "aborting interface adding")
 
     def handle(self, env, values):
         interface = values['payload']['router_interface']
@@ -77,10 +88,13 @@ class EventInterfaceAdd(EventBase):
         subnet_id = interface['subnet_id']
         router_id = encode_router_id(host_id, interface['id'])
 
-        network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
+        network_document = self.inv.get_by_field(env, "network", "subnet_ids",
+                                                 subnet_id, get_single=True)
         if not network_document:
-            self.log.info("network document not found, aborting interface adding")
-            return EventResult(result=False, retry=True)
+            self.log.info("network document not found, "
+                          "aborting interface adding")
+            return self.construct_event_result(result=False, retry=True,
+                                               object_id=interface['id'])
         network_name = network_document['name']
         network_id = network_document['id']
 
@@ -89,7 +103,8 @@ class EventInterfaceAdd(EventBase):
             fetcher = ApiFetchRegions()
             fetcher.set_env(env)
             fetcher.get(None)
-        port_doc = EventSubnetAdd().add_port_document(env, port_id, network_name=network_name)
+        port_doc = EventSubnetAdd().add_port_document(env, port_id,
+                                                      network_name=network_name)
 
         mac_address = port_doc['mac_address'] if port_doc else None
 
@@ -108,19 +123,25 @@ class EventInterfaceAdd(EventBase):
 
         ret = add_vnic_document()
         if ret is False:
-            # try it again to fetch vnic document, vnic will be created a little bit late before CLI fetch.
+            # try it again to fetch vnic document,
+            # vnic will be created a little bit late before CLI fetch.
             time.sleep(self.delay)
-            self.log.info("Wait {} seconds, and then fetch vnic document again.".format(self.delay))
+            self.log.info("Wait {} seconds, "
+                          "and then fetch vnic document again."
+                          .format(self.delay))
             add_vnic_document()
 
         # update the router document: gw_port_id, network.
-        self.update_router(env, project, network_id, network_name, router_doc, host_id)
+        self.update_router(env, project, network_id, network_name, router_doc,
+                           host_id)
 
         # update vservice-vnic, vnic-network,
         FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
-        ScanNetwork().scan_cliques()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan_cliques()
         self.log.info("Finished router-interface added.")
-
-        return EventResult(result=True,
-                           related_object=interface['id'],
-                           display_context=network_id)
+        db_id = network_document.get('_id')
+        return self.construct_event_result(result=True,
+                                           object_id=interface['id'],
+                                           document_id=db_id)
