@@ -328,7 +328,6 @@ Template.EnvironmentDashboard.helpers({
       icon: calcIconForMessageLevel(boxDef.level),
       colorClass: calcColorClassForMessagesInfoBox(boxDef.level),
       onMoreDetailsReq: function () {
-        console.log('more detail req');
         $('#messagesModalGlobal').modal('show', { 
           dataset: {
             messageLevel: boxDef.level,
