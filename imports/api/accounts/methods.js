@@ -179,6 +179,6 @@ function updateEnv(auth, env) {
   } catch(e) {
     console.error('error in update: ' + R.toString(e));
     throw new Meteor.Error('enviornment update error', 
-      `unable to update ACL for environment - ${env.name}. Please check envrironment info.`);
+      `unable to update ACL for environment - ${env.name}. Please check envrironment info. ${e.message}`);
   }
 }
