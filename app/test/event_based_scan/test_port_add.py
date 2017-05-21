@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
-from discover.scan_instances_root import ScanInstancesRoot
+from discover.scanner import Scanner
 from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from test.event_based_scan.test_data.event_payload_port_add import EVENT_PAYLOAD_PORT_INSTANCE_ADD, NETWORK_DOC, \
@@ -34,11 +34,11 @@ class TestPortAdd(TestEvent):
 
         original_find_link_instance = FindLinksForInstanceVnics.add_links
         original_find_link_vedge = FindLinksForVedges.add_links
-        orginal_scan = ScanInstancesRoot.scan_cliques
+        original_scan = Scanner.scan_cliques
 
         FindLinksForInstanceVnics.add_links = MagicMock(return_value=None)
         FindLinksForVedges.add_links = MagicMock(return_value=None)
-        ScanInstancesRoot.scan_cliques = MagicMock(return_value=None)
+        Scanner.scan_cliques = MagicMock(return_value=None)
 
         # add network document
         EventPortAdd().handle(self.env, self.values)
@@ -58,6 +58,6 @@ class TestPortAdd(TestEvent):
 
         FindLinksForVedges.add_links = original_find_link_vedge
         FindLinksForInstanceVnics.add_links = original_find_link_instance
-        ScanInstancesRoot.scan_cliques = orginal_scan
+        Scanner.scan_cliques = original_scan
         CliFetchInstanceVnics.get = original_get_vnic
         ApiFetchHostInstances.get = original_get_instance

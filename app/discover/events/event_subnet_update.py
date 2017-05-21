@@ -6,7 +6,7 @@ from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 
 
 class EventSubnetUpdate(EventBase):
@@ -51,7 +51,9 @@ class EventSubnetUpdate(EventBase):
                                                    mac_address=port['mac_address'])
                     # add link for vservice - vnic
                     FindLinksForVserviceVnics().add_links(search={"id": "qdhcp-%s" % network_id})
-                    ScanNetwork().scan_cliques()
+                    scanner = Scanner()
+                    scanner.set_env(env)
+                    scanner.scan_cliques()
 
             if subnet['enable_dhcp'] is False and subnets[key]['enable_dhcp']:
                 # delete existed related DHCP documents.

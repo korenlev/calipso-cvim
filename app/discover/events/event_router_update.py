@@ -3,7 +3,7 @@ from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_router_add import EventRouterAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 from utils.util import encode_router_id
 
 
@@ -64,7 +64,9 @@ class EventRouterUpdate(EventBase):
         self.inv.set(router_doc)
 
         # update the cliques.
-        ScanNetwork().scan_cliques()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan_cliques()
         self.log.info("Finished router update.")
         return EventResult(result=True,
                            related_object=router_full_id,
