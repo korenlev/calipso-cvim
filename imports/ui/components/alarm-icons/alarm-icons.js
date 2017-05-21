@@ -3,7 +3,6 @@
  */
 
 import '/imports/ui/components/breadcrumb/breadcrumb';
-import '/imports/ui/components/messages-modal/messages-modal';
 import { Messages } from '/imports/api/messages/messages';
 import { Roles } from 'meteor/alanning:roles';
 

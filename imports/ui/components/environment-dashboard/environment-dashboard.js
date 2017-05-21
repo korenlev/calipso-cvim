@@ -4,6 +4,7 @@
     
 //import { Meteor } from 'meteor/meteor'; 
 import * as R from 'ramda';
+import * as _ from 'lodash';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
@@ -20,7 +21,8 @@ import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
 import '/imports/ui/components/list-info-box/list-info-box';
 import './environment-dashboard.html';     
-    
+import '/imports/ui/components/messages-info-box/messages-info-box';
+import '/imports/ui/components/messages-modal/messages-modal';
 
 let briefInfoList =  [{
   header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
@@ -274,6 +276,7 @@ Template.EnvironmentDashboard.helpers({
     };
   },
 
+  /*
   lastMessageTimestamp: function (level, envName) {
     if (R.any(R.isNil)([level, envName])) { return ''; }
 
@@ -282,13 +285,59 @@ Template.EnvironmentDashboard.helpers({
 
     return R.path(['timestamp'], message);
   },
+  */
 
   notAllowEdit: function () {
     let instance = Template.instance();
     let allowEdit = instance.state.get('allowEdit');
     return ! allowEdit;
-  }
+  },
 
+  getListMessagesInfoBox: function () {
+    return [
+      {
+        level: 'info'
+      },
+      {
+        level: 'warning'
+      },
+      {
+        level: 'error'
+      },
+    ];
+  },
+
+  argsMessagesInfoBox: function(boxDef, env) {
+    let instance = Template.instance();
+    let envName = instance.state.get('envName');
+    if (R.isNil(envName)) { 
+      return { 
+        title: '', count: 0, lastScanTimestamp: '', onMoreDetailsReq: function () {} 
+      };
+    }
+
+    let count =  Counts.get('messages?env+level!counter?env=' +
+       envName + '&level=' + boxDef.level);
+
+    let title = _.capitalize(boxDef.level);
+
+    return {
+      title: title,
+      count: count,
+      lastScanTimestamp: lastMessageTimestamp(boxDef.level, env),
+      icon: calcIconForMessageLevel(boxDef.level),
+      colorClass: calcColorClassForMessagesInfoBox(boxDef.level),
+      onMoreDetailsReq: function () {
+        console.log('more detail req');
+        $('#messagesModalGlobal').modal('show', { 
+          dataset: {
+            messageLevel: boxDef.level,
+            envName: env,
+          } 
+        });
+      }
+    };
+  },
 }); // end: helpers
 
 function getList(listName, envName) {
@@ -330,3 +379,38 @@ function calcLastScanned(listName, envName) {
   }
 }
 */
+
+function lastMessageTimestamp (level, envName) {
+  if (R.any(R.isNil)([level, envName])) { return ''; }
+
+  let message =  Messages.findOne({ environment: envName, level: level }, {
+    sort: { timestamp: -1 } });
+
+  return R.path(['timestamp'], message);
+}
+
+function calcIconForMessageLevel(level) {
+  switch (level) {
+  case 'info':
+    return 'notifications';
+  case 'warning':
+    return 'warning';
+  case 'error':
+    return 'error';
+  default:
+    return 'notifications';
+  }
+}
+
+function calcColorClassForMessagesInfoBox(level) {
+  switch (level) {
+  case 'info':
+    return 'green-text';
+  case 'warning':
+    return 'orange-text';
+  case 'error':
+    return 'red-text';
+  default:
+    return 'green-text';
+  }
+}

@@ -17,64 +17,33 @@
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     </a>
   </div>
-</div>
 
-<div class="sm-items-segment mainContentData flex-box">
+  <div class="sm-items-segment mainContentData flex-box">
 
-{{#each briefInfo in (getBriefInfoList) }}
-  {{> DataCubic (argsBriefInfo briefInfo) }}
-{{/each }}
+  {{#each briefInfo in (getBriefInfoList) }}
+    {{> DataCubic (argsBriefInfo briefInfo) }}
+  {{/each }}
 
-</div>
-
-<div class="mainContentData flex-box justify-content-between">
-<div class="cards-flex-col-h120 white not-active green-text flex-box-1">
-  <div class="flex-box ">
-    <div class="flex-box-1">
-      <i class="material-icons">notifications</i>
-    </div>
-    <div class="flex-box-2">
-      <h5>Info Messages</h5>
-      <p>Total: {{infoMessagesCount}}</p>
-      <p>Timestamp: {{ lastMessageTimestamp 'info' (getState 'envName')}}</p>
-      <a href="#" data-toggle="modal" data-target="#notification">More details</a>
-    </div>
   </div>
-</div>
-<div class="cards-flex-col-h120 white not-active orange-text flex-box-1" style="margin: 0px 10px;">
-  <div class="flex-box ">
-    <div class="flex-box-1">
-      <i class="material-icons">warning</i>
-    </div>
-    <div class="flex-box-2">
-      <h5>Warning</h5>
-      <p>Total: {{warningsCount}}</p>
-      <p>Timestamp: {{ lastMessageTimestamp 'warn' (getState 'envName')}}</p>
-      <a href="#" data-toggle="modal" data-target="#issue">More details</a>
-    </div>
-  </div>
-</div>
-<div class="cards-flex-col-h120 white red-text flex-box-1">
-  <div class="flex-box ">
-    <div class="flex-box-1">
-      <i class="material-icons">error</i>
-    </div>
-    <div class="flex-box-2">
-      <h5>Error</h5>
-      <p class="active">Total: {{errorsCount}}</p>
-      <p>Timestamp: {{ lastMessageTimestamp 'error' (getState 'envName')}}</p>
-      <a href="#" data-toggle="modal" data-target="#error">More details</a>
-    </div>
-  </div>
-</div>
-</div>
 
-<div class="sm-list-info-boxes mainContentData">
-{{#each listInfoBox in (getListInfoBoxes) }}
-  {{> ListInfoBox (argsListInfoBox listInfoBox) }}
-{{/each }}
-</div>
+  <div class="sm-messages-section mainContentData">
+    {{#if (getState 'envName') }}
+      {{#each messagesInfoBox in (getListMessagesInfoBox) }}
+    <div class="sm-message-box">
+        {{> MessagesInfoBox (argsMessagesInfoBox messagesInfoBox (getState 'envName')) }}
+    </div>
+      {{/each }}
+    {{/if}}
+  </div>
 
-{{> EnvDeleteModal argsEnvDeleteModal }}
+  <div class="sm-list-info-boxes mainContentData">
+  {{#each listInfoBox in (getListInfoBoxes) }}
+    {{> ListInfoBox (argsListInfoBox listInfoBox) }}
+  {{/each }}
+  </div>
+
+  {{> EnvDeleteModal argsEnvDeleteModal }}
+
+</div>
 
 </template>
