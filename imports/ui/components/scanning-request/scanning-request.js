@@ -141,7 +141,7 @@ Template.ScanningRequest.helpers({
         let newModel = model;
 
         if(R.indexOf(key, Scans.scansOnlyFields) >= 0) {
-          newModel = setRadioValues(Scans.scansOnlyFields, key, value, model)
+          newModel = setRadioValues(Scans.scansOnlyFields, key, value, model);
         }else {
           newModel = R.assoc(key, value, newModel);
         }
@@ -165,11 +165,6 @@ Template.ScanningRequest.helpers({
     };
 
     return intf;
-  },
-
-  getState: function (key) {
-    let instance = Template.instance();
-    return instance.state.get(key);
   },
 
   getFieldDesc: function (key) {
@@ -281,7 +276,7 @@ function setRadioValues(radioFields, key, value, modal) {
   let currentRadioFields = R.filter(f => modal[f], radioFields);
 
   for(let field of currentRadioFields) {
-    newModal = R.assoc(field, false, newModal)
+    newModal = R.assoc(field, false, newModal);
   }
 
   newModal = R.assoc(key, value, newModal);
