@@ -8,6 +8,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { LinkTypes } from '/imports/api/link-types/link-types';
+import { Roles } from 'meteor/alanning:roles';
         
 import './link-types-list.html';     
     
@@ -71,4 +72,8 @@ Template.LinkTypesList.helpers({
     //return Scans.find({ environment: env });
     return LinkTypes.find({}); 
   },
-});
+
+  isAuthManageLinkTypes: function () {
+    return Roles.userIsInRole(Meteor.userId(), 'manage-link-types', Roles.GLOBAL_GROUP); 
+  },
+}); // end - helpers

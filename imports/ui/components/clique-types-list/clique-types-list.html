@@ -27,6 +27,7 @@
                           query=(asHash id=(idToStr cliqueType._id) action='view') }}"
                 ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
 
+            {{#if isAuthManageCliqueTypes }}
             <a href="{{pathFor route='clique-type' 
                           query=(asHash id=(idToStr cliqueType._id) action='update') }}"
                 ><i class="cl-action-icon fa fa-pencil" area-hidden="true"></i></a>
@@ -34,6 +35,7 @@
             <a href="{{pathFor route='clique-type' 
                           query=(asHash id=(idToStr cliqueType._id) action='remove') }}"
                 ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a>
+            {{/if }}
           </div>
         </td>
       </tr>

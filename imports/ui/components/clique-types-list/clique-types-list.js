@@ -7,6 +7,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { CliqueTypes } from '/imports/api/clique-types/clique-types';
+import { Roles } from 'meteor/alanning:roles';
         
 import './clique-types-list.html';     
     
@@ -63,6 +64,10 @@ Template.CliqueTypesList.helpers({
     //var env = instance.state.get('env');
     //return Scans.find({ environment: env });
     return CliqueTypes.find({}); 
+  },
+
+  isAuthManageCliqueTypes: function () {
+    return Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.GLOBAL_GROUP); 
   },
 });
 
