@@ -6,7 +6,7 @@ import { Inventory } from '../inventories';
 import { Environments } from '/imports/api/environments/environments';
 import { regexEscape } from '/imports/lib/regex-utils';
 
-const AUTO_COMPLETE_RESULTS_LIMIT = 5;
+const AUTO_COMPLETE_RESULTS_LIMIT = 15;
 
 Meteor.methods({
   'inventorySearch': function(searchTerm, envId, opCounter) {
