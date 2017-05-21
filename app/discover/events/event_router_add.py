@@ -2,8 +2,7 @@ import datetime
 from functools import partial
 
 from discover.cli_fetch_host_vservice import CliFetchHostVservice
-from discover.events.constants import ROUTER_OBJECT_TYPE
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -12,7 +11,6 @@ from utils.util import decode_router_id, encode_router_id
 
 
 class EventRouterAdd(EventBase):
-    OBJECT_TYPE = ROUTER_OBJECT_TYPE
 
     def add_router_document(self, env, network_id, router_doc, host):
         router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id={}"\
@@ -36,8 +34,7 @@ class EventRouterAdd(EventBase):
 
         self.inv.set(router_doc)
 
-    def add_children_documents(self, env, project_id, network_id, host,
-                               router_doc):
+    def add_children_documents(self, env, project_id, network_id, host, router_doc):
 
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
@@ -48,11 +45,10 @@ class EventRouterAdd(EventBase):
         ports_folder = self.inv.get_by_id(env, network_id + '-ports')
         if not ports_folder:
             self.log.info("Ports_folder not found.")
-            subnet_handler.add_ports_folder(env, project_id, network_id,
-                                            network_name)
-        add_port_return = \
-            subnet_handler.add_port_document(env, router_doc['gw_port_id'],
-                                             network_name=network_name)
+            subnet_handler.add_ports_folder(env, project_id, network_id, network_name)
+        add_port_return = subnet_handler.add_port_document(env,
+                                                           router_doc['gw_port_id'],
+                                                           network_name=network_name)
 
         # add vnics folder and vnic document
         port_handler = EventPortAdd()
@@ -103,8 +99,7 @@ class EventRouterAdd(EventBase):
         if gateway_info:
             network_id = gateway_info['network_id']
             self.add_router_document(env, network_id, router_doc, host)
-            self.add_children_documents(env, project_id, network_id, host,
-                                        router_doc)
+            self.add_children_documents(env, project_id, network_id, host, router_doc)
         else:
             self.add_router_document(env, None, router_doc, host)
 
@@ -115,8 +110,7 @@ class EventRouterAdd(EventBase):
         scanner.scan_cliques()
         self.log.info("Finished router added.")
 
-        router_document = self.inv.get_by_id(env, router_id)
-        db_id = router_document.get('_id')
-        return self.construct_event_result(result=True,
-                                           object_id=router_id,
-                                           document_id=db_id)
+        return EventResult(result=True,
+                           related_object=router_id,
+                           display_context=router_id)
+

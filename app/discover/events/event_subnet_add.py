@@ -4,8 +4,7 @@ from discover.api_access import ApiAccess
 from discover.api_fetch_port import ApiFetchPort
 from discover.api_fetch_regions import ApiFetchRegions
 from discover.db_fetch_port import DbFetchPort
-from discover.events.constants import SUBNET_OBJECT_TYPE
-from discover.events.event_base import EventBase
+from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
@@ -14,15 +13,10 @@ from discover.scanner import Scanner
 
 class EventSubnetAdd(EventBase):
 
-    OBJECT_TYPE = SUBNET_OBJECT_TYPE
-
-    def add_port_document(self, env, port_id, network_name=None,
-                          project_name=''):
-        # when adding router-interface port, network_name need to be given to
-        # enhance efficiency.
-        # when adding gateway port, project_name need to be specified,
-        # because this type of port document doesn't have project attribute. In
-        # this case, network_name should not be provided.
+    def add_port_document(self, env, port_id, network_name=None, project_name=''):
+        # when add router-interface port, network_name need to be given to enhance efficiency.
+        # when add gateway port, project_name need to be specified, cause this type of port
+        # document does not has project attribute. In this case, network_name should not be provided.
 
         fetcher = ApiFetchPort()
         fetcher.set_env(env)
@@ -41,8 +35,7 @@ class EventSubnetAdd(EventBase):
             port['environment'] = env
             port_id = port['id']
             port['id_path'] = "%s/%s-projects/%s/%s-networks/%s/%s-ports/%s" % \
-                              (env, env, project_id, project_id, network_id,
-                               network_id, port_id)
+                              (env, env, project_id, project_id, network_id, network_id, port_id)
             port['last_scanned'] = datetime.datetime.utcnow()
             if 'project' in port:
                 project_name = port['project']
@@ -63,11 +56,9 @@ class EventSubnetAdd(EventBase):
             "parent_id": network_id,
             "parent_type": "network",
             'environment': env,
-            'id_path': "%s/%s-projects/%s/%s-networks/%s/%s-ports/" %
-                       (env, env, project_id, project_id, network_id,
-                        network_id),
-            'name_path': "/%s/Projects/%s/Networks/%s/Ports" % (env, project_id,
-                                                                network_name),
+            'id_path': "%s/%s-projects/%s/%s-networks/%s/%s-ports/" % (env, env, project_id, project_id,
+                                                                       network_id, network_id),
+            'name_path': "/%s/Projects/%s/Networks/%s/Ports" % (env, project_id, network_name),
             "show_in_tree": True,
             "last_scanned": datetime.datetime.utcnow(),
             "object_name": "Ports",
@@ -75,8 +66,7 @@ class EventSubnetAdd(EventBase):
 
         self.inv.set(port_folder)
 
-    def add_children_documents(self, env, project_id, network_id, network_name,
-                               host_id):
+    def add_children_documents(self, env, project_id, network_id, network_name, host_id):
         # generate port folder data.
         self.add_ports_folder(env, project_id, network_id, network_name)
 
@@ -89,8 +79,7 @@ class EventSubnetAdd(EventBase):
         port_handler = EventPortAdd()
 
         # add network_services_folder document.
-        port_handler.add_network_services_folder(env, project_id, network_id,
-                                                 network_name)
+        port_handler.add_network_services_folder(env, project_id, network_id, network_name)
 
         # add dhcp vservice document.
         host = self.inv.get_by_id(env, host_id)
@@ -109,16 +98,13 @@ class EventSubnetAdd(EventBase):
         project_id = subnet['tenant_id']
         network_id = subnet['network_id']
         if 'id' not in subnet:
-            self.log.info('Subnet payload doesn\'t have id, '
-                          'aborting subnet add')
-            return self.construct_event_result(result=False, retry=False)
+            self.log.info('Subnet payload doesn\'t have id, aborting subnet add')
+            return EventResult(result=False, retry=False)
 
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
-            self.log.info('network document does not exist, '
-                          'aborting subnet add')
-            return self.construct_event_result(result=False, retry=True,
-                                               object_id=subnet['id'])
+            self.log.info('network document does not exist, aborting subnet add')
+            return EventResult(result=False, retry=True)
         network_name = network_document['name']
 
         # build subnet document for adding network
@@ -143,19 +129,17 @@ class EventSubnetAdd(EventBase):
 
             self.log.info("add new subnet.")
             host_id = notification["publisher_id"].replace("network.", "", 1)
-            self.add_children_documents(env, project_id, network_id,
-                                        network_name, host_id)
+            self.add_children_documents(env, project_id, network_id, network_name, host_id)
 
         # scan links and cliques
         self.log.info("scanning for links")
         FindLinksForPnics().add_links()
-        FindLinksForVserviceVnics(). \
-            add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
+        FindLinksForVserviceVnics().add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
 
         scanner = Scanner()
         scanner.set_env(env)
         scanner.scan_cliques()
         self.log.info("Finished subnet added.")
-        db_id = network_document.get('_id')
-        return self.construct_event_result(result=True, object_id=subnet['id'],
-                                           document_id=db_id)
+        return EventResult(result=True,
+                           related_object=subnet['id'],
+                           display_context=network_id)
