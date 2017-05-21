@@ -7,7 +7,7 @@ from discover.events.event_base import EventBase
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 from utils.util import decode_router_id, encode_router_id
 
 
@@ -36,7 +36,8 @@ class EventRouterAdd(EventBase):
 
         self.inv.set(router_doc)
 
-    def add_children_documents(self, env, project_id, network_id, host, router_doc):
+    def add_children_documents(self, env, project_id, network_id, host,
+                               router_doc):
 
         network_document = self.inv.get_by_id(env, network_id)
         network_name = network_document['name']
@@ -47,10 +48,11 @@ class EventRouterAdd(EventBase):
         ports_folder = self.inv.get_by_id(env, network_id + '-ports')
         if not ports_folder:
             self.log.info("Ports_folder not found.")
-            subnet_handler.add_ports_folder(env, project_id, network_id, network_name)
-        add_port_return = subnet_handler.add_port_document(env,
-                                                           router_doc['gw_port_id'],
-                                                           network_name=network_name)
+            subnet_handler.add_ports_folder(env, project_id, network_id,
+                                            network_name)
+        add_port_return = \
+            subnet_handler.add_port_document(env, router_doc['gw_port_id'],
+                                             network_name=network_name)
 
         # add vnics folder and vnic document
         port_handler = EventPortAdd()
@@ -101,16 +103,20 @@ class EventRouterAdd(EventBase):
         if gateway_info:
             network_id = gateway_info['network_id']
             self.add_router_document(env, network_id, router_doc, host)
-            self.add_children_documents(env, project_id, network_id, host, router_doc)
+            self.add_children_documents(env, project_id, network_id, host,
+                                        router_doc)
         else:
             self.add_router_document(env, None, router_doc, host)
 
         # scan links and cliques
         FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
-        ScanNetwork().scan_cliques()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan_cliques()
         self.log.info("Finished router added.")
 
         router_document = self.inv.get_by_id(env, router_id)
+        db_id = router_document.get('_id')
         return self.construct_event_result(result=True,
                                            object_id=router_id,
-                                           document_id=router_document.get('_id'))
+                                           document_id=db_id)

@@ -1,7 +1,6 @@
 from discover.events.constants import INSTANCE_OBJECT_TYPE
-from discover.events.event_base import EventBase, EventResult
-from discover.scan_host import ScanHost
-from discover.scan_instances_root import ScanInstancesRoot
+from discover.events.event_base import EventBase
+from discover.scanner import Scanner
 
 
 class EventInstanceAdd(EventBase):
@@ -21,22 +20,24 @@ class EventInstanceAdd(EventBase):
                                                object_id=instance_id)
 
         # scan instance
-        instances_scanner = ScanInstancesRoot()
-        instances_scanner.set_env(env)
-        instances_scanner.scan(instances_root,
-                               limit_to_child_id=instance_id, limit_to_child_type='instance')
-        instances_scanner.scan_from_queue()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan('ScanInstancesRoot', instances_root,
+                     limit_to_child_id=instance_id,
+                     limit_to_child_type='instance')
+        scanner.scan_from_queue()
 
         # scan host
         host = self.inv.get_by_id(env, host_id)
-        host_scanner = ScanHost()
-        host_scanner.scan(host,
-                          limit_to_child_type=['vconnectors_folder', 'vedges_folder'])
-        host_scanner.scan_from_queue()
-        host_scanner.scan_links()
-        host_scanner.scan_cliques()
+        scanner.scan('ScanHost', host,
+                     limit_to_child_type=['vconnectors_folder',
+                                          'vedges_folder'])
+        scanner.scan_from_queue()
+        scanner.scan_links()
+        scanner.scan_cliques()
 
         instance_document = self.inv.get_by_id(env, instance_id)
+        db_id = instance_document.get('_id')
         return self.construct_event_result(result=True,
                                            object_id=instance_id,
-                                           document_id=instance_document.get('_id'))
+                                           document_id=db_id)
