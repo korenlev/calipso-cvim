@@ -12,7 +12,7 @@ export const MonitoringSchema = new SimpleSchema({
   
   config_folder: { 
     type: String, 
-    defaultValue: function () { return '/tmp/sensu_test'; },
+    defaultValue: '/tmp/sensu_config',
     regEx: pathRegEx,
   },
 
