@@ -27,7 +27,7 @@ Meteor.publish('environments_config', function () {
 Meteor.publish('environments.view-env&userId', function (userId) {
   let query = {};
 
-  if (! Roles.userIsInRole(userId, 'manage-users', 'default-group')) {
+  if (! Roles.userIsInRole(userId, 'manage-users', Roles.GLOBAL_GROUP)) {
     this.error('unauthorized for this subscription');
   }
 
@@ -43,7 +43,7 @@ Meteor.publish('environments.view-env&userId', function (userId) {
 Meteor.publish('environments.edit-env&userId', function (userId) {
   let query = {};
 
-  if (! Roles.userIsInRole(userId, 'manage-users', 'default-group')) {
+  if (! Roles.userIsInRole(userId, 'manage-users', Roles.GLOBAL_GROUP)) {
     this.error('unauthorized for this subscription');
   }
 

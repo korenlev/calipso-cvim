@@ -29,7 +29,7 @@ export const insert = new ValidatedMethod({
     viewEnvs,
     editEnvs,
   }) {
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', Roles.GLOBAL_GROUP)) {
       throw new Meteor.Error('unauthorized for removing users');
     }
 
@@ -63,7 +63,7 @@ export const update = new ValidatedMethod({
     editEnvs,
   }) {
     //throw new Meteor.Error('unimplemented');
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', Roles.GLOBAL_GROUP)) {
       throw new Meteor.Error('unauthorized for updating users');
     }
 
@@ -119,7 +119,7 @@ export const remove = new ValidatedMethod({
   run({
     _id
   }) {
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group')) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', Roles.GLOBAL_GROUP)) {
       throw new Meteor.Error('unauthorized for removing users');
     }
 

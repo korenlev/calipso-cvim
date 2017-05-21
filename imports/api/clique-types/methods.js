@@ -1,5 +1,6 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import * as R from 'ramda';
+import { Roles } from 'meteor/alanning:roles';
 
 import { CliqueTypes } from './clique-types';
 
@@ -19,6 +20,10 @@ export const insert = new ValidatedMethod({
     link_types,
     name,
   }) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.DEFAULT_GROUP)) {
+      throw new Meteor.Error('unauthorized for adding clique type');
+    }
+
     let cliqueType = CliqueTypes.schema.clean({});
 
     cliqueType = R.merge(cliqueType, {
@@ -41,6 +46,11 @@ export const remove = new ValidatedMethod({
   run({
     _id
   }) {
+
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.DEFAULT_GROUP)) {
+      throw new Meteor.Error('unauthorized for removing clique type');
+    }
+
     let cliqueType = CliqueTypes.findOne({ _id: _id });
     console.log('clique type for remove: ', cliqueType);
 
@@ -66,6 +76,10 @@ export const update = new ValidatedMethod({
     link_types,
     name,
   }) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.DEFAULT_GROUP)) {
+      throw new Meteor.Error('unauthorized for updating clique type');
+    }
+
     let cliqueType = CliqueTypes.findOne({ _id: _id });
     console.log('clique type for remove: ', cliqueType);
 

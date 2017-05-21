@@ -7,6 +7,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { CliqueConstraints } from '/imports/api/clique-constraints/clique-constraints';
+import { Roles } from 'meteor/alanning:roles';
         
 import './clique-constraints-list.html';     
     
@@ -59,6 +60,10 @@ Template.CliqueConstraintsList.helpers({
     //return Scans.find({ environment: env });
     return CliqueConstraints.find({}); 
   },
-});
+
+  isAuthManageCliqueConstraints: function () {
+    return Roles.userIsInRole(Meteor.userId(), 'manage-clique-constraints', Roles.GLOBAL_GROUP); 
+  },
+}); /// end: helpers
 
 

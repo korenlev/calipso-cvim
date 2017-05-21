@@ -19,7 +19,7 @@ export const insert = new ValidatedMethod({
     endPointA,
     endPointB
   }) {
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', 'default-group')) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', Roles.GLOBAL_GROUP)) {
       throw new Meteor.Error('unauthorized for inserting link type');
     }
 
@@ -48,7 +48,7 @@ export const remove = new ValidatedMethod({
   run({
     _id
   }) {
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', 'default-group')) {
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', Roles.DEFAULT_GROUP)) {
       throw new Meteor.Error('unauthorized for removing link type');
     }
 
@@ -75,8 +75,8 @@ export const update = new ValidatedMethod({
     endPointA,
     endPointB
   }) {
-    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', 'default-group')) {
-      throw new Meteor.Error('unauthorized for removing link type');
+    if (! Roles.userIsInRole(Meteor.userId(), 'manage-link-types', Roles.DEFAULT_GROUP)) {
+      throw new Meteor.Error('unauthorized for updating link type');
     }
 
     let linkType = LinkTypes.findOne({ _id: _id });

@@ -8,8 +8,10 @@ let users = [
     email: 'admin@example.com',
     password: '123456',
     roles: [
-      { role: 'manage-users', group: 'default-group' },
-      { role: 'manage-link-types', group: 'default-group' },
+      { role: 'manage-users', group: Roles.GLOBAL_GROUP },
+      { role: 'manage-link-types', group: Roles.GLOBAL_GROUP },
+      { role: 'manage-clique-types', group: Roles.GLOBAL_GROUP },
+      { role: 'manage-clique-constraints', group: Roles.GLOBAL_GROUP },
       { role: 'view-env', group: Roles.GLOBAL_GROUP },
       { role: 'edit-env', group: Roles.GLOBAL_GROUP },
     ]

@@ -1,6 +1,6 @@
-Accounts.validateNewUser((user) => {
+Accounts.validateNewUser((_user) => {
   let loggedInUser = Meteor.user();
-  if (Roles.userIsInRole(loggedInUser, 'manage-users', 'default-group')) {
+  if (Roles.userIsInRole(loggedInUser, 'manage-users', Roles.GLOBAL_GROUP)) {
     return true;
   }
 

@@ -29,7 +29,7 @@ Template.alarmIcons.onCreated(function () {
 
 Template.alarmIcons.helpers({
   isAdmin: function () {
-    return Roles.userIsInRole(Meteor.userId(), 'manage-users', 'default-group'); 
+    return Roles.userIsInRole(Meteor.userId(), 'manage-users', Roles.GLOBAL_GROUP); 
   },
 
   infosCount: function(){
