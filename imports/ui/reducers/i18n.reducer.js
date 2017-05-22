@@ -153,6 +153,12 @@ const defaultState = {
           header: 'Number of ports'
         }
       },
+    },
+
+    generalFolderNodeDashboard: {
+      mainCubic: {
+        header: 'Number of children'
+      }
     }
   }
 };

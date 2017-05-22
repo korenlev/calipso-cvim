@@ -50,11 +50,13 @@ import '/imports/ui/components/graph-tooltip-window/graph-tooltip-window';
 import '/imports/ui/components/vedge-info-window/vedge-info-window';
 import '/imports/ui/components/env-delete-modal/env-delete-modal';
 import '/imports/ui/components/environment-dashboard/environment-dashboard';
+import '/imports/ui/components/general-folder-node-dashboard/general-folder-node-dashboard';
 
 import './environment.html';
 
 let maxOpenTreeNodeTrialCount = 3;
 
+/*
 var nodeTypesForSelection = [
   'project', 
   'availability_zone',
@@ -66,6 +68,7 @@ var nodeTypesForSelection = [
   'instance',
   'network'
 ];
+*/
 
 /*
  * Lifecycles
@@ -386,6 +389,25 @@ Template.Environment.helpers({
       dashTemplate = 'EnvironmentDashboard';
       break;
 
+    case 'vservice_routers_folder':
+    case 'vnics_folder':
+    case 'regions_folder':
+    case 'vedges_folder':
+    case 'network_agents_folder':
+    case 'network_services_folder':
+    case 'availability_zones_folder':
+    case 'pnics_folder':
+    case 'networks_folder':
+    case 'vconnectors_folder':
+    case 'projects_folder':
+    case 'aggregates_folder':
+    case 'vservices_folder':
+    case 'vservice_dhcps_folder':
+    case 'ports_folder':
+    case 'instances_folder':
+      dashTemplate = 'GeneralFolderNodeDashboard';
+      break;
+
     default:
       dashTemplate = 'EmptyDashboard';
     }
@@ -489,9 +511,9 @@ function createAttachedFns(instance) {
     },
 
     onNodeSelected: (nodeInfo) => {
-      if (R.contains(nodeInfo.type, nodeTypesForSelection)) {
-        store.dispatch(setEnvSelectedNode(nodeInfo._id, null));
-      }
+      //if (R.contains(nodeInfo.type, nodeTypesForSelection)) {
+      store.dispatch(setEnvSelectedNode(nodeInfo._id, null));
+      //}
     },
 
     onPositionRetrieved: (nodePath, rect) => {

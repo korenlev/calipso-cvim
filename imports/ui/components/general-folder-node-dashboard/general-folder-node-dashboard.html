@@ -1,0 +1,14 @@
+<template name="GeneralFolderNodeDashboard">
+<div class="os-general-folder-node-dashboard">
+  <div class="sm-main-cubic">
+    {{> DataCubic (argsMainCubic childrenCount)}}
+  </div>
+  <div class="sm-children-section">
+    {{#each child in children }}
+      <div class="sm-child-info-box">
+      {{> GeneralNodeInfoBox (argsGeneralNodeInfoBox child) }}
+      </div>
+    {{/each }}
+  </div>
+</div>
+</template>

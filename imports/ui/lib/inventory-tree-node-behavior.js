@@ -1,5 +1,5 @@
 import { Inventory } from '/imports/api/inventories/inventories';
-import * as R from 'ramda';
+//import * as R from 'ramda';
 
 export let InventoryTreeNodeBehavior = {
   subscribeGetChildrenFn: function (instance, parent) {
