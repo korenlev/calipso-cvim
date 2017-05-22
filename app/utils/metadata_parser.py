@@ -15,18 +15,24 @@ class MetadataParser(metaclass=ABCMeta):
         pass
 
     def validate_metadata(self, metadata: dict) -> bool:
+        if not isinstance(metadata, dict):
+            raise ValueError('metadata needs to be a valid dict')
+
         # make sure metadata json contains all fields we need
         required_fields = self.get_required_fields()
         if not all([field in metadata for field in required_fields]):
-            self.add_error("Metadata json should contain "
-                           "all the following fields: {}"
-                           .format(', '.join(required_fields)))
-            return False
+            raise ValueError("Metadata json should contain "
+                             "all the following fields: {}"
+                             .format(', '.join(required_fields)))
         return True
 
-    def _parse_json_file(self, file_path: str):
+    @staticmethod
+    def _load_json_file(file_path: str):
         with open(file_path) as data_file:
-            metadata = json.load(data_file)
+            return json.load(data_file)
+
+    def _parse_json_file(self, file_path: str):
+        metadata = self._load_json_file(file_path)
 
         # validate metadata correctness
         if not self.validate_metadata(metadata):
@@ -34,7 +40,8 @@ class MetadataParser(metaclass=ABCMeta):
 
         return metadata
 
-    def parse_metadata_file(self, file_path: str) -> dict:
+    @staticmethod
+    def check_metadata_file_ok(file_path: str):
         extension = get_extension(file_path)
         if extension != 'json':
             raise ValueError("Extension '{}' is not supported. "
@@ -45,6 +52,11 @@ class MetadataParser(metaclass=ABCMeta):
             raise ValueError("Couldn't load metadata file. "
                              "Path '{}' doesn't exist or is not a file"
                              .format(file_path))
+
+    def parse_metadata_file(self, file_path: str) -> dict:
+        # reset errors in case same parser is used to read multiple inputs
+        self.errors = []
+        self.check_metadata_file_ok(file_path)
 
         # Try to parse metadata file if it has one of the supported extensions
         metadata = self._parse_json_file(file_path)
