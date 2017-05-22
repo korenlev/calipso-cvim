@@ -18,7 +18,7 @@
       {
         "type": "host",
         "fetcher": "DbFetchAZNetworkHosts",
-        "children_scanner": "ScanNetworkHost"
+        "children_scanner": "ScanHost"
       }
     ],
     "ScanAvailabilityZonesRoot": [
