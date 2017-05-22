@@ -1,4 +1,6 @@
 import argparse
+import os
+import signal
 
 import time
 
@@ -11,6 +13,13 @@ from utils.mongo_access import MongoAccess
 
 
 class EventManager(Manager):
+
+    # After EventManager receives a SIGTERM,
+    # it will try to terminate all listeners.
+    # After this delay, a SIGKILL will be sent
+    # to each listener that is still alive.
+    SIGKILL_DELAY = 5  # in seconds
+
     DEFAULTS = {
         "mongo_config": "",
         "collection": "environments_config",
@@ -31,20 +40,24 @@ class EventManager(Manager):
         parser = argparse.ArgumentParser()
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=EventManager.DEFAULTS["mongo_config"],
-                            help="Name of config file " +
-                                 "with MongoDB server access details")
+                            help="Name of config file with MongoDB server access details"
+                                 .format(EventManager.DEFAULTS["mongo_config"]))
         parser.add_argument("-c", "--collection", nargs="?", type=str,
                             default=EventManager.DEFAULTS["collection"],
-                            help="Environments collection to read from")
+                            help="Environments collection to read from "
+                                 "(default: '{}')"
+                            .format(EventManager.DEFAULTS["collection"]))
         parser.add_argument("-y", "--inventory", nargs="?", type=str,
                             default=EventManager.DEFAULTS["inventory"],
-                            help="name of inventory collection \n" +
-                                 "(default: '{}')".format(EventManager.DEFAULTS["inventory"]))
+                            help="name of inventory collection "
+                                 "(default: '{}')"
+                            .format(EventManager.DEFAULTS["inventory"]))
         parser.add_argument("-i", "--interval", nargs="?", type=float,
                             default=EventManager.DEFAULTS["interval"],
-                            help="Interval between collection polls"
-                                 "(must be more than {} seconds)"
-                            .format(EventManager.MIN_INTERVAL))
+                            help="Interval between collection polls "
+                                 "(must be more than {} seconds. Default: {})"
+                            .format(EventManager.MIN_INTERVAL,
+                                    EventManager.DEFAULTS["interval"]))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=EventManager.DEFAULTS["loglevel"],
                             help="Logging level \n(default: 'INFO')")
@@ -56,6 +69,7 @@ class EventManager(Manager):
         self.db_client = MongoAccess(self.args.mongo_config)
         self.collection = self.db_client.db[self.args.collection]
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
+        self.set_loglevel(self.args.loglevel)
 
         self.log.info("Started EventManager with following configuration:\n"
                       "Mongo config file path: {0}\n"
@@ -73,10 +87,16 @@ class EventManager(Manager):
             'process_vars': process_vars
         })
 
-    @staticmethod
-    def _get_operational(process: dict) -> OperationalStatus:
-        return process.get("vars", {})\
-                      .get("operational")
+    def _get_alive_processes(self):
+        return [p for p in self.processes if p['process'].is_alive()]
+
+    def _get_operational(self, process: dict) -> OperationalStatus:
+        try:
+            return process.get("vars", {})\
+                          .get("operational")
+        except:
+            self.log.error("Listener '{}' is unreachable".format(process.get("name")))
+            return OperationalStatus.STOPPED
 
     def _update_operational_status(self, status: OperationalStatus):
         self.collection.update_many(
@@ -160,20 +180,30 @@ class EventManager(Manager):
                 self.update_operational_statuses()
                 time.sleep(self.interval)
         finally:
+            # Fetch operational statuses before terminating listeners.
+            # Shared variables won't be available after termination.
+            stopping_processes = [process.get("name")
+                                  for process
+                                  in self.processes
+                                  if self._get_operational(process) != OperationalStatus.ERROR]
+            self._update_operational_status(OperationalStatus.ERROR)
+
             # Gracefully stop processes
-            for process in [p for p in self.processes if p['process'].is_alive()]:
+            for process in self._get_alive_processes():
                 self.log.info("Stopping '{0}' event listener".format(process.get("name")))
                 process.get("process").terminate()
 
+            # Give processes time to finish and kill them if they are stuck
+            time.sleep(self.SIGKILL_DELAY)
+            for process in self._get_alive_processes():
+                self.log.info("Killing '{0}' event listener".format(process.get("name")))
+                os.kill(process.get("process").pid, signal.SIGKILL)
+
             # Updating operational statuses for stopped processes
             self.collection.update_many(
-                {"name": {"$in": [process.get("name")
-                                  for process
-                                  in self.processes
-                                  if self._get_operational(process) != OperationalStatus.ERROR]}},
+                {"name": {"$in": stopping_processes}},
                 {"$set": {"operational": OperationalStatus.STOPPED.value}}
             )
-            self._update_operational_status(OperationalStatus.ERROR)
 
 if __name__ == "__main__":
     EventManager().run()
