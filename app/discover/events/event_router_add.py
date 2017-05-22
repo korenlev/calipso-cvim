@@ -6,7 +6,7 @@ from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 from utils.util import decode_router_id, encode_router_id
 
 
@@ -105,9 +105,12 @@ class EventRouterAdd(EventBase):
 
         # scan links and cliques
         FindLinksForVserviceVnics().add_links(search={"parent_id": router_id})
-        ScanNetwork().scan_cliques()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan_cliques()
         self.log.info("Finished router added.")
 
         return EventResult(result=True,
                            related_object=router_id,
                            display_context=router_id)
+

@@ -1,0 +1,4 @@
+server korlev-osdna-dev.cisco.com
+user osdna
+password osdna_default
+auth_db osdna

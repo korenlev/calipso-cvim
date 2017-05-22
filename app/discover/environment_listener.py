@@ -28,7 +28,8 @@ class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
-    COMMON_METADATA_FILE = os.path.join("discover", "plugins",
+    COMMON_METADATA_FILE = os.path.join(os.environ["PYTHONPATH"], 
+                                        "discover", "plugins",
                                         "default_config.json")
 
     DEFAULTS = {
@@ -244,9 +245,11 @@ def listen(args: dict = None):
     event_handler = EventHandler(env_name, inventory_collection)
     event_queues = []
 
+    env_config = conf.get_env_config()
+    common_metadata_file = env_config.get('handlers_file',
+                                          EnvironmentListener.COMMON_METADATA_FILE)
     # import common metadata
-    import_metadata(event_handler, event_queues,
-                    EnvironmentListener.COMMON_METADATA_FILE)
+    import_metadata(event_handler, event_queues, common_metadata_file)
 
     # import custom metadata if supplied
     if args["metadata_file"]:

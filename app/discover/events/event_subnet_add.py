@@ -8,7 +8,7 @@ from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 
 
 class EventSubnetAdd(EventBase):
@@ -136,7 +136,9 @@ class EventSubnetAdd(EventBase):
         FindLinksForPnics().add_links()
         FindLinksForVserviceVnics().add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
 
-        ScanNetwork().scan_cliques()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan_cliques()
         self.log.info("Finished subnet added.")
         return EventResult(result=True,
                            related_object=subnet['id'],

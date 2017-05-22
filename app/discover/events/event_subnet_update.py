@@ -6,7 +6,7 @@ from discover.events.event_port_add import EventPortAdd
 from discover.events.event_port_delete import EventPortDelete
 from discover.events.event_subnet_add import EventSubnetAdd
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 
 
 class EventSubnetUpdate(EventBase):
@@ -25,7 +25,8 @@ class EventSubnetUpdate(EventBase):
 
         # update network document.
         subnets = network_document['subnets']
-        key = next(filter(lambda k: subnets[k]['id'] == subnet_id, subnets), None)
+        key = next(filter(lambda k: subnets[k]['id'] == subnet_id, subnets),
+                   None)
 
         if key:
             if subnet['enable_dhcp'] and subnets[key]['enable_dhcp'] is False:
@@ -33,7 +34,8 @@ class EventSubnetUpdate(EventBase):
                 # add dhcp vservice document.
                 host = self.inv.get_by_id(env, host_id)
                 port_handler = EventPortAdd()
-                port_handler.add_dhcp_document(env, host, network_id, network_document['name'])
+                port_handler.add_dhcp_document(env, host, network_id,
+                                               network_document['name'])
 
                 # make sure that self.regions is not empty.
                 if len(ApiAccess.regions) == 0:
@@ -42,24 +44,39 @@ class EventSubnetUpdate(EventBase):
                     fetcher.get(None)
 
                 self.log.info("add port binding to DHCP server.")
-                port_id = DbFetchPort().get_id_by_field(network_id, """device_owner LIKE "%dhcp" """)
-                port = EventSubnetAdd().add_port_document(env, port_id,
-                                                          network_name=network_document['name'],
-                                                          project_name=project)
+                port_id = DbFetchPort(). \
+                    get_id_by_field(network_id,
+                                    """device_owner LIKE "%dhcp" """)
+                port = EventSubnetAdd(). \
+                    add_port_document(env, port_id,
+                                      network_name=network_document['name'],
+                                      project_name=project)
                 if port:
-                    port_handler.add_vnic_document(env, host, network_id, network_name=network_document['name'],
-                                                   mac_address=port['mac_address'])
+                    port_handler. \
+                        add_vnic_document(env, host, network_id,
+                                          network_name=network_document['name'],
+                                          mac_address=port['mac_address'])
                     # add link for vservice - vnic
                     FindLinksForVserviceVnics().add_links(search={"id": "qdhcp-%s" % network_id})
-                    ScanNetwork().scan_cliques()
+                    scanner = Scanner()
+                    scanner.set_env(env)
+                    scanner.scan_cliques()
+                    FindLinksForVserviceVnics(). \
+                        add_links(search={"id": "qdhcp-%s" % network_id})
+                    scanner = Scanner()
+                    scanner.set_env(env)
+                    scanner.scan_cliques()
 
             if subnet['enable_dhcp'] is False and subnets[key]['enable_dhcp']:
                 # delete existed related DHCP documents.
-                self.inv.delete("inventory", {'id': "qdhcp-%s" % subnet['network_id']})
-                self.log.info("delete DHCP document: qdhcp-%s" % subnet['network_id'])
+                self.inv.delete("inventory",
+                                {'id': "qdhcp-%s" % subnet['network_id']})
+                self.log.info("delete DHCP document: qdhcp-%s" %
+                              subnet['network_id'])
 
                 port = self.inv.find_items({'network_id': subnet['network_id'],
-                                            'device_owner': 'network:dhcp'}, get_single=True)
+                                            'device_owner': 'network:dhcp'},
+                                           get_single=True)
                 if 'id' in port:
                     EventPortDelete().delete_port(env, port['id'])
                     self.log.info("delete port binding to DHCP server.")

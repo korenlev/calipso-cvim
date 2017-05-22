@@ -7,7 +7,7 @@ from discover.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from discover.events.event_base import EventBase, EventResult
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
 from discover.find_links_for_vedges import FindLinksForVedges
-from discover.scan_instances_root import ScanInstancesRoot
+from discover.scanner import Scanner
 
 
 class EventPortAdd(EventBase):
@@ -287,7 +287,9 @@ class EventPortAdd(EventBase):
             fetchers_implementing_add_links = [FindLinksForInstanceVnics(), FindLinksForVedges()]
             for fetcher in fetchers_implementing_add_links:
                 fetcher.add_links()
-            ScanInstancesRoot().scan_cliques()
+            scanner = Scanner()
+            scanner.set_env(env)
+            scanner.scan_cliques()
 
         port_document = self.inv.get_by_id(env, port['id'])
         if not port_document:
