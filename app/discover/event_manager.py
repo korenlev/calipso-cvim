@@ -40,8 +40,7 @@ class EventManager(Manager):
         parser = argparse.ArgumentParser()
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=EventManager.DEFAULTS["mongo_config"],
-                            help="Name of config file with MongoDB server access details"
-                                 .format(EventManager.DEFAULTS["mongo_config"]))
+                            help="Name of config file with MongoDB server access details")
         parser.add_argument("-c", "--collection", nargs="?", type=str,
                             default=EventManager.DEFAULTS["collection"],
                             help="Environments collection to read from "
