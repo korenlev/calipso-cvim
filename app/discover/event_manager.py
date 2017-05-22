@@ -87,14 +87,28 @@ class EventManager(Manager):
         })
 
     def _get_alive_processes(self):
-        return [p for p in self.processes if p['process'].is_alive()]
+        return [p for p in self.processes
+                if p['process'].is_alive()]
+
+    # Get all processes that should be terminated
+    def _get_stuck_processes(self, stopped_processes: list):
+        return [p for p in self._get_alive_processes()
+                if p.get("name") in map(lambda p: p.get("name"), stopped_processes)]
+
+    # Give processes time to finish and kill them if they are stuck
+    def _kill_stuck_processes(self, process_list: list):
+        if self._get_stuck_processes(process_list):
+            time.sleep(self.SIGKILL_DELAY)
+        for process in self._get_stuck_processes(process_list):
+            self.log.info("Killing event listener '{0}'".format(process.get("name")))
+            os.kill(process.get("process").pid, signal.SIGKILL)
 
     def _get_operational(self, process: dict) -> OperationalStatus:
         try:
             return process.get("vars", {})\
                           .get("operational")
         except:
-            self.log.error("Listener '{}' is unreachable".format(process.get("name")))
+            self.log.error("Event listener '{0}' is unreachable".format(process.get("name")))
             return OperationalStatus.STOPPED
 
     def _update_operational_status(self, status: OperationalStatus):
@@ -125,15 +139,18 @@ class EventManager(Manager):
         stopped_processes = []
         # Drop already terminated processes
         # and for all others perform filtering
-        for process in [p for p in self.processes if p['process'].is_alive()]:
+        for process in self._get_alive_processes():
             # If env no longer qualifies for listening,
             # stop the listener.
             # Otherwise, keep the process
             if process['name'] in dropped_envs:
+                self.log.info("Stopping event listener '{0}'".format(process.get("name")))
                 process['process'].terminate()
                 stopped_processes.append(process)
             else:
                 live_processes.append(process)
+
+        self._kill_stuck_processes(stopped_processes)
 
         # Update all 'operational' statuses
         # for processes stopped on the previous step
@@ -172,7 +189,7 @@ class EventManager(Manager):
                                 args=(name, process_vars,),
                                 name=name)
                     self.processes.append({"process": p, "name": name, "vars": process_vars})
-                    self.log.info("Starting event listener for '{0}' env".format(name))
+                    self.log.info("Starting event listener '{0}'".format(name))
                     p.start()
 
                 # Make sure statuses are up-to-date before event manager goes to sleep
@@ -189,14 +206,11 @@ class EventManager(Manager):
 
             # Gracefully stop processes
             for process in self._get_alive_processes():
-                self.log.info("Stopping '{0}' event listener".format(process.get("name")))
+                self.log.info("Stopping event listener '{0}'".format(process.get("name")))
                 process.get("process").terminate()
 
-            # Give processes time to finish and kill them if they are stuck
-            time.sleep(self.SIGKILL_DELAY)
-            for process in self._get_alive_processes():
-                self.log.info("Killing '{0}' event listener".format(process.get("name")))
-                os.kill(process.get("process").pid, signal.SIGKILL)
+            # Kill all remaining processes
+            self._kill_stuck_processes(self.processes)
 
             # Updating operational statuses for stopped processes
             self.collection.update_many(
