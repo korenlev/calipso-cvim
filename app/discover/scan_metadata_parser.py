@@ -40,16 +40,20 @@ class ScanMetadataParser(MetadataParser):
             self.add_error('missing or empty fetcher in scanner {} type #{}'
                            .format(scanner_name, str(type_index)))
         elif isinstance(fetcher, str):
-            instance = ClassResolver.get_instance_of_class(fetcher, package)
+            try:
+                instance = ClassResolver.get_instance_of_class(fetcher, package)
+            except ModuleNotFoundError:
+                instance = None
             if not instance:
                 self.add_error('failed to find fetcher class {} in scanner {}'
                                ' type #{}'
                                .format(fetcher, scanner_name, type_index))
             scan_type[self.FETCHER] = instance
         elif isinstance(fetcher, dict):
-            is_folder = fetcher.get('folder')
-            if not is_folder or is_folder != 1:
-                self.add_error('scanner {} type #{}: only folder dict accepted'
+            is_folder = fetcher.get('folder', False)
+            if not is_folder:
+                self.add_error('scanner {} type #{}: '
+                               'only folder dict accepted in fetcher'
                                .format(scanner_name, type_index))
             else:
                 instance = FolderFetcher(fetcher['types_name'],
@@ -61,10 +65,10 @@ class ScanMetadataParser(MetadataParser):
                            .format(scanner_name, type_index))
 
     def validate_children_scanner(self, scanner_name: str, type_index: int,
-                                  scanners: dict):
+                                  scanners: dict, scan_type: dict):
         scanner = scanners[scanner_name]
-        if 'children_scanner' in scanner:
-            children_scanner = scanner.get('children_scanner')
+        if 'children_scanner' in scan_type:
+            children_scanner = scan_type.get('children_scanner')
             if not isinstance(children_scanner, str):
                 self.add_error('scanner {} type #{}: '
                                'children_scanner must be a string'
@@ -91,13 +95,13 @@ class ScanMetadataParser(MetadataParser):
                                '{} must be a list of strings'
                                .format(scanner_name, type_index,
                                        self.MECHANISM_DRIVER))
-            for driver in drivers:
-                if not isinstance(driver, str):
-                    self.add_error('scanner {} type #{}: '
-                                   '{} must be a list of strings'
-                                   .format(scanner_name, type_index,
-                                           self.MECHANISM_DRIVER))
-                else:
+            if not all((isinstance(driver, str) for driver in drivers)):
+                self.add_error('scanner {} type #{}: '
+                               '{} must be a list of strings'
+                               .format(scanner_name, type_index,
+                                       self.MECHANISM_DRIVER))
+            else:
+                for driver in drivers:
                     self.validate_constant(scanner_name,
                                            driver,
                                            'mechanism_drivers',
@@ -112,7 +116,7 @@ class ScanMetadataParser(MetadataParser):
         # make sure only allowed attributes are supplied
         for i in range(0, len(scanner)):
             scan_type = scanner[i]
-            self.validate_scan_type(scanners, name, i, scan_type, package)
+            self.validate_scan_type(scanners, name, i+1, scan_type, package)
 
     def validate_scan_type(self, scanners: dict, scanner_name: str,
                            type_index: int, scan_type: dict, package: str):
@@ -130,7 +134,8 @@ class ScanMetadataParser(MetadataParser):
         # make sure required attributes are supplied
         for attribute in ScanMetadataParser.REQUIRED_SCANNER_ATTRIBUTES:
             if attribute not in scan_type:
-                self.add_error('scanner {}, type #{}: missing attribute {}'
+                self.add_error('scanner {}, type #{}: '
+                               'missing attribute "{}"'
                                .format(scanner_name, str(type_index),
                                        attribute))
         # the following checks depend on previous checks,
@@ -142,7 +147,8 @@ class ScanMetadataParser(MetadataParser):
         self.validate_constant(scanner_name, scan_type[self.TYPE],
                                'scan_object_types', 'types')
         self.validate_fetcher(scanner_name, scan_type, type_index, package)
-        self.validate_children_scanner(scanner_name, type_index, scanners)
+        self.validate_children_scanner(scanner_name, type_index, scanners,
+                                       scan_type)
         self.validate_environment_condition(scanner_name, type_index,
                                             scan_type)
 
@@ -173,6 +179,9 @@ class ScanMetadataParser(MetadataParser):
         super().validate_metadata(metadata)
         scanners = metadata.get(self.SCANNERS, [])
         package = metadata.get(self.SCANNERS_PACKAGE)
-        for name in scanners.keys():
-            self.validate_scanner(scanners, name, package)
+        if not scanners:
+            self.add_error('no scanners found in scanners list')
+        else:
+            for name in scanners.keys():
+                self.validate_scanner(scanners, name, package)
         return len(self.errors) == 0
