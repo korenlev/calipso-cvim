@@ -32,7 +32,7 @@
       {
         "type": "regions_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "regions",
           "parent_type": "environment"
         },
@@ -41,7 +41,7 @@
       {
         "type": "projects_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "projects",
           "parent_type": "environment"
         },
@@ -59,7 +59,7 @@
         "_comment": "creating only top folder for vServices",
         "type": "vservices_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "vservices",
           "parent_type": "host",
           "text": "vServices"
@@ -78,7 +78,7 @@
       {
         "type": "instances_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "instances",
           "parent_type": "host"
         },
@@ -87,7 +87,7 @@
       {
         "type": "pnics_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "pnics",
           "parent_type": "host",
           "text": "pNICs"
@@ -103,7 +103,7 @@
       {
         "type": "vconnectors_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "vconnectors",
           "parent_type": "host",
           "text": "vConnectors"
@@ -113,7 +113,7 @@
       {
         "type": "vedges_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "vedges",
           "parent_type": "host",
           "text": "vEdges"
@@ -123,7 +123,7 @@
       {
         "type": "network_agents_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "network_agents",
           "parent_type": "host",
           "text": "Network agents"
@@ -135,7 +135,7 @@
       {
         "type": "vnics_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "vnics",
           "parent_type": "instance",
           "text": "vNICs"
@@ -160,7 +160,7 @@
       {
         "type": "ports_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "ports",
           "parent_type": "network"
         }
@@ -168,7 +168,7 @@
       {
         "type": "network_services_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "network_services",
           "parent_type": "network",
           "text": "Network vServices"
@@ -244,7 +244,7 @@
       {
         "type": "aggregates_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "aggregates",
           "parent_type": "region"
         },
@@ -295,7 +295,7 @@
       {
         "type": "pnics_folder",
         "fetcher": {
-          "folder": 1,
+          "folder": true,
           "types_name": "pnics",
           "parent_type": "vedge",
           "text": "pNICs"
