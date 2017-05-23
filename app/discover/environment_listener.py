@@ -28,9 +28,7 @@ class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
-    COMMON_METADATA_FILE = os.path.join(os.environ["PYTHONPATH"], 
-                                        "discover", "plugins",
-                                        "default_config.json")
+    COMMON_METADATA_FILE = "default_config.json"
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
@@ -246,8 +244,9 @@ def listen(args: dict = None):
     event_queues = []
 
     env_config = conf.get_env_config()
-    common_metadata_file = env_config.get('handlers_file',
-                                          EnvironmentListener.COMMON_METADATA_FILE)
+    common_metadata_file = env_config.get('app_path', '/etc/osdna') + \
+        os.sep + 'config' + os.sep + \
+        EnvironmentListener.COMMON_METADATA_FILE
     # import common metadata
     import_metadata(event_handler, event_queues, common_metadata_file)
 

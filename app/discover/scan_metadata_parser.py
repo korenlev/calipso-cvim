@@ -7,6 +7,7 @@ from utils.util import ClassResolver
 class ScanMetadataParser(MetadataParser):
 
     SCANNERS_PACKAGE = 'scanners_package'
+    SCANNERS_FILE = 'scanners.json'
     SCANNERS = 'scanners'
 
     TYPE = 'type'

@@ -2,6 +2,7 @@
 
 import json
 import queue
+import os
 import traceback
 
 from discover.configuration import Configuration
@@ -311,8 +312,8 @@ class Scanner(Fetcher):
     def load_metadata(self):
         parser = ScanMetadataParser(self.inv)
         conf = self.config.get_env_config()
-        scanners_file = conf.get('scanners_file',
-                                 '/etc/osdna/config/scanners.json')
+        scanners_file = conf.get('app_path', '/etc/osdna') + \
+            os.sep + 'config' + os.sep + ScanMetadataParser.SCANNERS_FILE
         metadata = parser.parse_metadata_file(scanners_file)
         self.scanners_package = metadata[ScanMetadataParser.SCANNERS_PACKAGE]
         self.scanners = metadata[ScanMetadataParser.SCANNERS]
