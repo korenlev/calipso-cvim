@@ -175,7 +175,23 @@ class SshConnection(BinaryConverter, Logger):
                            ', error: ' + str(e))
             return str(e)
         self.log.info('SFTP copy_file success: host={},{} -> {}'.format(
-                      str(self.host), str(local_path), str(remote_path)))
+            str(self.host), str(local_path), str(remote_path)))
+        return ''
+
+    def copy_file_from_remote(self, remote_path, local_path):
+        self.connect()
+        if not self.ftp:
+            self.ftp = self.ssh.open_sftp()
+        try:
+            self.ftp.get(remote_path, local_path)
+        except IOError as e:
+            self.log.error('SFTP copy_file_from_remote failed to copy file: '
+                           'remote host: {}, '
+                           'remote_path: {}, local: {}, error: {}'
+                           .format(self.host, remote_path, local_path, str(e)))
+            return str(e)
+        self.log.info('SFTP copy_file_from_remote success: host={},{} -> {}'.
+                      format(self.host, remote_path, local_path))
         return ''
 
     def is_gateway_host(self, host):
