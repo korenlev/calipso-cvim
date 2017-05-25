@@ -1,5 +1,3 @@
-import json
-
 from discover.configuration import Configuration
 from utils.logger import Logger
 
@@ -8,7 +6,6 @@ class Fetcher(Logger):
 
     def __init__(self):
         super().__init__()
-        self.env = None
         self.configuration = None
 
     @staticmethod
@@ -16,7 +13,7 @@ class Fetcher(Logger):
         return string
 
     def set_env(self, env):
-        self.env = env
+        super().set_env(env)
         self.configuration = Configuration()
 
     def get_env(self):
