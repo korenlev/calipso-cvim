@@ -16,7 +16,7 @@ from utils.mongo_access import MongoAccess
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshConnection
-from utils.util import ClassResolver, setup_args
+from utils.util import setup_args
 
 
 class ScanPlan:
@@ -64,17 +64,17 @@ class ScanPlan:
         if (self.inventory_only and self.links_only) \
                 or (self.inventory_only and self.cliques_only) \
                 or (self.links_only and self.cliques_only):
-            errors.append("Only one of (inventory_only, links_only, cliques_only) can be True.")
+            errors.append("Only one of (inventory_only, links_only, "
+                          "cliques_only) can be True.")
         if errors:
             raise ScanArgumentsError("\n".join(errors))
 
     def _set_arg_from_dict(self, attribute_name, arg_name=None,
                            default_key=None):
-        setattr(self,
-                attribute_name,
+        default_attr = default_key if default_key else attribute_name
+        setattr(self, attribute_name,
                 self.args.get(arg_name if arg_name else attribute_name,
-                              ScanController.DEFAULTS[default_key
-                              if default_key else attribute_name]))
+                              ScanController.DEFAULTS[default_attr]))
 
     def _set_arg_from_cmd(self, attribute_name, arg_name=None):
         setattr(self,
@@ -83,11 +83,11 @@ class ScanPlan:
 
     def _set_arg_from_form(self, attribute_name, arg_name=None,
                            default_key=None):
+        default_attr = default_key if default_key else attribute_name
         setattr(self,
                 attribute_name,
                 self.args.getvalue(arg_name if arg_name else attribute_name,
-                                   ScanController.DEFAULTS[default_key
-                                   if default_key else attribute_name]))
+                                   ScanController.DEFAULTS[default_attr]))
 
     def _init_from_dict(self):
         for arg in self.COMMON_ATTRIBUTES:
@@ -133,18 +133,18 @@ class ScanController(Fetcher):
                                  "with MongoDB server access details")
         parser.add_argument("-e", "--env", nargs="?", type=str,
                             default=self.DEFAULTS["env"],
-                            help="name of environment to scan \n" +
+                            help="name of environment to scan \n"
                                  "(default: " + self.DEFAULTS["env"] + ")")
         parser.add_argument("-t", "--type", nargs="?", type=str,
                             default=self.DEFAULTS["type"],
-                            help="type of object to scan \n" +
+                            help="type of object to scan \n"
                                  "(default: environment)")
         parser.add_argument("-y", "--inventory", nargs="?", type=str,
                             default=self.DEFAULTS["inventory"],
-                            help="name of inventory collection \n" +
+                            help="name of inventory collection \n"
                                  "(default: 'inventory')")
         parser.add_argument("-s", "--scan_self", action="store_true",
-                            help="scan changes to a specific object \n" +
+                            help="scan changes to a specific object \n"
                                  "(default: False)")
         parser.add_argument("-i", "--id", nargs="?", type=str,
                             default=self.DEFAULTS["env"],
@@ -157,20 +157,20 @@ class ScanController(Fetcher):
                             help="type of parent object (when scan_self=true)")
         parser.add_argument("-f", "--id_field", nargs="?", type=str,
                             default=self.DEFAULTS["id_field"],
-                            help="name of ID field (when scan_self=true) \n" +
+                            help="name of ID field (when scan_self=true) \n"
                                  "(default: 'id', use 'name' for projects)")
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=self.DEFAULTS["loglevel"],
                             help="logging level \n(default: 'INFO')")
         parser.add_argument("--clear", action="store_true",
-                            help="clear all data related to " +
-                                 "the specified environment prior to scanning\n" +
+                            help="clear all data related to "
+                                 "the specified environment prior to scanning\n"
                                  "(default: False)")
         parser.add_argument("--clear_all", action="store_true",
-                            help="clear all data prior to scanning\n" +
+                            help="clear all data prior to scanning\n"
                                  "(default: False)")
         parser.add_argument("--monitoring_setup_only", action="store_true",
-                            help="do only monitoring setup deployment \n" +
+                            help="do only monitoring setup deployment \n"
                                  "(default: False)")
 
         # At most one of these arguments may be present
@@ -201,13 +201,14 @@ class ScanController(Fetcher):
                 # If we scan a specific object, it has to exist in db
                 scanned_object = self.inv.get_by_id(plan.env, plan.object_id)
                 if not scanned_object:
-                    raise ScanArgumentsError("No object found with specified id: '{}'"
-                                             .format(plan.object_id))
+                    exc_msg = "No object found with specified id: '{}'" \
+                        .format(plan.object_id)
+                    raise ScanArgumentsError(exc_msg)
                 plan.object_type = scanned_object["type"]
                 plan.parent_id = scanned_object["parent_id"]
                 plan.type_to_scan = scanned_object["parent_type"]
 
-        module = plan.object_type
+        class_module = plan.object_type
         if not plan.scan_self:
             plan.scan_self = plan.object_type != "environment"
 
@@ -219,18 +220,19 @@ class ScanController(Fetcher):
             plan.child_id = plan.object_id
             plan.object_id = plan.parent_id
             if plan.type_to_scan.endswith("_folder"):
-                module = plan.child_type + "s_root"
+                class_module = plan.child_type + "s_root"
             else:
-                module = plan.type_to_scan
-            plan.object_type = module.title().replace("_", "")
+                class_module = plan.type_to_scan
+            plan.object_type = class_module.title().replace("_", "")
 
-        if module == "environment":
+        if class_module == "environment":
             plan.obj = {"id": plan.env}
         else:
             # fetch object from inventory
             obj = self.inv.get_by_id(plan.env, plan.object_id)
             if not obj:
-                raise ValueError("No match for object ID: {}".format(plan.object_id))
+                raise ValueError("No match for object ID: {}"
+                                 .format(plan.object_id))
             plan.obj = obj
 
         plan.scanner_type = "Scan" + plan.object_type
@@ -242,7 +244,7 @@ class ScanController(Fetcher):
         # defined in self.DEFAULTS
 
         try:
-            MongoAccess.set_config_file(self.conf)
+            MongoAccess.set_config_file(args['mongo_config'])
             self.conf = Configuration()
             self.inv = InventoryMgr()
             self.inv.set_collections(args['inventory'])
@@ -271,7 +273,7 @@ class ScanController(Fetcher):
 
         # setup monitoring server
         self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(args['mongo_config'], env_name)
+            MonitoringSetupManager(env_name)
         self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
