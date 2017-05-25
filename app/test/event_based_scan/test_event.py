@@ -7,6 +7,7 @@ from test.event_based_scan.config.test_config \
     import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from utils.mongo_access import MongoAccess
 
 
 class TestEvent(unittest.TestCase):
@@ -16,7 +17,8 @@ class TestEvent(unittest.TestCase):
         self.env = ENV_CONFIG
         self.collection = COLLECTION_CONFIG
 
-        self.conf = Configuration(self.mongo_config)
+        MongoAccess.set_config_file(self.mongo_config)
+        self.conf = Configuration()
         self.conf.use_env(self.env)
 
         self.inv = InventoryMgr()

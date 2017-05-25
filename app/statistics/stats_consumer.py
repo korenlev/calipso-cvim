@@ -17,8 +17,9 @@ class StatsConsumer(MongoAccess, Logger):
 
     def __init__(self):
         self.get_args()
+        MongoAccess.set_config_file(self.args.mongo_config)
         self.set_loglevel(self.args.loglevel)
-        self.conf = Configuration(self.args.mongo_config)
+        self.conf = Configuration()
         self.inv = InventoryMgr()
         self.inv.set_collections(self.args.inventory)
         stats_coll = self.inv.get_coll_name('statistics')

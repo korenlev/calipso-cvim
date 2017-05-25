@@ -17,8 +17,8 @@ def inv_initialization_required(func):
 
 class InventoryMgr(MongoAccess, metaclass=Singleton):
 
-    def __init__(self, mongo_config=""):
-        super().__init__(mongo_config)
+    def __init__(self):
+        super().__init__()
         self.inventory_collection = None
         self.inventory_collection_name = None
         self.collections = {}

@@ -51,7 +51,8 @@ class ScanManager(Manager):
 
     def configure(self):
         self.args = self.get_args()
-        self.db_client = MongoAccess(self.args.mongo_config)
+        MongoAccess.set_config_file(self.args.mongo_config)
+        self.db_client = MongoAccess()
         self.collection = self.db_client.db[self.args.collection]
         self.environments_collection = self.db_client.db[self.args.environments_collection]
         self._update_document = partial(MongoAccess.update_document, self.collection)

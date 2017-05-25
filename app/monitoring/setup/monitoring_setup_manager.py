@@ -14,16 +14,15 @@ class MonitoringSetupManager(MonitoringHandler):
 
     object_handlers = None
 
-    def __init__(self, mongo_conf_file, env):
-        conf_file = mongo_conf_file
-        super().__init__(conf_file, env)
+    def __init__(self, env):
+        super().__init__(env)
         self.object_handlers = {
-            "host": MonitoringHost(conf_file, env),
-            "otep": MonitoringOtep(conf_file, env),
-            "vedge": MonitoringVedge(conf_file, env),
-            "pnic": MonitoringPnic(conf_file, env),
-            "vnic": MonitoringVnic(conf_file, env),
-            "vnic-vconnector": MonitoringLinkVnicVconnector(conf_file, env)}
+            "host": MonitoringHost(env),
+            "otep": MonitoringOtep(env),
+            "vedge": MonitoringVedge(env),
+            "pnic": MonitoringPnic(env),
+            "vnic": MonitoringVnic(env),
+            "vnic-vconnector": MonitoringLinkVnicVconnector(env)}
 
     # add monitoring setup to Sensu server
     def server_setup(self):

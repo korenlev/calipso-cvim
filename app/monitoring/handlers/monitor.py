@@ -6,6 +6,8 @@ import argparse
 import json
 import sys
 
+from utils.mongo_access import MongoAccess
+
 DEFAULT_ENV = "WebEX-Mirantis@Cisco"
 
 
@@ -32,6 +34,7 @@ def get_args():
 
 input = None
 args = get_args()
+MongoAccess.set_config_file(args.mongo_config)
 if args.inputfile:
     try:
         with open(args.inputfile, 'r') as input_file:

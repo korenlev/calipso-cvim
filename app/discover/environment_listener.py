@@ -20,6 +20,7 @@ from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
 from utils.logger import Logger
+from utils.mongo_access import MongoAccess
 from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
 
@@ -237,7 +238,8 @@ def listen(args: dict = None):
     env_name = args["env"]
     inventory_collection = args["inventory"]
 
-    conf = Configuration(args["mongo_config"], args["environments_collection"])
+    MongoAccess.set_config_file(args["mongo_config"])
+    conf = Configuration(args["environments_collection"])
     conf.use_env(env_name)
 
     event_handler = EventHandler(env_name, inventory_collection)

@@ -3,8 +3,8 @@ from monitoring.setup.monitoring_check_handler import MonitoringCheckHandler
 
 class MonitoringLinkVnicVconnector(MonitoringCheckHandler):
 
-    def __init__(self, mongo_conf_file, env):
-        super().__init__(mongo_conf_file, env)
+    def __init__(self, env):
+        super().__init__(env)
 
     # add monitoring setup for remote host
     def create_setup(self, link):

@@ -12,6 +12,7 @@ from discover.fetcher import Fetcher
 from discover.scan_error import ScanError
 from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.mongo_access import MongoAccess
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshConnection
@@ -237,10 +238,12 @@ class ScanController(Fetcher):
 
     def run(self, args: dict = None):
         args = setup_args(args, self.DEFAULTS, self.get_args)
-        # After this setup we assume args dictionary has all keys defined in self.DEFAULTS
+        # After this setup we assume args dictionary has all keys
+        # defined in self.DEFAULTS
 
         try:
-            self.conf = Configuration(args['mongo_config'])
+            MongoAccess.set_config_file(self.conf)
+            self.conf = Configuration()
             self.inv = InventoryMgr()
             self.inv.set_collections(args['inventory'])
         except FileNotFoundError:

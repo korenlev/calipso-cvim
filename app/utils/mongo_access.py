@@ -15,11 +15,18 @@ class MongoAccess(Logger, DictNamingConverter):
     client = None
     db = None
     default_conf_file = '/local_dir/osdna_mongo_access.conf'
+    config_file = None
 
-    def __init__(self, config_file_path=""):
+    def __init__(self):
         super().__init__()
         self.connect_params = {}
-        self.mongo_connect(config_file_path)
+        if not MongoAccess.config_file:
+            raise ValueError('MongoAccess config file was not set')
+        self.mongo_connect(MongoAccess.config_file)
+
+    @staticmethod
+    def set_config_file(_conf_file):
+        MongoAccess.config_file = _conf_file
 
     def mongo_connect(self, config_file_path=""):
         if MongoAccess.client:

@@ -7,6 +7,7 @@ from api.backends.ldap_access import LDAPAccess
 from api.exceptions.exceptions import OSDNAApiException
 from api.middleware.authentication import AuthenticationMiddleware
 from utils.inventory_mgr import InventoryMgr
+from utils.mongo_access import MongoAccess
 
 
 class App:
@@ -32,7 +33,8 @@ class App:
 
     def __init__(self, mongo_config="", ldap_config="",
                  log_level="", inventory="", token_lifetime=86400):
-        self.inv = InventoryMgr(mongo_config)
+        MongoAccess.set_config_file(mongo_config)
+        self.inv = InventoryMgr()
         self.inv.set_loglevel(log_level)
         self.inv.set_collections(inventory)
         self.ldap_access = LDAPAccess(ldap_config)
