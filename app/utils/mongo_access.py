@@ -19,10 +19,14 @@ class MongoAccess(Logger, DictNamingConverter):
 
     def __init__(self):
         super().__init__()
+        self.ready = False
         self.connect_params = {}
         if not MongoAccess.config_file:
             raise ValueError('MongoAccess config file was not set')
         self.mongo_connect(MongoAccess.config_file)
+
+    def is_db_ready(self) -> bool:
+        return self.ready
 
     @staticmethod
     def set_config_file(_conf_file):
@@ -55,6 +59,7 @@ class MongoAccess(Logger, DictNamingConverter):
             self.connect_params["port"]
         )
         MongoAccess.db = MongoAccess.client.osdna
+        self.ready = True
 
     def prepare_connect_uri(self):
         params = self.connect_params
