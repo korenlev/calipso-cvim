@@ -1,5 +1,5 @@
 from discover.configuration import Configuration
-from utils.logger import Logger
+from utils.logging.logger import Logger
 
 
 class Fetcher(Logger):

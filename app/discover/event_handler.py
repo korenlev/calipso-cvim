@@ -1,6 +1,6 @@
 from discover.events.event_base import EventBase, EventResult
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.logger import Logger
 from utils.util import ClassResolver
 
 

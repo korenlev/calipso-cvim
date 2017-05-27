@@ -1,15 +1,16 @@
 import json
 import re
+from urllib import parse
+
+from dateutil import parser
+from pymongo import errors
 
 from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
-from dateutil import parser
-from pymongo import errors
 from utils.dict_naming_converter import DictNamingConverter
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.logger import Logger
 from utils.string_utils import jsonify, stringify_object_values_by_types
-from urllib import parse
 
 
 class ResponderBase(DataValidate, Logger, DictNamingConverter):

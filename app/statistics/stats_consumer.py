@@ -8,7 +8,7 @@ from kafka import KafkaConsumer
 
 from discover.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.logger import Logger
 from utils.mongo_access import MongoAccess
 
 

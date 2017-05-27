@@ -19,7 +19,7 @@ from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.logger import Logger
 from utils.mongo_access import MongoAccess
 from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args

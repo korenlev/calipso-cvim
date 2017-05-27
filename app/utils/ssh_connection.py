@@ -1,11 +1,9 @@
-from collections import defaultdict
-
 import os
 
 import paramiko
 
 from utils.binary_converter import BinaryConverter
-from utils.logger import Logger
+from utils.logging.logger import Logger
 
 
 class SshConnection(BinaryConverter, Logger):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from abc import ABC, abstractmethod
 
-from utils.logger import Logger
+from utils.logging.logger import Logger
 
 
 class Manager(Logger, ABC):

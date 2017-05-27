@@ -1,0 +1,59 @@
+import logging
+
+
+class Logger:
+    log_format = '%(asctime)s %(levelname)s: %(message)s'
+    formatter = logging.Formatter(log_format)
+    default_level = 'INFO'
+
+    def __init__(self):
+        super().__init__()
+        self.log = logging.getLogger("OS-DNA")
+        logging.basicConfig(format=self.log_format,
+                            level=self.default_level)
+        self.log.propagate = False
+        self.set_loglevel(self.default_level)
+        self.env = None
+        self.level = self.default_level
+
+    def set_env(self, _env):
+        self.env = _env
+
+    @staticmethod
+    def get_numeric_level(loglevel):
+        numeric_level = getattr(logging, loglevel.upper(), Logger.default_level)
+        if not isinstance(numeric_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel)
+        return numeric_level
+
+    def set_loglevel(self, loglevel):
+        # assuming loglevel is bound to the string value obtained from the
+        # command line argument. Convert to upper case to allow the user to
+        # specify --log=DEBUG or --log=debug
+        numeric_level = self.get_numeric_level(loglevel)
+
+        for handler in self.log.handlers:
+            handler.setLevel(numeric_level)
+        self.log.setLevel(numeric_level)
+        self.level = loglevel
+
+    def _log(self, level, message, exc_info=False, *args, **kwargs):
+        self.log.log(level=level, msg=message, exc_info=exc_info)
+
+    def debug(self, message, *args, **kwargs):
+        self._log(logging.DEBUG, message, *args, **kwargs)
+
+    def info(self, message, *args, **kwargs):
+        self._log(logging.INFO, message, *args, **kwargs)
+
+    def warning(self, message, *args, **kwargs):
+        self._log(logging.WARNING, message, *args, **kwargs)
+
+    def error(self, message, *args, **kwargs):
+        self._log(logging.ERROR, message, *args, **kwargs)
+
+    def exception(self, message, *args, **kwargs):
+        self._log(logging.ERROR, message, exc_info=True, *args, **kwargs)
+
+    def critical(self, message, *args, **kwargs):
+        self._log(logging.CRITICAL, message, *args, **kwargs)

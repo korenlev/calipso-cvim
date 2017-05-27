@@ -1,4 +1,4 @@
-from utils.logger import Logger
+from utils.logging.logger import Logger
 
 
 class OSDNAApiException(Exception):

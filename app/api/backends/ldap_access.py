@@ -1,8 +1,9 @@
-from ldap3 import Server, Connection, Tls
 import ssl
 
+from ldap3 import Server, Connection, Tls
+
 from utils.config_file import ConfigFile
-from utils.logger import Logger
+from utils.logging.logger import Logger
 from utils.singleton import Singleton
 
 

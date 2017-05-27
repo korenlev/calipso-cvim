@@ -1,7 +1,8 @@
 from pymongo import MongoClient
+
 from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
-from utils.logger import Logger
+from utils.logging.logger import Logger
 
 
 # Provides access to MongoDB using PyMongo library

@@ -1,12 +1,11 @@
-import unittest
-
 import re
+import unittest
 
 from discover.configuration import Configuration
 from test.event_based_scan.config.test_config \
     import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.logger import Logger
 from utils.mongo_access import MongoAccess
 
 

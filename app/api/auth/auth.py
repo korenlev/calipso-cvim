@@ -1,7 +1,7 @@
-from api.backends.ldap_access import LDAPAccess
 from api.auth.token import Token
+from api.backends.ldap_access import LDAPAccess
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.logger import Logger
 
 
 class Auth(Logger):
