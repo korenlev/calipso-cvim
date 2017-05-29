@@ -6,9 +6,11 @@ class Logger:
     formatter = logging.Formatter(log_format)
     default_level = 'INFO'
 
+    PROJECT_NAME = 'CALIPSO'
+
     def __init__(self):
         super().__init__()
-        self.log = logging.getLogger("OS-DNA")
+        self.log = logging.getLogger(self.PROJECT_NAME)
         logging.basicConfig(format=self.log_format,
                             level=self.default_level)
         self.log.propagate = False
@@ -57,3 +59,9 @@ class Logger:
 
     def critical(self, message, *args, **kwargs):
         self._log(logging.CRITICAL, message, *args, **kwargs)
+
+    def add_handler(self, handler, multiple_handlers=False):
+        handler.setLevel(self.default_level)
+        handler.setFormatter(self.formatter)
+        if not multiple_handlers and not self.log.hasHandlers():
+            self.log.addHandler(handler)
