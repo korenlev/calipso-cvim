@@ -7,7 +7,4 @@ class ConsoleLogger(Logger):
 
     def __init__(self):
         super().__init__()
-        ch = logging.StreamHandler()
-        ch.setLevel(self.default_level)
-        ch.setFormatter(self.formatter)
-        self.log.addHandler(ch)
+        self.add_handler(logging.StreamHandler())
