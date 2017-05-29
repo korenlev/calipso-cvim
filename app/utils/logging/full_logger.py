@@ -1,21 +1,24 @@
-from utils.logging.console_logger import ConsoleLogger
+import logging
+import logging.handlers
+
+from utils.logging.logger import Logger
 from utils.logging.mongo_logging_handler import MongoLoggingHandler
 
 
-class FullLogger(ConsoleLogger):
+class FullLogger(Logger):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, env: str = None, log_file: str = None):
+        super().__init__(logger_name="{}-Full".format(self.PROJECT_NAME))
 
-    def _log(self, level, message, exc_info=False, *args, **kwargs):
-        handler_defined = MongoLoggingHandler.__class__ \
-                          in map(lambda handler: handler.__class__, self.log.handlers)
-        if 'env' in kwargs and not handler_defined:
-            try:
-                self.log.addHandler(MongoLoggingHandler(kwargs.get('env'),
-                                                        self.level))
-            except:
-                pass
+        # Console handler
+        self.add_handler(logging.StreamHandler())
 
-        super()._log(level=level, message=message, exc_info=exc_info,
-                     *args, **kwargs)
+        # Message handler
+        if env:  # TODO: make env optional
+            self.add_handler(MongoLoggingHandler(env, self.level))
+
+        # File handler
+        if log_file:
+            self.add_handler(logging.handlers.WatchedFileHandler(log_file))
+
+

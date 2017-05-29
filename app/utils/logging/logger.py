@@ -1,16 +1,23 @@
 import logging
+from abc import ABC
 
 
-class Logger:
+class Logger(ABC):
+    DEBUG = 'DEBUG'
+    INFO = 'INFO'
+    WARNING = 'WARNING'
+    ERROR = 'ERROR'
+    CRITICAL = 'CRITICAL'
+
     log_format = '%(asctime)s %(levelname)s: %(message)s'
     formatter = logging.Formatter(log_format)
-    default_level = 'INFO'
+    default_level = INFO
 
     PROJECT_NAME = 'CALIPSO'
 
-    def __init__(self):
+    def __init__(self, logger_name=PROJECT_NAME):
         super().__init__()
-        self.log = logging.getLogger(self.PROJECT_NAME)
+        self.log = logging.getLogger(logger_name)
         logging.basicConfig(format=self.log_format,
                             level=self.default_level)
         self.log.propagate = False
@@ -18,8 +25,8 @@ class Logger:
         self.env = None
         self.level = self.default_level
 
-    def set_env(self, _env):
-        self.env = _env
+    def set_env(self, env):
+        self.env = env
 
     @staticmethod
     def get_numeric_level(loglevel):
@@ -51,6 +58,9 @@ class Logger:
     def warning(self, message, *args, **kwargs):
         self._log(logging.WARNING, message, *args, **kwargs)
 
+    def warn(self, message, *args, **kwargs):
+        self.warning(message, *args, **kwargs)
+
     def error(self, message, *args, **kwargs):
         self._log(logging.ERROR, message, *args, **kwargs)
 
@@ -60,8 +70,10 @@ class Logger:
     def critical(self, message, *args, **kwargs):
         self._log(logging.CRITICAL, message, *args, **kwargs)
 
-    def add_handler(self, handler, multiple_handlers=False):
-        handler.setLevel(self.default_level)
-        handler.setFormatter(self.formatter)
-        if not multiple_handlers and not self.log.hasHandlers():
+    def add_handler(self, handler):
+        handler_defined = handler.__class__ in map(lambda h: h.__class, self.log.handlers)
+
+        if not handler_defined:
+            handler.setLevel(self.default_level)
+            handler.setFormatter(self.formatter)
             self.log.addHandler(handler)

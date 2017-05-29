@@ -12,15 +12,17 @@ class MongoLoggingHandler(logging.Handler):
     """
     SOURCE_SYSTEM = 'CALIPSO'
 
-    def __init__(self, _env, _level):
-        super().__init__(Logger.get_numeric_level(_level))
-        self.str_level = _level
-        self.env = _env
+    def __init__(self, env, level):
+        super().__init__(Logger.get_numeric_level(level))
+        self.str_level = level
+        self.env = env
         self.inv = InventoryMgr()
 
     def emit(self, record):
         # make sure we do not try to log to DB when DB is not ready
-        if not (self.inv and self.inv.is_db_ready() and 'messages' in self.inv.collections):
+        if not (self.inv
+                and self.inv.is_db_ready()
+                and 'messages' in self.inv.collections):
             return
         # make ID from current timestamp
         d = datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)
