@@ -9,7 +9,7 @@ class EventDeleteBase(EventBase):
     def delete_handler(self, env, object_id, object_type) -> EventResult:
         item = self.inv.get_by_id(env, object_id)
         if not item:
-            self.inv.log.info('{0} document is not found, aborting {0} delete'.format(object_type))
+            self.log.info('{0} document is not found, aborting {0} delete'.format(object_type))
             return EventResult(result=False, retry=False)
 
         db_id = ObjectId(item['_id'])
@@ -44,4 +44,6 @@ class EventDeleteBase(EventBase):
         # remove children
         regexp = re.compile('^' + id_path)
         self.inv.delete('inventory', {'id_path': {'$regex': regexp}})
-        return EventResult(result=True)
+        return EventResult(result=True,
+                           related_object=object_id,
+                           display_context=object_id)

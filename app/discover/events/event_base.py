@@ -5,10 +5,15 @@ from utils.inventory_mgr import InventoryMgr
 
 
 class EventResult:
-    def __init__(self, result: bool, retry: bool = False, message: str = None):
+    def __init__(self,
+                 result: bool, retry: bool = False, message: str = None,
+                 related_object: str = None,
+                 display_context: str = None):
         self.result = result
         self.retry = retry
         self.message = message
+        self.related_object = related_object
+        self.display_context = display_context
 
 
 class EventBase(Fetcher, ABC):
@@ -20,4 +25,3 @@ class EventBase(Fetcher, ABC):
     @abstractmethod
     def handle(self, env, values) -> EventResult:
         pass
-

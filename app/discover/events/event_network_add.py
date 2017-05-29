@@ -36,4 +36,6 @@ class EventNetworkAdd(EventBase):
         network['subnets'] = {}
 
         self.inv.set(network)
-        return EventResult(result=True)
+        return EventResult(result=True,
+                           related_object=network_id,
+                           display_context=network_id)

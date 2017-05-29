@@ -5,14 +5,16 @@
 # phase 2: either scan default environment, or scan specific object
 
 import argparse
-
-import os
+import sys
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
+from discover.scan_error import ScanError
+from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
+from utils.ssh_connection import SshConnection
 from utils.util import ClassResolver, setup_args
 
 
@@ -44,7 +46,7 @@ class ScanPlan:
 
     def __init__(self, args=None):
         self.obj = None
-        self.scanner_class = None
+        self.scanner_type = None
         self.args = args
         for attribute in self.COMMON_ATTRIBUTES:
             setattr(self, attribute[0], None)
@@ -232,7 +234,7 @@ class ScanController(Fetcher):
                 raise ValueError("No match for object ID: {}".format(plan.object_id))
             plan.obj = obj
 
-        plan.scanner_class = "Scan" + plan.object_type
+        plan.scanner_type = "Scan" + plan.object_type
         return plan
 
     def run(self, args: dict = None):
@@ -257,8 +259,7 @@ class ScanController(Fetcher):
         self.conf.use_env(env_name)
 
         # generate ScanObject Class and instance.
-        class_name = scan_plan.scanner_class
-        scanner = ClassResolver.get_instance_of_class(class_name)
+        scanner = Scanner()
         scanner.set_env(env_name)
 
         # decide what scanning operations to do
@@ -276,21 +277,29 @@ class ScanController(Fetcher):
             self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
-        if inventory_only or run_all:
-            results = scanner.run_scan(
-                scan_plan.obj,
-                scan_plan.id_field,
-                scan_plan.child_id,
-                scan_plan.child_type)
-        if links_only or run_all:
-            scanner.scan_links()
-        if cliques_only or run_all:
-            scanner.scan_cliques()
-        if not (inventory_only or links_only or cliques_only):
-            scanner.deploy_monitoring_setup()
+        try:
+            if inventory_only or run_all:
+                scanner.run_scan(
+                    scan_plan.scanner_type,
+                    scan_plan.obj,
+                    scan_plan.id_field,
+                    scan_plan.child_id,
+                    scan_plan.child_type)
+            if links_only or run_all:
+                scanner.scan_links()
+            if cliques_only or run_all:
+                scanner.scan_cliques()
+            if monitoring_setup_only:
+                self.inv.monitoring_setup_manager.simulate_track_changes()
+            if not (inventory_only or links_only or cliques_only):
+                scanner.deploy_monitoring_setup()
+        except ScanError as e:
+            return False, "scan error: " + str(e)
+        SshConnection.disconnect_all()
         return True, 'ok'
 
 
 if __name__ == '__main__':
     scan_manager = ScanController()
-    scan_manager.run()
+    ret, msg = scan_manager.run()
+    sys.exit(0 if ret else 1)

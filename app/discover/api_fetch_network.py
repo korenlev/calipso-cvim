@@ -7,21 +7,22 @@ class ApiFetchNetwork(ApiAccess):
         super(ApiFetchNetwork, self).__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id):
+    def get(self, project_id):
         # use project admin credentials, to be able to fetch all networks
         token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(region, token, id))
+            # TODO: refactor legacy code (Unresolved reference - self.get_for_region)
+            ret.extend(self.get_for_region(region, token, project_id))
         return ret
 
-    def get_network(self, region, token, id):
+    def get_network(self, region, token, subnet_id):
         endpoint = self.get_region_url_nover(region, "neutron")
 
         # get target network network document
-        req_url = endpoint + "/v2.0/networks/" + id
+        req_url = endpoint + "/v2.0/networks/" + subnet_id
         headers = {
             "X-Auth-Project-Id": self.admin_project,
             "X-Auth-Token": token["id"]
@@ -36,8 +37,8 @@ class ApiFetchNetwork(ApiAccess):
         subnets_hash = {}
         cidrs = []
         subnet_ids = []
-        for id in subnets:
-            req_url = endpoint + "/v2.0/subnets/" + id
+        for subnet_id in subnets:
+            req_url = endpoint + "/v2.0/subnets/" + subnet_id
             response = self.get_url(req_url, headers)
             if "subnet" in response:
                 # create a hash subnets, to allow easy locating of subnets

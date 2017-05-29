@@ -6,14 +6,15 @@ class ApiFetchRegions(ApiAccess):
         super(ApiFetchRegions, self).__init__()
         self.endpoint = ApiAccess.base_url
 
-    def get(self, id):
+    def get(self, project_id):
         token = self.v2_auth_pwd(self.admin_project)
-        token = self.v2_auth_pwd("admin")
         if not token:
             return []
         # the returned authentication response contains the list of end points
         # and regions
-        service_catalog = ApiAccess.auth_response['access']['serviceCatalog']
+        service_catalog = ApiAccess.auth_response.get('access', {}).get('serviceCatalog')
+        if not service_catalog:
+            return []
         env = self.get_env()
         ret = []
         NULL_REGION = "No-Region"

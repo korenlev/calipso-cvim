@@ -1,15 +1,19 @@
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from discover.events.event_instance_add import EventInstanceAdd
-from discover.scan_host import ScanHost
 from test.event_based_scan.test_data.event_payload_instance_add \
-    import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT, HOST
+    import EVENT_PAYLOAD_INSTANCE_ADD, INSTANCES_ROOT, HOST, INSTANCE_DOCUMENT
 from test.event_based_scan.test_event import TestEvent
 
 
 class TestInstanceAdd(TestEvent):
 
-    def test_handle_instance_add(self):
+    def insert_instance(self):
+        self.set_item(INSTANCE_DOCUMENT)
+
+    # Patch ScanHost entirely to negate its side effects and supply our own
+    @patch("discover.events.event_instance_add.ScanHost")
+    def test_handle_instance_add(self, scan_host_mock):
         self.values = EVENT_PAYLOAD_INSTANCE_ADD
         payload = self.values['payload']
         self.instance_id = payload['instance_id']
@@ -22,27 +26,27 @@ class TestInstanceAdd(TestEvent):
         self.set_item(HOST)
 
         # check instance document
-        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
+        instance = self.inv.get_by_id(self.env, self.instance_id)
         if instance:
-            self.handler.log.info('instance document exists, delete it first.')
-            self.handler.inv.delete('inventory', {'id': self.instance_id})
+            self.log.info('instance document exists, delete it first.')
+            self.inv.delete('inventory', {'id': self.instance_id})
 
-            instance = self.handler.inv.get_by_id(self.env, self.instance_id)
-            self.assertEqual(instance, [])
+            instance = self.inv.get_by_id(self.env, self.instance_id)
+            self.assertIsNone(instance)
+
+        # simulate instance insertion after host scan
+        scan_host_mock.return_value.scan_links.side_effect = self.insert_instance
 
         # check the return of instance handler.
         handler = EventInstanceAdd()
+        ret = handler.handle(self.env, self.values)
 
-        # save the original method.
-        original_method = ScanHost.scan_links
-        ScanHost.scan_links = MagicMock()
-        ret  = handler.handle(self.env, self.values)
-
-        # reset the method in case of affecting other unit tests.
-        ScanHost.scan_links = original_method
-
-        self.assertEqual(ret, True)
+        self.assertEqual(ret.result, True)
 
         # check host document
-        host = self.handler.inv.get_by_id(self.env, host_id)
-        self.assertNotEqual(host, [])
+        host = self.inv.get_by_id(self.env, host_id)
+        self.assertIsNotNone(host)
+
+        # check instance document
+        instance_document = self.inv.get_by_id(self.env, self.instance_id)
+        self.assertIsNotNone(instance_document)

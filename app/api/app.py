@@ -1,7 +1,9 @@
 import importlib
+
 import falcon
 
-
+from api.auth.token import Token
+from api.backends.ldap_access import LDAPAccess
 from api.exceptions.exceptions import OSDNAApiException
 from api.middleware.authentication import AuthenticationMiddleware
 from utils.inventory_mgr import InventoryMgr
@@ -22,19 +24,21 @@ class App:
             "resource.monitoring_config_templates.MonitoringConfigTemplates",
         "/aggregates": "resource.aggregates.Aggregates",
         "/environment_configs":
-            "resource.environment_configs.EnvironmentConfigs"
+            "resource.environment_configs.EnvironmentConfigs",
+        "/auth/tokens": "auth.tokens.Tokens"
     }
 
     responders_path = "api.responders"
 
     def __init__(self, mongo_config="", ldap_config="",
-                 log_level="", inventory=""):
+                 log_level="", inventory="", token_lifetime=86400):
         self.inv = InventoryMgr(mongo_config)
         self.inv.set_loglevel(log_level)
         self.inv.set_collections(inventory)
-        self.middleware = AuthenticationMiddleware(ldap_config)
-        # self.app = falcon.API(middleware=[self.middleware])
-        self.app = falcon.API()
+        self.ldap_access = LDAPAccess(ldap_config)
+        Token.set_token_lifetime(token_lifetime)
+        self.middleware = AuthenticationMiddleware()
+        self.app = falcon.API(middleware=[self.middleware])
         self.app.add_error_handler(OSDNAApiException)
         self.set_routes(self.app)
 

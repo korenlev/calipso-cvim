@@ -13,7 +13,7 @@ class EventPortDelete(EventDeleteBase):
 
         # if port is binding to a instance, instance document needs to be updated.
         if 'compute' in port_doc['device_owner']:
-            self.inv.log.info("update instance document to which port is binding.")
+            self.log.info("update instance document to which port is binding.")
             self.update_instance(env, port_doc)
 
         # delete port document
@@ -24,8 +24,11 @@ class EventPortDelete(EventDeleteBase):
         if not vnic_doc:
             self.log.info("Vnic document not found, aborting vnic deleting.")
             return EventResult(result=False, retry=False)
+
         result = self.delete_handler(env, vnic_doc['id'], 'vnic')
-        self.inv.log.info('Finished port deleting')
+        result.related_object = port_id
+        result.display_context = port_doc.get('network_id')
+        self.log.info('Finished port deleting')
         return result
 
     def update_instance(self, env, port_doc):
@@ -40,7 +43,7 @@ class EventPortDelete(EventDeleteBase):
                     port_num += 1
                 if port['id'] == port_doc['id']:
                     instance_doc['network_info'].remove(port)
-                    self.inv.log.info("update network information of instance document.")
+                    self.log.info("update network information of instance document.")
 
             if port_num == 1:
                 # remove network information only when last port in network will be deleted.
@@ -57,11 +60,11 @@ class EventPortDelete(EventDeleteBase):
                 if instance:
                     if 'mac_address' not in instance:
                         instance_doc['mac_address'] = None
-                    self.inv.log.info("update mac_address:%s of instance document." % instance_doc['mac_address'])
+                    self.log.info("update mac_address:%s of instance document." % instance_doc['mac_address'])
 
             self.inv.set(instance_doc)
         else:
-            self.inv.log.info("No instance document binding to network:%s." % network_id)
+            self.log.info("No instance document binding to network:%s." % network_id)
 
     def handle(self, env, notification):
         port_id = notification['payload']['port_id']

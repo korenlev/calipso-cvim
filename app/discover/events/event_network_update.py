@@ -30,4 +30,6 @@ class EventNetworkUpdate(EventBase):
 
         network_document['admin_state_up'] = network['admin_state_up']
         self.inv.set(network_document)
-        return EventResult(result=True)
+        return EventResult(result=True,
+                           related_object=network_id,
+                           display_context=network_id)

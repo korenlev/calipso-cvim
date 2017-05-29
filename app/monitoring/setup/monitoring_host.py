@@ -1,14 +1,18 @@
 import copy
-from os import listdir
-from os.path import isfile, join
-import stat
+import os
+from os.path import join, sep
 
 from monitoring.setup.monitoring_handler import MonitoringHandler
 
+RABBITMQ_CONFIG_FILE = 'rabbitmq.json'
+RABBITMQ_CONFIG_ATTR = 'rabbitmq'
+
+RABBITMQ_CERT_FILE_ATTR = 'cert_chain_file'
+RABBITMQ_PK_FILE_ATTR = 'private_key_file'
+TMP_FILES_DIR = '/tmp'
+
 
 class MonitoringHost(MonitoringHandler):
-    APP_SCRIPTS_FOLDER = 'monitoring/checks'
-    REMOTE_SCRIPTS_FOLDER = '/etc/sensu/plugins'
 
     def __init__(self, mongo_conf_file, env):
         super().__init__(mongo_conf_file, env)
@@ -38,27 +42,41 @@ class MonitoringHost(MonitoringHandler):
         # copy configuration files
         for file_name in sensu_host_files:
             content = self.prepare_config_file(file_name, {'side': 'client'})
+            self.get_ssl_files(host_id, file_name, content)
             self.write_config_file(file_name, sub_dir, host_id, content)
 
         if self.provision < self.provision_levels['deploy']:
             return
-        # make sure the remote directories are there
-        # with the right permissions
-        self.make_remote_dir(host_id, self.PRODUCTION_CONFIG_DIR)
-        self.make_remote_dir(host_id, self.REMOTE_SCRIPTS_FOLDER)
 
-        # copy scripts to host
-        scripts_dir = join(self.env_monitoring_config['app_path'],
-                           self.APP_SCRIPTS_FOLDER)
-        script_files = [f for f in listdir(scripts_dir)
-                        if isfile(join(scripts_dir, f))]
-        script_mode = stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | \
-            stat.S_IROTH | stat.S_IXOTH
-        for file_name in script_files:
-            remote_path = join(self.REMOTE_SCRIPTS_FOLDER, file_name)
-            local_path = join(scripts_dir, file_name)
-            self.copy_to_remote_host(host_id, local_path, remote_path,
-                                     mode=script_mode)
+        self.track_setup_changes(host_id, False, "", "scripts", None)
 
         # mark this environment as prepared
         self.configuration.update_env({'monitoring_setup_done': True})
+
+    def get_ssl_files(self, host, file_type, content):
+        if self.fetch_ssl_files:
+            return  # already got names of SSL files
+        if file_type != RABBITMQ_CONFIG_FILE:
+            return
+        if not isinstance(content, dict):
+            self.log.warn('invalid content of {}'.format(RABBITMQ_CONFIG_FILE))
+            return
+        config = content['config']
+        if not config:
+            self.log.warn('invalid content of {}'.format(RABBITMQ_CONFIG_FILE))
+            return
+        if RABBITMQ_CONFIG_ATTR not in config:
+            self.log.warn('invalid content of {}'.format(RABBITMQ_CONFIG_FILE))
+            return
+        ssl_conf = config.get(RABBITMQ_CONFIG_ATTR).get('ssl')
+        if not ssl_conf:
+            return  # SSL not used
+
+        for path_attr in [RABBITMQ_CERT_FILE_ATTR, RABBITMQ_PK_FILE_ATTR]:
+            path = ssl_conf.get(path_attr)
+            if not path:
+                self.log.error('missing SSL path {}'.format(path_attr))
+                return
+            # this configuration requires SSL
+            # keep the path of the files for later use
+            self.fetch_ssl_files.append(path)

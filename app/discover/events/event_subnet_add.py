@@ -8,7 +8,7 @@ from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
-from discover.scan_network import ScanNetwork
+from discover.scanner import Scanner
 
 
 class EventSubnetAdd(EventBase):
@@ -42,7 +42,7 @@ class EventSubnetAdd(EventBase):
             port['name_path'] = "/%s/Projects/%s/Networks/%s/Ports/%s" % \
                                 (env, project_name, network_name, port_id)
             self.inv.set(port)
-            self.inv.log.info("add port document for port:%s" % port_id)
+            self.log.info("add port document for port:%s" % port_id)
             return port
         return False
 
@@ -97,6 +97,9 @@ class EventSubnetAdd(EventBase):
         subnet = notification['payload']['subnet']
         project_id = subnet['tenant_id']
         network_id = subnet['network_id']
+        if 'id' not in subnet:
+            self.log.info('Subnet payload doesn\'t have id, aborting subnet add')
+            return EventResult(result=False, retry=False)
 
         network_document = self.inv.get_by_id(env, network_id)
         if not network_document:
@@ -107,7 +110,7 @@ class EventSubnetAdd(EventBase):
         # build subnet document for adding network
         if subnet['cidr'] not in network_document['cidrs']:
             network_document['cidrs'].append(subnet['cidr'])
-        if network_document['subnets'] == []:
+        if not network_document.get('subnets'):
             network_document['subnets'] = {}
 
         network_document['subnets'][subnet['name']] = subnet
@@ -133,6 +136,10 @@ class EventSubnetAdd(EventBase):
         FindLinksForPnics().add_links()
         FindLinksForVserviceVnics().add_links(search={"parent_id": "qdhcp-%s-vnics" % network_id})
 
-        ScanNetwork().scan_cliques()
+        scanner = Scanner()
+        scanner.set_env(env)
+        scanner.scan_cliques()
         self.log.info("Finished subnet added.")
-        return EventResult(result=True)
+        return EventResult(result=True,
+                           related_object=subnet['id'],
+                           display_context=network_id)

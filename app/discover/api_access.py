@@ -22,6 +22,7 @@ class ApiAccess(Fetcher):
     admin_token = ""
     tokens = {}
     admin_endpoint = ""
+    admin_project = None
     auth_response = None
 
     alternative_services = {
@@ -38,7 +39,7 @@ class ApiAccess(Fetcher):
         host = ApiAccess.api_config["host"]
         ApiAccess.host = host
         port = ApiAccess.api_config["port"]
-        if (host is None or port is None):
+        if not (host and port):
             raise ValueError('Missing definition of host or port ' +
                              'for OpenStack API access')
         ApiAccess.base_url = "http://" + host + ":" + port
@@ -48,9 +49,14 @@ class ApiAccess(Fetcher):
             else 'admin'
         ApiAccess.admin_endpoint = "http://" + host + ":" + "35357"
 
-        self.v2_auth_pwd(ApiAccess.admin_project)
+        token = self.v2_auth_pwd(ApiAccess.admin_project)
+        if not token:
+            raise ValueError("Authentication failed. Failed to obtain token")
+        else:
+            self.subject_token = token
 
-    def parse_time(self, time_str):
+    @staticmethod
+    def parse_time(time_str):
         try:
             time_struct = time.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
         except ValueError:
@@ -62,9 +68,9 @@ class ApiAccess(Fetcher):
         return time_struct
 
     # try to use existing token, if it did not expire
-    def get_existing_token(self, id):
+    def get_existing_token(self, project_id):
         try:
-            token_details = ApiAccess.tokens[id]
+            token_details = ApiAccess.tokens[project_id]
         except KeyError:
             return None
         token_expiry = token_details["expires"]
@@ -75,12 +81,12 @@ class ApiAccess(Fetcher):
         now = time.time()
         if now > token_expiry_time:
             # token has expired
-            ApiAccess.tokens.pop(id)
+            ApiAccess.tokens.pop(project_id)
             return None
         return token_details
 
-    def v2_auth(self, id, headers, post_body):
-        subject_token = self.get_existing_token(id)
+    def v2_auth(self, project_id, headers, post_body):
+        subject_token = self.get_existing_token(project_id)
         if subject_token:
             return subject_token
         req_url = ApiAccess.base_url + "/v2.0/tokens"
@@ -106,7 +112,7 @@ class ApiAccess(Fetcher):
             return None
         token_expiry_time = calendar.timegm(token_expiry_time_struct)
         token_details["token_expiry_time"] = token_expiry_time
-        ApiAccess.tokens[id] = token_details
+        ApiAccess.tokens[project_id] = token_details
         return token_details
 
     def v2_auth_pwd(self, project):
@@ -120,19 +126,18 @@ class ApiAccess(Fetcher):
                 }
             }
         }
-        id = ""
         if project is not None:
             post_body["auth"]["tenantName"] = project
-            id = project
+            project_id = project
         else:
-            id = ""
+            project_id = ""
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json; charset=UTF-8'
         }
-        return self.v2_auth(id, headers, post_body)
+        return self.v2_auth(project_id, headers, post_body)
 
-    def get(self, id):
+    def get(self, object_id):
         return None
 
     def get_rel_url(self, relative_url, headers):
@@ -172,7 +177,7 @@ class ApiAccess(Fetcher):
         full_url = self.get_region_url(region, service)
         if not full_url:
             self.log.error("could not find region URL for region: " + region)
-            exit
+            exit()
         url = re.sub(r":([0-9]+)/v[2-9].*", r":\1", full_url)
         return url
 

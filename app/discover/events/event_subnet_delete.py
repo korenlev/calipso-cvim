@@ -3,11 +3,12 @@ from discover.events.event_delete_base import EventDeleteBase
 
 
 class EventSubnetDelete(EventDeleteBase):
+
     def delete_children_documents(self, env, vservice_id):
         vnic_parent_id = vservice_id + '-vnics'
         vnic = self.inv.get_by_field(env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
-        if len(vnic) == 0:
-            self.inv.log.info("Vnic document not found, aborting subnet deleting.")
+        if not vnic:
+            self.log.info("Vnic document not found, aborting subnet deleting.")
             return EventResult(result=False, retry=False)
 
         # delete port and vnic together by mac address.
@@ -17,7 +18,7 @@ class EventSubnetDelete(EventDeleteBase):
     def handle(self, env, notification):
         subnet_id = notification['payload']['subnet_id']
         network_document = self.inv.get_by_field(env, "network", "subnet_ids", subnet_id, get_single=True)
-        if len(network_document) == 0:
+        if not network_document:
             self.log.info("network document not found, aborting subnet deleting")
             return EventResult(result=False, retry=False)
 
@@ -40,5 +41,10 @@ class EventSubnetDelete(EventDeleteBase):
         # when network does not have any subnet, delete vservice DHCP, port and vnic documents.
         if len(network_document["subnet_ids"]) == 0:
             vservice_dhcp_id = 'qdhcp-' + network_document['id']
-            return self.delete_children_documents(env, vservice_dhcp_id)
-        return EventResult(result=True)
+            result = self.delete_children_documents(env, vservice_dhcp_id)
+            result.related_object = subnet['id']
+            result.display_context = network_document.get('id')
+            return result
+        return EventResult(result=True,
+                           related_object=subnet['id'],
+                           display_context=network_document.get('id'))

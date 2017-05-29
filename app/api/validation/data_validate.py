@@ -1,8 +1,12 @@
 import re
 
 
+from api.validation import regex
+
+
 class DataValidate:
     LIST = "list"
+    REGEX = "regex"
 
     def __init__(self):
         super().__init__()
@@ -21,7 +25,8 @@ class DataValidate:
             'ObjectId': 'MongoDB ObjectId'
         }
         self.VALIDATE_SWITCHER = {
-            self.LIST: self.validate_value_in_list
+            self.LIST: self.validate_value_in_list,
+            self.REGEX: regex.validate
         }
 
     def validate_type(self, obj, t, convert_to_type):
@@ -75,9 +80,9 @@ class DataValidate:
             value = data.get(key)
             error_messages = requirement['error_messages']
 
-            if value is None:
+            if not value and value is not False and value is not 0:
                 if key in data:
-                    return "Invalid query string: value of {0} key doesn't exist ".format(key)
+                    return "Invalid data: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
                 mandatory_error = error_messages.get('mandatory')
                 error_message = self.mandatory_check(key,
@@ -103,8 +108,6 @@ class DataValidate:
             if not validate:
                 continue
             requirement_value = requirement.get('requirement')
-            if not isinstance(value, list):
-                value = [value]
             # validate the data against the requirement
             req_error = error_messages.get("requirement")
             error_message = self.requirement_check(key, value, validate,
@@ -146,6 +149,9 @@ class DataValidate:
     @staticmethod
     def validate_value_in_list(key, value,
                                required_list, error_message):
+        if not isinstance(value, list):
+            value = [value]
+
         if [v for v in value if v not in required_list]:
             return error_message if error_message else\
                 "The possible value of {0} is {1}".\

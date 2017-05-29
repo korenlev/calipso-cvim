@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 from discover.api_fetch_host_instances import ApiFetchHostInstances
+from discover.events.event_port_delete import EventPortDelete
 from test.event_based_scan.test_data.event_payload_port_delete import EVENT_PAYLOAD_PORT_DELETE, PORT_DOC, VNIC_DOCS, \
     INSTANCE_DOC, INSTANCE_DOCS
 from test.event_based_scan.test_event import TestEvent
@@ -24,12 +25,12 @@ class TestPortDelete(TestEvent):
         self.item_ids.append(INSTANCE_DOCS[0]['id'])
 
         # delete port
-        self.handler.port_delete(self.values)
+        EventPortDelete().handle(self.env, self.values)
 
         # assert data
         self.assert_empty_by_id(self.port_id)
         self.assert_empty_by_id(VNIC_DOCS[0]['id'])
-        instance = self.handler.inv.get_by_id(self.env, INSTANCE_DOC['id'])
+        instance = self.inv.get_by_id(self.env, INSTANCE_DOC['id'])
         self.assertEqual(instance['mac_address'], None)
         self.assertEqual(instance['network'], [])
         self.assertEqual(instance['network_info'], [])

@@ -1,3 +1,4 @@
+from discover.events.event_subnet_delete import EventSubnetDelete
 from test.event_based_scan.test_event import TestEvent
 from test.event_based_scan.test_data.event_payload_subnet_delete import EVENT_PAYLOAD_SUBNET_DELETE, \
     EVENT_PAYLOAD_NETWORK
@@ -23,22 +24,22 @@ class TestSubnetDelete(TestEvent):
 
         # add document for subnet deleting test.
         self.set_item(self.network_doc)
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-        self.assertNotEqual(network_document, [], "add network document failed")
+        network_document = self.inv.get_by_id(self.env, self.network_id)
+        self.assertIsNotNone(network_document, "add network document failed")
 
         # delete subnet
-        self.handler.subnet_delete(self.values)
+        EventSubnetDelete().handle(self.env, self.values)
 
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
+        network_document = self.inv.get_by_id(self.env, self.network_id)
         self.assertNotIn(self.subnet_id, network_document['subnet_ids'])
         self.assertNotIn(self.cidr, network_document['cidrs'])
         self.assertNotIn(self.subnet_name, network_document['subnets'])
 
         # assert children documents
         vservice_dhcp_id = 'qdhcp-' + network_document['id']
-        dhcp_doc = self.handler.inv.get_by_id(self.env, vservice_dhcp_id)
-        self.assertEqual(dhcp_doc,[])
+        dhcp_doc = self.inv.get_by_id(self.env, vservice_dhcp_id)
+        self.assertIsNone(dhcp_doc)
 
         vnic_parent_id = vservice_dhcp_id + '-vnics'
-        vnic = self.handler.inv.get_by_field(self.env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
-        self.assertEqual(vnic, [])
+        vnic = self.inv.get_by_field(self.env, 'vnic', 'parent_id', vnic_parent_id, get_single=True)
+        self.assertIsNone(vnic)

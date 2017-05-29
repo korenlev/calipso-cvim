@@ -7,7 +7,7 @@ class ApiFetchNetworks(ApiAccess):
         super(ApiFetchNetworks, self).__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id=None):
+    def get(self, project_id=None):
         # use project admin credentials, to be able to fetch all networks
         token = self.v2_auth_pwd(self.admin_project)
         if not token:
@@ -42,9 +42,9 @@ class ApiFetchNetworks(ApiAccess):
             if not project_id:
                 # find project ID of admin project
                 project = self.inv.get_by_field(self.get_env(),
-                    "project", "name",
-                    self.admin_project,
-                    get_single=True)
+                                                "project", "name",
+                                                self.admin_project,
+                                                get_single=True)
                 if not project:
                     self.log.error("failed to find admin project in DB")
                 project_id = project["id"]

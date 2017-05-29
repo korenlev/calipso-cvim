@@ -1,133 +1,35 @@
-from discover.events.event_base import EventResult
-from discover.events.event_instance_add import EventInstanceAdd
-from discover.events.event_instance_delete import EventInstanceDelete
-from discover.events.event_instance_update import EventInstanceUpdate
-from discover.events.event_interface_add import EventInterfaceAdd
-from discover.events.event_interface_delete import EventInterfaceDelete
-from discover.events.event_network_add import EventNetworkAdd
-from discover.events.event_network_delete import EventNetworkDelete
-from discover.events.event_network_update import EventNetworkUpdate
-from discover.events.event_port_add import EventPortAdd
-from discover.events.event_port_delete import EventPortDelete
-from discover.events.event_port_update import EventPortUpdate
-from discover.events.event_router_add import EventRouterAdd
-from discover.events.event_router_delete import EventRouterDelete
-from discover.events.event_router_update import EventRouterUpdate
-from discover.events.event_subnet_add import EventSubnetAdd
-from discover.events.event_subnet_delete import EventSubnetDelete
-from discover.events.event_subnet_update import EventSubnetUpdate
-from discover.fetcher import Fetcher
+from discover.events.event_base import EventBase, EventResult
 from utils.inventory_mgr import InventoryMgr
+from utils.logger import Logger
+from utils.util import ClassResolver
 
 
-class EventHandler(Fetcher):
-    def __init__(self, env, inventory_collection):
+class EventHandler(Logger):
+
+    def __init__(self, env: str, inventory_collection: str):
         super().__init__()
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
         self.env = env
+        self.handlers = {}
 
-    def instance_add(self, notification) -> EventResult:
-        self.log.info("instance_add")
-        handler = EventInstanceAdd()
-        return handler.handle(self.env, notification)
+    def discover_handlers(self, handlers_package: str, event_handlers: dict):
+        if not event_handlers:
+            raise TypeError("Event handlers list is empty")
 
-    def instance_update(self, notification) -> EventResult:
-        self.log.info("instance_update")
-        handler = EventInstanceUpdate()
-        return handler.handle(self.env, notification)
+        for event_name, handler_name in event_handlers.items():
+            handler = ClassResolver.get_instance_of_class(handler_name, handlers_package)
+            if not issubclass(handler.__class__, EventBase):
+                raise TypeError("Event handler '{}' is not a subclass of EventBase"
+                                .format(handler_name))
+            if event_name in self.handlers:
+                self.log.warn("A handler is already registered for event type '{}'. Overwriting"
+                              .format(event_name))
+            self.handlers[event_name] = handler
 
-    def instance_delete(self, notification) -> EventResult:
-        self.log.info("instance_delete")
-        handler = EventInstanceDelete()
-        return handler.handle(self.env, notification)
+    def handle(self, event_name: str, notification: dict) -> EventResult:
+        if event_name not in self.handlers:
+            self.log.info("No handler is able to process event of type '{}'"
+                          .format(event_name))
+        return self.handlers[event_name].handle(self.env, notification)
 
-    def instance_down(self, notification) -> EventResult:
-        pass
-
-    def instance_up(self, notification) -> EventResult:
-        pass
-
-    def region_add(self, notification) -> EventResult:
-        pass
-
-    def region_update(self, notification) -> EventResult:
-        pass
-
-    def region_delete(self, notification) -> EventResult:
-        pass
-
-    def network_create(self, notification) -> EventResult:
-        self.log.info("network_add")
-        handler = EventNetworkAdd()
-        return handler.handle(self.env, notification)
-
-    def network_update(self, notification) -> EventResult:
-        self.log.info("network_update")
-        handler = EventNetworkUpdate()
-        return handler.handle(self.env, notification)
-
-    def network_delete(self, notification) -> EventResult:
-        self.log.info("network_delete")
-        handler = EventNetworkDelete()
-        return handler.handle(self.env, notification)
-
-    def subnet_create(self, notification) -> EventResult:
-        self.log.info("subnet_add")
-        handler = EventSubnetAdd()
-        return handler.handle(self.env, notification)
-
-    def subnet_update(self, notification) -> EventResult:
-        self.log.info("subnet_update")
-        handler = EventSubnetUpdate()
-        return handler.handle(self.env, notification)
-
-    def subnet_delete(self, notification) -> EventResult:
-        self.log.info("subnet_delete")
-        handler = EventSubnetDelete()
-        return handler.handle(self.env, notification)
-
-    def port_create(self, notification) -> EventResult:
-        self.log.info("port_add")
-        handler = EventPortAdd()
-        return handler.handle(self.env, notification)
-
-    def port_update(self, notification) -> EventResult:
-        self.log.info("port_update")
-        handler = EventPortUpdate()
-        return handler.handle(self.env, notification)
-
-    def port_delete(self, notification) -> EventResult:
-        self.log.info("port_delete")
-        handler = EventPortDelete()
-        return handler.handle(self.env, notification)
-
-    def router_create(self, notification) -> EventResult:
-        self.log.info("router_add")
-        handler = EventRouterAdd()
-        return handler.handle(self.env, notification)
-
-    def router_update(self, notification) -> EventResult:
-        self.log.info("router_update")
-        handler = EventRouterUpdate()
-        return handler.handle(self.env, notification)
-
-    def router_delete(self, notification) -> EventResult:
-        self.log.info("router_delete")
-        handler = EventRouterDelete()
-        return handler.handle(self.env, notification)
-
-    def router_interface_create(self, notification) -> EventResult:
-        self.log.info("router_interface_add")
-        handler = EventInterfaceAdd()
-        return handler.handle(self.env, notification)
-
-    def router_interface_delete(self, notification) -> EventResult:
-        self.log.info("router_interface_delete")
-        handler = EventInterfaceDelete()
-        return handler.handle(self.env, notification)
-
-    def not_implemented(self, notification) -> EventResult:
-        self.log.info(notification.get('event_type', 'unknown event'))
-        self.log.info("Handler for this event is not implemented yet")
-        return EventResult(result=False, retry=False)

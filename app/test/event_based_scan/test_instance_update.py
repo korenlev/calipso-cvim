@@ -1,3 +1,4 @@
+from discover.events.event_instance_update import EventInstanceUpdate
 from test.event_based_scan.test_data.event_payload_instance_update import EVENT_PAYLOAD_INSTANCE_UPDATE, INSTANCE_DOCUMENT
 from test.event_based_scan.test_event import TestEvent
 
@@ -12,24 +13,24 @@ class TestInstanceUpdate(TestEvent):
         new_name = payload['display_name']
 
         # preparing instance to be updated
-        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
+        instance = self.inv.get_by_id(self.env, self.instance_id)
         if not instance:
-            self.handler.log.info("instance document is not found, add document for updating")
+            self.log.info("instance document is not found, add document for updating")
 
             # add instance document for updating
             self.set_item(INSTANCE_DOCUMENT)
-            instance = self.handler.inv.get_by_id(self.env, self.instance_id)
-            self.assertNotEqual(instance, [])
+            instance = self.inv.get_by_id(self.env, self.instance_id)
+            self.assertIsNotNone(instance)
             self.assertEqual(instance['name'], INSTANCE_DOCUMENT['name'])
 
         name_path = instance['name_path']
         new_name_path = name_path[:name_path.rindex('/') + 1] + new_name
 
         # update instance document
-        self.handler.instance_update(self.values)
+        EventInstanceUpdate().handle(self.env, self.values)
 
         # get new document
-        instance = self.handler.inv.get_by_id(self.env, self.instance_id)
+        instance = self.inv.get_by_id(self.env, self.instance_id)
 
         # check update result.
         self.assertEqual(instance['name'], new_name)

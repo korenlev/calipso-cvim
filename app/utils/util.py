@@ -3,8 +3,8 @@ import signal
 from argparse import Namespace
 from typing import Dict, Callable
 
+import os
 import re
-
 
 from bson.objectid import ObjectId
 
@@ -36,8 +36,9 @@ class ClassResolver:
             return ClassResolver.instances[class_name]
         module_file = ClassResolver.get_module_file_by_class_name(class_name)
         module_parts = [package, module_file]
-        module = importlib.import_module(".".join(module_parts))
-        clazz = getattr(module, class_name)
+        module_name = ".".join(module_parts)
+        class_module = importlib.import_module(module_name)
+        clazz = getattr(class_module, class_name)
         instance = clazz()
         ClassResolver.instances[class_name] = instance
         return instance
@@ -80,3 +81,15 @@ def setup_args(args: dict,
                 raise TypeError("Wrong arguments format")
 
     return dict(defaults, **args)
+
+
+def encode_router_id(host_id: str, uuid: str):
+    return '-'.join([host_id, 'qrouter', uuid])
+
+
+def decode_router_id(router_id: str):
+    return router_id.split('qrouter-')[-1]
+
+
+def get_extension(file_path: str) -> str:
+    return os.path.splitext(file_path)[1][1:]

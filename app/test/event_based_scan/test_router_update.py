@@ -6,6 +6,7 @@ from discover.events.event_router_update import EventRouterUpdate
 from test.event_based_scan.test_data.event_payload_router_update import EVENT_PAYLOAD_ROUTER_UPDATE, ROUTER_DOCUMENT, \
     EVENT_PAYLOAD_ROUTER_SET_GATEWAY, EVENT_PAYLOAD_ROUTER_DEL_GATEWAY, ROUTER_VSERVICE, PORTS, NETWORK_DOC, HOST_DOC
 from test.event_based_scan.test_event import TestEvent
+from utils.util import encode_router_id
 
 
 class TestRouterUpdate(TestEvent):
@@ -15,7 +16,7 @@ class TestRouterUpdate(TestEvent):
             self.payload = self.values['payload']
             self.router = self.payload['router']
             host_id = self.values['publisher_id'].replace("network.", "", 1)
-            self.router_id = "-".join([host_id, "qrouter", self.router['id']])
+            self.router_id = encode_router_id(host_id, self.router['id'])
             self.item_ids.append(self.router_id)
 
             # add document for testing
@@ -40,7 +41,7 @@ class TestRouterUpdate(TestEvent):
             CliFetchHostVservice.get_vservice = original_get_vservice
             ApiFetchPort.get = original_get_port
             # assert router document
-            router_doc = self.handler.inv.get_by_id(self.env, self.router_id)
+            router_doc = self.inv.get_by_id(self.env, self.router_id)
             self.assertIsNotNone(router_doc, msg="router_doc not found.")
             self.assertEqual(self.router['name'], router_doc['name'])
             self.assertEqual(self.router['admin_state_up'], router_doc['admin_state_up'])

@@ -18,19 +18,19 @@ class TestSubnetAdd(TestEvent):
         self.network_id = self.subnet['network_id']
         self.item_ids.append(self.network_id)
 
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
+        network_document = self.inv.get_by_id(self.env, self.network_id)
         if network_document:
             # check subnet in network first.
             self.assertNotIn(self.subnet['cidr'], network_document['cidrs'])
         else:
-            self.handler.log.info("network document is not found, add it first.")
+            self.log.info("network document is not found, add it first.")
             self.set_item(NETWORK_DOC)
             # check network document
-            network_document = self.handler.inv.get_by_id(self.env, self.network_id)
-            self.assertNotEqual(network_document, [])
+            network_document = self.inv.get_by_id(self.env, self.network_id)
+            self.assertIsNotNone(network_document)
 
         # check region data.
-        if len(ApiAccess.regions) == 0:
+        if not ApiAccess.regions:
             ApiAccess.regions = EVENT_PAYLOAD_REGION
 
         # Mock function instead of get children data. They should be test in their unit test.
@@ -51,7 +51,7 @@ class TestSubnetAdd(TestEvent):
         FindLinksForVserviceVnics.add_links = original_add_vservice_links
 
         # check network document
-        network_document = self.handler.inv.get_by_id(self.env, self.network_id)
+        network_document = self.inv.get_by_id(self.env, self.network_id)
         self.assertIn(self.subnet['cidr'], network_document['cidrs'])
         self.assertIn(self.subnet['name'], network_document['subnets'])
 
