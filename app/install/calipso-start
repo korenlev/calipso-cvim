@@ -69,6 +69,15 @@ korenlev/calipso:scan
 docker run \
 -d \
 -v /home/calipso:/local_dir \
+-e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
+-e PYTHONPATH=/home/scan/calipso_prod/app \
+-p 50022:22 \
+--name calipso-listen \
+korenlev/calipso:listen
+
+docker run \
+-d \
+-v /home/calipso:/local_dir \
 -e PYTHONPATH=/home/scan/calipso_prod/app \
 -p 20022:22 \
 -p 3000:3000 \
