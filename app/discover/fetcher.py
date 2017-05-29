@@ -1,8 +1,8 @@
 from discover.configuration import Configuration
-from utils.logging.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 
 
-class Fetcher(Logger):
+class Fetcher(ConsoleLogger):
 
     def __init__(self):
         super().__init__()

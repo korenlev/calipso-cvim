@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from abc import ABC, abstractmethod
 
-from utils.logging.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 
 
-class Manager(Logger, ABC):
+class Manager(ConsoleLogger, ABC):
 
     MIN_INTERVAL = 0.1  # To prevent needlessly frequent scans
 

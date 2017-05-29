@@ -1,10 +1,10 @@
 from api.auth.token import Token
 from api.backends.ldap_access import LDAPAccess
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 
 
-class Auth(Logger):
+class Auth(ConsoleLogger):
 
     def __init__(self):
         super().__init__()

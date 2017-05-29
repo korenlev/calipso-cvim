@@ -8,7 +8,7 @@ from bson import ObjectId
 from discover.configuration import Configuration
 from messages.message import Message
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 from utils.special_char_converter import SpecialCharConverter
 from utils.string_utils import stringify_datetime
 
@@ -17,7 +17,7 @@ SOURCE_SYSTEM = 'Sensu'
 ERROR_LEVEL = ['info', 'warn', 'error']
 
 
-class MonitoringCheckHandler(Logger, SpecialCharConverter):
+class MonitoringCheckHandler(ConsoleLogger, SpecialCharConverter):
     STATUS_LABEL = ['OK', 'Warning', 'Critical']
 
     def __init__(self, args):
