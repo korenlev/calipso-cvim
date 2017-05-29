@@ -1,10 +1,10 @@
 from discover.events.event_base import EventBase, EventResult
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 from utils.util import ClassResolver
 
 
-class EventHandler(Logger):
+class EventHandler(ConsoleLogger):
 
     def __init__(self, env: str, inventory_collection: str):
         super().__init__()
