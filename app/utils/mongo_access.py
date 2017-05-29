@@ -2,7 +2,7 @@ from pymongo import MongoClient
 
 from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
-from utils.logging.logger import Logger
+from utils.logging.file_logger import FileLogger
 
 
 # Provides access to MongoDB using PyMongo library
@@ -12,14 +12,16 @@ from utils.logging.logger import Logger
 # you can also specify name of file from CLI with --mongo_config
 
 
-class MongoAccess(Logger, DictNamingConverter):
+class MongoAccess(FileLogger, DictNamingConverter):
     client = None
     db = None
     default_conf_file = '/local_dir/osdna_mongo_access.conf'
     config_file = None
 
+    LOG_FILE = '/var/log/osdna/mongo_access.log'
+
     def __init__(self):
-        super().__init__()
+        FileLogger.__init__(self, self.LOG_FILE)
         self.ready = False
         self.connect_params = {}
         if not MongoAccess.config_file:
@@ -60,10 +62,13 @@ class MongoAccess(Logger, DictNamingConverter):
             self.connect_params["port"]
         )
         MongoAccess.db = MongoAccess.client.osdna
+        self.log.info('Connected to MongoDB')
         self.ready = True
 
     def prepare_connect_uri(self):
         params = self.connect_params
+        self.log.debug('connecting to MongoDb server: {}'
+                       .format(params['server']))
         uri = 'mongodb://'
         if 'password' in params:
             uri = uri + params['user'] + ':' + params['password'] + '@'
