@@ -12,7 +12,7 @@ from utils.logging.file_logger import FileLogger
 # you can also specify name of file from CLI with --mongo_config
 
 
-class MongoAccess(FileLogger, DictNamingConverter):
+class MongoAccess(DictNamingConverter):
     client = None
     db = None
     default_conf_file = '/local_dir/osdna_mongo_access.conf'
@@ -21,7 +21,7 @@ class MongoAccess(FileLogger, DictNamingConverter):
     LOG_FILE = '/var/log/osdna/mongo_access.log'
 
     def __init__(self):
-        FileLogger.__init__(self, self.LOG_FILE)
+        self.log = FileLogger(self.LOG_FILE)
         self.ready = False
         self.connect_params = {}
         if not MongoAccess.config_file:

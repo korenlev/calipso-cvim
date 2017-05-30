@@ -1,18 +1,20 @@
 from bson.objectid import ObjectId
 
 from discover.fetcher import Fetcher
+from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 
 
 class CliqueFinder(Fetcher, MongoAccess):
-    def __init__(self, inventory, links, clique_types, constraints, cliques):
+    def __init__(self):
         super().__init__()
-        self.inv = inventory
-        self.links = links
-        self.clique_types = clique_types
+        self.inv = InventoryMgr()
+        self.inventory = self.inv.inventory_collection
+        self.links = self.inv.collections["links"]
+        self.clique_types = self.inv.collections["clique_types"]
         self.clique_types_by_type = {}
-        self.clique_constraints = constraints
-        self.cliques = cliques
+        self.clique_constraints = self.inv.collections["clique_constraints"]
+        self.cliques = self.inv.collections["cliques"]
 
     def find_cliques_by_link(self, links_list):
         return self.links.find({'links': {'$in': links_list}})
@@ -43,7 +45,7 @@ class CliqueFinder(Fetcher, MongoAccess):
         constraint = self.clique_constraints.find_one({"focal_point_type": type})
         constraints = [] if not constraint else constraint["constraints"]
         object_type = clique_type["focal_point_type"]
-        objects_for_focal_point_type = self.inv.find({
+        objects_for_focal_point_type = self.inventory.find({
             "environment": self.get_env(),
             "type": object_type
         })
@@ -55,8 +57,8 @@ class CliqueFinder(Fetcher, MongoAccess):
         constraint = self.clique_constraints.find_one({"focal_point_type": type})
         constraints = [] if not constraint else constraint["constraints"]
         clique_types = self.get_clique_types()
+        o = self.inventory.find_one({'_id': focal_point_db_id})
         clique_type = clique_types[o['type']]
-        o = self.inv.find_one({'_id': focal_point_db_id})
         new_clique = self.construct_clique_for_focal_point(o, clique_type, constraints)
         if not new_clique:
             self.cliques.delete({'_id': clique['_id']})
@@ -118,7 +120,7 @@ class CliqueFinder(Fetcher, MongoAccess):
         # after adding the links to the clique, create/update the clique
         if not clique["links"]:
             return None
-        focal_point_obj = self.inv.find({"_id": clique["focal_point"]})
+        focal_point_obj = self.inventory.find({"_id": clique["focal_point"]})
         if not focal_point_obj:
             return None
         focal_point_obj = focal_point_obj[0]
@@ -131,7 +133,7 @@ class CliqueFinder(Fetcher, MongoAccess):
             },
             {'$set': clique},
             upsert=True)
-        clique_document = self.inv.update_one(
+        clique_document = self.inventory.update_one(
             {"_id": clique["focal_point"]},
             {'$set': focal_point_obj},
             upsert=True)
