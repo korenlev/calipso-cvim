@@ -5,13 +5,13 @@ from discover.configuration import Configuration
 from test.event_based_scan.config.test_config \
     import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 from utils.mongo_access import MongoAccess
 
 
 class TestEvent(unittest.TestCase):
     def setUp(self):
-        self.log = Logger().log
+        self.log = ConsoleLogger()
         self.mongo_config = MONGODB_CONFIG
         self.env = ENV_CONFIG
         self.collection = COLLECTION_CONFIG

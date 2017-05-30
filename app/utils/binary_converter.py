@@ -1,7 +1,10 @@
 from utils.logging.console_logger import ConsoleLogger
 
 
-class BinaryConverter(ConsoleLogger):
+class BinaryConverter:
+
+    def __init__(self):
+        self.log = ConsoleLogger()
 
     def binary2str(self, txt):
         if not isinstance(txt, bytes):

@@ -8,7 +8,7 @@ from bson import ObjectId
 from discover.configuration import Configuration
 from messages.message import Message
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.console_logger import ConsoleLogger
+from utils.logging.full_logger import FullLogger
 from utils.special_char_converter import SpecialCharConverter
 from utils.string_utils import stringify_datetime
 
@@ -17,11 +17,12 @@ SOURCE_SYSTEM = 'Sensu'
 ERROR_LEVEL = ['info', 'warn', 'error']
 
 
-class MonitoringCheckHandler(ConsoleLogger, SpecialCharConverter):
+class MonitoringCheckHandler(SpecialCharConverter):
     STATUS_LABEL = ['OK', 'Warning', 'Critical']
 
     def __init__(self, args):
-        self.set_loglevel('WARN')
+        self.log = FullLogger()
+        self.log.set_loglevel('WARN')
         self.env = args.env
         try:
             self.conf = Configuration(args.mongo_config)

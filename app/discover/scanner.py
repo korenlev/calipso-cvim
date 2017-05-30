@@ -5,6 +5,7 @@ import queue
 import os
 import traceback
 
+from discover.clique_finder import CliqueFinder
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
@@ -304,7 +305,9 @@ class Scanner(Fetcher):
             fetcher.add_links()
 
     def scan_cliques(self):
-        self.inv.scan_cliques(self.get_env())
+        clique_scanner = CliqueFinder()
+        clique_scanner.set_env(self.get_env())
+        clique_scanner.find_cliques()
 
     def deploy_monitoring_setup(self):
         self.inv.monitoring_setup_manager.handle_pending_setup_changes()

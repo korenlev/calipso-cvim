@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 from abc import ABC, abstractmethod
 
-from utils.logging.console_logger import ConsoleLogger
+from utils.logging.full_logger import FullLogger
 
 
-class Manager(ConsoleLogger, ABC):
+class Manager(ABC):
 
     MIN_INTERVAL = 0.1  # To prevent needlessly frequent scans
 
     def __init__(self):
         super().__init__()
+        self.log = FullLogger()
         self.conf = None
         self.collection = None
         self._update_document = None

@@ -71,7 +71,7 @@ class Logger(ABC):
         self._log(logging.CRITICAL, message, *args, **kwargs)
 
     def add_handler(self, handler):
-        handler_defined = handler.__class__ in map(lambda h: h.__class, self.log.handlers)
+        handler_defined = handler.__class__ in map(lambda h: h.__class__, self.log.handlers)
 
         if not handler_defined:
             handler.setLevel(self.default_level)

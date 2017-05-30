@@ -65,10 +65,11 @@ class EventManager(Manager):
 
     def configure(self):
         self.args = self.get_args()
-        self.db_client = MongoAccess(self.args.mongo_config)
+        MongoAccess.config_file = self.args.mongo_config
+        self.db_client = MongoAccess()
         self.collection = self.db_client.db[self.args.collection]
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
-        self.set_loglevel(self.args.loglevel)
+        self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started EventManager with following configuration:\n"
                       "Mongo config file path: {0}\n"

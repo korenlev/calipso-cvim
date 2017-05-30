@@ -3,11 +3,11 @@ import ssl
 from ldap3 import Server, Connection, Tls
 
 from utils.config_file import ConfigFile
-from utils.logging.console_logger import ConsoleLogger
+from utils.logging.full_logger import FullLogger
 from utils.singleton import Singleton
 
 
-class LDAPAccess(ConsoleLogger, metaclass=Singleton):
+class LDAPAccess(metaclass=Singleton):
 
     default_config_file = "ldap.conf"
     TLS_REQUEST_CERTS = {
@@ -20,6 +20,7 @@ class LDAPAccess(ConsoleLogger, metaclass=Singleton):
 
     def __init__(self, config_file_path=""):
         super().__init__()
+        self.log = FullLogger()
         self.ldap_params = self.get_ldap_params(config_file_path)
         self.server = self.connect_ldap_server()
 

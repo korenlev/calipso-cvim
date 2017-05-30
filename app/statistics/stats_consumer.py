@@ -8,17 +8,19 @@ from kafka import KafkaConsumer
 
 from discover.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess
 
 
-class StatsConsumer(MongoAccess, Logger):
+class StatsConsumer(MongoAccess):
     default_env = "WebEX-Mirantis@Cisco"
 
     def __init__(self):
         self.get_args()
         MongoAccess.set_config_file(self.args.mongo_config)
-        self.set_loglevel(self.args.loglevel)
+        MongoAccess.__init__(self)
+        self.log = FullLogger()
+        self.log.set_loglevel(self.args.loglevel)
         self.conf = Configuration()
         self.inv = InventoryMgr()
         self.inv.set_collections(self.args.inventory)

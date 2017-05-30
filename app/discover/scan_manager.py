@@ -19,7 +19,8 @@ class ScanManager(Manager):
         "mongo_config": "",
         "collection": "scans",
         "environments_collection": "environments_config",
-        "interval": 1
+        "interval": 1,
+        "loglevel": "INFO"
     }
 
     def __init__(self):
@@ -46,6 +47,9 @@ class ScanManager(Manager):
                             help="Interval between collection polls"
                                  "(must be more than {} seconds)"
                             .format(ScanManager.MIN_INTERVAL))
+        parser.add_argument("-l", "--loglevel", nargs="?", type=str,
+                            default=ScanManager.DEFAULTS["loglevel"],
+                            help="Logging level \n(default: 'INFO')")
         args = parser.parse_args()
         return args
 
@@ -57,6 +61,7 @@ class ScanManager(Manager):
         self.environments_collection = self.db_client.db[self.args.environments_collection]
         self._update_document = partial(MongoAccess.update_document, self.collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
+        self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "Mongo config file path: {0.args.mongo_config}\n"

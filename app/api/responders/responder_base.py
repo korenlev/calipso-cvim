@@ -9,17 +9,18 @@ from api.exceptions import exceptions
 from api.validation.data_validate import DataValidate
 from utils.dict_naming_converter import DictNamingConverter
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.full_logger import FullLogger
 from utils.string_utils import jsonify, stringify_object_values_by_types
 
 
-class ResponderBase(DataValidate, Logger, DictNamingConverter):
+class ResponderBase(DataValidate, DictNamingConverter):
     UNCHANGED_COLLECTIONS = ["monitoring_config_templates",
                              "environments_config",
                              "messages"]
 
     def __init__(self):
         super().__init__()
+        self.log = FullLogger()
         self.inv = InventoryMgr()
 
     def set_successful_response(self, resp, body="", status="200"):

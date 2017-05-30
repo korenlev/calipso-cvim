@@ -1,16 +1,17 @@
 from discover.events.event_base import EventBase, EventResult
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.console_logger import ConsoleLogger
+from utils.logging.full_logger import FullLogger
 from utils.util import ClassResolver
 
 
-class EventHandler(ConsoleLogger):
+class EventHandler:
 
     def __init__(self, env: str, inventory_collection: str):
         super().__init__()
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
         self.env = env
+        self.log = FullLogger(env=env)
         self.handlers = {}
 
     def discover_handlers(self, handlers_package: str, event_handlers: dict):
@@ -23,8 +24,8 @@ class EventHandler(ConsoleLogger):
                 raise TypeError("Event handler '{}' is not a subclass of EventBase"
                                 .format(handler_name))
             if event_name in self.handlers:
-                self.log.warn("A handler is already registered for event type '{}'. Overwriting"
-                              .format(event_name))
+                self.log.warning("A handler is already registered for event type '{}'. Overwriting"
+                                 .format(event_name))
             self.handlers[event_name] = handler
 
     def handle(self, event_name: str, notification: dict) -> EventResult:

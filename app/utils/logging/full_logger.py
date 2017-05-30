@@ -21,4 +21,17 @@ class FullLogger(Logger):
         if log_file:
             self.add_handler(logging.handlers.WatchedFileHandler(log_file))
 
+    # Make sure we update MessageHandler with new env
+    def set_env(self, env):
+        super().set_env(env)
 
+        defined_handler = next(
+            filter(
+                lambda handler: handler.__class__ == MongoLoggingHandler.__class__,
+                self.log.handlers
+            ), None)
+
+        if defined_handler:
+            defined_handler.env = env
+        else:
+            self.add_handler(MongoLoggingHandler(env, self.level))

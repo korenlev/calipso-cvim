@@ -19,7 +19,7 @@ from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
-from utils.logging.logger import Logger
+from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess
 from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
@@ -229,7 +229,6 @@ def import_metadata(event_handler: EventHandler,
 
 
 def listen(args: dict = None):
-    logger = Logger()
 
     args = setup_args(args, EnvironmentListener.DEFAULTS, get_args)
     if 'process_vars' not in args:
@@ -256,6 +255,9 @@ def listen(args: dict = None):
     if args["metadata_file"]:
         import_metadata(event_handler, event_queues, args["metadata_file"])
 
+    inv = InventoryMgr()
+    inv.set_collections(inventory_collection)
+    logger = FullLogger()
     logger.set_loglevel(args["loglevel"])
 
     amqp_config = conf.get("AMQP")
