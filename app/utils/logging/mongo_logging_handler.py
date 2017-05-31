@@ -17,14 +17,22 @@ class MongoLoggingHandler(logging.Handler):
         super().__init__(Logger.get_numeric_level(level))
         self.str_level = level
         self.env = env
-        self.inv = InventoryMgr()
+        self.inv = None
 
     def emit(self, record):
+
+        # Try to invoke InventoryMgr for logging
+        if not self.inv:
+            try:
+                self.inv = InventoryMgr()
+            except:
+                return
+
         # make sure we do not try to log to DB when DB is not ready
-        if not (self.inv
-                and self.inv.is_db_ready()
+        if not (self.inv.is_db_ready()
                 and 'messages' in self.inv.collections):
             return
+
         # make ID from current timestamp
         now = datetime.datetime.utcnow()
         d = now - datetime.datetime(1970, 1, 1)
