@@ -14,8 +14,7 @@ class FullLogger(Logger):
         self.add_handler(logging.StreamHandler())
 
         # Message handler
-        if env:  # TODO: make env optional
-            self.add_handler(MongoLoggingHandler(env, self.level))
+        self.add_handler(MongoLoggingHandler(env, self.level))
 
         # File handler
         if log_file:

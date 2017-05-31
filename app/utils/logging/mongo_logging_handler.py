@@ -4,6 +4,7 @@ import logging
 from messages.message import Message
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.logger import Logger
+from utils.string_utils import stringify_datetime
 
 
 class MongoLoggingHandler(logging.Handler):
@@ -25,13 +26,12 @@ class MongoLoggingHandler(logging.Handler):
                 and 'messages' in self.inv.collections):
             return
         # make ID from current timestamp
-        d = datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)
+        now = datetime.datetime.utcnow()
+        d = now - datetime.datetime(1970, 1, 1)
+        ts = stringify_datetime(now)
         timestamp_id = '{}.{}.{}'.format(d.days, d.seconds, d.microseconds)
         source = self.SOURCE_SYSTEM
-        object_id = ''
-        display_context = ''
-        message = Message(timestamp_id, self.env, source,
-                          object_id, display_context,
-                          msg=Logger.formatter.format(record),
+        message = Message(msg_id=timestamp_id, env=self.env, source=source,
+                          msg=Logger.formatter.format(record), ts=ts,
                           level=self.str_level)
         self.inv.collections['messages'].insert_one(message.get())

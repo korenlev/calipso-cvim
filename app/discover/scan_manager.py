@@ -24,8 +24,8 @@ class ScanManager(Manager):
     }
 
     def __init__(self):
-        super().__init__()
-        self.args = None
+        self.args = self.get_args()
+        super().__init__(self.args.mongo_config)
         self.db_client = None
         self.environments_collection = None
 
@@ -54,8 +54,6 @@ class ScanManager(Manager):
         return args
 
     def configure(self):
-        self.args = self.get_args()
-        MongoAccess.set_config_file(self.args.mongo_config)
         self.db_client = MongoAccess()
         self.collection = self.db_client.db[self.args.collection]
         self.environments_collection = self.db_client.db[self.args.environments_collection]

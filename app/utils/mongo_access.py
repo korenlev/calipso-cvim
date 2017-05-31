@@ -23,16 +23,13 @@ class MongoAccess(DictNamingConverter):
     LOG_FILE = '/var/log/osdna/mongo_access.log'
 
     def __init__(self):
-        if not self.config_file:
-            raise ValueError('MongoAccess config file was not set')
-
         if not os.path.exists(self.LOG_FILE):
             open(self.LOG_FILE, 'a').close()
         self.log = FileLogger(self.LOG_FILE)
 
         self.ready = False
         self.connect_params = {}
-        self.mongo_connect(MongoAccess.config_file)
+        self.mongo_connect(self.config_file)
 
     def is_db_ready(self) -> bool:
         return self.ready
