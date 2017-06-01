@@ -254,7 +254,7 @@ class ScanController(Fetcher):
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:
             self.inv.clear(scan_plan)
-        self.conf.set_loglevel(scan_plan.loglevel)
+        self.conf.log.set_loglevel(scan_plan.loglevel)
 
         env_name = scan_plan.env
         self.conf.use_env(env_name)
