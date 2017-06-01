@@ -45,21 +45,22 @@ class EventManager(Manager):
                             default=EventManager.DEFAULTS["collection"],
                             help="Environments collection to read from "
                                  "(default: '{}')"
-                            .format(EventManager.DEFAULTS["collection"]))
+                                 .format(EventManager.DEFAULTS["collection"]))
         parser.add_argument("-y", "--inventory", nargs="?", type=str,
                             default=EventManager.DEFAULTS["inventory"],
                             help="name of inventory collection "
                                  "(default: '{}')"
-                            .format(EventManager.DEFAULTS["inventory"]))
+                                 .format(EventManager.DEFAULTS["inventory"]))
         parser.add_argument("-i", "--interval", nargs="?", type=float,
                             default=EventManager.DEFAULTS["interval"],
                             help="Interval between collection polls "
                                  "(must be more than {} seconds. Default: {})"
-                            .format(EventManager.MIN_INTERVAL,
-                                    EventManager.DEFAULTS["interval"]))
+                                 .format(EventManager.MIN_INTERVAL,
+                                         EventManager.DEFAULTS["interval"]))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=EventManager.DEFAULTS["loglevel"],
-                            help="Logging level \n(default: 'INFO')")
+                            help="Logging level \n(default: '{}')"
+                                 .format(EventManager.DEFAULTS["loglevel"]))
         args = parser.parse_args()
         return args
 

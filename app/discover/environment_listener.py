@@ -183,25 +183,26 @@ def get_args():
                         default=def_env_collection,
                         help="Name of collection where selected environment " +
                              "is taken from \n(default: {})"
-                        .format(def_env_collection))
+                             .format(def_env_collection))
     parser.add_argument("-e", "--env", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["env"],
                         help="Name of target listener environment \n" +
                              "(default: {})"
-                        .format(EnvironmentListener.DEFAULTS["env"]))
+                             .format(EnvironmentListener.DEFAULTS["env"]))
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["inventory"],
                         help="Name of inventory collection \n"" +"
                              "(default: 'inventory')")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["loglevel"],
-                        help="Logging level \n(default: 'INFO')")
+                        help="Logging level \n(default: '{}')"
+                             .format(EnvironmentListener.DEFAULTS["loglevel"]))
     parser.add_argument("-r", "--retry_limit", nargs="?", type=int,
                         default=EnvironmentListener.DEFAULTS["retry_limit"],
                         help="Maximum number of times the OpenStack message "
                              "should be requeued before being discarded \n" +
                              "(default: {})"
-                        .format(EnvironmentListener.DEFAULTS["retry_limit"]))
+                             .format(EnvironmentListener.DEFAULTS["retry_limit"]))
     parser.add_argument("--consume_all", action="store_true",
                         help="If this flag is set, " +
                              "environment listener will try to consume"

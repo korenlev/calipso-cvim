@@ -35,7 +35,7 @@ class ScanManager(Manager):
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["mongo_config"],
                             help="Name of config file " +
-                            "with MongoDB server access details")
+                                 "with MongoDB server access details")
         parser.add_argument("-c", "--collection", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["collection"],
                             help="Scans collection to read from")
@@ -46,10 +46,11 @@ class ScanManager(Manager):
                             default=ScanManager.DEFAULTS["interval"],
                             help="Interval between collection polls"
                                  "(must be more than {} seconds)"
-                            .format(ScanManager.MIN_INTERVAL))
+                                 .format(ScanManager.MIN_INTERVAL))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["loglevel"],
-                            help="Logging level \n(default: 'INFO')")
+                            help="Logging level \n(default: '{}')"
+                                 .format(ScanManager.DEFAULTS["loglevel"]))
         args = parser.parse_args()
         return args
 

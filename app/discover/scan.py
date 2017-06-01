@@ -161,7 +161,8 @@ class ScanController(Fetcher):
                                  "(default: 'id', use 'name' for projects)")
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=self.DEFAULTS["loglevel"],
-                            help="logging level \n(default: 'INFO')")
+                            help="logging level \n(default: '{}')"
+                                 .format(self.DEFAULTS["loglevel"]))
         parser.add_argument("--clear", action="store_true",
                             help="clear all data related to "
                                  "the specified environment prior to scanning\n"
