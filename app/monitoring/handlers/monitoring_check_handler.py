@@ -21,6 +21,7 @@ class MonitoringCheckHandler(SpecialCharConverter):
     STATUS_LABEL = ['OK', 'Warning', 'Critical']
 
     def __init__(self, args):
+        super().__init__()
         self.log = FullLogger()
         self.log.set_loglevel('WARN')
         self.env = args.env

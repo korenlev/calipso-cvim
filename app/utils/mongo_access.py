@@ -23,6 +23,7 @@ class MongoAccess(DictNamingConverter):
     LOG_FILE = '/var/log/osdna/mongo_access.log'
 
     def __init__(self):
+        super().__init__()
         if not os.path.exists(self.LOG_FILE):
             open(self.LOG_FILE, 'a').close()
         self.log = FileLogger(self.LOG_FILE)

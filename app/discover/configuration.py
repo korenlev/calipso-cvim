@@ -1,8 +1,9 @@
+from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
 
 
-class Configuration(MongoAccess, metaclass=Singleton):
+class Configuration(metaclass=Singleton):
     def __init__(self, environments_collection="environments_config"):
         super().__init__()
         self.db_client = MongoAccess()
@@ -11,6 +12,7 @@ class Configuration(MongoAccess, metaclass=Singleton):
         self.env_name = None
         self.environment = None
         self.configuration = None
+        self.log = FullLogger()
 
     def use_env(self, env_name):
         self.log.info("Configuration taken from environment: {}".format(env_name))
@@ -36,7 +38,7 @@ class Configuration(MongoAccess, metaclass=Singleton):
 
     def update_env(self, values):
         self.collection.update_one({"name": self.env_name},
-                                   {'$set': self.encode_mongo_keys(values)})
+                                   {'$set': MongoAccess.encode_mongo_keys(values)})
 
     def get(self, component):
         try:

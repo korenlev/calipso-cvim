@@ -20,7 +20,7 @@ class SshConnection(BinaryConverter):
     def __init__(self, _host: str, _user: str, _pwd: str=None, _key: str = None,
                  _port: int = None,  _call_count_limit: int=None,
                  for_sftp: bool = False):
-        BinaryConverter.__init__(self)
+        super().__init__()
         self.host = _host
         self.ssh = None
         self.ftp = None

@@ -50,6 +50,7 @@ class EnvironmentListener(ConsumerMixin):
                  mongo_config: str = DEFAULTS["mongo_config"],
                  retry_limit: int = DEFAULTS["retry_limit"],
                  consume_all: bool = DEFAULTS["consume_all"]):
+        super().__init__()
 
         self.connection = connection
         self.retry_limit = retry_limit

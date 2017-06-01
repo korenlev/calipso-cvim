@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 class SignalHandler:
 
     def __init__(self, signals=(signal.SIGTERM, signal.SIGINT)):
+        super().__init__()
         self.terminated = False
         for sig in signals:
             signal.signal(sig, self.handle)

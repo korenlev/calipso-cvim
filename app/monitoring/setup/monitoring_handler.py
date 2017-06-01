@@ -40,9 +40,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     fetch_ssl_files = []
 
     def __init__(self, env):
-        MongoAccess.__init__(self)
-        CliAccess.__init__(self)
-        BinaryConverter.__init__(self)
+        super().__init__()
         self.log = FullLogger()
         self.configuration = Configuration()
         self.mechanism_drivers = \

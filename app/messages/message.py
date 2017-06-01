@@ -20,6 +20,7 @@ class Message:
                  ts: str = None,
                  received_ts: str = None,
                  finished_ts: str = None):
+        super().__init__()
 
         if level and level.lower() in self.LEVELS:
             self.level = level.lower()

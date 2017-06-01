@@ -4,6 +4,7 @@ import os
 class ConfigFile:
 
     def __init__(self, file_path):
+        super().__init__()
         if not os.path.isfile(file_path):
             raise ValueError("config file doesn't exist in "
                              "the system: {0}"

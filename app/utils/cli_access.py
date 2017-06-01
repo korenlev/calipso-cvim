@@ -16,8 +16,7 @@ class CliAccess(BinaryConverter, Fetcher):
     cached_commands = {}
 
     def __init__(self):
-        BinaryConverter.__init__(self)
-        Fetcher.__init__(self)
+        super().__init__()
         self.log = ConsoleLogger()
 
     @staticmethod

@@ -2,10 +2,9 @@ from bson.objectid import ObjectId
 
 from discover.fetcher import Fetcher
 from utils.inventory_mgr import InventoryMgr
-from utils.mongo_access import MongoAccess
 
 
-class CliqueFinder(Fetcher, MongoAccess):
+class CliqueFinder(Fetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
