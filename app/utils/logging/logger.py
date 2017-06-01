@@ -46,8 +46,8 @@ class Logger(ABC):
         self.log.setLevel(numeric_level)
         self.level = loglevel
 
-    def _log(self, level, message, exc_info=False, *args, **kwargs):
-        self.log.log(level=level, msg=message, exc_info=exc_info)
+    def _log(self, level, message, *args, exc_info=False, **kwargs):
+        self.log.log(level, message, *args, exc_info=exc_info, **kwargs)
 
     def debug(self, message, *args, **kwargs):
         self._log(logging.DEBUG, message, *args, **kwargs)
