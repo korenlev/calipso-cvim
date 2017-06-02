@@ -9,30 +9,40 @@ class Logger(ABC):
     ERROR = 'ERROR'
     CRITICAL = 'CRITICAL'
 
+    PROJECT_NAME = 'CALIPSO'
+
+    levels = [DEBUG, INFO, WARNING, ERROR, CRITICAL]
     log_format = '%(asctime)s %(levelname)s: %(message)s'
     formatter = logging.Formatter(log_format)
     default_level = INFO
 
-    PROJECT_NAME = 'CALIPSO'
-
-    def __init__(self, logger_name=PROJECT_NAME):
+    def __init__(self, logger_name: str = PROJECT_NAME,
+                 level: str = default_level):
         super().__init__()
+        self.check_level(level)
         self.log = logging.getLogger(logger_name)
         logging.basicConfig(format=self.log_format,
-                            level=self.default_level)
+                            level=level)
         self.log.propagate = False
-        self.set_loglevel(self.default_level)
+        self.set_loglevel(level)
         self.env = None
-        self.level = self.default_level
+        self.level = level
 
     def set_env(self, env):
         self.env = env
 
     @staticmethod
+    def check_level(level):
+        if level not in Logger.levels:
+            raise ValueError('Invalid log level: {}. Supported levels: ({})'
+                             .format(level, ", ".join(Logger.levels)))
+
+    @staticmethod
     def get_numeric_level(loglevel):
+        Logger.check_level(loglevel)
         numeric_level = getattr(logging, loglevel.upper(), Logger.default_level)
         if not isinstance(numeric_level, int):
-            raise ValueError('Invalid log level: %s' % loglevel)
+            raise ValueError('Invalid log level: {}'.format(loglevel))
         return numeric_level
 
     def set_loglevel(self, loglevel):
@@ -74,6 +84,6 @@ class Logger(ABC):
         handler_defined = handler.__class__ in map(lambda h: h.__class__, self.log.handlers)
 
         if not handler_defined:
-            handler.setLevel(self.default_level)
+            handler.setLevel(self.level)
             handler.setFormatter(self.formatter)
             self.log.addHandler(handler)

@@ -7,8 +7,10 @@ from utils.logging.mongo_logging_handler import MongoLoggingHandler
 
 class FullLogger(Logger):
 
-    def __init__(self, env: str = None, log_file: str = None):
-        super().__init__(logger_name="{}-Full".format(self.PROJECT_NAME))
+    def __init__(self, env: str = None, log_file: str = None,
+                 level: str = Logger.default_level):
+        super().__init__(logger_name="{}-Full".format(self.PROJECT_NAME),
+                         level=level)
 
         # Console handler
         self.add_handler(logging.StreamHandler())

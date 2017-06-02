@@ -13,14 +13,13 @@ class MongoLoggingHandler(logging.Handler):
     """
     SOURCE_SYSTEM = 'CALIPSO'
 
-    def __init__(self, env, level):
+    def __init__(self, env: str, level: str):
         super().__init__(Logger.get_numeric_level(level))
         self.str_level = level
         self.env = env
         self.inv = None
 
     def emit(self, record):
-
         # Try to invoke InventoryMgr for logging
         if not self.inv:
             try:
@@ -41,5 +40,5 @@ class MongoLoggingHandler(logging.Handler):
         source = self.SOURCE_SYSTEM
         message = Message(msg_id=timestamp_id, env=self.env, source=source,
                           msg=Logger.formatter.format(record), ts=ts,
-                          level=self.str_level)
+                          level=record.levelname)
         self.inv.collections['messages'].insert_one(message.get())
