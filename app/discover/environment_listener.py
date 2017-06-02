@@ -47,7 +47,6 @@ class EnvironmentListener(ConsumerMixin):
                  event_queues: List,
                  env_name: str = DEFAULTS["env"],
                  inventory_collection: str = DEFAULTS["inventory"],
-                 mongo_config: str = DEFAULTS["mongo_config"],
                  retry_limit: int = DEFAULTS["retry_limit"],
                  consume_all: bool = DEFAULTS["consume_all"]):
         super().__init__()
@@ -63,7 +62,7 @@ class EnvironmentListener(ConsumerMixin):
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
         self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(mongo_config, self.env_name)
+            MonitoringSetupManager(self.env_name)
         self.inv.monitoring_setup_manager.server_setup()
 
     def get_consumers(self, consumer, channel):
@@ -282,7 +281,6 @@ def listen(args: dict = None):
                                     event_queues=event_queues,
                                     retry_limit=args["retry_limit"],
                                     consume_all=args["consume_all"],
-                                    mongo_config=args["mongo_config"],
                                     inventory_collection=inventory_collection,
                                     env_name=env_name)
             worker.run()
