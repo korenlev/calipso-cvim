@@ -19,7 +19,6 @@ class MongoAccess(DictNamingConverter):
     db = None
     default_conf_file = '/local_dir/osdna_mongo_access.conf'
     config_file = None
-    ready = False
 
     LOG_FILE = '/var/log/osdna/mongo_access.log'
 
