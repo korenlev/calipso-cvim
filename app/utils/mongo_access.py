@@ -24,8 +24,6 @@ class MongoAccess(DictNamingConverter):
 
     def __init__(self):
         super().__init__()
-        if not os.path.exists(self.LOG_FILE):
-            open(self.LOG_FILE, 'a').close()
         self.log = FileLogger(self.LOG_FILE)
 
         self.connect_params = {}
