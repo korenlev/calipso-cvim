@@ -19,6 +19,7 @@ class MongoAccess(DictNamingConverter):
     db = None
     default_conf_file = '/local_dir/osdna_mongo_access.conf'
     config_file = None
+    ready = False
 
     LOG_FILE = '/var/log/osdna/mongo_access.log'
 
@@ -28,12 +29,11 @@ class MongoAccess(DictNamingConverter):
             open(self.LOG_FILE, 'a').close()
         self.log = FileLogger(self.LOG_FILE)
 
-        self.ready = False
         self.connect_params = {}
         self.mongo_connect(self.config_file)
 
     def is_db_ready(self) -> bool:
-        return self.ready
+        return MongoAccess.client is not None
 
     @staticmethod
     def set_config_file(_conf_file):
@@ -67,7 +67,6 @@ class MongoAccess(DictNamingConverter):
         )
         MongoAccess.db = MongoAccess.client.osdna
         self.log.info('Connected to MongoDB')
-        self.ready = True
 
     def prepare_connect_uri(self):
         params = self.connect_params
