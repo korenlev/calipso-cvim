@@ -4,6 +4,7 @@ from pymongo import MongoClient
 
 from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
+from utils.logging.console_logger import ConsoleLogger
 from utils.logging.file_logger import FileLogger
 
 
@@ -21,10 +22,23 @@ class MongoAccess(DictNamingConverter):
     config_file = None
 
     LOG_FILE = '/var/log/osdna/mongo_access.log'
+    DEFAULT_LOG_FILE = os.path.abspath("./mongo_access.log")
 
     def __init__(self):
         super().__init__()
-        self.log = FileLogger(self.LOG_FILE)
+
+        try:
+            self.log = FileLogger(self.LOG_FILE)
+        except OSError as e:
+            ConsoleLogger().warning("Couldn't use file {} for logging. "
+                                    "Using default location: {}.\n"
+                                    "Error: {}"
+                                    .format(self.LOG_FILE,
+                                            self.DEFAULT_LOG_FILE,
+                                            e))
+
+            self.LOG_FILE = self.DEFAULT_LOG_FILE
+            self.log = FileLogger(self.LOG_FILE)
 
         self.connect_params = {}
         self.mongo_connect(self.config_file)
