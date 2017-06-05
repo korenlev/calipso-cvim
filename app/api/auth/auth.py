@@ -1,14 +1,15 @@
-from api.backends.ldap_access import LDAPAccess
 from api.auth.token import Token
+from api.backends.ldap_access import LDAPAccess
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.full_logger import FullLogger
 
 
-class Auth(Logger):
+class Auth:
 
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
+        self.log = FullLogger()
         self.tokens_coll = self.inv.client['tokens']['api_tokens']
         self.ldap_access = LDAPAccess()
 

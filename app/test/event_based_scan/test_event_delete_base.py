@@ -1,5 +1,6 @@
 from bson import ObjectId
 
+from discover.clique_finder import CliqueFinder
 from discover.events.event_base import EventBase
 from test.event_based_scan.test_event import TestEvent
 
@@ -33,7 +34,7 @@ class TestEventDeleteBase(TestEvent):
 
         item = self.inv.get_by_id(self.env, self.item_id)
         db_id = ObjectId(item['_id'])
-        clique_finder = self.inv.get_clique_finder()
+        clique_finder = CliqueFinder()
 
         # delete item
         event_result = handler.handle(self.env, self.values)

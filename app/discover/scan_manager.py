@@ -19,12 +19,13 @@ class ScanManager(Manager):
         "mongo_config": "",
         "collection": "scans",
         "environments_collection": "environments_config",
-        "interval": 1
+        "interval": 1,
+        "loglevel": "INFO"
     }
 
     def __init__(self):
-        super().__init__()
-        self.args = None
+        self.args = self.get_args()
+        super().__init__(self.args.mongo_config)
         self.db_client = None
         self.environments_collection = None
 
@@ -34,7 +35,7 @@ class ScanManager(Manager):
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["mongo_config"],
                             help="Name of config file " +
-                            "with MongoDB server access details")
+                                 "with MongoDB server access details")
         parser.add_argument("-c", "--collection", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["collection"],
                             help="Scans collection to read from")
@@ -45,17 +46,21 @@ class ScanManager(Manager):
                             default=ScanManager.DEFAULTS["interval"],
                             help="Interval between collection polls"
                                  "(must be more than {} seconds)"
-                            .format(ScanManager.MIN_INTERVAL))
+                                 .format(ScanManager.MIN_INTERVAL))
+        parser.add_argument("-l", "--loglevel", nargs="?", type=str,
+                            default=ScanManager.DEFAULTS["loglevel"],
+                            help="Logging level \n(default: '{}')"
+                                 .format(ScanManager.DEFAULTS["loglevel"]))
         args = parser.parse_args()
         return args
 
     def configure(self):
-        self.args = self.get_args()
-        self.db_client = MongoAccess(self.args.mongo_config)
+        self.db_client = MongoAccess()
         self.collection = self.db_client.db[self.args.collection]
         self.environments_collection = self.db_client.db[self.args.environments_collection]
         self._update_document = partial(MongoAccess.update_document, self.collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
+        self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "Mongo config file path: {0.args.mongo_config}\n"

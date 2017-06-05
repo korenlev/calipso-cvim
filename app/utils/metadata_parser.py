@@ -8,6 +8,7 @@ from utils.util import get_extension
 class MetadataParser(metaclass=ABCMeta):
 
     def __init__(self):
+        super().__init__()
         self.errors = []
 
     @abstractmethod

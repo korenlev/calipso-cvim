@@ -3,6 +3,7 @@ import time
 
 from discover.fetcher import Fetcher
 from utils.binary_converter import BinaryConverter
+from utils.logging.console_logger import ConsoleLogger
 from utils.ssh_conn import SshConn
 
 
@@ -16,6 +17,7 @@ class CliAccess(BinaryConverter, Fetcher):
 
     def __init__(self):
         super().__init__()
+        self.log = ConsoleLogger()
 
     @staticmethod
     def is_gateway_host(ssh_to_host):

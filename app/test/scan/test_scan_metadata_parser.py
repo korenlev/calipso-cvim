@@ -6,6 +6,7 @@ from test.scan.config.test_config \
     import MONGODB_CONFIG, COLLECTION_CONFIG, ENV_CONFIG
 from test.scan.test_data.metadata import *
 from utils.inventory_mgr import InventoryMgr
+from utils.mongo_access import MongoAccess
 
 SCANNERS_FILE = 'scanners.json'
 
@@ -18,7 +19,8 @@ JSON_ERRORS_FOUND = 'Errors encountered during metadata file parsing:\n'
 
 class TestScanMetadataParser(TestCase):
     def setUp(self):
-        self.inv = InventoryMgr(mongo_config=MONGODB_CONFIG)
+        MongoAccess.set_config_file(MONGODB_CONFIG)
+        self.inv = InventoryMgr()
         self.collection = COLLECTION_CONFIG
         self.inv.set_collections(self.collection)
         self.config = Configuration()

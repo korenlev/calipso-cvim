@@ -1,7 +1,11 @@
+import os
+
 from pymongo import MongoClient
+
 from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
-from utils.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
+from utils.logging.file_logger import FileLogger
 
 
 # Provides access to MongoDB using PyMongo library
@@ -11,15 +15,40 @@ from utils.logger import Logger
 # you can also specify name of file from CLI with --mongo_config
 
 
-class MongoAccess(Logger, DictNamingConverter):
+class MongoAccess(DictNamingConverter):
     client = None
     db = None
     default_conf_file = '/local_dir/osdna_mongo_access.conf'
+    config_file = None
 
-    def __init__(self, config_file_path=""):
+    LOG_FILE = '/var/log/osdna/mongo_access.log'
+    DEFAULT_LOG_FILE = os.path.abspath("./mongo_access.log")
+
+    def __init__(self):
         super().__init__()
+
+        try:
+            self.log = FileLogger(self.LOG_FILE)
+        except OSError as e:
+            ConsoleLogger().warning("Couldn't use file {} for logging. "
+                                    "Using default location: {}.\n"
+                                    "Error: {}"
+                                    .format(self.LOG_FILE,
+                                            self.DEFAULT_LOG_FILE,
+                                            e))
+
+            self.LOG_FILE = self.DEFAULT_LOG_FILE
+            self.log = FileLogger(self.LOG_FILE)
+
         self.connect_params = {}
-        self.mongo_connect(config_file_path)
+        self.mongo_connect(self.config_file)
+
+    def is_db_ready(self) -> bool:
+        return MongoAccess.client is not None
+
+    @staticmethod
+    def set_config_file(_conf_file):
+        MongoAccess.config_file = _conf_file
 
     def mongo_connect(self, config_file_path=""):
         if MongoAccess.client:
@@ -48,9 +77,12 @@ class MongoAccess(Logger, DictNamingConverter):
             self.connect_params["port"]
         )
         MongoAccess.db = MongoAccess.client.osdna
+        self.log.info('Connected to MongoDB')
 
     def prepare_connect_uri(self):
         params = self.connect_params
+        self.log.debug('connecting to MongoDb server: {}'
+                       .format(params['server']))
         uri = 'mongodb://'
         if 'password' in params:
             uri = uri + params['user'] + ':' + params['password'] + '@'

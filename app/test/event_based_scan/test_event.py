@@ -1,22 +1,23 @@
-import unittest
-
 import re
+import unittest
 
 from discover.configuration import Configuration
 from test.event_based_scan.config.test_config \
     import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
+from utils.mongo_access import MongoAccess
 
 
 class TestEvent(unittest.TestCase):
     def setUp(self):
-        self.log = Logger().log
+        self.log = ConsoleLogger()
         self.mongo_config = MONGODB_CONFIG
         self.env = ENV_CONFIG
         self.collection = COLLECTION_CONFIG
 
-        self.conf = Configuration(self.mongo_config)
+        MongoAccess.set_config_file(self.mongo_config)
+        self.conf = Configuration()
         self.conf.use_env(self.env)
 
         self.inv = InventoryMgr()

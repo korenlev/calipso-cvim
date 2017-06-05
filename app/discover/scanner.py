@@ -5,6 +5,7 @@ import queue
 import os
 import traceback
 
+from discover.clique_finder import CliqueFinder
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
@@ -305,7 +306,9 @@ class Scanner(Fetcher):
             fetcher.add_links()
 
     def scan_cliques(self):
-        self.inv.scan_cliques(self.get_env())
+        clique_scanner = CliqueFinder()
+        clique_scanner.set_env(self.get_env())
+        clique_scanner.find_cliques()
 
     def deploy_monitoring_setup(self):
         self.inv.monitoring_setup_manager.handle_pending_setup_changes()
@@ -313,8 +316,10 @@ class Scanner(Fetcher):
     def load_metadata(self):
         parser = ScanMetadataParser(self.inv)
         conf = self.config.get_env_config()
-        scanners_file = conf.get('app_path', '/etc/osdna') + \
-            os.sep + 'config' + os.sep + ScanMetadataParser.SCANNERS_FILE
+        scanners_file = os.path.join(conf.get('app_path', '/etc/osdna'),
+                                     'config',
+                                     ScanMetadataParser.SCANNERS_FILE)
+
         metadata = parser.parse_metadata_file(scanners_file)
         self.scanners_package = metadata[ScanMetadataParser.SCANNERS_PACKAGE]
         self.scanners = metadata[ScanMetadataParser.SCANNERS]

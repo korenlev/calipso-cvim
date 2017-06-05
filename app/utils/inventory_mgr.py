@@ -2,7 +2,6 @@ from datetime import datetime
 
 import bson
 
-from discover.clique_finder import CliqueFinder
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
 
@@ -17,13 +16,12 @@ def inv_initialization_required(func):
 
 class InventoryMgr(MongoAccess, metaclass=Singleton):
 
-    def __init__(self, mongo_config=""):
-        super().__init__(mongo_config)
+    def __init__(self):
+        super().__init__()
         self.inventory_collection = None
         self.inventory_collection_name = None
         self.collections = {}
         self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
-        self.clique_scanner = None
         self.monitoring_setup_manager = None
 
     def set_collection(self, collection_type, collection_name=""):
@@ -276,22 +274,6 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                                       upsert=True)
         link['_id'] = result.upserted_id
         return link
-
-    @inv_initialization_required
-    def get_clique_finder(self):
-        if not self.clique_scanner:
-            self.clique_scanner = \
-                CliqueFinder(self.inventory_collection,
-                             self.collections["links"],
-                             self.collections["clique_types"],
-                             self.collections["clique_constraints"],
-                             self.collections["cliques"])
-        return self.clique_scanner
-
-    def scan_cliques(self, environment):
-        clique_scanner = self.get_clique_finder()
-        clique_scanner.set_env(environment)
-        clique_scanner.find_cliques()
 
     def values_replace_in_object(self, o, values_replacement):
         for k in values_replacement.keys():

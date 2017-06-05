@@ -19,7 +19,8 @@ from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus
 from utils.inventory_mgr import InventoryMgr
-from utils.logger import Logger
+from utils.logging.full_logger import FullLogger
+from utils.mongo_access import MongoAccess
 from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
 
@@ -28,7 +29,7 @@ class EnvironmentListener(ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
-    COMMON_METADATA_FILE = "default_config.json"
+    COMMON_METADATA_FILE = "events.json"
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
@@ -46,9 +47,9 @@ class EnvironmentListener(ConsumerMixin):
                  event_queues: List,
                  env_name: str = DEFAULTS["env"],
                  inventory_collection: str = DEFAULTS["inventory"],
-                 mongo_config: str = DEFAULTS["mongo_config"],
                  retry_limit: int = DEFAULTS["retry_limit"],
                  consume_all: bool = DEFAULTS["consume_all"]):
+        super().__init__()
 
         self.connection = connection
         self.retry_limit = retry_limit
@@ -61,7 +62,7 @@ class EnvironmentListener(ConsumerMixin):
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
         self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(mongo_config, self.env_name)
+            MonitoringSetupManager(self.env_name)
         self.inv.monitoring_setup_manager.server_setup()
 
     def get_consumers(self, consumer, channel):
@@ -181,25 +182,26 @@ def get_args():
                         default=def_env_collection,
                         help="Name of collection where selected environment " +
                              "is taken from \n(default: {})"
-                        .format(def_env_collection))
+                             .format(def_env_collection))
     parser.add_argument("-e", "--env", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["env"],
                         help="Name of target listener environment \n" +
                              "(default: {})"
-                        .format(EnvironmentListener.DEFAULTS["env"]))
+                             .format(EnvironmentListener.DEFAULTS["env"]))
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["inventory"],
                         help="Name of inventory collection \n"" +"
                              "(default: 'inventory')")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                         default=EnvironmentListener.DEFAULTS["loglevel"],
-                        help="Logging level \n(default: 'INFO')")
+                        help="Logging level \n(default: '{}')"
+                             .format(EnvironmentListener.DEFAULTS["loglevel"]))
     parser.add_argument("-r", "--retry_limit", nargs="?", type=int,
                         default=EnvironmentListener.DEFAULTS["retry_limit"],
                         help="Maximum number of times the OpenStack message "
                              "should be requeued before being discarded \n" +
                              "(default: {})"
-                        .format(EnvironmentListener.DEFAULTS["retry_limit"]))
+                             .format(EnvironmentListener.DEFAULTS["retry_limit"]))
     parser.add_argument("--consume_all", action="store_true",
                         help="If this flag is set, " +
                              "environment listener will try to consume"
@@ -228,7 +230,6 @@ def import_metadata(event_handler: EventHandler,
 
 
 def listen(args: dict = None):
-    logger = Logger()
 
     args = setup_args(args, EnvironmentListener.DEFAULTS, get_args)
     if 'process_vars' not in args:
@@ -237,16 +238,18 @@ def listen(args: dict = None):
     env_name = args["env"]
     inventory_collection = args["inventory"]
 
-    conf = Configuration(args["mongo_config"], args["environments_collection"])
+    MongoAccess.set_config_file(args["mongo_config"])
+    conf = Configuration(args["environments_collection"])
     conf.use_env(env_name)
 
     event_handler = EventHandler(env_name, inventory_collection)
     event_queues = []
 
     env_config = conf.get_env_config()
-    common_metadata_file = env_config.get('app_path', '/etc/osdna') + \
-        os.sep + 'config' + os.sep + \
-        EnvironmentListener.COMMON_METADATA_FILE
+    common_metadata_file = os.path.join(env_config.get('app_path', '/etc/osdna'),
+                                        'config',
+                                        EnvironmentListener.COMMON_METADATA_FILE)
+
     # import common metadata
     import_metadata(event_handler, event_queues, common_metadata_file)
 
@@ -254,6 +257,9 @@ def listen(args: dict = None):
     if args["metadata_file"]:
         import_metadata(event_handler, event_queues, args["metadata_file"])
 
+    inv = InventoryMgr()
+    inv.set_collections(inventory_collection)
+    logger = FullLogger()
     logger.set_loglevel(args["loglevel"])
 
     amqp_config = conf.get("AMQP")
@@ -275,7 +281,6 @@ def listen(args: dict = None):
                                     event_queues=event_queues,
                                     retry_limit=args["retry_limit"],
                                     consume_all=args["consume_all"],
-                                    mongo_config=args["mongo_config"],
                                     inventory_collection=inventory_collection,
                                     env_name=env_name)
             worker.run()

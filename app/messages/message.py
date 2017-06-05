@@ -8,12 +8,19 @@ class Message:
     LEVELS = ['info', 'warn', 'error']
     DEFAULT_LEVEL = LEVELS[0]
 
-    def __init__(self, msg_id: str, env: str, source: str,
-                 object_id: Union[str, ObjectId],
-                 display_context: Union[str, ObjectId],
-                 msg: dict, level: str = DEFAULT_LEVEL,
-                 object_type: str = None, ts: str = None,
-                 received_ts: str = None, finished_ts: str = None):
+    def __init__(self,
+                 msg_id: str,
+                 msg: dict,
+                 source: str,
+                 env: str = None,
+                 object_id: Union[str, ObjectId] = None,
+                 display_context: Union[str, ObjectId] = None,
+                 level: str = DEFAULT_LEVEL,
+                 object_type: str = None,
+                 ts: str = None,
+                 received_ts: str = None,
+                 finished_ts: str = None):
+        super().__init__()
 
         if level and level.lower() in self.LEVELS:
             self.level = level.lower()

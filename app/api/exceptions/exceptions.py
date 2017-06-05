@@ -1,8 +1,8 @@
-from utils.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 
 
 class OSDNAApiException(Exception):
-    log = Logger().log
+    log = ConsoleLogger()
 
     def __init__(self, status, body="", message=""):
         super().__init__(message)

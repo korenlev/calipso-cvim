@@ -1,7 +1,11 @@
-from utils.logger import Logger
+from utils.logging.console_logger import ConsoleLogger
 
 
-class BinaryConverter(Logger):
+class BinaryConverter:
+
+    def __init__(self):
+        super().__init__()
+        self.log = ConsoleLogger()
 
     def binary2str(self, txt):
         if not isinstance(txt, bytes):

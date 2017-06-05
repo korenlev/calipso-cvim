@@ -1,6 +1,8 @@
 import re
 
 from bson.objectid import ObjectId
+
+from discover.clique_finder import CliqueFinder
 from discover.events.event_base import EventBase, EventResult
 
 
@@ -16,7 +18,7 @@ class EventDeleteBase(EventBase):
         id_path = item['id_path'] + '/'
 
         # remove related clique
-        clique_finder = self.inv.get_clique_finder()
+        clique_finder = CliqueFinder()
         self.inv.delete('cliques', {'focal_point': db_id})
 
         # keep related links to do rebuild of cliques using them

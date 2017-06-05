@@ -1,14 +1,13 @@
-import json
-
 from discover.configuration import Configuration
-from utils.logger import Logger
+from utils.logging.full_logger import FullLogger
 
 
-class Fetcher(Logger):
+class Fetcher:
 
     def __init__(self):
         super().__init__()
         self.env = None
+        self.log = FullLogger()
         self.configuration = None
 
     @staticmethod
@@ -17,6 +16,7 @@ class Fetcher(Logger):
 
     def set_env(self, env):
         self.env = env
+        self.log.set_env(env)
         self.configuration = Configuration()
 
     def get_env(self):

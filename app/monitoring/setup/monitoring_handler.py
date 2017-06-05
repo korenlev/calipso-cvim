@@ -16,6 +16,7 @@ from utils.binary_converter import BinaryConverter
 from utils.cli_access import CliAccess
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
+from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess
 from utils.ssh_conn import SshConn
 from utils.ssh_connection import SshConnection
@@ -38,8 +39,9 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
 
     fetch_ssl_files = []
 
-    def __init__(self, mongo_conf_file, env):
-        super().__init__(mongo_conf_file)
+    def __init__(self, env):
+        super().__init__()
+        self.log = FullLogger()
         self.configuration = Configuration()
         self.mechanism_drivers = \
             self.configuration.environment['mechanism_drivers']

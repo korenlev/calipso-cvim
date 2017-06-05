@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 from abc import ABC, abstractmethod
 
-from utils.logger import Logger
+from utils.logging.full_logger import FullLogger
+from utils.mongo_access import MongoAccess
 
 
-class Manager(Logger, ABC):
+class Manager(ABC):
 
     MIN_INTERVAL = 0.1  # To prevent needlessly frequent scans
 
-    def __init__(self):
+    def __init__(self, mongo_config_file: str = None):
         super().__init__()
+        MongoAccess.config_file = mongo_config_file
+        self.log = FullLogger()
         self.conf = None
         self.collection = None
         self._update_document = None

@@ -29,8 +29,8 @@ class EventManager(Manager):
     }
 
     def __init__(self):
-        super().__init__()
-        self.args = None
+        self.args = self.get_args()
+        super().__init__(self.args.mongo_config)
         self.db_client = None
         self.interval = None
         self.processes = []
@@ -45,30 +45,30 @@ class EventManager(Manager):
                             default=EventManager.DEFAULTS["collection"],
                             help="Environments collection to read from "
                                  "(default: '{}')"
-                            .format(EventManager.DEFAULTS["collection"]))
+                                 .format(EventManager.DEFAULTS["collection"]))
         parser.add_argument("-y", "--inventory", nargs="?", type=str,
                             default=EventManager.DEFAULTS["inventory"],
                             help="name of inventory collection "
                                  "(default: '{}')"
-                            .format(EventManager.DEFAULTS["inventory"]))
+                                 .format(EventManager.DEFAULTS["inventory"]))
         parser.add_argument("-i", "--interval", nargs="?", type=float,
                             default=EventManager.DEFAULTS["interval"],
                             help="Interval between collection polls "
                                  "(must be more than {} seconds. Default: {})"
-                            .format(EventManager.MIN_INTERVAL,
-                                    EventManager.DEFAULTS["interval"]))
+                                 .format(EventManager.MIN_INTERVAL,
+                                         EventManager.DEFAULTS["interval"]))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=EventManager.DEFAULTS["loglevel"],
-                            help="Logging level \n(default: 'INFO')")
+                            help="Logging level \n(default: '{}')"
+                                 .format(EventManager.DEFAULTS["loglevel"]))
         args = parser.parse_args()
         return args
 
     def configure(self):
-        self.args = self.get_args()
-        self.db_client = MongoAccess(self.args.mongo_config)
+        self.db_client = MongoAccess()
         self.collection = self.db_client.db[self.args.collection]
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
-        self.set_loglevel(self.args.loglevel)
+        self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started EventManager with following configuration:\n"
                       "Mongo config file path: {0}\n"
