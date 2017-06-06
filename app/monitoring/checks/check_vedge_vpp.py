@@ -14,19 +14,17 @@ return full text of "vppctl show runtime"
 import re
 import subprocess
 
-from .binary_converter import BinaryConverter
+from binary_converter import binary2str
 
 
 rc = 0
 search_pattern = re.compile("^startup-config-process ")
 
-binary_converter = BinaryConverter()
-
 try:
     out = subprocess.check_output(["sudo vppctl show runtime"],
                                   stderr=subprocess.STDOUT,
                                   shell=True)
-    out = binary_converter.binary2str(out)
+    out = binary2str(out)
     lines = out.splitlines()
     matching_lines = [l for l in lines if search_pattern.match(l)]
     matching_line = matching_lines[0] if matching_lines else None
@@ -37,7 +35,7 @@ try:
         print('Error: failed to find status in ifconfig output: ' + out)
 except subprocess.CalledProcessError as e:
     print("Error finding 'vppctl show runtime': {}"
-          .format(binary_converter.binary2str(e.output)))
+          .format(binary2str(e.output)))
     rc = 2
 
 exit(rc)

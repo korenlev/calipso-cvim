@@ -3,7 +3,9 @@
 import re
 import sys
 import subprocess
-from .binary_converter import BinaryConverter
+
+from binary_converter import binary2str
+
 
 if len(sys.argv) < 2:
     print('name of interface must be specified')
@@ -12,13 +14,11 @@ nic_name = str(sys.argv[1])
 
 rc = 0
 
-binary_converter = BinaryConverter()
-
 try:
     out = subprocess.check_output(["ifconfig " + nic_name],
                                   stderr=subprocess.STDOUT,
                                   shell=True)
-    out = binary_converter.binary2str(out)
+    out = binary2str(out)
     lines = out.splitlines()
     line_number = 1
     line = -1
@@ -35,8 +35,7 @@ try:
         rc = 0 if state_match.group(1) == 'UP' else 2
         print(out)
 except subprocess.CalledProcessError as e:
-    print("Error finding NIC {}: {}\n"
-          .format(nic_name, binary_converter.binary2str(e.output)))
+    print("Error finding NIC {}: {}\n".format(nic_name, binary2str(e.output)))
     rc = 2
 
 exit(rc)

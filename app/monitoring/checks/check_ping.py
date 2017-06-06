@@ -5,7 +5,7 @@ import re
 import sys
 import subprocess
 
-from .binary_converter import BinaryConverter
+from binary_converter import binary2str
 
 
 if len(sys.argv) < 2:
@@ -60,8 +60,6 @@ if not args.target:
 
 rc = 0
 
-binary_converter = BinaryConverter()
-
 try:
     cmd = "ping -c {} -i {} -p {} -w {} -s {} {}{} {}".format(
         args.count, args.interval,
@@ -72,10 +70,9 @@ try:
     out = subprocess.check_output([cmd],
                                   stderr=subprocess.STDOUT,
                                   shell=True)
-    out = binary_converter.binary2str(out)
+    out = binary2str(out)
 except subprocess.CalledProcessError as e:
-    print("Error doing ping: {}\n"
-          .format(binary_converter.binary2str(e.output)))
+    print("Error doing ping: {}\n".format(binary2str(e.output)))
 
 # find packet loss data
 packet_loss_match = re.search('(\d+)[%] packet loss', out, re.M)

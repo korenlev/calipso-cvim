@@ -8,7 +8,7 @@ import re
 import sys
 import subprocess
 
-from .binary_converter import BinaryConverter
+from binary_converter import binary2str
 
 
 if len(sys.argv) < 3:
@@ -19,13 +19,11 @@ mac_address = str(sys.argv[2])
 
 rc = 0
 
-binary_converter = BinaryConverter()
-
 try:
     out = subprocess.check_output(["brctl showmacs " + bridge_name],
                                   stderr=subprocess.STDOUT,
                                   shell=True)
-    out = binary_converter.binary2str(out)
+    out = binary2str(out)
     lines = out.splitlines()
     line_number = 1
     line = ''
@@ -59,7 +57,7 @@ try:
         print(msg)
 except subprocess.CalledProcessError as e:
     print("Error finding MAC {}: {}\n"
-          .format(mac_address, binary_converter.binary2str(e.output)))
+          .format(mac_address, binary2str(e.output)))
     rc = 2
 
 exit(rc)
