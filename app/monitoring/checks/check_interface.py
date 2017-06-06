@@ -3,15 +3,7 @@
 import re
 import sys
 import subprocess
-
-def binary2str(txt):
-    if not isinstance(txt, bytes):
-      return str(txt)
-    try:
-      s = txt.decode("ascii")
-    except TypeError:
-      s = str(txt)
-    return s
+from .binary_converter import BinaryConverter
 
 if len(sys.argv) < 2:
     print('name of interface must be specified')
@@ -20,18 +12,21 @@ nic_name = str(sys.argv[1])
 
 rc = 0
 
+binary_converter = BinaryConverter()
+
 try:
     out = subprocess.check_output(["ifconfig " + nic_name],
-        stderr=subprocess.STDOUT,
-        shell=True)
-    out = binary2str(out)
+                                  stderr=subprocess.STDOUT,
+                                  shell=True)
+    out = binary_converter.binary2str(out)
     lines = out.splitlines()
     line_number = 1
+    line = -1
     while line_number < len(lines):
-      line = lines[line_number]
-      if ' BROADCAST ' in line:
-        break
-      line_number+=1
+        line = lines[line_number]
+        if ' BROADCAST ' in line:
+            break
+        line_number += 1
     state_match = re.match('^\W+([A-Z]+)', line)
     if not state_match:
         rc = 2
@@ -40,7 +35,8 @@ try:
         rc = 0 if state_match.group(1) == 'UP' else 2
         print(out)
 except subprocess.CalledProcessError as e:
-    print("Error finding NIC " +  nic_name + ": " + binary2str(e.output) + "\n")
+    print("Error finding NIC {}: {}\n"
+          .format(nic_name, binary_converter.binary2str(e.output)))
     rc = 2
 
 exit(rc)
