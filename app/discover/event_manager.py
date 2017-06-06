@@ -8,7 +8,8 @@ from multiprocessing import Process, Manager as SharedManager
 
 from discover.manager import Manager
 from discover.environment_listener import listen
-from utils.constants import OperationalStatus
+from utils.constants import OperationalStatus, EnvironmentFeatures
+from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 
 
@@ -66,6 +67,7 @@ class EventManager(Manager):
 
     def configure(self):
         self.db_client = MongoAccess()
+        self.inv = InventoryMgr()
         self.collection = self.db_client.db[self.args.collection]
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
@@ -181,15 +183,21 @@ class EventManager(Manager):
                 for env in filter(lambda e: e['name'] not in
                                   map(lambda process: process["name"], self.processes),
                                   envs):
-                    name = env['name']
+                    env_name = env['name']
+
+                    if not self.inv.is_feature_supported(env_name, EnvironmentFeatures.LISTENING):
+                        self.log.error("Listening is not supported for env '{}'".format(env_name))
+                        self.collection.update({"name": env_name},
+                                               {"$set": {"operational": OperationalStatus.ERROR.value}})
+                        continue
 
                     # A dict that is shared between event manager and newly created env listener
                     process_vars = SharedManager().dict()
                     p = Process(target=self.listen_to_events,
-                                args=(name, process_vars,),
-                                name=name)
-                    self.processes.append({"process": p, "name": name, "vars": process_vars})
-                    self.log.info("Starting event listener '{0}'".format(name))
+                                args=(env_name, process_vars,),
+                                name=env_name)
+                    self.processes.append({"process": p, "name": env_name, "vars": process_vars})
+                    self.log.info("Starting event listener '{0}'".format(env_name))
                     p.start()
 
                 # Make sure statuses are up-to-date before event manager goes to sleep

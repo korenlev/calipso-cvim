@@ -17,7 +17,7 @@ from discover.events.event_base import EventResult
 from discover.events.event_metadata_parser import parse_metadata_file
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
-from utils.constants import OperationalStatus
+from utils.constants import OperationalStatus, EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess
@@ -61,9 +61,10 @@ class EnvironmentListener(ConsumerMixin):
 
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
-        self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(self.env_name)
-        self.inv.monitoring_setup_manager.server_setup()
+        if self.inv.is_feature_supported(self.env_name, EnvironmentFeatures.MONITORING):
+            self.inv.monitoring_setup_manager = \
+                MonitoringSetupManager(self.env_name)
+            self.inv.monitoring_setup_manager.server_setup()
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=self.event_queues,
