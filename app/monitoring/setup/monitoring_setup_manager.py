@@ -22,6 +22,7 @@ class MonitoringSetupManager(MonitoringHandler):
             "vedge": MonitoringVedge(env),
             "pnic": MonitoringPnic(env),
             "vnic": MonitoringVnic(env),
+            "vservice": MonitoringVservice(env),
             "vnic-vconnector": MonitoringLinkVnicVconnector(env)}
 
     # add monitoring setup to Sensu server
