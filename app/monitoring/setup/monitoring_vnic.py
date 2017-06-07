@@ -1,15 +1,11 @@
-from monitoring.setup.monitoring_check_handler import MonitoringCheckHandler
+from monitoring.setup.monitoring_simple_object import MonitoringSimpleObject
 
 
-class MonitoringVnic(MonitoringCheckHandler):
+class MonitoringVnic(MonitoringSimpleObject):
 
     def __init__(self, env):
         super().__init__(env)
 
     # add monitoring setup for remote host
     def create_setup(self, o):
-        values = {
-            'objtype': 'vnic',
-            'vnictype': o['vnic_type'],
-            'objid': self.encode_special_characters(o['id'])}
-        self.create_monitoring_for_object(o, values)
+        self.setup('vnic', o, values={'vnictype': o['vnic_type']})
