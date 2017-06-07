@@ -17,8 +17,8 @@
             <div class="modal-body">
                 <h5 class="modal-title" id="myModalLabel"
                                         >{{ listHeader }}</h5>
-                <table class="table table-striped">
-                    <thead>
+                <table class="table table-striped sm-messages-table">
+                    <thead class="sm-message-table-section">
                     <tr>
                         <th>Environment</th>
                         <th>Display Context</th>
@@ -27,9 +27,9 @@
                         <th>Related Object</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="sm-message-table-section">
                     {{#each message in messages }}
-                      <tr>
+                      <tr class="sm-message-row">
                         <td>{{ message.environment }}</td>
                         <td>
                           <a class="cl-link sm-display-context-link" 
