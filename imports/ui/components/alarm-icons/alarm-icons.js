@@ -17,7 +17,7 @@ Template.alarmIcons.onCreated(function () {
 
   instance.autorun(function () {
     instance.subscribe('messages?level', 'info');
-    instance.subscribe('messages?level', 'warn');
+    instance.subscribe('messages?level', 'warning');
     instance.subscribe('messages?level', 'error');
   });
 });
@@ -36,7 +36,7 @@ Template.alarmIcons.helpers({
   },
 
   warningsCount: function(){
-    return Messages.find({level:'warn'}).count();
+    return Messages.find({level:'warning'}).count();
   },
 
   errorsCount: function(){

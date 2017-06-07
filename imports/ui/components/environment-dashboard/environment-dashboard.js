@@ -114,7 +114,7 @@ Template.EnvironmentDashboard.onCreated(function() {
       instance.subscribe('inventory?env+type', env.name, 'project');
       instance.subscribe('inventory?env+type', env.name, 'region');
       instance.subscribe('messages?env+level', env.name, 'info');
-      instance.subscribe('messages?env+level', env.name, 'warn');
+      instance.subscribe('messages?env+level', env.name, 'warning');
       instance.subscribe('messages?env+level', env.name, 'error');
 
       let vConnectorCounterName = 'inventory?env+type!counter?env=' +
