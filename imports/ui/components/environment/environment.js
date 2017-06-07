@@ -51,6 +51,7 @@ import '/imports/ui/components/vedge-info-window/vedge-info-window';
 import '/imports/ui/components/env-delete-modal/env-delete-modal';
 import '/imports/ui/components/environment-dashboard/environment-dashboard';
 import '/imports/ui/components/general-folder-node-dashboard/general-folder-node-dashboard';
+import '/imports/ui/components/general-node-dashboard/general-node-dashboard';
 
 import './environment.html';
 
@@ -409,7 +410,7 @@ Template.Environment.helpers({
       break;
 
     default:
-      dashTemplate = 'EmptyDashboard';
+      dashTemplate = 'GeneralNodeDashboard';
     }
 
     return dashTemplate;
