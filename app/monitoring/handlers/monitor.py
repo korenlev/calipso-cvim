@@ -7,6 +7,7 @@ import json
 import sys
 
 from utils.mongo_access import MongoAccess
+from utils.util import ClassResolver
 
 DEFAULT_ENV = "WebEX-Mirantis@Cisco"
 
@@ -60,23 +61,13 @@ if 'environment' in check_client:
     args.env = check_client['environment']
 
 handler = None
-if object_type == 'otep':
-    from monitoring.handlers.handle_otep import HandleOtep
-    handler = HandleOtep(args)
-if object_type == 'pnic':
-    from monitoring.handlers.handle_pnic import HandlePnic
-    handler = HandlePnic(args)
-if object_type == 'vedge':
-    from monitoring.handlers.handle_vedge import HandleVedge
-    handler = HandleVedge(args)
-if object_type == 'pnic':
-    from monitoring.handlers.handle_pnic_vpp import HandlePnicVpp
-    handler = HandlePnicVpp(args)
-if object_type == 'vnic':
-    from monitoring.handlers.handle_vnic_vpp import HandleVnicVpp
-    handler = HandleVnicVpp(args)
-if object_type == 'link':
-    from monitoring.handlers.handle_link import HandleLink
-    handler = HandleLink(args)
+basic_handling_types = ['vedge', 'vservice']
+if object_type in basic_handling_types:
+    from monitoring.handlers.basic_check_handler import BasicCheckHandler
+    handler = BasicCheckHandler(args)
+else:
+    module_name = 'handle_' + object_type
+    handler = ClassResolver.get_instance_of_class(module_name=module_name,
+                                                  package='monitoring.handlers')
 if handler:
     handler.handle(object_id, check_result)
