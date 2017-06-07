@@ -21,7 +21,7 @@ Template.MessagesInfoBox.onCreated(function() {
     new SimpleSchema({
       title: { type: String },
       count: { type: Number },
-      lastScanTimestamp: { type: Date, optional: true },
+      lastScanTimestamp: { type: String, optional: true },
       icon: { type: String },
       colorClass: { type: String },
       onMoreDetailsReq: { type: Function },
