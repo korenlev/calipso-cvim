@@ -5,11 +5,14 @@
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import * as R from 'ramda';
 import { Messages } from '/imports/api/messages/messages';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
         
+import '/imports/ui/components/pager/pager';
+
 import './messages-modal.html';     
     
 /*  
@@ -20,22 +23,21 @@ Template.MessagesModal.onCreated(function() {
   let instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
-    messageLevel: null,
+    messageLevel: 'info',
     iconType: null,
     listHeader: null,
-    envName: null
+    envName: null,
+    page: 1,
+    amountPerPage: 10,
   });
 
   instance.autorun(function () {
-    let messageLevel = instance.state.get('messageLevel');
+    let amountPerPage = instance.state.get('amountPerPage');
+    let page = instance.state.get('page');
     let envName = instance.state.get('envName');
-    if (R.isNil(messageLevel)) { return; }
+    let messageLevel = instance.state.get('messageLevel');
 
-    if (R.isNil(envName)) {
-      instance.subscribe('messages?level', messageLevel);
-    } else {
-      instance.subscribe('messages?env+level', envName, messageLevel);
-    }
+    instance.subscribe('messages?env&level&page&amount', envName, messageLevel, page, amountPerPage);
   });
 });  
 
@@ -116,13 +118,85 @@ Template.MessagesModal.helpers({
     let instance = Template.instance();
     let level = instance.state.get('messageLevel');
     let envName = instance.state.get('envName');
+    let page = instance.state.get('page');
+    let amountPerPage = instance.state.get('amountPerPage');
+    let skip = (page - 1) * amountPerPage;
+    let pQuery = { limit: amountPerPage, skip: skip };
 
     if (R.isNil(envName)) {
-      return Messages.find({ level: level });
+      return Messages.find({ level: level }, pQuery);
     } else {
-      return Messages.find({ level: level, environment: envName });
+      return Messages.find({ level: level, environment: envName }, pQuery);
     }
   },
+
+  currentPage: function () {
+    let instance = Template.instance();
+    return instance.state.get('page');
+  },
+
+  amountPerPage: function () {
+    let instance = Template.instance();
+    return instance.state.get('amountPerPage');
+  },
+
+  totalMessages: function () {
+    let instance = Template.instance();
+    let level = instance.state.get('messageLevel');
+    let env = instance.state.get('envName');
+    let page = instance.state.get('page');
+    let amountPerPage = instance.state.get('amountPerPage');
+    env = env ? env : null;
+
+    return Counts.get('messages?env&level&page&amount!counter?env=' +
+      R.toString(env) + '&level=' + R.toString(level) +
+      '&page=' + R.toString(page) +
+      '&amount=' + R.toString(amountPerPage)
+    );
+  },
+
+  argsPager: function (currentPage, amountPerPage, totalMessages) {
+    let instance = Template.instance();
+    let totalPages = Math.ceil(totalMessages / amountPerPage);
+
+    return {
+      disableNext: currentPage * amountPerPage > totalMessages,
+      disablePrev: currentPage == 1,
+      totalPages: totalPages,      
+      currentPage: currentPage,
+      onReqNext: function () {
+        console.log('next');
+        let page = (currentPage * amountPerPage > totalMessages) ? currentPage : currentPage + 1;
+        instance.state.set('page', page); 
+      },
+      onReqPrev: function () {
+        console.log('prev');
+        let page = (currentPage == 1) ? currentPage : currentPage - 1;
+        instance.state.set('page', page); 
+      },
+      onReqFirst: function () {
+        console.log('req first');
+        instance.state.set('page', 1);
+      },
+      onReqLast: function () {
+        console.log('req last');
+        instance.state.set('page', totalPages);
+      },
+      onReqPage: function (pageNumber) {
+        console.log('req page');
+        let page;
+        if (pageNumber <= 1) { 
+          page = 1; 
+        } else if (pageNumber > Math.ceil(totalMessages / amountPerPage)) { 
+          page = totalPages;
+        } else {
+          page = pageNumber;
+        }
+
+        instance.state.set('page', page);
+      },
+    };
+  }
 }); // end: helpers
 
 function setParams(messageLevel, envName, instance) {
@@ -130,6 +204,7 @@ function setParams(messageLevel, envName, instance) {
   instance.state.set('iconType', calcIconType(messageLevel));
   instance.state.set('listHeader', calcListHeader(messageLevel, envName));
   instance.state.set('envName', envName);
+  instance.state.set('page', 1);
 }
 
 function calcIconType(messageLevel) {

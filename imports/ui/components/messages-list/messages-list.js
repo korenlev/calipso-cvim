@@ -125,7 +125,13 @@ Template.MessagesList.helpers({
   },
 
   totalMessages: function () {
-    return Counts.get('messages?page&amount!count');
+    let instance = Template.instance();
+    let page = instance.state.get('page');
+    let amountPerPage = instance.state.get('amountPerPage');
+    let counterName = 'messages?page&amount!count?page=' + R.toString(page) + 
+      '&amount=' + R.toString(amountPerPage);
+
+    return Counts.get(counterName);
   },
 
   argsPager: function (currentPage, amountPerPage, totalMessages) {

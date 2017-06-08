@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Messages } from '../messages.js';
+import * as R from 'ramda';
 
 Meteor.publish('messages', function () {
   console.log('server subscribtion to: messages');
@@ -22,9 +23,14 @@ Meteor.publish('messages?page&amount', function (page, amountPerPage) {
     skip: skip
   };
 
-  Counts.publish(this, 'messages?page&amount!count', Messages.find(query), {
+  let counterName = 'messages?page&amount!count?page=' + R.toString(page) + 
+    '&amount=' + R.toString(amountPerPage);
+
+  Counts.publish(this, counterName, Messages.find(query), {
     noReady: true
   });
+
+  console.log('counter name', counterName);
 
   return Messages.find(query, qParams);
 });
@@ -69,4 +75,39 @@ Meteor.publish('messages?env+level', function (env, level) {
   console.log('- env: ' + env);
   console.log('- level: ' + level);
   return Messages.find(query);
+});
+
+Meteor.publish('messages?env&level&page&amount', function (env, level, page, amountPerPage) {
+  console.log('subscribe: messages?env&level&page&amount');
+  console.log('-env', env);
+  console.log('-level', level);
+  console.log('-page', page);
+  console.log('-amountPerPage', amountPerPage);
+
+  let skip = (page - 1) * amountPerPage;
+
+  let query = {
+    level: level
+  };
+
+  query = R.ifElse(R.isNil, R.always(query), R.assoc('environment', R.__, query))(env);
+
+  var counterName = 'messages?env&level&page&amount!counter?env=' +
+    R.toString(env) + 
+    '&level=' + R.toString(level) +
+    '&page=' + R.toString(page) +
+    '&amount=' + R.toString(amountPerPage);
+
+  let qParams = {
+    limit: amountPerPage,
+    skip: skip
+  };
+
+  Counts.publish(this, counterName, Messages.find(query), {
+    noReady: true
+  });
+
+  console.log('-counter name:', counterName);
+
+  return Messages.find(query, qParams);
 });
