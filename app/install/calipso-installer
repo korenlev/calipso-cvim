@@ -117,7 +117,7 @@ startSensu () {
     korenlev/calipso:sensu
 }
 
-startUI () {
+startUIproxy () {
     echo "Starting ui"
     docker run \
     -d \
@@ -131,14 +131,36 @@ startUI () {
     korenlev/calipso:ui
 }
 
-startAll() {
+startUInoproxy () {
+    echo "Starting ui"
+    docker run \
+    -d \
+    -e ROOT_URL=http://${host}:${host_port} \
+    -e MONGO_URL=mongodb://osdna:osdna_default@${host}:${mongo_port}/osdna \
+    -v /home/calipso/osdna_ui:/bundle \
+    -p 80:80 \
+    --name calipso-ui \
+    korenlev/calipso:ui
+}
+
+startAllproxy() {
     startMongo
     startLdap
     startApi
     startScan
     startListen
     startSensu
-    startUI
+    startUIproxy
+}
+
+startAllnoproxy() {
+    startMongo
+    startLdap
+    startApi
+    startScan
+    startListen
+    startSensu
+    startUInoproxy
 }
 
 killContainer () {
@@ -151,9 +173,10 @@ rmContainer () {
 
 stopService () {
     service=$1
-    echo "Stopping ${service}"
+    echo "Killing ${service}"
     killContainer ${service}
     sleep 5
+    echo "Removing ${service}"
     rmContainer ${service}
 }
 
@@ -166,6 +189,7 @@ stopAll () {
     sleep 5
     for service in "${services[@]}"
         do
+            echo "Removing ${service}"
             rmContainer ${service}
         done
 }
@@ -179,7 +203,7 @@ then
 else
     if [ $# -ne 0 ];
     then
-        echo "Usage: calipso-manager [host host_port mongo_port proxy proxy_port]"
+        echo "Usage: calipso-installer [host host_port mongo_port proxy proxy_port]"
         exit 1
     fi
 fi
@@ -194,26 +218,25 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
         echo "Version ${version}"
         echo "*** Changelog: ${changelog} ***"
         echo ""
-        echo "Valid commands: "
+        echo "Valid commands to use:"
+        echo "----------------------"
         echo "help - print this help"
         echo "setup - prepare data for containers"
-        echo ""
         echo "start/stop/restart (${services[*]}) - start, stop or restart a service"
         echo "start/stop/restart all - start, stop or restart all services"
-        echo ""
         echo "exit - exit the script"
         ;;
 
    "setup")
-        echo "Enter host: "
+        echo "Enter host to use for all containers (dns name or IP): "
         read host
-        echo "Enter host port: "
+        echo "Enter host port to use for web-ui (typically:80): "
         read host_port
-        echo "Enter mongo port: "
+        echo "Enter mongo port (typically:27017): "
         read mongo_port
-        echo "Enter proxy: "
+        echo "Enter proxy (optional): "
         read proxy
-        echo "Enter proxy_port: "
+        echo "Enter proxy_port (optional): "
         read proxy_port
         setup ${host} ${host_port} ${mongo_port} ${proxy} ${proxy_port}
         ;;
@@ -241,14 +264,24 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
     "start sensu")
         startSensu
         ;;
+
     "start ui")
-        startUI
+        if [ ${proxy} != "" ];
+    	then
+            startUIproxy
+    	else
+            startUInoproxy
+        fi
         ;;
 
     "start all")
-        startAll
+        if [ ${proxy} != "" ];
+    	then
+            startAllproxy
+    	else
+            startAllnoproxy
+        fi
         ;;
-
 
     "stop mongo")
         stopService "mongo"
