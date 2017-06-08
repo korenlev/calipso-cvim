@@ -15,6 +15,7 @@ from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
 from discover.events.event_metadata_parser import parse_metadata_file
+from discover.events.listeners.listener_base import ListenerBase
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus, EnvironmentFeatures
@@ -25,7 +26,7 @@ from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
 
 
-class EnvironmentListener(ConsumerMixin):
+class DefaultListener(ListenerBase, ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
 
@@ -168,48 +169,118 @@ class EnvironmentListener(ConsumerMixin):
             self.inv.log.exception(e)
             return False
 
+    @staticmethod
+    def listen(args: dict = None):
+
+        args = setup_args(args, DefaultListener.DEFAULTS, get_args)
+        if 'process_vars' not in args:
+            args['process_vars'] = {}
+
+        env_name = args["env"]
+        inventory_collection = args["inventory"]
+
+        MongoAccess.set_config_file(args["mongo_config"])
+        conf = Configuration(args["environments_collection"])
+        conf.use_env(env_name)
+
+        event_handler = EventHandler(env_name, inventory_collection)
+        event_queues = []
+
+        env_config = conf.get_env_config()
+        common_metadata_file = os.path.join(env_config.get('app_path', '/etc/osdna'),
+                                            'config',
+                                            DefaultListener.COMMON_METADATA_FILE)
+
+        # import common metadata
+        import_metadata(event_handler, event_queues, common_metadata_file)
+
+        # import custom metadata if supplied
+        if args["metadata_file"]:
+            import_metadata(event_handler, event_queues, args["metadata_file"])
+
+        inv = InventoryMgr()
+        inv.set_collections(inventory_collection)
+        logger = FullLogger()
+        logger.set_loglevel(args["loglevel"])
+
+        amqp_config = conf.get("AMQP")
+        connect_url = 'amqp://{user}:{pwd}@{host}:{port}//' \
+            .format(user=amqp_config["user"],
+                    pwd=amqp_config["password"],
+                    host=amqp_config["host"],
+                    port=amqp_config["port"])
+
+        with Connection(connect_url) as conn:
+            try:
+                print(conn)
+                conn.connect()
+                args['process_vars']['operational'] = OperationalStatus.RUNNING
+                terminator = SignalHandler()
+                worker = \
+                    DefaultListener(connection=conn,
+                                    event_handler=event_handler,
+                                    event_queues=event_queues,
+                                    retry_limit=args["retry_limit"],
+                                    consume_all=args["consume_all"],
+                                    inventory_collection=inventory_collection,
+                                    env_name=env_name)
+                worker.run()
+                if terminator.terminated:
+                    args.get('process_vars', {})['operational'] = \
+                        OperationalStatus.STOPPED
+            except KeyboardInterrupt:
+                print('Stopped')
+                args['process_vars']['operational'] = OperationalStatus.STOPPED
+            except Exception as e:
+                logger.log.exception(e)
+                args['process_vars']['operational'] = OperationalStatus.ERROR
+            finally:
+                # This should enable safe saving of shared variables
+                time.sleep(0.1)
+
 
 def get_args():
     # Read listener config from command line args
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
-                        default=EnvironmentListener.DEFAULTS["mongo_config"],
+                        default=DefaultListener.DEFAULTS["mongo_config"],
                         help="Name of config file with MongoDB access details")
     parser.add_argument("--metadata_file", nargs="?", type=str,
-                        default=EnvironmentListener.DEFAULTS["metadata_file"],
+                        default=DefaultListener.DEFAULTS["metadata_file"],
                         help="Name of custom configuration metadata file")
-    def_env_collection = EnvironmentListener.DEFAULTS["environments_collection"]
+    def_env_collection = DefaultListener.DEFAULTS["environments_collection"]
     parser.add_argument("-c", "--environments_collection", nargs="?", type=str,
                         default=def_env_collection,
                         help="Name of collection where selected environment " +
                              "is taken from \n(default: {})"
-                             .format(def_env_collection))
+                        .format(def_env_collection))
     parser.add_argument("-e", "--env", nargs="?", type=str,
-                        default=EnvironmentListener.DEFAULTS["env"],
+                        default=DefaultListener.DEFAULTS["env"],
                         help="Name of target listener environment \n" +
                              "(default: {})"
-                             .format(EnvironmentListener.DEFAULTS["env"]))
+                        .format(DefaultListener.DEFAULTS["env"]))
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
-                        default=EnvironmentListener.DEFAULTS["inventory"],
+                        default=DefaultListener.DEFAULTS["inventory"],
                         help="Name of inventory collection \n"" +"
-                             "(default: 'inventory')")
+                             "(default: '{}')"
+                        .format(DefaultListener.DEFAULTS["inventory"]))
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
-                        default=EnvironmentListener.DEFAULTS["loglevel"],
+                        default=DefaultListener.DEFAULTS["loglevel"],
                         help="Logging level \n(default: '{}')"
-                             .format(EnvironmentListener.DEFAULTS["loglevel"]))
+                        .format(DefaultListener.DEFAULTS["loglevel"]))
     parser.add_argument("-r", "--retry_limit", nargs="?", type=int,
-                        default=EnvironmentListener.DEFAULTS["retry_limit"],
+                        default=DefaultListener.DEFAULTS["retry_limit"],
                         help="Maximum number of times the OpenStack message "
                              "should be requeued before being discarded \n" +
                              "(default: {})"
-                             .format(EnvironmentListener.DEFAULTS["retry_limit"]))
+                        .format(DefaultListener.DEFAULTS["retry_limit"]))
     parser.add_argument("--consume_all", action="store_true",
                         help="If this flag is set, " +
                              "environment listener will try to consume"
                              "all messages from OpenStack event queue "
                              "and reject incompatible messages."
                              "Otherwise they'll just be ignored.",
-                        default=EnvironmentListener.DEFAULTS["consume_all"])
+                        default=DefaultListener.DEFAULTS["consume_all"])
     args = parser.parse_args()
     return args
 
@@ -230,74 +301,5 @@ def import_metadata(event_handler: EventHandler,
     ])
 
 
-def listen(args: dict = None):
-
-    args = setup_args(args, EnvironmentListener.DEFAULTS, get_args)
-    if 'process_vars' not in args:
-        args['process_vars'] = {}
-
-    env_name = args["env"]
-    inventory_collection = args["inventory"]
-
-    MongoAccess.set_config_file(args["mongo_config"])
-    conf = Configuration(args["environments_collection"])
-    conf.use_env(env_name)
-
-    event_handler = EventHandler(env_name, inventory_collection)
-    event_queues = []
-
-    env_config = conf.get_env_config()
-    common_metadata_file = os.path.join(env_config.get('app_path', '/etc/osdna'),
-                                        'config',
-                                        EnvironmentListener.COMMON_METADATA_FILE)
-
-    # import common metadata
-    import_metadata(event_handler, event_queues, common_metadata_file)
-
-    # import custom metadata if supplied
-    if args["metadata_file"]:
-        import_metadata(event_handler, event_queues, args["metadata_file"])
-
-    inv = InventoryMgr()
-    inv.set_collections(inventory_collection)
-    logger = FullLogger()
-    logger.set_loglevel(args["loglevel"])
-
-    amqp_config = conf.get("AMQP")
-    connect_url = 'amqp://{user}:{pwd}@{host}:{port}//'\
-                  .format(user=amqp_config["user"],
-                          pwd=amqp_config["password"],
-                          host=amqp_config["host"],
-                          port=amqp_config["port"])
-
-    with Connection(connect_url) as conn:
-        try:
-            print(conn)
-            conn.connect()
-            args['process_vars']['operational'] = OperationalStatus.RUNNING
-            terminator = SignalHandler()
-            worker = \
-                EnvironmentListener(connection=conn,
-                                    event_handler=event_handler,
-                                    event_queues=event_queues,
-                                    retry_limit=args["retry_limit"],
-                                    consume_all=args["consume_all"],
-                                    inventory_collection=inventory_collection,
-                                    env_name=env_name)
-            worker.run()
-            if terminator.terminated:
-                args.get('process_vars', {})['operational'] =\
-                    OperationalStatus.STOPPED
-        except KeyboardInterrupt:
-            print('Stopped')
-            args['process_vars']['operational'] = OperationalStatus.STOPPED
-        except Exception as e:
-            logger.log.exception(e)
-            args['process_vars']['operational'] = OperationalStatus.ERROR
-        finally:
-            # This should enable safe saving of shared variables
-            time.sleep(0.1)
-
-
 if __name__ == '__main__':
-    listen()
+    DefaultListener.listen()

@@ -310,8 +310,12 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                                       if count else 'no matching documents'))
         return count
 
+    def get_env_config(self, env: str):
+        return self.find_one(search={'name': env},
+                             collection='environments_config')
+
     def is_feature_supported(self, env: str, feature: EnvironmentFeatures) -> bool:
-        env_config = self.find_one(search={'name': env}, collection='environments_config')
+        env_config = self.get_env_config(env)
         if not env_config:
             return False
 
