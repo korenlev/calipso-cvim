@@ -9,6 +9,26 @@ Meteor.publish('messages', function () {
   return Messages.find({});
 });
 
+Meteor.publish('messages?page&amount', function (page, amountPerPage) {
+  console.log('server subscribtion to: messages?page&amount');
+  console.log('page: ', page);
+  console.log('amount: ', amountPerPage);
+
+  let skip = (page - 1) * amountPerPage;
+
+  let query = {};
+  let qParams = {
+    limit: amountPerPage,
+    skip: skip
+  };
+
+  Counts.publish(this, 'messages?page&amount!count', Messages.find(query), {
+    noReady: true
+  });
+
+  return Messages.find(query, qParams);
+});
+
 Meteor.publish('messages?_id', function (_id) {
   console.log('server subscribtion to: messages?_id');
   console.log('_id', _id);

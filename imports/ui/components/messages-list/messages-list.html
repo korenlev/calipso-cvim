@@ -1,54 +1,61 @@
 <template name="MessagesList">
 <div class="os-messages-list cards white">
-  <h3>Messages</h3>
-  <table class="sm-messages-table table">
-    <thead>
-      <tr>
-        <th>Environment</th>
-        <th>Viewed</th>
-        <th>Display Context</th>
-        <th>Message</th>
-        <th>Source System</th>
-        <th>Level</th>
-        <th>Timestamp</th>
-        <th>Related Object Type</th>
-        <th>Related Object</th>
-        <th>Actions</th>
-      </tr> </thead>
-    <tbody> 
-      {{#each message in messages }}
-      <tr>
-        <td>{{ message.environment }}</td>
-        <td>{{ message.viewed }}</td>
-        <td>
-          <a class="cl-link sm-display-context-link" 
-             data-env-name="{{ message.environment }}"
-             data-item-id="{{ message.display_context }}">Link to node</a>
-        </td>
-        <td>{{ message.message }}</td>
-        <td>{{ message.source_system }}</td>
-        <td>{{ message.level }}</td>
-        <td>{{ message.timestamp }}</td>
-        <td>{{ message.related_object_type }}</td>
-        <td>{{ message.related_object }}</td>
-        <td>
-          <div class="sm-action-bar">
-            <a href="{{pathFor route='message' 
-                          query=(asHash id=(idToStr message._id) action='view') }}"
-                ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
+	<div class="sm-table-section">
+		<h3>Messages</h3>
+		<table class="sm-messages-table table">
+			<thead>
+				<tr>
+					<th>Environment</th>
+					<th>Viewed</th>
+					<th>Display Context</th>
+					<th>Message</th>
+					<th>Source System</th>
+					<th>Level</th>
+					<th>Timestamp</th>
+					<th>Related Object Type</th>
+					<th>Related Object</th>
+					<th>Actions</th>
+				</tr> </thead>
+			<tbody> 
+				{{#each message in messages }}
+				<tr>
+					<td>{{ message.environment }}</td>
+					<td>{{ message.viewed }}</td>
+					<td>
+						<a class="cl-link sm-display-context-link" 
+							 data-env-name="{{ message.environment }}"
+							 data-item-id="{{ message.display_context }}">Link to node</a>
+					</td>
+					<td>{{ message.message }}</td>
+					<td>{{ message.source_system }}</td>
+					<td>{{ message.level }}</td>
+					<td>{{ message.timestamp }}</td>
+					<td>{{ message.related_object_type }}</td>
+					<td>{{ message.related_object }}</td>
+					<td>
+						<div class="sm-action-bar">
+							<a href="{{pathFor route='message' 
+														query=(asHash id=(idToStr message._id) action='view') }}"
+									><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
 
-            <!--a href="{{pathFor route='message' 
-                          query=(asHash id=(idToStr message._id) action='update') }}"
-                ><i class="cl-action-icon fa fa-pencil" area-hidden="true"></i></a-->
+							<!--a href="{{pathFor route='message' 
+														query=(asHash id=(idToStr message._id) action='update') }}"
+									><i class="cl-action-icon fa fa-pencil" area-hidden="true"></i></a-->
 
-            <!--a href="{{pathFor route='message' 
-                          query=(asHash id=(idToStr message._id) action='remove') }}"
-                ><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a-->
-          </div>
-        </td>
-      </tr>
-      {{/each }}
-    </tbody>
-  </table>
+							<!--a href="{{pathFor route='message' 
+														query=(asHash id=(idToStr message._id) action='remove') }}"
+									><i class="cl-action-icon fa fa-trash-o" area-hidden="true"></i></a-->
+						</div>
+					</td>
+				</tr>
+				{{/each }}
+			</tbody>
+		</table>
+	</div>
+
+	<div class="sm-pager-section">
+		{{> Pager (argsPager currentPage amountPerPage totalMessages) }}
+	</div>
+
 </div>
 </template>
