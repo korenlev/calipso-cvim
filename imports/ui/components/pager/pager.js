@@ -45,7 +45,7 @@ Template.Pager.onCreated(function() {
     let totalPages = instance.state.get('totalPages');
     let currentPage = instance.state.get('currentPage');
     let first = R.ifElse((x) => x < 1, R.always(1), R.identity)(currentPage - numOfPagesInPager + 1);
-    let last = R.ifElse((x) => x > totalPages + 1, R.always(totalPages), R.identity)(
+    let last = R.ifElse((x) => x > totalPages, R.always(totalPages + 1), R.identity)(
       first + numOfPagesInPager);
 
     let pagesButtons = R.map((pageNumber) => { 
