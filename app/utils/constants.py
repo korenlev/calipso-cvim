@@ -1,20 +1,28 @@
 from enum import Enum
 
 
-class ScanStatus(Enum):
+class StringEnum(Enum):
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return repr(self.value)
+
+
+class ScanStatus(StringEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
 
-    def __repr__(self):
-        return repr(self.value)
 
-
-class OperationalStatus(Enum):
+class OperationalStatus(StringEnum):
     STOPPED = "stopped"
     RUNNING = "running"
     ERROR = "error"
 
-    def __repr__(self):
-        return repr(self.value)
+
+class EnvironmentFeatures(StringEnum):
+    SCANNING = "scanning"
+    MONITORING = "monitoring"
+    LISTENING = "listening"
