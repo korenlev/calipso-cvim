@@ -1,8 +1,14 @@
 #!/bin/bash
 
-version=0.1
-changelog="Script created"
 command="help"
+
+PROJECT_NAME=calipso
+
+MONGO_CONFIG=/local_dir/osdna_mongo_access.conf
+LDAP_CONFIG=/local_dir/ldap.conf
+PYTHONPATH=/home/scan/${PROJECT_NAME}_prod/app
+HOME_DIR=/home/${PROJECT_NAME}
+IMAGE_PREFIX=korenlev/${PROJECT_NAME}
 
 services=("mongo" "ldap" "api" "scan" "listen" "sensu" "ui")
 
@@ -19,7 +25,7 @@ setup () {
         echo "server ${host}
         user osdna
         password osdna_default
-        auth_db osdna" > /home/calipso/osdna_mongo_access.conf &&
+        auth_db osdna" > /home/${PROJECT_NAME}/osdna_mongo_access.conf &&
 
         echo "Creating default ldap config file" &&
 
@@ -32,7 +38,7 @@ setup () {
         user_tree_dn OU=Users,DC=openstack,DC=org
         query_scope one
         tls_req_cert allow
-        group_member_attribute member" > /home/calipso/ldap.conf &&
+        group_member_attribute member" > /home/${PROJECT_NAME}/ldap.conf &&
 
         echo "Done setup"
     } || {
@@ -46,75 +52,75 @@ startMongo () {
     echo "Starting mongo"
     docker run \
     -d \
-    -v /home/calipso/db:/data/db \
+    -v ${HOME_DIR}/db:/data/db \
     -p 27017:27017 \
     -p 28017:28017 \
-    --name calipso-mongo \
-    korenlev/calipso:mongo
+    --name ${PROJECT_NAME}-mongo \
+    ${IMAGE_PREFIX}:mongo
 }
 
 startLdap () {
     echo "Starting ldap"
     docker run \
     -d \
-    -v /home/calipso:/local_dir \
+    -v ${HOME_DIR}:/local_dir \
     -p 389:389 \
-    --name calipso-ldap \
-    korenlev/calipso:ldap
+    --name ${PROJECT_NAME}-ldap \
+    ${IMAGE_PREFIX}:ldap
 }
 
 startApi () {
     echo "Starting api"
     docker run \
     -d \
-    -e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
-    -e LDAP_CONFIG=/local_dir/ldap.conf \
+    -e MONGO_CONFIG=${MONGO_CONFIG} \
+    -e LDAP_CONFIG=${LDAP_CONFIG} \
     -e LOG_LEVEL=DEBUG \
     -e BIND=0.0.0.0:8000 \
-    -v /home/calipso:/local_dir \
+    -v ${HOME_DIR}:/local_dir \
     -p 8000:8000 \
     -p 40022:22 \
-    --name calipso-api \
-    korenlev/calipso:api
+    --name ${PROJECT_NAME}-api \
+    ${IMAGE_PREFIX}:api
 }
 
 startScan () {
     echo "Starting scan"
     docker run \
     -d \
-    -v /home/calipso:/local_dir \
-    -e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
-    -e PYTHONPATH=/home/scan/calipso_prod/app \
+    -v ${HOME_DIR}:/local_dir \
+    -e MONGO_CONFIG=${MONGO_CONFIG} \
+    -e PYTHONPATH=${PYTHONPATH} \
     -p 30022:22 \
-    --name calipso-scan \
-    korenlev/calipso:scan
+    --name ${PROJECT_NAME}-scan \
+    ${IMAGE_PREFIX}:scan
 }
 
 startListen () {
     echo "Starting listen"
     docker run \
     -d \
-    -v /home/calipso:/local_dir \
-    -e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
-    -e PYTHONPATH=/home/scan/calipso_prod/app \
+    -v ${HOME_DIR}:/local_dir \
+    -e MONGO_CONFIG=${MONGO_CONFIG} \
+    -e PYTHONPATH=${PYTHONPATH} \
     -p 50022:22 \
-    --name calipso-listen \
-    korenlev/calipso:listen
+    --name ${PROJECT_NAME}-listen \
+    ${IMAGE_PREFIX}:listen
 }
 
 startSensu () {
     echo "Starting sensu"
     docker run \
     -d \
-    -v /home/calipso:/local_dir \
-    -e PYTHONPATH=/home/scan/calipso_prod/app \
+    -v ${HOME_DIR}:/local_dir \
+    -e PYTHONPATH=${PYTHONPATH} \
     -p 20022:22 \
     -p 3000:3000 \
     -p 4567:4567 \
     -p 5671:5671 \
     -p 15672:15672 \
-    --name calipso-sensu \
-    korenlev/calipso:sensu
+    --name ${PROJECT_NAME}-sensu \
+    ${IMAGE_PREFIX}:sensu
 }
 
 startUIproxy () {
@@ -125,10 +131,10 @@ startUIproxy () {
     -e MONGO_URL=mongodb://osdna:osdna_default@${host}:${mongo_port}/osdna \
     -e HTTP_PROXY=http://${proxy}:8080 \
     -e HTTPS_PROXY=http://${proxy}:8080 \
-    -v /home/calipso/osdna_ui:/bundle \
+    -v ${HOME_DIR}/osdna_ui:/bundle \
     -p 80:80 \
-    --name calipso-ui \
-    korenlev/calipso:ui
+    --name ${PROJECT_NAME}-ui \
+    ${IMAGE_PREFIX}:ui
 }
 
 startUInoproxy () {
@@ -137,10 +143,10 @@ startUInoproxy () {
     -d \
     -e ROOT_URL=http://${host}:${host_port} \
     -e MONGO_URL=mongodb://osdna:osdna_default@${host}:${mongo_port}/osdna \
-    -v /home/calipso/osdna_ui:/bundle \
+    -v ${HOME_DIR}/osdna_ui:/bundle \
     -p 80:80 \
-    --name calipso-ui \
-    korenlev/calipso:ui
+    --name ${PROJECT_NAME}-ui \
+    ${IMAGE_PREFIX}:ui
 }
 
 startAllproxy() {
@@ -164,11 +170,11 @@ startAllnoproxy() {
 }
 
 killContainer () {
-    eval "sudo docker kill calipso-$1"
+    eval "sudo docker kill ${PROJECT_NAME}-$1"
 }
 
 rmContainer () {
-    eval "sudo docker rm calipso-$1"
+    eval "sudo docker rm ${PROJECT_NAME}-$1"
 }
 
 stopService () {
@@ -214,9 +220,7 @@ do
 case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
 
    "help")
-        echo "Calipso management script"
-        echo "Version ${version}"
-        echo "*** Changelog: ${changelog} ***"
+        echo "${PROJECT_NAME^} management script"
         echo ""
         echo "Valid commands to use:"
         echo "----------------------"
