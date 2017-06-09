@@ -13,19 +13,16 @@ from utils.inventory_mgr import InventoryMgr
 class TestScan(unittest.TestCase):
 
     def configure_environment(self):
-        self.mongo_config = MONGODB_CONFIG
         self.env = ENV_CONFIG
         self.inventory_collection = COLLECTION_CONFIG
 
-        self.conf = Configuration(self.mongo_config)
-        self.conf.use_env(self.env)
+        self.conf = Configuration()
+        self.conf.use_env = MagicMock()
+        self.conf.environment = CONFIGURATIONS
+        self.conf.configuration = CONFIGURATIONS["configuration"]
+
         self.inv = InventoryMgr()
-        self.inv.set = MagicMock()
-        self.conf.env_config = CONFIGURATIONS
         self.inv.set_collections(self.inventory_collection)
-        self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(MONGODB_CONFIG, self.env)
-        MonitoringSetupManager.create_setup = MagicMock()
 
     def setUp(self):
         self.configure_environment()
