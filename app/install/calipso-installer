@@ -270,7 +270,7 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
         ;;
 
     "start ui")
-        if [ ${proxy} != "" ];
+        if [ "${proxy}" != "" ];
     	then
             startUIproxy
     	else
@@ -279,7 +279,7 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
         ;;
 
     "start all")
-        if [ ${proxy} != "" ];
+        if [ "${proxy}" != "" ];
     	then
             startAllproxy
     	else
