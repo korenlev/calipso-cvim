@@ -45,5 +45,6 @@ export const insert = new ValidatedMethod({
     });
 
     Scans.insert(scan);
-  }
+  },
+
 });

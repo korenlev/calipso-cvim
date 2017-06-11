@@ -122,6 +122,17 @@
         <div class="cl-field-desc">Related object</div>
       </div>
 
+      <div class="sm-field-group-scanid cl-field-group">
+        <label class="cl-field-label">Scan ID</label>
+        <input name="scanid" 
+          {{ getAttrDisabled }}
+          value="{{ getModelField 'scan_id' }}"     
+          class="sm-input-level cl-input" 
+          type="text" 
+          placeholder="Scan ID" />
+        <div class="cl-field-desc">Scan ID</div>
+      </div>
+
       {{#if isUpdateableAction }}
       <button type="submit" 
         class="js-submit-button mdl-button mdl-js-button mdl-button--raised 

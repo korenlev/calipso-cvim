@@ -65,6 +65,10 @@ let schema = {
 
   related_object: {
     type: String
+  },
+
+  scan_id: {
+    type: Date
   }
 };
 

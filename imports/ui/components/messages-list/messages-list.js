@@ -94,6 +94,38 @@ Template.MessagesList.events({
 
     });
 
+  },
+
+  'click .sm-scan-id-link': function (event, _instance) {
+    event.preventDefault();
+    let scanStartTimeStamp = moment(event.target.dataset.scanId).toDate();
+
+    Meteor.apply('scansFind?start-timestamp-before', [
+      scanStartTimeStamp
+    ], {
+      wait: false
+    }, function (err, resp) {
+      if (err) { 
+        console.error(R.toString(err));
+        return; 
+      }
+
+      if (R.isNil(resp.scan)) {
+        console.error('error finding scan related to message', R.toString(scanStartTimeStamp));
+        return;
+      }
+
+      Router.go('scanning-request', { 
+        _id: idToStr(resp.scan._id)
+      }, { 
+        query: {
+          env: idToStr(resp.environment._id),
+          id: idToStr(resp.scan._id),
+          action: 'view'
+        } 
+      });
+
+    });
   }
 });
    
@@ -132,6 +164,15 @@ Template.MessagesList.helpers({
       '&amount=' + R.toString(amountPerPage);
 
     return Counts.get(counterName);
+  },
+
+  toIsoFormatStr: function (date) {
+    if (R.isNil(date)) {
+      return '';
+    }
+
+    let str = moment(date).format();
+    return str;
   },
 
   argsPager: function (currentPage, amountPerPage, totalMessages) {
@@ -175,5 +216,7 @@ Template.MessagesList.helpers({
         instance.state.set('page', page);
       },
     };
-  }
+  },
+
+
 }); // end: helpers

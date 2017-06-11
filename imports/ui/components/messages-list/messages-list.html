@@ -14,6 +14,7 @@
 					<th>Timestamp</th>
 					<th>Related Object Type</th>
 					<th>Related Object</th>
+					<th>Scan ID</th>
 					<th>Actions</th>
 				</tr> </thead>
 			<tbody> 
@@ -32,6 +33,12 @@
 					<td>{{ message.timestamp }}</td>
 					<td>{{ message.related_object_type }}</td>
 					<td>{{ message.related_object }}</td>
+					<td>
+            <a class="cl-link sm-scan-id-link"
+               data-scan-id="{{ toIsoFormatStr message.scan_id }}"
+               >{{ message.scan_id }}
+            </a>
+          </td>
 					<td>
 						<div class="sm-action-bar">
 							<a href="{{pathFor route='message' 
