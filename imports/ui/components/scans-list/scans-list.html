@@ -18,7 +18,6 @@
           <th>Environment</th>
           <th>Inventory</th>
           <th>Object ID</th>
-          <th>Scans Details</th>
           <th>Action</th>
         </tr> </thead>
       <tbody> 
@@ -37,7 +36,6 @@
           <td>{{ scan.environment }}</td>
           <td>{{ scan.inventory }}</td>
           <td>{{ scan.object_id }}</td>
-          <td>{{ scan.scans_details }}</td>
           <td><a href="{{pathFor route='scanning-request' 
                             query=(asHash env=scan.environment id=scan._id action='view') }}"
                   ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>

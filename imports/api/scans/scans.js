@@ -50,11 +50,6 @@ Scans.schemaRelated = {
     label: 'Scan only cliques',
     description: 'do only cliques creation',
   },
-  scans_details: {
-    label: 'Scan Description',
-    description: 'Scan\'s message output',
-    disabled: true,
-  },
 };
 
 Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques'];
@@ -117,10 +112,6 @@ let schema = {
     defaultValue: null
   },
 
-  scans_details: {
-    type: String,
-    defaultValue: null
-  }
 };
 
 Scans.schema = new SimpleSchema(schema);
