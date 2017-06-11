@@ -1,7 +1,6 @@
 *~
 *.pyc
 *.swp
-OSDNA.komodoproject
 .idea/
 .ropeproject/
 mongo*.conf
