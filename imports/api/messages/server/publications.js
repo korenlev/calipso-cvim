@@ -10,17 +10,29 @@ Meteor.publish('messages', function () {
   return Messages.find({});
 });
 
-Meteor.publish('messages?page&amount', function (page, amountPerPage) {
-  console.log('server subscribtion to: messages?page&amount');
+Meteor.publish('messages?page&amount&sortField&sortDirection', function (
+  page, amountPerPage, sortField, sortDirection) {
+
+  console.log('server subscribtion to: messages?page&amount&sortField&sortDirection');
   console.log('page: ', page);
   console.log('amount: ', amountPerPage);
+  console.log('sortField: ', sortField, R.isNil(sortField));
+  console.log('sortDirection: ', sortDirection);
 
   let skip = (page - 1) * amountPerPage;
 
   let query = {};
+  let sortParams = {};
+
+  sortParams = R.ifElse(R.isNil, R.always(sortParams), 
+      R.assoc(R.__, sortDirection, sortParams))(sortField);
+
+  console.log('sort params:', sortParams);
+
   let qParams = {
     limit: amountPerPage,
-    skip: skip
+    skip: skip,
+    sort: sortParams,
   };
 
   let counterName = 'messages?page&amount!count?page=' + R.toString(page) + 

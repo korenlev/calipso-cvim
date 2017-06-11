@@ -28,6 +28,8 @@ Template.MessagesList.onCreated(function() {
     env: null,
     page: 1,
     amountPerPage: 10,
+    sortField: null,
+    sortDirection: null,
   });
 
   instance.autorun(function () {
@@ -46,8 +48,11 @@ Template.MessagesList.onCreated(function() {
   instance.autorun(function () {
     let amountPerPage = instance.state.get('amountPerPage');
     let page = instance.state.get('page');
+    let sortField = instance.state.get('sortField');
+    let sortDirection = instance.state.get('sortDirection');
 
-    instance.subscribe('messages?page&amount', page, amountPerPage);
+    instance.subscribe('messages?page&amount&sortField&sortDirection', 
+      page, amountPerPage, sortField, sortDirection);
   });
 });  
 
@@ -126,7 +131,39 @@ Template.MessagesList.events({
       });
 
     });
-  }
+  },
+
+  'click .sm-table-header': function (event, instance) {
+    event.preventDefault();
+    let isSortable = event.target.dataset.isSortable;
+    if (! isSortable ) { return; }
+
+    let sortField = event.target.dataset.sortField;
+    let currentSortField = instance.state.get('sortField');
+    let currentSortDirection = instance.state.get('sortDirection');
+
+    if (sortField === currentSortField) {
+      let sortDirection = null;
+      if (currentSortDirection === null) {
+        sortDirection = -1; 
+      } else if (currentSortDirection === -1) {
+        sortDirection = 1; 
+      } else if (currentSortDirection === 1) {
+        sortField = null;
+        sortDirection = null;
+      } else {
+        sortField = null;
+        sortDirection = null;
+      }
+
+      instance.state.set('sortField', sortField);
+      instance.state.set('sortDirection', sortDirection);
+
+    } else {
+      instance.state.set('sortField', sortField);
+      instance.state.set('sortDirection', -1);
+    }
+  },
 });
    
 /*  
@@ -138,12 +175,21 @@ Template.MessagesList.helpers({
     let instance = Template.instance();
     let page = instance.state.get('page');
     let amountPerPage = instance.state.get('amountPerPage');
-    let skip = (page - 1) * amountPerPage;
+    let sortField = instance.state.get('sortField');
+    let sortDirection = instance.state.get('sortDirection');
 
-    return Messages.find({}, {
+    let skip = (page - 1) * amountPerPage;
+    let sortParams = {};
+    sortParams = R.ifElse(R.isNil, R.always(sortParams), 
+      R.assoc(R.__, sortDirection, sortParams))(sortField);
+
+    let qParams = {
       limit: amountPerPage,
       skip: skip,
-    }); 
+      sort: sortParams,
+    };
+
+    return Messages.find({}, qParams); 
   },
 
   currentPage: function () {
@@ -218,5 +264,18 @@ Template.MessagesList.helpers({
     };
   },
 
+  fieldSortClass: function (fieldName) {
+    let instance = Template.instance();
+    let classes = 'fa fa-sort';
+    if (fieldName === instance.state.get('sortField')) {
+      let sortDirection = instance.state.get('sortDirection');
+      if (sortDirection === -1) {
+        classes = 'fa fa-sort-desc';
+      } else if (sortDirection === 1) {
+        classes = 'fa fa-sort-asc';
+      }
+    }
 
+    return classes; 
+  },
 }); // end: helpers

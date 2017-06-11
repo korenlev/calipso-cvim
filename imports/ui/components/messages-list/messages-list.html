@@ -5,17 +5,38 @@
 		<table class="sm-messages-table table">
 			<thead>
 				<tr>
-					<th>Environment</th>
-					<th>Viewed</th>
-					<th>Display Context</th>
-					<th>Message</th>
-					<th>Source System</th>
-					<th>Level</th>
-					<th>Timestamp</th>
-					<th>Related Object Type</th>
-					<th>Related Object</th>
-					<th>Scan ID</th>
-					<th>Actions</th>
+          <th><a class="sm-table-header" 
+                 data-is-sortable="true" 
+                 data-sort-field="environment"
+                 >Environment<span><i class="{{ fieldSortClass 'environment' }}"></i></span></a></th>
+          <th><a class="sm-table-header" 
+                 data-is-sortable="true" 
+                 data-sort-field="viewed"
+              >Viewed<span><i class="{{ fieldSortClass 'viewed' }}"></i></span></a></th>
+					<th><a class="sm-table-header">Display Context</a></th>
+					<th><a class="sm-table-header">Message</a></th>
+					<th><a class="sm-table-header" 
+            data-is-sortable="true" 
+            data-sort-field="source_system"
+              >Source System<span><i class="{{ fieldSortClass 'source_system' }}"></i></span></a></th>
+					<th><a class="sm-table-header" 
+            data-is-sortable="true" 
+            data-sort-field="level"
+              >Level<span><i class="{{ fieldSortClass 'level' }}"></i></span></a></th>
+					<th><a class="sm-table-header" 
+            data-is-sortable="true" 
+            data-sort-field="timestamp"
+              >Timestamp<span><i class="{{ fieldSortClass 'timestamp' }}"></i></span></a></th>
+					<th><a class="sm-table-header" 
+            data-is-sortable="true" 
+            data-sort-field="related_object_type"
+              >Related Object Type<span><i class="{{ fieldSortClass 'related_object_type' }}"></i></span></a></th>
+					<th><a class="sm-table-header">Related Object</a></th>
+					<th><a class="sm-table-header" 
+            data-is-sortable="true" 
+            data-sort-field="scan_id"
+              >Scan ID<span><i class="{{ fieldSortClass 'scan_id' }}"></i></span></a></th>
+					<th><a class="sm-table-header">Actions</a></th>
 				</tr> </thead>
 			<tbody> 
 				{{#each message in messages }}
