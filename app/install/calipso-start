@@ -12,9 +12,9 @@ proxy=$4
 proxy_port=$5
 
 echo "server $1
-user osdna
-password osdna_default
-auth_db osdna" > /home/calipso/osdna_mongo_access.conf
+user calipso
+password calipso_default
+auth_db calipso" > /home/calipso/calipso_mongo_access.conf
 
 
 echo "user admin
@@ -47,7 +47,7 @@ korenlev/calipso:ldap
 
 docker run \
 -d \
--e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
+-e MONGO_CONFIG=/local_dir/calipso_mongo_access.conf \
 -e LDAP_CONFIG=/local_dir/ldap.conf \
 -e LOG_LEVEL=DEBUG \
 -e BIND=0.0.0.0:8000 \
@@ -60,7 +60,7 @@ korenlev/calipso:api
 docker run \
 -d \
 -v /home/calipso:/local_dir \
--e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
+-e MONGO_CONFIG=/local_dir/calipso_mongo_access.conf \
 -e PYTHONPATH=/home/scan/calipso_prod/app \
 -p 30022:22 \
 --name calipso-scan \
@@ -69,7 +69,7 @@ korenlev/calipso:scan
 docker run \
 -d \
 -v /home/calipso:/local_dir \
--e MONGO_CONFIG=/local_dir/osdna_mongo_access.conf \
+-e MONGO_CONFIG=/local_dir/calipso_mongo_access.conf \
 -e PYTHONPATH=/home/scan/calipso_prod/app \
 -p 50022:22 \
 --name calipso-listen \
@@ -90,10 +90,10 @@ korenlev/calipso:sensu
 docker run \
 -d \
 -e ROOT_URL=http://$host:$host_port \
--e MONGO_URL=mongodb://osdna:osdna_default@$host:$mongo_port/osdna \
+-e MONGO_URL=mongodb://calipso:calipso_default@$host:$mongo_port/calipso \
 -e HTTP_PROXY=http://$proxy:8080 \
 -e HTTPS_PROXY=http://$proxy:8080 \
--v /home/calipso/osdna_ui:/bundle \
+-v /home/calipso/calipso_ui:/bundle \
 -p 80:80 \
 --name calipso-ui \
 korenlev/calipso:ui

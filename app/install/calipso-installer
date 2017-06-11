@@ -4,7 +4,7 @@ command="help"
 
 PROJECT_NAME=calipso
 
-MONGO_CONFIG=/local_dir/osdna_mongo_access.conf
+MONGO_CONFIG=/local_dir/calipso_mongo_access.conf
 LDAP_CONFIG=/local_dir/ldap.conf
 PYTHONPATH=/home/scan/${PROJECT_NAME}_prod/app
 HOME_DIR=/home/${PROJECT_NAME}
@@ -23,9 +23,9 @@ setup () {
     echo "Creating default mongo config file"
     {
         echo "server ${host}
-        user osdna
-        password osdna_default
-        auth_db osdna" > /home/${PROJECT_NAME}/osdna_mongo_access.conf &&
+        user calipso
+        password calipso_default
+        auth_db calipso" > /home/${PROJECT_NAME}/calipso_mongo_access.conf &&
 
         echo "Creating default ldap config file" &&
 
@@ -128,10 +128,10 @@ startUIproxy () {
     docker run \
     -d \
     -e ROOT_URL=http://${host}:${host_port} \
-    -e MONGO_URL=mongodb://osdna:osdna_default@${host}:${mongo_port}/osdna \
+    -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
     -e HTTP_PROXY=http://${proxy}:8080 \
     -e HTTPS_PROXY=http://${proxy}:8080 \
-    -v ${HOME_DIR}/osdna_ui:/bundle \
+    -v ${HOME_DIR}/calipso_ui:/bundle \
     -p 80:80 \
     --name ${PROJECT_NAME}-ui \
     ${IMAGE_PREFIX}:ui
@@ -142,8 +142,8 @@ startUInoproxy () {
     docker run \
     -d \
     -e ROOT_URL=http://${host}:${host_port} \
-    -e MONGO_URL=mongodb://osdna:osdna_default@${host}:${mongo_port}/osdna \
-    -v ${HOME_DIR}/osdna_ui:/bundle \
+    -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
+    -v ${HOME_DIR}/calipso_ui:/bundle \
     -p 80:80 \
     --name ${PROJECT_NAME}-ui \
     ${IMAGE_PREFIX}:ui
