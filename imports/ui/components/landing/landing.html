@@ -1,0 +1,170 @@
+<template name="landing" class="landing">
+<div class="os-landing">
+
+  <!-- hero section -->
+  <section id="landing-hero-section" 
+    class="sm-landing-hero-section animated slideInUp">
+
+    <div class="sm-section-content">
+
+      <!-- Logo and sign in -->
+      <div class="sm-login-subsection">
+          <img style="margin: 20px 0px" src="/logo-cisco.svg" alt="" height="30">
+          <h4><a class="sign-in" href="#">{{> loginButtons}}</a></h4>
+      </div>
+
+      <!-- Main content -->
+      <div class="sm-main-content">
+        <div class="sm-main-header">
+          <img class="sm-logo" src="/landing/calipso-logo.png"> 
+          <h1 class="text-align-center" style="margin: 50px 0px; font-size: 46px;">Calipso Networking <br> Discovery and Assurance</h1>
+        </div>
+
+        <div class="sm-description">
+          <p>Calipso is enhancing the way Cloud Networking Administrators (CNAs) and Tenant Networking Administrators (TNAs) understand, maintain, monitor and troubleshoot highly distributed Cloud environments based on OpenStack and others.
+          </p>
+          <p>
+          A real-time virtual networking assurance solution.
+          </p>
+        </div>
+
+        <div class="sm-learn-more">
+          <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" data-scroll href="#landing-section-2">Learn more
+          </a>
+        </div>
+
+        <div class="sm-main-showcase">
+          <img src="/landing/first.png" alt="" class=" animated slideInUp" width="940" height="470">
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- section 2  -->
+  <section id="landing-section-2" 
+    class="sm-landing-section-2">
+
+    <div class="sm-section-content">
+
+      <!-- first point -->
+      <div class="sm-desc-point">
+        <div class="sm-desc-point-content">
+          <h3 class="title-border-bottom">Application Intent</h3>
+          <p class="font20">Provide CNAs and TNAs with operation tools for :</p>
+          <ol class="font20">
+            <li>Building detailed virtual networking inventory and inter-connections.</li>
+            <li>Visualize all low level dependencies and creates topologies in real time.</li>
+            <li>Monitors virtual networking components for health and status.</li>
+            <li>Troubleshooting failures, analyzing faults and assess impact for virtual networking issues.</li>
+          </ol>
+          <a href="#landing-section3" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-scroll>Show more</a>
+        </div>
+
+        <div class="sm-desc-point-icon">
+            <img src="/logo_microscope_3.png" alt="" class="img_responsive wow slideInRight " data-wow-delay="0.3s" width="350">
+        </div>
+      </div>
+
+      <!-- second point -->
+      <div class="sm-desc-point">
+        <div class="sm-desc-point-icon">
+          <img src="/landing/openstack.png" alt="" class="img_responsive wow slideInLeft" 
+            data-wow-delay="0.3s" >
+          <img src="/landing/docker.png" alt="" class="img_responsive wow slideInLeft" 
+            data-wow-delay="0.3s" >
+        </div>
+        <div class="sm-desc-point-content">
+          <h3 class="title-border-bottom">Vision</h3>
+          <p class="font20">
+          Substantially simplifying OpenStack and/or Docker networking operations and troubleshooting with detailed visibility and availability.
+          </p>
+        </div>
+      </div>
+
+      <!-- third point -->
+      <div class="sm-desc-point">
+        <div class="sm-desc-point-content" >
+          <h3 class="title-border-bottom">Strategy</h3>
+          <p class="font20">
+          Drive the adoption of a fully integrated and supported neutron networking assurance application. Create Operations application that dynamically discovers, display, monitors and analyze virtual networks in any OpenStack distribution with any Neutron plugin and dynamically analyze the information for assurance reporting.An administrative app to facilitate maintenance and troubleshooting in a highly dynamic OpenStack environment.
+          </p>
+        </div>
+        <div class="sm-desc-point-icon">
+          <img src="/dna-718905_600.png" alt="" 
+            class="img_responsive wow slideInRight " 
+            data-wow-delay="0.3">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- section Cisco partners -->
+  <section id="landing-section3" class="landing background-blue section-margin-50">
+      <div class="mdl-grid">
+
+          <div class="mdl-cell mdl-cell--4-col">
+              <div class="box text-align-center wow slideInUp">
+                  <div>
+                    <i class="material-icons">view_carousel</i>
+                  </div>
+                  <div class="iconbox_content">
+                      <h3>Mirantis</h3>
+                  </div>
+              </div>
+          </div>
+
+          <div class="mdl-cell mdl-cell--4-col">
+              <div class="box text-align-center wow slideInUp" data-wow-delay="0.5s">
+                  <div>
+                      <i class="material-icons">view_carousel</i>
+                  </div>
+                  <div class="iconbox_content">
+                      <h3>Metapod</h3>
+                  </div>
+              </div>
+          </div>
+
+          <div class="mdl-cell mdl-cell--4-col">
+              <div class="box text-align-center wow slideInUp" data-wow-delay="0.8s">
+                  <div>
+                      <i class="material-icons">view_carousel</i>
+                  </div>
+                  <div class="iconbox_content">
+                      <h3>Red Hat</h3>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+  </section>
+
+  <!-- section number 3  -->
+  <section class="landing background-white section-margin-50">
+      <div class="mdl-grid">
+          <!-- third point -->
+          <div class="col-md-offset-1 col-md-5" >
+              <h3 class="title-border-bottom">This is our amazing feature and it's awesome!</h3>
+              <p class="font20">Our application is fully model-driven, from initial scanning to dependency analysis and the look-n-feel of our UI, anything is customizable and programmable through an API.</p>
+              <!--Button-->
+              <a href="#landing-hero-section" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-scroll>Sign in</a>
+              <!-- //Button-->
+          </div>
+          <div class="col-md-offset-1 col-md-5">
+              <img src="/landing/graph.png" alt="" class="img_responsive wow slideInRight " data-wow-delay="0.3" width="500" >
+          </div>
+      </div>
+  </section>
+
+  <section class="background-blue">
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--12-col text-align-center">
+        <p>Cisco Systems, Inc © Copyright 2016</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+</template>

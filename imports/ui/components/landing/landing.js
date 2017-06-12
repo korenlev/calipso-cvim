@@ -1,3 +1,8 @@
+import './landing.html';
+
+Template.landing.onCreated(function() {
+});
+
 Template.landing.rendered = function(){
   
   // init wow lib

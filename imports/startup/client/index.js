@@ -1,6 +1,7 @@
 import './template-helpers.js';
 
 import '/imports/ui/store/store';
+import '/imports/ui/components/landing/landing';
 import '/imports/ui/components/main/main';
 import '/imports/ui/components/loading/loading';
 import '/imports/ui/components/top-navbar-menu/top-navbar-menu';

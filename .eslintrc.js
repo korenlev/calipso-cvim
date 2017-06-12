@@ -41,6 +41,7 @@ module.exports = {
         "$": true,
         "toastr": true,
         "google": true,
-        "moment": true
+        "moment": true,
+        "WOW": true,
     }
 };
