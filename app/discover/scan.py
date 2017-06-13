@@ -274,8 +274,9 @@ class ScanController(Fetcher):
             or monitoring_setup_only else True
 
         # setup monitoring server
-        monitoring = self.inv.is_feature_supported(env_name,
-                                                   EnvironmentFeatures.MONITORING)
+        monitoring = \
+            self.inv.is_feature_supported(env_name,
+                                          EnvironmentFeatures.MONITORING)
         if monitoring:
             self.inv.monitoring_setup_manager = \
                 MonitoringSetupManager(env_name)
