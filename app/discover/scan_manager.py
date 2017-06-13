@@ -7,8 +7,9 @@ import pymongo
 from functools import partial
 
 from discover.manager import Manager
-from utils.constants import ScanStatus
+from utils.constants import ScanStatus, EnvironmentFeatures
 from utils.exceptions import ScanArgumentsError
+from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 from discover.scan import ScanController
 
@@ -56,6 +57,8 @@ class ScanManager(Manager):
 
     def configure(self):
         self.db_client = MongoAccess()
+        self.inv = InventoryMgr()
+        self.inv.set_collections()
         self.collection = self.db_client.db[self.args.collection]
         self.environments_collection = self.db_client.db[self.args.environments_collection]
         self._update_document = partial(MongoAccess.update_document, self.collection)
@@ -105,10 +108,10 @@ class ScanManager(Manager):
                             update={'$set': {'scanned': scanned}})
 
     def _fail_scan(self, scan_request: dict):
-        return self._finalize_scan(scan_request, ScanStatus.FAILED, False)
+        self._finalize_scan(scan_request, ScanStatus.FAILED, False)
 
     def _complete_scan(self, scan_request: dict):
-        return self._finalize_scan(scan_request, ScanStatus.COMPLETED, True)
+        self._finalize_scan(scan_request, ScanStatus.COMPLETED, True)
 
     # PyCharm type checker can't reliably check types of document
     # noinspection PyTypeChecker
@@ -150,6 +153,13 @@ class ScanManager(Manager):
                     time.sleep(self.interval)
                 else:
                     scan_request = results[0]
+                    if not self.inv.is_feature_supported(scan_request.get('environment'),
+                                                         EnvironmentFeatures.SCANNING):
+                        self.log.error("Scanning is not supported for env '{}'"
+                                       .format(scan_request.get('environment')))
+                        self._fail_scan(scan_request)
+                        continue
+
                     scan_request['start_timestamp'] = datetime.datetime.utcnow()
                     scan_request['status'] = ScanStatus.RUNNING.value
                     self._update_document(scan_request)

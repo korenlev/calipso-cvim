@@ -4,27 +4,41 @@ from pymongo import MongoClient
 
 from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
+from utils.logging.console_logger import ConsoleLogger
 from utils.logging.file_logger import FileLogger
 
 
 # Provides access to MongoDB using PyMongo library
 #
 # Notes on authentication:
-# default config file is /etc/osdna/mongo.conf
+# default config file is calipso_mongo_access.conf
 # you can also specify name of file from CLI with --mongo_config
 
 
 class MongoAccess(DictNamingConverter):
     client = None
     db = None
-    default_conf_file = '/local_dir/osdna_mongo_access.conf'
+    default_conf_file = '/local_dir/calipso_mongo_access.conf'
     config_file = None
 
-    LOG_FILE = '/var/log/osdna/mongo_access.log'
+    LOG_FILE = '/var/log/calipso/mongo_access.log'
+    DEFAULT_LOG_FILE = os.path.abspath("./mongo_access.log")
 
     def __init__(self):
         super().__init__()
-        self.log = FileLogger(self.LOG_FILE)
+
+        try:
+            self.log = FileLogger(self.LOG_FILE)
+        except OSError as e:
+            ConsoleLogger().warning("Couldn't use file {} for logging. "
+                                    "Using default location: {}.\n"
+                                    "Error: {}"
+                                    .format(self.LOG_FILE,
+                                            self.DEFAULT_LOG_FILE,
+                                            e))
+
+            self.LOG_FILE = self.DEFAULT_LOG_FILE
+            self.log = FileLogger(self.LOG_FILE)
 
         self.connect_params = {}
         self.mongo_connect(self.config_file)
@@ -62,7 +76,7 @@ class MongoAccess(DictNamingConverter):
             self.connect_params["server"],
             self.connect_params["port"]
         )
-        MongoAccess.db = MongoAccess.client.osdna
+        MongoAccess.db = MongoAccess.client.calipso
         self.log.info('Connected to MongoDB')
 
     def prepare_connect_uri(self):
