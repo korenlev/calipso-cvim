@@ -250,8 +250,9 @@ class ScanController(Fetcher):
             self.conf = Configuration()
             self.inv = InventoryMgr()
             self.inv.set_collections(args['inventory'])
-        except FileNotFoundError:
-            return False, 'Mongo configuration file not found'
+        except FileNotFoundError as e:
+            return False, 'Mongo configuration file not found: {}'\
+                .format(str(e))
 
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:
@@ -309,4 +310,6 @@ class ScanController(Fetcher):
 if __name__ == '__main__':
     scan_manager = ScanController()
     ret, msg = scan_manager.run()
+    if not ret:
+        scan_manager.log.error(msg)
     sys.exit(0 if ret else 1)
