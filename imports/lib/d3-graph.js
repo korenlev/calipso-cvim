@@ -207,6 +207,12 @@ let d3Graph = {
         'translate(' + d3.event.translate + ')'
         + ' scale(' + d3.event.scale + ')');
 
+    let fontSize = Math.floor(16 / d3.event.scale);
+    d3Graph.svg.selectAll('.link-group text')
+      .style('font-size', fontSize + 'px');
+    d3Graph.svg.selectAll('.node text')
+      .style('font-size', fontSize + 'px');
+
   },
 
   updateNetworkGraph:function (){
