@@ -259,7 +259,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                            'for host ' + host + ', file type: ' + file_type)
             is_local_host = host == self.local_host
             file_path = os.path.join(self.PRODUCTION_CONFIG_DIR, file_type)
-            if host not in hosts:
+            if not is_server and host not in hosts:
                 hosts[host] = {
                     'host': host,
                     'local_dir': local_dir,
@@ -268,7 +268,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                     'is_server': is_server
                 }
             if is_server:
-                self.write_to_server(changes['local_path'], is_container)
+                remote_path = self.PRODUCTION_CONFIG_DIR
+                if os.path.isfile(local_dir):
+                    remote_path += os.path.sep + os.path.basename(local_dir)
+                self.write_to_server(local_dir,
+                                     remote_path=remote_path,
+                                     is_container=is_container)
             elif is_local_host:
                     # write to production configuration directory on local host
                     self.make_directory(self.PRODUCTION_CONFIG_DIR)
@@ -343,8 +348,6 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         is_server = host_details['is_server']
         local_dir = host_details['local_dir']
         if is_container or is_server or not is_local_host:
-            # copy the files to remote target config directory
-            self.make_remote_dir(host, self.PRODUCTION_CONFIG_DIR)
             local_dir = os.path.dirname(local_dir)
             if not is_server:
                 self.move_setup_files_to_remote_host(host, local_dir)
@@ -415,13 +418,14 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         remote_path = remote_path if remote_path else local_path
         self.copy_to_remote_host(host, local_path, remote_path)
 
-    def write_to_server(self, local_path, is_container):
+    def write_to_server(self, local_path, remote_path=None, is_container=False):
         host = self.env_monitoring_config['server_ip']
         ssh = self.get_ssh(host, is_container=is_container)
-        self.make_remote_dir_on_host(ssh, host, local_path, True)
+        remote_path = remote_path if remote_path else local_path
+        self.make_remote_dir_on_host(ssh, host, remote_path, True)
         # copy to config dir first
         ftp_ssh = self.get_ssh(host, is_container=is_container, for_sftp=True)
-        ftp_ssh.copy_file(local_path, local_path)
+        ftp_ssh.copy_file(local_path, remote_path)
 
     @staticmethod
     def write_to_local_host(file_path, content):
