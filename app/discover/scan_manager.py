@@ -58,6 +58,7 @@ class ScanManager(Manager):
     def configure(self):
         self.db_client = MongoAccess()
         self.inv = InventoryMgr()
+        self.inv.set_collections()
         self.collection = self.db_client.db[self.args.collection]
         self.environments_collection = self.db_client.db[self.args.environments_collection]
         self._update_document = partial(MongoAccess.update_document, self.collection)

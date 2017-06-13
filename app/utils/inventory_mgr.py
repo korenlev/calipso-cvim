@@ -310,8 +310,13 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                                       if count else 'no matching documents'))
         return count
 
-    def is_feature_supported(self, env: str, feature: EnvironmentFeatures) -> bool:
-        env_config = self.find_one(search={'name': env}, collection='environments_config')
+    def get_env_config(self, env: str):
+        return self.find_one(search={'name': env},
+                             collection='environments_config')
+
+    def is_feature_supported(self, env: str, feature: EnvironmentFeatures)\
+            -> bool:
+        env_config = self.get_env_config(env)
         if not env_config:
             return False
 
@@ -320,10 +325,12 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if isinstance(env_config['mechanism_drivers'], list) \
             else env_config['mechanism_drivers']
 
-        full_env = {'distribution': env_config['distribution'],
-                    'type_drivers': env_config['type_drivers'],
-                    'mechanism_drivers': mechanism_driver}
+        full_env = {'environment.distribution': env_config['distribution'],
+                    'environment.type_drivers': env_config['type_drivers'],
+                    'environment.mechanism_drivers': mechanism_driver}
 
-        result = self.collections['supported_environments']\
-                     .find_one({'environment': full_env})
-        return True if result and result.get('features', {}).get(feature.value) is True else False
+        result = self.collections['supported_environments'].find_one(full_env)
+        if not result:
+            return False
+        features_in_env = result.get('features', {})
+        return features_in_env.get(feature.value) is True
