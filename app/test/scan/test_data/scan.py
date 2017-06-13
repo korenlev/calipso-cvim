@@ -149,7 +149,58 @@ SCAN_ENV_PLAN_TO_BE_PREPARED = {
     "clear": True,
     "object_type": "environment",
     "env": UNIT_TESTS_ENV,
-    "id": UNIT_TESTS_ENV,
+    "id": "",
+    "parent_id": "",
+    "type_to_scan": "",
+    "id_field": "id",
+    "scan_self": False,
+    "child_type": "environment",
+    "child_id": None
+}
+
+SCAN_ENV_INVENTORY_ONLY_PLAN_TO_BE_PREPARED = {
+    "loglevel": "INFO",
+    "inventory_only": True,
+    "links_only": False,
+    "cliques_only": False,
+    "clear": True,
+    "object_type": "environment",
+    "env": UNIT_TESTS_ENV,
+    "id": '',
+    "parent_id": "",
+    "type_to_scan": "",
+    "id_field": "id",
+    "scan_self": False,
+    "child_type": "environment",
+    "child_id": None
+}
+
+SCAN_ENV_LINKS_ONLY_PLAN_TO_BE_PREPARED = {
+    "loglevel": "INFO",
+    "inventory_only": False,
+    "links_only": True,
+    "cliques_only": False,
+    "clear": True,
+    "object_type": "environment",
+    "env": UNIT_TESTS_ENV,
+    "id": '',
+    "parent_id": "",
+    "type_to_scan": "",
+    "id_field": "id",
+    "scan_self": False,
+    "child_type": "environment",
+    "child_id": None
+}
+
+SCAN_ENV_CLIQUES_ONLY_PLAN_TO_BE_PREPARED = {
+    "loglevel": "INFO",
+    "inventory_only": False,
+    "links_only": False,
+    "cliques_only": True,
+    "clear": True,
+    "object_type": "environment",
+    "env": UNIT_TESTS_ENV,
+    "id": '',
     "parent_id": "",
     "type_to_scan": "",
     "id_field": "id",
@@ -182,8 +233,8 @@ PREPARED_ENV_PLAN = {
 }
 
 SCANNER_CLASS = "ScanEnvironment"
-SCANNER_CLASS_FOR_ENV = "ScanEnvironment"
-OBJ_ID_FOR_ENV = UNIT_TESTS_ENV
+SCANNER_TYPE_FOR_ENV = "ScanEnvironment"
+OBJ_ID_FOR_ENV = ""
 CHILD_TYPE_FOR_ENV = None
 CHILD_ID_FOR_ENV = None
 
@@ -266,7 +317,8 @@ SCAN_REGION_FOLDER_PLAN_TO_BE_PREPARED = {
     "parent_type": "environment",
     "type_to_scan": "regions_folder",
     "id_field": "id",
-    "scan_self": False
+    "scan_self": False,
+    "type": "regions_folder"
 }
 
 SCAN_REGION_PLAN_TO_BE_PREPARED = {
@@ -283,23 +335,23 @@ SCAN_REGION_PLAN_TO_BE_PREPARED = {
     "type_to_scan": "region",
     "id_field": "id",
     "scan_self": False,
-    "child_type": "region",
-    "child_id": "RegionOne"
+    "type": "region",
 }
 
-SCANNER_CLASS_FOR_REGION = "ScanRegionsRoot"
+SCANNER_TYPE_FOR_REGION = "ScanRegionsRoot"
 OBJ_ID_FOR_REGION = UNIT_TESTS_ENV + "-regions"
 CHILD_TYPE_FOR_REGION = "region"
 CHILD_ID_FOR_REGION = "RegionOne"
 
 REGIONS_FOLDER = {
     "id": OBJ_ID_FOR_REGION,
-    "create_object": True,
-    "name": OBJ_ID_FOR_REGION,
-    "text": "",
     "type": "regions_folder",
+    "parent_type": "environment",
+    "object_name": "Regions",
     "parent_id": UNIT_TESTS_ENV,
-    "parent_type": "environment"
+    "name": "Regions",
+    "create_object": True,
+    "text": "Regions"
 }
 
 SCAN_PROJECT_FOLDER_PLAN_TO_BE_PREPARED = {

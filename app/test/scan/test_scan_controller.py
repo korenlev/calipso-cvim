@@ -12,9 +12,8 @@ from utils.inventory_mgr import InventoryMgr
 class TestScanController(TestScan):
 
     def setUp(self):
-        self.configure_environment()
+        super().setUp()
         self.scan_controller = ScanController()
-        self.inv = InventoryMgr(MONGODB_CONFIG)
 
     def arg_validate(self, args, expected, key, err=None):
         if key not in expected:
@@ -80,9 +79,9 @@ class TestScanController(TestScan):
         else:
             return default
 
-    def check_plan_values(self, plan, scanner_class, obj_id,
+    def check_plan_values(self, plan, scanner_type, obj_id,
                           child_type, child_id):
-        self.assertEqual(scanner_class, plan.scanner_class,
+        self.assertEqual(scanner_type, plan.scanner_type,
                          'The scanner class is wrong')
         self.assertEqual(child_type, plan.child_type,
                          'The child type is wrong')
@@ -93,7 +92,7 @@ class TestScanController(TestScan):
     def test_prepare_scan_plan(self):
         scan_plan = ScanPlan(SCAN_ENV_PLAN_TO_BE_PREPARED)
         plan = self.scan_controller.prepare_scan_plan(scan_plan)
-        self.check_plan_values(plan, SCANNER_CLASS_FOR_ENV,
+        self.check_plan_values(plan, SCANNER_TYPE_FOR_ENV,
                                OBJ_ID_FOR_ENV, CHILD_TYPE_FOR_ENV,
                                CHILD_ID_FOR_ENV)
 
@@ -105,7 +104,7 @@ class TestScanController(TestScan):
         scan_plan = ScanPlan(SCAN_REGION_PLAN_TO_BE_PREPARED)
         plan = self.scan_controller.prepare_scan_plan(scan_plan)
 
-        self.check_plan_values(plan, SCANNER_CLASS_FOR_REGION,
+        self.check_plan_values(plan, SCANNER_TYPE_FOR_REGION,
                                OBJ_ID_FOR_REGION, CHILD_TYPE_FOR_REGION,
                                CHILD_ID_FOR_REGION)
         self.inv.get_by_id = original_get_by_id
@@ -120,7 +119,7 @@ class TestScanController(TestScan):
 
     def check_scan_method_calls(self, mock, count):
         if count:
-            mock.assert_called()
+            self.assertTrue(mock.called)
         else:
             mock.assert_not_called()
 
@@ -134,6 +133,7 @@ class TestScanController(TestScan):
 
     @staticmethod
     def prepare_scan_mocks():
+        Scanner.load_metadata = MagicMock()
         Scanner.scan = MagicMock()
         Scanner.scan_links = MagicMock()
         Scanner.scan_cliques = MagicMock()
@@ -141,7 +141,18 @@ class TestScanController(TestScan):
 
     def test_scan(self):
         self.scan_controller.get_args = MagicMock()
-        plan = self.scan_controller.prepare_scan_plan(ScanPlan(PREPARED_ENV_PLAN))
+        InventoryMgr.is_feature_supported = MagicMock(return_value=False)
+        plan = self.scan_controller.prepare_scan_plan(ScanPlan(SCAN_ENV_PLAN_TO_BE_PREPARED))
+        self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
+        self.prepare_scan_mocks()
+
+        self.scan_controller.run()
+        self.check_scan_counts(1, 1, 1, 0)
+
+    def test_scan_with_monitoring_setup(self):
+        self.scan_controller.get_args = MagicMock()
+        InventoryMgr.is_feature_supported = MagicMock(return_value=True)
+        plan = self.scan_controller.prepare_scan_plan(ScanPlan(SCAN_ENV_PLAN_TO_BE_PREPARED))
         self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
         self.prepare_scan_mocks()
 
@@ -150,7 +161,7 @@ class TestScanController(TestScan):
 
     def test_scan_with_inventory_only(self):
         self.scan_controller.get_args = MagicMock()
-        scan_plan = ScanPlan(PREPARED_ENV_INVENTORY_ONLY_PLAN)
+        scan_plan = ScanPlan(SCAN_ENV_INVENTORY_ONLY_PLAN_TO_BE_PREPARED)
         plan = self.scan_controller.prepare_scan_plan(scan_plan)
         self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
         self.prepare_scan_mocks()
@@ -160,7 +171,7 @@ class TestScanController(TestScan):
 
     def test_scan_with_links_only(self):
         self.scan_controller.get_args = MagicMock()
-        scan_plan = ScanPlan(PREPARED_ENV_LINKS_ONLY_PLAN)
+        scan_plan = ScanPlan(SCAN_ENV_LINKS_ONLY_PLAN_TO_BE_PREPARED)
         plan = self.scan_controller.prepare_scan_plan(scan_plan)
         self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
         self.prepare_scan_mocks()
@@ -170,7 +181,7 @@ class TestScanController(TestScan):
 
     def test_scan_with_cliques_only(self):
         self.scan_controller.get_args = MagicMock()
-        scan_plan = ScanPlan(PREPARED_ENV_CLIQUES_ONLY_PLAN)
+        scan_plan = ScanPlan(SCAN_ENV_CLIQUES_ONLY_PLAN_TO_BE_PREPARED)
         plan = self.scan_controller.prepare_scan_plan(scan_plan)
         self.scan_controller.get_scan_plan = MagicMock(return_value=plan)
         self.prepare_scan_mocks()

@@ -1,4 +1,6 @@
-CONFIGURATIONS = {
+CONFIGURATIONS = { 
+    "app_path": "/home/scan/calipso_prod/app/",
+    "scanners_file": "/home/yarony/osdna_dev/app/discover/scanners.json",
     "configuration": [
         {
             "mock": "True",
@@ -30,6 +32,21 @@ CONFIGURATIONS = {
             "port": "5673",
             "user": "nova",
             "password": "NF2nSv3SisooxPkCTr8fbfOa"
+        },
+        {
+            "config_folder": "/tmp/sensu_config",
+            "provision": "Deploy",
+            "env_type": "development",
+            "name": "Monitoring",
+            "rabbitmq_port": "5672",
+            "rabbitmq_pass": "osdna",
+            "rabbitmq_user": "sensu",
+            "ssh_port": "20022",
+            "ssh_user": "scan",
+            "ssh_password": "scan",
+            "server_ip": "korlev-osdna-staging1.cisco.com",
+            "server_name": "osdna-sensu",
+            "type": "Sensu"
         }
     ],
     "distribution": "Mirantis-8.0",
