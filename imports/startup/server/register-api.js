@@ -37,4 +37,7 @@ import '../../api/clique-constraints/methods.js';
 import '../../api/accounts/server/publications';
 import '../../api/accounts/methods';
 
+import '../../api/supported_environments/server/publications';
+import '../../api/supported_environments/methods';
+
 import '../../api/migrations/migrations';

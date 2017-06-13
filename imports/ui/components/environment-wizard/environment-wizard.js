@@ -7,6 +7,10 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
 
 import { Environments } from '/imports/api/environments/environments';
+import { subsNameSupportedEnvs, 
+  isMonitoringSupported,
+  isListeningSupported,
+} from '/imports/api/supported_environments/supported_environments';
 import { createNewConfGroup } from '/imports/api/environments/environments';
 import { store } from '/imports/ui/store/store';
 
@@ -56,6 +60,8 @@ Template.EnvironmentWizard.onCreated(function(){
     } else {
       instance.state.set('action', 'insert');
     }
+
+    instance.subscribe(subsNameSupportedEnvs);
 
     let action = instance.state.get('action');
     if (action === 'update') {
@@ -115,6 +121,27 @@ Template.EnvironmentWizard.helpers({
       return [];
     }
 
+    let isMonSupportedRes = isMonitoringSupported(
+      environmentModel.distribution, 
+      environmentModel.type_drivers,
+      environmentModel.mechanism_drivers
+    );
+
+    let isMonitoringDisabled = disabled || !isMonSupportedRes;
+
+
+    let monitoringDisabledMessage = null;
+    if (isMonitoringDisabled && !isMonSupportedRes) {
+      monitoringDisabledMessage = 'Distribution, type drivers and mechanism driver are not supported at this moment';
+    }
+    
+    let isListeningSupportedRes = isListeningSupported(
+      environmentModel.distribution, 
+      environmentModel.type_drivers,
+      environmentModel.mechanism_drivers
+    );
+    let isListeningDisabled = disabled || !isListeningSupportedRes;
+
     return [{
       label: 'Main Info',
       localLink: 'maininfo',
@@ -123,6 +150,7 @@ Template.EnvironmentWizard.helpers({
       templateData: {
         model: environmentModel, 
         disabled: disabled,
+        isListeningDisabled: isListeningDisabled,
         setModel: function (newModel) {
           instance.state.set('environmentModel', newModel);
         },
@@ -210,7 +238,8 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvMonitoringInfo',
       templateData: {
         model: getGroupInArray('Monitoring', environmentModel.configuration),
-        disabled: disabled,
+        disabled: isMonitoringDisabled,
+        disabledMessage: monitoringDisabledMessage,
         setModel: function (newSubModel) {
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
