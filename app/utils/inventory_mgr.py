@@ -2,6 +2,7 @@ from datetime import datetime
 
 import bson
 
+from utils.constants import EnvironmentFeatures
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
 
@@ -62,6 +63,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.set_collection("constants")
         self.set_collection("scans")
         self.set_collection("messages")
+        self.set_collection("environments_config")
+        self.set_collection("supported_environments")
 
     def clear(self, scan_plan):
         if scan_plan.inventory_only:
@@ -214,7 +217,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                     )
             )
 
-    def find_one(self, search, projection=None, collection=None):
+    def find_one(self, search, projection=None, collection=None) -> dict:
         return self.find(search, projection, collection, True)
 
     def find_items(self, search,
@@ -306,3 +309,28 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.log.info('delete(): ' + ('deleted ' + str(count) + ' documents'
                                       if count else 'no matching documents'))
         return count
+
+    def get_env_config(self, env: str):
+        return self.find_one(search={'name': env},
+                             collection='environments_config')
+
+    def is_feature_supported(self, env: str, feature: EnvironmentFeatures)\
+            -> bool:
+        env_config = self.get_env_config(env)
+        if not env_config:
+            return False
+
+        # Workaround for mechanism_drivers field type
+        mechanism_driver = env_config['mechanism_drivers'][0] \
+            if isinstance(env_config['mechanism_drivers'], list) \
+            else env_config['mechanism_drivers']
+
+        full_env = {'environment.distribution': env_config['distribution'],
+                    'environment.type_drivers': env_config['type_drivers'],
+                    'environment.mechanism_drivers': mechanism_driver}
+
+        result = self.collections['supported_environments'].find_one(full_env)
+        if not result:
+            return False
+        features_in_env = result.get('features', {})
+        return features_in_env.get(feature.value) is True

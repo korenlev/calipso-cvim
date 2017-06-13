@@ -16,6 +16,7 @@ from discover.find_links_for_vedges import FindLinksForVedges
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scan_error import ScanError
 from discover.scan_metadata_parser import ScanMetadataParser
+from utils.constants import EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 from utils.util import ClassResolver
 
@@ -251,7 +252,8 @@ class Scanner(Fetcher):
             if "create_object" not in o or o["create_object"]:
                 # add/update object in DB
                 self.inv.set(o)
-                self.inv.monitoring_setup_manager.create_setup(o)
+                if self.inv.is_feature_supported(environment, EnvironmentFeatures.MONITORING):
+                    self.inv.monitoring_setup_manager.create_setup(o)
 
             # add objects into children list.
             children.append(o)

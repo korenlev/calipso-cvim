@@ -1,0 +1,379 @@
+#!/bin/bash
+
+command="help"
+
+PROJECT_NAME=calipso
+
+MONGO_CONFIG=/local_dir/calipso_mongo_access.conf
+LDAP_CONFIG=/local_dir/ldap.conf
+PYTHONPATH=/home/scan/${PROJECT_NAME}_prod/app
+HOME_DIR=/home/${PROJECT_NAME}
+IMAGE_PREFIX=korenlev/${PROJECT_NAME}
+
+services=("mongo" "ldap" "api" "scan" "listen" "sensu" "ui")
+
+setup () {
+    echo "Running setup"
+    host=$1
+    host_port=$2
+    mongo_port=$3
+    proxy=$4
+    proxy_port=$5
+
+    echo "Creating default mongo config file"
+    {
+        echo "server ${host}
+        user calipso
+        password calipso_default
+        auth_db calipso" > /home/${PROJECT_NAME}/calipso_mongo_access.conf &&
+
+        echo "Creating default ldap config file" &&
+
+        echo "user admin
+        password password
+        url ldap://${host}:389
+        user_id_attribute CN
+        user_pass_attribute userpassword
+        user_objectclass inetOrgPerson
+        user_tree_dn OU=Users,DC=openstack,DC=org
+        query_scope one
+        tls_req_cert allow
+        group_member_attribute member" > /home/${PROJECT_NAME}/ldap.conf &&
+
+        echo "Done setup"
+    } || {
+        echo "Couldn't create necessary config files."
+        echo "Try running the manager with root permissions."
+    }
+    echo ""
+}
+
+startMongo () {
+    echo "Starting mongo"
+    docker run \
+    -d \
+    -v ${HOME_DIR}/db:/data/db \
+    -p 27017:27017 \
+    -p 28017:28017 \
+    --name ${PROJECT_NAME}-mongo \
+    ${IMAGE_PREFIX}:mongo
+}
+
+startLdap () {
+    echo "Starting ldap"
+    docker run \
+    -d \
+    -v ${HOME_DIR}:/local_dir \
+    -p 389:389 \
+    --name ${PROJECT_NAME}-ldap \
+    ${IMAGE_PREFIX}:ldap
+}
+
+startApi () {
+    echo "Starting api"
+    docker run \
+    -d \
+    -e MONGO_CONFIG=${MONGO_CONFIG} \
+    -e LDAP_CONFIG=${LDAP_CONFIG} \
+    -e LOG_LEVEL=DEBUG \
+    -e BIND=0.0.0.0:8000 \
+    -v ${HOME_DIR}:/local_dir \
+    -p 8000:8000 \
+    -p 40022:22 \
+    --name ${PROJECT_NAME}-api \
+    ${IMAGE_PREFIX}:api
+}
+
+startScan () {
+    echo "Starting scan"
+    docker run \
+    -d \
+    -v ${HOME_DIR}:/local_dir \
+    -e MONGO_CONFIG=${MONGO_CONFIG} \
+    -e PYTHONPATH=${PYTHONPATH} \
+    -p 30022:22 \
+    --name ${PROJECT_NAME}-scan \
+    ${IMAGE_PREFIX}:scan
+}
+
+startListen () {
+    echo "Starting listen"
+    docker run \
+    -d \
+    -v ${HOME_DIR}:/local_dir \
+    -e MONGO_CONFIG=${MONGO_CONFIG} \
+    -e PYTHONPATH=${PYTHONPATH} \
+    -p 50022:22 \
+    --name ${PROJECT_NAME}-listen \
+    ${IMAGE_PREFIX}:listen
+}
+
+startSensu () {
+    echo "Starting sensu"
+    docker run \
+    -d \
+    -v ${HOME_DIR}:/local_dir \
+    -e PYTHONPATH=${PYTHONPATH} \
+    -p 20022:22 \
+    -p 3000:3000 \
+    -p 4567:4567 \
+    -p 5671:5671 \
+    -p 15672:15672 \
+    --name ${PROJECT_NAME}-sensu \
+    ${IMAGE_PREFIX}:sensu
+}
+
+startUIproxy () {
+    echo "Starting ui"
+    docker run \
+    -d \
+    -e ROOT_URL=http://${host}:${host_port} \
+    -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
+    -e HTTP_PROXY=http://${proxy}:8080 \
+    -e HTTPS_PROXY=http://${proxy}:8080 \
+    -v ${HOME_DIR}/calipso_ui:/bundle \
+    -p 80:80 \
+    --name ${PROJECT_NAME}-ui \
+    ${IMAGE_PREFIX}:ui
+}
+
+startUInoproxy () {
+    echo "Starting ui"
+    docker run \
+    -d \
+    -e ROOT_URL=http://${host}:${host_port} \
+    -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
+    -v ${HOME_DIR}/calipso_ui:/bundle \
+    -p 80:80 \
+    --name ${PROJECT_NAME}-ui \
+    ${IMAGE_PREFIX}:ui
+}
+
+startAllproxy() {
+    startMongo
+    startLdap
+    startApi
+    startScan
+    startListen
+    startSensu
+    startUIproxy
+}
+
+startAllnoproxy() {
+    startMongo
+    startLdap
+    startApi
+    startScan
+    startListen
+    startSensu
+    startUInoproxy
+}
+
+killContainer () {
+    eval "sudo docker kill ${PROJECT_NAME}-$1"
+}
+
+rmContainer () {
+    eval "sudo docker rm ${PROJECT_NAME}-$1"
+}
+
+stopService () {
+    service=$1
+    echo "Killing ${service}"
+    killContainer ${service}
+    sleep 5
+    echo "Removing ${service}"
+    rmContainer ${service}
+}
+
+stopAll () {
+    for service in "${services[@]}"
+        do
+            echo "Stopping ${service}"
+            killContainer ${service}
+        done
+    sleep 5
+    for service in "${services[@]}"
+        do
+            echo "Removing ${service}"
+            rmContainer ${service}
+        done
+}
+
+# If the script is called with 5 arguments,
+# perform setup on startup (backward compatibility).
+# If it's called without arguments, just display the menu.
+if [ $# -eq 5 ];
+then
+    setup "$@"
+else
+    if [ $# -ne 0 ];
+    then
+        echo "Usage: calipso-installer [host host_port mongo_port proxy proxy_port]"
+        exit 1
+    fi
+fi
+
+# Menu
+while true
+do
+case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
+
+   "help")
+        echo "${PROJECT_NAME^} management script"
+        echo ""
+        echo "Valid commands to use:"
+        echo "----------------------"
+        echo "help - print this help"
+        echo "setup - prepare data for containers"
+        echo "start/stop/restart (${services[*]}) - start, stop or restart a service"
+        echo "start/stop/restart all - start, stop or restart all services"
+        echo "exit - exit the script"
+        ;;
+
+   "setup")
+        echo "Enter host to use for all containers (dns name or IP): "
+        read host
+        echo "Enter host port to use for web-ui (typically:80): "
+        read host_port
+        echo "Enter mongo port (typically:27017): "
+        read mongo_port
+        echo "Enter proxy (optional): "
+        read proxy
+        echo "Enter proxy_port (optional): "
+        read proxy_port
+        setup ${host} ${host_port} ${mongo_port} ${proxy} ${proxy_port}
+        ;;
+
+    "start mongo")
+        startMongo
+        ;;
+
+    "start ldap")
+        startLdap
+        ;;
+
+    "start api")
+        startApi
+        ;;
+
+    "start scan")
+        startScan
+        ;;
+
+    "start listen")
+        startListen
+        ;;
+
+    "start sensu")
+        startSensu
+        ;;
+
+    "start ui")
+        if [ "${proxy}" != "" ];
+    	then
+            startUIproxy
+    	else
+            startUInoproxy
+        fi
+        ;;
+
+    "start all")
+        if [ "${proxy}" != "" ];
+    	then
+            startAllproxy
+    	else
+            startAllnoproxy
+        fi
+        ;;
+
+    "stop mongo")
+        stopService "mongo"
+        ;;
+
+    "stop ldap")
+        stopService "ldap"
+        ;;
+
+    "stop api")
+        stopService "api"
+        ;;
+
+    "stop scan")
+        stopService "scan"
+        ;;
+
+    "stop listen")
+        stopService "listen"
+        ;;
+
+    "stop sensu")
+        stopService "sensu"
+        ;;
+
+    "stop ui")
+        stopService "ui"
+        ;;
+
+    "stop all")
+        stopAll
+        ;;
+
+
+    "restart mongo")
+        stopService "mongo"
+        startMongo
+        ;;
+
+    "restart ldap")
+        stopService "ldap"
+        startLdap
+        ;;
+
+    "restart api")
+        stopService "api"
+        startApi
+        ;;
+
+    "restart scan")
+        stopService "scan"
+        startScan
+        ;;
+
+    "restart listen")
+        stopService "listen"
+        startListen
+        ;;
+
+    "restart sensu")
+        stopService "sensu"
+        startSensu
+        ;;
+
+    "restart ui")
+        stopService "ui"
+        startUI
+        ;;
+
+    "restart all")
+        stopAll
+        startAll
+        ;;
+
+
+
+    "exit")
+        clear
+        exit
+        ;;
+
+    *)
+        echo "Invalid command"
+        ;;
+
+esac
+echo "---------------------"
+echo "Enter next command: "
+read command
+echo "Doing: ${command,,}"
+done

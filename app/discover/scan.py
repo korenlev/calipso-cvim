@@ -12,6 +12,7 @@ from discover.fetcher import Fetcher
 from discover.scan_error import ScanError
 from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.constants import EnvironmentFeatures
 from utils.mongo_access import MongoAccess
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
@@ -273,9 +274,13 @@ class ScanController(Fetcher):
             or monitoring_setup_only else True
 
         # setup monitoring server
-        self.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(env_name)
-        self.inv.monitoring_setup_manager.server_setup()
+        monitoring = \
+            self.inv.is_feature_supported(env_name,
+                                          EnvironmentFeatures.MONITORING)
+        if monitoring:
+            self.inv.monitoring_setup_manager = \
+                MonitoringSetupManager(env_name)
+            self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
         try:
@@ -290,10 +295,11 @@ class ScanController(Fetcher):
                 scanner.scan_links()
             if cliques_only or run_all:
                 scanner.scan_cliques()
-            if monitoring_setup_only:
-                self.inv.monitoring_setup_manager.simulate_track_changes()
-            if not (inventory_only or links_only or cliques_only):
-                scanner.deploy_monitoring_setup()
+            if monitoring:
+                if monitoring_setup_only:
+                    self.inv.monitoring_setup_manager.simulate_track_changes()
+                if not (inventory_only or links_only or cliques_only):
+                    scanner.deploy_monitoring_setup()
         except ScanError as e:
             return False, "scan error: " + str(e)
         SshConnection.disconnect_all()
