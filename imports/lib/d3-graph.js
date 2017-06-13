@@ -146,10 +146,10 @@ let d3Graph = {
 
   },
 
-  createGraphData: function (){
+  createGraphData: function (width, height){
     //var self = this;
-    var width = 500;
-    var height = 500;
+    //var width = 500;
+    //var height = 900;
 
     this.color = d3.scale.category20();
     /*

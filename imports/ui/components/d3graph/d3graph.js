@@ -82,7 +82,8 @@ Template.d3graph.onCreated(function() {
 
 Template.d3graph.rendered = function () {
   let instance = Template.instance();
-  d3Graph.createGraphData();
+  let element = instance.$('#dgraphid')[0];
+  d3Graph.createGraphData(element.clientWidth, element.clientHeight);
 
   Tracker.autorun(function () {
     var nodeId = instance.state.get('_id');
