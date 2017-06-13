@@ -2,13 +2,19 @@
  * Template Component: Dashboard
  */
 
+//import * as R from 'ramda';
+import * as _ from 'lodash';
 import { Environments } from '/imports/api/environments/environments';
+import { Messages, calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessagesInfoBox } 
+  from '/imports/api/messages/messages';
 import { Template } from 'meteor/templating';
 import { Inventory } from '/imports/api/inventories/inventories';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 //import { Messages } from '/imports/api/messages/messages';
 import { store } from '/imports/ui/store/store';
 import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
+
+import '/imports/ui/components/messages-info-box/messages-info-box';
 
 import './dashboard.html';     
 
@@ -21,6 +27,9 @@ Template.Dashboard.onCreated(function () {
 
   instance.autorun(function () {
     instance.subscribe('environments_config');
+    instance.subscribe('messages?level', 'info');
+    instance.subscribe('messages?level', 'warning');
+    instance.subscribe('messages?level', 'error');
 
     Environments.find({}).forEach(function (envItem) {
       instance.subscribe('inventory?env+type', envItem.name, 'instance');
@@ -166,4 +175,41 @@ Template.Dashboard.helpers({
   },
 */
 
+  getListMessagesInfoBox: function () {
+    return [
+      {
+        level: 'info'
+      },
+      {
+        level: 'warning'
+      },
+      {
+        level: 'error'
+      },
+    ];
+  },
+
+  messageCount: function (level) {
+    return Messages.find({ level: level }).count();
+  },
+
+  argsMessagesInfoBox: function(boxDef, messageCount) {
+    //let instance = Template.instance();
+    let title = _.capitalize(boxDef.level);
+
+    return {
+      title: title,
+      count: messageCount,
+      lastScanTimestamp: lastMessageTimestamp(boxDef.level),
+      icon: calcIconForMessageLevel(boxDef.level),
+      colorClass: calcColorClassForMessagesInfoBox(boxDef.level),
+      onMoreDetailsReq: function () {
+        $('#messagesModalGlobal').modal('show', { 
+          dataset: {
+            messageLevel: boxDef.level,
+          } 
+        });
+      }
+    };
+  },
 }); // end: helpers

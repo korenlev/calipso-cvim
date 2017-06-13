@@ -13,7 +13,8 @@ import { Icon } from '/imports/lib/icon';
 import { store } from '/imports/ui/store/store';
 import { Environments } from '/imports/api/environments/environments';
 import { Inventory } from '/imports/api/inventories/inventories';
-import { Messages } from '/imports/api/messages/messages';
+import { calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessagesInfoBox } 
+  from '/imports/api/messages/messages';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Roles } from 'meteor/alanning:roles';
         
@@ -276,17 +277,6 @@ Template.EnvironmentDashboard.helpers({
     };
   },
 
-  /*
-  lastMessageTimestamp: function (level, envName) {
-    if (R.any(R.isNil)([level, envName])) { return ''; }
-
-    let message =  Messages.findOne({ environment: envName, level: level }, {
-      sort: { timestamp: -1 } });
-
-    return R.path(['timestamp'], message);
-  },
-  */
-
   notAllowEdit: function () {
     let instance = Template.instance();
     let allowEdit = instance.state.get('allowEdit');
@@ -378,38 +368,3 @@ function calcLastScanned(listName, envName) {
   }
 }
 */
-
-function lastMessageTimestamp (level, envName) {
-  if (R.any(R.isNil)([level, envName])) { return ''; }
-
-  let message =  Messages.findOne({ environment: envName, level: level }, {
-    sort: { timestamp: -1 } });
-
-  return R.path(['timestamp'], message);
-}
-
-function calcIconForMessageLevel(level) {
-  switch (level) {
-  case 'info':
-    return 'notifications';
-  case 'warning':
-    return 'warning';
-  case 'error':
-    return 'error';
-  default:
-    return 'notifications';
-  }
-}
-
-function calcColorClassForMessagesInfoBox(level) {
-  switch (level) {
-  case 'info':
-    return 'green-text';
-  case 'warning':
-    return 'orange-text';
-  case 'error':
-    return 'red-text';
-  default:
-    return 'green-text';
-  }
-}

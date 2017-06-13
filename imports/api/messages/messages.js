@@ -76,3 +76,40 @@ let simpleSchema = new SimpleSchema(schema);
 
 Messages.schema = simpleSchema;
 Messages.attachSchema(Messages.schema);
+
+export function calcIconForMessageLevel(level) {
+  switch (level) {
+  case 'info':
+    return 'notifications';
+  case 'warning':
+    return 'warning';
+  case 'error':
+    return 'error';
+  default:
+    return 'notifications';
+  }
+}
+
+export function lastMessageTimestamp (level, envName) {
+  let query = { level: level };
+  query = R.ifElse(R.isNil, R.always(query), R.assoc('environment', R.__, query))(envName);
+
+  let message =  Messages.findOne(query, {
+    sort: { timestamp: -1 } 
+  });
+
+  return R.path(['timestamp'], message);
+}
+
+export function calcColorClassForMessagesInfoBox(level) {
+  switch (level) {
+  case 'info':
+    return 'green-text';
+  case 'warning':
+    return 'orange-text';
+  case 'error':
+    return 'red-text';
+  default:
+    return 'green-text';
+  }
+}

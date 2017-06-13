@@ -127,47 +127,14 @@
         
         <!-- this flex box for alerts cards -->
         <div class="flex-box-1 flex-box flex-col ">
-          
-          <div class="cards-flex-col-h120 white green-text not-active flex-box-1">
-            <div class="flex-box ">
-              <div class="flex-box-1">
-                <i class="material-icons">notifications</i>
-              </div>
-              <div class="flex-box-2">
-                <h5>Notification</h5>
-                <p>Total: {{notificationsCount}}</p>
-                <p>Timestamp: 4/4/2016 5:40pm</p>
-                <a href="#" data-toggle="modal" data-target="#notificationGlobal">More details</a>
-              </div>
-            </div>
-          </div>
 
-          <div class="cards-flex-col-h120 white orange-text not-active flex-box-1">
-            <div class="flex-box ">
-              <div class="flex-box-1">
-                <i class="material-icons">warning</i>
-              </div>
-              <div class="flex-box-2">
-                <h5>Warning</h5>
-                <p>Total: {{warningsCount}}</p>
-                <p>Timestamp: 4/4/2016 5:40pm</p>
-                <a href="#" data-toggle="modal" data-target="#issueGlobal">More details</a>
-              </div>
-            </div>
+          <div class="sm-messages-section">
+            {{#each messagesInfoBox in (getListMessagesInfoBox) }}
+          <div class="sm-message-box">
+              {{> MessagesInfoBox (argsMessagesInfoBox messagesInfoBox 
+                    (messageCount messagesInfoBox.level)) }}
           </div>
-
-          <div class="cards-flex-col-h120 white red-text flex-box-1">
-            <div class="flex-box ">
-              <div class="flex-box-1">
-                <i class="material-icons">error</i>
-              </div>
-              <div class="flex-box-2">
-                <h5>Error</h5>
-                <p class="active">Total: {{errorsCount}}</p>
-                <p>Timestamp: 4/4/2016 5:40pm</p>
-                <a href="#" data-toggle="modal" data-target="#errorGlobal">More details</a>
-              </div>
-            </div>
+            {{/each }}
           </div>
 
         </div> <!-- flex box for alerts cards -->
