@@ -36,7 +36,6 @@ http://korlev-calipso.cisco.com/ <br>
 Code: https://cto-github.cisco.com/korlev/Calipso
 
 ### Proto (mockups, updated Nov 15th)
-<br>
 korlev-calipso-be.cisco.com:8081 
 
 #### High Level Architecture: <br>
