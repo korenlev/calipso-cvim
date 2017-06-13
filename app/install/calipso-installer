@@ -131,7 +131,6 @@ startUIproxy () {
     -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
     -e HTTP_PROXY=http://${proxy}:8080 \
     -e HTTPS_PROXY=http://${proxy}:8080 \
-    -v ${HOME_DIR}/calipso_ui:/bundle \
     -p 80:80 \
     --name ${PROJECT_NAME}-ui \
     ${IMAGE_PREFIX}:ui
@@ -143,7 +142,6 @@ startUInoproxy () {
     -d \
     -e ROOT_URL=http://${host}:${host_port} \
     -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
-    -v ${HOME_DIR}/calipso_ui:/bundle \
     -p 80:80 \
     --name ${PROJECT_NAME}-ui \
     ${IMAGE_PREFIX}:ui
