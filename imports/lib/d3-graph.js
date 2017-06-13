@@ -194,9 +194,18 @@ let d3Graph = {
     //d3.select('body').on('keydown', function () { d3.select(focused); /* then do something with it here */ });
     //d3.select('#dgraphid').on('keydown', d3Graph.keydown());
 
+    let scale = 0.5;
+
     this.svg = outer
         .append('g')
-        .attr('transform', 'translate(250,250) scale(0.3)');
+        //.attr('transform', 'translate(250,250) scale(0.3)');
+        .attr('transform', 'translate(250,250) scale(' + scale.toString() + ')');
+
+    let fontSize = Math.floor(16 / scale);
+    d3Graph.svg.selectAll('.link-group text')
+      .style('font-size', fontSize + 'px');
+    d3Graph.svg.selectAll('.node text')
+      .style('font-size', fontSize + 'px');
 
   },
 
