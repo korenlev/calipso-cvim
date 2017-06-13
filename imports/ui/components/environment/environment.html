@@ -8,33 +8,40 @@
     </div>
 
     <div class="flex-box-3 main-layout-no-nav">
-        <div class="sp-breadcrumb-segment">
+        <div class="sm-breadcrumb-segment">
           {{> breadcrumb (argsBreadCrumb rdxSelectedNodeId) }}
         </div>
 
-        {{#if selectedNodeType }}
-          {{#if (getShow 'dashboard') }}
-            {{> UI.dynamic template=dashboardTemplate 
-                           data=(argsDashboard rdxSelectedNodeId) }}
-          {{/if }}
-          {{#if (getShow 'graph') }}
-            {{#if isSelectedNodeAGraph }}
+        <div class="sm-main-content-segment">
 
-              {{> d3graph argsD3Graph }}
+          {{#if selectedNodeType }}
+            {{#if (getShow 'dashboard') }}
+              <div class="sm-dashboard">
+                {{> UI.dynamic template=dashboardTemplate 
+                               data=(argsDashboard rdxSelectedNodeId) }}
+              </div>
+            {{/if }}
+            {{#if (getShow 'graph') }}
+              {{#if isSelectedNodeAGraph }}
 
-              {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+                <div class="sm-graph">
+                  {{> d3graph argsD3Graph }}
+                </div>
 
-              {{#if showVedgeInfoWindow }}
-                {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+                {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}
+
+                {{#if showVedgeInfoWindow }}
+                  {{> VedgeInfoWindow (argsVedgeInfoWindow vedgeInfoWindow) }}
+                {{/if }}
+              
+              {{else }}
+
+              <div class="sm-node-no-graph-data-msg">{{ rPath i18n 'components.environment.noGraphForLeafMsg' }}</div>
+
               {{/if }}
-            
-            {{else }}
-
-            <div class="sm-node-no-graph-data-msg">{{ rPath i18n 'components.environment.noGraphForLeafMsg' }}</div>
-
             {{/if }}
           {{/if }}
-        {{/if }}
+        </div>
 
     </div>
   </div>
