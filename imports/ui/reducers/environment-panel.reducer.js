@@ -87,6 +87,12 @@ export function reducer(state = defaultState, action) {
     );
 
   case actions.SET_ENV_SELECTED_NODE:
+    if (R.pathEq(['selectedNode', '_id'], action.payload.nodeId, state) &&
+      R.pathEq(['selectedNode', 'type'], action.payload.nodeType)
+    ) {
+      return state;
+    }
+
     return R.merge(state, {
       selectedNode: { 
         _id: action.payload.nodeId,
