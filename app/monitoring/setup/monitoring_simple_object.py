@@ -11,5 +11,6 @@ class MonitoringSimpleObject(MonitoringCheckHandler):
         if not values:
             values = {}
         values['objtype'] = type
-        values['objid'] = self.encode_special_characters(o['id'])
+        objid = values.get('objid', o['id'])
+        values['objid'] = self.encode_special_characters(objid)
         self.create_monitoring_for_object(o, values)
