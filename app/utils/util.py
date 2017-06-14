@@ -52,6 +52,8 @@ class ClassResolver:
         module_parts = [package, module_file]
         module_name = ".".join(module_parts)
         class_module = importlib.import_module(module_name)
+        if not class_module:
+            raise ValueError('could not import module {}'.format(module_name))
         clazz = getattr(class_module, class_name)
         instance = clazz()
         ClassResolver.instances[class_name] = instance
