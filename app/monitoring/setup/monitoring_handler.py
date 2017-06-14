@@ -2,6 +2,7 @@
 
 import copy
 import json
+import os
 import shutil
 import stat
 import subprocess
@@ -165,7 +166,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         content_json += '\n'
         # always write the file locally first
         local_dir = self.make_directory(os.path.join(self.get_config_dir(),
-                                        sub_dir.strip(os.sep)))
+                                        sub_dir.strip(os.path.sep)))
         local_path = os.path.join(local_dir, file_name)
         self.write_to_local_host(local_path, content_json)
         self.track_setup_changes(host, is_container, file_name, local_path,
