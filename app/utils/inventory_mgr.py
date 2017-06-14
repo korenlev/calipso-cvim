@@ -3,6 +3,7 @@ from datetime import datetime
 import bson
 
 from utils.constants import EnvironmentFeatures
+from utils.logging.console_logger import ConsoleLogger
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
 
@@ -19,6 +20,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
 
     def __init__(self):
         super().__init__()
+        self.log = ConsoleLogger()
         self.inventory_collection = None
         self.inventory_collection_name = None
         self.collections = {}
