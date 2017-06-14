@@ -8,6 +8,10 @@ import { MonitoringSchema } from './configuration-groups/monitoring-configuratio
 import { CLISchema } from './configuration-groups/cli-configuration';
 import { AMQPSchema } from './configuration-groups/amqp-configuration';
 import { NfvProviderSchema } from './configuration-groups/nfv-provider-configuration';
+import { 
+  isMonitoringSupported,
+  isListeningSupported,
+} from '/imports/api/supported_environments/supported_environments';
 
 export const Environments = new Mongo.Collection(
   'environments_config', { idGeneration: 'MONGO' });
@@ -16,15 +20,15 @@ export const requiredConfGroups = [
   'mysql',
   'OpenStack',
   'CLI',
-  'AMQP',
-  'Monitoring'
 ];
 
 export const optionalConfGroups = [
-  'NFV_provider'
+  'NFV_provider',
+  'AMQP',
+  'Monitoring',
 ];
 
-Environments.schema = new SimpleSchema({
+let simpleSchema = new SimpleSchema({
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
   auth: { 
     type: Object, 
@@ -44,6 +48,27 @@ Environments.schema = new SimpleSchema({
 
       if (that.isSet) {
         let confGroups = that.value;
+
+        let _id = that.field('_id').value;
+        let dbNode;
+        if (_id) {
+          dbNode = Environments.findOne({ _id: _id });
+        }
+
+        let dist = extractValue('distribution', that, dbNode);
+        let typeDrivers = extractValue('type_drivers', that, dbNode);
+        let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
+
+        let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
+        let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+        
+        if (!isMonitoringSupportedRes) {
+          confGroups = R.reject(R.propEq('name', 'Monitoring'), confGroups);
+        }
+        if (!isListeningSupportedRes) {
+          confGroups = R.reject(R.propEq('name', 'AMQP'), confGroups);
+        }
+
         confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
 
         let newValue = R.map(function(confGroup) {
@@ -66,11 +91,32 @@ Environments.schema = new SimpleSchema({
 
       let subErrors = [];
 
+      let _id = that.field('_id').value;
+      let dbNode;
+      if (_id) {
+        dbNode = Environments.findOne({ _id: _id });
+      }
+
+      let dist = extractValue('distribution', that, dbNode);
+      let typeDrivers = extractValue('type_drivers', that, dbNode);
+      let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
+
+      let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
+      let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+
+      let requiredConfGroupsTemp = R.clone(requiredConfGroups);
+      if (isMonitoringSupportedRes) {
+        requiredConfGroupsTemp = R.append('Monitoring', requiredConfGroupsTemp);
+      }
+      if (isListeningSupportedRes) {
+        requiredConfGroupsTemp = R.append('AMQP', requiredConfGroupsTemp);
+      }
+
       let invalidResult = R.find(function(groupName) {
         subErrors = checkGroup(groupName, configurationGroups, true);
         if (subErrors.length > 0) { return true; } 
         return false;
-      }, requiredConfGroups);
+      }, requiredConfGroupsTemp);
 
       if (R.isNil(invalidResult)) {
         invalidResult = R.find(function(groupName) {
@@ -178,6 +224,12 @@ Environments.schema = new SimpleSchema({
   }, 
 });
 
+/*
+simpleSchema.addValidator(function () {
+  //let that = this;
+});
+*/
+
 // Bug in simple schema. cant add custom message to instance specific
 // schema.
 // https://github.com/aldeed/meteor-simple-schema/issues/559
@@ -187,6 +239,7 @@ SimpleSchema.messages({
   confGroupInvalid: 'Configuration group is invalid.'  
 });
 
+Environments.schema = simpleSchema;
 Environments.attachSchema(Environments.schema);
 
 function getSchemaForGroupName(groupName) {
@@ -270,4 +323,14 @@ function isConfEmpty(conf) {
     let val = conf[key];
     return ! ( R.isNil(val) || R.isEmpty(val)); 
   })(R.keys(conf));
+}
+
+function extractValue(name, schemaValidator, dbNode) {
+  let field = schemaValidator.field(name);
+  let value = field.value;
+  if (R.isNil(field.value) && !field.isSet && dbNode) {
+    value = dbNode[name];
+  }
+
+  return value;
 }
