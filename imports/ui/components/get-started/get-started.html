@@ -7,8 +7,9 @@
     <div class="cards white">
       <h3 id="wikiFirstStep">First Step</h3>
       <p class="text">
-      Administrators of Calipso can add new Environments, one or many, as a pre-requisite for scanning, monitoring and visualizing the results.
-      “Environment” in Calipso means an OpenStack (or other Cloud-based) infrastructure managed under a single administrative entity, controlling all endpoints and credentials in that infrastructure. For Calipso on OpenStack, multiple ‘regions’ means multiple environments, while regions are automatically discovered.</p>
+      Administrators of Calipso can add new Environments, one or many, as pre-requisite for scanning, monitoring and visualizing. 
+      “Environment” in Calipso means an OpenStack (or other cloud-based) infrastructure managed under a single administrative entity, controlling all endpoints and credentials on that infrastructure. For Calipso on OpenStack, multiple ‘regions’ means multiple environments, while regions are automatically discovered.
+      </p>
       <p class="text">
       Calipso scans the environment through API adapter, Database adapter and Command-Line adapter, so credentials are needed for each of those methods. Click on "My Environments" to get started.
       </p>
@@ -22,7 +23,7 @@
       </p>
       <p class="text">Rembemer:</p>
       <p class="text">
-      Calipso environment is an automated extension to your hand accessing the endpoints like you would do manually through your administrative station, secure Calipso station like you would secure your administrative station, it makes sense to place it inside infrastructure management domain, treat it like any other OpenStack module.
+      Calipso environment setup is an automated extension to your hand accessing the endpoints like you would do manually through your administrative station, secure Calipso station like you would secure your administrative station, it makes sense to place it inside infrastructure management domain, treat it like any other OpenStack module.
       </p>
       <div class="flex-box justify-content-between wrap">
         <div class="flex-box-1">
@@ -43,18 +44,18 @@
 
       <ol>
         <li>
-          Distribution: Captures the specific vendor/distribution of the cloud infrastructure controllers.
+          Distribution: captures the specific vendor/distribution of the cloud infrastructure controllers.
         </li>
         <li>
-          Mechanism-Driver: Captures the underlying vendor/plugin of the networking system in use.
+          Mechanism-Driver: captures the underlying vendor/plugin of the networking system in use.
         </li>
         <li>
-          Type-Driver: Captures the underlying packet encapsulation used for layer-2 isolation.
+          Type-Driver: captures the underlying packet encapsulation used for layer-2 isolation.
         </li>
       </ol>
 
       <p class="text">
-      “Event based scan” allows updating the Calipso inventory in real time, it creates per-environment listener to the OpenStack message BUS and a smart update mechanism to keep the data synchronized. This is important for future discovery, while initial discovery is triggered by the administrator. You can uncheck this method to use other means of updating the inventory data like scheduled scans.
+      “Event based scan” allows updating the Calipso inventory in real time, it creates per-environment listener connected to the OpenStack message BUS and a smart update mechanism to keep the data synchronized. This is important for future discovery, while initial discovery is triggered by the administrator. You can uncheck this method to use other means of updating the inventory data like scheduled scans.
       </p>
 
       <div class="flex-box justify-content-between wrap">
@@ -64,7 +65,7 @@
       </div>
 
       <p class="text">
-      Calipso needs credentials for accessing OpenStack API, underlying Database and host Command Line Interface, as it is currently agentless and underlying infrastructure lacks operations API to provide the necessary data. 
+      Calipso needs credentials for accessing OpenStack API, underlying Database and host Command Line Interface, as it is currently agentless and underlying infrastructure lacks operations API to provide the necessary data.
       </p>
 
       <p class="text">
@@ -100,7 +101,7 @@
       </p>
 
       <p class="text">
-      This method of data gathering is needed for details that are currently not exposed through any endpoint. When other methods will provide those details (like an “Operations API” in future release of Calipso agent on the hosts), Calipso can revise its discovery logic accordingly.
+      This method of data gathering is needed for details that are currently not exposed through API. When other methods will provide those details (like an “Operations API” in future releases of Calipso agent on the hosts), Calipso can revise its discovery logic accordingly.
       </p>
 
       <p class="text">
@@ -128,11 +129,11 @@
       </div>
 
       <p class="text">
-      NFV Credentials are optional. Calipso can include an adapter to NFV application using the cloud infrastructure as its “VIM”, it then gives Calipso details about the underlying instances functions and capabilities, this will be possible on some releases of Calipso.
+      NFV Credentials are optional. Calipso can include an adapter to NFV application using the cloud infrastructure as its “VIM”, it then gives Calipso details about the underlying instances functions and capabilities, and this will be possible on some releases of Calipso.
       </p>
       
       <p class="text">
-     The Monitoring module in Calipso uses “Sensu” as underlying agent and framework.
+      The Monitoring module in Calipso uses “Sensu” as underlying agent and framework.
       </p>
 
       <p class="text">
@@ -141,7 +142,7 @@
       </p>
       
       <p class="text">
-      Calipso requires a pre-installed Sensu server and a Sensu client installed on any monitored infrastructure hosts to allow Calipso to check the health of many inventory objects that are essential infrastructure networking components.
+      Calipso requires a pre-installed Sensu server and a Sensu client installed on all monitored infrastructure hosts to allow Calipso to check the health of many inventory objects that are an essential infrastructure networking components.
       </p>
 
       <p class="text">
@@ -159,12 +160,12 @@
       </div>
 
       <p class="text">
-      “Environment Type” adds tags to messages receiving from the specific Sensu checks on the clients, you can use it to level and/or isolate messages and loggings.
-      Calipso uses RabbitMQ over SSL as the default transport mechanism from Sensu clients to Sensu server, it requires the following details for that transport mechanism: Port, User, Password, Sensu Server IP and Name.
+      “Environment Type” adds tags to messages received from any specific Sensu check on the clients, you can use it to level and/or isolate messages and loggings.
+      Calipso uses RabbitMQ over SSL as the default transport mechanism from Sensu clients to Sensu server, it requires the following details for that transport mechanism: Port, User, Password, Sensu Server IP and Name. 
       </p>
 
       <p class="text">
-      Calipso assumes the SSL keys used for client-server communications are part of the Sensu pre-installed infrastructure and are placed in the default location on the Sensu server.
+      Calipso assumes the SSL keys used for client-server communications are part of the Sensu pre-installed infrastructure and are placed at the default location on the Sensu server.
       See: <a href="https://sensuapp.org/docs/latest/reference/ssl.html">https://sensuapp.org/docs/latest/reference/ssl.html</a>
       </p>
 
@@ -233,7 +234,7 @@
       <h3 id="wikiMainMessages">Main messages</h3>
 
       <p class="text">
-      Messages aggregated all environment notifications, warnings and errors, generated by Calispo or by the Cloud infrastructure itself. Calipso messaging details include the source system and the related inventory object referencing the specific message.
+      Messages aggregates environment notifications, warnings and errors, generated by Calipso or by the Cloud infrastructure itself. Calipso messaging details include the source system and the related inventory object referenced by that specific message.
       </p>
 
       <div class="flex-box justify-content-between wrap">
@@ -246,7 +247,7 @@
     <div class="cards white">
       <h3 id="wikiWorkWithEnvs">Work with environments</h3>
       <p class="text">
-      When you choose a specific environment through “My Environments” tab, you will be directed to the environment dashboard to start viewing and analyzing the underlying discovered details and dependencies.
+      When you choose a specific environment through “My Environments” tab, you will be directed to the environment dashboard to start viewing and analyzing the underlying discovered objects and dependencies.
       </p>
       <div class="flex-box justify-content-between wrap">
         <div class="flex-box-1">
@@ -258,7 +259,7 @@
     <div class="cards white">
       <h3 id="wikiScanningEnv">Scanning an environment</h3>
       <p class="text">
-      Calipso system needs at least an initial scan of a pre-defined environment in order to provide visualization, monitoring and analysis. Clicking on the scan button in a specific environment dashboard provides the needed step:
+      Calipso system needs at least an initial scan of a pre-defined environment in order to provide visualization, monitoring and analysis. Clicking on the scan button in a specific environment dashboard captures the needed details for scanning:
       </p>
 
       <div class="flex-box justify-content-between wrap">
@@ -278,7 +279,7 @@
       </div>
 
       <p class="text">
-        Calipso currently uses mongo DB to maintain its inventory data, by default the results of scanning are placed in the “inventory” collection. For debugging and testing you can provide a different inventory collection name for holding the results.
+      Calipso currently uses mongo DB to maintain its inventory data, by default the results of scanning are placed in the “inventory” collection. For debugging and testing you can provide a different inventory collection name for holding the results.
       </p>
 
       <p class="text">
@@ -290,7 +291,7 @@
       </p>
 
       <p class="text">
-      Additional optional filters are provided to allow the analysis of links and cliques in the scanning process, look at the Calipso operations guide for details on those options.
+      Additional optional filters are provided to allow the analysis of links and cliques in the scanning process, read the Calipso operations guide for details on those options.
       </p>
 
       <p class="text">
@@ -354,7 +355,7 @@
       </div>
 
       <p class="text">
-      “Link Types” and “Clique Types” provide controlled and modeled mechanism for generating the Calispo graph topologies, for more details on Links and Cliques checkout the Calipso operations guide.
+      “Link Types” and “Clique Types” provides controlled and modeled mechanism for generating the Calipso graph topologies, for more details on “Links” and “Cliques” checkout the Calipso operations guide.
       </p>
 
       <p class="text">
@@ -365,7 +366,7 @@
     <div class="cards white">
       <h3 id="wikiBrowsingEnv">Browsing your cloud environment</h3>
       <p class="text">
-      Once a cloud environment was defined and scanned, its underlying virtual networking details can be accessed through the navigation tree, breadcrumb bar or the search engine.
+      Once a cloud environment was defined and scanned, its underlying virtual networking details can be accessed through the <u>navigation tree</u>, <u>breadcrumb bar</u> or the <u>search engine</u>.
       </p>
 
       <p class="text">
