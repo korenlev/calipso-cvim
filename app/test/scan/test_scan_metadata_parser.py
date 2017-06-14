@@ -1,12 +1,9 @@
-from unittest import TestCase, mock
-
-from discover.configuration import Configuration
+from discover.db_access import DbAccess
 from discover.scan_metadata_parser import ScanMetadataParser
-from test.scan.config.test_config \
-    import MONGODB_CONFIG, COLLECTION_CONFIG, ENV_CONFIG
+from test.scan.test_scan import TestScan
 from test.scan.test_data.metadata import *
-from utils.inventory_mgr import InventoryMgr
-from utils.mongo_access import MongoAccess
+from unittest import mock
+
 
 SCANNERS_FILE = 'scanners.json'
 
@@ -17,14 +14,10 @@ JSON_NO_SCANNERS = 'no scanners found in scanners list'
 JSON_ERRORS_FOUND = 'Errors encountered during metadata file parsing:\n'
 
 
-class TestScanMetadataParser(TestCase):
+class TestScanMetadataParser(TestScan):
     def setUp(self):
-        MongoAccess.set_config_file(MONGODB_CONFIG)
-        self.inv = InventoryMgr()
-        self.collection = COLLECTION_CONFIG
-        self.inv.set_collections(self.collection)
-        self.config = Configuration()
-        self.config.use_env(ENV_CONFIG)
+        super().setUp()
+        DbAccess.conn = mock.MagicMock()
         self.parser = ScanMetadataParser(self.inv)
 
         self.parser.check_metadata_file_ok = mock.MagicMock()
