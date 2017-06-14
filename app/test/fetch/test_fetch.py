@@ -1,10 +1,10 @@
 import unittest
 
 from discover.configuration import Configuration
-from discover.inventory_mgr import InventoryMgr
-from test.fetch.config.local_config import ENV_CONFIG, MONGODB_CONFIG, COLLECTION_CONFIG
+from test.fetch.config.test_config import ENV_CONFIG, MONGODB_CONFIG, COLLECTION_CONFIG
 from test.fetch.api_fetch.test_data.regions import REGIONS
 from test.fetch.api_fetch.test_data.configurations import CONFIGURATIONS
+from utils.inventory_mgr import InventoryMgr
 
 
 class TestFetch(unittest.TestCase):
