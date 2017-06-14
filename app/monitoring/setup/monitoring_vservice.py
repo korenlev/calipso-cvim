@@ -7,4 +7,5 @@ class MonitoringVservice(MonitoringSimpleObject):
         super().__init__(env)
 
     def create_setup(self, o):
-        self.setup('vservice', o)
+        self.setup('vservice', o,
+                   values={'local_service_id': o['local_service_id']})
