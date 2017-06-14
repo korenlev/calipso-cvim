@@ -2,11 +2,11 @@
 
 import copy
 import json
-import os
 import shutil
 import stat
 import subprocess
 from os.path import isfile, join
+from socket import *
 
 import pymongo
 from boltons.iterutils import remap
@@ -288,7 +288,6 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         if self.scripts_prepared_for_host.get(host, False):
             return
         gateway_host = SshConn.get_gateway_host(host)
-        self.make_remote_dir(gateway_host, self.REMOTE_SCRIPTS_FOLDER)
         # copy scripts to host
         scripts_dir = join(self.env_monitoring_config['app_path'],
                            self.APP_SCRIPTS_FOLDER)
@@ -301,6 +300,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         for file_name in script_files:
             remote_path = join(self.REMOTE_SCRIPTS_FOLDER, file_name)
             local_path = join(scripts_dir, file_name)
+            if not os.path.isfile(local_path):
+                continue
             if is_server:
                 ssh = self.get_ssh(target_host, for_sftp=True)
                 ssh.copy_file(local_path, remote_path, mode=script_mode)
@@ -336,10 +337,10 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         is_server = host_details['is_server']
         self.prepare_scripts(host, is_server)
         remote_path = self.REMOTE_SCRIPTS_FOLDER
-        self.make_remote_dir(host, remote_path)
+        local_path = remote_path + os.path.sep + '*.py'
         if is_server:
             return  # this was done earlier
-        self.copy_from_gateway_to_host(host, remote_path, remote_path)
+        self.copy_from_gateway_to_host(host, local_path, remote_path)
 
     def deploy_config_to_target(self, host_details):
         host = host_details['host']
@@ -355,6 +356,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             # so it takes the new setup
             ssh = self.get_ssh(host)
             cmd = 'sudo /etc/init.d/sensu-client restart'
+            self.log.info('deploying config to host {}'.format(host))
             if is_server:
                 ssh.exec(cmd)
             else:
@@ -376,17 +378,26 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.log.info('Monitoring config not written to remote host')
             return
         # need to scp the files from the gateway host to the target host
-        self.copy_from_gateway_to_host(host, local_dir,
-                                       self.PRODUCTION_CONFIG_DIR)
+        remote_path = self.PRODUCTION_CONFIG_DIR
+        self.copy_from_gateway_to_host(host, local_dir, remote_path)
 
     def copy_from_gateway_to_host(self, host, local_dir, remote_path):
         ssh = self.get_ssh(host)
+        what_to_copy = local_dir if '*' in local_dir else local_dir + '/*'
         if ssh.is_gateway_host(host):
+            # on gateway host, perform a simple copy
+            # make sure the source and destination are not the same
+            local_dir_base = local_dir[:local_dir.rindex('/*')] \
+                if '/*' in local_dir else local_dir
+            if local_dir_base.strip('/*') == remote_path.strip('/*'):
+                return  # same directory - nothing to do
+            cmd = 'cp {} {}'.format(what_to_copy, remote_path)
+            self.run(cmd, ssh=ssh)
             return
         remote_path = ssh.get_user() + '@' + host + ':' + \
-            os.path.dirname(remote_path) + os.sep
+            remote_path + os.sep
         self.make_remote_dir(host, remote_path)
-        self.run_on_gateway('scp ' + local_dir + '/* ' + remote_path,
+        self.run_on_gateway('scp {} {}'.format(what_to_copy, remote_path),
                             enable_cache=False)
 
     def make_remote_dir_on_host(self, ssh, host, path, path_is_file=False):
@@ -395,7 +406,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         if path_is_file:
             dir_path = os.path.dirname(dir_path)
         cmd = 'sudo mkdir -p ' + dir_path
-        self.run(cmd, ssh_to_host=host, ssh=ssh)
+        try:
+            self.run(cmd, ssh_to_host=host, ssh=ssh)
+        except timeout:
+            self.log.error('timed out trying to create directory {} on host {}'
+                           .format(dir_path, host))
+            return
         cmd = 'sudo chown -R ' + ssh.get_user() + ' ' + dir_path
         self.run(cmd, ssh_to_host=host, ssh=ssh)
 
@@ -408,7 +424,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         # copy the local file to the preparation folder for the remote host
         # on the gateway host
         ssh = self.get_ssh(host)
-        gateway_host = ssh.host
+        gateway_host = ssh.get_gateway_host(host)
         if make_remote_dir:
             self.make_remote_dir(gateway_host, remote_path, path_is_file=True)
         ftp_ssh = self.get_ssh(gateway_host, for_sftp=True)
