@@ -3,7 +3,7 @@ from test.event_based_scan.config.test_config import ENV_CONFIG
 EVENT_PAYLOAD_PORT_UPDATE = {
     '_context_timestamp': '2016-10-25 21:27:05.591848', '_context_user_name': 'admin',
     '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
-    '_context_tenant_name': 'OSDNA-project', '_context_resource_uuid': None,
+    '_context_tenant_name': 'calipso-project', '_context_resource_uuid': None,
     'priority': 'INFO', '_context_user': '13baa553aae44adca6615e711fd2f6d9',
     '_context_domain': None, '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40', 'event_type': 'port.update.end',
@@ -30,7 +30,7 @@ EVENT_PAYLOAD_PORT_UPDATE = {
                            '6X8ZvjBQg--5UCqgj7iUE-zfIQwZLzXbl46MP1Fg5ZKCUtdCCPN5yqXxGA-ebYlBB_G' +
                            'If0LUo1YXCKe3GacmfFNC-k0T_B1p340stgLdpW7r0g1jvTDleqK7NWNrnCniZHrgGiLw',
     '_context_is_admin': True, '_context_read_only': False,
-    '_context_project_name': 'OSDNA-project',
+    '_context_project_name': 'calipso-project',
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9',
     'publisher_id': 'network.node-6.cisco.com'}
 
@@ -49,7 +49,7 @@ PORT_DOCUMENT = {
     },
     "binding:vif_type": "ovs",
     "binding:vnic_type": "normal",
-    "children_url": "/osdna_dev/discover.py?type=tree&id=16620a58-c48c-4195-b9c1-779a8ba2e6f8",
+    "children_url": "/calipso_dev/discover.py?type=tree&id=16620a58-c48c-4195-b9c1-779a8ba2e6f8",
     "device_id": "dhcp7a15cee0-2af1-5441-b1dc-94897ef4dee9-b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe",
     "device_owner": "network:dhcp",
     "dns_assignment": [
@@ -77,14 +77,14 @@ PORT_DOCUMENT = {
     "last_scanned": 0,
     "mac_address": "fa:16:3e:d7:c5:16",
     "name": "123",
-    "name_path": "/"+ENV_CONFIG+"/Projects/OSDNA-project/Networks/osdna-met4/Ports/fa:16:3e:d7:c5:16",
+    "name_path": "/"+ENV_CONFIG+"/Projects/calipso-project/Networks/calipso-met4/Ports/fa:16:3e:d7:c5:16",
     "network_id": "b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe",
     "object_name": "fa:16:3e:d7:c5:16",
     "parent_id": "b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe-ports",
     "parent_text": "Ports",
     "parent_type": "ports_folder",
     "port_security_enabled": False,
-    "project": "OSDNA-project",
+    "project": "calipso-project",
     "security_groups": [
 
     ],

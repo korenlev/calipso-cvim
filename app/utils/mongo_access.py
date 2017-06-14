@@ -21,6 +21,7 @@ class MongoAccess(DictNamingConverter):
     default_conf_file = '/local_dir/calipso_mongo_access.conf'
     config_file = None
 
+    DB_NAME = 'calipso'
     LOG_FILE = '/var/log/calipso/mongo_access.log'
     DEFAULT_LOG_FILE = os.path.abspath("./mongo_access.log")
 
@@ -76,7 +77,8 @@ class MongoAccess(DictNamingConverter):
             self.connect_params["server"],
             self.connect_params["port"]
         )
-        MongoAccess.db = MongoAccess.client.calipso
+        MongoAccess.db = getattr(MongoAccess.client,
+                                 config_params.get('auth_db', self.DB_NAME))
         self.log.info('Connected to MongoDB')
 
     def prepare_connect_uri(self):
