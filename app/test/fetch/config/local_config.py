@@ -1,8 +1,8 @@
 # local config info for test.
 
 
-MONGODB_CONFIG = "/Users/xiaocdon/Dev/OSDNA/app/config/osdna_mongo_access.conf"
+MONGODB_CONFIG = 'your-mongo-config-path-here'
 
-ENV_CONFIG = 'Mirantis-Liberty-Xiaocong'#"Devstack-VPP-2"
+ENV_CONFIG = 'your-env-name-here'
 
-COLLECTION_CONFIG = 'Mirantis-Liberty-UT' #"vpp"
+COLLECTION_CONFIG = 'your-inventory-collection-name-here'
