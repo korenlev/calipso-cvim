@@ -131,7 +131,7 @@ startUIproxy () {
     -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
     -e HTTP_PROXY=http://${proxy}:8080 \
     -e HTTPS_PROXY=http://${proxy}:8080 \
-    -p 80:80 \
+    -p 80:3000 \
     --name ${PROJECT_NAME}-ui \
     ${IMAGE_PREFIX}:ui
 }
@@ -142,29 +142,28 @@ startUInoproxy () {
     -d \
     -e ROOT_URL=http://${host}:${host_port} \
     -e MONGO_URL=mongodb://calipso:calipso_default@${host}:${mongo_port}/calipso \
-    -p 80:80 \
+    -p 80:3000 \
     --name ${PROJECT_NAME}-ui \
     ${IMAGE_PREFIX}:ui
 }
 
-startAllproxy() {
-    startMongo
-    startLdap
-    startApi
-    startScan
-    startListen
-    startSensu
-    startUIproxy
+startUI () {
+    if [ "${proxy}" != "" ];
+    then
+        startUIproxy
+    else
+        startUInoproxy
+    fi
 }
 
-startAllnoproxy() {
+startAll() {
     startMongo
     startLdap
     startApi
     startScan
     startListen
     startSensu
-    startUInoproxy
+    startUI
 }
 
 killContainer () {
@@ -268,21 +267,11 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
         ;;
 
     "start ui")
-        if [ "${proxy}" != "" ];
-    	then
-            startUIproxy
-    	else
-            startUInoproxy
-        fi
+        startUI
         ;;
 
     "start all")
-        if [ "${proxy}" != "" ];
-    	then
-            startAllproxy
-    	else
-            startAllnoproxy
-        fi
+        startAll
         ;;
 
     "stop mongo")

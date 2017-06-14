@@ -2,7 +2,7 @@ from test.event_based_scan.config.test_config import ENV_CONFIG
 
 
 EVENT_PAYLOAD_NETWORK_DELETE = {
-    'event_type': 'network.delete.end', 'priority': 'INFO', '_context_tenant_name': 'OSDNA-project',
+    'event_type': 'network.delete.end', 'priority': 'INFO', '_context_tenant_name': 'calipso-project',
     '_context_domain': None, '_context_show_deleted': False, '_unique_id': 'e6f3a44575dd45ea891ec527335a55d7',
     '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
     '_context_read_only': False, '_context_timestamp': '2016-10-13 23:48:29.632205', '_context_project_domain': None,
@@ -13,7 +13,7 @@ EVENT_PAYLOAD_NETWORK_DELETE = {
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_is_admin': True,
     '_context_resource_uuid': None,
     'timestamp': '2016-10-13 23:48:31.609788', '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-    'message_id': '7b78b897-7a82-4aab-82a5-b1c431535dce', '_context_project_name': 'OSDNA-project',
+    'message_id': '7b78b897-7a82-4aab-82a5-b1c431535dce', '_context_project_name': 'calipso-project',
     '_context_auth_token': 'gAAAAABYAB0cVTm6fzL1S2q2lskw3z7FiEslh_amLhDmDEwQsm3M7L4omSjZ5qKacvgFTXS0HtpbCQfkZn8' +
                            'BQK80qfbzaQdh05tW1gnboB_FR7vfsUZ1yKUzpDdAgfStDzj_SMWK6FGyZperukjp7Xhmxh91O6cxFvG1' +
                            '0qZmxwtJoKyuW0pCM1593rTsj1Lh6zOIo2iaoC1a',
@@ -22,7 +22,7 @@ EVENT_PAYLOAD_NETWORK_DELETE = {
 
 EVENT_PAYLOAD_NETWORK = {
     "admin_state_up" : True,
-    "children_url" : "/osdna_dev/discover.py?type=tree&id=0bb0ba6c-6863-4121-ac89-93f81a9da2b0",
+    "children_url" : "/calipso_dev/discover.py?type=tree&id=0bb0ba6c-6863-4121-ac89-93f81a9da2b0",
     "cidrs" : [
         "172.16.9.0/24"
     ],
@@ -33,14 +33,14 @@ EVENT_PAYLOAD_NETWORK = {
     "last_scanned" : 0,
     "mtu" : 1400,
     "name" : "testnetwork",
-    "name_path" : "/"+ENV_CONFIG+"/Projects/OSDNA-project/Networks/testnetwork",
+    "name_path" : "/"+ENV_CONFIG+"/Projects/calipso-project/Networks/testnetwork",
     "network" : "0bb0ba6c-6863-4121-ac89-93f81a9da2b0",
     "object_name" : "testnetwork",
     "parent_id" : "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
     "parent_text" : "Networks",
     "parent_type" : "networks_folder",
     "port_security_enabled" : True,
-    "project" : "OSDNA-project",
+    "project" : "calipso-project",
     "provider:network_type" : "vxlan",
     "provider:physical_network" : None,
     "provider:segmentation_id" : 107,
