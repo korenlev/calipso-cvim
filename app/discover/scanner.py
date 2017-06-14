@@ -317,7 +317,7 @@ class Scanner(Fetcher):
     def load_metadata(self):
         parser = ScanMetadataParser(self.inv)
         conf = self.config.get_env_config()
-        scanners_file = os.path.join(conf.get('app_path', '/etc/osdna'),
+        scanners_file = os.path.join(conf.get('app_path', '/etc/calipso'),
                                      'config',
                                      ScanMetadataParser.SCANNERS_FILE)
 

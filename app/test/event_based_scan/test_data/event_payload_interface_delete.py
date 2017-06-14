@@ -6,7 +6,7 @@ EVENT_PAYLOAD_INTERFACE_DELETE = {
     '_unique_id': 'a4c4ef7a07c9431299047a59d4e0730c', 'event_type': 'router.interface.delete',
     '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
     '_context_request_id': 'req-e7d61486-2c0a-40cd-b346-1ec884b0e8d0', '_context_is_admin': True,
-    '_context_project_name': 'OSDNA-project', 'timestamp': '2016-11-07 23:41:09.769453',
+    '_context_project_name': 'calipso-project', 'timestamp': '2016-11-07 23:41:09.769453',
     '_context_auth_token': 'gAAAAABYIQ_M00kY8hGiB6zsD8BWn7b5x0aKIEv1HHQ3Ty0t5MAK68Lm7E6E0pDgJVqBSQsqZsNDqQkn4M0spYlz' +
                            'WPTEdl3L4d-7ihNmWGOE76J4EtP9tl6nw22ZzdUhu4V8dVB5dqC3lhf61Ot9OsU7XRjp2zfVTb_Ip2yI2_auqUWZ' +
                            'f6ryWdFPUZqbpJ3-jrVpUP1iXxlT',
@@ -14,7 +14,7 @@ EVENT_PAYLOAD_INTERFACE_DELETE = {
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_project_domain': None,
     '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_user_name': 'admin',
     'publisher_id': 'network.node-251.cisco.com', '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
-    '_context_tenant_name': 'OSDNA-project', 'priority': 'INFO',
+    '_context_tenant_name': 'calipso-project', 'priority': 'INFO',
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_context_show_deleted': False,
     'payload': {'router_interface': {'port_id': '1233445-75b6-4c05-9480-4bc648845c6f',
@@ -26,7 +26,7 @@ EVENT_PAYLOAD_INTERFACE_DELETE = {
 
 NETWORK_DOC = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=55550a69-24eb-47f5-a458-3aa086cc71c2",
+    "children_url": "/calipso_dev/discover.py?type=tree&id=55550a69-24eb-47f5-a458-3aa086cc71c2",
     "cidrs": [
         "172.16.12.0/24"
     ],
@@ -37,14 +37,14 @@ NETWORK_DOC = {
     "last_scanned": 0,
     "mtu": 0,
     "name": "please_connect",
-    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/please_connect",
+    "name_path": "/" + ENV_CONFIG + "/Projects/calipso-project/Networks/please_connect",
     "network": "55550a69-24eb-47f5-a458-3aa086cc71c2",
     "object_name": "please_connect",
     "parent_id": "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
     "parent_text": "Networks",
     "parent_type": "networks_folder",
     "port_security_enabled": True,
-    "project": "OSDNA-project",
+    "project": "calipso-project",
     "provider:network_type": "vxlan",
     "provider:physical_network": None,
     "provider:segmentation_id": 23,
@@ -205,7 +205,7 @@ PORT_DOC = {
     "master_parent_id": "55550a69-24eb-47f5-a458-3aa086cc71c2",
     "master_parent_type": "network",
     "name": "fa:16:3e:13:b2:aa",
-    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/test_interface/Ports/" +
+    "name_path": "/" + ENV_CONFIG + "/Projects/calipso-project/Networks/test_interface/Ports/" +
                  "1233445-75b6-4c05-9480-4bc648845c6f",
     "network_id": "55550a69-24eb-47f5-a458-3aa086cc71c2",
     "object_name": "1233445-75b6-4c05-9480-4bc648845c6f",
@@ -213,7 +213,7 @@ PORT_DOC = {
     "parent_text": "Ports",
     "parent_type": "ports_folder",
     "port_security_enabled": False,
-    "project": "OSDNA-project",
+    "project": "calipso-project",
     "security_groups": [
 
     ],
@@ -224,7 +224,7 @@ PORT_DOC = {
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
+    "children_url": "/calipso_dev/discover.py?type=tree&id=node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",

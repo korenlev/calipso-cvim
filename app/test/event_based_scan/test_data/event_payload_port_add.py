@@ -9,7 +9,7 @@ EVENT_PAYLOAD_PORT_INSTANCE_ADD = {
                  'security_groups': ['2dd5c169-1ff7-40e5-ad96-18924b6d23f1'], 'allowed_address_pairs': [],
                  'binding:host_id': 'node-223.cisco.com', 'dns_name': '', 'status': 'DOWN',
                  'id': '1233445-75b6-4c05-9480-4bc648845c6f', 'binding:profile': {}, 'admin_state_up': True,
-                 'device_owner': 'compute:osdna-zone', 'device_id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
+                 'device_owner': 'compute:calipso-zone', 'device_id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
                  'network_id': '55550a69-24eb-47f5-a458-3aa086cc71c2', 'name': '',
                  'binding:vif_details': {'ovs_hybrid_plug': True, 'port_filter': True}, 'extra_dhcp_opts': [],
                  'binding:vnic_type': 'normal'}}, '_context_project_domain': None, 'event_type': 'port.create.end',
@@ -29,7 +29,7 @@ EVENT_PAYLOAD_PORT_INSTANCE_ADD = {
 
 NETWORK_DOC = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=55550a69-24eb-47f5-a458-3aa086cc71c2",
+    "children_url": "/calipso_dev/discover.py?type=tree&id=55550a69-24eb-47f5-a458-3aa086cc71c2",
     "cidrs": [
         "172.16.12.0/24"
     ],
@@ -40,14 +40,14 @@ NETWORK_DOC = {
     "last_scanned": 0,
     "mtu": 0,
     "name": "please_connect",
-    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/please_connect",
+    "name_path": "/" + ENV_CONFIG + "/Projects/calipso-project/Networks/please_connect",
     "network": "55550a69-24eb-47f5-a458-3aa086cc71c2",
     "object_name": "please_connect",
     "parent_id": "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
     "parent_text": "Networks",
     "parent_type": "networks_folder",
     "port_security_enabled": True,
-    "project": "OSDNA-project",
+    "project": "calipso-project",
     "provider:network_type": "vxlan",
     "provider:physical_network": None,
     "provider:segmentation_id": 23,
@@ -99,9 +99,9 @@ INSTANCE_DOC = {
     ],
     "local_name": "instance-00000002",
     'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne/Availability Zones' +
-                 '/osdna-zone/node-223.cisco.com/Instances/name-change',
+                 '/calipso-zone/node-223.cisco.com/Instances/name-change',
     'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
-    'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+    'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/calipso-zone' +
                '/node-223.cisco.com/node-223.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
     "name": "name-change",
     "network_info": [
@@ -151,7 +151,7 @@ INSTANCE_DOC = {
                         ]
                     }
                 ],
-                "label": "osdna-network"
+                "label": "calipso-network"
             },
             "active": True,
             "address": "fa:16:3e:04:cd:ab",
@@ -169,9 +169,9 @@ INSTANCE_DOC = {
     "parent_id": "node-223.cisco.com-instances",
     "parent_type": "instances_folder",
     "projects": [
-        "project-osdna"
+        "project-calipso"
     ],
-    "children_url": "/osdna_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+    "children_url": "/calipso_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
     "mac_address": "fa:16:3e:04:cd:ab"
 }
 
@@ -180,9 +180,9 @@ INSTANCES_ROOT = {
     "environment": ENV_CONFIG,
     "id": "node-223.cisco.com-instances",
     "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones" +
-               "/osdna-zone/node-223.cisco.com/node-223.cisco.com-instances",
+               "/calipso-zone/node-223.cisco.com/node-223.cisco.com-instances",
     "name": "Instances",
-    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/osdna-zone/node-223.cisco.com/Instances",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/calipso-zone/node-223.cisco.com/Instances",
     "object_name": "Instances",
     "parent_id": "node-223.cisco.com",
     "parent_type": "host",
@@ -201,9 +201,9 @@ INSTANCE_DOCS = [
         ],
         "local_name": "instance-00000002",
         'name_path': '/' + ENV_CONFIG + '/Regions/RegionOne/Availability Zones' +
-                     '/osdna-zone/node-223.cisco.com/Instances/name-change',
+                     '/calipso-zone/node-223.cisco.com/Instances/name-change',
         'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
-        'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+        'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-regions/RegionOne/RegionOne-availability_zones/calipso-zone' +
                    '/node-223.cisco.com/node-223.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
         "name": "name-change",
         "network_info": [
@@ -253,7 +253,7 @@ INSTANCE_DOCS = [
                             ]
                         }
                     ],
-                    "label": "osdna-network"
+                    "label": "calipso-network"
                 },
                 "active": True,
                 "address": "fa:16:3e:04:cd:ab",
@@ -271,9 +271,9 @@ INSTANCE_DOCS = [
         "parent_id": "node-223.cisco.com-instances",
         "parent_type": "instances_folder",
         "projects": [
-            "project-osdna"
+            "project-calipso"
         ],
-        "children_url": "/osdna_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
+        "children_url": "/calipso_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
         "mac_address": "fa:16:3e:04:cd:ab"
     }
 ]

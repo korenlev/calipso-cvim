@@ -1,7 +1,7 @@
 from utils.logging.console_logger import ConsoleLogger
 
 
-class OSDNAApiException(Exception):
+class CalipsoApiException(Exception):
     log = ConsoleLogger()
 
     def __init__(self, status, body="", message=""):
@@ -12,6 +12,6 @@ class OSDNAApiException(Exception):
 
     @staticmethod
     def handle(ex, req, resp, params):
-        OSDNAApiException.log.error(ex.message)
+        CalipsoApiException.log.error(ex.message)
         resp.status = ex.status
         resp.body = ex.body
