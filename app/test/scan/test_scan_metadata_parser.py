@@ -3,6 +3,7 @@ from discover.scan_metadata_parser import ScanMetadataParser
 from test.scan.test_scan import TestScan
 from test.scan.test_data.metadata import *
 from unittest import mock
+from utils.mongo_access import MongoAccess
 
 
 SCANNERS_FILE = 'scanners.json'
@@ -18,12 +19,22 @@ class TestScanMetadataParser(TestScan):
     def setUp(self):
         super().setUp()
         DbAccess.conn = mock.MagicMock()
+        self.prepare_constants()
         self.parser = ScanMetadataParser(self.inv)
 
         self.parser.check_metadata_file_ok = mock.MagicMock()
 
     def prepare_metadata(self, content):
         self.parser._load_json_file = mock.MagicMock(return_value=content)
+
+    def prepare_constants(self):
+        MongoAccess.db = mock.MagicMock()
+        MongoAccess.db["constants"].find_one = mock.MagicMock(side_effect=
+                                                              lambda input:
+                                                              CONSTANTS[input["name"]]
+                                                              if CONSTANTS.get(input["name"])
+                                                              else []
+                                                              )
 
     def handle_error_scenario(self, input_content, expected_error,
                               add_errors_encountered_pretext=True):
