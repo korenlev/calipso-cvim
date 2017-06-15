@@ -10,6 +10,7 @@ from discover.manager import Manager
 from utils.constants import ScanStatus, EnvironmentFeatures
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
+from utils.logging.file_logger import FileLogger
 from utils.mongo_access import MongoAccess
 from discover.scan import ScanController
 
@@ -26,7 +27,8 @@ class ScanManager(Manager):
 
     def __init__(self):
         self.args = self.get_args()
-        super().__init__(self.args.mongo_config)
+        super().__init__(log_directory=self.args.log_directory,
+                         mongo_config_file=self.args.mongo_config)
         self.db_client = None
         self.environments_collection = None
 
@@ -52,6 +54,10 @@ class ScanManager(Manager):
                             default=ScanManager.DEFAULTS["loglevel"],
                             help="Logging level \n(default: '{}')"
                                  .format(ScanManager.DEFAULTS["loglevel"]))
+        parser.add_argument("-d", "--log_directory", nargs="?", type=str,
+                            default=FileLogger.LOG_DIRECTORY,
+                            help="File logger directory \n(default: '{}')"
+                                 .format(FileLogger.LOG_DIRECTORY))
         args = parser.parse_args()
         return args
 
