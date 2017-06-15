@@ -24,7 +24,7 @@ class StandaloneApplication(BaseApplication):
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="Parameters for OSDNA API")
+    parser = argparse.ArgumentParser(description="Parameters for Calipso API")
     parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                         default="",
                         help="name of config file with mongo access "

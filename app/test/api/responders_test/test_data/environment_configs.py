@@ -150,7 +150,7 @@ ENV_CONFIGS_WITH_SPECIFIC_MONITORING_SETUP_DONE_RESPONSE = {
 }
 
 ENV_CONFIG = {
-    "app_path": "/home/korenlev/OSDNA/app/",
+    "app_path": "/home/korenlev/Calipso/app/",
     "configuration": [
         {
             "host": "10.56.20.239",
@@ -169,7 +169,7 @@ ENV_CONFIG = {
         },
         {
             "host": "10.56.20.239",
-            "key": "/etc/osdna/keys/Mirantis-Liberty-id_rsa",
+            "key": "/etc/calipso/keys/Mirantis-Liberty-id_rsa",
             "name": "CLI",
             "user": "root"
         },
@@ -190,9 +190,9 @@ ENV_CONFIG = {
             "rabbitmq_user": "sensu",
             "ssh_port": "20022",
             "ssh_user": "root",
-            "ssh_password": "osdna",
-            "server_ip": "korlev-osdna-staging1.cisco.com",
-            "server_name": "osdna-sensu",
+            "ssh_password": "calipso",
+            "server_ip": "korlev-calipso-staging1.cisco.com",
+            "server_name": "calipso-sensu",
             "type": "Sensu"
         }
     ],

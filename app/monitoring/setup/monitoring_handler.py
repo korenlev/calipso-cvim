@@ -7,6 +7,7 @@ import shutil
 import stat
 import subprocess
 from os.path import isfile, join
+from socket import *
 
 import pymongo
 from boltons.iterutils import remap
@@ -165,7 +166,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         content_json += '\n'
         # always write the file locally first
         local_dir = self.make_directory(os.path.join(self.get_config_dir(),
-                                        sub_dir.strip(os.sep)))
+                                        sub_dir.strip(os.path.sep)))
         local_path = os.path.join(local_dir, file_name)
         self.write_to_local_host(local_path, content_json)
         self.track_setup_changes(host, is_container, file_name, local_path,
@@ -259,7 +260,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                            'for host ' + host + ', file type: ' + file_type)
             is_local_host = host == self.local_host
             file_path = os.path.join(self.PRODUCTION_CONFIG_DIR, file_type)
-            if host not in hosts:
+            if not is_server and host not in hosts:
                 hosts[host] = {
                     'host': host,
                     'local_dir': local_dir,
@@ -268,7 +269,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                     'is_server': is_server
                 }
             if is_server:
-                self.write_to_server(changes['local_path'], is_container)
+                remote_path = self.PRODUCTION_CONFIG_DIR
+                if os.path.isfile(local_dir):
+                    remote_path += os.path.sep + os.path.basename(local_dir)
+                self.write_to_server(local_dir,
+                                     remote_path=remote_path,
+                                     is_container=is_container)
             elif is_local_host:
                     # write to production configuration directory on local host
                     self.make_directory(self.PRODUCTION_CONFIG_DIR)
@@ -283,7 +289,6 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         if self.scripts_prepared_for_host.get(host, False):
             return
         gateway_host = SshConn.get_gateway_host(host)
-        self.make_remote_dir(gateway_host, self.REMOTE_SCRIPTS_FOLDER)
         # copy scripts to host
         scripts_dir = join(self.env_monitoring_config['app_path'],
                            self.APP_SCRIPTS_FOLDER)
@@ -296,6 +301,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         for file_name in script_files:
             remote_path = join(self.REMOTE_SCRIPTS_FOLDER, file_name)
             local_path = join(scripts_dir, file_name)
+            if not os.path.isfile(local_path):
+                continue
             if is_server:
                 ssh = self.get_ssh(target_host, for_sftp=True)
                 ssh.copy_file(local_path, remote_path, mode=script_mode)
@@ -331,10 +338,10 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         is_server = host_details['is_server']
         self.prepare_scripts(host, is_server)
         remote_path = self.REMOTE_SCRIPTS_FOLDER
-        self.make_remote_dir(host, remote_path)
+        local_path = remote_path + os.path.sep + '*.py'
         if is_server:
             return  # this was done earlier
-        self.copy_from_gateway_to_host(host, remote_path, remote_path)
+        self.copy_from_gateway_to_host(host, local_path, remote_path)
 
     def deploy_config_to_target(self, host_details):
         host = host_details['host']
@@ -343,8 +350,6 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         is_server = host_details['is_server']
         local_dir = host_details['local_dir']
         if is_container or is_server or not is_local_host:
-            # copy the files to remote target config directory
-            self.make_remote_dir(host, self.PRODUCTION_CONFIG_DIR)
             local_dir = os.path.dirname(local_dir)
             if not is_server:
                 self.move_setup_files_to_remote_host(host, local_dir)
@@ -352,6 +357,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             # so it takes the new setup
             ssh = self.get_ssh(host)
             cmd = 'sudo /etc/init.d/sensu-client restart'
+            self.log.info('deploying config to host {}'.format(host))
             if is_server:
                 ssh.exec(cmd)
             else:
@@ -373,17 +379,26 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.log.info('Monitoring config not written to remote host')
             return
         # need to scp the files from the gateway host to the target host
-        self.copy_from_gateway_to_host(host, local_dir,
-                                       self.PRODUCTION_CONFIG_DIR)
+        remote_path = self.PRODUCTION_CONFIG_DIR
+        self.copy_from_gateway_to_host(host, local_dir, remote_path)
 
     def copy_from_gateway_to_host(self, host, local_dir, remote_path):
         ssh = self.get_ssh(host)
+        what_to_copy = local_dir if '*' in local_dir else local_dir + '/*'
         if ssh.is_gateway_host(host):
+            # on gateway host, perform a simple copy
+            # make sure the source and destination are not the same
+            local_dir_base = local_dir[:local_dir.rindex('/*')] \
+                if '/*' in local_dir else local_dir
+            if local_dir_base.strip('/*') == remote_path.strip('/*'):
+                return  # same directory - nothing to do
+            cmd = 'cp {} {}'.format(what_to_copy, remote_path)
+            self.run(cmd, ssh=ssh)
             return
         remote_path = ssh.get_user() + '@' + host + ':' + \
-            os.path.dirname(remote_path) + os.sep
+            remote_path + os.sep
         self.make_remote_dir(host, remote_path)
-        self.run_on_gateway('scp ' + local_dir + '/* ' + remote_path,
+        self.run_on_gateway('scp {} {}'.format(what_to_copy, remote_path),
                             enable_cache=False)
 
     def make_remote_dir_on_host(self, ssh, host, path, path_is_file=False):
@@ -392,7 +407,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         if path_is_file:
             dir_path = os.path.dirname(dir_path)
         cmd = 'sudo mkdir -p ' + dir_path
-        self.run(cmd, ssh_to_host=host, ssh=ssh)
+        try:
+            self.run(cmd, ssh_to_host=host, ssh=ssh)
+        except timeout:
+            self.log.error('timed out trying to create directory {} on host {}'
+                           .format(dir_path, host))
+            return
         cmd = 'sudo chown -R ' + ssh.get_user() + ' ' + dir_path
         self.run(cmd, ssh_to_host=host, ssh=ssh)
 
@@ -405,7 +425,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         # copy the local file to the preparation folder for the remote host
         # on the gateway host
         ssh = self.get_ssh(host)
-        gateway_host = ssh.host
+        gateway_host = ssh.get_gateway_host(host)
         if make_remote_dir:
             self.make_remote_dir(gateway_host, remote_path, path_is_file=True)
         ftp_ssh = self.get_ssh(gateway_host, for_sftp=True)
@@ -415,13 +435,14 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         remote_path = remote_path if remote_path else local_path
         self.copy_to_remote_host(host, local_path, remote_path)
 
-    def write_to_server(self, local_path, is_container):
+    def write_to_server(self, local_path, remote_path=None, is_container=False):
         host = self.env_monitoring_config['server_ip']
         ssh = self.get_ssh(host, is_container=is_container)
-        self.make_remote_dir_on_host(ssh, host, local_path, True)
+        remote_path = remote_path if remote_path else local_path
+        self.make_remote_dir_on_host(ssh, host, remote_path, True)
         # copy to config dir first
         ftp_ssh = self.get_ssh(host, is_container=is_container, for_sftp=True)
-        ftp_ssh.copy_file(local_path, local_path)
+        ftp_ssh.copy_file(local_path, remote_path)
 
     @staticmethod
     def write_to_local_host(file_path, content):

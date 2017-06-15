@@ -187,7 +187,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         event_queues = []
 
         env_config = conf.get_env_config()
-        common_metadata_file = os.path.join(env_config.get('app_path', '/etc/osdna'),
+        common_metadata_file = os.path.join(env_config.get('app_path', '/etc/calipso'),
                                             'config',
                                             DefaultListener.COMMON_METADATA_FILE)
 

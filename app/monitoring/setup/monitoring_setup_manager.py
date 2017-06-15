@@ -4,10 +4,11 @@ from monitoring.setup.monitoring_handler import MonitoringHandler
 from monitoring.setup.monitoring_host import MonitoringHost
 from monitoring.setup.monitoring_link_vnic_vconnector \
     import MonitoringLinkVnicVconnector
+from monitoring.setup.monitoring_pnic import MonitoringPnic
 from monitoring.setup.monitoring_otep import MonitoringOtep
 from monitoring.setup.monitoring_vedge import MonitoringVedge
 from monitoring.setup.monitoring_vnic import MonitoringVnic
-from monitoring.setup.monitoring_pnic import MonitoringPnic
+from monitoring.setup.monitoring_vservice import MonitoringVservice
 
 
 class MonitoringSetupManager(MonitoringHandler):
@@ -22,6 +23,7 @@ class MonitoringSetupManager(MonitoringHandler):
             "vedge": MonitoringVedge(env),
             "pnic": MonitoringPnic(env),
             "vnic": MonitoringVnic(env),
+            "vservice": MonitoringVservice(env),
             "vnic-vconnector": MonitoringLinkVnicVconnector(env)}
 
     # add monitoring setup to Sensu server

@@ -11,16 +11,10 @@ return full text of "vppctl show hardware-interfaces"
 import re
 import subprocess
 
-NAME_RE = '^[a-zA-Z]*GigabitEthernet'
+from binary_converter import binary2str
 
-def binary2str(txt):
-    if not isinstance(txt, bytes):
-      return str(txt)
-    try:
-      s = txt.decode("ascii")
-    except TypeError:
-      s = str(txt)
-    return s
+
+NAME_RE = '^[a-zA-Z]*GigabitEthernet'
 
 rc = 0
 
@@ -35,13 +29,16 @@ try:
     matching_line = matching_lines[0] if matching_lines else None
     if matching_line:
         rc = 0 if "up" in matching_line.split() else 2
-        print('output from "vppctl show hardware-interfaces": \n\n' + out)
+        print('output from "vppctl show hardware-interfaces":\n{}'
+              .format(out))
     else:
         rc = 2
-        print('Error: failed to find pNic in output of ' +
-              '"vppctl show hardware-interfaces": ' + out)
+        print('Error: failed to find pNic in output of '
+              '"vppctl show hardware-interfaces": {}'
+              .format(out))
 except subprocess.CalledProcessError as e:
-    print("Error running 'vppctl show hardware-interfaces': " + binary2str(e.output))
+    print("Error running 'vppctl show hardware-interfaces': {}"
+          .format(binary2str(e.output)))
     rc = 2
 
 exit(rc)
