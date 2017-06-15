@@ -1,8 +1,8 @@
-OSDNA - OpenStack Network Discovery and Assurance
+Calipso - OpenStack Network Discovery and Assurance
 ==================================================
-##About
+### About
 We are going to enhance the way Cloud Network Administrators(CNA) and Tenant Network Administrators(TNA) 
-Understands, Monitors and Troubleshoot highly distributed OpenStack Environments.
+Understands, Monitors and Troubleshoot highly distributed OpenStack and other virtual Environments.
 
 We are following Domain-Driven-Design process and procedures:
 ref: http://www.methodsandtools.com/archive/archive.php?id=97
@@ -17,7 +17,7 @@ Rally:<br>
 https://rally1.rallydev.com/#/48530212030d/dashboard
 <br>
 
-##Portotype Intent:
+### Prototype Intent:
 
 Provide CNA and TNA with support for:
 <br>
@@ -30,14 +30,13 @@ Provide CNA and TNA with support for:
 4. Assess impact of failure in virtual networks
 <br>
 
-##High Level Functionality Tree:
+### High Level Functionality Tree:
 <br>
-http://korlev-osdna.cisco.com/ <br>
-Model: https://cto-github.cisco.com/korlev/OSDNA/blob/master/Design/UML.jpg
+http://korlev-calipso.cisco.com/ <br>
+Code: https://cto-github.cisco.com/korlev/Calipso
 
-##Proto (mockups, updated Nov 15th)
-<br>
-korlev-osdna-be.cisco.com:8081
+### Proto (mockups, updated Nov 15th)
+korlev-calipso-be.cisco.com:8081 
 
 #### High Level Architecture: <br>
 see under /Architecture (outdated)

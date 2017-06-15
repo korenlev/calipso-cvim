@@ -13,13 +13,13 @@ EVENT_PAYLOAD_ROUTER_ADD = {
                            '7UzAaZRrGLxMMFddvNZa47dVPZsg1oJpdIVVcoaRHf4hPM8lj1qSn6WG',
     'event_type': 'router.create.end', '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     'priority': 'INFO', '_context_roles': ['_member_', 'admin'],
-    '_context_project_name': 'OSDNA-project',
+    '_context_project_name': 'calipso-project',
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_context_request_id': 'req-a543a2e4-3160-4e98-b1b8-21a876fff205',
     '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40',
     'timestamp': '2016-10-28 19:00:36.600958',
     '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
-    '_context_tenant_name': 'OSDNA-project', 'payload': {
+    '_context_tenant_name': 'calipso-project', 'payload': {
         'router': {'name': 'test-router-add',
                    'external_gateway_info': {
                        'enable_snat': True,

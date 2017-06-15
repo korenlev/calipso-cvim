@@ -13,8 +13,6 @@ from utils.util import decode_router_id, encode_router_id
 class EventRouterAdd(EventBase):
 
     def add_router_document(self, env, network_id, router_doc, host):
-        router_doc["children_url"] = "/osdna_dev/discover.py?type=tree&id={}"\
-                                     .format(router_doc['id'])
         router_doc["environment"] = env
         router_doc["id_path"] = "{}/{}-vservices/{}-vservices-routers/{}"\
                                 .format(host['id_path'], host['id'],
@@ -113,4 +111,3 @@ class EventRouterAdd(EventBase):
         return EventResult(result=True,
                            related_object=router_id,
                            display_context=router_id)
-

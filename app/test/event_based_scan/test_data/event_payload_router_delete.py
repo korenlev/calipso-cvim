@@ -11,16 +11,15 @@ EVENT_PAYLOAD_ROUTER_DELETE = {
     '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
     '_context_timestamp': '2016-10-28 20:31:27.902723', 'message_id': '569118ad-1f5b-4a50-96ec-f160ebbb1b34',
     'payload': {'router_id': 'bde87a5a-7968-4f3b-952c-e87681a96078'}, '_context_resource_uuid': None,
-    'event_type': 'router.delete.end', '_context_project_name': 'OSDNA-project', 'priority': 'INFO',
+    'event_type': 'router.delete.end', '_context_project_name': 'calipso-project', 'priority': 'INFO',
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_roles': ['_member_', 'admin'],
     '_context_project_domain': None, '_context_user_domain': None, '_context_read_only': False,
     '_context_is_admin': True, '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_domain': None,
-    '_context_show_deleted': False, '_context_tenant_name': 'OSDNA-project', 'publisher_id': 'network.node-6.cisco.com',
+    '_context_show_deleted': False, '_context_tenant_name': 'calipso-project', 'publisher_id': 'network.node-6.cisco.com',
     'timestamp': '2016-10-28 20:31:37.012032'}
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=node-6.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": None,

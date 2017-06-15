@@ -14,11 +14,11 @@ EVENT_PAYLOAD_ROUTER_UPDATE = {
         'router': {'id': 'bde87a5a-7968-4f3b-952c-e87681a96078', 'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
                    'ha': False, 'distributed': False, 'name': 'abc', 'status': 'ACTIVE', 'external_gateway_info': None,
                    'admin_state_up': True, 'routes': []}}, '_context_resource_uuid': None,
-    'event_type': 'router.update.end', '_context_project_name': 'OSDNA-project', 'priority': 'INFO',
+    'event_type': 'router.update.end', '_context_project_name': 'calipso-project', 'priority': 'INFO',
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_roles': ['_member_', 'admin'],
     '_context_project_domain': None, '_context_user_domain': None, '_context_read_only': False,
     '_context_is_admin': True, '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_domain': None,
-    '_context_show_deleted': False, '_context_tenant_name': 'OSDNA-project', 'publisher_id': 'network.node-250.cisco.com',
+    '_context_show_deleted': False, '_context_tenant_name': 'calipso-project', 'publisher_id': 'network.node-250.cisco.com',
     'timestamp': '2016-10-28 20:29:39.986161'}
 
 ROUTER_VSERVICE = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name': '1234',
@@ -34,7 +34,6 @@ ROUTER_VSERVICE = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/osdna_dev/discover.py?type=tree&id=node-250.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
@@ -67,7 +66,7 @@ ROUTER_DOCUMENT = {
 EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
     'publisher_id': 'network.node-250.cisco.com',
     '_context_request_id': 'req-79d53b65-47b8-46b2-9a72-3f4031e2d605',
-    '_context_project_name': 'OSDNA-project', '_context_show_deleted': False,
+    '_context_project_name': 'calipso-project', '_context_show_deleted': False,
     '_context_user_name': 'admin', '_context_timestamp': '2016-11-02 21:44:31.156447',
     '_context_user': '13baa553aae44adca6615e711fd2f6d9', 'payload': {
         'router': {'id': 'bde87a5a-7968-4f3b-952c-e87681a96078', 'admin_state_up': True, 'routes': [],
@@ -89,7 +88,7 @@ EVENT_PAYLOAD_ROUTER_SET_GATEWAY = {
     'event_type': 'router.update.end',
     '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40',
     '_unique_id': '9e6ab72c5901451f81748e0aa654ae25',
-    '_context_tenant_name': 'OSDNA-project', '_context_is_admin': True,
+    '_context_tenant_name': 'calipso-project', '_context_is_admin': True,
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_domain': None}
 
 EVENT_PAYLOAD_ROUTER_DEL_GATEWAY = {
@@ -105,10 +104,10 @@ EVENT_PAYLOAD_ROUTER_DEL_GATEWAY = {
     'timestamp': '2016-11-03 18:48:41.634214', '_context_roles': ['_member_', 'admin'],
     'event_type': 'router.update.end',
     '_context_user_domain': None, '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_is_admin': True,
-    '_context_tenant_name': 'OSDNA-project', '_context_project_domain': None, '_context_domain': None,
+    '_context_tenant_name': 'calipso-project', '_context_project_domain': None, '_context_domain': None,
     'priority': 'INFO',
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'message_id': '5272cd90-7151-4d13-8c1f-e8ff2db773a1',
-    '_context_project_name': 'OSDNA-project', '_context_resource_uuid': None, 'payload': {
+    '_context_project_name': 'calipso-project', '_context_resource_uuid': None, 'payload': {
         'router': {'id': 'bde87a5a-7968-4f3b-952c-e87681a96078', 'external_gateway_info': None, 'distributed': False,
                    'name': 'TEST_AAA', 'routes': [], 'ha': False, 'admin_state_up': True,
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'status': 'ACTIVE'}},
@@ -156,14 +155,14 @@ PORTS = {
     "last_scanned": 0,
     "mac_address": "fa:16:3e:ee:9a:46",
     "name": "fa:16:3e:ee:9a:46",
-    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/osdna-net2/Ports/fa:16:3e:ee:9a:46",
+    "name_path": "/" + ENV_CONFIG + "/Projects/calipso-project/Networks/calipso-net2/Ports/fa:16:3e:ee:9a:46",
     "network_id": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
     "object_name": "fa:16:3e:ee:9a:46",
     "parent_id": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f-ports",
     "parent_text": "Ports",
     "parent_type": "ports_folder",
     "port_security_enabled": False,
-    "project": "OSDNA-project",
+    "project": "calipso-project",
     "security_groups": [
 
     ],
@@ -184,15 +183,15 @@ NETWORK_DOC = {
                "0ae4973c8375ddf40-networks/a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
     "last_scanned": 0,
     "mtu": 1400,
-    "name": "osdna-net2",
-    "name_path": "/" + ENV_CONFIG + "/Projects/OSDNA-project/Networks/osdna-net2",
+    "name": "calipso-net2",
+    "name_path": "/" + ENV_CONFIG + "/Projects/calipso-project/Networks/calipso-net2",
     "network": "a55ff1e8-3821-4e5f-bcfd-07df93720a4f",
-    "object_name": "osdna-net2",
+    "object_name": "calipso-net2",
     "parent_id": "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
     "parent_text": "Networks",
     "parent_type": "networks_folder",
     "port_security_enabled": True,
-    "project": "OSDNA-project",
+    "project": "calipso-project",
     "provider:network_type": "vxlan",
     "provider:physical_network": None,
     "provider:segmentation_id": 0,

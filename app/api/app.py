@@ -4,7 +4,7 @@ import falcon
 
 from api.auth.token import Token
 from api.backends.ldap_access import LDAPAccess
-from api.exceptions.exceptions import OSDNAApiException
+from api.exceptions.exceptions import CalipsoApiException
 from api.middleware.authentication import AuthenticationMiddleware
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
@@ -43,7 +43,7 @@ class App:
         Token.set_token_lifetime(token_lifetime)
         self.middleware = AuthenticationMiddleware()
         self.app = falcon.API(middleware=[self.middleware])
-        self.app.add_error_handler(OSDNAApiException)
+        self.app.add_error_handler(CalipsoApiException)
         self.set_routes(self.app)
 
     def get_app(self):

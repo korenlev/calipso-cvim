@@ -10,8 +10,8 @@ NETWORK_DOC = {
                    'allocation_pools': [{'start': '172.16.12.2', 'end': '172.16.12.254'}], 'enable_dhcp': True,
                    'tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'host_routes': [], 'ip_version': 4},
                 },
-    'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
-    'name_path': '/'+ENV_CONFIG+'/Projects/OSDNA-project/Networks/testsubnetadd', 'router:external': False,
+    'admin_state_up': True, 'show_in_tree': True, 'project': 'calipso-project',
+    'name_path': '/'+ENV_CONFIG+'/Projects/calipso-project/Networks/testsubnetadd', 'router:external': False,
     'provider:physical_network': None,
     'id_path': '/'+ENV_CONFIG+'/'+ENV_CONFIG+'-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0'+
             'ae4973c8375ddf40-networks/0abe6331-0d74-4bbd-ad89-a5719c3793e4',
@@ -30,10 +30,10 @@ EVENT_PAYLOAD_SUBNET_UPDATE = {
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_unique_id': '9ffd93fe355141d9976c6808a9ce9b7d',
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_read_only': False,
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_timestamp': '2016-10-25 00:00:18.505443',
-    'priority': 'INFO', '_context_roles': ['_member_', 'admin'], '_context_project_name': 'OSDNA-project',
+    'priority': 'INFO', '_context_roles': ['_member_', 'admin'], '_context_project_name': 'calipso-project',
     '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_user_name': 'admin',
     'timestamp': '2016-10-25 00:00:19.354342', '_context_request_id': 'req-62945d8f-a233-44c8-aa53-f608ad92fd56',
-    '_context_tenant_name': 'OSDNA-project', '_context_domain': None, 'payload': {
+    '_context_tenant_name': 'calipso-project', '_context_domain': None, 'payload': {
         'subnet': {'name': 'port', 'subnetpool_id': None, 'id': '393a1f80-4277-4c9a-b44c-0bc05a5121c6',
                    'network_id': '0abe6331-0d74-4bbd-ad89-a5719c3793e4', 'gateway_ip': '172.16.12.1',
                    'ipv6_address_mode': None, 'dns_nameservers': [], 'ipv6_ra_mode': None, 'cidr': '172.16.12.0/24',
@@ -52,10 +52,10 @@ EVENT_PAYLOAD_SUBNET_UPDATE_1 = {
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_unique_id': '1ca167b1317d4523a31b2ae99b25d67c',
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_read_only': False,
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9', '_context_timestamp': '2016-10-25 00:03:21.079403',
-    'priority': 'INFO', '_context_roles': ['_member_', 'admin'], '_context_project_name': 'OSDNA-project',
+    'priority': 'INFO', '_context_roles': ['_member_', 'admin'], '_context_project_name': 'calipso-project',
     '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_user_name': 'admin',
     'timestamp': '2016-10-25 00:03:22.689115', '_context_request_id': 'req-7a19e8d7-51f6-470e-9035-5e007c9b1f89',
-    '_context_tenant_name': 'OSDNA-project', '_context_domain': None, 'payload': {
+    '_context_tenant_name': 'calipso-project', '_context_domain': None, 'payload': {
     'subnet': {'name': 'port', 'subnetpool_id': None, 'id': '393a1f80-4277-4c9a-b44c-0bc05a5121c6',
                'network_id': '0abe6331-0d74-4bbd-ad89-a5719c3793e4', 'gateway_ip': None, 'ipv6_address_mode': None,
                'dns_nameservers': [], 'ipv6_ra_mode': None, 'cidr': '172.16.12.0/24',

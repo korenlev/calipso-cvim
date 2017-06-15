@@ -4,8 +4,8 @@ from test.event_based_scan.config.test_config import ENV_CONFIG
 
 NETWORK_DOC = {'port_security_enabled': True, 'status': 'ACTIVE', 'subnet_ids': [], 'parent_type': 'networks_folder',
                'parent_id': '75c0eb79ff4a42b0ae4973c8375ddf40-networks', 'parent_text': 'Networks', 'subnets': {},
-               'admin_state_up': True, 'show_in_tree': True, 'project': 'OSDNA-project',
-               'name_path': '/' + ENV_CONFIG + '/Projects/OSDNA-project/Networks/testsubnetadd',
+               'admin_state_up': True, 'show_in_tree': True, 'project': 'calipso-project',
+               'name_path': '/' + ENV_CONFIG + '/Projects/calipso-project/Networks/testsubnetadd',
                'router:external': False,
                'provider:physical_network': None,
                'id_path': '/' + ENV_CONFIG + '/' + ENV_CONFIG + '-projects/75c0eb79ff4a42b0ae4973c8375ddf40/75c0eb79ff4a42b0' +
@@ -26,8 +26,8 @@ EVENT_PAYLOAD_SUBNET_ADD = {
     '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40', 'publisher_id': 'network.node-6.cisco.com',
     '_context_user': '13baa553aae44adca6615e711fd2f6d9', '_context_user_id': '13baa553aae44adca6615e711fd2f6d9',
     'event_type': 'subnet.create.end', 'message_id': '90581321-e9c9-4112-8fe6-38ebf57d5b6b',
-    '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_tenant_name': 'OSDNA-project',
-    '_context_project_name': 'OSDNA-project', '_context_user_name': 'admin', '_context_resource_uuid': None,
+    '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_tenant_name': 'calipso-project',
+    '_context_project_name': 'calipso-project', '_context_user_name': 'admin', '_context_resource_uuid': None,
     '_unique_id': 'e8b328229a724938a6bc63f9db737f49', '_context_request_id': 'req-20cfc138-4e1a-472d-b996-7f27ac58446d',
     'priority': 'INFO', '_context_roles': ['_member_', 'admin'],
     '_context_auth_token': 'gAAAAABX_tLMEzC9KhdcD20novcuvgwmpQkwV9hOk86d4AZlsQwXSRbCwBZgUPQZco4VsuCg59_gFeM_scBVmI' +

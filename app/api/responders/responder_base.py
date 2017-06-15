@@ -35,7 +35,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def set_error_response(self, title="", code="", message="", body=""):
         if body:
-            raise exceptions.OSDNAApiException(code, body, message)
+            raise exceptions.CalipsoApiException(code, body, message)
         body = {
             "error": {
                 "message": message,
@@ -44,7 +44,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
             }
         }
         body = jsonify(body)
-        raise exceptions.OSDNAApiException(code, body, message)
+        raise exceptions.CalipsoApiException(code, body, message)
 
     def not_found(self, message="Requested resource not found"):
         self.set_error_response("Not Found", "404", message)

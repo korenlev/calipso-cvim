@@ -18,7 +18,7 @@ class SshConn(SshConnection):
         self.env_config = self.config.get_env_config()
         self.env = self.env_config['name']
         self.conf = self.config.get('CLI')
-        self.host_details = None
+        self.gateway = None
         self.host = None
         self.host_conf = self.get_host_conf(host_name)
         self.ssh = None
@@ -34,7 +34,6 @@ class SshConn(SshConnection):
         self.inv = InventoryMgr()
         if host_name in self.connections and not self.ssh:
             self.ssh = self.connections[host_name]
-        self.fetched_host_details = False
 
     def get_host_conf(self, host_name):
         if 'hosts' in self.conf:
@@ -71,37 +70,16 @@ class SshConn(SshConnection):
         if not self.key and not self.pwd:
             raise ValueError('Must specify key or password for CLI access')
 
-    def get_host_details(self):
-        if not self.fetched_host_details:
-            host = self.inv.get_by_id(self.env, self.host)
-            if not host:
-                host = self.inv.find_items({'environment': self.env,
-                                            'type': 'host',
-                                            'ip_address': self.host},
-                                           get_single=True)
-            self.host_details = host
-            self.fetched_host_details = True
-        return self.host_details
-
     gateway_hosts = {}
 
     @staticmethod
     def get_gateway_host(host):
-        if not SshConn.gateway_hosts.get(host, None):
+        if not SshConn.gateway_hosts.get(host):
             ssh = SshConn(host)
-            SshConn.gateway_hosts[host] = ssh.host
+            gateway = ssh.exec('uname -n')
+            SshConn.gateway_hosts[host] = gateway.strip()
         return SshConn.gateway_hosts[host]
 
     def is_gateway_host(self, host):
-        gateway_host = self.host
-        if host == gateway_host:
-            return True
-        # the values might not match if one is an IP address,
-        # so need to look in gateway host details
-        gateway_host_details = self.get_host_details()
-        if gateway_host_details and host == gateway_host_details['id']:
-            return True
-        if gateway_host_details and host == gateway_host_details['ip_address']:
-            return True
-        return False
-
+        gateway_host = self.get_gateway_host(host)
+        return host == gateway_host
