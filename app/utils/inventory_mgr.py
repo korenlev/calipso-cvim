@@ -24,7 +24,6 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.inventory_collection = None
         self.inventory_collection_name = None
         self.collections = {}
-        self.base_url_prefix = "/calipso_dev/discover.py?type=tree"
         self.monitoring_setup_manager = None
 
     def set_collection(self, collection_type: str = None,
