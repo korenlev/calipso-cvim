@@ -26,7 +26,6 @@ EVENT_PAYLOAD_INTERFACE_DELETE = {
 
 NETWORK_DOC = {
     "admin_state_up": True,
-    "children_url": "/calipso_dev/discover.py?type=tree&id=55550a69-24eb-47f5-a458-3aa086cc71c2",
     "cidrs": [
         "172.16.12.0/24"
     ],
@@ -224,7 +223,6 @@ PORT_DOC = {
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/calipso_dev/discover.py?type=tree&id=node-251.cisco.com-qrouter-c57216ca-c1c4-430d-a045-32851ca879e3",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",

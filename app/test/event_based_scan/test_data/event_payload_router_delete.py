@@ -20,7 +20,6 @@ EVENT_PAYLOAD_ROUTER_DELETE = {
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/calipso_dev/discover.py?type=tree&id=node-6.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": None,

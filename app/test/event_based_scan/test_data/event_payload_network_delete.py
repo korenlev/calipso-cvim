@@ -22,7 +22,6 @@ EVENT_PAYLOAD_NETWORK_DELETE = {
 
 EVENT_PAYLOAD_NETWORK = {
     "admin_state_up" : True,
-    "children_url" : "/calipso_dev/discover.py?type=tree&id=0bb0ba6c-6863-4121-ac89-93f81a9da2b0",
     "cidrs" : [
         "172.16.9.0/24"
     ],

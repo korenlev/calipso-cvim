@@ -88,7 +88,6 @@ INSTANCE_DOCUMENT = {
     'projects': ['calipso-project'],
     'network': [],
     'host': 'node-252.cisco.com', 'parent_type': 'instances_folder',
-    'children_url': '/calipso_dev/discover.py?type=tree&id=27a87908-bc1b-45cc-9238-09ad1ae686a7',
     '_id': '57e421194a0a8a3fbe3bd2d0', 'mac_address': 'fa:16:3e:5e:9e:db', 'type': 'instance',
     'name': 'name-change',
     'uuid': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'environment': ENV_CONFIG,
@@ -103,7 +102,6 @@ INSTANCE_DOCUMENT = {
 
 HOST = {
     'name_path': '/'+ ENV_CONFIG +'/Regions/RegionOne/Availability Zones/calipso-zone/node-252.cisco.com',
-    'children_url': '/calipso_dev/discover.py?type=tree&id=node-252.cisco.com',
     'id_path': '/'+ENV_CONFIG+ '/'+ENV_CONFIG+'-regions/RegionOne/' +
                'RegionOne-availability_zones/calipso-zone/node-252.cisco.com',
     'object_name': 'node-252.cisco.com', 'last_scanned': 0,

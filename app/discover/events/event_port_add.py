@@ -89,7 +89,6 @@ class EventPortAdd(EventBase):
 
     def add_dhcp_document(self, env, host, network_id, network_name):
         dhcp_document = {
-            "children_url": "/calipso_dev/discover.py?type=tree&id=qdhcp-" + network_id,
             "environment": env,
             "host": host['id'],
             "id": "qdhcp-" + network_id,

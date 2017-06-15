@@ -34,7 +34,6 @@ ROUTER_VSERVICE = {'host': 'node-250.cisco.com', 'service_type': 'router', 'name
 
 ROUTER_DOCUMENT = {
     "admin_state_up": True,
-    "children_url": "/calipso_dev/discover.py?type=tree&id=node-250.cisco.com-qrouter-bde87a5a-7968-4f3b-952c-e87681a96078",
     "enable_snat": 1,
     "environment": ENV_CONFIG,
     "gw_port_id": "e2f31c24-d0f9-499e-a8b1-883941543aa4",
