@@ -12,17 +12,10 @@ return full text of "vppctl show runtime"
 """
 
 import re
-import sys
 import subprocess
 
-def binary2str(txt):
-    if not isinstance(txt, bytes):
-      return str(txt)
-    try:
-      s = txt.decode("ascii")
-    except TypeError:
-      s = str(txt)
-    return s
+from binary_converter import binary2str
+
 
 rc = 0
 search_pattern = re.compile("^startup-config-process ")
@@ -41,7 +34,8 @@ try:
         rc = 1
         print('Error: failed to find status in ifconfig output: ' + out)
 except subprocess.CalledProcessError as e:
-    print("Error finding 'vppctl show runtime': " + binary2str(e.output))
+    print("Error finding 'vppctl show runtime': {}"
+          .format(binary2str(e.output)))
     rc = 2
 
 exit(rc)

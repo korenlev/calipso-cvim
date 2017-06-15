@@ -11,7 +11,7 @@ EVENT_PAYLOAD_INSTANCE_ADD = {
     '_unique_id': '537fc5b27c244479a69819a4a435723b',
     '_context_roles': ['_member_', 'admin'], '_context_read_only': False,
     '_context_user_id': '13baa553aae44adca6615e711fd2f6d9',
-    '_context_project_name': 'OSDNA-project',
+    '_context_project_name': 'calipso-project',
     '_context_project_domain': None, 'event_type': 'compute.instance.update',
     '_context_service_catalog': [{'endpoints': [
       {'internalURL': 'http://192.168.0.2:8776/v2/75c0eb79ff4a42b0ae4973c8375ddf40',
@@ -45,7 +45,7 @@ EVENT_PAYLOAD_INSTANCE_ADD = {
               'access_ip_v4': None,
               'hostname': 'chengli-test-vm1', 'metadata': {},
               'user_id': '13baa553aae44adca6615e711fd2f6d9',
-              'availability_zone': 'osdna-zone',
+              'availability_zone': 'calipso-zone',
               'instance_id': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'deleted_at': '',
               'image_ref_url': 'http://172.16.0.4:9292/images/c6f490c4-3656-43c6-8d03-b4e66bd249f9',
               'host': 'node-252.cisco.com', 'vcpus': 1, 'state': 'active',
@@ -73,9 +73,9 @@ INSTANCES_ROOT = {
     "environment": ENV_CONFIG,
     "id": "node-252.cisco.com-instances",
     "id_path": "/" + ENV_CONFIG + "/" + ENV_CONFIG + "-regions/RegionOne/RegionOne-availability_zones" +
-               "/osdna-zone/node-252.cisco.com/node-252.cisco.com-instances",
+               "/calipso-zone/node-252.cisco.com/node-252.cisco.com-instances",
     "name": "Instances",
-    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/osdna-zone/node-252.cisco.com/Instances",
+    "name_path": "/" + ENV_CONFIG + "/Regions/RegionOne/Availability Zones/calipso-zone/node-252.cisco.com/Instances",
     "object_name": "Instances",
     "parent_id": "node-252.cisco.com",
     "parent_type": "host",
@@ -85,31 +85,29 @@ INSTANCES_ROOT = {
 }
 
 INSTANCE_DOCUMENT = {
-    'projects': ['OSDNA-project'],
+    'projects': ['calipso-project'],
     'network': [],
     'host': 'node-252.cisco.com', 'parent_type': 'instances_folder',
-    'children_url': '/osdna_dev/discover.py?type=tree&id=27a87908-bc1b-45cc-9238-09ad1ae686a7',
     '_id': '57e421194a0a8a3fbe3bd2d0', 'mac_address': 'fa:16:3e:5e:9e:db', 'type': 'instance',
     'name': 'name-change',
     'uuid': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'environment': ENV_CONFIG,
     'ip_address': '192.168.0.4', 'local_name': 'instance-00000020', 'object_name': 'test8',
     'parent_id': 'node-223.cisco.com-instances', 'project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     'name_path': '/'+ENV_CONFIG+'/Regions/RegionOne/Availability Zones' +
-                 '/osdna-zone/node-252.cisco.com/Instances/name-change',
+                 '/calipso-zone/node-252.cisco.com/Instances/name-change',
     'id': '27a87908-bc1b-45cc-9238-09ad1ae686a7',
-    'id_path': '/'+ENV_CONFIG+'/'+ENV_CONFIG+'-regions/RegionOne/RegionOne-availability_zones/osdna-zone' +
+    'id_path': '/'+ENV_CONFIG+'/'+ENV_CONFIG+'-regions/RegionOne/RegionOne-availability_zones/calipso-zone' +
                '/node-223.cisco.com/node-223.cisco.com-instances/27a87908-bc1b-45cc-9238-09ad1ae686a7',
     'show_in_tree': True}
 
 HOST = {
-    'name_path': '/'+ ENV_CONFIG +'/Regions/RegionOne/Availability Zones/osdna-zone/node-252.cisco.com',
-    'children_url': '/osdna_dev/discover.py?type=tree&id=node-252.cisco.com',
+    'name_path': '/'+ ENV_CONFIG +'/Regions/RegionOne/Availability Zones/calipso-zone/node-252.cisco.com',
     'id_path': '/'+ENV_CONFIG+ '/'+ENV_CONFIG+'-regions/RegionOne/' +
-               'RegionOne-availability_zones/osdna-zone/node-252.cisco.com',
+               'RegionOne-availability_zones/calipso-zone/node-252.cisco.com',
     'object_name': 'node-252.cisco.com', 'last_scanned': 0,
     'type': 'host', 'environment': ENV_CONFIG, 'host': 'node-252.cisco.com', 'id': 'node-252.cisco.com',
     'ip_address': '192.168.0.4', 'name': 'node-252.cisco.com', 'host_type': ['Compute'],
     'services': {'nova-compute': {'updated_at': '2016-09-26T22:47:09.000000', 'active': True, 'available': True}},
-    'show_in_tree': True, 'zone': 'osdna-zone', 'os_id': '1',
-    'parent_type': 'availability_zone', 'parent_id': 'osdna-zone'
+    'show_in_tree': True, 'zone': 'calipso-zone', 'os_id': '1',
+    'parent_type': 'availability_zone', 'parent_id': 'calipso-zone'
 }

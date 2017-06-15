@@ -3,7 +3,7 @@
 from monitoring.handlers.monitoring_check_handler import MonitoringCheckHandler
 
 
-class HandleVedge(MonitoringCheckHandler):
+class BasicCheckHandler(MonitoringCheckHandler):
 
     def __init__(self, args):
         super().__init__(args)

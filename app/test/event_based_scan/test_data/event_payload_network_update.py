@@ -6,7 +6,7 @@ EVENT_PAYLOAD_NETWORK_UPDATE = {
     '_context_auth_token': 'gAAAAABYBrNJA6Io1infkUKquvCpC1bAWOCRxKE-8YQ71qLJhli200beztKmlY5ToBHSqFyPvoadkVKjA740jF' +
                            'bqeY-YtezMHhJAe-t_VyRJQ46IWAv8nPYvWRd_lmgtHrvBeId8NIPCZkhoAEmj5GwcZUZgnFYEhVlUliNO6IfV' +
                            'Oxcb17Z_1MKfdrfu1AtgD5hWb61w1F6x',
-    '_context_user_name': 'admin', '_context_project_name': 'OSDNA-project', '_context_domain': None,
+    '_context_user_name': 'admin', '_context_project_name': 'calipso-project', '_context_domain': None,
     '_unique_id': 'd1a96723db9341dca6f0d5fb9620f548', '_context_project_id': '75c0eb79ff4a42b0ae4973c8375ddf40',
     'message_id': '6b99d060-9cd6-4c14-8a0a-cbfc5c50d122', 'timestamp': '2016-10-18 23:47:31.636433',
     '_context_user_identity': '13baa553aae44adca6615e711fd2f6d9 75c0eb79ff4a42b0ae4973c8375ddf40 - - -',
@@ -20,7 +20,7 @@ EVENT_PAYLOAD_NETWORK_UPDATE = {
     '_context_roles': ['_member_', 'admin'], '_context_project_domain': None, '_context_is_admin': True,
     '_context_tenant': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_show_deleted': False, '_context_user_domain': None,
     '_context_read_only': False, '_context_timestamp': '2016-10-18 23:47:20.629297',
-    '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_tenant_name': 'OSDNA-project'}
+    '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_tenant_name': 'calipso-project'}
 
 
 NETWORK_DOCUMENT = {
@@ -34,15 +34,15 @@ NETWORK_DOCUMENT = {
                 '0ae4973c8375ddf40-networks/8673c48a-f137-4497-b25d-08b7b218fd17',
     "last_scanned" : 0,
     "mtu" : 1400,
-    "name" : "osdna-met4",
-    "name_path" : "/"+ENV_CONFIG+"/Projects/OSDNA-project/Networks/osdna-met4",
+    "name" : "calipso-met4",
+    "name_path" : "/"+ENV_CONFIG+"/Projects/calipso-project/Networks/calipso-met4",
     "network" : "b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe",
-    "object_name" : "osdna-met4",
+    "object_name" : "calipso-met4",
     "parent_id" : "75c0eb79ff4a42b0ae4973c8375ddf40-networks",
     "parent_text" : "Networks",
     "parent_type" : "networks_folder",
     "port_security_enabled" : True,
-    "project" : "OSDNA-project",
+    "project" : "calipso-project",
     "provider:network_type" : "vxlan",
     "provider:physical_network" : None,
     "provider:segmentation_id" : 0,
