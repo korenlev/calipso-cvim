@@ -29,17 +29,18 @@ class TestApiFetchAvailabilityZones(TestFetch):
         self.fetcher.get_url = MagicMock(return_value=WRONG_RESPONSE)
 
         result = self.fetcher.get_for_region(PROJECT, REGION_NAME, TOKEN)
-        self.assertEqual(result, [], "Can't get empty array when the response is wrong")
+        self.assertEqual(result, [], "Can't get [] when the response is wrong")
 
     def test_get_for_region_without_avz_response(self):
         # mock the endpoint url
         self.fetcher.get_region_url_nover = MagicMock(return_value=ENDPOINT)
         # mock the response from OpenStack Api
         # the response doesn't contain availability zone info
-        self.fetcher.get_url = MagicMock(return_value=WITHOUT_AVAILABILITY_ZONE_RESPONSE)
+        self.fetcher.get_url = MagicMock(return_value=RESPONSE_WITHOUT_AVAILABILITY_ZONE)
 
         result = self.fetcher.get_for_region(PROJECT, REGION_NAME, TOKEN)
-        self.assertEqual(result, [], "Can't get empty array when the response doesn't contain availability zone")
+        self.assertEqual(result, [], "Can't get [] when the response doesn't " +
+                                     "contain availability zone")
 
     def test_get(self):
         # store original get_for_region method
