@@ -1,6 +1,7 @@
 import unittest
 
 from discover.configuration import Configuration
+from discover.db_access import DbAccess
 from test.fetch.config.test_config import ENV_CONFIG, COLLECTION_CONFIG
 from test.fetch.api_fetch.test_data.regions import REGIONS
 from test.fetch.api_fetch.test_data.configurations import CONFIGURATIONS
@@ -21,6 +22,7 @@ class TestFetch(unittest.TestCase):
 
         self.inv = InventoryMgr()
         self.inv.set_collections(self.inventory_collection)
+        DbAccess.conn = MagicMock()
 
     def set_regions_for_fetcher(self, fetcher):
         fetcher.regions = REGIONS
