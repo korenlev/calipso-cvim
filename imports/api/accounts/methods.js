@@ -33,7 +33,7 @@ export const insert = new ValidatedMethod({
       throw new Meteor.Error('unauthorized for removing users');
     }
 
-    let userId = Accounts.createUser({ 
+    let userId = Accounts.createUser({
       username: username,
       password: password
     });
@@ -62,6 +62,7 @@ export const update = new ValidatedMethod({
     viewEnvs,
     editEnvs,
   }) {
+    console.log('accounts - methods - update - start');
     //throw new Meteor.Error('unimplemented');
     if (! Roles.userIsInRole(Meteor.userId(), 'manage-users', Roles.GLOBAL_GROUP)) {
       throw new Meteor.Error('unauthorized for updating users');
@@ -97,7 +98,7 @@ export const update = new ValidatedMethod({
     addRole(viewEnvsForAdd, 'view-env', _id);
 
     //
-    
+
     let currentEditEnvs = R.map((env) => {
       return env.name;
     }, Environments.find({ 'auth.edit-env': { $in: [ _id  ] }}).fetch());
@@ -107,6 +108,8 @@ export const update = new ValidatedMethod({
 
     removeRole(editEnvsForDelete, 'edit-env', _id);
     addRole(editEnvsForAdd, 'edit-env', _id);
+
+    console.log('accounts - methods - update - end');
   }
 });
 
@@ -165,8 +168,8 @@ function addRole(rolesForAdd, roleName, userId) {
 function updateEnv(auth, env) {
   console.log('update env. set: ' + R.toString(auth));
   try {
-    Environments.update(env._id, {  
-      $set: { 
+    Environments.update(env._id, {
+      $set: {
         auth: auth,
         configuration: env.configuration,
         //distribution: distribution,
@@ -174,11 +177,11 @@ function updateEnv(auth, env) {
         type_drivers: env.type_drivers,
         mechanism_drivers: env.mechanism_drivers,
         listen: env.listen,
-      } 
+      }
     });
   } catch(e) {
     console.error('error in update: ' + R.toString(e));
-    throw new Meteor.Error('enviornment update error', 
+    throw new Meteor.Error('enviornment update error',
       `unable to update ACL for environment - ${env.name}. Please check envrironment info. ${e.message}`);
   }
 }
