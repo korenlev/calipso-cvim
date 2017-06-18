@@ -16,6 +16,12 @@ class DbFetchAggregateHosts(DbAccess):
         if hosts:
             inv = InventoryMgr()
             for host_rec in hosts:
-                host = inv.get_by_id(self.get_env(), host_rec['name'])
+                host_id = host_rec['name']
+                host = inv.get_by_id(self.get_env(), host_id)
+                if not host:
+                    self.log.error('unable to find host {} '
+                                   'from aggregate {} in inventory'
+                                   .format(host_id, id))
+                    continue
                 host_rec['ref_id'] = bson.ObjectId(host['_id'])
         return hosts
