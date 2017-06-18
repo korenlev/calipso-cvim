@@ -53,6 +53,7 @@ let simpleSchema = new SimpleSchema({
 
         let _id = that.field('_id').value;
         if (R.isNil(_id)) {
+          console.log('field id is nil');
           _id = that.docId;
         }
         let dbNode;
