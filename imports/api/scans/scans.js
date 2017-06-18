@@ -154,3 +154,6 @@ Scans.schemaRelated = R.mapObjIndexed((relatedItem, key) => {
   });
 
 }, Scans.schemaRelated);
+
+export const subsScansEnvPageAmountSorted = 'scans?env*&page&amount&sortField&sortDirection';
+export const subsScansEnvPageAmountSortedCounter = `${subsScansEnvPageAmountSorted}!counter`;

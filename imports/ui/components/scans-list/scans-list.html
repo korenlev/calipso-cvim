@@ -5,16 +5,40 @@
     <table class="sm-scans-table table">
       <thead>
         <tr>
-          <th>Status</th>
+          <th>
+            <a class="sm-table-header" 
+                 data-is-sortable="true" 
+                 data-sort-field="status"
+                 >Status<span><i class="{{ fieldSortClass 'status' }}"></i></span>
+            </a>
+          </th>
           <th>Log Level</th>
           <th>Clear</th>
           <th>Scan Only Iventory</th>
           <th>Scan Only Links</th>
           <th>Scan Only Cliques</th>
           <th>Scan Completed</th>
-          <th>Submit Timestamp</th>
-          <th>Start Timestamp</th>
-          <th>End Timestamp</th>
+          <th>
+            <a class="sm-table-header" 
+                 data-is-sortable="true" 
+                 data-sort-field="submit_timestamp"
+                 >Submit Timestamp<span><i class="{{ fieldSortClass 'submit_timestamp' }}"></i></span>
+            </a>
+          </th>
+          <th>
+            <a class="sm-table-header" 
+                 data-is-sortable="true" 
+                 data-sort-field="start_timestamp"
+                 >Start Timestamp<span><i class="{{ fieldSortClass 'start_timestamp' }}"></i></span>
+            </a>
+          </th>
+          <th>
+            <a class="sm-table-header" 
+                 data-is-sortable="true" 
+                 data-sort-field="end_timestamp"
+                 >End Timestamp<span><i class="{{ fieldSortClass 'end_timestamp' }}"></i></span>
+            </a>
+          </th>
           <th>Environment</th>
           <th>Inventory</th>
           <th>Object ID</th>

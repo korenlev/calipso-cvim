@@ -2,7 +2,10 @@ import { Meteor } from 'meteor/meteor';
 import * as R from 'ramda';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
-import { Scans } from '../scans.js';
+import { Scans,
+  subsScansEnvPageAmountSorted,
+  subsScansEnvPageAmountSortedCounter,
+} from '../scans.js';
 
 Meteor.publish('scans?env', function (env_name) {
   console.log('server subscribtion: scans?env');
@@ -25,24 +28,35 @@ Meteor.publish('scans?env*', function (env) {
   return Scans.find(query); 
 });
 
-Meteor.publish('scans?env*&page&amount', function (env, page, amountPerPage) {
-  console.log('server subscribtion: scans?env*&page&amount');
+Meteor.publish(subsScansEnvPageAmountSorted, function (
+  env, page, amountPerPage, sortField, sortDirection) {
+
+  console.log(`server subscribtion: ${subsScansEnvPageAmountSorted}`);
   console.log(env);
   console.log('page: ', page);
   console.log('amount: ', amountPerPage);
+  console.log('sortField: ', sortField, R.isNil(sortField));
+  console.log('sortDirection: ', sortDirection);
 
   let skip = (page - 1) * amountPerPage;
 
   let query = {};
   if (! R.isNil(env)) { query = R.assoc('environment', env, query); }
   console.log('-query: ', query);
+  let sortParams = {};
+
+  sortParams = R.ifElse(R.isNil, R.always(sortParams), 
+      R.assoc(R.__, sortDirection, sortParams))(sortField);
+
+  console.log('sort params:', sortParams);
 
   let qParams = {
     limit: amountPerPage,
-    skip: skip
+    skip: skip,
+    sort: sortParams,
   };
 
-  Counts.publish(this, 'scans?env*&page&amount!count', Scans.find(query), {
+  Counts.publish(this, subsScansEnvPageAmountSortedCounter, Scans.find(query), {
     noReady: true
   });
 
