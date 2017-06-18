@@ -14,8 +14,8 @@ Meteor.publish('environments_config', function () {
 
   if (! Roles.userIsInRole(userId, 'view-env', null)) {
     query = R.merge(query, {
-      'auth.view-env': { 
-        $in: [ userId ] 
+      'auth.view-env': {
+        $in: [ userId ]
       }
     });
   }
@@ -24,35 +24,52 @@ Meteor.publish('environments_config', function () {
   return Environments.find(query);
 });
 
-Meteor.publish('environments.view-env&userId', function (userId) {
+const subsEnvViewEnvUserId = 'environments.view-env&userId';
+Meteor.publish(subsEnvViewEnvUserId, function (userId) {
+  console.log(`subscription - ${subsEnvViewEnvUserId} `);
+  console.log(`-userId: ${R.toString(userId)}`);
+
   let query = {};
 
-  if (! Roles.userIsInRole(userId, 'manage-users', Roles.GLOBAL_GROUP)) {
+  let currentUser = this.userId;
+  if (! Roles.userIsInRole(currentUser, 'manage-users', Roles.GLOBAL_GROUP)) {
+    console.log(`* error: unauth`);
+    console.log(`- currentUser: ${R.toString(currentUser)}`);
     this.error('unauthorized for this subscription');
+    return;
   }
 
   query = R.merge(query, {
-    'auth.view-env': { 
-      $in: [ userId ] 
+    'auth.view-env': {
+      $in: [ userId ]
     }
   });
 
+  console.log(`* query: ${R.toString(query)}`);
   return Environments.find(query);
 });
 
-Meteor.publish('environments.edit-env&userId', function (userId) {
+const subsEnvEditEnvUserId = 'environments.edit-env&userId';
+Meteor.publish(subsEnvEditEnvUserId, function (userId) {
+  console.log(`subscription - ${subsEnvEditEnvUserId} `);
+  console.log(`-userId: ${R.toString(userId)}`);
   let query = {};
 
-  if (! Roles.userIsInRole(userId, 'manage-users', Roles.GLOBAL_GROUP)) {
+  let currentUser = this.userId;
+  if (! Roles.userIsInRole(currentUser, 'manage-users', Roles.GLOBAL_GROUP)) {
+    console.log(`* error: unauth`);
+    console.log(`- currentUser: ${R.toString(currentUser)}`);
     this.error('unauthorized for this subscription');
+    return;
   }
 
   query = R.merge(query, {
-    'auth.edit-env': { 
-      $in: [ userId ] 
+    'auth.edit-env': {
+      $in: [ userId ]
     }
   });
 
+  console.log(`* query: ${R.toString(query)}`);
   return Environments.find(query);
 });
 
