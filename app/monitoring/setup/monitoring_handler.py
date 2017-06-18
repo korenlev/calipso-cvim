@@ -48,7 +48,10 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.configuration.environment['mechanism_drivers']
         self.env = env
         self.monitoring_config = self.db.monitoring_config_templates
-        self.env_monitoring_config = self.configuration.get('Monitoring')
+        try:
+            self.env_monitoring_config = self.configuration.get('Monitoring')
+        except IndexError:
+            self.env_monitoring_config = None
         self.local_host = self.env_monitoring_config['server_ip'] \
             if self.env_monitoring_config else None
         self.scripts_prepared_for_host = {}
