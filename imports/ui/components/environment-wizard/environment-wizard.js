@@ -151,6 +151,7 @@ Template.EnvironmentWizard.helpers({
         model: environmentModel, 
         disabled: disabled,
         isListeningDisabled: isListeningDisabled,
+        isMonitoringDisabled: isMonitoringDisabled,
         setModel: function (newModel) {
           instance.state.set('environmentModel', newModel);
         },
@@ -365,6 +366,7 @@ function doSubmit(instance) {
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
       listen: environment.listen,
+      enable_monitoring: environment.enable_monitoring,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -377,6 +379,7 @@ function doSubmit(instance) {
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
       listen: environment.listen,
+      enable_monitoring: environment.enable_monitoring,
     }, processActionResult.bind(null, instance));
     break;
 

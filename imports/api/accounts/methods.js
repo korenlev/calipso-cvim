@@ -177,6 +177,7 @@ function updateEnv(auth, env) {
         type_drivers: env.type_drivers,
         mechanism_drivers: env.mechanism_drivers,
         listen: env.listen,
+        enable_monitoring: env.enable_monitoring,
       }
     });
   } catch(e) {

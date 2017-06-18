@@ -34,7 +34,7 @@ export const MonitoringSchema = new SimpleSchema({
 
   rabbitmq_port: {
     type: String,
-    defaultValue: 4567,
+    defaultValue: '4567',
     regEx: portRegEx,
   },
 

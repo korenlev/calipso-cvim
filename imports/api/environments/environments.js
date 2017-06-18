@@ -45,7 +45,7 @@ let simpleSchema = new SimpleSchema({
     blackbox: true,
     autoValue: function () {
       console.log('start - autovalue - environment - configuration');
-      console.log(this);
+      //console.log(this);
       let that = this;
 
       if (that.isSet) {
@@ -67,21 +67,23 @@ let simpleSchema = new SimpleSchema({
         let dist = extractValue('distribution', that, dbNode);
         let typeDrivers = extractValue('type_drivers', that, dbNode);
         let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
+        let enableMonitoring = extractValue('enable_monitoring', that, dbNode);
+        let listen = extractValue('listen', that, dbNode);
 
         let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
         let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
 
-        if (!isMonitoringSupportedRes) {
+        if (!enableMonitoring || !isMonitoringSupportedRes) {
           console.log('env - configurations - autovalue - monitoring not supported');
           confGroups = R.reject(R.propEq('name', 'Monitoring'), confGroups);
         }
-        if (!isListeningSupportedRes) {
+        if (!listen || !isListeningSupportedRes) {
           console.log('env - configurations - autovalue - listening not supported');
           confGroups = R.reject(R.propEq('name', 'AMQP'), confGroups);
         }
 
         confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
-          console.log('env - configurations - autovalue - after clean optional groups');
+        console.log('env - configurations - autovalue - after clean optional groups');
 
         let newValue = R.map(function(confGroup) {
           let schema = getSchemaForGroupName(confGroup.name);
@@ -104,7 +106,7 @@ let simpleSchema = new SimpleSchema({
     },
     custom: function () {
       console.log('start - custom - environment - configurations');
-      console.log(this);
+      //console.log(this);
       let that = this;
       let configurationGroups = that.value;
 
@@ -125,15 +127,17 @@ let simpleSchema = new SimpleSchema({
       let dist = extractValue('distribution', that, dbNode);
       let typeDrivers = extractValue('type_drivers', that, dbNode);
       let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
+      let enableMonitoring = extractValue('enable_monitoring', that, dbNode);
+      let listen = extractValue('listen', that, dbNode);
 
       let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
       let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
 
       let requiredConfGroupsTemp = R.clone(requiredConfGroups);
-      if (isMonitoringSupportedRes) {
+      if (enableMonitoring && isMonitoringSupportedRes) {
         requiredConfGroupsTemp = R.append('Monitoring', requiredConfGroupsTemp);
       }
-      if (isListeningSupportedRes) {
+      if (listen && isListeningSupportedRes) {
         requiredConfGroupsTemp = R.append('AMQP', requiredConfGroupsTemp);
       }
 
@@ -210,6 +214,7 @@ let simpleSchema = new SimpleSchema({
       }
     },
   },
+
   mechanism_drivers: {
     type: [String],
     defaultValue: ['ovs'],
@@ -232,27 +237,87 @@ let simpleSchema = new SimpleSchema({
 
     },
   },
+
   operational: {
     type: String,
     allowedValues: ['yes', 'no'],
     defaultValue: 'no'
   },
+
   scanned: { type: Boolean, defaultValue: false },
+
   type: {
     type: String,
     autoValue: function () {
       return 'environment';
     },
   },
+
   app_path: {
     type: String,
     autoValue: function () {
       return '/home/scan/calipso_prod/app';
     }
   },
+
   listen: {
     type: Boolean,
-    defaultValue: true,
+    autoValue: function () {
+      console.log('env - listen - autoValue - start');
+      let that = this;
+      let newValue = that.value;
+      console.log(`- current value: ${R.toString(newValue)}`);
+
+      let _id = that.docId;
+      let dbNode;
+      if (_id) {
+        dbNode = Environments.findOne({ _id: _id });
+      }
+
+      let dist = extractValue('distribution', that, dbNode);
+      let typeDrivers = extractValue('type_drivers', that, dbNode);
+      let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
+
+      let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+
+      if (!isListeningSupportedRes) {
+        console.log('* listening not supported');
+        console.log(`* ${R.toString(isListeningSupportedRes)}`);
+        newValue = false;
+      }
+
+      return newValue
+    },
+  },
+
+  enable_monitoring: {
+    type: Boolean,
+    autoValue: function () {
+      console.log('env - enable_monitoring - autoValue - start');
+      let that = this;
+      let newValue = that.value;
+      console.log(`- current value: ${R.toString(newValue)}`);
+
+      let _id = that.docId;
+      let dbNode;
+      if (_id) {
+        dbNode = Environments.findOne({ _id: _id });
+      }
+
+      let dist = extractValue('distribution', that, dbNode);
+      let typeDrivers = extractValue('type_drivers', that, dbNode);
+      let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
+
+      let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
+
+      if (!isMonitoringSupportedRes) {
+        console.log('* monitoring not supported');
+        console.log(`* ${R.toString(isMonitoringSupportedRes)}`);
+        newValue = false;
+      }
+
+      return newValue
+    },
   },
 });
 
@@ -360,7 +425,7 @@ function isConfEmpty(conf) {
 function extractValue(name, schemaValidator, dbNode) {
   console.log('env - extract value');
   console.log(`-name: ${R.toString(name)}`);
-  console.log(`-schemaValidator: ${R.toString(schemaValidator)}`);
+  //console.log(`-schemaValidator: ${R.toString(schemaValidator)}`);
   console.log(`-dbNode: ${R.toString(dbNode)}`);
 
   let field = schemaValidator.field(name);
