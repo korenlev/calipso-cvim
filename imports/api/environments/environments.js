@@ -8,7 +8,7 @@ import { MonitoringSchema } from './configuration-groups/monitoring-configuratio
 import { CLISchema } from './configuration-groups/cli-configuration';
 import { AMQPSchema } from './configuration-groups/amqp-configuration';
 import { NfvProviderSchema } from './configuration-groups/nfv-provider-configuration';
-import { 
+import {
   isMonitoringSupported,
   isListeningSupported,
 } from '/imports/api/supported_environments/supported_environments';
@@ -30,8 +30,8 @@ export const optionalConfGroups = [
 
 let simpleSchema = new SimpleSchema({
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
-  auth: { 
-    type: Object, 
+  auth: {
+    type: Object,
     blackbox: true,
     defaultValue: {
       'view-env': [
@@ -40,19 +40,27 @@ let simpleSchema = new SimpleSchema({
       ]
     }
   },
-  configuration: { 
+  configuration: {
     type: [Object],
     blackbox: true,
     autoValue: function () {
+      console.log('start - autovalue - environment - configuration');
+      console.log(this);
       let that = this;
 
       if (that.isSet) {
         let confGroups = that.value;
 
         let _id = that.field('_id').value;
+        if (R.isNil(_id)) {
+          _id = that.docId;
+        }
         let dbNode;
+        console.log(`env - configurations - autovalue - field - _id: ${R.toString(_id)}`);
+
         if (_id) {
           dbNode = Environments.findOne({ _id: _id });
+          console.log(`env - configurations - autovalue - db node find: ${R.toString(dbNode)}`);
         }
 
         let dist = extractValue('distribution', that, dbNode);
@@ -61,40 +69,56 @@ let simpleSchema = new SimpleSchema({
 
         let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
         let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
-        
+
         if (!isMonitoringSupportedRes) {
+          console.log('env - configurations - autovalue - monitoring not supported');
           confGroups = R.reject(R.propEq('name', 'Monitoring'), confGroups);
         }
         if (!isListeningSupportedRes) {
+          console.log('env - configurations - autovalue - listening not supported');
           confGroups = R.reject(R.propEq('name', 'AMQP'), confGroups);
         }
 
         confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
+          console.log('env - configurations - autovalue - after clean optional groups');
 
         let newValue = R.map(function(confGroup) {
           let schema = getSchemaForGroupName(confGroup.name);
           return schema.clean(confGroup);
         }, confGroups);
 
+        console.log('end - autovalue - environment - configurations');
+        console.log(newValue);
         return newValue;
       } else {
+        console.log('env - configurations - autovalue - is not set');
         let newValue = R.map((confName) => {
           let schema = getSchemaForGroupName(confName);
           return schema.clean({});
         }, requiredConfGroups);
+        console.log('end - autovalue - environment - configurations');
+        console.log(newValue);
         return newValue;
       }
     },
     custom: function () {
+      console.log('start - custom - environment - configurations');
+      console.log(this);
       let that = this;
       let configurationGroups = that.value;
 
       let subErrors = [];
 
       let _id = that.field('_id').value;
+      if (R.isNil(_id)) {
+        _id = that.docId;
+      }
       let dbNode;
+      console.log(`env - configurations - autovalue - field - _id: ${R.toString(_id)}`);
+
       if (_id) {
         dbNode = Environments.findOne({ _id: _id });
+        console.log(`env - configurations - autovalue - db node find: ${R.toString(dbNode)}`);
       }
 
       let dist = extractValue('distribution', that, dbNode);
@@ -112,21 +136,28 @@ let simpleSchema = new SimpleSchema({
         requiredConfGroupsTemp = R.append('AMQP', requiredConfGroupsTemp);
       }
 
+      console.log('env - configurations - custom - after mon & listen check');
+
       let invalidResult = R.find(function(groupName) {
         subErrors = checkGroup(groupName, configurationGroups, true);
-        if (subErrors.length > 0) { return true; } 
+        if (subErrors.length > 0) { return true; }
         return false;
       }, requiredConfGroupsTemp);
+
+      console.log(`env - configurations - custom - after require groups check`);
 
       if (R.isNil(invalidResult)) {
         invalidResult = R.find(function(groupName) {
           subErrors = checkGroup(groupName, configurationGroups, false);
-          if (subErrors.length > 0) { return true; } 
+          if (subErrors.length > 0) { return true; }
           return false;
         }, optionalConfGroups);
       }
 
+      console.log(`env - configurations - custom - after optional groups check`);
+
       if (! R.isNil(invalidResult)) {
+        console.log(`env - configrations - custom - invalid result end: ${R.toString(subErrors)}`);
         throw {
           isError: true,
           type: 'subGroupError',
@@ -137,48 +168,48 @@ let simpleSchema = new SimpleSchema({
     },
 
   },
-  user: { 
+  user: {
     type: String,
-  }, 
-  distribution: { 
-    type: String, 
+  },
+  distribution: {
+    type: String,
     defaultValue: 'Mirantis-8.0',
     custom: function () {
       let that = this;
       let constsDist = Constants.findOne({ name: 'distributions' });
 
-      if (R.isNil(constsDist.data)) { return 'notAllowed'; } 
+      if (R.isNil(constsDist.data)) { return 'notAllowed'; }
       let distributions = constsDist.data;
 
       if (R.isNil(R.find(R.propEq('value', that.value), distributions))) {
         return 'notAllowed';
       }
     },
-  }, 
-  last_scanned: { 
-    type: String, defaultValue: '' 
   },
-  name: { 
-    type: String, 
+  last_scanned: {
+    type: String, defaultValue: ''
+  },
+  name: {
+    type: String,
     defaultValue: 'MyEnvironmentName',
     min: 6,
   },
-  type_drivers: { 
-    type: String, 
+  type_drivers: {
+    type: String,
     defaultValue: 'gre',
     custom: function () {
       let that = this;
       let TypeDriversRec = Constants.findOne({ name: 'type_drivers' });
 
-      if (R.isNil(TypeDriversRec.data)) { return 'notAllowed'; } 
+      if (R.isNil(TypeDriversRec.data)) { return 'notAllowed'; }
       let TypeDrivers = TypeDriversRec.data;
 
       if (R.isNil(R.find(R.propEq('value', that.value), TypeDrivers))) {
         return 'notAllowed';
       }
     },
-  }, 
-  mechanism_drivers: { 
+  },
+  mechanism_drivers: {
     type: [String],
     defaultValue: ['ovs'],
     minCount: 1,
@@ -186,7 +217,7 @@ let simpleSchema = new SimpleSchema({
       let that = this;
       let consts = Constants.findOne({ name: 'mechanism_drivers' });
 
-      if (R.isNil(consts.data)) { return 'notAllowed'; } 
+      if (R.isNil(consts.data)) { return 'notAllowed'; }
       let mechanismDrivers = consts.data;
 
       let result = R.find((driver) => {
@@ -200,28 +231,28 @@ let simpleSchema = new SimpleSchema({
 
     },
   },
-  operational: { 
-    type: String, 
+  operational: {
+    type: String,
     allowedValues: ['yes', 'no'],
     defaultValue: 'no'
   },
   scanned: { type: Boolean, defaultValue: false },
-  type: { 
-    type: String, 
+  type: {
+    type: String,
     autoValue: function () {
       return 'environment';
     },
   },
-  app_path: { 
-    type: String, 
-    autoValue: function () { 
-      return '/home/scan/calipso_prod/app'; 
-    } 
+  app_path: {
+    type: String,
+    autoValue: function () {
+      return '/home/scan/calipso_prod/app';
+    }
   },
-  listen: { 
-    type: Boolean, 
+  listen: {
+    type: Boolean,
     defaultValue: true,
-  }, 
+  },
 });
 
 /*
@@ -234,9 +265,9 @@ simpleSchema.addValidator(function () {
 // schema.
 // https://github.com/aldeed/meteor-simple-schema/issues/559
 // Version 2 fixes it but it is rc.
-//Environments.schema.messages({ 
+//Environments.schema.messages({
 SimpleSchema.messages({
-  confGroupInvalid: 'Configuration group is invalid.'  
+  confGroupInvalid: 'Configuration group is invalid.'
 });
 
 Environments.schema = simpleSchema;
@@ -244,7 +275,7 @@ Environments.attachSchema(Environments.schema);
 
 function getSchemaForGroupName(groupName) {
   switch (groupName) {
-  case 'mysql': 
+  case 'mysql':
     return MysqlSchema;
   case 'OpenStack':
     return OpenStackSchema;
@@ -253,7 +284,7 @@ function getSchemaForGroupName(groupName) {
   case 'AMQP':
     return AMQPSchema;
   case 'NFV_provider':
-    return NfvProviderSchema; 
+    return NfvProviderSchema;
   case 'Monitoring':
     return MonitoringSchema;
   default:
@@ -262,9 +293,9 @@ function getSchemaForGroupName(groupName) {
 }
 
 function constructSubGroupErrorMessage(errors) {
-  let message = 'Validation errors on sub groups:'; 
+  let message = 'Validation errors on sub groups:';
   message = message + R.reduce((acc, item) => {
-    return acc + '\n- ' + item.group + ': ' + item.message;  
+    return acc + '\n- ' + item.group + ': ' + item.message;
   }, '', errors);
 
   return message;
@@ -272,13 +303,13 @@ function constructSubGroupErrorMessage(errors) {
 
 function checkGroup(groupName, configurationGroups, groupRequired) {
   let subErrors = [];
-  let confGroup = R.find(R.propEq('name', groupName), configurationGroups); 
-  
-  if (R.isNil(confGroup)) { 
-    if (groupRequired) { 
+  let confGroup = R.find(R.propEq('name', groupName), configurationGroups);
+
+  if (R.isNil(confGroup)) {
+    if (groupRequired) {
       subErrors = R.append({
         field: 'configuration',
-        group: groupName, 
+        group: groupName,
         message: 'group ' + groupName + ' is required'
       }, subErrors);
     }
@@ -296,7 +327,7 @@ function checkGroup(groupName, configurationGroups, groupRequired) {
       }, acc);
     }, [], validationContext.invalidKeys());
 
-    return subErrors; 
+    return subErrors;
   }
 
   return subErrors;
@@ -310,27 +341,37 @@ export function createNewConfGroup(groupName) {
 function cleanOptionalGroups(confGroups, optionalConfGroups) {
   return R.filter((conf) => {
     if (R.contains(conf.name, optionalConfGroups)) {
-      return !isConfEmpty(conf);     
-    } 
+      return !isConfEmpty(conf);
+    }
 
     return true;
   }, confGroups);
 }
 
 function isConfEmpty(conf) {
-  return ! R.any((key) => { 
+  return ! R.any((key) => {
     if (key === 'name') { return false; } // We ignore the key 'name'. It is a 'type' key.
     let val = conf[key];
-    return ! ( R.isNil(val) || R.isEmpty(val)); 
+    return ! ( R.isNil(val) || R.isEmpty(val));
   })(R.keys(conf));
 }
 
 function extractValue(name, schemaValidator, dbNode) {
+  console.log('env - extract value');
+  console.log(`-name: ${R.toString(name)}`);
+  console.log(`-schemaValidator: ${R.toString(schemaValidator)}`);
+  console.log(`-dbNode: ${R.toString(dbNode)}`);
+
   let field = schemaValidator.field(name);
   let value = field.value;
+
+  console.log(`extract value - schema value: ${R.toString(value)}`);
+
   if (R.isNil(field.value) && !field.isSet && dbNode) {
+    console.log(`extract value - db value: ${R.toString(dbNode[name])}`);
     value = dbNode[name];
   }
 
+  console.log(`extract value - result: ${R.toString(value)}`);
   return value;
 }
