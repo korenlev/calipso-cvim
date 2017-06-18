@@ -142,11 +142,15 @@ Template.EnvironmentWizard.helpers({
     );
     let isListeningDisabled = disabled || !isListeningSupportedRes;
 
+    let amqpTabDisabled = !(environmentModel.listen && isListeningSupportedRes);
+    let monitoringTabDisabled = !(environmentModel.enable_monitoring && isMonSupportedRes);
+
     return [{
       label: 'Main Info',
       localLink: 'maininfo',
-      templateName: 'EnvMainInfo',
       defaultTab: true,
+      disabled: false,
+      templateName: 'EnvMainInfo',
       templateData: {
         model: environmentModel, 
         disabled: disabled,
@@ -161,6 +165,7 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'OS API Endpoint',
       localLink: 'endpoint-panel',
+      disabled: false,
       templateName: 'EnvOsApiEndpointInfo',
       templateData: {
         model: getGroupInArray('OpenStack', environmentModel.configuration),
@@ -176,6 +181,7 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'OS DB Credentials',
       localLink: 'db-credentials',
+      disabled: false,
       templateName: 'EnvOpenStackDbCredentialsInfo',
       templateData: {
         model: getGroupInArray('mysql', environmentModel.configuration),
@@ -191,6 +197,7 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'Master Host Credentials',
       localLink: 'master-host',
+      disabled: false,
       templateName: 'EnvMasterHostCredentialsInfo',
       templateData: {
         model: getGroupInArray('CLI', environmentModel.configuration),
@@ -206,6 +213,7 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'AMQP Credentials',
       localLink: 'amqp',
+      disabled: amqpTabDisabled,
       templateName: 'EnvAmqpCredentialsInfo',
       templateData: {
         model: getGroupInArray('AMQP', environmentModel.configuration),
@@ -221,6 +229,7 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'NFV Credentials',
       localLink: 'nfv',
+      disabled: false,
       templateName: 'EnvNfvInfo',
       templateData: {
         model: getGroupInArray('NFV_provider', environmentModel.configuration),
@@ -236,6 +245,7 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'Monitoring',
       localLink: 'monitoringInfo',
+      disabled: monitoringTabDisabled,
       templateName: 'EnvMonitoringInfo',
       templateData: {
         model: getGroupInArray('Monitoring', environmentModel.configuration),
@@ -290,6 +300,15 @@ Template.EnvironmentWizard.events({
   'click .sm-submit-button': function () {
     let instance = Template.instance();
     doSubmit(instance);
+  },
+
+  'click .sm-tab-link': function (event, _instance) {
+    let isDisabled = event.target.dataset.isDisabled; 
+    if (isDisabled) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
   },
 });
 

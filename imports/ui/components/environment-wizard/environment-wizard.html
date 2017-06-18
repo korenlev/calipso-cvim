@@ -18,12 +18,14 @@
         <ul class="nav nav-tabs" role="tablist">
           {{#each tab in tabs }}
             <li role="presentation"
-                class="{{#if tab.defaultTab }}active{{/if}}">
+                class="{{#if tab.defaultTab }}active{{/if}} {{#if tab.disabled }}disabled{{/if}}">
               <a href="#{{ tab.localLink }}"
                  aria-controls="{{ tab.localLink }}"
                  role="tab"
                  data-toggle="tab"
                  id="link-{{ tab.localLink }}"
+                 data-is-disabled="{{ tab.disabled }}"
+                 class="sm-tab-link"
                  >{{tab.label}}</a>
             </li>
           {{/each}}
