@@ -247,3 +247,63 @@ METADATA_SCANNER_WITH_CONDITION = {
   }
 }
 
+CONSTANTS = {
+  "scan_object_types": {
+      "name": "scan_object_types", 
+      "data": [
+          {
+              "value": "regions_folder", 
+              "label": "regions_folder"
+          },
+          {
+              "value": "pnics_folder", 
+              "label": "pnics_folder"
+          },
+          {
+              "value": "projects_folder",
+              "label": "projects_folder"
+          },
+          {
+              "value": "aggregate", 
+              "label": "aggregate"
+          },
+          {
+              "value": "host", 
+              "label": "host"
+          },
+          {
+              "value": "region", 
+              "label": "region"
+          }, 
+          {
+              "value": "host_ref", 
+              "label": "host_ref"
+          }
+      ]
+  },
+  "mechanism_drivers": { 
+      "data": [
+          {
+              "label": "OVS", 
+              "value": "OVS"
+          }, 
+          {
+              "label": "VPP", 
+              "value": "VPP"
+          }, 
+          {
+              "label": "LXB", 
+              "value": "LXB"
+          }, 
+          {
+              "label": "Arista", 
+              "value": "Arista"
+          }, 
+          {
+              "label": "Nexus", 
+              "value": "Nexus"
+          }
+      ], 
+      "name": "mechanism_drivers"
+  }
+}

@@ -31,14 +31,31 @@ class ClassResolver:
         module_file = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
         return module_file
 
+    # convert module file name in underscores to class name in camel case
     @staticmethod
-    def get_instance_of_class(class_name, package="discover"):
+    def get_class_name_by_module(module_name):
+        name_parts = [word.captialize() for word in module_name.split('_')]
+        class_name = ''.join(name_parts)
+        return class_name
+
+    @staticmethod
+    def get_instance_of_class(class_name: str = None, package: str ="discover",
+                              module_name: str =None):
+        if not class_name and not module_name:
+            raise ValueError('class_name or module_name must be provided')
+        if not class_name:
+            class_name = ClassResolver.get_class_name_by_module(module_name)
         if class_name in ClassResolver.instances:
             return ClassResolver.instances[class_name]
-        module_file = ClassResolver.get_module_file_by_class_name(class_name)
+        module_file = module_name if module_name \
+            else ClassResolver.get_module_file_by_class_name(class_name)
         module_parts = [package, module_file]
         module_name = ".".join(module_parts)
-        class_module = importlib.import_module(module_name)
+        try:
+            class_module = importlib.import_module(module_name)
+        except ImportError:
+            raise ValueError('could not import module {}'.format(module_name))
+
         clazz = getattr(class_module, class_name)
         instance = clazz()
         ClassResolver.instances[class_name] = instance

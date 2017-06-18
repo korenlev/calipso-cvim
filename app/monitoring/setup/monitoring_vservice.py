@@ -1,11 +1,11 @@
 from monitoring.setup.monitoring_simple_object import MonitoringSimpleObject
 
 
-class MonitoringVnic(MonitoringSimpleObject):
+class MonitoringVservice(MonitoringSimpleObject):
 
     def __init__(self, env):
         super().__init__(env)
 
-    # add monitoring setup for remote host
     def create_setup(self, o):
-        self.setup('vnic', o, values={'vnictype': o['vnic_type']})
+        self.setup('vservice', o,
+                   values={'local_service_id': o['local_service_id']})

@@ -43,7 +43,7 @@ class ScanMetadataParser(MetadataParser):
         elif isinstance(fetcher, str):
             try:
                 instance = ClassResolver.get_instance_of_class(fetcher, package)
-            except ModuleNotFoundError:
+            except ValueError:
                 instance = None
             if not instance:
                 self.add_error('failed to find fetcher class {} in scanner {}'

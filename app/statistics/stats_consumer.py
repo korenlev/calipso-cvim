@@ -28,7 +28,7 @@ class StatsConsumer(MongoAccess):
         self.stats = self.db[stats_coll]
         # consume messages from topic
         self.consumer = KafkaConsumer('VPP.stats',
-                                      group_id='osdna_test',
+                                      group_id='calipso_test',
                                       auto_offset_reset=self.args.offset,
                                       bootstrap_servers=['localhost:9092'])
 

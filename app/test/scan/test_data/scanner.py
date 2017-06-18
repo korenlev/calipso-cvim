@@ -1,6 +1,14 @@
 import queue
 from discover.folder_fetcher import FolderFetcher
 
+
+SCANNER_TYPE_FOR_ENV = "ScanEnvironment"
+
+METADATA = {
+    "scanners_package": "discover",
+    "scanners": {}
+}
+
 TYPE_TO_FETCH = {
     "type": "pnic",
     "fetcher": "CliFetchHostPnicsVpp",

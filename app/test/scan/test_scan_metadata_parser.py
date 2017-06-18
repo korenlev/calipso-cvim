@@ -1,12 +1,10 @@
-from unittest import TestCase, mock
-
-from discover.configuration import Configuration
+from discover.db_access import DbAccess
 from discover.scan_metadata_parser import ScanMetadataParser
-from test.scan.config.test_config \
-    import MONGODB_CONFIG, COLLECTION_CONFIG, ENV_CONFIG
+from test.scan.test_scan import TestScan
 from test.scan.test_data.metadata import *
-from utils.inventory_mgr import InventoryMgr
+from unittest import mock
 from utils.mongo_access import MongoAccess
+
 
 SCANNERS_FILE = 'scanners.json'
 
@@ -17,20 +15,26 @@ JSON_NO_SCANNERS = 'no scanners found in scanners list'
 JSON_ERRORS_FOUND = 'Errors encountered during metadata file parsing:\n'
 
 
-class TestScanMetadataParser(TestCase):
+class TestScanMetadataParser(TestScan):
     def setUp(self):
-        MongoAccess.set_config_file(MONGODB_CONFIG)
-        self.inv = InventoryMgr()
-        self.collection = COLLECTION_CONFIG
-        self.inv.set_collections(self.collection)
-        self.config = Configuration()
-        self.config.use_env(ENV_CONFIG)
+        super().setUp()
+        DbAccess.conn = mock.MagicMock()
+        self.prepare_constants()
         self.parser = ScanMetadataParser(self.inv)
 
         self.parser.check_metadata_file_ok = mock.MagicMock()
 
     def prepare_metadata(self, content):
         self.parser._load_json_file = mock.MagicMock(return_value=content)
+
+    def prepare_constants(self):
+        MongoAccess.db = mock.MagicMock()
+        MongoAccess.db["constants"].find_one = mock.MagicMock(side_effect=
+                                                              lambda input:
+                                                              CONSTANTS[input["name"]]
+                                                              if CONSTANTS.get(input["name"])
+                                                              else []
+                                                              )
 
     def handle_error_scenario(self, input_content, expected_error,
                               add_errors_encountered_pretext=True):

@@ -1,21 +1,21 @@
 from discover.scanner import Scanner
 from test.scan.test_scan import TestScan
 from unittest.mock import MagicMock, patch
-from test.scan.config.local_config import MONGODB_CONFIG
+from discover.scan_metadata_parser import ScanMetadataParser
 from test.scan.test_data.scanner import *
-from discover.ssh_conn import SshConn
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 
 
 class TestScanner(TestScan):
 
     def setUp(self):
-        self.configure_environment()
-        self.scanner = Scanner(TYPES_TO_FETCH)
+        super().setUp()
+        ScanMetadataParser.parse_metadata_file = MagicMock(return_value=METADATA)
+        self.scanner = Scanner()
         self.scanner.set_env(self.env)
         MonitoringSetupManager.create_setup = MagicMock()
         self.scanner.inv.monitoring_setup_manager = \
-            MonitoringSetupManager(MONGODB_CONFIG, self.env)
+            MonitoringSetupManager(self.env)
 
     def test_check_type_env_without_environment_condition(self):
         result = self.scanner.check_type_env(TYPE_TO_FETCH_WITHOUT_ENV_CON)
@@ -120,12 +120,11 @@ class TestScanner(TestScan):
         fetcher_get.side_effect = Exception("get exception")
 
         try:
-            result = self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT,
+            self.scanner.scan_type(TYPE_TO_FETCH_FOR_ENVIRONMENT,
                                             PARENT, ID_FIELD)
-            self.assertEqual(result, [],
-                             "Can't get [] when it has get exception")
+            self.fail("Can't get exception when fetcher.get throws an exception")
         except:
-            self.fail("Get unexpected exception, the test failed")
+            pass
 
     @patch("discover.folder_fetcher.FolderFetcher.get")
     def test_scan_type_without_master_parent(self, fetcher_get):
@@ -271,77 +270,77 @@ class TestScanner(TestScan):
 
     def test_scan_with_limit_to_child_type(self):
         original_scan_type = self.scanner.scan_type
+        original_get_scanner = self.scanner.get_scanner
 
         self.scanner.scan_type = MagicMock(return_value=[])
+        self.scanner.get_scanner = MagicMock(return_value=TYPES_TO_FETCH)
 
         limit_to_child_type = TYPES_TO_FETCH[0]['type']
 
-        self.scanner.types_to_fetch = TYPES_TO_FETCH
-        self.scanner.scan(PARENT, limit_to_child_type=limit_to_child_type)
+        self.scanner.scan(SCANNER_TYPE_FOR_ENV, PARENT, limit_to_child_type=limit_to_child_type)
 
         # only scan the limit child type
         self.scanner.scan_type.assert_called_with(TYPES_TO_FETCH[0], PARENT,
                                                   ID_FIELD)
 
         self.scanner.scan_type = original_scan_type
+        self.scanner.get_scanner = original_get_scanner
 
     def test_scan_with_limit_to_child_id(self):
         original_scan_type = self.scanner.scan_type
+        original_get_scanner = self.scanner.get_scanner
 
+        self.scanner.get_scanner = MagicMock(return_value=TYPES_TO_FETCH)
         limit_to_child_id = SCAN_TYPE_RESULTS[0][ID_FIELD]
 
         self.scanner.scan_type = MagicMock(return_value=SCAN_TYPE_RESULTS)
 
-        children = self.scanner.scan(PARENT, id_field=ID_FIELD,
+        children = self.scanner.scan(SCANNER_TYPE_FOR_ENV, PARENT, id_field=ID_FIELD,
                                      limit_to_child_id=limit_to_child_id)
 
         # only get the limit child
         self.assertEqual(children, SCAN_TYPE_RESULTS[0])
 
         self.scanner.scan_type = original_scan_type
+        self.scanner.get_scanner = original_get_scanner
 
     def test_scan(self):
         original_scan_type = self.scanner.scan_type
+        original_get_scanner = self.scanner.get_scanner
 
-        result = self.scanner.scan(PARENT)
+        self.scanner.get_scanner = MagicMock(return_values=TYPES_TO_FETCH)
+        result = self.scanner.scan(SCANNER_TYPE_FOR_ENV, PARENT)
 
         self.assertEqual(PARENT, result,
                          "Can't get the original parent after the scan")
 
+        self.scanner.get_scanner = original_get_scanner
         self.scanner.scan_type = original_scan_type
 
     def test_run_scan(self):
         original_scan = self.scanner.scan
         original_scan_from_queue = self.scanner.scan_from_queue
-        original_disconnect_all = SshConn.disconnect_all
 
         self.scanner.scan = MagicMock()
         self.scanner.scan_from_queue = MagicMock()
-        SshConn.disconnect_all = MagicMock()
 
-        self.scanner.run_scan(PARENT, ID_FIELD, LIMIT_TO_CHILD_ID,
+        self.scanner.run_scan(SCANNER_TYPE_FOR_ENV, PARENT, ID_FIELD, LIMIT_TO_CHILD_ID,
                               LIMIT_TO_CHILD_TYPE)
 
-        self.scanner.scan.assert_called_with(PARENT, ID_FIELD,
+        self.scanner.scan.assert_called_with(SCANNER_TYPE_FOR_ENV, PARENT, ID_FIELD,
                                              LIMIT_TO_CHILD_ID,
                                              LIMIT_TO_CHILD_TYPE)
         self.scanner.scan_from_queue.assert_any_call()
-        SshConn.disconnect_all.assert_any_call()
 
         self.scanner.scan = original_scan
         self.scanner.scan_from_queue = original_scan_from_queue
-        SshConn.disconnect_all = original_disconnect_all
 
     @patch("discover.scanner.Scanner.scan")
     def test_scan_from_queue(self, scan):
         scan.return_value = []
         Scanner.scan_queue = SCAN_QUEUE
 
-        original_scan = self.scanner.scan
-
         self.scanner.scan_from_queue()
 
         self.assertEqual(self.scanner.scan.call_count, QUEUE_SIZE,
                          "Can't scan all the objects in the queue")
-
-        self.scanner.scan = original_scan

@@ -3,6 +3,7 @@ from datetime import datetime
 import bson
 
 from utils.constants import EnvironmentFeatures
+from utils.logging.console_logger import ConsoleLogger
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
 
@@ -19,29 +20,37 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
 
     def __init__(self):
         super().__init__()
+        self.log = ConsoleLogger()
         self.inventory_collection = None
         self.inventory_collection_name = None
         self.collections = {}
-        self.base_url_prefix = "/osdna_dev/discover.py?type=tree"
         self.monitoring_setup_manager = None
 
-    def set_collection(self, collection_type, collection_name=""):
-
+    def set_collection(self, collection_type: str = None,
+                       use_default_name: bool = False):
         # do not allow setting the collection more than once
         if not self.collections.get(collection_type):
-            if collection_type != "inventory":
-                collection_name = self.get_coll_name(collection_type)
+            collection_name = collection_type \
+                              if use_default_name \
+                              else self.get_coll_name(collection_type)
 
-            self.log.info("using " + collection_type + " collection: " +
-                          collection_name)
+            self.log.info("Using {} collection: {}"
+                          .format(collection_type, collection_name))
 
-            name = collection_name if collection_name else collection_type
-            self.collections[collection_type] = MongoAccess.db[name]
+            self.collections[collection_type] = MongoAccess.db[collection_name]
 
-            if collection_type == "inventory":
-                self.inventory_collection_name = name
+    def set_inventory_collection(self, collection_name: str = None):
+        if not self.inventory_collection:
+            if not collection_name:
+                collection_name = "inventory"
 
-        return self.collections[collection_type]
+            self.log.info("Using inventory collection: {}"
+                          .format(collection_name))
+
+            collection = MongoAccess.db[collection_name]
+            self.collections["inventory"] = collection
+            self.inventory_collection = collection
+            self.inventory_collection_name = collection_name
 
     def get_coll_name(self, coll_name):
         if not self.inventory_collection_name:
@@ -51,18 +60,18 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if self.inventory_collection_name.startswith("inventory") \
             else self.inventory_collection_name + "_" + coll_name
 
-    def set_collections(self, inventory_collection=""):
-        self.inventory_collection = self.set_collection("inventory",
-                                                        inventory_collection)
+    def set_collections(self, inventory_collection: str = None):
+        self.set_inventory_collection(inventory_collection)
         self.set_collection("links")
         self.set_collection("link_types")
         self.set_collection("clique_types")
         self.set_collection("clique_constraints")
         self.set_collection("cliques")
         self.set_collection("monitoring_config")
-        self.set_collection("constants")
+        self.set_collection("constants", use_default_name=True)
         self.set_collection("scans")
         self.set_collection("messages")
+        self.set_collection("monitoring_config_templates", use_default_name=True)
         self.set_collection("environments_config")
         self.set_collection("supported_environments")
 
@@ -314,7 +323,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         return self.find_one(search={'name': env},
                              collection='environments_config')
 
-    def is_feature_supported(self, env: str, feature: EnvironmentFeatures) -> bool:
+    def is_feature_supported(self, env: str, feature: EnvironmentFeatures)\
+            -> bool:
         env_config = self.get_env_config(env)
         if not env_config:
             return False
@@ -324,10 +334,12 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if isinstance(env_config['mechanism_drivers'], list) \
             else env_config['mechanism_drivers']
 
-        full_env = {'distribution': env_config['distribution'],
-                    'type_drivers': env_config['type_drivers'],
-                    'mechanism_drivers': mechanism_driver}
+        full_env = {'environment.distribution': env_config['distribution'],
+                    'environment.type_drivers': env_config['type_drivers'],
+                    'environment.mechanism_drivers': mechanism_driver}
 
-        result = self.collections['supported_environments']\
-                     .find_one({'environment': full_env})
-        return True if result and result.get('features', {}).get(feature.value) is True else False
+        result = self.collections['supported_environments'].find_one(full_env)
+        if not result:
+            return False
+        features_in_env = result.get('features', {})
+        return features_in_env.get(feature.value) is True
