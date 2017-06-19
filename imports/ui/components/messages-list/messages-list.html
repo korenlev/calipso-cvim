@@ -53,7 +53,11 @@
 					<td>{{ message.level }}</td>
 					<td>{{ message.timestamp }}</td>
 					<td>{{ message.related_object_type }}</td>
-					<td>{{ message.related_object }}</td>
+					<td>
+            {{#if message.related_object }}
+              {{> InventoryPropertiesDisplay (argsInvPropDisplay message.environment message.related_object) }}
+            {{/if }}
+          </td>
 					<td>
             <a class="cl-link sm-scan-id-link"
                data-scan-id="{{ toIsoFormatStr message.scan_id }}"

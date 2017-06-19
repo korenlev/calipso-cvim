@@ -13,6 +13,7 @@ import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
         
 import '/imports/ui/components/pager/pager';
+import '/imports/ui/components/inventory-properties-display/inventory-properties-display';
 
 import './messages-list.html';     
     
@@ -277,5 +278,16 @@ Template.MessagesList.helpers({
     }
 
     return classes; 
+  },
+
+  argsInvPropDisplay: function (env, nodeId) {
+    return {
+      env: env,
+      nodeId: nodeId,
+      displayFn: (node) => {
+        if (R.isNil(node)) { return ''; }
+        return `${node.object_name} - ${node.type}`;
+      }
+    };
   },
 }); // end: helpers

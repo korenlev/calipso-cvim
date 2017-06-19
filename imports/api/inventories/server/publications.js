@@ -25,6 +25,14 @@ Meteor.publish('inventory?id', function (id) {
   return Inventory.find({id: id});
 });
 
+Meteor.publish('inventory?env&id', function (env, id) {
+  console.log('server subscribtion to: inventory?env&id');
+  console.log(`-env: ${R.toString(env)}`);
+  console.log(`-id: ${R.toString(id)}`);
+
+  return Inventory.find({environment: env, id: id});
+});
+
 Meteor.publish('inventory?id_path', function (id_path) {
   console.log('server subscribtion to: inventory?id_path');
   return Inventory.find({id_path: id_path});
