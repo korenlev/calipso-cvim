@@ -29,7 +29,17 @@ Template.InputModel.events({
   'input .inputField': function (event, instance) {
     if (instance.data.type === 'checkbox') { return; }
 
-    instance.data.setModel(event.target.value);
+    let value;
+    switch (event.target.type) {
+    case 'number':
+      value = event.target.valueAsNumber;
+      break;
+      
+    default:
+      value = event.target.value;
+    }
+
+    instance.data.setModel(value);
   },
   'click .inputField': function (event, instance) {
     if (instance.data.type !== 'checkbox') { return; }

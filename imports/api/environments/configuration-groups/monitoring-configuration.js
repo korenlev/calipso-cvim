@@ -12,7 +12,7 @@ export const MonitoringSchema = new SimpleSchema({
   
   config_folder: { 
     type: String, 
-    defaultValue: '/tmp/sensu_config',
+    defaultValue: '/local_dir/sensu_config',
     regEx: pathRegEx,
   },
 
@@ -34,7 +34,7 @@ export const MonitoringSchema = new SimpleSchema({
 
   rabbitmq_port: {
     type: String,
-    defaultValue: '4567',
+    defaultValue: '5671',
     regEx: portRegEx,
   },
 
@@ -102,5 +102,10 @@ export const MonitoringSchema = new SimpleSchema({
     type: String,
     defaultValue: 'calipso',
     optional: true
+  },
+
+  api_port: {
+    type: Number,
+    defaultValue: 4567,
   },
 });

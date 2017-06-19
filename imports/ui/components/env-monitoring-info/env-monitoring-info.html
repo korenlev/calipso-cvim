@@ -44,7 +44,7 @@
     </div>
 
     <div class="col-sm-4">
-      <p>What port to use for the monitoring program</p>
+      <p>Port used for RabbitMQ transport</p>
     </div>
   </div>
 
@@ -246,6 +246,26 @@
 
     <div class="col-sm-4">
       <p>SSH Password</p>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="" 
+      class="col-sm-2 control-label"
+      >API Port</label>
+
+    <div class="col-sm-3">
+      {{> InputModel(createInputArgs
+            value=model.api_port 
+            key="api_port"
+            type="number"
+            disabled=disabled
+            placeholder="API port")
+      }}
+    </div>
+
+    <div class="col-sm-4">
+      <p>Port used for monitoring API</p>
     </div>
   </div>
 
