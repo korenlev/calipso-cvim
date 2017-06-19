@@ -51,9 +51,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         try:
             self.env_monitoring_config = self.configuration.get('Monitoring')
         except IndexError:
-            self.env_monitoring_config = None
-        self.local_host = self.env_monitoring_config['server_ip'] \
-            if self.env_monitoring_config else None
+            self.env_monitoring_config = {}
+        self.local_host = self.env_monitoring_config.get('server_ip', '')
         self.scripts_prepared_for_host = {}
         self.replacements = self.env_monitoring_config
         self.inv = InventoryMgr()
@@ -89,7 +88,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                 content.update(doc)
         self.replacements['app_path'] = \
             self.configuration.environment['app_path']
-        config = self.content_replace({'config': content['config']})
+        config = self.content_replace({'config': content.get('config', {})})
         return config
 
     def check_env_condition(self, doc):
