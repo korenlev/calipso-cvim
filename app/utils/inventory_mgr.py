@@ -71,7 +71,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.set_collection("constants", use_default_name=True)
         self.set_collection("scans")
         self.set_collection("messages")
-        self.set_collection("monitoring_config_templates", use_default_name=True)
+        self.set_collection("monitoring_config_templates",
+                            use_default_name=True)
         self.set_collection("environments_config")
         self.set_collection("supported_environments")
 
