@@ -25,33 +25,39 @@ class TestApiAccess(TestFetch):
         self.assertEqual(time, None, "Can't get None when the time format is wrong")
 
     def test_get_existing_token(self):
+        self.api_access.tokens = VALID_TOKENS
         token = self.api_access.get_existing_token(PROJECT)
-        self.assertNotEqual(token, None, "Can't get existing token")
+        self.assertNotEqual(token, VALID_TOKENS[PROJECT], "Can't get existing token")
 
     def test_get_nonexistent_token(self):
+        self.api_access.tokens = EMPTY_TOKENS
         token = self.api_access.get_existing_token(TEST_PROJECT)
-        self.assertEqual(token, None, "Can't get None when the token doesn't exist in tokens")
+        self.assertEqual(token, None, "Can't get None when the token doesn't " +
+                                      "exist in tokens")
 
     @patch("httplib2.Http.request")
     def test_v2_auth(self, mock_request):
+        self.api_access.get_existing_token = MagicMock(return_value=None)
         # mock authentication info from OpenStack Api
         mock_request.return_value = (RESPONSE, CORRECT_AUTH_CONTENT)
-        token_details = self.api_access.v2_auth(TEST_PROJECT, "test_headers", "test_body")
+        token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
         self.assertNotEqual(token_details, None, "Can't get the token details")
 
     @patch("httplib2.Http.request")
     def test_v2_auth_with_error_content(self, mock_request):
+        self.api_access.get_existing_token = MagicMock(return_value=None)
         # authentication content from OpenStack Api will be incorrect
         mock_request.return_value = (RESPONSE, ERROR_AUTH_CONTENT)
-        token_details = self.api_access.v2_auth(TEST_PROJECT, "test_headers", "test_body")
+        token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
         self.assertIs(token_details, None, "Can't get None when the content is wrong")
 
     @patch("httplib2.Http.request")
     def test_v2_auth_with_error_token(self, mock_request):
         # authentication info from OpenStack Api will not contain token info
         mock_request.return_value = (RESPONSE, ERROR_TOKEN_CONTENT)
-        token_details = self.api_access.v2_auth(TEST_PROJECT, "test_headers", "test_body")
-        self.assertIs(token_details, None, "Can't get None when the content doesn't contain any token info")
+        token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
+        self.assertIs(token_details, None, "Can't get None when the content " +
+                                           "doesn't contain any token info")
 
     @patch("httplib2.Http.request")
     def test_v2_auth_with_error_expiry_time(self, mock_request):
@@ -62,11 +68,12 @@ class TestApiAccess(TestFetch):
         # the time will not be parsed
         self.api_access.parse_time = MagicMock(return_value=None)
 
-        token_details = self.api_access.v2_auth(TEST_PROJECT, "test_headers", "test_body")
+        token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
         # reset original parse_time method
         self.api_access.parse_time = original_method
 
-        self.assertIs(token_details, None, "Can't get None when the time in token can't be parsed")
+        self.assertIs(token_details, None, "Can't get None when the time in token " +
+                                           "can't be parsed")
 
     @patch("httplib2.Http.request")
     def test_v2_auth_pwd(self, mock_request):
@@ -78,26 +85,29 @@ class TestApiAccess(TestFetch):
     @patch("httplib2.Http.request")
     def test_get_url(self, mock_request):
         mock_request.return_value = (RESPONSE, GET_CONTENT)
-        result = self.api_access.get_url("test_url", "test_headers")
+        result = self.api_access.get_url(TEST_URL, TEST_HEADER)
         # check whether it returns content message when the response is correct
-        self.assertNotIn("status", result, "Can't get content when the response is correct")
+        self.assertNotIn("status", result, "Can't get content when the " +
+                                           "response is correct")
 
     @patch("httplib2.Http.request")
     def test_get_url_with_error_response(self, mock_request):
         # the response will be wrong
         mock_request.return_value = (ERROR_RESPONSE, None)
-        result = self.api_access.get_url("test_url", "test_headers")
-        self.assertNotEqual(result, None, "Can't get response message when the response status is not 200")
+        result = self.api_access.get_url(TEST_URL, TEST_HEADER)
+        self.assertNotEqual(result, None, "Can't get response message " +
+                                          "when the response status is not 200")
 
     def test_get_region_url(self):
         region_url = self.api_access.get_region_url(REGION_NAME, SERVICE_NAME)
 
         self.assertNotEqual(region_url, None, "Can't get region url")
 
-    def test_get_region_url_with_illegal_region_name(self):
+    def test_get_region_url_with_wrong_region_name(self):
         # error region name doesn't exist in the regions info
         region_url = self.api_access.get_region_url(ERROR_REGION_NAME, "")
-        self.assertIs(region_url, None, "Can't get None with the region name is illegal")
+        self.assertIs(region_url, None, "Can't get None with the region " +
+                                        "name is wrong")
 
     def test_get_region_url_without_service_endpoint(self):
         # error service doesn't exist in region service endpoints
@@ -105,7 +115,7 @@ class TestApiAccess(TestFetch):
         self.assertIs(region_url, None, "Can't get None with wrong service name")
 
     def test_region_url_nover(self):
-        # mock return value of get_region_url, which will contains v2
+        # mock return value of get_region_url, which has something starting from v2
         self.api_access.get_region_url = MagicMock(return_value=REGION_URL)
         region_url = self.api_access.get_region_url_nover(REGION_NAME, SERVICE_NAME)
         # get_region_nover will remove everything from v2
@@ -119,4 +129,5 @@ class TestApiAccess(TestFetch):
     def test_get_service_region_endpoints_with_nonexistent_service(self):
         region = REGIONS[REGION_NAME]
         result = self.api_access.get_service_region_endpoints(region, ERROR_SERVICE_NAME)
-        self.assertIs(result, None, "Can't get None when the service name doesn't exist in region's services")
+        self.assertIs(result, None, "Can't get None when the service name " +
+                                    "doesn't exist in region's services")
