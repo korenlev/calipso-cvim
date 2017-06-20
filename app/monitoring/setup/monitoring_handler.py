@@ -134,7 +134,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             'type': file_type
         }
         doc = copy.copy(find_tuple)
-        doc.update(config)
+        doc['config'] = config
         doc = self.encode_mongo_keys(doc)
         if not doc:
             return {}
@@ -147,7 +147,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         return the merged config
         """
         doc = self.get_config_from_db(host, file_type)
-        config = remerge([doc['config'], content]) if doc else content
+        config = remerge([doc['config'], content.get('config')]) if doc \
+            else content.get('config', {})
         self.write_config_to_db(host, config, file_type)
         return config
 
