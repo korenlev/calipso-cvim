@@ -9,7 +9,10 @@ class HandlePnic(MonitoringCheckHandler):
 
   def handle(self, id, check_result):
     object_id = id[:id.index('-')]
-    object_id += self.L
+    mac = id[id.index('-')+1:]
+    mac_address = '%s:%s:%s:%s:%s:%s' % \
+      (mac[0:2], mac[2:4], mac[4:6], mac[6:8], mac[8:10], mac[10:12])
+    object_id += '-' + mac_address
     doc = self.doc_by_id(object_id)
     if not doc:
       return 1
