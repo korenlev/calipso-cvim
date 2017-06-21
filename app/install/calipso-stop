@@ -1,9 +1,0 @@
-sudo docker kill calipso-api
-sudo docker kill calipso-scan
-sudo docker kill calipso-listen
-sudo docker kill calipso-sensu
-sudo docker kill calipso-ldap
-sudo docker kill calipso-ui
-sudo docker kill calipso-mongo
-sleep 5
-sudo docker rm $(sudo docker ps -a -q)
