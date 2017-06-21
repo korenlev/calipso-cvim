@@ -192,7 +192,6 @@ INSTANCE_DOC = {
     "projects": [
         "project-calipso"
     ],
-    "children_url": "/calipso_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
     "mac_address": "fa:16:3e:13:b2:aa"
 }
 
@@ -278,6 +277,5 @@ INSTANCE_DOCS = [
         "projects": [
             "project-calipso"
         ],
-        "children_url": "/calipso_dev/discover.py?type=tree&id=b2bda4bf-1259-4d60-99ab-85ab4d5014a8",
     }
 ]

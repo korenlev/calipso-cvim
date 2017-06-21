@@ -26,7 +26,6 @@ EVENT_PAYLOAD_SUBNET_DELETE = {
 
 EVENT_PAYLOAD_NETWORK = {
     "admin_state_up": True,
-    "children_url": "/calipso_dev/discover.py?type=tree&id=121c727b-6376-4a86-a5a8-793dfe7a8ef4",
     "cidrs": [
         "172.16.10.0/25"
     ],

@@ -169,10 +169,12 @@ class SshConnection(BinaryConverter):
             self.log.error('SFTP copy_file failed to chmod file: ' +
                            'local: ' + local_path +
                            ', remote host: ' + self.host +
+                           ', port: ' + self.port +
                            ', error: ' + str(e))
             return str(e)
-        self.log.info('SFTP copy_file success: host={},{} -> {}'.format(
-            str(self.host), str(local_path), str(remote_path)))
+        self.log.info('SFTP copy_file success: '
+                      'host={},port={},{} -> {}'.format(
+            str(self.host), str(self.port), str(local_path), str(remote_path)))
         return ''
 
     def copy_file_from_remote(self, remote_path, local_path):

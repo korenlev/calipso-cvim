@@ -76,7 +76,6 @@ INSTANCE_DOCUMENT = {
     'projects': ['calipso-project'],
     'network': ['b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe', '7e59b726-d6f4-451a-a574-c67a920ff627'],
     'host': 'node-252.cisco.com', 'parent_type': 'instances_folder',
-    'children_url': '/calipso_dev/discover.py?type=tree&id=27a87908-bc1b-45cc-9238-09ad1ae686a7',
     '_id': '57e421194a0a8a3fbe3bd2d0', 'mac_address': 'fa:16:3e:5e:9e:db', 'type': 'instance',
     'name': 'test8',
     'uuid': '27a87908-bc1b-45cc-9238-09ad1ae686a7', 'environment': ENV_CONFIG,

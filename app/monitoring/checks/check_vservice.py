@@ -61,6 +61,7 @@ try:
     headers = lines[0].split()
     lines = lines[1:]
     if vservice_type == 'dhcp' and len(lines) > 1:
+    if vservice_type == 'dhcp':
         lines = [line for line in lines if 'dnsmasq' in line]
     values = lines[0].split()
     stat_index = headers.index('STAT')

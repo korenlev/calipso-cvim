@@ -33,7 +33,7 @@ class Logger(ABC):
 
     @staticmethod
     def check_level(level):
-        if level not in Logger.levels:
+        if level.upper() not in Logger.levels:
             raise ValueError('Invalid log level: {}. Supported levels: ({})'
                              .format(level, ", ".join(Logger.levels)))
 
@@ -81,7 +81,8 @@ class Logger(ABC):
         self._log(logging.CRITICAL, message, *args, **kwargs)
 
     def add_handler(self, handler):
-        handler_defined = handler.__class__ in map(lambda h: h.__class__, self.log.handlers)
+        handler_defined = handler.__class__ in map(lambda h: h.__class__,
+                                                   self.log.handlers)
 
         if not handler_defined:
             handler.setLevel(self.level)

@@ -48,8 +48,11 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.configuration.environment['mechanism_drivers']
         self.env = env
         self.monitoring_config = self.db.monitoring_config_templates
-        self.env_monitoring_config = self.configuration.get('Monitoring')
-        self.local_host = self.env_monitoring_config['server_ip']
+        try:
+            self.env_monitoring_config = self.configuration.get('Monitoring')
+        except IndexError:
+            self.env_monitoring_config = {}
+        self.local_host = self.env_monitoring_config.get('server_ip', '')
         self.scripts_prepared_for_host = {}
         self.replacements = self.env_monitoring_config
         self.inv = InventoryMgr()
@@ -85,7 +88,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                 content.update(doc)
         self.replacements['app_path'] = \
             self.configuration.environment['app_path']
-        config = self.content_replace({'config': content['config']})
+        config = self.content_replace({'config': content.get('config', {})})
         return config
 
     def check_env_condition(self, doc):
@@ -131,7 +134,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             'type': file_type
         }
         doc = copy.copy(find_tuple)
-        doc.update(config)
+        doc['config'] = config
         doc = self.encode_mongo_keys(doc)
         if not doc:
             return {}
@@ -144,7 +147,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         return the merged config
         """
         doc = self.get_config_from_db(host, file_type)
-        config = remerge([doc['config'], content]) if doc else content
+        config = remerge([doc['config'], content.get('config')]) if doc \
+            else content.get('config', {})
         self.write_config_to_db(host, config, file_type)
         return config
 

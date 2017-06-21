@@ -49,7 +49,6 @@ PORT_DOCUMENT = {
     },
     "binding:vif_type": "ovs",
     "binding:vnic_type": "normal",
-    "children_url": "/calipso_dev/discover.py?type=tree&id=16620a58-c48c-4195-b9c1-779a8ba2e6f8",
     "device_id": "dhcp7a15cee0-2af1-5441-b1dc-94897ef4dee9-b6fd5175-4b22-4256-9b1a-9fc4b9dce1fe",
     "device_owner": "network:dhcp",
     "dns_assignment": [
