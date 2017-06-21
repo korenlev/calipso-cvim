@@ -11,9 +11,9 @@ class MongoComm:
 
     try:
 
-        def __init__(self, user, password, host, db, port):
+        def __init__(self, host, user, password, port):
             self.uri = "mongodb://%s:%s@%s:%s/%s" % (
-                quote_plus(user), quote_plus(password), host, port, db)
+                quote_plus(user), quote_plus(password), host, port, "calipso")
             self.client = MongoClient(self.uri)
 
         def find(self, coll, key, val):
@@ -49,14 +49,14 @@ class MongoComm:
 DockerClient = docker.from_env()   # using local host docker environment parameters
 
 
-def startmongo():
+def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
         print("starting container calipso-mongo...\n")
         mongocontainer = DockerClient.containers.run('korenlev/calipso:mongo', detach=True, name="calipso-mongo",
-                                                     ports={'27017/tcp': 27017, '28017/tcp': 28017},
+                                                     ports={'27017/tcp': dbport, '28017/tcp': 28017},
                                                      volumes={'/home/calipso/db': {'bind': '/data/db', 'mode': 'rw'}})
     else:
-        print("container named calipso-mongo already exists...\n")
+        print("container named calipso-mongo already exists, please deal with it using docker...\n")
         return
 
 
@@ -69,7 +69,7 @@ def startlisten():
                                                                    "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf"],
                                                       volumes={'/home/calipso': {'bind': '/local_dir', 'mode': 'rw'}})
     else:
-        print("container named calipso-listen already exists...\n")
+        print("container named calipso-listen already exists, please deal with it using docker...\n")
         return
 
 
@@ -80,7 +80,7 @@ def startldap():
                                                     ports={'389/tcp': 389, '389/udp': 389},
                                                     volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
-        print("container named calipso-ldap already exists...\n")
+        print("container named calipso-ldap already exists, please deal with it using docker...\n")
         return
 
 
@@ -95,7 +95,7 @@ def startapi():
                                                                 "LOG_LEVEL=DEBUG"],
                                                    volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
-        print("container named calipso-api already exists...\n")
+        print("container named calipso-api already exists, please deal with it using docker...\n")
         return
 
 
@@ -108,7 +108,7 @@ def startscan():
                                                                  "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf"],
                                                     volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
-        print("container named calipso-scan already exists...\n")
+        print("container named calipso-scan already exists, please deal with it using docker...\n")
         return
 
 
@@ -121,21 +121,21 @@ def startsensu():
                                                      environment=["PYTHONPATH=/home/scan/calipso_prod/app"],
                                                      volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
-        print("container named calipso-sensu already exists...\n")
+        print("container named calipso-sensu already exists, please deal with it using docker...\n")
         return
 
 
-def startui():
+def startui(host, dbuser, dbpassword, webport, dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
         print("starting container calipso-ui...\n")
         uicontainer = DockerClient.containers.run('korenlev/calipso:ui', detach=True, name="calipso-ui",
-                                                  ports={'3000/tcp': 80},
-                                                  environment=["ROOT_URL=http://korlev-calipso-dev.cisco.com:80",
-                                                               "MONGO_URL=mongodb://calipso:calipso_default@"
-                                                               "korlev-calipso-dev.cisco.com:27017/calipso",
+                                                  ports={'3000/tcp': webport},
+                                                  environment=["ROOT_URL=http://" + host + ":" + str(webport),
+                                                               "MONGO_URL=mongodb://" + dbuser + ":" + dbpassword
+                                                               + "@" + host + ":" + str(dbport) + "/calipso",
                                                                "LDAP_CONFIG=/local_dir/ldap.conf"])
     else:
-        print("container named calipso-ui already exists...\n")
+        print("container named calipso-ui already exists, please deal with it using docker...\n")
         return
 
 
@@ -273,17 +273,15 @@ def stopui():
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--Hostname", help="Hostname or IP address of the server (default=172.17.0.1)",type=str,
+parser.add_argument("--hostname", help="Hostname or IP address of the server (default=172.17.0.1)",type=str,
                     default="172.17.0.1", required=False)
-parser.add_argument("--WebUI_port", help="Port for the Calipso WebUI (default=80)",type=int,
+parser.add_argument("--webport", help="Port for the Calipso WebUI (default=80)",type=int,
                     default="80", required=False)
-parser.add_argument("--DB_name", help="DataBase name for the Calipso MongoDB (default=calipso)",type=str,
-                    default="calipso", required=False)
-parser.add_argument("--DB_port", help="Port for the Calipso MongoDB (default=27017)",type=int,
+parser.add_argument("--dbport", help="Port for the Calipso MongoDB (default=27017)",type=int,
                     default="27017", required=False)
-parser.add_argument("--DB_user", help="User for the Calipso MongoDB (default=calipso)",type=str,
+parser.add_argument("--dbuser", help="User for the Calipso MongoDB (default=calipso)",type=str,
                     default="calipso", required=False)
-parser.add_argument("--DB_password", help="Password for the Calipso MongoDB (default=calipso_default)",type=str,
+parser.add_argument("--dbpassword", help="Password for the Calipso MongoDB (default=calipso_default)",type=str,
                     default="calipso_default", required=False)
 args = parser.parse_args()
 
@@ -304,7 +302,7 @@ while action not in container_actions:
 
 if action == "start":
     if container == "calipso-mongo":
-        startmongo()
+        startmongo(args.dbport)
     if container == "calipso-listen":
         startlisten()
     if container == "calipso-ldap":
@@ -316,16 +314,16 @@ if action == "start":
     if container == "calipso-sensu":
         startsensu()
     if container == "calipso-ui":
-        startui()
+        startui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
     if container == "all":
-        startmongo()
+        startmongo(args.dbport)
         startlisten()
         startldap()
         startapi()
         startscan()
         startsensu()
-        startui()
-    c = MongoComm(args.DB_user, args.DB_password, args.Hostname, args.DB_name, args.DB_port)
+        startui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
+    c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
     doc = dict(name="name", game_password="game_password")
     c.insert("coll", doc)
 
