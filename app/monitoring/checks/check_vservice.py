@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 for vservice with type T and id X
 run on the corresponding host:
@@ -29,7 +30,7 @@ if len(args) < 3:
 
 vservice_type = args[1]
 vservice_id = args[2]
-netns_cmd = 'ip netns pid {}'.format(vservice_id)
+netns_cmd = 'sudo ip netns pid {}'.format(vservice_id)
 pid = ''
 ps_cmd = ''
 try:
@@ -38,7 +39,8 @@ try:
     out = binary2str(out)
     lines = out.splitlines()
     if not lines:
-        print('no matching vservice: {}'.format(vservice_id))
+        print('no matching vservice: {}\ncommand: {}\noutput: {}'
+              .format(vservice_id, netns_cmd, out))
         exit(2)
     pid = lines[0]
 except subprocess.CalledProcessError as e:
@@ -52,12 +54,13 @@ try:
     ps_out = binary2str(out)
     lines = ps_out.splitlines()
     if not lines:
-        print('no matching vservice: {}'.format(vservice_id))
+        print('no matching vservice: {}\noutput of {}:\n{}'
+              .format(vservice_id, netns_cmd, out))
         exit(2)
     line = lines[0]
     headers = lines[0].split()
     lines = lines[1:]
-    if vservice_type == 'dhcp':
+    if vservice_type == 'dhcp' and len(lines) > 1:
         lines = [line for line in lines if 'dnsmasq' in line]
     values = lines[0].split()
     stat_index = headers.index('STAT')
