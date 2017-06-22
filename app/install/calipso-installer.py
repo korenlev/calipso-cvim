@@ -55,7 +55,8 @@ def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
         print("starting container calipso-mongo, please wait for 5 seconds...\n")
         mongocontainer = DockerClient.containers.run('korenlev/calipso:mongo', detach=True, name="calipso-mongo",
-                                                     ports={'27017/tcp': dbport, '28017/tcp': 28017})
+                                                     ports={'27017/tcp': dbport, '28017/tcp': 28017},
+                                                     restart_policy={"Name": "always", "MaximumRetryCount": 5})
         # wait a bit till mongoDB is up before starting to copy the json files from 'db' folder:
         time.sleep(5)
         enable_copy = input("copy json files from 'db' folder to mongoDB ?\n"
@@ -176,6 +177,7 @@ def startlisten():
         print("starting container calipso-listen...\n")
         listencontainer = DockerClient.containers.run('korenlev/calipso:listen', detach=True, name="calipso-listen",
                                                       ports={'22/tcp': 50022},
+                                                      restart_policy={"Name": "always", "MaximumRetryCount": 5},
                                                       environment=["PYTHONPATH=/home/scan/calipso_prod/app",
                                                                    "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf"],
                                                       volumes={'/home/calipso': {'bind': '/local_dir', 'mode': 'rw'}})
@@ -189,6 +191,7 @@ def startldap():
         print("starting container calipso-ldap...\n")
         ldapcontainer = DockerClient.containers.run('korenlev/calipso:ldap', detach=True, name="calipso-ldap",
                                                     ports={'389/tcp': 389, '389/udp': 389},
+                                                    restart_policy={"Name": "always", "MaximumRetryCount": 5},
                                                     volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
         print("container named calipso-ldap already exists, please deal with it using docker...\n")
@@ -200,6 +203,7 @@ def startapi():
         print("starting container calipso-api...\n")
         apicontainer = DockerClient.containers.run('korenlev/calipso:api', detach=True, name="calipso-api",
                                                    ports={'8000/tcp': 8000, '22/tcp': 40022},
+                                                   restart_policy={"Name": "always", "MaximumRetryCount": 5},
                                                    environment=["PYTHONPATH=/home/scan/calipso_prod/app",
                                                                 "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf",
                                                                 "LDAP_CONFIG=/local_dir/ldap.conf",
@@ -215,6 +219,7 @@ def startscan():
         print("starting container calipso-scan...\n")
         scancontainer = DockerClient.containers.run('korenlev/calipso:scan', detach=True, name="calipso-scan",
                                                     ports={'22/tcp': 30022},
+                                                    restart_policy={"Name": "always", "MaximumRetryCount": 5},
                                                     environment=["PYTHONPATH=/home/scan/calipso_prod/app",
                                                                  "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf"],
                                                     volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
@@ -229,6 +234,7 @@ def startsensu():
         sensucontainer = DockerClient.containers.run('korenlev/calipso:sensu', detach=True, name="calipso-sensu",
                                                      ports={'22/tcp': 20022, '3000/tcp': 3000, '4567/tcp': 4567,
                                                             '5671/tcp': 5671, '15672/tcp': 15672},
+                                                     restart_policy={"Name": "always", "MaximumRetryCount": 5},
                                                      environment=["PYTHONPATH=/home/scan/calipso_prod/app"],
                                                      volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
@@ -241,6 +247,7 @@ def startui(host, dbuser, dbpassword, webport, dbport):
         print("starting container calipso-ui...\n")
         uicontainer = DockerClient.containers.run('korenlev/calipso:ui', detach=True, name="calipso-ui",
                                                   ports={'3000/tcp': webport},
+                                                  restart_policy={"Name": "always", "MaximumRetryCount": 5},
                                                   environment=["ROOT_URL=http://" + host + ":" + str(webport),
                                                                "MONGO_URL=mongodb://" + dbuser + ":" + dbpassword
                                                                + "@" + host + ":" + str(dbport) + "/calipso",
