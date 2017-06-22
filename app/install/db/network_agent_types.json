@@ -1,0 +1,52 @@
+[
+{ 
+    "description" : "VPN agent", 
+    "folder_text" : "VPNs", 
+    "type" : "vpn"
+},
+{ 
+    "description" : "Firewall agent", 
+    "folder_text" : "Firewalls", 
+    "type" : "firewall"
+},
+{ 
+    "description" : "L2 agent", 
+    "folder_text" : "vEdges", 
+    "type" : "vedge"
+},
+{ 
+    "description" : "L3 agent", 
+    "folder_text" : "Gateways", 
+    "type" : "router"
+},
+{ 
+    "description" : "Metadata agent", 
+    "folder_text" : "Metadata", 
+    "type" : "metadata"
+},
+{ 
+    "description" : "Load Balancing agent", 
+    "folder_text" : "Load-Balancers", 
+    "type" : "load_balancer"
+},
+{ 
+    "description" : "Open vSwitch agent", 
+    "folder_text" : "vEdges", 
+    "type" : "vedge"
+},
+{ 
+    "description" : "Linux bridge agent", 
+    "folder_text" : "vConnectors", 
+    "type" : "vconnector"
+},
+{ 
+    "description" : "DHCP agent", 
+    "folder_text" : "DHCP servers", 
+    "type" : "dhcp"
+},
+{ 
+    "description" : "Orchestrator", 
+    "folder_text" : "Orchestrators", 
+    "type" : "orchestrator"
+}
+]

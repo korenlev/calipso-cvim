@@ -1,0 +1,74 @@
+[
+{ 
+    "environment" : {
+        "distribution" : "Mirantis-6.0", 
+        "type_drivers" : "vxlan", 
+        "mechanism_drivers" : "OVS"
+    }, 
+    "features" : {
+        "scanning" : true, 
+        "monitoring" : true, 
+        "listening" : true
+    }
+},
+{ 
+    "environment" : {
+        "distribution" : "Mirantis-7.0", 
+        "type_drivers" : "vxlan", 
+        "mechanism_drivers" : "OVS"
+    }, 
+    "features" : {
+        "scanning" : true, 
+        "monitoring" : true, 
+        "listening" : true
+    }
+},
+{ 
+    "environment" : {
+        "distribution" : "Mirantis-8.0", 
+        "type_drivers" : "vxlan", 
+        "mechanism_drivers" : "OVS"
+    }, 
+    "features" : {
+        "scanning" : true, 
+        "monitoring" : true, 
+        "listening" : true
+    }
+},
+{ 
+    "environment" : {
+        "distribution" : "Mirantis-9.1", 
+        "type_drivers" : "vxlan", 
+        "mechanism_drivers" : "OVS"
+    }, 
+    "features" : {
+        "scanning" : true, 
+        "monitoring" : true, 
+        "listening" : false
+    }
+},
+{ 
+    "environment" : {
+        "distribution" : "RDO-Mitaka", 
+        "type_drivers" : "vxlan", 
+        "mechanism_drivers" : "OVS"
+    }, 
+    "features" : {
+        "scanning" : true, 
+        "monitoring" : true, 
+        "listening" : true
+    }
+},
+{ 
+    "environment" : {
+        "distribution" : "RDO-Liberty", 
+        "type_drivers" : "vxlan", 
+        "mechanism_drivers" : "OVS"
+    }, 
+    "features" : {
+        "scanning" : true, 
+        "monitoring" : true, 
+        "listening" : true
+    }
+}
+]

@@ -1,0 +1,20 @@
+[
+{ 
+    "name" : "manage-users"
+},
+{ 
+    "name" : "manage-link-types"
+},
+{ 
+    "name" : "view-env"
+},
+{ 
+    "name" : "edit-env"
+},
+{ 
+    "name" : "manage-clique-types"
+},
+{ 
+    "name" : "manage-clique-constraints"
+}
+]
