@@ -7,12 +7,12 @@
     "host" : "node-1.cisco.com", 
     "link_name" : "network100", 
     "link_type" : "vservice-vnic", 
-    "link_weight" : NumberInt(0), 
-    "source" : ObjectId("586bcc1fea63f725ad11841b"), 
+    "link_weight" : "0", 
+    "source" : "586bcc1fea63f725ad11841b", 
     "source_id" : "node-1.cisco.com-qdhcp-d15c7b32-c96b-4b13-98fd-df015a87dd0d", 
     "source_label" : "", 
     "state" : "up", 
-    "target" : ObjectId("586bcc20ea63f725ad118421"), 
+    "target" : "586bcc20ea63f725ad118421", 
     "target_id" : "node-1.cisco.com-tape3a2b900-72", 
     "target_label" : ""
 }

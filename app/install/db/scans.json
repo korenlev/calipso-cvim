@@ -6,10 +6,10 @@
     "scan_only_inventory" : false, 
     "scan_only_links" : false, 
     "scan_only_cliques" : false, 
-    "submit_timestamp" : ISODate("2017-05-17T07:53:09.194+0000"), 
+    "submit_timestamp" : "2017-05-17T07:53:09.194+0000", 
     "environment" : "Mirantis-Liberty", 
     "inventory" : "inventory", 
-    "start_timestamp" : ISODate("2017-05-17T11:00:17.939+0000")
+    "start_timestamp" : "2017-05-17T11:00:17.939+0000"
 },
 { 
     "status" : "failed", 
@@ -18,7 +18,7 @@
     "scan_only_inventory" : false, 
     "scan_only_links" : false, 
     "scan_only_cliques" : false, 
-    "submit_timestamp" : ISODate("2017-06-14T13:42:32.710+0000"), 
+    "submit_timestamp" : "2017-06-14T13:42:32.710+0000", 
     "environment" : "staging"
 }
 ]
