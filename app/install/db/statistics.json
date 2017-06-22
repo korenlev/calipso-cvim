@@ -1,0 +1,23 @@
+[
+{ 
+    "averageArrivalNanoSeconds" : NumberLong(1487146510773984049), 
+    "averageThroughput" : NumberInt(17280), 
+    "data_arrival_avg" : NumberInt(1487146510), 
+    "destination" : "iperf2", 
+    "destinationMacAddress" : "fa:16:3e:5d:7b:ae", 
+    "egressInterface" : NumberInt(3), 
+    "environment" : "Devstack-VPP", 
+    "ethernetType" : NumberInt(2048), 
+    "flowType" : "L2", 
+    "hostIp" : "10.56.20.78", 
+    "ingressInterface" : NumberInt(2), 
+    "object_id" : "devstack-vpp2-VPP", 
+    "object_type" : "vedge", 
+    "packetCount" : NumberInt(2), 
+    "recordGenerationMillis" : NumberLong(1487147277000), 
+    "sample_time" : "2017-02-15T08:15:10Z", 
+    "source" : "iperf1", 
+    "sourceMacAddress" : "fa:16:3e:58:64:c6", 
+    "type" : "vedge_flows"
+}
+]
