@@ -52,7 +52,6 @@ startMongo () {
     echo "Starting mongo"
     docker run \
     -d \
-    -v ${HOME_DIR}/db:/data/db \
     -p 27017:27017 \
     -p 28017:28017 \
     --name ${PROJECT_NAME}-mongo \

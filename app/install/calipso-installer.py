@@ -56,8 +56,7 @@ def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
         print("starting container calipso-mongo...\n")
         mongocontainer = DockerClient.containers.run('korenlev/calipso:mongo', detach=True, name="calipso-mongo",
-                                                     ports={'27017/tcp': dbport, '28017/tcp': 28017},
-                                                     volumes={'/home/calipso/db': {'bind': '/data/db', 'mode': 'rw'}})
+                                                     ports={'27017/tcp': dbport, '28017/tcp': 28017})
     else:
         print("container named calipso-mongo already exists, please deal with it using docker...\n")
         return
@@ -331,6 +330,7 @@ if action == "start":
         startui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
 
     # As mongoDB is up, starting to copy json files:
+    time.sleep(3)
     c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
     print("starting to copy json files to mongoDB...\n")
 
