@@ -50,13 +50,122 @@ class MongoComm:
 
 DockerClient = docker.from_env()   # using local host docker environment parameters
 
-
 # functions to check and start calipso containers:
 def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
-        print("starting container calipso-mongo...\n")
+        print("starting container calipso-mongo, please wait for 5 seconds...\n")
         mongocontainer = DockerClient.containers.run('korenlev/calipso:mongo', detach=True, name="calipso-mongo",
                                                      ports={'27017/tcp': dbport, '28017/tcp': 28017})
+        # wait a bit till mongoDB is up before starting to copy the json files from 'db' folder:
+        time.sleep(5)
+        enable_copy = input("copy json files from 'db' folder to mongoDB ?\n"
+                            "(mandatory step in first install/run !) 'c' to copy, 'q' to skip: ")
+        if enable_copy == "c":
+            c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
+            print("\nstarting to copy json files to mongoDB...\n\n")
+            print("-----------------------------------------\n\n")
+            time.sleep(1)
+
+            txt = open('db/attributes_for_hover_on_data.json')
+            data = json.load(txt)
+            doc_id = c.insert("attributes_for_hover_on_data", data)
+            print("Copied attributes_for_hover_on_data, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/clique_constraints.json')
+            data = json.load(txt)
+            doc_id = c.insert("clique_constraints", data)
+            print("Copied clique_constraints, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/cliques.json')
+            data = json.load(txt)
+            doc_id = c.insert("cliques", data)
+            print("Copied cliques, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/clique_types.json')
+            data = json.load(txt)
+            doc_id = c.insert("clique_types", data)
+            print("Copied clique_types, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/supported_environments.json')
+            data = json.load(txt)
+            doc_id = c.insert("supported_environments", data)
+            print("Copied supported_environments, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/constants.json')
+            data = json.load(txt)
+            doc_id = c.insert("constants", data)
+            print("Copied constants, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/environments_config.json')
+            data = json.load(txt)
+            doc_id = c.insert("environments_config", data)
+            print("Copied environments_config, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/statistics.json')
+            data = json.load(txt)
+            doc_id = c.insert("statistics", data)
+            print("Copied statistics, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/inventory.json')
+            data = json.load(txt)
+            doc_id = c.insert("inventory", data)
+            print("Copied inventory, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/links.json')
+            data = json.load(txt)
+            doc_id = c.insert("links", data)
+            print("Copied links, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/link_types.json')
+            data = json.load(txt)
+            doc_id = c.insert("link_types", data)
+            print("Copied link_types, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/monitoring_config.json')
+            data = json.load(txt)
+            doc_id = c.insert("monitoring_config", data)
+            print("Copied monitoring_config, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/monitoring_config_templates.json')
+            data = json.load(txt)
+            doc_id = c.insert("monitoring_config_templates", data)
+            print("Copied monitoring_config_templates, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/network_agent_types.json')
+            data = json.load(txt)
+            doc_id = c.insert("network_agent_types", data)
+            print("Copied network_agent_types, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/scans.json')
+            data = json.load(txt)
+            doc_id = c.insert("scans", data)
+            print("Copied scans, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            txt = open('db/messages.json')
+            data = json.load(txt)
+            doc_id = c.insert("messages", data)
+            print("Copied messages, mongo doc_ids:\n\n", doc_id, "\n\n")
+            time.sleep(1)
+
+            # note : 'messages', 'roles', 'users' and some of the 'constants' are filled by calipso-ui at runtime
+            # some other docs are filled later by scanning, logging and monitoring
+        else:
+            return
     else:
         print("container named calipso-mongo already exists, please deal with it using docker...\n")
         return
@@ -275,7 +384,7 @@ def stopui():
         print("no container named 'calipso-ui' found...")
 
 
-# parser for optional command arguments:
+# parser for getting optional command arguments:
 parser = argparse.ArgumentParser()
 parser.add_argument("--hostname", help="Hostname or IP address of the server (default=172.17.0.1)",type=str,
                     default="172.17.0.1", required=False)
@@ -306,160 +415,59 @@ while action not in container_actions:
 
 # starting the containers per arguments:
 if action == "start":
-    if container == "calipso-mongo":
+    # building /home/calipso/calipso_mongo_access.conf and /home/calipso/ldap.conf files, per the arguments:
+    calipso_mongo_access_file = open("/home/calipso/calipso_mongo_access.conf", "w+")
+    ldap_file = open("/home/calipso/ldap.conf", "w+")
+    calipso_mongo_access_text = "server " + args.hostname + "\nuser " + args.dbuser + "\npassword " + \
+                                args.dbpassword + "\nauth_db calipso"
+    ldap_text = "user admin" + "\npassword password" + "\nurl ldap://" + args.hostname + ":389" + \
+                "\nuser_id_attribute CN" + "\nuser_pass_attribute userpassword" + \
+                "\nuser_objectclass inetOrgPerson" + \
+                "\nuser_tree_dn OU=Users,DC=openstack,DC=org" + "\nquery_scope one" + \
+                "\ntls_req_cert allow" + \
+                "\ngroup_member_attribute member"
+    print("creating default /home/calipso/calipso_mongo_access.conf file...\n")
+    calipso_mongo_access_file.write(calipso_mongo_access_text)
+    print("creating default /home/calipso/ldap.conf file...\n")
+    ldap_file.write(ldap_text)
+
+    if container == "calipso-mongo" or container == "all":
         startmongo(args.dbport)
-    if container == "calipso-listen":
+        time.sleep(1)
+    if container == "calipso-listen" or container == "all":
         startlisten()
-    if container == "calipso-ldap":
+        time.sleep(1)
+    if container == "calipso-ldap" or container == "all":
         startldap()
-    if container == "calipso-api":
+        time.sleep(1)
+    if container == "calipso-api" or container == "all":
         startapi()
-    if container == "calipso-scan":
+        time.sleep(1)
+    if container == "calipso-scan" or container == "all":
         startscan()
-    if container == "calipso-sensu":
+        time.sleep(1)
+    if container == "calipso-sensu" or container == "all":
         startsensu()
-    if container == "calipso-ui":
+        time.sleep(1)
+    if container == "calipso-ui" or container == "all":
         startui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
-    if container == "all":
-        startmongo(args.dbport)
-        startlisten()
-        startldap()
-        startapi()
-        startscan()
-        startsensu()
-        startui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
-
-    enable_copy = input("copy json files from 'db' folder to mongoDB ?\n"
-                        "(mandatory in first install) 'c' to copy, 'q' to quit: ")
-    if enable_copy == "c":
-        print("starting to copy json files to mongoDB...\n\n")
-        # wait a bit till mongoDB is up before starting to copy the json files from 'db' folder:
-        print("waiting for mongoDB to come up...\n\n")
-        time.sleep(3)
-        c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
-        print("starting to copy json files to mongoDB...\n\n")
-        print("-----------------------------------------\n\n")
         time.sleep(1)
-
-        txt = open('db/attributes_for_hover_on_data.json')
-        data = json.load(txt)
-        doc_id = c.insert("attributes_for_hover_on_data", data)
-        print("Copied attributes_for_hover_on_data, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/clique_constraints.json')
-        data = json.load(txt)
-        doc_id = c.insert("clique_constraints", data)
-        print("Copied clique_constraints, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/cliques.json')
-        data = json.load(txt)
-        doc_id = c.insert("cliques", data)
-        print("Copied cliques, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/clique_types.json')
-        data = json.load(txt)
-        doc_id = c.insert("clique_types", data)
-        print("Copied clique_types, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/supported_environments.json')
-        data = json.load(txt)
-        doc_id = c.insert("supported_environments", data)
-        print("Copied supported_environments, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/constants.json')
-        data = json.load(txt)
-        doc_id = c.insert("constants", data)
-        print("Copied constants, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/environments_config.json')
-        data = json.load(txt)
-        doc_id = c.insert("environments_config", data)
-        print("Copied environments_config, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/statistics.json')
-        data = json.load(txt)
-        doc_id = c.insert("statistics", data)
-        print("Copied statistics, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/inventory.json')
-        data = json.load(txt)
-        doc_id = c.insert("inventory", data)
-        print("Copied inventory, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/links.json')
-        data = json.load(txt)
-        doc_id = c.insert("links", data)
-        print("Copied links, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/link_types.json')
-        data = json.load(txt)
-        doc_id = c.insert("link_types", data)
-        print("Copied link_types, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/monitoring_config.json')
-        data = json.load(txt)
-        doc_id = c.insert("monitoring_config", data)
-        print("Copied monitoring_config, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/monitoring_config_templates.json')
-        data = json.load(txt)
-        doc_id = c.insert("monitoring_config_templates", data)
-        print("Copied monitoring_config_templates, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/network_agent_types.json')
-        data = json.load(txt)
-        doc_id = c.insert("network_agent_types", data)
-        print("Copied network_agent_types, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        txt = open('db/scans.json')
-        data = json.load(txt)
-        doc_id = c.insert("scans", data)
-        print("Copied scans, mongo doc_ids:\n\n", doc_id)
-        time.sleep(1)
-
-        # note : 'messages', 'roles', 'users' and some of the 'constants' are filled by calipso-ui at runtime
-        # some other docs are filled later by scanning, logging and monitoring
-
-    else:
-        exit()
-
 
 # stopping the containers per arguments:
 if action == "stop":
-    if container == "calipso-mongo":
+    if container == "calipso-mongo" or container == "all":
         stopmongo()
-    if container == "calipso-listen":
+    if container == "calipso-listen" or container == "all":
         stoplisten()
-    if container == "calipso-ldap":
+    if container == "calipso-ldap" or container == "all":
         stopldap()
-    if container == "calipso-api":
+    if container == "calipso-api" or container == "all":
         stopapi()
-    if container == "calipso-scan":
+    if container == "calipso-scan" or container == "all":
         stopscan()
-    if container == "calipso-sensu":
+    if container == "calipso-sensu" or container == "all":
         stopsensu()
-    if container == "calipso-ui":
+    if container == "calipso-ui" or container == "all":
         stopui()
-    if container == "all":
-        stopmongo()
-        stoplisten()
-        stopldap()
-        stopapi()
-        stopscan()
-        stopsensu()
-        stopui()
+
 
