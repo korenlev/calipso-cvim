@@ -34,7 +34,7 @@
     "config" : {
         "redis" : {
             "host" : "127.0.0.1", 
-            "port" : NumberInt(6379)
+            "port" : "6379"
         }
     }, 
     "monitoring_system" : "sensu", 
@@ -46,7 +46,7 @@
     "config" : {
         "api" : {
             "host" : "{server_ip}", 
-            "port" : NumberInt(4567)
+            "port" : 4567
         }, 
         "client" : {
             "name" : "{client_name}", 
@@ -88,7 +88,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 
@@ -121,7 +121,7 @@
         "api" : {
             "host" : "{server_ip}", 
             "bind" : "0.0.0.0", 
-            "port" : NumberInt(4567)
+            "port" : 4567
         }
     }, 
     "monitoring_system" : "sensu", 
@@ -142,7 +142,7 @@
             ], 
             "socket" : {
                 "bind" : "{server_ip}", 
-                "port" : NumberInt(3030)
+                "port" : 3030
             }
         }, 
         "keepalive" : {
@@ -163,12 +163,12 @@
             "file" : {
                 "type" : "pipe", 
                 "command" : "/etc/sensu/plugins/event-file.rb", 
-                "timeout" : NumberInt(20)
+                "timeout" : 20
             }, 
             "osdna-monitor" : {
                 "type" : "pipe", 
                 "command" : "PYTHONPATH={app_path} {app_path}/monitoring/handlers/monitor.py -m /local_dir/calipso_mongo_access.conf", 
-                "timeout" : NumberInt(20)
+                "timeout" : 20
             }
         }
     }, 
@@ -194,7 +194,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 
@@ -218,7 +218,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 
@@ -241,7 +241,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 
@@ -268,7 +268,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 
@@ -291,7 +291,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 
@@ -314,7 +314,7 @@
                 "subscribers" : [
                     "base"
                 ], 
-                "interval" : NumberInt(15)
+                "interval" : 15
             }
         }
     }, 

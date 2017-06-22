@@ -1,37 +1,6 @@
 [
 { 
-    "createdAt" : ISODate("2016-06-27T11:41:14.728+0000"), 
-    "services" : {
-        "password" : {
-            "bcrypt" : "$2a$10$QuzinDCJ3Uh7wXj5600eAuzH2Hul5F5zsecPiRfGkbW5PZwm7DtBq"
-        }, 
-        "resume" : {
-            "loginTokens" : [
-                {
-                    "when" : ISODate("2017-05-17T05:50:50.744+0000"), 
-                    "hashedToken" : "3Cw7x1ZpoYSCqDihi1JtX5OpDtf0Zwue/H2jBi8YxPc="
-                }, 
-                {
-                    "when" : ISODate("2017-05-17T07:12:17.288+0000"), 
-                    "hashedToken" : "MUxxGS8JRCcwVqmNAxGqlLSkpIlcC1sZ5EhPZAO/NLk="
-                }, 
-                {
-                    "when" : ISODate("2017-05-21T09:59:29.275+0000"), 
-                    "hashedToken" : "OoKb3D7312F22o/c8UQ087oGUsiWlsra80kgst/mePA="
-                }, 
-                {
-                    "when" : ISODate("2017-05-29T08:59:22.319+0000"), 
-                    "hashedToken" : "x3upFcXA7HGdUyzn3a5b1TUJCptoh+5zW8obSEgBPD0="
-                }
-            ]
-        }
-    }, 
-    "username" : "admin", 
     "roles" : {
-        "default-group" : [
-            "manage-users", 
-            "manage-link-types"
-        ], 
         "__global_roles__" : [
             "view-env", 
             "edit-env", 
@@ -39,125 +8,44 @@
             "manage-link-types", 
             "manage-clique-types", 
             "manage-clique-constraints"
+        ], 
+        "default-group" : [
+            "manage-users", 
+            "manage-link-types"
         ]
-    }
-},
-{ 
-    "createdAt" : ISODate("2016-07-11T17:20:15.366+0000"), 
+    }, 
     "services" : {
-        "password" : {
-            "bcrypt" : "$2a$10$Ua3EX/xzHXOGpVYRUOlVJ.EzY3nA7mnsbJX0TM6owj5Q8c.dbXvBy"
-        }, 
         "resume" : {
             "loginTokens" : [
                 {
-                    "when" : ISODate("2017-03-26T06:15:40.983+0000"), 
-                    "hashedToken" : "xyHwjGsLkOjofb4YMOwRetbYf8nvGTPxtN1dV6lRZv0="
-                }, 
-                {
-                    "when" : ISODate("2017-03-27T04:33:06.433+0000"), 
-                    "hashedToken" : "+EQ4RgoxSZ4+d2SCEou39y4nkgktHDTTiWBvBAy6eUc="
-                }, 
-                {
-                    "when" : ISODate("2017-03-27T06:14:28.893+0000"), 
-                    "hashedToken" : "8puBvhlJ5flQme+GTaUQxSCjSHb7R50Judo7kbdpyjo="
-                }, 
-                {
-                    "when" : ISODate("2017-03-27T09:43:34.292+0000"), 
-                    "hashedToken" : "PQGqlSU+V1ZAB+zf1Y0cVJfwXP6LMQxnDmR41/oChNA="
-                }, 
-                {
-                    "when" : ISODate("2017-03-27T13:11:38.908+0000"), 
-                    "hashedToken" : "M8lp8H47wDNM/O3y7F5Wgv0iy8oOfaUnUs0xmCwCdFQ="
-                }, 
-                {
-                    "when" : ISODate("2017-03-28T05:44:10.473+0000"), 
-                    "hashedToken" : "3MQXG1OtOZ0SNL9rsY/rDKTgrhaF0aOnJLtFNQUnwpY="
-                }, 
-                {
-                    "when" : ISODate("2017-03-28T11:10:46.865+0000"), 
-                    "hashedToken" : "NSz1WYOZPpqZNDwz4FzQSXKou+m9fRfpypTFc5KmqAk="
-                }, 
-                {
-                    "when" : ISODate("2017-03-28T15:11:30.621+0000"), 
-                    "hashedToken" : "IVWJHh9w50Wc7QdjN4QlN78TyVeYP+Zc+PdeWvx2ThY="
-                }, 
-                {
-                    "when" : ISODate("2017-03-29T07:21:31.474+0000"), 
-                    "hashedToken" : "fvojJFrfaU7NwtGMFU9Jhaenoj+tzwIkr8DznMsWHZw="
-                }, 
-                {
-                    "when" : ISODate("2017-05-16T15:05:20.860+0000"), 
-                    "hashedToken" : "8epiOmyygLjItvtvxlG/mNsQ0MRC1Q6WSum1fJafv5U="
-                }, 
-                {
-                    "when" : ISODate("2017-05-17T05:50:33.095+0000"), 
-                    "hashedToken" : "SJaTWZgL/L5qn+9csXcO+w167nR3K+dc1zEYz9FMZ3M="
-                }, 
-                {
-                    "when" : ISODate("2017-05-23T13:32:00.819+0000"), 
-                    "hashedToken" : "WTw94hN+1cpTideqUq2Y4b5vj9nLiubmlikZ+EulsMs="
-                }, 
-                {
-                    "when" : ISODate("2017-05-29T10:25:08.398+0000"), 
-                    "hashedToken" : "mPq5suP/ee/lWjnCWNY+bigvsivPgc6W7HmpvnmrFc4="
-                }, 
-                {
-                    "when" : ISODate("2017-05-30T05:31:10.462+0000"), 
-                    "hashedToken" : "NlAjXUdLHWLC6MXJZTNRrTO++mz7UIFRv42+gcawXaE="
-                }, 
-                {
-                    "when" : ISODate("2017-05-30T05:34:29.234+0000"), 
-                    "hashedToken" : "hzfq3iPfFwnV7LycU6Eg72XDpLZwi5UoCw9eT9AwbLE="
-                }, 
-                {
-                    "when" : ISODate("2017-06-01T07:52:42.151+0000"), 
-                    "hashedToken" : "1jdKT7gewMsvPrpTEOY92gj0FTbJd43fhuHjUapR5sI="
-                }, 
-                {
-                    "when" : ISODate("2017-06-01T16:52:08.955+0000"), 
-                    "hashedToken" : "cyQ/DXdTscJdBP6VWmyJyu/h+eFe9/smUO25lL2KbvE="
-                }, 
-                {
-                    "when" : ISODate("2017-06-01T16:53:30.257+0000"), 
-                    "hashedToken" : "wPkP7puax64ouJ3SfI986g5Tsj/KGBgQkvEMGhed+r8="
-                }, 
-                {
-                    "when" : ISODate("2017-06-02T14:27:06.799+0000"), 
-                    "hashedToken" : "qjk8t7l9pltuxIE6xi0AsDACEA7WSOgh6WVsW5SjJr8="
-                }, 
-                {
-                    "when" : ISODate("2017-06-05T08:08:01.398+0000"), 
-                    "hashedToken" : "gv75QwqBv4IMPf5dzNtDUUXpSBsacT6Y9xbH3lgjCgg="
-                }, 
-                {
-                    "when" : ISODate("2017-06-06T09:41:36.861+0000"), 
-                    "hashedToken" : "2XqN3wWxMoTq+aV0i4gU9wVzNnumUqij7Ij9JWCc54o="
-                }, 
-                {
-                    "when" : ISODate("2017-06-07T08:49:47.645+0000"), 
-                    "hashedToken" : "1p185H+2AcYzD0SmB/LtdIqDXR3/W81dG41vWCKUTT0="
-                }, 
-                {
-                    "when" : ISODate("2017-06-07T08:50:03.793+0000"), 
-                    "hashedToken" : "zDrtdiwyzTveM/a0gxFXWs8KW62I7LOFGXxEHz59lGk="
-                }, 
-                {
-                    "when" : ISODate("2017-06-14T16:25:22.853+0000"), 
-                    "hashedToken" : "S5yE9BXQb1gwNFYT0HFIG9YxPROMvujgsoS/yVIM9pU="
-                }, 
-                {
-                    "when" : ISODate("2017-06-21T15:26:54.247+0000"), 
-                    "hashedToken" : "LoqRONnES2ZAsfrvm+sk8mK52LFI8G5dVOwdG3zCLiA="
+                    "hashedToken" : "3Cw7x1ZpoYSCqDihi1JtX5OpDtf0Zwue/H2jBi8YxPc="
                 }
             ]
+        }, 
+        "password" : {
+            "bcrypt" : "$2a$10$QuzinDCJ3Uh7wXj5600eAuzH2Hul5F5zsecPiRfGkbW5PZwm7DtBq"
         }
     }, 
-    "username" : "test", 
+    "username" : "admin"
+},
+{ 
     "roles" : {
         "default-group" : [
             "manage-users"
         ]
-    }
+    }, 
+    "services" : {
+        "resume" : {
+            "loginTokens" : [
+                {
+                    "hashedToken" : "xyHwjGsLkOjofb4YMOwRetbYf8nvGTPxtN1dV6lRZv0="
+                }
+            ]
+        }, 
+        "password" : {
+            "bcrypt" : "$2a$10$Ua3EX/xzHXOGpVYRUOlVJ.EzY3nA7mnsbJX0TM6owj5Q8c.dbXvBy"
+        }
+    }, 
+    "username" : "test"
 }
 ]

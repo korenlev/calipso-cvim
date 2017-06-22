@@ -7,7 +7,7 @@
     "id" : "db9fe1fe-a746-41be-b66d-238a843509ed", 
     "id_path" : "/Mirantis-Mitaka/Mirantis-Mitaka-regions/RegionOne/RegionOne-availability_zones/nova/node-6.cisco.com/node-6.cisco.com-instances/db9fe1fe-a746-41be-b66d-238a843509ed", 
     "ip_address" : "192.168.0.4", 
-    "last_scanned" : ISODate("2017-01-03T18:07:03.645+0000"), 
+    "last_scanned" : "sometime",
     "local_name" : "instance-00000002", 
     "mac_address" : "fa:16:3e:84:ef:28", 
     "name" : "vm200", 
@@ -47,7 +47,7 @@
                                 "floating_ips" : [
 
                                 ], 
-                                "version" : NumberInt(4), 
+                                "version" : "4", 
                                 "address" : "172.16.100.4", 
                                 "type" : "fixed", 
                                 "meta" : {
@@ -59,7 +59,7 @@
                             "dhcp_server" : "172.16.100.2"
                         }, 
                         "gateway" : {
-                            "version" : NumberInt(4), 
+                            "version" : "4", 
                             "address" : "172.16.100.1", 
                             "type" : "gateway", 
                             "meta" : {
@@ -72,14 +72,14 @@
                         "dns" : [
 
                         ], 
-                        "version" : NumberInt(4)
+                        "version" : "4"
                     }
                 ], 
                 "label" : "network100", 
                 "id" : "d15c7b32-c96b-4b13-98fd-df015a87dd0d", 
                 "meta" : {
                     "injected" : false, 
-                    "mtu" : NumberInt(1450), 
+                    "mtu" : "1450", 
                     "tenant_id" : "146f071668314d47afad6c18063ad0e4"
                 }
             }
