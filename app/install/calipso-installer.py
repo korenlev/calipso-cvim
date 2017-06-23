@@ -75,8 +75,7 @@ def startmongo(dbport):
                                                      restart_policy={"Name": "always"})
         # wait a bit till mongoDB is up before starting to copy the json files from 'db' folder:
         time.sleep(5)
-        enable_copy = input("copy json files from 'db' folder to mongoDB ?\n"
-                            "(mongo container comes with data, verify collections first !) 'c' to copy, 'q' to skip: ")
+        enable_copy = input("copy json files from 'db' folder to mongoDB ? ('c' to copy, 'q' to skip: ")
         if enable_copy == "c":
             c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
             print("\nstarting to copy json files to mongoDB...\n\n")
