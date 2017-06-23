@@ -32,17 +32,26 @@ class MongoComm:
             doc_id = collection.insert(doc)
             return doc_id
 
-        def remove(self, coll, doc):
+        def remove_doc(self, coll, doc):
             collection = self.client.calipso[coll]
             collection.remove(doc)
 
-        def update(self, coll, key, val, data):
+        def remove_coll(self, coll):
+            collection = self.client.calipso[coll]
+            collection.remove()
+
+        def find_update(self, coll, key, val, data):
             collection = self.client.calipso[coll]
             collection.find_one_and_update(
                 {key: val},
                 {"$set": data},
                 upsert=True
             )
+
+        def update(self, coll, doc, upsert=False):
+            collection = self.client.calipso[coll]
+            doc_id = collection.update_one({'_id': doc['_id']},{'$set': doc}, upsert=upsert)
+            return doc_id
 
     except ConnectionFailure:
         print("MongoDB Server not available")
@@ -53,7 +62,7 @@ DockerClient = docker.from_env()   # using local host docker environment paramet
 # functions to check and start calipso containers:
 def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
-        print("starting container calipso-mongo, please wait...\n")
+        print("\nstarting container calipso-mongo, please wait...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:mongo")
         if image:
             print(image, "exists...not downloading...")
@@ -76,96 +85,112 @@ def startmongo(dbport):
 
             txt = open('db/attributes_for_hover_on_data.json')
             data = json.load(txt)
+            c.remove_coll("attributes_for_hover_on_data")
             doc_id = c.insert("attributes_for_hover_on_data", data)
             print("Copied attributes_for_hover_on_data, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/clique_constraints.json')
             data = json.load(txt)
+            c.remove_coll("clique_constraints")
             doc_id = c.insert("clique_constraints", data)
             print("Copied clique_constraints, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/cliques.json')
             data = json.load(txt)
+            c.remove_coll("cliques")
             doc_id = c.insert("cliques", data)
             print("Copied cliques, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/clique_types.json')
             data = json.load(txt)
+            c.remove_coll("clique_types")
             doc_id = c.insert("clique_types", data)
             print("Copied clique_types, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/supported_environments.json')
             data = json.load(txt)
+            c.remove_coll("supported_environments")
             doc_id = c.insert("supported_environments", data)
             print("Copied supported_environments, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/constants.json')
             data = json.load(txt)
+            c.remove_coll("constants")
             doc_id = c.insert("constants", data)
             print("Copied constants, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/environments_config.json')
             data = json.load(txt)
+            c.remove_coll("environments_config")
             doc_id = c.insert("environments_config", data)
             print("Copied environments_config, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/statistics.json')
             data = json.load(txt)
+            c.remove_coll("statistics")
             doc_id = c.insert("statistics", data)
             print("Copied statistics, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/inventory.json')
             data = json.load(txt)
+            c.remove_coll("inventory")
             doc_id = c.insert("inventory", data)
             print("Copied inventory, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/links.json')
             data = json.load(txt)
+            c.remove_coll("links")
             doc_id = c.insert("links", data)
             print("Copied links, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/link_types.json')
             data = json.load(txt)
+            c.remove_coll("link_types")
             doc_id = c.insert("link_types", data)
             print("Copied link_types, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/monitoring_config.json')
             data = json.load(txt)
+            c.remove_coll("monitoring_config")
             doc_id = c.insert("monitoring_config", data)
             print("Copied monitoring_config, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/monitoring_config_templates.json')
             data = json.load(txt)
+            c.remove_coll("monitoring_config_templates")
             doc_id = c.insert("monitoring_config_templates", data)
             print("Copied monitoring_config_templates, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/network_agent_types.json')
             data = json.load(txt)
+            c.remove_coll("network_agent_types")
             doc_id = c.insert("network_agent_types", data)
             print("Copied network_agent_types, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/scans.json')
             data = json.load(txt)
+            c.remove_coll("scans")
             doc_id = c.insert("scans", data)
             print("Copied scans, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
 
             txt = open('db/messages.json')
             data = json.load(txt)
+            c.remove_coll("messages")
             doc_id = c.insert("messages", data)
             print("Copied messages, mongo doc_ids:\n\n", doc_id, "\n\n")
             time.sleep(1)
@@ -181,7 +206,7 @@ def startmongo(dbport):
 
 def startlisten():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-listen"}):
-        print("starting container calipso-listen...\n")
+        print("\nstarting container calipso-listen...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:listen")
         if image:
             print(image, "exists...not downloading...")
@@ -202,7 +227,7 @@ def startlisten():
 
 def startldap():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ldap"}):
-        print("starting container calipso-ldap...\n")
+        print("\nstarting container calipso-ldap...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:ldap")
         if image:
             print(image, "exists...not downloading...")
@@ -221,7 +246,7 @@ def startldap():
 
 def startapi():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-api"}):
-        print("starting container calipso-api...\n")
+        print("\nstarting container calipso-api...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:api")
         if image:
             print(image, "exists...not downloading...")
@@ -244,7 +269,7 @@ def startapi():
 
 def startscan():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-scan"}):
-        print("starting container calipso-scan...\n")
+        print("\nstarting container calipso-scan...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:scan")
         if image:
             print(image, "exists...not downloading...")
@@ -265,7 +290,7 @@ def startscan():
 
 def startsensu():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-sensu"}):
-        print("starting container calipso-sensu...\n")
+        print("\nstarting container calipso-sensu...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:sensu")
         if image:
             print(image, "exists...not downloading...")
@@ -286,7 +311,7 @@ def startsensu():
 
 def startui(host, dbuser, dbpassword, webport, dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
-        print("starting container calipso-ui...\n")
+        print("\nstarting container calipso-ui...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:ui")
         if image:
             print(image, "exists...not downloading...")
