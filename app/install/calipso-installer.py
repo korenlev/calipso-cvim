@@ -53,7 +53,14 @@ DockerClient = docker.from_env()   # using local host docker environment paramet
 # functions to check and start calipso containers:
 def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
-        print("starting container calipso-mongo, please wait for 5 seconds...\n")
+        print("starting container calipso-mongo, please wait...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:mongo")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:mongo missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:mongo")
+            print("Downloaded", image, "\n\n")
         mongocontainer = DockerClient.containers.run('korenlev/calipso:mongo', detach=True, name="calipso-mongo",
                                                      ports={'27017/tcp': dbport, '28017/tcp': 28017},
                                                      restart_policy={"Name": "always"})
@@ -175,6 +182,13 @@ def startmongo(dbport):
 def startlisten():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-listen"}):
         print("starting container calipso-listen...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:listen")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:listen missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:listen")
+            print("Downloaded", image, "\n\n")
         listencontainer = DockerClient.containers.run('korenlev/calipso:listen', detach=True, name="calipso-listen",
                                                       ports={'22/tcp': 50022},
                                                       restart_policy={"Name": "always"},
@@ -189,6 +203,13 @@ def startlisten():
 def startldap():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ldap"}):
         print("starting container calipso-ldap...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:ldap")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:ldap missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:ldap")
+            print("Downloaded", image, "\n\n")
         ldapcontainer = DockerClient.containers.run('korenlev/calipso:ldap', detach=True, name="calipso-ldap",
                                                     ports={'389/tcp': 389, '389/udp': 389},
                                                     restart_policy={"Name": "always"},
@@ -201,6 +222,13 @@ def startldap():
 def startapi():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-api"}):
         print("starting container calipso-api...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:api")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:api missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:api")
+            print("Downloaded", image, "\n\n")
         apicontainer = DockerClient.containers.run('korenlev/calipso:api', detach=True, name="calipso-api",
                                                    ports={'8000/tcp': 8000, '22/tcp': 40022},
                                                    restart_policy={"Name": "always"},
@@ -217,6 +245,13 @@ def startapi():
 def startscan():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-scan"}):
         print("starting container calipso-scan...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:scan")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:scan missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:scan")
+            print("Downloaded", image, "\n\n")
         scancontainer = DockerClient.containers.run('korenlev/calipso:scan', detach=True, name="calipso-scan",
                                                     ports={'22/tcp': 30022},
                                                     restart_policy={"Name": "always"},
@@ -231,6 +266,13 @@ def startscan():
 def startsensu():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-sensu"}):
         print("starting container calipso-sensu...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:sensu")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:sensu missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:sensu")
+            print("Downloaded", image, "\n\n")
         sensucontainer = DockerClient.containers.run('korenlev/calipso:sensu', detach=True, name="calipso-sensu",
                                                      ports={'22/tcp': 20022, '3000/tcp': 3000, '4567/tcp': 4567,
                                                             '5671/tcp': 5671, '15672/tcp': 15672},
@@ -245,6 +287,13 @@ def startsensu():
 def startui(host, dbuser, dbpassword, webport, dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
         print("starting container calipso-ui...\n")
+        image = DockerClient.images.list(all=True, name="korenlev/calipso:ui")
+        if image:
+            print(image, "exists...not downloading...")
+        else:
+            print("image korenlev/calipso:ui missing, hold on while downloading first...\n")
+            image = DockerClient.images.pull("korenlev/calipso:ui")
+            print("Downloaded", image, "\n\n")
         uicontainer = DockerClient.containers.run('korenlev/calipso:ui', detach=True, name="calipso-ui",
                                                   ports={'3000/tcp': webport},
                                                   restart_policy={"Name": "always"},
