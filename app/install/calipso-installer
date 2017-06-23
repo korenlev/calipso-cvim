@@ -205,7 +205,7 @@ then
 else
     if [ $# -ne 0 ];
     then
-        echo "Usage: calipso-installer [host host_port mongo_port proxy proxy_port]"
+        echo "Usage: calipso-installer [host web_port db_port proxy proxy_port]"
         exit 1
     fi
 fi
@@ -221,7 +221,7 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
         echo "Valid commands to use:"
         echo "----------------------"
         echo "help - print this help"
-        echo "setup - prepare data for containers"
+        echo "setup - prepare host detalis for used by containers"
         echo "start/stop/restart (${services[*]}) - start, stop or restart a service"
         echo "start/stop/restart all - start, stop or restart all services"
         echo "exit - exit the script"
