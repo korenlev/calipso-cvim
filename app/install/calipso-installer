@@ -221,7 +221,7 @@ case $(echo ${command} | tr '[:upper:]' '[:lower:]') in
         echo "Valid commands to use:"
         echo "----------------------"
         echo "help - print this help"
-        echo "setup - prepare host detalis for used by containers"
+        echo "setup - prepare host details for used by containers"
         echo "start/stop/restart (${services[*]}) - start, stop or restart a service"
         echo "start/stop/restart all - start, stop or restart all services"
         echo "exit - exit the script"
