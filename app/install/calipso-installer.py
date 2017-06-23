@@ -472,8 +472,6 @@ while action not in container_actions:
 # starting the containers per arguments:
 if action == "start":
     # building /home/calipso/calipso_mongo_access.conf and /home/calipso/ldap.conf files, per the arguments:
-    calipso_mongo_access_file = open("/home/calipso/calipso_mongo_access.conf", "w+")
-    ldap_file = open("/home/calipso/ldap.conf", "w+")
     calipso_mongo_access_text = "server " + args.hostname + "\nuser " + args.dbuser + "\npassword " + \
                                 args.dbpassword + "\nauth_db calipso"
     ldap_text = "user admin" + "\npassword password" + "\nurl ldap://" + args.hostname + ":389" + \
@@ -483,9 +481,15 @@ if action == "start":
                 "\ntls_req_cert allow" + \
                 "\ngroup_member_attribute member"
     print("creating default /home/calipso/calipso_mongo_access.conf file...\n")
+    calipso_mongo_access_file = open("/home/calipso/calipso_mongo_access.conf", "w+")
+    time.sleep(1)
     calipso_mongo_access_file.write(calipso_mongo_access_text)
+    calipso_mongo_access_file.close()
     print("creating default /home/calipso/ldap.conf file...\n")
+    ldap_file = open("/home/calipso/ldap.conf", "w+")
+    time.sleep(1)
     ldap_file.write(ldap_text)
+    ldap_file.close()
 
     if container == "calipso-mongo" or container == "all":
         startmongo(args.dbport)
