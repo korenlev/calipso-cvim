@@ -166,7 +166,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.log.debug('Monitoring setup kept only in DB')
             return
         # now dump the config to the file
-        content_json = json.dumps(content['config'], sort_keys=True, indent=4)
+        content_json = json.dumps(content.get('config', content),
+                                  sort_keys=True, indent=4)
         content_json += '\n'
         # always write the file locally first
         local_dir = self.make_directory(os.path.join(self.get_config_dir(),
