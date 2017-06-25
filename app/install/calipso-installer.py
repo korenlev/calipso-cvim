@@ -482,15 +482,15 @@ container = ""
 action = ""
 container_names = ["all", "calipso-mongo", "calipso-scan", "calipso-listen", "calipso-ldap", "calipso-api",
                      "calipso-sensu", "calipso-ui"]
-while container not in container_names:
-    container = input("Container? (all, calipso-mongo, calipso-scan, calipso-listen, calipso-ldap, calipso-api, "
-                      "calipso-sensu, calipso-ui or 'q' to quit):\n")
-    if container == "q":
-        exit()
 container_actions = ["stop", "start"]
 while action not in container_actions:
     action = input("Action? (stop, start, or 'q' to quit):\n")
     if action == "q":
+        exit()
+while container not in container_names:
+    container = input("Container? (all, calipso-mongo, calipso-scan, calipso-listen, calipso-ldap, calipso-api, "
+                      "calipso-sensu, calipso-ui or 'q' to quit):\n")
+    if container == "q":
         exit()
 
 # starting the containers per arguments:
