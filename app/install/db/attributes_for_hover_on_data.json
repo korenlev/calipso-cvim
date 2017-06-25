@@ -4,7 +4,8 @@
         "object_name", 
         "model", 
         "mac_address", 
-        "type"
+        "type",
+	"koren"
     ], 
     "type" : "vnic"
 },
