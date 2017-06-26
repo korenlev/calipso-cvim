@@ -60,4 +60,4 @@ class TestApiFetchAvailabilityZones(TestFetch):
         self.fetcher.v2_auth_pwd = MagicMock(return_value=None)
         result = self.fetcher.get(PROJECT)
         self.fetcher.v2_auth_pwd = MagicMock(return_value=TOKEN)
-        self.assertEqual(result, [], "Can't get empty array when the token is invalid")
+        self.assertEqual(result, [], "Can't get [] when the token is invalid")
