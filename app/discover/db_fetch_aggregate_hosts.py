@@ -1,3 +1,11 @@
+########################################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
+#                                                                                      #
+# All rights reserved. This program and the accompanying materials                     #
+# are made available under the terms of the Apache License, Version 2.0                #
+# which accompanies this distribution, and is available at                             #
+# http://www.apache.org/licenses/LICENSE-2.0                                           #
+########################################################################################
 import bson
 
 from discover.db_access import DbAccess
@@ -16,6 +24,12 @@ class DbFetchAggregateHosts(DbAccess):
         if hosts:
             inv = InventoryMgr()
             for host_rec in hosts:
-                host = inv.get_by_id(self.get_env(), host_rec['name'])
+                host_id = host_rec['name']
+                host = inv.get_by_id(self.get_env(), host_id)
+                if not host:
+                    self.log.error('unable to find host {} '
+                                   'from aggregate {} in inventory'
+                                   .format(host_id, id))
+                    continue
                 host_rec['ref_id'] = bson.ObjectId(host['_id'])
         return hosts

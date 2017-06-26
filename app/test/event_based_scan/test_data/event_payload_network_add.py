@@ -1,3 +1,11 @@
+########################################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
+#                                                                                      #
+# All rights reserved. This program and the accompanying materials                     #
+# are made available under the terms of the Apache License, Version 2.0                #
+# which accompanies this distribution, and is available at                             #
+# http://www.apache.org/licenses/LICENSE-2.0                                           #
+########################################################################################
 EVENT_PAYLOAD_NETWORK_ADD = {
     '_context_request_id': 'req-d8593c49-8424-459b-9ac1-1fd8667310eb', '_context_project_domain': None,
     '_context_tenant_id': '75c0eb79ff4a42b0ae4973c8375ddf40', '_context_project_name': 'calipso-project',

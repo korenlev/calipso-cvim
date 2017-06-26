@@ -1,3 +1,11 @@
+########################################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
+#                                                                                      #
+# All rights reserved. This program and the accompanying materials                     #
+# are made available under the terms of the Apache License, Version 2.0                #
+# which accompanies this distribution, and is available at                             #
+# http://www.apache.org/licenses/LICENSE-2.0                                           #
+########################################################################################
 import os
 
 from pymongo import MongoClient
@@ -22,24 +30,26 @@ class MongoAccess(DictNamingConverter):
     config_file = None
 
     DB_NAME = 'calipso'
-    LOG_FILE = '/var/log/calipso/mongo_access.log'
-    DEFAULT_LOG_FILE = os.path.abspath("./mongo_access.log")
+    LOG_FILENAME = 'mongo_access.log'
+    DEFAULT_LOG_FILE = os.path.join(os.path.abspath("."), LOG_FILENAME)
 
     def __init__(self):
         super().__init__()
+        self.log_file = os.path.join(FileLogger.LOG_DIRECTORY,
+                                     MongoAccess.LOG_FILENAME)
 
         try:
-            self.log = FileLogger(self.LOG_FILE)
+            self.log = FileLogger(self.log_file)
         except OSError as e:
             ConsoleLogger().warning("Couldn't use file {} for logging. "
                                     "Using default location: {}.\n"
                                     "Error: {}"
-                                    .format(self.LOG_FILE,
+                                    .format(self.log_file,
                                             self.DEFAULT_LOG_FILE,
                                             e))
 
-            self.LOG_FILE = self.DEFAULT_LOG_FILE
-            self.log = FileLogger(self.LOG_FILE)
+            self.log_file = self.DEFAULT_LOG_FILE
+            self.log = FileLogger(self.log_file)
 
         self.connect_params = {}
         self.mongo_connect(self.config_file)

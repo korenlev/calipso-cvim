@@ -1,3 +1,11 @@
+########################################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
+#                                                                                      #
+# All rights reserved. This program and the accompanying materials                     #
+# are made available under the terms of the Apache License, Version 2.0                #
+# which accompanies this distribution, and is available at                             #
+# http://www.apache.org/licenses/LICENSE-2.0                                           #
+########################################################################################
 # handle monitoring event
 import datetime
 import sys
@@ -23,7 +31,7 @@ class MonitoringCheckHandler(SpecialCharConverter):
     def __init__(self, args):
         super().__init__()
         self.log = FullLogger()
-        self.log.set_loglevel('WARN')
+        self.log.set_loglevel('WARNING')
         self.env = args.env
         try:
             self.conf = Configuration(args.mongo_config)
