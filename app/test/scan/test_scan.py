@@ -3,10 +3,11 @@ from unittest.mock import MagicMock
 
 from discover.configuration import Configuration
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
-from test.scan.config.local_config \
-    import ENV_CONFIG, COLLECTION_CONFIG
+from test.scan.config.test_config \
+    import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from test.scan.test_data.configurations import CONFIGURATIONS
 from utils.inventory_mgr import InventoryMgr
+from utils.mongo_access import MongoAccess
 
 
 class TestScan(unittest.TestCase):
@@ -14,7 +15,7 @@ class TestScan(unittest.TestCase):
     def configure_environment(self):
         self.env = ENV_CONFIG
         self.inventory_collection = COLLECTION_CONFIG
-
+        MongoAccess.config_file = MONGODB_CONFIG
         self.conf = Configuration()
         self.conf.use_env = MagicMock()
         self.conf.environment = CONFIGURATIONS

@@ -5,7 +5,6 @@ from discover.scan import ScanController, ScanPlan
 from discover.scanner import Scanner
 from test.scan.test_scan import TestScan
 from test.scan.test_data.scan import *
-from test.scan.config.local_config import MONGODB_CONFIG
 from utils.inventory_mgr import InventoryMgr
 
 
