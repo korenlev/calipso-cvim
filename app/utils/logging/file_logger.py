@@ -5,6 +5,8 @@ from utils.logging.logger import Logger
 
 class FileLogger(Logger):
 
+    LOG_DIRECTORY = "/local_dir/log/calipso/"
+
     def __init__(self, log_file: str, level: str = Logger.default_level):
         super().__init__(logger_name="{}-File".format(self.PROJECT_NAME),
                          level=level)
