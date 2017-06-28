@@ -16,8 +16,12 @@ class TestScan(unittest.TestCase):
     def configure_environment(self):
         self.env = ENV_CONFIG
         self.inventory_collection = COLLECTION_CONFIG
-        MongoAccess.config_file = MONGODB_CONFIG
+        # mock the mongo access
+        MongoAccess.mongo_connect = MagicMock()
+        MongoAccess.db = MagicMock()
+        # mock log
         FullLogger.info = MagicMock()
+
         self.conf = Configuration()
         self.conf.use_env = MagicMock()
         self.conf.environment = CONFIGURATIONS
