@@ -174,7 +174,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.log.debug('Monitoring setup kept only in DB')
             return
         # now dump the config to the file
-        content_json = json.dumps(content['config'], sort_keys=True, indent=4)
+        content_json = json.dumps(content.get('config', {}), sort_keys=True,
+                                  indent=4)
         content_json += '\n'
         # always write the file locally first
         local_dir = self.make_directory(os.path.join(self.get_config_dir(),
@@ -411,7 +412,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             remote_path + os.sep
         self.make_remote_dir(host, remote_path)
         self.run_on_gateway('scp {} {}'.format(what_to_copy, remote_path),
-                            enable_cache=False)
+                            enable_cache=False,
+                            use_sudo=None)
 
     def make_remote_dir_on_host(self, ssh, host, path, path_is_file=False):
         # make sure we have write permissions in target directories

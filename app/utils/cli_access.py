@@ -32,13 +32,15 @@ class CliAccess(BinaryConverter, Fetcher):
         ssh_conn = SshConn(ssh_to_host)
         return ssh_conn.is_gateway_host(ssh_to_host)
 
-    def run_on_gateway(self, cmd, ssh_to_host="", enable_cache=True):
-        self.run(cmd, ssh_to_host, enable_cache, True)
+    def run_on_gateway(self, cmd, ssh_to_host="", enable_cache=True,
+                       use_sudo=True):
+        self.run(cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
+                 on_gateway=True, use_sudo=use_sudo)
 
     def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False,
-            ssh=None):
+            ssh=None, use_sudo=True):
         ssh_conn = ssh if ssh else SshConn(ssh_to_host)
-        if not cmd.strip().startswith("sudo "):
+        if use_sudo and not cmd.strip().startswith("sudo "):
             cmd = "sudo " + cmd
         if not on_gateway and ssh_to_host \
                 and not ssh_conn.is_gateway_host(ssh_to_host):
