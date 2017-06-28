@@ -2,6 +2,8 @@ from unittest.mock import MagicMock
 from discover.api_fetch_projects import ApiFetchProjects
 from test.fetch.test_fetch import TestFetch
 from test.fetch.api_fetch.test_data.api_fetch_projects import *
+from test.fetch.api_fetch.test_data.regions import REGIONS
+from test.fetch.api_fetch.test_data.token import TOKEN
 
 
 class TestApiFetchProjects(TestFetch):
@@ -20,73 +22,90 @@ class TestApiFetchProjects(TestFetch):
         self.fetcher.get_url = MagicMock(return_value=REGION_RESPONSE)
 
         result = self.fetcher.get_for_region(self.region, TOKEN)
-        self.assertNotEqual(result, [], "Can't get projects information with region")
+        self.assertEqual(result, REGION_RESULT, "Can't get correct projects info")
 
-    # find the defect here, need to be fixed
-    # def test_get_for_region(self):
-    #     # mock request endpiny
-    #     self.fetcher.get_region_url_nover = MagicMock(return_value=REGION_URL_NOVER)
-    #     self.fetcher.get_url = MagicMock(return_value=REGION_ERROR_RESPONSE)
-    #
-    #     result = self.fetcher.get_for_region(self.region, TOKEN)
-    #     result = self.assertEqual(result, [], "Can't get empty array when the region response is wrong")
+    # TODO does this test case make sense?
+    def test_get_for_region_with_error_region_response(self):
+        self.fetcher.get_region_url_nover = MagicMock(return_value=REGION_URL_NOVER)
+        self.fetcher.get_url = MagicMock(return_value=REGION_ERROR_RESPONSE)
+
+        result = self.fetcher.get_for_region(self.region, TOKEN)
+        self.assertEqual(result, [], "Can't get [] when the " +
+                                     "region response is wrong")
 
     def test_get_projects_for_api_user(self):
         # mock the responses from OpenStack Api
-        self.fetcher.get_url = MagicMock(side_effect=[USERS_CORRECT_RESPONSE, PROJECTS_CORRECT_RESPONSE])
+        self.fetcher.get_url = MagicMock(return_value=PROJECTS_CORRECT_RESPONSE)
 
         result = self.fetcher.get_projects_for_api_user(self.region, TOKEN)
-        self.assertNotEqual(result, [], "Can't get projects for api user")
-
-    def test_get_projects_for_api_user_with_no_users_response(self):
-        # the response from OpenStack will not contain users information
-        self.fetcher.get_url = MagicMock(return_value=USERS_RESPONSE_WITHOUT_USERS)
-
-        result = self.fetcher.get_projects_for_api_user(self.region, TOKEN)
-        self.assertIs(result, None, "Can't get None when the response from OpenStack doesn't contain users info")
-
-    def test_get_projects_for_api_user_without_users_match(self):
-        # no users from OpenStack Api match the username of the authentication information
-        self.fetcher.get_url = MagicMock(return_value=USERS_RESPONSE_WITHOUT_MATCH)
-
-        result = self.fetcher.get_projects_for_api_user(self.region, TOKEN)
-        self.assertIs(result, None, "Can't get None when no users match")
+        self.assertEqual(result, PROJECT_RESULT, "Can't get correct " +
+                                                 "projects info for api user")
 
     def test_get_projects_for_api_user_without_projects_response(self):
         # the projects info from OpenStack Api will be None
-        self.fetcher.get_url = MagicMock(return_value=[USERS_CORRECT_RESPONSE, None])
+        self.fetcher.get_url = MagicMock(return_value=
+                                         PROJECTS_RESPONSE_WITHOUT_PROJECTS)
 
         result = self.fetcher.get_projects_for_api_user(self.region, TOKEN)
-        self.assertIs(result, None, "Can't get None when the projects info is incorrect")
+        self.assertIs(result, None, "Can't get None when the project " +
+                                    "response doesn't contain projects info")
+
+    def check_get_result(self, projects_for_api_user,
+                         region_result,
+                         token,
+                         expected_result, error_msg):
+        self.fetcher.get_projects_for_api_user = MagicMock(return_value=
+                                                           projects_for_api_user)
+        original_method = self.fetcher.get_for_region
+        # mock
+        self.fetcher.get_for_region = MagicMock(return_value=region_result)
+        self.fetcher.v2_auth_pwd = MagicMock(return_value=token)
+
+        result = self.fetcher.get(PROJECT_ID)
+
+        self.fetcher.get_for_region = original_method
+        self.assertEqual(result, expected_result, error_msg)
 
     def test_get(self):
-        # mock the users projects info
-        self.fetcher.get_projects_for_api_user = MagicMock(return_value=USERS_PROJECTS)
+        # test get method with different test cases
+        test_cases = [
+            {
+                "projects": PROJECT_RESULT,
+                "regions": REGION_RESULT,
+                "token": TOKEN,
+                "expected_result": REGION_RESULT,
+                "err_msg": "Can't get correct project result"
+            },
+            {
+                "projects": PROJECT_RESULT,
+                "regions": REGION_RESULT_WITH_NON_USER_PROJECT,
+                "token": TOKEN,
+                "expected_result": REGION_RESULT,
+                "err_msg": "Can't get correct project result" +
+                           "when the region result contains project " +
+                           "that doesn't belong to the user"
+            },
+            {
+                "projects": PROJECT_RESULT,
+                "regions": REGION_RESULT,
+                "token": None,
+                "expected_result": [],
+                "err_msg": "Can't get [] when the token is invalid"
+            },
+            {
+                "projects": None,
+                "regions": REGION_RESULT,
+                "token": TOKEN,
+                "expected_result": REGION_RESULT,
+                "err_msg": "Can't get the region " +
+                           "result if the projects " +
+                           "for the user doesn't exist"
+            }
+        ]
 
-        # store original method
-        original_method = self.fetcher.get_for_region
-        # mock the region projects info
-        self.fetcher.get_for_region = MagicMock(return_value=REGION_PROJECTS)
-
-        result = self.fetcher.get("fake_id")
-
-        # reset get_for_region_method
-        self.fetcher.get_for_region = original_method
-
-        self.assertNotEqual(result, [], "Can't get projects")
-
-    def test_get_without_user_projects(self):
-        # no users projects fetched from OpenStack
-        self.fetcher.get_projects_for_api_user = MagicMock(return_value=None)
-
-        # store original method
-        original_method = self.fetcher.get_for_region
-        self.fetcher.get_for_region = MagicMock(return_value=REGION_PROJECTS)
-
-        result = self.fetcher.get("fake_id")
-
-        # reset get_for_region method
-        self.fetcher.get_for_region = original_method
-
-        self.assertNotEqual(result, [], "Can't get projects without users projects")
-
+        for test_case in test_cases:
+            self.check_get_result(test_case["projects"],
+                                  test_case["regions"],
+                                  test_case["token"],
+                                  test_case["expected_result"],
+                                  test_case["err_msg"])
