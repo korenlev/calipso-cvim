@@ -8,6 +8,7 @@ from test.scan.config.test_config \
 from test.scan.test_data.configurations import CONFIGURATIONS
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
+from utils.logging.full_logger import FullLogger
 
 
 class TestScan(unittest.TestCase):
@@ -16,6 +17,7 @@ class TestScan(unittest.TestCase):
         self.env = ENV_CONFIG
         self.inventory_collection = COLLECTION_CONFIG
         MongoAccess.config_file = MONGODB_CONFIG
+        FullLogger.info = MagicMock()
         self.conf = Configuration()
         self.conf.use_env = MagicMock()
         self.conf.environment = CONFIGURATIONS
