@@ -1,7 +1,7 @@
 # local config info for test.
 
 
-MONGODB_CONFIG = '/local_dir/calipso_mongo_access.conft'
+MONGODB_CONFIG = 'your-mongo-config-path-here'
 
 ENV_CONFIG = 'your-env-name-here'
 
