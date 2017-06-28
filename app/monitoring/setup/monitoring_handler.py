@@ -408,9 +408,9 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             cmd = 'cp {} {}'.format(what_to_copy, remote_path)
             self.run(cmd, ssh=ssh)
             return
+        self.make_remote_dir(host, remote_path)
         remote_path = ssh.get_user() + '@' + host + ':' + \
             remote_path + os.sep
-        self.make_remote_dir(host, remote_path)
         self.run_on_gateway('scp {} {}'.format(what_to_copy, remote_path),
                             enable_cache=False,
                             use_sudo=None)
