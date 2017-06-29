@@ -50,5 +50,13 @@ class ApiFetchProjects(ApiAccess):
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)
-        response = [t for t in response["tenants"] if t["name"] != "services"]
+        if not isinstance(response, dict):
+            self.log.error('invalid response to /tenants request: not dict')
+            return []
+        tenants_list = response.get("tenants", [])
+        if not isinstance(tenants_list, list):
+            self.log.error('invalid response to /tenants request: '
+                           'tenants value is n ot a list')
+            return []
+        response = [t for t in tenants_list if t.get("name", "") != "services"]
         return response
