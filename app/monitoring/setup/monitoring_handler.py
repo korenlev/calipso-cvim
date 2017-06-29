@@ -105,7 +105,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         condition = doc['condition']
         if 'mechanism_drivers' not in condition:
             return True
-        return condition['mechanism_drivers'] in self.mechanism_drivers
+        required_mechanism_drivers = condition['mechanism_drivers']
+        if not isinstance(required_mechanism_drivers, list):
+            required_mechanism_drivers = [required_mechanism_drivers]
+        intersection = [val for val in required_mechanism_drivers
+                        if val in self.mechanism_drivers]
+        return bool(intersection)
 
     def content_replace(self, content):
         content_remapped = remap(content, visit=self.fill_values)
