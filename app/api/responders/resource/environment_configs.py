@@ -24,6 +24,7 @@ class EnvironmentConfigs(ResponderBase):
             "distribution": True
         }
         self.COLLECTION = "environments_config"
+        self.SUPPORTED_ENVS_COLL = "supported_environments"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring", "NFV_provider"]
         self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring", "NFV_provider"]
@@ -238,6 +239,14 @@ class EnvironmentConfigs(ResponderBase):
         if not config_validation['passed']:
             self.bad_request(config_validation['error_message'])
 
+        err_msg = self.validate_env_config_with_supported_envs(env_config)
+        if err_msg:
+            self.bad_request(err_msg)
+
+        err_msg = self.validate_env_config_with_constraints(env_config)
+        if err_msg:
+            self.bad_request(err_msg)
+
         if "scanned" not in env_config:
             env_config["scanned"] = False
 
@@ -295,6 +304,44 @@ class EnvironmentConfigs(ResponderBase):
                     validation['error_message'] = 'CLI error: either key ' \
                                                   'or pwd must be provided'
         return validation
+
+    def validate_env_config_with_supported_envs(self, env_config):
+        # validate the environment config with supported environments
+        matches = {
+            'environment.distribution': env_config['distribution'],
+            'environment.type_drivers': env_config['type_drivers'],
+            'environment.mechanism_drivers': {'$in': env_config['mechanism_drivers']}
+        }
+
+        supported_envs = self.read(self.SUPPORTED_ENVS_COLL, matches)
+        if not supported_envs:
+            return
+
+        supported_env = supported_envs[0]
+        features = supported_env["features"]
+
+        err_prefix = 'configuration not accepted: '
+        if not features['scanning']:
+            return err_prefix + 'scanning is not supported in this environment'
+
+        configs = env_config['configuration']
+        if not features['monitoring'] and \
+                self.get_configuration_by_name('Monitoring', configs):
+            return err_prefix + 'monitoring is not supported in this environment, ' \
+                                'please removed the Monitoring configuration'
+
+        if not features['listening'] and \
+                self.get_configuration_by_name('AMQP', configs):
+            return err_prefix + 'listening is not supported in this environment, ' \
+                                'please removed the AMQP configuration'
+
+        return None
+
+    def validate_env_config_with_constraints(self, env_config):
+        if env_config['listen'] and \
+                not self.get_configuration_by_name('AMQP', env_config['configuration']):
+            return 'configuration not accepted: ' \
+                   'must provide AMQP configuration to listen the environment'
 
     def get_configuration_by_name(self, name, configurations):
         return [config for config in configurations if config['name'] == name]
