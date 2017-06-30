@@ -26,7 +26,7 @@ class EnvironmentConfigs(ResponderBase):
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring", "NFV_provider"]
-        self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring", "NFV_provider"]
+        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring", "NFV_provider"]
 
         self.provision_types = self.\
             get_constants_by_name("environment_provision_types")
@@ -266,24 +266,22 @@ class EnvironmentConfigs(ResponderBase):
             return validation
 
         for name in self.CONFIGURATIONS_NAMES:
-            if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
-                configuration = self.get_configuration_by_name(name,
-                                                               configurations,
-                                                               True,
-                                                               validation)
-
-                if not validation['passed']:
+            configs = self.get_configuration_by_name(name, configurations)
+            if configs:
+                if len(configs) > 1:
+                    validation["passed"] = False
+                    validation["error_message"] = "environment configurations can " \
+                                                  "only contain one " \
+                                                  "configuration for {0}".format(name)
                     return validation
-                configurations_of_names[name] = configuration
+                configurations_of_names[name] = configs[0]
             else:
-                configuration = self.get_configuration_by_name(name,
-                                                               configurations,
-                                                               False,
-                                                               validation)
-                if not validation["passed"]:
+                if name not in self.OPTIONAL_CONFIGURATIONS_NAMES:
+                    validation["passed"] = False
+                    validation['error_message'] = "configuration for {0} " \
+                                                  "is mandatory".format(name)
                     return validation
-                if configuration:
-                    configurations_of_names[name] = configuration
+
         for name, config in configurations_of_names.items():
             error_message = self.validate_configuration(name, config)
             if error_message:
@@ -298,25 +296,8 @@ class EnvironmentConfigs(ResponderBase):
                                                   'or pwd must be provided'
         return validation
 
-    def get_configuration_by_name(self, name, configurations, is_mandatory,
-                                  validation):
-        configurations = [config for config in configurations
-                         if config['name'] == name]
-        if not configurations and is_mandatory:
-            validation["passed"] = False
-            validation['error_message'] = "configuration for {0} " \
-                                          "is mandatory".format(name)
-            return None
-        if len(configurations) > 1:
-            validation["passed"] = False
-            validation['error_message'] = "environment configurations can " \
-                                          "only contain one " \
-                                          "configuration for {0}".format(name)
-            return None
-
-        if not configurations:
-            return None
-        return configurations[0]
+    def get_configuration_by_name(self, name, configurations):
+        return [config for config in configurations if config['name'] == name]
 
     def validate_configuration(self, name, configuration):
         return self.validate_data(configuration,
