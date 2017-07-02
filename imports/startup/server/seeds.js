@@ -6,5 +6,5 @@
 // which accompanies this distribution, and is available at                             /
 // http://www.apache.org/licenses/LICENSE-2.0                                           /
 /////////////////////////////////////////////////////////////////////////////////////////
-import './seeds/constants';
+//import './seeds/constants'; //disabled as of US2758.
 import './seeds/users';
