@@ -34,7 +34,7 @@ export const insert = new ValidatedMethod({
       'mechanism_drivers.$',
       'listen',
       'enable_monitoring', 
-    ]).validator({ clean: true, filter: false, getAutoValues: false }), 
+    ]).validator({ clean: true, filter: false }), 
   //validate: null, 
   run({
     configuration,
@@ -87,7 +87,7 @@ export const update = new ValidatedMethod({
     'mechanism_drivers.$',
     'listen',
     'enable_monitoring',
-  ]).validator({ clean: true, filter: false, getAutoValues: false }),
+  ]).validator({ clean: true, filter: false }),
   run({
     _id,
     configuration,

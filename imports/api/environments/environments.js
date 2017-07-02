@@ -59,33 +59,27 @@ let simpleSchema = new SimpleSchema({
       if (that.isSet) {
         let confGroups = that.value;
 
-        let _id = that.field('_id').value;
-        if (R.isNil(_id)) {
-          console.log('field id is nil');
-          _id = that.docId;
-        }
-        let dbNode;
-        console.log(`env - configurations - autovalue - field - _id: ${R.toString(_id)}`);
+        let { 
+          isMonitoringSupportedRes, 
+          isListeningSupportedRes,
+          enable_monitoring, 
+          listen 
+        } = extractCalcEnvSupportedRelatedValues(that);
 
-        if (_id) {
-          dbNode = Environments.findOne({ _id: _id });
-          console.log(`env - configurations - autovalue - db node find: ${R.toString(dbNode)}`);
-        }
-
-        let dist = extractValue('distribution', that, dbNode);
-        let typeDrivers = extractValue('type_drivers', that, dbNode);
-        let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
-        let enableMonitoring = extractValue('enable_monitoring', that, dbNode);
-        let listen = extractValue('listen', that, dbNode);
-
-        let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
-        let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
-
-        if (!enableMonitoring || !isMonitoringSupportedRes) {
+        if (enable_monitoring && isMonitoringSupportedRes) {
+          if (! R.find(R.propEq('name', 'Monitoring'), confGroups)) {
+            confGroups = R.append(createNewConfGroup('Monitoring'), confGroups);
+          }
+        } else {
           console.log('env - configurations - autovalue - monitoring not supported');
           confGroups = R.reject(R.propEq('name', 'Monitoring'), confGroups);
         }
-        if (!listen || !isListeningSupportedRes) {
+
+        if (listen && isListeningSupportedRes) {
+          if (! R.find(R.propEq('name', 'AMQP'), confGroups)) {
+            confGroups = R.append(createNewConfGroup('AMQP'), confGroups);
+          }
+        } else {
           console.log('env - configurations - autovalue - listening not supported');
           confGroups = R.reject(R.propEq('name', 'AMQP'), confGroups);
         }
@@ -101,6 +95,7 @@ let simpleSchema = new SimpleSchema({
         console.log('end - autovalue - environment - configurations');
         console.log(newValue);
         return newValue;
+
       } else {
         console.log('env - configurations - autovalue - is not set');
         let newValue = R.map((confName) => {
@@ -120,29 +115,15 @@ let simpleSchema = new SimpleSchema({
 
       let subErrors = [];
 
-      let _id = that.field('_id').value;
-      if (R.isNil(_id)) {
-        _id = that.docId;
-      }
-      let dbNode;
-      console.log(`env - configurations - autovalue - field - _id: ${R.toString(_id)}`);
-
-      if (_id) {
-        dbNode = Environments.findOne({ _id: _id });
-        console.log(`env - configurations - autovalue - db node find: ${R.toString(dbNode)}`);
-      }
-
-      let dist = extractValue('distribution', that, dbNode);
-      let typeDrivers = extractValue('type_drivers', that, dbNode);
-      let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
-      let enableMonitoring = extractValue('enable_monitoring', that, dbNode);
-      let listen = extractValue('listen', that, dbNode);
-
-      let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
-      let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+      let { 
+        isMonitoringSupportedRes, 
+        isListeningSupportedRes,
+        enable_monitoring, 
+        listen 
+      } = extractCalcEnvSupportedRelatedValues(that);
 
       let requiredConfGroupsTemp = R.clone(requiredConfGroups);
-      if (enableMonitoring && isMonitoringSupportedRes) {
+      if (enable_monitoring && isMonitoringSupportedRes) {
         requiredConfGroupsTemp = R.append('Monitoring', requiredConfGroupsTemp);
       }
       if (listen && isListeningSupportedRes) {
@@ -276,17 +257,7 @@ let simpleSchema = new SimpleSchema({
       let newValue = that.value;
       console.log(`- current value: ${R.toString(newValue)}`);
 
-      let _id = that.docId;
-      let dbNode;
-      if (_id) {
-        dbNode = Environments.findOne({ _id: _id });
-      }
-
-      let dist = extractValue('distribution', that, dbNode);
-      let typeDrivers = extractValue('type_drivers', that, dbNode);
-      let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
-
-      let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+      let { isListeningSupportedRes } = extractCalcEnvSupportedRelatedValues(that);
 
       if (!isListeningSupportedRes) {
         console.log('* listening not supported');
@@ -294,7 +265,7 @@ let simpleSchema = new SimpleSchema({
         newValue = false;
       }
 
-      return newValue
+      return newValue;
     },
   },
 
@@ -306,17 +277,7 @@ let simpleSchema = new SimpleSchema({
       let newValue = that.value;
       console.log(`- current value: ${R.toString(newValue)}`);
 
-      let _id = that.docId;
-      let dbNode;
-      if (_id) {
-        dbNode = Environments.findOne({ _id: _id });
-      }
-
-      let dist = extractValue('distribution', that, dbNode);
-      let typeDrivers = extractValue('type_drivers', that, dbNode);
-      let mechDrivers = extractValue('mechanism_drivers', that, dbNode);
-
-      let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
+      let { isMonitoringSupportedRes } = extractCalcEnvSupportedRelatedValues(that);
 
       if (!isMonitoringSupportedRes) {
         console.log('* monitoring not supported');
@@ -324,7 +285,7 @@ let simpleSchema = new SimpleSchema({
         newValue = false;
       }
 
-      return newValue
+      return newValue;
     },
   },
 });
@@ -448,4 +409,25 @@ function extractValue(name, schemaValidator, dbNode) {
 
   console.log(`extract value - result: ${R.toString(value)}`);
   return value;
+}
+
+function extractCalcEnvSupportedRelatedValues(schemaHelper) {
+  let _id = R.defaultTo(schemaHelper.docId, R.path(['value'], schemaHelper.field('_id')));
+  let dbNode = R.defaultTo(null, Environments.findOne({ _id: _id }));
+
+  let dist = extractValue('distribution', schemaHelper, dbNode);
+  let typeDrivers = extractValue('type_drivers', schemaHelper, dbNode);
+  let mechDrivers = extractValue('mechanism_drivers', schemaHelper, dbNode);
+  let enable_monitoring = extractValue('enable_monitoring', schemaHelper, dbNode);
+  let listen = extractValue('listen', schemaHelper, dbNode);
+
+  let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
+  let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+
+  return {
+    enable_monitoring,
+    listen,
+    isMonitoringSupportedRes,
+    isListeningSupportedRes,
+  };
 }
