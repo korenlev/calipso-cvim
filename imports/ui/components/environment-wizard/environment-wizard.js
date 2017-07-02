@@ -2,6 +2,7 @@
  */
 
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
@@ -47,9 +48,9 @@ Template.EnvironmentWizard.onCreated(function(){
   });
 
   instance.autorun(function () {
-
     let controller = Iron.controller();
     controller.state.set('needsConfirmation', true);
+    Session.set('isDirty', false);
     //let params = controller.getParams();
 
     //let envName = params.env;
@@ -110,7 +111,6 @@ Template.EnvironmentWizard.helpers({
   },
 
   tabs: function () {
-    let controller = Iron.controller();
     let instance = Template.instance();
 
     let environmentModel = instance.state.get('environmentModel');
@@ -160,7 +160,7 @@ Template.EnvironmentWizard.helpers({
         isListeningDisabled: isListeningDisabled,
         isMonitoringDisabled: isMonitoringDisabled,
         setModel: function (newModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'endpoint-panel'),
@@ -175,7 +175,7 @@ Template.EnvironmentWizard.helpers({
         model: getGroupInArray('OpenStack', environmentModel.configuration),
         disabled: disabled,
         setModel: function (newSubModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('OpenStack', newSubModel, model);
           instance.state.set('environmentModel', newModel);
@@ -192,7 +192,7 @@ Template.EnvironmentWizard.helpers({
         model: getGroupInArray('mysql', environmentModel.configuration),
         disabled: disabled,
         setModel: function (newSubModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('mysql', newSubModel, model);
           instance.state.set('environmentModel', newModel);
@@ -209,7 +209,7 @@ Template.EnvironmentWizard.helpers({
         model: getGroupInArray('CLI', environmentModel.configuration),
         disabled: disabled,
         setModel: function (newSubModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('CLI', newSubModel, model);
           instance.state.set('environmentModel', newModel);
@@ -226,7 +226,7 @@ Template.EnvironmentWizard.helpers({
         model: getGroupInArray('AMQP', environmentModel.configuration),
         disabled: disabled,
         setModel: function (newSubModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('AMQP', newSubModel, model);
           instance.state.set('environmentModel', newModel);
@@ -243,7 +243,7 @@ Template.EnvironmentWizard.helpers({
         model: getGroupInArray('NFV_provider', environmentModel.configuration),
         disabled: disabled,
         setModel: function (newSubModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('NFV_provider', newSubModel, model);
           instance.state.set('environmentModel', newModel);
@@ -261,7 +261,7 @@ Template.EnvironmentWizard.helpers({
         disabled: isMonitoringDisabled,
         disabledMessage: monitoringDisabledMessage,
         setModel: function (newSubModel) {
-          controller.state.set('isDirty', true);
+          Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
           instance.state.set('environmentModel', newModel);
@@ -357,6 +357,8 @@ function processActionResult(instance, error) {
     } else if (action === 'update') {
       instance.state.set('message', 'Record had been updated successfully');
     }
+
+    Session.set('isDirty', false);
   }
 }
 
