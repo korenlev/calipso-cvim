@@ -1,11 +1,13 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
+from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess
 from utils.singleton import Singleton
@@ -16,7 +18,8 @@ class Configuration(metaclass=Singleton):
         super().__init__()
         self.db_client = MongoAccess()
         self.db = MongoAccess.db
-        self.collection = self.db[environments_collection]
+        self.inv = InventoryMgr()
+        self.collection = self.inv.collections.get(environments_collection)
         self.env_name = None
         self.environment = None
         self.configuration = None

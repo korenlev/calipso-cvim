@@ -1,6 +1,6 @@
-[
 { 
-    "environment" : "Mirantis-Liberty", 
+    "_id" : ObjectId("a8efbff736e3f6b8e00ab6b7"), 
+    "environment" : "ANY", 
     "focal_point_type" : "instance", 
     "link_types" : [
         "instance-vnic", 
@@ -11,10 +11,11 @@
         "vconnector-pnic", 
         "pnic-network"
     ], 
-    "name" : "instance_vconnector_clique"
-},
+    "name" : "instance"
+}
 { 
-    "environment" : "Mirantis-Liberty", 
+    "_id" : ObjectId("70a292da4960a5e67ebaea47"), 
+    "environment" : "ANY", 
     "focal_point_type" : "vservice", 
     "link_types" : [
         "vservice-vnic", 
@@ -24,47 +25,11 @@
         "vconnector-pnic", 
         "pnic-network"
     ], 
-    "name" : "vservice_vedge_clique"
-},
+    "name" : "vservice"
+}
 { 
-    "environment" : "Devstack-VPP", 
-    "focal_point_type" : "vservice", 
-    "link_types" : [
-        "vservice-vnic", 
-        "vnic-vconnector", 
-        "vconnector-vedge", 
-        "vedge-pnic", 
-        "pnic-network"
-    ], 
-    "name" : "vservice_VPP_clique"
-},
-{ 
-    "environment" : "Devstack-VPP", 
-    "focal_point_type" : "instance", 
-    "link_types" : [
-        "instance-vnic", 
-        "vnic-vconnector", 
-        "vconnector-vedge", 
-        "vedge-pnic", 
-        "pnic-network"
-    ], 
-    "name" : "instance_VPP_clique"
-},
-{ 
-    "environment" : "Devstack-VPP", 
-    "focal_point_type" : "network", 
-    "link_types" : [
-        "network-pnic", 
-        "pnic-vedge", 
-        "vedge-vconnector", 
-        "vconnector-vnic", 
-        "vnic-instance", 
-        "vnic-vservice"
-    ], 
-    "name" : "network clique for VPP"
-},
-{ 
-    "environment" : "staging", 
+    "_id" : ObjectId("6abc78f898f1cdf0f1852c7d"), 
+    "environment" : "ANY", 
     "focal_point_type" : "network", 
     "link_types" : [
         "network-pnic", 
@@ -77,57 +42,5 @@
         "vnic-instance", 
         "vnic-vservice"
     ], 
-    "name" : "network-clique"
-},
-{ 
-    "environment" : "staging", 
-    "focal_point_type" : "instance", 
-    "link_types" : [
-        "instance-vnic", 
-        "vnic-vconnector", 
-        "vconnector-vedge", 
-        "vedge-otep", 
-        "otep-vconnector", 
-        "vconnector-pnic", 
-        "pnic-network"
-    ], 
-    "name" : "instance-clique"
-},
-{ 
-    "environment" : "staging", 
-    "focal_point_type" : "vservice", 
-    "link_types" : [
-        "vservice-vnic", 
-        "vnic-vedge", 
-        "vedge-otep", 
-        "otep-vconnector", 
-        "vconnector-pnic", 
-        "pnic-network"
-    ], 
-    "name" : "vservice-clique"
-},
-{ 
-    "environment" : "Stratoscale", 
-    "focal_point_type" : "instance", 
-    "link_types" : [
-        "instance-vnic", 
-        "vnic-vconnector", 
-        "vconnector-vedge", 
-        "vedge-pnic", 
-        "pnic-network"
-    ], 
-    "name" : "instance_vconnector_clique"
-},
-{ 
-    "environment" : "Stratoscale", 
-    "focal_point_type" : "vservice", 
-    "link_types" : [
-        "vservice-vnic", 
-        "vnic-vconnector", 
-        "vconnector-vedge", 
-        "vedge-pnic", 
-        "pnic-network"
-    ], 
-    "name" : "vservice_vedge_clique"
+    "name" : "network"
 }
-]

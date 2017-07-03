@@ -255,9 +255,9 @@ class ScanController(Fetcher):
 
         try:
             MongoAccess.set_config_file(args['mongo_config'])
-            self.conf = Configuration()
             self.inv = InventoryMgr()
             self.inv.set_collections(args['inventory'])
+            self.conf = Configuration()
         except FileNotFoundError as e:
             return False, 'Mongo configuration file not found: {}'\
                 .format(str(e))
