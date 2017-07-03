@@ -52,6 +52,10 @@ let schema = new SimpleSchema({
     type: String,
     defaultValue: 'WEEKLY',
   },
+  submit_timestamp: {
+    type: Date,
+    defaultValue: null
+  },
 });
 
 schema.addValidator(function () {

@@ -43,6 +43,7 @@ export const insert = new ValidatedMethod({
       scan_only_links,
       scan_only_cliques,
       freq, 
+      submit_timestamp: Date.now()
     });
 
     ScheduledScans.insert(scan);
@@ -92,6 +93,7 @@ export const update = new ValidatedMethod({
       'scan_only_inventory',
       'scan_only_links',
       'scan_only_cliques',
+      'submit_timestamp', 
       'freq',
     ], item), {
       environment,
@@ -104,6 +106,7 @@ export const update = new ValidatedMethod({
       scan_only_links,
       scan_only_cliques,
       freq,
+      submit_timestamp: Date.now()
     });
 
     ScheduledScans.update({ _id: _id }, { $set: item });
