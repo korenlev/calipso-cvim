@@ -1,16 +1,15 @@
-[
 { 
-    "related_object_type" : null, 
-    "message" : "2017-06-12 16:41:14,528 INFO: scanning : type=instances_folder, parent: (type=host, name=node-6.cisco.com, id=node-6.cisco.com)", 
+    "_id" : ObjectId("595a0b7fbc807f0161fa1e3d"), 
+    "message" : "2017-07-03 09:16:47,563 INFO: scanning : type=vnic, parent: (type=vnics_folder, name=vNICs, id=72bda9ec-2d0d-424c-8558-88ec22f09c95-vnics)", 
     "related_object" : null, 
     "received_timestamp" : null, 
-    "source_system" : "CALIPSO", 
-    "id" : "17329.49274.528381", 
+    "finished_timestamp" : null, 
     "level" : "info", 
     "display_context" : null, 
-    "finished_timestamp" : null, 
-    "timestamp" : "2017-06-12T13:41:14.528381", 
-    "environment" : null, 
-    "viewed" : false
+    "viewed" : false, 
+    "id" : "17350.33407.563988", 
+    "source_system" : "CALIPSO", 
+    "related_object_type" : null, 
+    "timestamp" : "2017-07-03T09:16:47.563988", 
+    "environment" : null
 }
-]
