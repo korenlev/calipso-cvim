@@ -106,7 +106,9 @@ export function lastMessageTimestamp (level, envName) {
     sort: { timestamp: -1 } 
   });
 
-  return R.path(['timestamp'], message);
+  let res = R.path(['timestamp'], message);
+  if (R.isNil(res)) { return null; }
+  return (res instanceof String) ? res : res.toString();
 }
 
 export function calcColorClassForMessagesInfoBox(level) {
