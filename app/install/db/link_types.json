@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3064"), 
     "endPointA" : "instance", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vnic", 
@@ -8,7 +7,6 @@
     "type" : "instance-vnic"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3065"), 
     "endPointA" : "vnic", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vconnector", 
@@ -16,7 +14,6 @@
     "type" : "vnic-vconnector"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3066"), 
     "endPointA" : "vconnector", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vedge", 
@@ -24,7 +21,6 @@
     "type" : "vconnector-vedge"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3067"), 
     "endPointA" : "vedge", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "otep", 
@@ -32,7 +28,6 @@
     "type" : "vedge-otep"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3068"), 
     "endPointA" : "vconnector", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "pnic", 
@@ -40,7 +35,6 @@
     "type" : "vconnector-pnic"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3069"), 
     "endPointA" : "pnic", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "network", 
@@ -48,7 +42,6 @@
     "type" : "pnic-network"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a306a"), 
     "endPointA" : "otep", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vconnector", 
@@ -56,7 +49,6 @@
     "type" : "otep-vconnector"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a306b"), 
     "endPointA" : "vnic", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vedge", 
@@ -64,7 +56,6 @@
     "type" : "vnic-vedge"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a306c"), 
     "endPointA" : "network", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "pnic", 
@@ -72,7 +63,6 @@
     "type" : "network-pnic"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a306d"), 
     "endPointA" : "vedge", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vconnector", 
@@ -80,7 +70,6 @@
     "type" : "vedge-vconnector"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a306e"), 
     "endPointA" : "vconnector", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vnic", 
@@ -88,7 +77,6 @@
     "type" : "vconnector-vnic"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a306f"), 
     "endPointA" : "vnic", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "instance", 
@@ -96,7 +84,6 @@
     "type" : "vnic-instance"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3070"), 
     "endPointA" : "vnic", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vservice", 
@@ -104,7 +91,6 @@
     "type" : "vnic-vservice"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3071"), 
     "endPointA" : "vservice", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vnic", 
@@ -112,7 +98,6 @@
     "type" : "vservice-vnic"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3072"), 
     "endPointA" : "pnic", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vconnector", 
@@ -120,7 +105,6 @@
     "type" : "pnic-vconnector"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3073"), 
     "endPointA" : "vconnector", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "otep", 
@@ -128,7 +112,6 @@
     "type" : "vconnector-otep"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3074"), 
     "endPointA" : "otep", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vedge", 
@@ -136,7 +119,6 @@
     "type" : "otep-vedge"
 },
 { 
-    "_id" : ObjectId("59552d7172398b3b771a3075"), 
     "endPointA" : "vedge", 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "endPointB" : "vnic", 

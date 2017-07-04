@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a304f"), 
     "data" : [
         {
             "value" : "network", 
@@ -10,7 +9,6 @@
     "name" : "constraints"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3050"), 
     "data" : [
         {
             "value" : "development", 
@@ -32,7 +30,6 @@
     "name" : "env_types"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3051"), 
     "data" : [
         {
             "value" : "critical", 
@@ -62,7 +59,6 @@
     "name" : "log_levels"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3052"), 
     "data" : [
         {
             "value" : "OVS", 
@@ -88,7 +84,6 @@
     "name" : "mechanism_drivers"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3053"), 
     "data" : [
         {
             "value" : "local", 
@@ -114,7 +109,6 @@
     "name" : "type_drivers"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3054"), 
     "data" : [
         {
             "value" : "Sensu", 
@@ -124,7 +118,6 @@
     "name" : "environment_monitoring_types"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3055"), 
     "data" : [
         {
             "value" : "up", 
@@ -138,7 +131,6 @@
     "name" : "link_states"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3056"), 
     "data" : [
         {
             "value" : "None", 
@@ -160,7 +152,6 @@
     "name" : "environment_provision_types"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3057"), 
     "data" : [
         {
             "value" : "instance-vnic", 
@@ -210,7 +201,6 @@
     "name" : "link_types"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3058"), 
     "data" : [
         {
             "value" : "client", 
@@ -224,7 +214,6 @@
     "name" : "monitoring_sides"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a3059"), 
     "data" : [
         {
             "value" : "panic", 
@@ -262,7 +251,6 @@
     "name" : "messages_severity"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a305a"), 
     "data" : [
         {
             "value" : "draft", 
@@ -292,7 +280,6 @@
     "name" : "scans_statuses"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a305b"), 
     "data" : [
         {
             "value" : "Mirantis-6.0", 
@@ -370,7 +357,6 @@
     "name" : "distributions"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a305c"), 
     "data" : [
         {
             "value" : "OpenStack", 
@@ -384,7 +370,6 @@
     "name" : "message_source_systems"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a305d"), 
     "data" : [
         {
             "value" : "vnic", 
@@ -514,7 +499,6 @@
     "name" : "scan_object_types"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a305e"), 
     "data" : [
         {
             "value" : "vnic", 
@@ -560,7 +544,6 @@
     "name" : "object_types_for_links"
 },
 { 
-    "_id" : ObjectId("59552d6c72398b3b771a305f"), 
     "data" : [
         {
             "value" : "vnic", 
@@ -606,7 +589,6 @@
     "name" : "object_types"
 },
 { 
-    "_id" : ObjectId("595a8cead7c037efdb8918a5"), 
     "name" : "environment_operational_status", 
     "data" : [
         {

@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("59552d6d72398b3b771a3060"), 
     "app_path" : "/home/scan/calipso_prod/app", 
     "configuration" : [
         {

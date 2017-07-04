@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("59552d7572398b3b771a3091"), 
     "status" : "completed", 
     "inventory" : "inventory", 
     "start_timestamp" : "2017-05-17T11:00:17.939+0000", 
@@ -13,7 +12,6 @@
     "environment" : "Mirantis-Liberty"
 },
 { 
-    "_id" : ObjectId("59552d7572398b3b771a3092"), 
     "status" : "failed", 
     "scan_only_inventory" : false, 
     "scan_only_links" : false, 

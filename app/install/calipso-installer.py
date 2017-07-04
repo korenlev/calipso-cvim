@@ -1,11 +1,3 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
 from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import ConnectionFailure
 from urllib.parse import quote_plus
@@ -15,7 +7,6 @@ import dockerpycreds
 import time
 import json
 
-# calipso US2740
 
 class MongoComm:
     # deals with communication from host/installer server to mongoDB, includes methods for future use
@@ -68,6 +59,17 @@ class MongoComm:
 
 DockerClient = docker.from_env()   # using local host docker environment parameters
 
+
+def copyfile(filename):
+    c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
+    txt = open('db/'+filename+'.json')
+    data = json.load(txt)
+    c.remove_coll(filename)
+    doc_id = c.insert(filename, data)
+    print("Copied", filename, "mongo doc_ids:\n\n", doc_id, "\n\n")
+    time.sleep(1)
+
+
 # functions to check and start calipso containers:
 def startmongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
@@ -84,124 +86,32 @@ def startmongo(dbport):
                                                      restart_policy={"Name": "always"})
         # wait a bit till mongoDB is up before starting to copy the json files from 'db' folder:
         time.sleep(5)
-        enable_copy = input("create initial calipso DB ? (copy json files from 'db' folder to mongoDB - 'c' to copy, 'q' to skip): ")
+        enable_copy = input("create initial calipso DB ? (copy json files from 'db' folder to mongoDB -"
+                            " 'c' to copy, 'q' to skip):")
         if enable_copy == "c":
-            c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
             print("\nstarting to copy json files to mongoDB...\n\n")
             print("-----------------------------------------\n\n")
             time.sleep(1)
-
-            txt = open('db/attributes_for_hover_on_data.json')
-            data = json.load(txt)
-            c.remove_coll("attributes_for_hover_on_data")
-            doc_id = c.insert("attributes_for_hover_on_data", data)
-            print("Copied attributes_for_hover_on_data, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/clique_constraints.json')
-            data = json.load(txt)
-            c.remove_coll("clique_constraints")
-            doc_id = c.insert("clique_constraints", data)
-            print("Copied clique_constraints, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/cliques.json')
-            data = json.load(txt)
-            c.remove_coll("cliques")
-            doc_id = c.insert("cliques", data)
-            print("Copied cliques, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/clique_types.json')
-            data = json.load(txt)
-            c.remove_coll("clique_types")
-            doc_id = c.insert("clique_types", data)
-            print("Copied clique_types, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/supported_environments.json')
-            data = json.load(txt)
-            c.remove_coll("supported_environments")
-            doc_id = c.insert("supported_environments", data)
-            print("Copied supported_environments, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/constants.json')
-            data = json.load(txt)
-            c.remove_coll("constants")
-            doc_id = c.insert("constants", data)
-            print("Copied constants, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/environments_config.json')
-            data = json.load(txt)
-            c.remove_coll("environments_config")
-            doc_id = c.insert("environments_config", data)
-            print("Copied environments_config, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/statistics.json')
-            data = json.load(txt)
-            c.remove_coll("statistics")
-            doc_id = c.insert("statistics", data)
-            print("Copied statistics, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/inventory.json')
-            data = json.load(txt)
-            c.remove_coll("inventory")
-            doc_id = c.insert("inventory", data)
-            print("Copied inventory, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/links.json')
-            data = json.load(txt)
-            c.remove_coll("links")
-            doc_id = c.insert("links", data)
-            print("Copied links, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/link_types.json')
-            data = json.load(txt)
-            c.remove_coll("link_types")
-            doc_id = c.insert("link_types", data)
-            print("Copied link_types, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/monitoring_config.json')
-            data = json.load(txt)
-            c.remove_coll("monitoring_config")
-            doc_id = c.insert("monitoring_config", data)
-            print("Copied monitoring_config, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/monitoring_config_templates.json')
-            data = json.load(txt)
-            c.remove_coll("monitoring_config_templates")
-            doc_id = c.insert("monitoring_config_templates", data)
-            print("Copied monitoring_config_templates, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/network_agent_types.json')
-            data = json.load(txt)
-            c.remove_coll("network_agent_types")
-            doc_id = c.insert("network_agent_types", data)
-            print("Copied network_agent_types, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/scans.json')
-            data = json.load(txt)
-            c.remove_coll("scans")
-            doc_id = c.insert("scans", data)
-            print("Copied scans, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
-
-            txt = open('db/messages.json')
-            data = json.load(txt)
-            c.remove_coll("messages")
-            doc_id = c.insert("messages", data)
-            print("Copied messages, mongo doc_ids:\n\n", doc_id, "\n\n")
-            time.sleep(1)
+            copyfile("attributes_for_hover_on_data")
+            copyfile("clique_constraints")
+            copyfile("clique_types")
+            copyfile("cliques")
+            copyfile("constants")
+            copyfile("environments_config")
+            copyfile("inventory")
+            copyfile("link_types")
+            copyfile("links")
+            copyfile("messages")
+            copyfile("meteor_accounts_loginServiceConfiguration")
+            copyfile("users")
+            copyfile("monitoring_config")
+            copyfile("monitoring_config_templates")
+            copyfile("network_agent_types")
+            copyfile("roles")
+            copyfile("scans")
+            copyfile("scheduled_scans")
+            copyfile("statistics")
+            copyfile("supported_environments")
 
             # note : 'messages', 'roles', 'users' and some of the 'constants' are filled by calipso-ui at runtime
             # some other docs are filled later by scanning, logging and monitoring

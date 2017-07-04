@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("595a0b7fbc807f0161fa1e3d"), 
     "message" : "2017-07-03 09:16:47,563 INFO: scanning : type=vnic, parent: (type=vnics_folder, name=vNICs, id=72bda9ec-2d0d-424c-8558-88ec22f09c95-vnics)", 
     "related_object" : null, 
     "received_timestamp" : null, 
@@ -15,7 +14,6 @@
     "environment" : null
 },
 { 
-    "_id" : ObjectId("595b9a6112b27b0008ab2510"), 
     "related_object_type" : null, 
     "finished_timestamp" : null, 
     "environment" : null, 
@@ -30,7 +28,6 @@
     "display_context" : null
 },
 { 
-    "_id" : ObjectId("595b9a669d78a0000abcfd05"), 
     "display_context" : null, 
     "level" : "info", 
     "id" : "17351.49126.596498", 
