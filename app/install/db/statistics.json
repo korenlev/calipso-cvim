@@ -1,3 +1,4 @@
+[
 { 
     "_id" : ObjectId("59552d6e72398b3b771a3061"), 
     "recordGenerationMillis" : NumberLong(1487147277000), 
@@ -20,3 +21,4 @@
     "averageThroughput" : NumberInt(17280), 
     "hostIp" : "10.56.20.78"
 }
+]

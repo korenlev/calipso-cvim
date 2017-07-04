@@ -1,60 +1,62 @@
+[
 { 
     "_id" : ObjectId("59552d7472398b3b771a3087"), 
     "folder_text" : "VPNs", 
     "description" : "VPN agent", 
     "type" : "vpn"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a3088"), 
     "folder_text" : "Firewalls", 
     "description" : "Firewall agent", 
     "type" : "firewall"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a3089"), 
     "folder_text" : "vEdges", 
     "description" : "L2 agent", 
     "type" : "vedge"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a308a"), 
     "folder_text" : "Gateways", 
     "description" : "L3 agent", 
     "type" : "router"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a308b"), 
     "folder_text" : "Metadata", 
     "description" : "Metadata agent", 
     "type" : "metadata"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a308c"), 
     "folder_text" : "Load-Balancers", 
     "description" : "Load Balancing agent", 
     "type" : "load_balancer"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a308d"), 
     "folder_text" : "vEdges", 
     "description" : "Open vSwitch agent", 
     "type" : "vedge"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a308e"), 
     "folder_text" : "vConnectors", 
     "description" : "Linux bridge agent", 
     "type" : "vconnector"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a308f"), 
     "folder_text" : "DHCP servers", 
     "description" : "DHCP agent", 
     "type" : "dhcp"
-}
+},
 { 
     "_id" : ObjectId("59552d7472398b3b771a3090"), 
     "folder_text" : "Orchestrators", 
     "description" : "Orchestrator", 
     "type" : "orchestrator"
 }
+]

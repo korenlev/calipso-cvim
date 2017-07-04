@@ -1,3 +1,4 @@
+[
 { 
     "_id" : ObjectId("59552d7372398b3b771a3077"), 
     "side" : "client", 
@@ -17,7 +18,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "rabbitmq.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3078"), 
     "side" : "client", 
@@ -30,7 +31,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "transport.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3079"), 
     "side" : "server", 
@@ -43,7 +44,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "redis.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a307a"), 
     "side" : "client", 
@@ -64,7 +65,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "client.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a307b"), 
     "side" : "server", 
@@ -77,7 +78,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "transport.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a307c"), 
     "side" : "client", 
@@ -101,7 +102,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "client_check_otep.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a307d"), 
     "side" : "server", 
@@ -121,7 +122,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "rabbitmq.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a307e"), 
     "side" : "server", 
@@ -135,7 +136,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "api.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a307f"), 
     "side" : "server", 
@@ -164,7 +165,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "client.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3080"), 
     "side" : "server", 
@@ -185,15 +186,16 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "handlers.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3081"), 
     "type" : "client_check_vedge.json", 
     "side" : "client", 
     "condition" : {
-        "mechanism_drivers" : "VPP"
+        "mechanism_drivers" : [
+            "VPP"
+        ]
     }, 
-    "subtype" : "VPP", 
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
@@ -213,11 +215,16 @@
     }, 
     "monitoring_system" : "sensu", 
     "order" : "1"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3082"), 
     "side" : "client", 
     "order" : "1", 
+    "condition" : {
+        "mechanism_drivers" : [
+            "VPP"
+        ]
+    }, 
     "config" : {
         "checks" : {
             "{objtype}_{vnictype}_{objid}" : {
@@ -237,11 +244,10 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "client_check_vnic.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3083"), 
     "side" : "client", 
-    "subtype" : "OVS", 
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
@@ -261,15 +267,23 @@
     }, 
     "type" : "client_check_vedge.json", 
     "condition" : {
-        "mechanism_drivers" : "OVS"
+        "mechanism_drivers" : [
+            "OVS"
+        ]
     }, 
     "monitoring_system" : "sensu", 
     "order" : "1"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3084"), 
     "side" : "client", 
     "order" : "1", 
+    "condition" : {
+        "mechanism_drivers" : [
+            "OVS", 
+            "LXB"
+        ]
+    }, 
     "config" : {
         "checks" : {
             "link_{linktype}_{fromobjid}_{toobjid}" : {
@@ -289,7 +303,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "client_check_link_vnic-vconnector.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3085"), 
     "side" : "client", 
@@ -313,7 +327,7 @@
     }, 
     "monitoring_system" : "sensu", 
     "type" : "client_check_pnic.json"
-}
+},
 { 
     "_id" : ObjectId("59552d7372398b3b771a3086"), 
     "side" : "client", 
@@ -338,3 +352,4 @@
     "monitoring_system" : "sensu", 
     "type" : "client_check_vservice.json"
 }
+]

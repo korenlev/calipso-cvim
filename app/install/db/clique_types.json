@@ -1,3 +1,4 @@
+[
 { 
     "_id" : ObjectId("a8efbff736e3f6b8e00ab6b7"), 
     "environment" : "ANY", 
@@ -12,7 +13,7 @@
         "pnic-network"
     ], 
     "name" : "instance"
-}
+},
 { 
     "_id" : ObjectId("70a292da4960a5e67ebaea47"), 
     "environment" : "ANY", 
@@ -26,7 +27,7 @@
         "pnic-network"
     ], 
     "name" : "vservice"
-}
+},
 { 
     "_id" : ObjectId("6abc78f898f1cdf0f1852c7d"), 
     "environment" : "ANY", 
@@ -44,3 +45,4 @@
     ], 
     "name" : "network"
 }
+]

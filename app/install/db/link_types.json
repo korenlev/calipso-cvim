@@ -1,3 +1,4 @@
+[
 { 
     "_id" : ObjectId("59552d7172398b3b771a3064"), 
     "endPointA" : "instance", 
@@ -5,7 +6,7 @@
     "endPointB" : "vnic", 
     "description" : "instance-vnic", 
     "type" : "instance-vnic"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3065"), 
     "endPointA" : "vnic", 
@@ -13,7 +14,7 @@
     "endPointB" : "vconnector", 
     "description" : "vnic-vconnector", 
     "type" : "vnic-vconnector"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3066"), 
     "endPointA" : "vconnector", 
@@ -21,7 +22,7 @@
     "endPointB" : "vedge", 
     "description" : "vconnector-vedge", 
     "type" : "vconnector-vedge"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3067"), 
     "endPointA" : "vedge", 
@@ -29,7 +30,7 @@
     "endPointB" : "otep", 
     "description" : "vedge-otep", 
     "type" : "vedge-otep"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3068"), 
     "endPointA" : "vconnector", 
@@ -37,7 +38,7 @@
     "endPointB" : "pnic", 
     "description" : "vconnector-pnic", 
     "type" : "vconnector-pnic"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3069"), 
     "endPointA" : "pnic", 
@@ -45,7 +46,7 @@
     "endPointB" : "network", 
     "description" : "pnic-network", 
     "type" : "pnic-network"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a306a"), 
     "endPointA" : "otep", 
@@ -53,7 +54,7 @@
     "endPointB" : "vconnector", 
     "description" : "otep-vconnector", 
     "type" : "otep-vconnector"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a306b"), 
     "endPointA" : "vnic", 
@@ -61,7 +62,7 @@
     "endPointB" : "vedge", 
     "description" : "vnic-vedge", 
     "type" : "vnic-vedge"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a306c"), 
     "endPointA" : "network", 
@@ -69,7 +70,7 @@
     "endPointB" : "pnic", 
     "description" : "network-pnic", 
     "type" : "network-pnic"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a306d"), 
     "endPointA" : "vedge", 
@@ -77,7 +78,7 @@
     "endPointB" : "vconnector", 
     "description" : "vedge-vconnector", 
     "type" : "vedge-vconnector"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a306e"), 
     "endPointA" : "vconnector", 
@@ -85,7 +86,7 @@
     "endPointB" : "vnic", 
     "description" : "vconnector-vnic", 
     "type" : "vconnector-vnic"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a306f"), 
     "endPointA" : "vnic", 
@@ -93,7 +94,7 @@
     "endPointB" : "instance", 
     "description" : "vnic-instance", 
     "type" : "vnic-instance"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3070"), 
     "endPointA" : "vnic", 
@@ -101,7 +102,7 @@
     "endPointB" : "vservice", 
     "description" : "vnic-vservice", 
     "type" : "vnic-vservice"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3071"), 
     "endPointA" : "vservice", 
@@ -109,7 +110,7 @@
     "endPointB" : "vnic", 
     "description" : "vservice-vnic", 
     "type" : "vservice-vnic"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3072"), 
     "endPointA" : "pnic", 
@@ -117,7 +118,7 @@
     "endPointB" : "vconnector", 
     "description" : "pnic-vconnector", 
     "type" : "pnic-vconnector"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3073"), 
     "endPointA" : "vconnector", 
@@ -125,7 +126,7 @@
     "endPointB" : "otep", 
     "description" : "vconnector-otep", 
     "type" : "vconnector-otep"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3074"), 
     "endPointA" : "otep", 
@@ -133,7 +134,7 @@
     "endPointB" : "vedge", 
     "description" : "otep-vedge", 
     "type" : "otep-vedge"
-}
+},
 { 
     "_id" : ObjectId("59552d7172398b3b771a3075"), 
     "endPointA" : "vedge", 
@@ -142,3 +143,4 @@
     "description" : "vedge-vnic", 
     "type" : "vedge-vnic"
 }
+]
