@@ -92,8 +92,9 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         docs = self.monitoring_config.find(condition, sort=sort)
         content = {}
         for doc in docs:
-            if self.check_env_condition(doc):
-                content.update(doc)
+            if not self.check_env_condition(doc):
+                return {}
+            content.update(doc)
         self.replacements['app_path'] = \
             self.configuration.environment['app_path']
         config = self.content_replace({'config': content.get('config', {})})
