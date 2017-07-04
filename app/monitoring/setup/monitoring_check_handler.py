@@ -41,7 +41,7 @@ class MonitoringCheckHandler(MonitoringHandler, SpecialCharConverter):
             if (client_file_content and
                 'checks' in client_file_content['config']) \
             else {}
-        checks.update(content['config']['checks'])
+        checks.update(content.get('config', {}).get('checks', {}))
         if client_file_content:
             client_file_content['config']['checks'] = checks
         else:
