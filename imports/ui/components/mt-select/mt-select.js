@@ -50,7 +50,7 @@ Template.MtSelect.rendered = function() {
  */
 
 Template.MtSelect.events({
-  'click .sm-mt-select': function (event, instance) {
+  'change .sm-mt-select': function (event, instance) {
     event.preventDefault();
     event.stopPropagation();
 
