@@ -104,7 +104,13 @@ Template.TopNavbarMenu.helpers({
         Router.go('environment', { _id: idToStr(node._envId) }, { 
           query: { selectedNodeId: idToStr(node._id) }
         });
-      }
+      },
+      onCloseReq() {
+        instance.state.set('isAutoCompleteOpen', false);
+
+        let searchInput = instance.$('input#search');  
+        searchInput.val(null);
+      },
     };
   },
 

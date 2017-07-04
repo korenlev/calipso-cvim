@@ -9,9 +9,14 @@
 ########################################################################################
  -->
 <template name="SearchAutoCompleteList">
-<ul class="sm-search-auto-complete-list {{#if isOpen }}cl-open{{/if}}">
-  {{#each resultItem in searchResults }}
-    {{>AutoSearchResultLine (createAutoSearchResultLineArgs resultItem) }}
-  {{/each }}
-</ul>
+<div class="os-search-auto-complete-list">
+  {{#if isOpen}}
+  <div class="sm-backdrop"></div>
+  {{/if }}
+  <ul class="sm-search-auto-complete-list {{#if isOpen }}cl-open{{/if}}">
+    {{#each resultItem in searchResults }}
+      {{>AutoSearchResultLine (createAutoSearchResultLineArgs resultItem) }}
+    {{/each }}
+  </ul>
+</div>
 </template>

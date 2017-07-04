@@ -55,11 +55,14 @@ Template.SearchAutoCompleteList.onCreated(function() {
       envId: R.merge(_idFieldDef, { optional: true }), 
       searchTerm: { type: String, optional: true },
       onResultSelected: { type: Function },
+      onCloseReq: { type: Function }, 
     }).validate(data);
 
     instance.state.set('isOpen', data.isOpen);
     instance.state.set('envId', data.envId);
     instance.state.set('searchTerm', data.searchTerm);
+    
+    instance.onCloseReq = R.defaultTo(() => console.log('close requested'), data.onCloseReq);
   });
 
   instance.opCounter = 0;
@@ -94,7 +97,10 @@ Template.SearchAutoCompleteList.onDestroyed(() => {
  */
 
 Template.SearchAutoCompleteList.events({
-});
+  'click .sm-backdrop': function (event, instance) {
+    instance.onCloseReq();
+  }
+}); // end - events
    
 /*  
  * Helpers
@@ -118,8 +124,9 @@ Template.SearchAutoCompleteList.helpers({
         instance.data.onResultSelected(resultItem); 
       }
     };
-  }
-});
+  },
+
+}); // end - helpers
 
 function performSearch(
   searchTerm, 
