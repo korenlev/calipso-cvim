@@ -16,7 +16,6 @@ export const insert = new ValidatedMethod({
   validate: Scans.simpleSchema()
     .pick([
       'environment',
-      'inventory',
       'object_id',
       'log_level',
       'clear',
@@ -27,7 +26,6 @@ export const insert = new ValidatedMethod({
     ]).validator({ clean: true, filter: false }),
   run({
     environment,
-    inventory,
     object_id,
     log_level,
     clear,
@@ -41,7 +39,6 @@ export const insert = new ValidatedMethod({
     });
     scan = R.merge(scan, {
       environment,
-      inventory,
       object_id,
       log_level,
       clear,

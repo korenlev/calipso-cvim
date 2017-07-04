@@ -8,7 +8,6 @@ export const insert = new ValidatedMethod({
   validate: ScheduledScans.simpleSchema()
     .pick([
       'environment',
-      'inventory',
       'object_id',
       'log_level',
       'clear',
@@ -20,7 +19,6 @@ export const insert = new ValidatedMethod({
     ]).validator({ clean: true, filter: false }),
   run({
     environment,
-    inventory,
     object_id,
     log_level,
     clear,
@@ -34,7 +32,6 @@ export const insert = new ValidatedMethod({
 
     scan = R.merge(scan, {
       environment,
-      inventory,
       object_id,
       log_level,
       clear,
@@ -57,7 +54,6 @@ export const update = new ValidatedMethod({
     .pick([
       '_id',
       'environment',
-      'inventory',
       'object_id',
       'log_level',
       'clear',
@@ -70,7 +66,6 @@ export const update = new ValidatedMethod({
   run({
     _id,
     environment,
-    inventory,
     object_id,
     log_level,
     clear,
@@ -85,7 +80,6 @@ export const update = new ValidatedMethod({
 
     item = R.merge(R.pick([
       'environment',
-      'inventory',
       'object_id',
       'log_level',
       'clear',
@@ -97,7 +91,6 @@ export const update = new ValidatedMethod({
       'freq',
     ], item), {
       environment,
-      inventory,
       object_id,
       log_level,
       clear,

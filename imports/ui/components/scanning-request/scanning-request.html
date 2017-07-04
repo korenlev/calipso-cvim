@@ -31,7 +31,7 @@
           <div class="col-sm-3">
             {{#if (isCommandOptionSelectType commandOption)}}
               {{> SelectModel(createSelectArgs
-                    value=(getModelKeyValue commandOption.name)
+                    values=(getModelKeyValue commandOption.name)
                     key=commandOption.name
                     options=(calcCommandSelectOptions commandOption)
                     setModel=(calcSetModelFn commandOption.name)
@@ -47,9 +47,6 @@
                     )
               }}
             {{/if}}
-          </div>
-          <div class="col-sm-5">
-            {{ commandOption.info.description }}
           </div>
         </div>
 

@@ -19,3 +19,7 @@ Template.registerHelper('rPath', function (source, pathStr) {
   let path = R.split('.', pathStr);
   return R.path(path, source);
 });
+
+Template.registerHelper('asArray', function (val) {
+  return [val];
+});

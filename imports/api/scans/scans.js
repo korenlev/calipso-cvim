@@ -21,10 +21,6 @@ Scans.schemaRelated = {
     description: 'Name of environment to scan',
     disabled: true,
   },
-  inventory: {
-    label: 'Inventory',
-    description: 'name of inventory collection',
-  },
   status: {
     label: 'Status',
     description: 'Scan lifecycle status',
@@ -43,7 +39,7 @@ Scans.schemaRelated = {
     options: 'log_levels',
   },
   clear: {
-    label: 'Clear',
+    label: 'Clear data',
     description: 'clear all data prior to scanning',
   },
   scan_only_inventory: {
@@ -67,10 +63,6 @@ let schema = {
   environment: { 
     type: String 
   }, 
-  inventory: {
-    type: String,
-    optional: true,
-  },
   status: {
     type: String, 
     defaultValue: 'draft', 

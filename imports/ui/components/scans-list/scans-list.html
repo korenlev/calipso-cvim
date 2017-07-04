@@ -71,7 +71,7 @@
           <td>{{ scan.inventory }}</td>
           <td>{{ scan.object_id }}</td>
           <td><a href="{{pathFor route='scanning-request' 
-                            query=(asHash env=scan.environment id=scan._id action='view') }}"
+                            query=(asHash env=scan.environment _id=(idToStr scan._id) action='view') }}"
                   ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
           </td>
         </tr>

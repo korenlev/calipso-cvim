@@ -56,23 +56,24 @@ Template.ScanningRequest.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let controller = Iron.controller();
-    let params = controller.getParams();
-    let query = params.query;
+    let data = Template.currentData();
 
     new SimpleSchema({
       action: { type: String, allowedValues: ['insert', 'view', 'update'] },
       env: { type: String, optional: true },
-      id: { type: String, optional: true }
-    }).validate(query);
+      _id: { 
+        type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } }, 
+        optional: true 
+      },
+    }).validate(data);
 
-    switch (query.action) {
+    switch (data.action) {
     case 'insert':
-      initInsertView(instance, query); 
+      initInsertView(instance, data); 
       break;
 
     case 'view':
-      initViewView(instance, query);
+      initViewView(instance, data);
       break;
 
     default:
@@ -87,8 +88,8 @@ Template.ScanningRequest.rendered = function() {
 */
 
 /*
- * Events
- */
+* Events
+*/
 
 Template.ScanningRequest.events({
   'click .js-submit-button': function(event, instance) {
@@ -97,8 +98,8 @@ Template.ScanningRequest.events({
 });
 
 /*
- * Helpers
- */
+* Helpers
+*/
 
 Template.ScanningRequest.helpers({
   getState: function (key) {
@@ -320,17 +321,17 @@ function processActionResult(instance, error) {
   }
 }
 
-function initInsertView(instance, query) {
-  instance.state.set('action', query.action);
-  instance.state.set('env', query.env);
+function initInsertView(instance, data) {
+  instance.state.set('action', data.action);
+  instance.state.set('env', data.env);
   instance.state.set('model', Scans.schema.clean({
     environment: instance.state.get('env')
   }));
 
   instance.subscribe('constants');
-  instance.subscribe('scans?env', query.env);
+  instance.subscribe('scans?env', data.env);
 
-  updateNotificationSameScanExistsForInsert(instance, query.env);
+  updateNotificationSameScanExistsForInsert(instance, data.env);
 
   // todo
 }
@@ -356,15 +357,15 @@ function updateNotificationSameScanExistsForInsert(instance, env) {
   }
 }
 
-function initViewView(instance, query) {
-  instance.state.set('action', query.action);
-  instance.state.set('env', query.env);
-  instance.state.set('id', query.id);
+function initViewView(instance, data) {
+  instance.state.set('action', data.action);
+  instance.state.set('env', data.env);
+  instance.state.set('id', data._id);
 
   instance.subscribe('constants');
-  instance.subscribe('scans?id', query.id);
+  instance.subscribe('scans?id', data._id);
 
-  let model = Scans.findOne({ _id: query.id }); 
+  let model = Scans.findOne({ _id: data._id }); 
   instance.state.set('model', model);
   // todo
 }

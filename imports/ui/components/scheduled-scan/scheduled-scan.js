@@ -33,14 +33,14 @@ Template.ScheduledScan.onCreated(function() {
   instance.state.setDefault({
     action: null,
     _id: null,
-    model: {},
+    model: null,
     isError: false,
     isSuccess: false,
     isMessage: false,
     message: null,
     envsAsOptions: [],
     logLevelsAsOptions: [],
-    pageHeader: 'Scheduled Scan',
+    pageHeader: 'Schedule a Scan',
   });
 
   instance.autorun(function () {
@@ -229,6 +229,7 @@ Template.ScheduledScan.helpers({
 
   scanOnlyFieldOptions: function () {
     return [
+      { label: 'Full scan', value: '_full_scan' },
       { label: 'Scan only inventory', value: 'scan_only_inventory' },
       { label: 'Scan only links', value: 'scan_only_links' },
       { label: 'Scan only cliques', value: 'scan_only_cliques' },
@@ -245,7 +246,11 @@ Template.ScheduledScan.helpers({
           return R.assoc(fieldName, false, acc);
         }, model, scansOnlyFields);
 
-        model = R.assoc(newFieldName, true, model);
+        if (newFieldName === '_full_scan') {
+          console.log('full scan selected. all scan_only_ fields are reset');
+        } else {
+          model = R.assoc(newFieldName, true, model);
+        }
         instance.state.set('model', model);
       }
     };
@@ -254,10 +259,15 @@ Template.ScheduledScan.helpers({
   scanOnlyFieldsSelectedValue: function () {
     let instance = Template.instance();
     let model = instance.state.get('model');
+    if (R.isNil(model)) { return null; }
+
     let selectedValue = R.find((fieldName) => {
       return R.prop(fieldName, model) === true;
     }, scansOnlyFields);
 
+    if (R.isNil(selectedValue)) {
+      selectedValue = '_full_scan';
+    }
     return selectedValue;
   },
 
@@ -275,6 +285,7 @@ Template.ScheduledScan.helpers({
       { label: 'Yearly', value: 'YEARLY' },
       { label: 'Monthly', value: 'MONTHLY' },
       { label: 'Weekly', value: 'WEEKLY' },
+      { label: 'Daily', value: 'DAILY' },
       { label: 'Hourly', value: 'HOURLY' },
     ];
   },
@@ -318,11 +329,21 @@ Template.ScheduledScan.helpers({
   },
 
   getRecurrenceText: function (model) {
+    if (R.isNil(model)) { return ''; }
+
     let rule = new RRule({
       freq: RRule[model.freq]
     });
 
     return rule.toText();
+  },
+
+  getNextRunText: function (model) {
+    if (R.isNil(model)) { return ''; }
+    if (R.isNil(model.scheduled_timestamp)) { return ''; }
+
+    let next = moment(model.scheduled_timestamp);
+    return next.fromNow();
   },
 }); // end: helpers
 
@@ -405,7 +426,6 @@ function submitItem(
   case 'insert':
     insert.call({
       environment: model.environment,
-      inventory: model.inventory,
       object_id: model.object_id,
       log_level: model.log_level,
       clear: model.clear,
@@ -420,7 +440,6 @@ function submitItem(
     update.call({
       _id: model._id,
       environment: model.environment,
-      inventory: model.inventory,
       object_id: model.object_id,
       log_level: model.log_level,
       clear: model.clear,

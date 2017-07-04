@@ -25,7 +25,7 @@ import { calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessage
   from '/imports/api/messages/messages';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Roles } from 'meteor/alanning:roles';
-import { idToStr } from '/imports/lib/utilities';
+//import { idToStr } from '/imports/lib/utilities';
         
 import '/imports/ui/components/data-cubic/data-cubic';
 import '/imports/ui/components/icon/icon';
@@ -182,25 +182,7 @@ Template.EnvironmentDashboard.events({
   'click .sm-scan-button': function (event, instance) {
     let envName = instance.state.get('envName');
 
-    Meteor.apply('scheduledScansFind?env', [
-      envName
-    ], {
-      wait: false
-    }, function (err, resp) {
-      if (err) { 
-        console.error(R.toString(err));
-        return; 
-      }
-
-      if (R.isNil(resp.item)) {
-        Router.go('scheduled-scan',{},{ query: { env: envName, action: 'insert' } });
-        return;
-      }
-
-      Router.go('scheduled-scan',{},{ query: { _id: idToStr(resp.item._id), action: 'update' } });
-    });
-
-
+    Router.go('new-scanning',{},{ query: { env: envName } });
   },
 
   'click .sm-delete-button': function (event, instance) {

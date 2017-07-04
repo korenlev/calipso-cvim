@@ -70,6 +70,7 @@ Template.ScansList.onCreated(function() {
 
     instance.subscribe(subsScansEnvPageAmountSorted, 
       env, page, amountPerPage, sortField, sortDirection);
+
   });
 
 });  

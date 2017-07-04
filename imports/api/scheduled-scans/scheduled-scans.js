@@ -12,10 +12,6 @@ let schema = new SimpleSchema({
   environment: { 
     type: String 
   }, 
-  inventory: {
-    type: String,
-    optional: true,
-  },
   object_id: {
     type: String,
     optional: true,
@@ -56,6 +52,11 @@ let schema = new SimpleSchema({
     type: Date,
     defaultValue: null
   },
+  scheduled_timestamp: {
+    type: Date,
+    defaultValue: null,
+    optional: true,
+  }
 });
 
 schema.addValidator(function () {

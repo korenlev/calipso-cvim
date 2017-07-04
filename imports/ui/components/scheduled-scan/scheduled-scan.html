@@ -21,7 +21,6 @@
             disabled="disabled"
             value="{{ modelField '_id' }}"     
             class="sm-input-id cl-input" type="text" placeholder="Id" />
-          <div class="cl-field-desc">Id</div>
         </div>
 
         <div class="cl-field-group">
@@ -33,29 +32,16 @@
                         disabled=isGenDisabled
                         )
                         }}
-          <div class="cl-field-desc">Environment</div>
         </div>
 
         <div class="cl-field-group">
-          <label class="cl-field-label">Inventory</label>
-          {{>MtInput (argsInput classStr="cl-input" 
-                        placeholder="Inventory" 
-                        inputValue=(modelField 'inventory') 
-                        inputType="text" onInput=onInputInventoryFn
-                        disabled=isGenDisabled
-                        ) }}
-          <div class="cl-field-desc">Inventory</div>
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">ObjectId</label>
+          <label class="cl-field-label">Scan specific object</label>
           {{>MtInput (argsInput classStr="cl-input" 
                         placeholder="Object Id" 
                         inputValue=(modelField 'object_id') 
                         inputType="text" onInput=onInputObjectIdFn
                         disabled=isGenDisabled
                         ) }}
-          <div class="cl-field-desc">Object Id</div>
         </div>
 
         <div class="cl-field-group">
@@ -66,29 +52,26 @@
                         onInput=onInputLogLevelFn
                         disabled=isGenDisabled
                         ) }}
-          <div class="cl-field-desc">Log level</div>
         </div>
 
         <div class="cl-field-group">
-          <label class="cl-field-label">Clear</label>
+          <label class="cl-field-label">Clear data</label>
           {{>MtInput (argsInput classStr="cl-input" 
                         inputValue=(modelField 'clear') 
                         inputType="checkbox" 
                         onInput=onInputClearFn
                         disabled=isGenDisabled
                         ) }}
-          <div class="cl-field-desc">Clear</div>
         </div>
 
         <div class="cl-field-group">
-          <label class="cl-field-label">Scan Only Field</label>
+          <label class="cl-field-label">What to scan</label>
           {{>MtSelect (argsSelect classStr="cl-input" 
                         options=scanOnlyFieldOptions
                         selectedValue=scanOnlyFieldsSelectedValue
                         onInput=scanOnlyFieldInputFn
                         disabled=isGenDisabled
                         ) }}
-          <div class="cl-field-desc">Scan Only Field</div>
         </div>
 
         <div class="cl-field-group">
@@ -99,12 +82,16 @@
                         onInput=onInputFreqFn
                         disabled=isGenDisabled
                         ) }}
-          <div class="cl-field-desc">Frequency</div>
         </div>
 
         <div class="cl-field-group">
           <label class="cl-field-label">Recurrence</label>
           <div class="cl-info-data">{{ getRecurrenceText (getState 'model') }}</div>
+        </div>
+
+        <div class="cl-field-group">
+          <label class="cl-field-label">Next run</label>
+          <div class="cl-info-data">{{ getNextRunText (getState 'model') }}</div>
         </div>
 
         {{#if isUpdateableAction }}
