@@ -1,0 +1,18 @@
+{ 
+    "_id" : ObjectId("595a8cead7c037efdb8918a5"), 
+    "name" : "environment_operational_status", 
+    "data" : [
+        {
+            "label" : "stopped", 
+            "value" : "stopped"
+        }, 
+        {
+            "label" : "running", 
+            "value" : "running"
+        }, 
+        {
+            "label" : "error", 
+            "value" : "error"
+        }
+    ]
+}
