@@ -1,14 +1,8 @@
+from bson.objectid import ObjectId
+
+
 AGGREGATE = {
-    "environment" : "Mirantis-Liberty-Xiaocong",
-    "id" : "1",
-    "id_path" : "/Mirantis-Liberty-Xiaocong/Mirantis-Liberty-Xiaocong-regions/RegionOne/RegionOne-aggregates/1",
-    "name" : "osdna-agg",
-    "name_path" : "/Mirantis-Liberty-Xiaocong/Regions/RegionOne/Aggregates/osdna-agg",
-    "object_name" : "osdna-agg",
-    "parent_id" : "RegionOne-aggregates",
-    "parent_type" : "aggregates_folder",
-    "show_in_tree" : True,
-    "type" : "aggregate"
+    "id": "1",
 }
 
 HOSTS = [
@@ -18,11 +12,14 @@ HOSTS = [
     }
 ]
 
-# functional test
-INPUT = "1"
-OUTPUT = [
+HOST_IN_INVENTORY = {
+    "_id": "595ac4b6d7c037efdb8918a7"
+}
+
+HOSTS_RESULT = [
     {
         "id": "aggregate-osdna-agg-node-5.cisco.com",
-        "name": "node-5.cisco.com"
+        "name": "node-5.cisco.com",
+        "ref_id": ObjectId(HOST_IN_INVENTORY["_id"])
     }
 ]
