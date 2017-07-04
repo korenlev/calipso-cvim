@@ -59,7 +59,7 @@ class CliAccess(BinaryConverter, Fetcher):
                               'host: ' + ssh_to_host + ', cmd: %s ******', cmd)
                 return cached["result"]
 
-        self.log.info('CliAccess: host: {}, cmd: {}', ssh_to_host, cmd)
+        self.log.info('CliAccess: host: %s, cmd: %s', ssh_to_host, cmd)
         ret = ssh_conn.exec(cmd)
         self.cached_commands[cmd_path] = {"timestamp": curr_time, "result": ret}
         return ret
