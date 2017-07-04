@@ -69,7 +69,7 @@ class MongoComm:
 DockerClient = docker.from_env()   # using local host docker environment parameters
 
 
-def copyfile(filename):
+def copy_file(filename):
     c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
     txt = open('db/'+filename+'.json')
     data = json.load(txt)
@@ -79,8 +79,14 @@ def copyfile(filename):
     time.sleep(1)
 
 
+C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
+H_MONGO_CONFIG = "/home/calipso/calipso_mongo_access.conf"
+PYTHONPATH = "/home/scan/calipso_prod/app"
+C_LDAP_CONFIG = "/local_dir/ldap.conf"
+H_LDAP_CONFIG = "/home/calipso/ldap.conf"
+
 # functions to check and start calipso containers:
-def startmongo(dbport):
+def start_mongo(dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
         print("\nstarting container calipso-mongo, please wait...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:mongo")
@@ -101,26 +107,26 @@ def startmongo(dbport):
             print("\nstarting to copy json files to mongoDB...\n\n")
             print("-----------------------------------------\n\n")
             time.sleep(1)
-            copyfile("attributes_for_hover_on_data")
-            copyfile("clique_constraints")
-            copyfile("clique_types")
-            copyfile("cliques")
-            copyfile("constants")
-            copyfile("environments_config")
-            copyfile("inventory")
-            copyfile("link_types")
-            copyfile("links")
-            copyfile("messages")
-            copyfile("meteor_accounts_loginServiceConfiguration")
-            copyfile("users")
-            copyfile("monitoring_config")
-            copyfile("monitoring_config_templates")
-            copyfile("network_agent_types")
-            copyfile("roles")
-            copyfile("scans")
-            copyfile("scheduled_scans")
-            copyfile("statistics")
-            copyfile("supported_environments")
+            copy_file("attributes_for_hover_on_data")
+            copy_file("clique_constraints")
+            copy_file("clique_types")
+            copy_file("cliques")
+            copy_file("constants")
+            copy_file("environments_config")
+            copy_file("inventory")
+            copy_file("link_types")
+            copy_file("links")
+            copy_file("messages")
+            copy_file("meteor_accounts_loginServiceConfiguration")
+            copy_file("users")
+            copy_file("monitoring_config")
+            copy_file("monitoring_config_templates")
+            copy_file("network_agent_types")
+            copy_file("roles")
+            copy_file("scans")
+            copy_file("scheduled_scans")
+            copy_file("statistics")
+            copy_file("supported_environments")
 
             # note : 'messages', 'roles', 'users' and some of the 'constants' are filled by calipso-ui at runtime
             # some other docs are filled later by scanning, logging and monitoring
@@ -131,7 +137,7 @@ def startmongo(dbport):
         return
 
 
-def startlisten():
+def start_listen():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-listen"}):
         print("\nstarting container calipso-listen...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:listen")
@@ -144,15 +150,15 @@ def startlisten():
         listencontainer = DockerClient.containers.run('korenlev/calipso:listen', detach=True, name="calipso-listen",
                                                       ports={'22/tcp': 50022},
                                                       restart_policy={"Name": "always"},
-                                                      environment=["PYTHONPATH=/home/scan/calipso_prod/app",
-                                                                   "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf"],
+                                                      environment=["PYTHONPATH=" + PYTHONPATH,
+                                                                   "MONGO_CONFIG=" + C_MONGO_CONFIG],
                                                       volumes={'/home/calipso': {'bind': '/local_dir', 'mode': 'rw'}})
     else:
         print("container named calipso-listen already exists, please deal with it using docker...\n")
         return
 
 
-def startldap():
+def start_ldap():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ldap"}):
         print("\nstarting container calipso-ldap...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:ldap")
@@ -171,7 +177,7 @@ def startldap():
         return
 
 
-def startapi():
+def start_api():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-api"}):
         print("\nstarting container calipso-api...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:api")
@@ -184,9 +190,9 @@ def startapi():
         apicontainer = DockerClient.containers.run('korenlev/calipso:api', detach=True, name="calipso-api",
                                                    ports={'8000/tcp': 8000, '22/tcp': 40022},
                                                    restart_policy={"Name": "always"},
-                                                   environment=["PYTHONPATH=/home/scan/calipso_prod/app",
-                                                                "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf",
-                                                                "LDAP_CONFIG=/local_dir/ldap.conf",
+                                                   environment=["PYTHONPATH=" + PYTHONPATH,
+                                                                "MONGO_CONFIG=" + C_MONGO_CONFIG,
+                                                                "LDAP_CONFIG=" + C_LDAP_CONFIG,
                                                                 "LOG_LEVEL=DEBUG"],
                                                    volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
@@ -194,7 +200,7 @@ def startapi():
         return
 
 
-def startscan():
+def start_scan():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-scan"}):
         print("\nstarting container calipso-scan...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:scan")
@@ -207,15 +213,15 @@ def startscan():
         scancontainer = DockerClient.containers.run('korenlev/calipso:scan', detach=True, name="calipso-scan",
                                                     ports={'22/tcp': 30022},
                                                     restart_policy={"Name": "always"},
-                                                    environment=["PYTHONPATH=/home/scan/calipso_prod/app",
-                                                                 "MONGO_CONFIG=/local_dir/calipso_mongo_access.conf"],
+                                                    environment=["PYTHONPATH=" + PYTHONPATH,
+                                                                 "MONGO_CONFIG=" + C_MONGO_CONFIG],
                                                     volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
         print("container named calipso-scan already exists, please deal with it using docker...\n")
         return
 
 
-def startsensu():
+def start_sensu():
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-sensu"}):
         print("\nstarting container calipso-sensu...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:sensu")
@@ -229,14 +235,14 @@ def startsensu():
                                                      ports={'22/tcp': 20022, '3000/tcp': 3000, '4567/tcp': 4567,
                                                             '5671/tcp': 5671, '15672/tcp': 15672},
                                                      restart_policy={"Name": "always"},
-                                                     environment=["PYTHONPATH=/home/scan/calipso_prod/app"],
+                                                     environment=["PYTHONPATH=" + PYTHONPATH],
                                                      volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
     else:
         print("container named calipso-sensu already exists, please deal with it using docker...\n")
         return
 
 
-def startui(host, dbuser, dbpassword, webport, dbport):
+def start_ui(host, dbuser, dbpassword, webport, dbport):
     if not DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
         print("\nstarting container calipso-ui...\n")
         image = DockerClient.images.list(all=True, name="korenlev/calipso:ui")
@@ -249,17 +255,17 @@ def startui(host, dbuser, dbpassword, webport, dbport):
         uicontainer = DockerClient.containers.run('korenlev/calipso:ui', detach=True, name="calipso-ui",
                                                   ports={'3000/tcp': webport},
                                                   restart_policy={"Name": "always"},
-                                                  environment=["ROOT_URL=http://" + host + ":" + str(webport),
-                                                               "MONGO_URL=mongodb://" + dbuser + ":" + dbpassword
-                                                               + "@" + host + ":" + str(dbport) + "/calipso",
-                                                               "LDAP_CONFIG=/local_dir/ldap.conf"])
+                                                  environment=["ROOT_URL=http://{}:{}".format(host, str(webport)),
+                                                               "MONGO_URL=mongodb://{}:{}@{}:{}/calipso".format
+                                                               (dbuser, dbpassword, host, str(dbport)),
+                                                               "LDAP_CONFIG=" + C_LDAP_CONFIG])
     else:
         print("container named calipso-ui already exists, please deal with it using docker...\n")
         return
 
 
 # functions to check and stop calipso containers:
-def stopmongo():
+def stop_mongo():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
         print("fetching container name calipso-mongo...\n")
         calipso_mongo = DockerClient.containers.get("calipso-mongo")
@@ -278,7 +284,7 @@ def stopmongo():
         print("no container named 'calipso-mongo' found...")
 
 
-def stoplisten():
+def stop_listen():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-listen"}):
         print("fetching container name calipso-listen...\n")
         calipso_listen = DockerClient.containers.get("calipso-listen")
@@ -297,7 +303,7 @@ def stoplisten():
         print("no container named 'calipso-listen' found...")
 
 
-def stopldap():
+def stop_ldap():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-ldap"}):
         print("fetching container name calipso-ldap...\n")
         calipso_ldap = DockerClient.containers.get("calipso-ldap")
@@ -316,7 +322,7 @@ def stopldap():
         print("no container named 'calipso-ldap' found...")
 
 
-def stopapi():
+def stop_api():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-api"}):
         print("fetching container name calipso-api...\n")
         calipso_api = DockerClient.containers.get("calipso-api")
@@ -335,7 +341,7 @@ def stopapi():
         print("no container named 'calipso-api' found...")
 
 
-def stopscan():
+def stop_scan():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-scan"}):
         print("fetching container name calipso-scan...\n")
         calipso_scan = DockerClient.containers.get("calipso-scan")
@@ -354,7 +360,7 @@ def stopscan():
         print("no container named 'calipso-scan' found...")
 
 
-def stopsensu():
+def stop_sensu():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-sensu"}):
         print("fetching container name calipso-sensu...\n")
         calipso_sensu = DockerClient.containers.get("calipso-sensu")
@@ -373,7 +379,7 @@ def stopsensu():
         print("no container named 'calipso-sensu' found...")
 
 
-def stopui():
+def stop_ui():
     if DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
         print("fetching container name calipso-ui...\n")
         calipso_ui = DockerClient.containers.get("calipso-ui")
@@ -432,54 +438,54 @@ if action == "start":
                 "\nuser_tree_dn OU=Users,DC=openstack,DC=org" + "\nquery_scope one" + \
                 "\ntls_req_cert allow" + \
                 "\ngroup_member_attribute member"
-    print("creating default /home/calipso/calipso_mongo_access.conf file...\n")
-    calipso_mongo_access_file = open("/home/calipso/calipso_mongo_access.conf", "w+")
+    print("creating default", H_MONGO_CONFIG, "file...\n")
+    calipso_mongo_access_file = open(H_MONGO_CONFIG, "w+")
     time.sleep(1)
     calipso_mongo_access_file.write(calipso_mongo_access_text)
     calipso_mongo_access_file.close()
-    print("creating default /home/calipso/ldap.conf file...\n")
-    ldap_file = open("/home/calipso/ldap.conf", "w+")
+    print("creating default", H_LDAP_CONFIG, "file...\n")
+    ldap_file = open(H_LDAP_CONFIG, "w+")
     time.sleep(1)
     ldap_file.write(ldap_text)
     ldap_file.close()
 
     if container == "calipso-mongo" or container == "all":
-        startmongo(args.dbport)
+        start_mongo(args.dbport)
         time.sleep(1)
     if container == "calipso-listen" or container == "all":
-        startlisten()
+        start_listen()
         time.sleep(1)
     if container == "calipso-ldap" or container == "all":
-        startldap()
+        start_ldap()
         time.sleep(1)
     if container == "calipso-api" or container == "all":
-        startapi()
+        start_api()
         time.sleep(1)
     if container == "calipso-scan" or container == "all":
-        startscan()
+        start_scan()
         time.sleep(1)
     if container == "calipso-sensu" or container == "all":
-        startsensu()
+        start_sensu()
         time.sleep(1)
     if container == "calipso-ui" or container == "all":
-        startui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
+        start_ui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
         time.sleep(1)
 
 # stopping the containers per arguments:
 if action == "stop":
     if container == "calipso-mongo" or container == "all":
-        stopmongo()
+        stop_mongo()
     if container == "calipso-listen" or container == "all":
-        stoplisten()
+        stop_listen()
     if container == "calipso-ldap" or container == "all":
-        stopldap()
+        stop_ldap()
     if container == "calipso-api" or container == "all":
-        stopapi()
+        stop_api()
     if container == "calipso-scan" or container == "all":
-        stopscan()
+        stop_scan()
     if container == "calipso-sensu" or container == "all":
-        stopsensu()
+        stop_sensu()
     if container == "calipso-ui" or container == "all":
-        stopui()
+        stop_ui()
 
 
