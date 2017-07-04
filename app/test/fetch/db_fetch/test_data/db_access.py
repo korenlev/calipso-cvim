@@ -1,10 +1,10 @@
-DB_CONFIGS = {
-            "host" : "10.56.20.239",
-            "name" : "mysql",
-            "password" : "102QreDdiD5sKcvNf9qbHrmr",
-            "port" : 3307.0,
-            "user" : "root",
-            "schema" : "nova"
+DB_CONFIG = {
+            "host": "10.56.20.239",
+            "name": "mysql",
+            "password": "102QreDdiD5sKcvNf9qbHrmr",
+            "port": 3307.0,
+            "user": "root",
+            "schema": "nova"
         }
 
 QUERY_WITHOUT_ID = """
@@ -29,4 +29,3 @@ OBJECTS_LIST = [
         "name": "osdna-agg"
     }
 ]
-
