@@ -235,7 +235,9 @@ class EnvironmentConfigs(ResponderBase):
                                          self.type_drivers, True)
         }
         self.validate_query_data(env_config,
-                                 environment_config_requirement)
+                                 environment_config_requirement,
+                                 can_be_empty_keys=["last_scanned"]
+                                 )
         self.check_and_convert_datetime("last_scanned", env_config)
         # validate the configurations
         configurations = env_config['configuration']

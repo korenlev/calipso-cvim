@@ -72,7 +72,9 @@ class DataValidate:
             "error_messages": error_messages
         }
 
-    def validate_data(self, data, requirements, additional_key_re=None):
+    def validate_data(self, data, requirements,
+                      additional_key_re=None,
+                      can_be_empty_keys=[]):
 
         illegal_keys = [key for key in data.keys()
                         if key not in requirements.keys()]
@@ -89,7 +91,7 @@ class DataValidate:
             error_messages = requirement['error_messages']
 
             if not value and value is not False and value is not 0:
-                if key in data:
+                if key in data and key not in can_be_empty_keys:
                     return "Invalid data: value of {0} key doesn't exist ".format(key)
                 # check if the key is mandatory
                 mandatory_error = error_messages.get('mandatory')
