@@ -1,11 +1,12 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 import os
 
 from pymongo import MongoClient
@@ -107,8 +108,9 @@ class MongoAccess(DictNamingConverter):
     def update_document(collection, document, upsert=False):
         if isinstance(collection, str):
             collection = MongoAccess.db[collection]
-        collection.update_one({'_id': document['_id']},
-                              {'$set': document}, upsert=upsert)
+        doc_id = document.pop('_id')
+        collection.update_one({'_id': doc_id}, {'$set': document},
+                              upsert=upsert)
 
     @staticmethod
     def encode_dots(s):

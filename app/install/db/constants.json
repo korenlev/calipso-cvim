@@ -1,257 +1,267 @@
-[
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a304f"), 
     "data" : [
         {
-            "label" : "network", 
-            "value" : "network"
+            "value" : "network", 
+            "label" : "network"
         }
     ], 
     "name" : "constraints"
-},
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a3050"), 
     "data" : [
         {
-            "label" : "Development", 
-            "value" : "development"
+            "value" : "development", 
+            "label" : "Development"
         }, 
         {
-            "label" : "Testing", 
-            "value" : "testing"
+            "value" : "testing", 
+            "label" : "Testing"
         }, 
         {
-            "label" : "Staging", 
-            "value" : "staging"
+            "value" : "staging", 
+            "label" : "Staging"
         }, 
         {
-            "label" : "Production", 
-            "value" : "production"
+            "value" : "production", 
+            "label" : "Production"
         }
     ], 
     "name" : "env_types"
-},
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a3051"), 
     "data" : [
         {
-            "label" : "CRITICAL", 
-            "value" : "critical"
+            "value" : "critical", 
+            "label" : "CRITICAL"
         }, 
         {
-            "label" : "ERROR", 
-            "value" : "error"
+            "value" : "error", 
+            "label" : "ERROR"
         }, 
         {
-            "label" : "WARNING", 
-            "value" : "warning"
+            "value" : "warning", 
+            "label" : "WARNING"
         }, 
         {
-            "label" : "INFO", 
-            "value" : "info"
+            "value" : "info", 
+            "label" : "INFO"
         }, 
         {
-            "label" : "DEBUG", 
-            "value" : "debug"
+            "value" : "debug", 
+            "label" : "DEBUG"
         }, 
         {
-            "label" : "NOTSET", 
-            "value" : "notset"
+            "value" : "notset", 
+            "label" : "NOTSET"
         }
     ], 
     "name" : "log_levels"
-},
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a3052"), 
     "data" : [
         {
-            "label" : "OVS", 
-            "value" : "OVS"
+            "value" : "OVS", 
+            "label" : "OVS"
         }, 
         {
-            "label" : "VPP", 
-            "value" : "VPP"
+            "value" : "VPP", 
+            "label" : "VPP"
         }, 
         {
-            "label" : "LXB", 
-            "value" : "LXB"
+            "value" : "LXB", 
+            "label" : "LXB"
         }, 
         {
-            "label" : "Arista", 
-            "value" : "Arista"
+            "value" : "Arista", 
+            "label" : "Arista"
         }, 
         {
-            "label" : "Nexus", 
-            "value" : "Nexus"
+            "value" : "Nexus", 
+            "label" : "Nexus"
         }
     ], 
     "name" : "mechanism_drivers"
-},
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a3053"), 
     "data" : [
         {
-            "label" : "local", 
-            "value" : "local"
+            "value" : "local", 
+            "label" : "local"
         }, 
         {
-            "label" : "vlan", 
-            "value" : "vlan"
+            "value" : "vlan", 
+            "label" : "vlan"
         }, 
         {
-            "label" : "vxlan", 
-            "value" : "vxlan"
+            "value" : "vxlan", 
+            "label" : "vxlan"
         }, 
         {
-            "label" : "gre", 
-            "value" : "gre"
+            "value" : "gre", 
+            "label" : "gre"
         }, 
         {
-            "label" : "flat", 
-            "value" : "flat"
+            "value" : "flat", 
+            "label" : "flat"
         }
     ], 
     "name" : "type_drivers"
-},
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a3054"), 
     "data" : [
         {
-            "label" : "Sensu", 
-            "value" : "Sensu"
+            "value" : "Sensu", 
+            "label" : "Sensu"
         }
     ], 
     "name" : "environment_monitoring_types"
-},
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a3055"), 
     "data" : [
         {
-            "label" : "up", 
-            "value" : "up"
+            "value" : "up", 
+            "label" : "up"
         }, 
         {
-            "label" : "down", 
-            "value" : "down"
+            "value" : "down", 
+            "label" : "down"
         }
     ], 
     "name" : "link_states"
-},
+}
 { 
-    "name" : "environment_provision_types", 
+    "_id" : ObjectId("59552d6c72398b3b771a3056"), 
     "data" : [
         {
-            "label" : "None", 
-            "value" : "None"
+            "value" : "None", 
+            "label" : "None"
         }, 
         {
-            "label" : "Deploy", 
-            "value" : "Deploy"
+            "value" : "Deploy", 
+            "label" : "Deploy"
         }, 
         {
-            "label" : "Files", 
-            "value" : "Files"
+            "value" : "Files", 
+            "label" : "Files"
         }, 
         {
-            "label" : "DB", 
-            "value" : "DB"
+            "value" : "DB", 
+            "label" : "DB"
         }
-    ]
-},
+    ], 
+    "name" : "environment_provision_types"
+}
 { 
-    "name" : "link_types", 
+    "_id" : ObjectId("59552d6c72398b3b771a3057"), 
     "data" : [
         {
-            "label" : "instance-vnic", 
-            "value" : "instance-vnic"
+            "value" : "instance-vnic", 
+            "label" : "instance-vnic"
         }, 
         {
-            "label" : "otep-vconnector", 
-            "value" : "otep-vconnector"
+            "value" : "otep-vconnector", 
+            "label" : "otep-vconnector"
         }, 
         {
-            "label" : "otep-pnic", 
-            "value" : "otep-pnic"
+            "value" : "otep-pnic", 
+            "label" : "otep-pnic"
         }, 
         {
-            "label" : "pnic-network", 
-            "value" : "pnic-network"
+            "value" : "pnic-network", 
+            "label" : "pnic-network"
         }, 
         {
-            "label" : "vedge-otep", 
-            "value" : "vedge-otep"
+            "value" : "vedge-otep", 
+            "label" : "vedge-otep"
         }, 
         {
-            "label" : "vnic-vconnector", 
-            "value" : "vnic-vconnector"
+            "value" : "vnic-vconnector", 
+            "label" : "vnic-vconnector"
         }, 
         {
-            "label" : "vconnector-pnic", 
-            "value" : "vconnector-pnic"
+            "value" : "vconnector-pnic", 
+            "label" : "vconnector-pnic"
         }, 
         {
-            "label" : "vnic-vedge", 
-            "value" : "vnic-vedge"
+            "value" : "vnic-vedge", 
+            "label" : "vnic-vedge"
         }, 
         {
-            "label" : "vconnector-vedge", 
-            "value" : "vconnector-vedge"
+            "value" : "vconnector-vedge", 
+            "label" : "vconnector-vedge"
         }, 
         {
-            "label" : "vedge-pnic", 
-            "value" : "vedge-pnic"
+            "value" : "vedge-pnic", 
+            "label" : "vedge-pnic"
         }, 
         {
-            "label" : "vservice-vnic", 
-            "value" : "vservice-vnic"
+            "value" : "vservice-vnic", 
+            "label" : "vservice-vnic"
         }
-    ]
-},
+    ], 
+    "name" : "link_types"
+}
 { 
-    "name" : "monitoring_sides", 
+    "_id" : ObjectId("59552d6c72398b3b771a3058"), 
     "data" : [
         {
-            "label" : "client", 
-            "value" : "client"
+            "value" : "client", 
+            "label" : "client"
         }, 
         {
-            "label" : "server", 
-            "value" : "server"
+            "value" : "server", 
+            "label" : "server"
         }
-    ]
-},
+    ], 
+    "name" : "monitoring_sides"
+}
 { 
-    "name" : "messages_severity", 
+    "_id" : ObjectId("59552d6c72398b3b771a3059"), 
     "data" : [
         {
-            "label" : "panic", 
-            "value" : "panic"
+            "value" : "panic", 
+            "label" : "panic"
         }, 
         {
-            "label" : "alert", 
-            "value" : "alert"
+            "value" : "alert", 
+            "label" : "alert"
         }, 
         {
-            "label" : "crit", 
-            "value" : "crit"
+            "value" : "crit", 
+            "label" : "crit"
         }, 
         {
-            "label" : "error", 
-            "value" : "error"
+            "value" : "error", 
+            "label" : "error"
         }, 
         {
-            "label" : "warn", 
-            "value" : "warn"
+            "value" : "warn", 
+            "label" : "warn"
         }, 
         {
-            "label" : "notice", 
-            "value" : "notice"
+            "value" : "notice", 
+            "label" : "notice"
         }, 
         {
-            "label" : "info", 
-            "value" : "info"
+            "value" : "info", 
+            "label" : "info"
         }, 
         {
-            "label" : "debug", 
-            "value" : "debug"
+            "value" : "debug", 
+            "label" : "debug"
         }
-    ]
-},
+    ], 
+    "name" : "messages_severity"
+}
 { 
-    "name" : "scans_statuses", 
+    "_id" : ObjectId("59552d6c72398b3b771a305a"), 
     "data" : [
         {
             "value" : "draft", 
@@ -277,140 +287,143 @@
             "value" : "aborted", 
             "label" : "Aborted"
         }
-    ]
-},
+    ], 
+    "name" : "scans_statuses"
+}
 { 
+    "_id" : ObjectId("59552d6c72398b3b771a305b"), 
     "data" : [
         {
-            "label" : "Mirantis-6.0", 
-            "value" : "Mirantis-6.0"
+            "value" : "Mirantis-6.0", 
+            "label" : "Mirantis-6.0"
         }, 
         {
-            "label" : "Mirantis-7.0", 
-            "value" : "Mirantis-7.0"
+            "value" : "Mirantis-7.0", 
+            "label" : "Mirantis-7.0"
         }, 
         {
-            "label" : "Mirantis-8.0", 
-            "value" : "Mirantis-8.0"
+            "value" : "Mirantis-8.0", 
+            "label" : "Mirantis-8.0"
         }, 
         {
-            "label" : "Mirantis-9.0", 
-            "value" : "Mirantis-9.0"
+            "value" : "Mirantis-9.0", 
+            "label" : "Mirantis-9.0"
         }, 
         {
-            "label" : "RDO-Mitaka", 
-            "value" : "RDO-Mitaka"
+            "value" : "RDO-Mitaka", 
+            "label" : "RDO-Mitaka"
         }, 
         {
-            "label" : "RDO-Liberty", 
-            "value" : "RDO-Liberty"
+            "value" : "RDO-Liberty", 
+            "label" : "RDO-Liberty"
         }, 
         {
-            "label" : "RDO-Juno", 
-            "value" : "RDO-Juno"
+            "value" : "RDO-Juno", 
+            "label" : "RDO-Juno"
         }, 
         {
-            "label" : "RDO-kilo", 
-            "value" : "RDO-kilo"
+            "value" : "RDO-kilo", 
+            "label" : "RDO-kilo"
         }, 
         {
-            "label" : "devstack-liberty", 
-            "value" : "devstack-liberty"
+            "value" : "devstack-liberty", 
+            "label" : "devstack-liberty"
         }, 
         {
-            "label" : "Canonical-icehouse", 
-            "value" : "Canonical-icehouse"
+            "value" : "Canonical-icehouse", 
+            "label" : "Canonical-icehouse"
         }, 
         {
-            "label" : "Canonical-juno", 
-            "value" : "Canonical-juno"
+            "value" : "Canonical-juno", 
+            "label" : "Canonical-juno"
         }, 
         {
-            "label" : "Canonical-liberty", 
-            "value" : "Canonical-liberty"
+            "value" : "Canonical-liberty", 
+            "label" : "Canonical-liberty"
         }, 
         {
-            "label" : "Canonical-mitaka", 
-            "value" : "Canonical-mitaka"
+            "value" : "Canonical-mitaka", 
+            "label" : "Canonical-mitaka"
         }, 
         {
-            "label" : "Apex-Mitaka", 
-            "value" : "Apex-Mitaka"
+            "value" : "Apex-Mitaka", 
+            "label" : "Apex-Mitaka"
         }, 
         {
-            "label" : "Devstack-Mitaka", 
-            "value" : "Devstack-Mitaka"
+            "value" : "Devstack-Mitaka", 
+            "label" : "Devstack-Mitaka"
         }, 
         {
-            "label" : "packstack-7.0.0-0.10.dev1682", 
-            "value" : "packstack-7.0.0-0.10.dev1682"
+            "value" : "packstack-7.0.0-0.10.dev1682", 
+            "label" : "packstack-7.0.0-0.10.dev1682"
         }, 
         {
-            "label" : "Stratoscale-v2.1.6", 
-            "value" : "Stratoscale-v2.1.6"
+            "value" : "Stratoscale-v2.1.6", 
+            "label" : "Stratoscale-v2.1.6"
         }, 
         {
-            "label" : "Mirantis-9.1", 
-            "value" : "Mirantis-9.1"
+            "value" : "Mirantis-9.1", 
+            "label" : "Mirantis-9.1"
         }
     ], 
     "name" : "distributions"
-},
+}
 { 
-    "name" : "message_source_systems", 
+    "_id" : ObjectId("59552d6c72398b3b771a305c"), 
     "data" : [
         {
-            "label" : "OpenStack", 
-            "value" : "OpenStack"
+            "value" : "OpenStack", 
+            "label" : "OpenStack"
         }, 
         {
-            "label" : "OSDNA_Sensu", 
-            "value" : "OSDNA_Sensu"
+            "value" : "OSDNA_Sensu", 
+            "label" : "OSDNA_Sensu"
         }
-    ]
-},
+    ], 
+    "name" : "message_source_systems"
+}
 { 
-    "name" : "scan_object_types", 
+    "_id" : ObjectId("59552d6c72398b3b771a305d"), 
     "data" : [
         {
-            "label" : "vnic", 
-            "value" : "vnic"
+            "value" : "vnic", 
+            "label" : "vnic"
         }, 
         {
-            "label" : "vconnector", 
-            "value" : "vconnector"
+            "value" : "vconnector", 
+            "label" : "vconnector"
         }, 
         {
-            "label" : "vedge", 
-            "value" : "vedge"
+            "value" : "vedge", 
+            "label" : "vedge"
         }, 
         {
-            "label" : "instance", 
-            "value" : "instance"
+            "value" : "instance", 
+            "label" : "instance"
         }, 
         {
-            "label" : "vservice", 
-            "value" : "vservice"
+            "value" : "vservice", 
+            "label" : "vservice"
         }, 
         {
-            "label" : "pnic", 
-            "value" : "pnic"
+            "value" : "pnic", 
+            "label" : "pnic"
         }, 
         {
-            "label" : "network", 
-            "value" : "network"
+            "value" : "network", 
+            "label" : "network"
         }, 
         {
-            "label" : "port", 
-            "value" : "port"
+            "value" : "port", 
+            "label" : "port"
         }, 
         {
-            "label" : "otep", 
-            "value" : "otep"
+            "value" : "otep", 
+            "label" : "otep"
         }, 
         {
-            "label" : "agent", 
-            "value" : "agent"
+            "value" : "agent", 
+            "label" : "agent"
         }, 
         {
             "value" : "availability_zone", 
@@ -496,96 +509,98 @@
             "value" : "network_agent", 
             "label" : "network_agent"
         }
-    ]
-},
-{ 
-    "name" : "object_types_for_links", 
-    "data" : [
-        {
-            "label" : "vnic", 
-            "value" : "vnic"
-        }, 
-        {
-            "label" : "vconnector", 
-            "value" : "vconnector"
-        }, 
-        {
-            "label" : "vedge", 
-            "value" : "vedge"
-        }, 
-        {
-            "label" : "instance", 
-            "value" : "instance"
-        }, 
-        {
-            "label" : "vservice", 
-            "value" : "vservice"
-        }, 
-        {
-            "label" : "pnic", 
-            "value" : "pnic"
-        }, 
-        {
-            "label" : "network", 
-            "value" : "network"
-        }, 
-        {
-            "label" : "port", 
-            "value" : "port"
-        }, 
-        {
-            "label" : "otep", 
-            "value" : "otep"
-        }, 
-        {
-            "label" : "agent", 
-            "value" : "agent"
-        }
-    ]
-},
-{ 
-    "name" : "object_types", 
-    "data" : [
-        {
-            "label" : "vnic", 
-            "value" : "vnic"
-        }, 
-        {
-            "label" : "vconnector", 
-            "value" : "vconnector"
-        }, 
-        {
-            "label" : "vedge", 
-            "value" : "vedge"
-        }, 
-        {
-            "label" : "instance", 
-            "value" : "instance"
-        }, 
-        {
-            "label" : "vservice", 
-            "value" : "vservice"
-        }, 
-        {
-            "label" : "pnic", 
-            "value" : "pnic"
-        }, 
-        {
-            "label" : "network", 
-            "value" : "network"
-        }, 
-        {
-            "label" : "port", 
-            "value" : "port"
-        }, 
-        {
-            "label" : "otep", 
-            "value" : "otep"
-        }, 
-        {
-            "label" : "agent", 
-            "value" : "agent"
-        }
-    ]
+    ], 
+    "name" : "scan_object_types"
 }
-]
+{ 
+    "_id" : ObjectId("59552d6c72398b3b771a305e"), 
+    "data" : [
+        {
+            "value" : "vnic", 
+            "label" : "vnic"
+        }, 
+        {
+            "value" : "vconnector", 
+            "label" : "vconnector"
+        }, 
+        {
+            "value" : "vedge", 
+            "label" : "vedge"
+        }, 
+        {
+            "value" : "instance", 
+            "label" : "instance"
+        }, 
+        {
+            "value" : "vservice", 
+            "label" : "vservice"
+        }, 
+        {
+            "value" : "pnic", 
+            "label" : "pnic"
+        }, 
+        {
+            "value" : "network", 
+            "label" : "network"
+        }, 
+        {
+            "value" : "port", 
+            "label" : "port"
+        }, 
+        {
+            "value" : "otep", 
+            "label" : "otep"
+        }, 
+        {
+            "value" : "agent", 
+            "label" : "agent"
+        }
+    ], 
+    "name" : "object_types_for_links"
+}
+{ 
+    "_id" : ObjectId("59552d6c72398b3b771a305f"), 
+    "data" : [
+        {
+            "value" : "vnic", 
+            "label" : "vnic"
+        }, 
+        {
+            "value" : "vconnector", 
+            "label" : "vconnector"
+        }, 
+        {
+            "value" : "vedge", 
+            "label" : "vedge"
+        }, 
+        {
+            "value" : "instance", 
+            "label" : "instance"
+        }, 
+        {
+            "value" : "vservice", 
+            "label" : "vservice"
+        }, 
+        {
+            "value" : "pnic", 
+            "label" : "pnic"
+        }, 
+        {
+            "value" : "network", 
+            "label" : "network"
+        }, 
+        {
+            "value" : "port", 
+            "label" : "port"
+        }, 
+        {
+            "value" : "otep", 
+            "label" : "otep"
+        }, 
+        {
+            "value" : "agent", 
+            "label" : "agent"
+        }
+    ], 
+    "name" : "object_types"
+}

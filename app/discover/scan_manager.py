@@ -1,11 +1,12 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 import argparse
 import datetime
 
@@ -27,8 +28,9 @@ class ScanManager(Manager):
 
     DEFAULTS = {
         "mongo_config": "",
-        "collection": "scans",
-        "environments_collection": "environments_config",
+        "scans": "scans",
+        "scheduled_scans": "scheduled_scans",
+        "environments": "environments_config",
         "interval": 1,
         "loglevel": "INFO"
     }
@@ -47,12 +49,18 @@ class ScanManager(Manager):
                             default=ScanManager.DEFAULTS["mongo_config"],
                             help="Name of config file " +
                                  "with MongoDB server access details")
-        parser.add_argument("-c", "--collection", nargs="?", type=str,
-                            default=ScanManager.DEFAULTS["collection"],
+        parser.add_argument("-c", "--scans_collection", nargs="?", type=str,
+                            default=ScanManager.DEFAULTS["scans"],
                             help="Scans collection to read from")
-        parser.add_argument("-e", "--environments_collection", nargs="?", type=str,
-                            default=ScanManager.DEFAULTS["environments_collection"],
-                            help="Environments collection to update after scans")
+        parser.add_argument("-s", "--scheduled_scans_collection", nargs="?",
+                            type=str,
+                            default=ScanManager.DEFAULTS["scheduled_scans"],
+                            help="Scans collection to read from")
+        parser.add_argument("-e", "--environments_collection", nargs="?",
+                            type=str,
+                            default=ScanManager.DEFAULTS["environments"],
+                            help="Environments collection to update "
+                                 "after scans")
         parser.add_argument("-i", "--interval", nargs="?", type=float,
                             default=ScanManager.DEFAULTS["interval"],
                             help="Interval between collection polls"
@@ -73,16 +81,21 @@ class ScanManager(Manager):
         self.db_client = MongoAccess()
         self.inv = InventoryMgr()
         self.inv.set_collections()
-        self.collection = self.db_client.db[self.args.collection]
-        self.environments_collection = self.db_client.db[self.args.environments_collection]
-        self._update_document = partial(MongoAccess.update_document, self.collection)
+        self.scans_collection = self.db_client.db[self.args.scans_collection]
+        self.scheduled_scans_collection = \
+            self.db_client.db[self.args.scheduled_scans_collection]
+        self.environments_collection = \
+            self.db_client.db[self.args.environments_collection]
+        self._update_document = \
+            partial(MongoAccess.update_document, self.scans_collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "Mongo config file path: {0.args.mongo_config}\n"
-                      "Scans collection: {0.collection.name}\n"
-                      "Environments collection: {0.environments_collection.name}\n"
+                      "Scans collection: {0.scans_collection.name}\n"
+                      "Environments collection: "
+                      "{0.environments_collection.name}\n"
                       "Polling interval: {0.interval} second(s)"
                       .format(self))
 
@@ -110,7 +123,8 @@ class ScanManager(Manager):
 
         return args
 
-    def _finalize_scan(self, scan_request: dict, status: ScanStatus, scanned: bool):
+    def _finalize_scan(self, scan_request: dict, status: ScanStatus,
+                       scanned: bool):
         scan_request['status'] = status.value
         self._update_document(scan_request)
         # If no object id is present, it's a full env scan.
@@ -132,9 +146,9 @@ class ScanManager(Manager):
     def _clean_up(self):
         # Find and fail all running scans
         running_scans = list(self
-                             .collection
+                             .scans_collection
                              .find(filter={'status': ScanStatus.RUNNING.value}))
-        self.collection\
+        self.scans_collection \
             .update_many(filter={'_id': {'$in': [scan['_id']
                                                  for scan
                                                  in running_scans]}},
@@ -152,15 +166,62 @@ class ScanManager(Manager):
                 .update_many(filter={'name': {'$in': env_scans}},
                              update={'$set': {'scanned': False}})
 
+    INTERVALS = {
+        'YEARLY': datetime.timedelta(days=-365.25),
+        'MONTHLY': datetime.timedelta(days=-365/12),
+        'WEEKLY': datetime.timedelta(weeks=-1),
+        'DAILY': datetime.timedelta(days=-1),
+        'HOURLY': datetime.timedelta(hours=-1)
+    }
+
+    def _add_scan_request_for_scheduled_requests(self, scheduled_scan, ts):
+        scans = self.scans_collection
+        new_scan = {
+            'status': 'submitted',
+            'log_level': scheduled_scan['log_level'],
+            'clear': scheduled_scan['clear'],
+            'scan_only_inventory': scheduled_scan['scan_only_inventory'],
+            'scan_only_links': scheduled_scan['scan_only_links'],
+            'scan_only_cliques': scheduled_scan['scan_only_cliques'],
+            'submit_timestamp': ts,
+            'environment': scheduled_scan['environment'],
+            'inventory': 'inventory'
+        }
+        scans.insert_one(new_scan)
+        scheduled_scan['submit_timestamp'] = ts
+        doc_id = scheduled_scan.pop('_id')
+        self.scheduled_scans_collection.update({'_id': doc_id}, scheduled_scan)
+
+    def _prepare_scheduled_requests_for_interval(self, interval):
+        now = datetime.datetime.utcnow()
+        threshold = now + self.INTERVALS[interval]
+        conditions = [
+            {'freq': interval},
+            {'submit_timestamp': {'$lte': threshold}}
+        ]
+        condition = {'$and': conditions}
+        matches = self.scheduled_scans_collection.find(condition) \
+            .sort("submit_timestamp", pymongo.ASCENDING)
+        for match in matches:
+            self._add_scan_request_for_scheduled_requests(match, now)
+
+    def _prepare_scheduled_requests(self):
+        # see if any scheduled request is waiting to be submitted
+        for interval in self.INTERVALS.keys():
+            self._prepare_scheduled_requests_for_interval(interval)
+
     def do_action(self):
         self._clean_up()
         try:
             while True:
+                self._prepare_scheduled_requests()
+
                 # Find a pending request that is waiting the longest time
-                results = self.collection.find({'status': ScanStatus.PENDING.value,
-                                                'submit_timestamp': {'$ne': None}})\
-                                         .sort("submit_timestamp", pymongo.ASCENDING)\
-                                         .limit(1)
+                results = self.scans_collection \
+                    .find({'status': ScanStatus.PENDING.value,
+                           'submit_timestamp': {'$ne': None}}) \
+                    .sort("submit_timestamp", pymongo.ASCENDING) \
+                    .limit(1)
 
                 # If no scans are pending, sleep for some time
                 if results.count() == 0:
@@ -187,24 +248,29 @@ class ScanManager(Manager):
                         self.log.debug("Scan arguments: {}".format(scan_args))
                         result, message = ScanController().run(scan_args)
                     except ScanArgumentsError as e:
-                        self.log.error("Scan request '{id}' has invalid arguments. Errors:\n{errors}"
+                        self.log.error("Scan request '{id}' "
+                                       "has invalid arguments. "
+                                       "Errors:\n{errors}"
                                        .format(id=scan_request['_id'],
                                                errors=e))
                         self._fail_scan(scan_request)
                     except Exception as e:
                         self.log.exception(e)
-                        self.log.error("Scan request '{}' has failed.".format(scan_request['_id']))
+                        self.log.error("Scan request '{}' has failed."
+                                       .format(scan_request['_id']))
                         self._fail_scan(scan_request)
                     else:
                         # Check is scan returned success
                         if not result:
                             self.log.error(message)
-                            self.log.error("Scan request '{}' has failed.".format(scan_request['_id']))
+                            self.log.error("Scan request '{}' has failed."
+                                           .format(scan_request['_id']))
                             self._fail_scan(scan_request)
                             continue
 
                         # update the status and timestamps.
-                        self.log.info("Request '{}' has been scanned.".format(scan_request['_id']))
+                        self.log.info("Request '{}' has been scanned."
+                                      .format(scan_request['_id']))
                         end_time = datetime.datetime.utcnow()
                         scan_request['end_timestamp'] = end_time
                         self._complete_scan(scan_request)
