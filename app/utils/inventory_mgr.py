@@ -93,7 +93,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         elif scan_plan.cliques_only:
             collections = {"cliques"}
         else:
-            collections = {"inventory", "links", "cliques"}
+            collections = {"inventory", "links", "cliques", "monitoring_config"}
 
         env_cond = {} if scan_plan.clear_all else {"environment": scan_plan.env}
 
