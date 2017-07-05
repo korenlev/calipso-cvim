@@ -153,6 +153,10 @@ class EnvironmentConfigs(ResponderBase):
                 "pwd": self.require(str, mandatory=True)
             }
         }
+        self.AUTH_REQUIREMENTS = {
+            "view-env": self.require(list, mandatory=True),
+            "edit-env": self.require(list, mandatory=True)
+        }
 
     def on_get(self, req, resp):
         self.log.debug("Getting environment config")
@@ -232,7 +236,10 @@ class EnvironmentConfigs(ResponderBase):
             "last_scanned": self.require(str),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
-                                         self.type_drivers, True)
+                                         self.type_drivers, True),
+            "enable_monitoring": self.require(bool, True),
+            "monitoring_setup_done": self.require(bool, True),
+            "auth": self.require(dict)
         }
         self.validate_query_data(env_config,
                                  environment_config_requirement,
@@ -253,6 +260,12 @@ class EnvironmentConfigs(ResponderBase):
         err_msg = self.validate_env_config_with_constraints(env_config)
         if err_msg:
             self.bad_request(err_msg)
+
+        if "auth" in env_config:
+            err_msg = self.validate_data(env_config.get("auth"),
+                                         self.AUTH_REQUIREMENTS)
+            if err_msg:
+                self.bad_request("auth error: " + err_msg)
 
         if "scanned" not in env_config:
             env_config["scanned"] = False
