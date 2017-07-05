@@ -1,21 +1,20 @@
+[
 { 
-    "_id" : ObjectId("59552d6872398b3b771a303b"), 
     "focal_point_type" : "instance", 
     "constraints" : [
         "network"
     ]
-}
+},
 { 
-    "_id" : ObjectId("59552d6872398b3b771a303c"), 
     "focal_point_type" : "vservice", 
     "constraints" : [
         "network"
     ]
-}
+},
 { 
-    "_id" : ObjectId("59552d6872398b3b771a303d"), 
     "constraints" : [
         "network"
     ], 
     "focal_point_type" : "network"
 }
+]

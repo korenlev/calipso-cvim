@@ -24,9 +24,10 @@ class EnvironmentConfigs(ResponderBase):
             "distribution": True
         }
         self.COLLECTION = "environments_config"
+        self.SUPPORTED_ENVS_COLL = "supported_environments"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring", "NFV_provider"]
-        self.OPTIONAL_CONFIGURATIONS_NAMES = ["Monitoring", "NFV_provider"]
+        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring", "NFV_provider"]
 
         self.provision_types = self.\
             get_constants_by_name("environment_provision_types")
@@ -238,6 +239,14 @@ class EnvironmentConfigs(ResponderBase):
         if not config_validation['passed']:
             self.bad_request(config_validation['error_message'])
 
+        err_msg = self.validate_env_config_with_supported_envs(env_config)
+        if err_msg:
+            self.bad_request(err_msg)
+
+        err_msg = self.validate_env_config_with_constraints(env_config)
+        if err_msg:
+            self.bad_request(err_msg)
+
         if "scanned" not in env_config:
             env_config["scanned"] = False
 
@@ -266,24 +275,22 @@ class EnvironmentConfigs(ResponderBase):
             return validation
 
         for name in self.CONFIGURATIONS_NAMES:
-            if not name in self.OPTIONAL_CONFIGURATIONS_NAMES:
-                configuration = self.get_configuration_by_name(name,
-                                                               configurations,
-                                                               True,
-                                                               validation)
-
-                if not validation['passed']:
+            configs = self.get_configuration_by_name(name, configurations)
+            if configs:
+                if len(configs) > 1:
+                    validation["passed"] = False
+                    validation["error_message"] = "environment configurations can " \
+                                                  "only contain one " \
+                                                  "configuration for {0}".format(name)
                     return validation
-                configurations_of_names[name] = configuration
+                configurations_of_names[name] = configs[0]
             else:
-                configuration = self.get_configuration_by_name(name,
-                                                               configurations,
-                                                               False,
-                                                               validation)
-                if not validation["passed"]:
+                if name not in self.OPTIONAL_CONFIGURATIONS_NAMES:
+                    validation["passed"] = False
+                    validation['error_message'] = "configuration for {0} " \
+                                                  "is mandatory".format(name)
                     return validation
-                if configuration:
-                    configurations_of_names[name] = configuration
+
         for name, config in configurations_of_names.items():
             error_message = self.validate_configuration(name, config)
             if error_message:
@@ -298,25 +305,46 @@ class EnvironmentConfigs(ResponderBase):
                                                   'or pwd must be provided'
         return validation
 
-    def get_configuration_by_name(self, name, configurations, is_mandatory,
-                                  validation):
-        configurations = [config for config in configurations
-                         if config['name'] == name]
-        if not configurations and is_mandatory:
-            validation["passed"] = False
-            validation['error_message'] = "configuration for {0} " \
-                                          "is mandatory".format(name)
-            return None
-        if len(configurations) > 1:
-            validation["passed"] = False
-            validation['error_message'] = "environment configurations can " \
-                                          "only contain one " \
-                                          "configuration for {0}".format(name)
-            return None
+    def validate_env_config_with_supported_envs(self, env_config):
+        # validate the environment config with supported environments
+        matches = {
+            'environment.distribution': env_config['distribution'],
+            'environment.type_drivers': env_config['type_drivers'],
+            'environment.mechanism_drivers': {'$in': env_config['mechanism_drivers']}
+        }
 
-        if not configurations:
-            return None
-        return configurations[0]
+        supported_envs = self.read(self.SUPPORTED_ENVS_COLL, matches)
+        if not supported_envs:
+            return
+
+        supported_env = supported_envs[0]
+        features = supported_env["features"]
+
+        err_prefix = 'configuration not accepted: '
+        if not features['scanning']:
+            return err_prefix + 'scanning is not supported in this environment'
+
+        configs = env_config['configuration']
+        if not features['monitoring'] and \
+                self.get_configuration_by_name('Monitoring', configs):
+            return err_prefix + 'monitoring is not supported in this environment, ' \
+                                'please removed the Monitoring configuration'
+
+        if not features['listening'] and \
+                self.get_configuration_by_name('AMQP', configs):
+            return err_prefix + 'listening is not supported in this environment, ' \
+                                'please removed the AMQP configuration'
+
+        return None
+
+    def validate_env_config_with_constraints(self, env_config):
+        if env_config['listen'] and \
+                not self.get_configuration_by_name('AMQP', env_config['configuration']):
+            return 'configuration not accepted: ' \
+                   'must provide AMQP configuration to listen the environment'
+
+    def get_configuration_by_name(self, name, configurations):
+        return [config for config in configurations if config['name'] == name]
 
     def validate_configuration(self, name, configuration):
         return self.validate_data(configuration,
