@@ -1,5 +1,5 @@
+[
 { 
-    "_id" : ObjectId("ff4d3e80e42e886bef13a084"), 
     "clear" : true, 
     "environment" : "staging", 
     "freq" : "WEEKLY", 
@@ -7,10 +7,9 @@
     "scan_only_cliques" : false, 
     "scan_only_inventory" : true, 
     "scan_only_links" : false, 
-    "submit_timestamp" : ISODate("2017-07-02T13:46:29.206+0000")
-}
+    "submit_timestamp" : "2017-07-02T13:46:29.206+0000"
+},
 { 
-    "_id" : ObjectId("58e4e1aa6df71e971324ea62"), 
     "clear" : false, 
     "environment" : "staging", 
     "freq" : "WEEKLY", 
@@ -18,10 +17,9 @@
     "scan_only_cliques" : false, 
     "scan_only_inventory" : true, 
     "scan_only_links" : false, 
-    "submit_timestamp" : ISODate("2017-07-02T13:46:36.079+0000")
-}
+    "submit_timestamp" : "2017-07-02T13:46:36.079+0000"
+},
 { 
-    "_id" : ObjectId("b42fa4455776109adc2e5a03"), 
     "clear" : false, 
     "environment" : "staging", 
     "freq" : "WEEKLY", 
@@ -29,17 +27,17 @@
     "scan_only_cliques" : false, 
     "scan_only_inventory" : true, 
     "scan_only_links" : false, 
-    "submit_timestamp" : ISODate("2017-07-02T13:46:41.004+0000")
-}
+    "submit_timestamp" : "2017-07-02T13:46:41.004+0000"
+},
 { 
-    "_id" : ObjectId("fa6e2f2592f4bc7987577dc8"), 
     "scan_only_inventory" : true, 
     "freq" : "WEEKLY", 
     "scan_only_links" : false, 
     "scan_only_cliques" : false, 
     "log_level" : "warning", 
     "environment" : "staging", 
-    "submit_timestamp" : ISODate("2017-07-02T14:38:09.032+0000"), 
-    "scheduled_timestamp" : ISODate("2017-07-08T14:38:09.032+0000"), 
+    "submit_timestamp" : "2017-07-02T14:38:09.032+0000", 
+    "scheduled_timestamp" : "2017-07-08T14:38:09.032+0000", 
     "clear" : true
 }
+]

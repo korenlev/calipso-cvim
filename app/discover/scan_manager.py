@@ -167,14 +167,14 @@ class ScanManager(Manager):
                              update={'$set': {'scanned': False}})
 
     INTERVALS = {
-        'YEARLY': datetime.timedelta(days=-365.25),
-        'MONTHLY': datetime.timedelta(days=-365/12),
-        'WEEKLY': datetime.timedelta(weeks=-1),
-        'DAILY': datetime.timedelta(days=-1),
-        'HOURLY': datetime.timedelta(hours=-1)
+        'YEARLY': datetime.timedelta(days=365.25),
+        'MONTHLY': datetime.timedelta(days=365.25/12),
+        'WEEKLY': datetime.timedelta(weeks=1),
+        'DAILY': datetime.timedelta(days=1),
+        'HOURLY': datetime.timedelta(hours=1)
     }
 
-    def _add_scan_request_for_scheduled_requests(self, scheduled_scan, ts):
+    def _submit_scan_request_for_schedule(self, scheduled_scan, interval, ts):
         scans = self.scans_collection
         new_scan = {
             'status': 'submitted',
@@ -188,22 +188,34 @@ class ScanManager(Manager):
             'inventory': 'inventory'
         }
         scans.insert_one(new_scan)
-        scheduled_scan['submit_timestamp'] = ts
+
+    def _set_scheduled_requests_next_run(self, scheduled_scan, interval, ts):
+        scheduled_scan['scheduled_timestamp'] = ts + self.INTERVALS[interval]
         doc_id = scheduled_scan.pop('_id')
         self.scheduled_scans_collection.update({'_id': doc_id}, scheduled_scan)
 
     def _prepare_scheduled_requests_for_interval(self, interval):
         now = datetime.datetime.utcnow()
-        threshold = now + self.INTERVALS[interval]
-        conditions = [
+
+        # first, submit a scan request where the scheduled time has come
+        condition = {'$and': [
             {'freq': interval},
-            {'submit_timestamp': {'$lte': threshold}}
-        ]
-        condition = {'$and': conditions}
+            {'scheduled_timestamp': {'$lte': now}}
+        ]}
         matches = self.scheduled_scans_collection.find(condition) \
-            .sort("submit_timestamp", pymongo.ASCENDING)
+            .sort('scheduled_timestamp', pymongo.ASCENDING)
         for match in matches:
-            self._add_scan_request_for_scheduled_requests(match, now)
+            self._submit_scan_request_for_schedule(match, interval, now)
+            self._set_scheduled_requests_next_run(match, interval, now)
+
+        # now set scheduled time where it was not set yet (new scheduled scans)
+        condition = {'$and': [
+            {'freq': interval},
+            {'scheduled_timestamp': {'$exists': False}}
+        ]}
+        matches = self.scheduled_scans_collection.find(condition)
+        for match in matches:
+            self._set_scheduled_requests_next_run(match, interval, now)
 
     def _prepare_scheduled_requests(self):
         # see if any scheduled request is waiting to be submitted

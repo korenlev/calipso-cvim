@@ -92,8 +92,9 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         docs = self.monitoring_config.find(condition, sort=sort)
         content = {}
         for doc in docs:
-            if self.check_env_condition(doc):
-                content.update(doc)
+            if not self.check_env_condition(doc):
+                return {}
+            content.update(doc)
         self.replacements['app_path'] = \
             self.configuration.environment['app_path']
         config = self.content_replace({'config': content.get('config', {})})
@@ -179,8 +180,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             self.log.debug('Monitoring setup kept only in DB')
             return
         # now dump the config to the file
-        content_json = json.dumps(content.get('config', {}), sort_keys=True,
-                                  indent=4)
+        content_json = json.dumps(content.get('config', content),
+                                  sort_keys=True, indent=4)
         content_json += '\n'
         # always write the file locally first
         local_dir = self.make_directory(os.path.join(self.get_config_dir(),

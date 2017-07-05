@@ -1,5 +1,5 @@
+[
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3032"), 
     "attributes" : [
         "object_name", 
         "model", 
@@ -8,9 +8,8 @@
         "koren"
     ], 
     "type" : "vnic"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3033"), 
     "attributes" : [
         "object_name", 
         "connector_type", 
@@ -18,9 +17,8 @@
         "interfaces"
     ], 
     "type" : "vconnector"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3034"), 
     "attributes" : [
         "object_name", 
         "host", 
@@ -28,9 +26,8 @@
         "type"
     ], 
     "type" : "vservice"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3035"), 
     "attributes" : [
         "object_name", 
         "host", 
@@ -39,9 +36,8 @@
         "type"
     ], 
     "type" : "vedge"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3036"), 
     "attributes" : [
         "object_name", 
         "host", 
@@ -51,9 +47,8 @@
         "type"
     ], 
     "type" : "pnic"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3037"), 
     "attributes" : [
         "object_name", 
         "provider:segmentation_id", 
@@ -61,9 +56,8 @@
         "type"
     ], 
     "type" : "network"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3038"), 
     "attributes" : [
         "object_name", 
         "host_type", 
@@ -71,9 +65,8 @@
         "type"
     ], 
     "type" : "host"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a3039"), 
     "attributes" : [
         "object_name", 
         "host", 
@@ -82,9 +75,8 @@
         "name_path"
     ], 
     "type" : "instance"
-}
+},
 { 
-    "_id" : ObjectId("59552d6772398b3b771a303a"), 
     "attributes" : [
         "object_name", 
         "overlay_type", 
@@ -94,3 +86,4 @@
     ], 
     "type" : "otep"
 }
+]

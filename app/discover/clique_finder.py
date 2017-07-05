@@ -1,11 +1,12 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 from bson.objectid import ObjectId
 
 from discover.fetcher import Fetcher
@@ -42,9 +43,18 @@ class CliqueFinder(Fetcher):
     def get_clique_types(self):
         if not self.clique_types_by_type:
             clique_types = self.clique_types.find({"environment": self.get_env()})
+            default_clique_types = \
+                self.clique_types.find({'environment': 'ANY'})
             for clique_type in clique_types:
                 focal_point_type = clique_type['focal_point_type']
                 self.clique_types_by_type[focal_point_type] = clique_type
+            # if some focal point type does not have an explicit definition in
+            # clique_types for this specific environment, use the default
+            # clique type definition with environment=ANY
+            for clique_type in default_clique_types:
+                focal_point_type = clique_type['focal_point_type']
+                if focal_point_type not in clique_types:
+                    self.clique_types_by_type[focal_point_type] = clique_type
             return self.clique_types_by_type
 
     def find_cliques_for_type(self, clique_type):

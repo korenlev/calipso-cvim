@@ -1,5 +1,5 @@
+[
 { 
-    "_id" : ObjectId("59552d6b72398b3b771a3049"), 
     "environment" : {
         "distribution" : "Mirantis-6.0", 
         "mechanism_drivers" : "OVS", 
@@ -10,9 +10,8 @@
         "listening" : true, 
         "scanning" : true
     }
-}
+},
 { 
-    "_id" : ObjectId("59552d6b72398b3b771a304a"), 
     "environment" : {
         "distribution" : "Mirantis-7.0", 
         "mechanism_drivers" : "OVS", 
@@ -23,9 +22,8 @@
         "listening" : true, 
         "scanning" : true
     }
-}
+},
 { 
-    "_id" : ObjectId("59552d6b72398b3b771a304b"), 
     "environment" : {
         "distribution" : "Mirantis-8.0", 
         "mechanism_drivers" : "OVS", 
@@ -36,9 +34,8 @@
         "listening" : true, 
         "scanning" : true
     }
-}
+},
 { 
-    "_id" : ObjectId("59552d6b72398b3b771a304c"), 
     "environment" : {
         "distribution" : "Mirantis-9.1", 
         "mechanism_drivers" : "OVS", 
@@ -49,9 +46,8 @@
         "listening" : false, 
         "scanning" : true
     }
-}
+},
 { 
-    "_id" : ObjectId("59552d6b72398b3b771a304d"), 
     "environment" : {
         "distribution" : "RDO-Mitaka", 
         "mechanism_drivers" : "OVS", 
@@ -62,9 +58,8 @@
         "listening" : true, 
         "scanning" : true
     }
-}
+},
 { 
-    "_id" : ObjectId("59552d6b72398b3b771a304e"), 
     "environment" : {
         "distribution" : "RDO-Liberty", 
         "mechanism_drivers" : "OVS", 
@@ -76,3 +71,4 @@
         "scanning" : true
     }
 }
+]
