@@ -1,11 +1,12 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 from discover.events.event_port_update import EventPortUpdate
 from test.event_based_scan.test_data.event_payload_port_update import EVENT_PAYLOAD_PORT_UPDATE, PORT_DOCUMENT
 from test.event_based_scan.test_event import TestEvent
