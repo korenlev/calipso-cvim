@@ -347,8 +347,12 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         full_env = {'environment.distribution': env_config['distribution'],
                     'environment.type_drivers': env_config['type_drivers'],
                     'environment.mechanism_drivers': mechanism_driver}
+        return self.is_feature_supported_in_env(full_env, feature)
 
-        result = self.collections['supported_environments'].find_one(full_env)
+    def is_feature_supported_in_env(self, env_def: dict,
+                                    feature: EnvironmentFeatures) -> bool:
+
+        result = self.collections['supported_environments'].find_one(env_def)
         if not result:
             return False
         features_in_env = result.get('features', {})
