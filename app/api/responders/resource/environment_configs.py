@@ -12,11 +12,14 @@ from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
 from datetime import datetime
+from utils.constants import EnvironmentFeatures
+from utils.inventory_mgr import InventoryMgr
 
 
 class EnvironmentConfigs(ResponderBase):
     def __init__(self):
         super(EnvironmentConfigs, self).__init__()
+        self.inv = InventoryMgr()
         self.ID = "name"
         self.PROJECTION = {
             self.ID: True,
@@ -25,7 +28,6 @@ class EnvironmentConfigs(ResponderBase):
             "distribution": True
         }
         self.COLLECTION = "environments_config"
-        self.SUPPORTED_ENVS_COLL = "supported_environments"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
                                      "CLI", "AMQP", "Monitoring", "NFV_provider"]
         self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring", "NFV_provider"]
@@ -334,27 +336,23 @@ class EnvironmentConfigs(ResponderBase):
             'environment.mechanism_drivers': {'$in': env_config['mechanism_drivers']}
         }
 
-        supported_envs = self.read(self.SUPPORTED_ENVS_COLL, matches)
-        if not supported_envs:
-            return
-
-        supported_env = supported_envs[0]
-        features = supported_env["features"]
-
         err_prefix = 'configuration not accepted: '
-        if not features['scanning']:
+        if not self.inv.is_feature_supported_in_env(matches,
+                                                    EnvironmentFeatures.SCANNING):
             return err_prefix + 'scanning is not supported in this environment'
 
         configs = env_config['configuration']
-        if not features['monitoring'] and \
-                self.get_configuration_by_name('Monitoring', configs):
+        if not self.inv.is_feature_supported_in_env(matches,
+                                                    EnvironmentFeatures.MONITORING) \
+                and self.get_configuration_by_name('Monitoring', configs):
             return err_prefix + 'monitoring is not supported in this environment, ' \
-                                'please removed the Monitoring configuration'
+                                'please remove the Monitoring configuration'
 
-        if not features['listening'] and \
-                self.get_configuration_by_name('AMQP', configs):
+        if not self.inv.is_feature_supported_in_env(matches,
+                                                    EnvironmentFeatures.LISTENING) \
+                and self.get_configuration_by_name('AMQP', configs):
             return err_prefix + 'listening is not supported in this environment, ' \
-                                'please removed the AMQP configuration'
+                                'please remove the AMQP configuration'
 
         return None
 
