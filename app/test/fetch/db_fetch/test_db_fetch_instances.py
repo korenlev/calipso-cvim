@@ -11,19 +11,18 @@ class TestDbFetchInstances(TestFetch):
         self.fetcher = DbFetchInstances()
 
     def test_get(self):
-        # store original method
-        original_get_objects_list = self.fetcher.get_objects_list
-        # mock method
-        self.fetcher.get_objects_list = MagicMock(return_value=INSTANCES_FROM_DB)
-
+        self.fetcher.get_objects_list = MagicMock(return_value=
+                                                  INSTANCES_FROM_DB)
         self.fetcher.get_instance_data(INSTANCES_FROM_API)
 
-        # reset method
-        self.fetcher.get_objects_list = original_get_objects_list
+        self.assertEqual(INSTANCES_FROM_API, UPDATED_INSTANCES_DATA)
 
-        self.assertIn("name", INSTANCES_FROM_API[0], "Can't set name")
-        self.assertIn("network", INSTANCES_FROM_API[0], "Can't set network")
+    def test_build_instance_details_with_network(self):
+        self.fetcher.build_instance_details(INSTANCE_WITH_NETWORK)
+        self.assertEqual(INSTANCE_WITH_NETWORK,
+                         INSTANCE_WITH_NETWORK_RESULT)
 
-    def test_build_instance_details(self):
-        self.fetcher.build_instance_details(INSTANCES_FOR_DETAILS)
-        self.assertNotEqual(INSTANCES_FOR_DETAILS['network'], [], "Can't get network info")
+    def test_build_instance_details_without_network(self):
+        self.fetcher.build_instance_details(INSTANCE_WITHOUT_NETWORK)
+        self.assertEqual(INSTANCE_WITHOUT_NETWORK,
+                         INSTANCE_WITHOUT_NETWORK_RESULT)
