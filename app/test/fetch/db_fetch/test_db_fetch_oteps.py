@@ -1,3 +1,5 @@
+import copy
+
 from discover.db_fetch_oteps import DbFetchOteps
 from test.fetch.test_fetch import TestFetch
 from test.fetch.db_fetch.test_data.db_fetch_oteps import *
@@ -17,12 +19,14 @@ class TestDbFetchOteps(TestFetch):
                                 oteps_from_db,
                                 expected_results,
                                 err_msg):
+        original_get_vconnector = self.fetcher.get_vconnector
         self.fetcher.get_vconnector = MagicMock()
         self.fetcher.inv.get_by_id = MagicMock(side_effect=[vedge, host])
         self.fetcher.config.get_env_config = MagicMock(return_value=config)
         self.fetcher.get_objects_list_for_id = MagicMock(return_value=oteps_from_db)
         results = self.fetcher.get(VEDGE_ID)
         self.assertEqual(results, expected_results, err_msg)
+        self.fetcher.get_vconnector = original_get_vconnector
 
     def test_get(self):
         test_cases = [
@@ -72,14 +76,8 @@ class TestDbFetchOteps(TestFetch):
                                          test_case["err_msg"])
 
     def test_get_vconnectors(self):
-        # store original method
-        original_run_fetch_lines = self.fetcher.run_fetch_lines
-        # mock the method
         self.fetcher.run_fetch_lines = MagicMock(return_value=IFCONFIG_LINES)
-
-        self.fetcher.get_vconnector(OTEPS[0], HOST['id'], VEDGE)
-
-        # reset method
-        self.fetcher.run_fetch_lines = original_run_fetch_lines
-        self.assertIn("vconnector", OTEPS[0], "Can't get vconnector info")
-        self.assertEqual(OTEPS[0]['vconnector'], VCONNECTOR, "Can't get correct vconnector from command line result")
+        self.fetcher.get_vconnector(OTEP_FOR_GETTING_VECONNECTOR,
+                                    HOST_ID, VEDGE)
+        self.assertEqual(OTEP_FOR_GETTING_VECONNECTOR, OTEP_WITH_CONNECTOR,
+                         "Can't get vconnector from the config lines for otep")
