@@ -1,121 +1,21 @@
-VEDGE = { 
-    "admin_state_up" : 1, 
-    "agent_type" : "Open vSwitch agent", 
-    "binary" : "neutron-openvswitch-agent", 
-    "configurations" : {
-        "tunneling_ip" : "192.168.2.1", 
-        "arp_responder_enabled" : True, 
-        "extensions" : [
-
-        ], 
-        "l2_population" : True, 
-        "devices" : 4, 
-        "enable_distributed_routing" : False, 
-        "bridge_mappings" : {
-
-        }, 
-        "log_agent_heartbeats" : False, 
-        "tunnel_types" : [
+VEDGE_ID = "3858e121-d861-4348-9d64-a55fcd5bf60a"
+VEDGE = {
+    "configurations": {
+        "tunnel_types": [
             "vxlan"
         ], 
-        "in_distributed_mode" : False
-    }, 
-    "description" : None, 
-    "environment" : "Mirantis-Liberty-Xiaocong", 
-    "host" : "node-5.cisco.com", 
-    "id" : "3858e121-d861-4348-9d64-a55fcd5bf60a", 
-    "id_path" : "/Mirantis-Liberty-Xiaocong/Mirantis-Liberty-Xiaocong-regions/RegionOne/RegionOne-availability_zones/osdna-zone/node-5.cisco.com/node-5.cisco.com-vedges/3858e121-d861-4348-9d64-a55fcd5bf60a", 
-    "load" : 0, 
-    "name" : "node-5.cisco.com-OVS", 
-    "name_path" : "/Mirantis-Liberty-Xiaocong/Regions/RegionOne/Availability Zones/osdna-zone/node-5.cisco.com/vEdges/node-5.cisco.com-OVS", 
-    "object_name" : "node-5.cisco.com-OVS", 
-    "parent_id" : "node-5.cisco.com-vedges", 
-    "parent_type" : "vedges_folder", 
-    "ports" : {
-        "qvocf6089f4-ec" : {
-            "id" : "7", 
-            "name" : "qvocf6089f4-ec", 
-            "internal" : False, 
-            "tag" : "31"
+    },
+    "host": "node-5.cisco.com",
+    "id": "3858e121-d861-4348-9d64-a55fcd5bf60a",
+    "tunnel_ports": {
+        "vxlan-c0a80203": {
         }, 
-        "qvo1f72bd15-8a" : {
-            "id" : "6", 
-            "name" : "qvo1f72bd15-8a", 
-            "internal" : False, 
-            "tag" : "31"
-        }, 
-        "br-int" : {
-            "id" : "1", 
-            "name" : "br-int", 
-            "internal" : True
-        }, 
-        "qvo44b12004-63" : {
-            "id" : "5", 
-            "name" : "qvo44b12004-63", 
-            "internal" : False, 
-            "tag" : "26"
-        }, 
-        "br-tun" : {
-            "id" : "2", 
-            "name" : "br-tun", 
-            "internal" : True
-        }, 
-        "qvo2cb9fefc-e2" : {
-            "id" : "3", 
-            "name" : "qvo2cb9fefc-e2", 
-            "internal" : False, 
-            "tag" : "1"
-        }, 
-        "ovs-system" : {
-            "id" : "0", 
-            "name" : "ovs-system", 
-            "internal" : True
+        "br-tun": {
         }
     }, 
-    "show_in_tree" : True, 
-    "topic" : "N/A", 
-    "tunnel_ports" : {
-        "vxlan-c0a80203" : {
-            "name" : "vxlan-c0a80203", 
-            "options" : {
-                "local_ip" : "192.168.2.1", 
-                "out_key" : "flow", 
-                "in_key" : "flow", 
-                "df_default" : "True", 
-                "remote_ip" : "192.168.2.3"
-            }, 
-            "interface" : "vxlan-c0a80203", 
-            "type" : "vxlan"
-        }, 
-        "br-tun" : {
-            "name" : "br-tun", 
-            "interface" : "br-tun", 
-            "type" : "internal"
-        }, 
-        "vxlan-c0a80202" : {
-            "name" : "vxlan-c0a80202", 
-            "options" : {
-                "local_ip" : "192.168.2.1", 
-                "out_key" : "flow", 
-                "in_key" : "flow", 
-                "df_default" : "True", 
-                "remote_ip" : "192.168.2.2"
-            }, 
-            "interface" : "vxlan-c0a80202", 
-            "type" : "vxlan"
-        }, 
-        "patch-int" : {
-            "name" : "patch-int", 
-            "options" : {
-                "peer" : "patch-tun"
-            }, 
-            "interface" : "patch-int", 
-            "type" : "patch"
-        }
-    }, 
-    "type" : "vedge"
+    "type": "vedge"
 }
-VEDGE_WITHOUT_CONFIGURATIONS ={
+VEDGE_WITHOUT_CONFIGS ={
 
 }
 VEDGE_WITHOUT_TUNNEL_TYPES = {
@@ -123,118 +23,53 @@ VEDGE_WITHOUT_TUNNEL_TYPES = {
         "tunnel_types": ""
     }
 }
-CONFIGURATIONS = {
-    "configuration": [
-        {
-            "mock": "True",
-            "host": "10.56.20.239",
-            "name": "mysql",
-            "password": "102QreDdiD5sKcvNf9qbHrmr",
-            "port": 3307.0,
-            "user": "root",
-            "schema": "nova"
-        },
-        {
-            "name": "OpenStack",
-            "host": "10.56.20.239",
-            "admin_token": "38MUh19YWcgQQUlk2VEFQ7Ec",
-            "port": "5000",
-            "user": "admin",
-            "pwd": "admin"
-        },
-        {
-            "host": "10.56.20.239",
-            "key": "/Users/xiaocdon/.ssh/id_rsa",
-            "name": "CLI",
-            "pwd": "",
-            "user": "root"
-        },
-        {
-            "name": "AMQP",
-            "host": "10.56.20.239",
-            "port": "5673",
-            "user": "nova",
-            "password": "NF2nSv3SisooxPkCTr8fbfOa"
-        }
-    ],
-    "distribution": "Mirantis-8.0",
-    "last_scanned:": "5/8/16",
-    "name": "Mirantis-Liberty-Xiaocong",
-    "network_plugins": [
-        "OVS"
-    ],
-    "operational": "yes",
-    "type": "environment"
+NON_ICEHOUSE_CONFIGS = {
+    "distribution": "Mirantis-8.0"
 }
-ICEHOUSE_CONFIGURATIONS = {
-    "configuration": [
-        {
-            "mock": "True",
-            "host": "10.56.20.239",
-            "name": "mysql",
-            "password": "102QreDdiD5sKcvNf9qbHrmr",
-            "port": 3307.0,
-            "user": "root",
-            "schema": "nova"
-        },
-        {
-            "name": "OpenStack",
-            "host": "10.56.20.239",
-            "admin_token": "38MUh19YWcgQQUlk2VEFQ7Ec",
-            "port": "5000",
-            "user": "admin",
-            "pwd": "admin"
-        },
-        {
-            "host": "10.56.20.239",
-            "key": "/Users/xiaocdon/.ssh/id_rsa",
-            "name": "CLI",
-            "pwd": "",
-            "user": "root"
-        },
-        {
-            "name": "AMQP",
-            "host": "10.56.20.239",
-            "port": "5673",
-            "user": "nova",
-            "password": "NF2nSv3SisooxPkCTr8fbfOa"
-        }
-    ],
-    "distribution": "Canonical-icehouse",
-    "last_scanned:": "5/8/16",
-    "name": "Mirantis-Liberty-Xiaocong",
-    "network_plugins": [
-        "OVS"
-    ],
-    "operational": "yes",
-    "type": "environment"
+ICEHOUSE_CONFIGS = {
+    "distribution": "Canonical-icehouse"
 }
 HOST = {
-    "environment" : "Mirantis-Liberty-Xiaocong",
-    "host" : "node-5.cisco.com",
-    "host_type" : [
-        "Compute"
-    ],
-    "id" : "node-5.cisco.com",
-    "id_path" : "/Mirantis-Liberty-Xiaocong/Mirantis-Liberty-Xiaocong-regions/RegionOne/RegionOne-availability_zones/osdna-zone/node-5.cisco.com",
-    "ip_address" : "192.168.0.4",
-    "name" : "node-5.cisco.com",
-    "name_path" : "/Mirantis-Liberty-Xiaocong/Regions/RegionOne/Availability Zones/osdna-zone/node-5.cisco.com",
-    "object_name" : "node-5.cisco.com",
-    "os_id" : "1",
-    "parent_id" : "osdna-zone",
-    "parent_type" : "availability_zone",
-    "services" : {
-        "nova-compute" : {
-            "active" : True,
-            "available" : True,
-            "updated_at" : "2016-10-25T20:32:41.000000"
-        }
-    },
-    "show_in_tree" : True,
-    "type" : "host",
-    "zone" : "osdna-zone"
+    "host": "node-5.cisco.com",
+    "id": "node-5.cisco.com",
+    "ip_address": "192.168.0.4",
+    "name": "node-5.cisco.com"
 }
+OTEPS_WITHOUT_CONFIGURATIONS_IN_VEDGE_RESULTS = []
+OTEPS_WITHOUT_TUNNEL_TYPES_IN_VEDGE_RESULTS = []
+OTEPS_FOR_NON_ICEHOUSE_DISTRIBUTION_RESULTS = [
+    {
+        "host": "node-5.cisco.com",
+        "ip_address": "192.168.2.1",
+        "udp_port": 4789,
+        "id": "node-5.cisco.com-otep",
+        "name": "node-5.cisco.com-otep",
+        "overlay_type": "vxlan",
+        "ports": {
+            "vxlan-c0a80203": {
+            },
+            "br-tun": {
+            }
+        }
+    }
+]
+OTEPS_FOR_ICEHOUSE_DISTRIBUTION_RESULTS = [
+    {
+        "host": "node-5.cisco.com",
+        "ip_address": "192.168.0.4",
+        "id": "node-5.cisco.com-otep",
+        "name": "node-5.cisco.com-otep",
+        "overlay_type": "vxlan",
+        "ports": {
+            "vxlan-c0a80203": {
+            },
+            "br-tun": {
+            }
+        },
+        "udp_port": "67"
+    }
+]
+
 OTEPS = [
     {
         "host": "node-5.cisco.com",
@@ -603,55 +438,3 @@ IFCONFIG_LINES = [
     ""
 ]
 VCONNECTOR = "br-mesh"
-# functional test
-INPUT = "3858e121-d861-4348-9d64-a55fcd5bf60a"
-OUTPUT = [
-    {
-        "host": "node-5.cisco.com",
-        "id": "node-5.cisco.com-otep",
-        "ip_address": "192.168.2.1",
-        "name": "node-5.cisco.com-otep",
-        "overlay_type": "vxlan",
-        "ports": {
-            "br-tun": {
-                "interface": "br-tun",
-                "name": "br-tun",
-                "type": "internal"
-            },
-            "patch-int": {
-                "interface": "patch-int",
-                "name": "patch-int",
-                "options": {
-                    "peer": "patch-tun"
-                },
-                "type": "patch"
-            },
-            "vxlan-c0a80202": {
-                "interface": "vxlan-c0a80202",
-                "name": "vxlan-c0a80202",
-                "options": {
-                    "df_default": "true",
-                    "in_key": "flow",
-                    "local_ip": "192.168.2.1",
-                    "out_key": "flow",
-                    "remote_ip": "192.168.2.2"
-                },
-                "type": "vxlan"
-            },
-            "vxlan-c0a80203": {
-                "interface": "vxlan-c0a80203",
-                "name": "vxlan-c0a80203",
-                "options": {
-                    "df_default": "true",
-                    "in_key": "flow",
-                    "local_ip": "192.168.2.1",
-                    "out_key": "flow",
-                    "remote_ip": "192.168.2.3"
-                },
-                "type": "vxlan"
-            }
-        },
-        "udp_port": 4789,
-        "vconnector": "br-mesh"
-    }
-]
