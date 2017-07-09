@@ -117,7 +117,7 @@
           value="{{ getModelField 'related_object_type' }}"     
           class="sm-input-related-object-type cl-input" 
           type="text" 
-          placeholder="Timestamp" />
+          placeholder="Related object type" />
         <div class="cl-field-desc">Related object type</div>
       </div>
 
@@ -128,7 +128,10 @@
           value="{{ getModelField 'related_object' }}"     
           class="sm-input-related-object cl-input" 
           type="text" 
-          placeholder="Timestamp" />
+          placeholder="Related object" />
+          {{#if (getModelField 'related_object') }}
+            {{> InventoryPropertiesDisplay (argsInvPropDisplay (getModelField 'environment') (getModelField 'related_object')) }}.   
+          {{/if }}
         <div class="cl-field-desc">Related object</div>
       </div>
 

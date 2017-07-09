@@ -207,8 +207,19 @@ Template.Message.helpers({
   asString: function (val) {
     let str = JSON.stringify(val, null, 4);
     return str;
-  }
-});
+  },
+
+  argsInvPropDisplay: function (env, nodeId) {
+    return {
+      env: env,
+      nodeId: nodeId,
+      displayFn: (node) => {
+        if (R.isNil(node)) { return ''; }
+        return `${node.object_name} - ${node.type}`;
+      }
+    };
+  },
+}); // end - helpers
 
 
 function initViewView(instance, data) {

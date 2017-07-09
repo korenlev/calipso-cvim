@@ -50,7 +50,11 @@
                           </td>
                           <td>{{ message.source_system }}</td>
                           <td>{{ message.timestamp }}</td>
-                          <td>{{ message.related_object }}</td>
+                          <td>
+                            {{#if message.related_object }}
+                              {{> InventoryPropertiesDisplay (argsInvPropDisplay message.environment message.related_object) }}
+                            {{/if }}
+                          </td>
                         </tr>
                       {{/each}}
                       </tbody>

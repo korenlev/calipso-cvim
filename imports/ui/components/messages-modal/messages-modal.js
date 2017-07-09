@@ -204,7 +204,18 @@ Template.MessagesModal.helpers({
         instance.state.set('page', page);
       },
     };
-  }
+  },
+
+  argsInvPropDisplay: function (env, nodeId) {
+    return {
+      env: env,
+      nodeId: nodeId,
+      displayFn: (node) => {
+        if (R.isNil(node)) { return ''; }
+        return `${node.object_name} - ${node.type}`;
+      }
+    };
+  },
 }); // end: helpers
 
 function setParams(messageLevel, envName, instance) {
