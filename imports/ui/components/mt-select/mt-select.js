@@ -27,6 +27,7 @@ Template.MtSelect.onCreated(function() {
         isDisabled: { type: Boolean, optional: true },
         options: { type: [Object], blackbox: true },
         onInput: { type: Object, blackbox: true },
+        size: { type: Number, optional: true },
       }).validate(data);
     });
   });
@@ -64,11 +65,16 @@ Template.MtSelect.events({
  */
 
 Template.MtSelect.helpers({    
-  attrDisabled: function (isDisabled) {
+  attrsSelect: function (isDisabled, size) {
     let attrs = {};
     if (isDisabled) {
       attrs = R.assoc('disabled', 'disabled', attrs);
     }
+
+    if (size) {
+      attrs = R.assoc('size', size, attrs);
+    }
+
     return attrs;
   },
 

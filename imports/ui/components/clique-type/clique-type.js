@@ -23,6 +23,8 @@ import { LinkTypes } from '/imports/api/link-types/link-types';
 import { insert, update, remove } from '/imports/api/clique-types/methods';
 import { parseReqId } from '/imports/lib/utilities';
         
+import '/imports/ui/components/selectable-ordered-input/selectable-ordered-input';
+
 import './clique-type.html';     
     
 /*  
@@ -96,8 +98,7 @@ Template.CliqueType.events({
     let _id = instance.state.get('id');
     let env = instance.$('.sm-input-env')[0].value;
     let focalPointType = instance.$('.sm-input-focal-point-type')[0].value;
-    let linkTypes = R.map(R.prop('value'), 
-      instance.$('.sm-input-link-types')[0].selectedOptions);
+    let linkTypes = R.path(['link_types'], instance.state.get('model'));
     let name = instance.$('.sm-input-name')[0].value;
 
     submitItem(instance,
@@ -188,8 +189,31 @@ Template.CliqueType.helpers({
     let instance = Template.instance();
     let action = instance.state.get('action');
     return calcActionLabel(action);
-  }
-});
+  },
+
+  argsLinkTypesInput: function (linkTypesList, chosenLinkTypes) {
+    let instance = Template.instance();
+
+    let options = R.map((linkType) => { 
+      return { value: linkType.type, label: linkType.type }; 
+    }, linkTypesList);
+
+    let product = R.map((linkTypeVal) => {
+      return { value: linkTypeVal, label: linkTypeVal }; 
+    }, chosenLinkTypes);
+
+    return {
+      choices: options,
+      product: product,
+      onProductChange: function (product) {
+        let model = instance.state.get('model');
+        let link_types = R.map(R.prop('value'), product);
+        model = R.assoc('link_types', link_types, model);
+        instance.state.set('model', model);
+      },
+    };
+  },
+}); // end: helpers
 
 function initInsertView(instance, query) {
   instance.state.set('action', query.action);

@@ -1,6 +1,6 @@
 <template name="MtSelect">
   <select class="sm-mt-select {{ classStr }}"
-    {{ attrDisabled isDisabled }}
+    {{ attrsSelect isDisabled size }}
     >
     {{#each option in options }}
     <option class="cl-mt-select-option"

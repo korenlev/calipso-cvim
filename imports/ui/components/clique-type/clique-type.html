@@ -61,17 +61,9 @@
 
         <div class="sm-field-group-link-types cl-field-group">
           <label class="cl-field-label">Link Types</label>
-          <select name="linkTypes" 
-                  class="sm-input-link-types cl-input" 
-                  multiple
-                  size="3"
-            {{ getAttrDisabled }} >
-            {{#each linkType in linkTypesList }}
-            <option value="{{ linkType.type }}"
-              {{ getAttrSelectedMultiple linkType.type (getModelField 'link_types') }}
-              >{{ linkType.type }}</option>
-            {{/each }}
-          </select>
+          {{#if (getModelField 'link_types') }}
+          {{>SelectableOrderedInput (argsLinkTypesInput linkTypesList (getModelField 'link_types')) }}
+          {{/if }}
           <div class="cl-field-desc">Link Types</div>
         </div>
 
