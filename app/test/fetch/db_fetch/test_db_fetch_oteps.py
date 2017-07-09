@@ -1,3 +1,5 @@
+import copy
+
 from discover.db_fetch_oteps import DbFetchOteps
 from test.fetch.test_fetch import TestFetch
 from test.fetch.db_fetch.test_data.db_fetch_oteps import *
@@ -11,78 +13,71 @@ class TestDbFetchOteps(TestFetch):
         self.fetcher = DbFetchOteps()
         self.fetcher.set_env(self.env)
 
+    def check_get_oteps_results(self, vedge,
+                                config,
+                                host,
+                                oteps_from_db,
+                                expected_results,
+                                err_msg):
+        original_get_vconnector = self.fetcher.get_vconnector
+        self.fetcher.get_vconnector = MagicMock()
+        self.fetcher.inv.get_by_id = MagicMock(side_effect=[vedge, host])
+        self.fetcher.config.get_env_config = MagicMock(return_value=config)
+        self.fetcher.get_objects_list_for_id = MagicMock(return_value=oteps_from_db)
+        results = self.fetcher.get(VEDGE_ID)
+        self.assertEqual(results, expected_results, err_msg)
+        self.fetcher.get_vconnector = original_get_vconnector
+
     def test_get(self):
-        # store original methods
-        original_get_by_id = self.fetcher.inv.get_by_id
-        original_get_env_config = self.fetcher.config.get_env_config
-        original_get_objects_list_for_id = self.fetcher.get_objects_list_for_id
-        original_get_vconnector = self.fetcher.get_vconnector
-        # mock the methods
-        self.fetcher.inv.get_by_id = MagicMock(return_value=VEDGE)
-        self.fetcher.config.get_env_config = MagicMock(return_value=CONFIGURATIONS)
-        self.fetcher.get_objects_list_for_id = MagicMock(return_value=OTEPS)
-        self.fetcher.get_vconnector = MagicMock()
-
-        oteps = self.fetcher.get(VEDGE['id'])
-        # reset methods
-        self.fetcher.inv.get_by_id = original_get_by_id
-        self.fetcher.config.get_env_config = original_get_env_config
-        self.fetcher.get_objects_list_for_id = original_get_objects_list_for_id
-        self.fetcher.get_vconnector = original_get_vconnector
-
-        self.assertNotEqual(oteps, [], "Can't get the oteps with the vedge")
-
-    def test_icehouse_get(self):
-        # store original methods
-        original_get_by_id = self.fetcher.inv.get_by_id
-        original_get_env_config = self.fetcher.config.get_env_config
-        original_get_vconnector = self.fetcher.get_vconnector
-        # mock the methods
-        self.fetcher.inv.get_by_id = MagicMock(side_effect=[VEDGE, HOST])
-        self.fetcher.config.get_env_config = MagicMock(return_value=ICEHOUSE_CONFIGURATIONS)
-        self.fetcher.get_vconnector = MagicMock()
-
-        oteps = self.fetcher.get(VEDGE['id'])
-        # reset methods
-        self.fetcher.inv.get_by_id = original_get_by_id
-        self.fetcher.config.get_env_config = original_get_env_config
-        self.fetcher.get_vconnector = original_get_vconnector
-
-        self.assertNotEqual(oteps, [], "Can't get the oteps with the vedge when the environment is icehouse")
-
-    def test_get_with_vedge_without_configurations(self):
-        # store original methods
-        original_get_by_id = self.fetcher.inv.get_by_id
-        # mock the methods
-        self.fetcher.inv.get_by_id = MagicMock(return_value=VEDGE_WITHOUT_CONFIGURATIONS)
-
-        oteps = self.fetcher.get(VEDGE['id'])
-        # reset methods
-        self.fetcher.inv.get_by_id = original_get_by_id
-
-        self.assertEqual(oteps, [], "Can't get empty array when the vedge doesn't contain configurations")
-
-    def test_get_with_vedge_without_tunnel_types(self):
-        # store original methods
-        original_get_by_id = self.fetcher.inv.get_by_id
-        # mock the methods
-        self.fetcher.inv.get_by_id = MagicMock(return_value=VEDGE_WITHOUT_TUNNEL_TYPES)
-
-        oteps = self.fetcher.get(VEDGE['id'])
-        # reset methods
-        self.fetcher.inv.get_by_id = original_get_by_id
-
-        self.assertEqual(oteps, [], "Can't get empty array when the vedge doesn't contain tunnel types")
+        test_cases = [
+            {
+                "vedge": VEDGE_WITHOUT_CONFIGS,
+                "config": NON_ICEHOUSE_CONFIGS,
+                "host": None,
+                "oteps_from_db": None,
+                "expected_results": [],
+                "err_msg": "Can't get [] when the vedge " +
+                           "doesn't contains configurations"
+            },
+            {
+                "vedge": VEDGE_WITHOUT_TUNNEL_TYPES,
+                "config": NON_ICEHOUSE_CONFIGS,
+                "host": None,
+                "oteps_from_db": None,
+                "expected_results": [],
+                "err_msg": "Can't get [] when the vedge configurations " +
+                           "doesn't contain tunnel_types"
+            },
+            {
+                "vedge": VEDGE,
+                "config": ICEHOUSE_CONFIGS,
+                "host": HOST,
+                "oteps_from_db": None,
+                "expected_results": OTEPS_FOR_ICEHOUSE_DISTRIBUTION_RESULTS,
+                "err_msg": "Can't get correct oteps result " +
+                           "when the distribution is icehouse"
+            },
+            {
+                "vedge": VEDGE,
+                "config": NON_ICEHOUSE_CONFIGS,
+                "host": None,
+                "oteps_from_db": OTEPS,
+                "expected_results": OTEPS_FOR_NON_ICEHOUSE_DISTRIBUTION_RESULTS,
+                "err_msg": "Can't get correct oteps result " +
+                           "when the distribution is not icehouse"
+            }
+        ]
+        for test_case in test_cases:
+            self.check_get_oteps_results(test_case["vedge"],
+                                         test_case["config"],
+                                         test_case["host"],
+                                         test_case["oteps_from_db"],
+                                         test_case["expected_results"],
+                                         test_case["err_msg"])
 
     def test_get_vconnectors(self):
-        # store original method
-        original_run_fetch_lines = self.fetcher.run_fetch_lines
-        # mock the method
         self.fetcher.run_fetch_lines = MagicMock(return_value=IFCONFIG_LINES)
-
-        self.fetcher.get_vconnector(OTEPS[0], HOST['id'], VEDGE)
-
-        # reset method
-        self.fetcher.run_fetch_lines = original_run_fetch_lines
-        self.assertIn("vconnector", OTEPS[0], "Can't get vconnector info")
-        self.assertEqual(OTEPS[0]['vconnector'], VCONNECTOR, "Can't get correct vconnector from command line result")
+        self.fetcher.get_vconnector(OTEP_FOR_GETTING_VECONNECTOR,
+                                    HOST_ID, VEDGE)
+        self.assertEqual(OTEP_FOR_GETTING_VECONNECTOR, OTEP_WITH_CONNECTOR,
+                         "Can't get vconnector from the config lines for otep")
