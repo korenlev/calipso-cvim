@@ -227,7 +227,7 @@ Template.ScanningRequest.helpers({
     
     switch (action) {
     case 'insert': 
-      return 'New Scanning Reuqest';
+      return 'New Scanning Request';
 
     case 'view':
       return 'Scan Information';

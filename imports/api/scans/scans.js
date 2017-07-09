@@ -29,8 +29,8 @@ Scans.schemaRelated = {
     disabled: true,
   },
   object_id: {
-    label: 'Object Id',
-    description: 'ID of object to scan',
+    label: 'Scan specific object',
+    description: 'Object ID',
   },
   log_level: {
     label: 'Log level',
