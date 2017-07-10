@@ -76,7 +76,8 @@ if object_type in basic_handling_types:
     handler = BasicCheckHandler(args)
 else:
     module_name = 'handle_' + object_type
-    handler = ClassResolver.get_instance_of_class(module_name=module_name,
-                                                  package='monitoring.handlers')
+    handler = ClassResolver.get_instance_single_arg(args,
+                                                    module_name=module_name,
+                                                    package='monitoring.handlers')
 if handler:
     handler.handle(object_id, check_result)
