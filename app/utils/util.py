@@ -72,17 +72,20 @@ class ClassResolver:
         if not class_name:
             class_name = ClassResolver.get_class_name_by_module(module_name)
         if class_name in ClassResolver.instances:
-            return ClassResolver.instances[class_name]
+            return 'instance', ClassResolver.instances[class_name]
         clazz = ClassResolver.get_fully_qualified_class(class_name, package,
                                                         module_name)
-        return clazz
+        return 'class', clazz
 
     @staticmethod
     def get_instance_of_class(class_name: str = None, package: str ="discover",
                               module_name: str = None):
-        clazz = ClassResolver.prepare_class(class_name=class_name,
-                                            package=package,
-                                            module_name=module_name)
+        val_type, clazz = \
+            ClassResolver.prepare_class(class_name=class_name,
+                                        package=package,
+                                        module_name=module_name)
+        if val_type == 'instance':
+            return clazz
         instance = clazz()
         ClassResolver.instances[class_name] = instance
         return instance
@@ -92,9 +95,12 @@ class ClassResolver:
                                 class_name: str = None,
                                 package: str ="discover",
                                 module_name: str = None):
-        clazz = ClassResolver.prepare_class(class_name=class_name,
-                                            package=package,
-                                            module_name=module_name)
+        val_type, clazz = \
+            ClassResolver.prepare_class(class_name=class_name,
+                                        package=package,
+                                        module_name=module_name)
+        if val_type == 'instance':
+            return clazz
         instance = clazz(arg)
         ClassResolver.instances[class_name] = instance
         return instance
