@@ -43,7 +43,7 @@ class ClassResolver:
     # convert module file name in underscores to class name in camel case
     @staticmethod
     def get_class_name_by_module(module_name):
-        name_parts = [word.captialize() for word in module_name.split('_')]
+        name_parts = [word.capitalize() for word in module_name.split('_')]
         class_name = ''.join(name_parts)
         return class_name
 
