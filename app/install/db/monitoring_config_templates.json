@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8ccfd"), 
     "side" : "client", 
     "order" : "1", 
     "config" : {
@@ -20,7 +19,6 @@
     "type" : "rabbitmq.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8ccfe"), 
     "side" : "client", 
     "order" : "1", 
     "config" : {
@@ -33,7 +31,6 @@
     "type" : "transport.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8ccff"), 
     "side" : "server", 
     "order" : "1", 
     "config" : {
@@ -46,12 +43,11 @@
     "type" : "redis.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd00"), 
     "side" : "client", 
     "order" : "1", 
     "config" : {
         "api" : {
-            "port" : NumberInt(4567), 
+            "port" : 4567, 
             "host" : "{server_ip}"
         }, 
         "client" : {
@@ -67,7 +63,6 @@
     "type" : "client.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd01"), 
     "side" : "server", 
     "order" : "1", 
     "config" : {
@@ -80,13 +75,12 @@
     "type" : "transport.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd02"), 
     "side" : "client", 
     "order" : "1", 
     "config" : {
         "checks" : {
             "{objtype}_{objid}_{portid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "check_ping.py -c 10 -i 0.5 -p 4f532d444e41 -w 10 -s 256 -f {otep_src_ip} -t {otep_dest_ip} -W 1%/301.11/600 -C 10%/1020.12/2000", 
                 "standalone" : true, 
                 "subscribers" : [
@@ -104,7 +98,6 @@
     "type" : "client_check_otep.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd03"), 
     "side" : "server", 
     "order" : "1", 
     "config" : {
@@ -124,12 +117,11 @@
     "type" : "rabbitmq.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd04"), 
     "side" : "server", 
     "order" : "1", 
     "config" : {
         "api" : {
-            "port" : NumberInt(4567), 
+            "port" : 4567, 
             "host" : "{server_ip}", 
             "bind" : "0.0.0.0"
         }
@@ -138,14 +130,13 @@
     "type" : "api.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd05"), 
     "side" : "server", 
     "order" : "1", 
     "config" : {
         "client" : {
             "address" : "{server_name}", 
             "socket" : {
-                "port" : NumberInt(3030), 
+                "port" : 3030, 
                 "bind" : "{server_ip}"
             }, 
             "subscriptions" : [
@@ -167,18 +158,17 @@
     "type" : "client.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd06"), 
     "side" : "server", 
     "order" : "1", 
     "config" : {
         "handlers" : {
             "osdna-monitor" : {
-                "timeout" : NumberInt(20), 
+                "timeout" : 20, 
                 "command" : "PYTHONPATH={app_path} {app_path}/monitoring/handlers/monitor.py -m /local_dir/calipso_mongo_access.conf", 
                 "type" : "pipe"
             }, 
             "file" : {
-                "timeout" : NumberInt(20), 
+                "timeout" : 20, 
                 "command" : "/etc/sensu/plugins/event-file.rb", 
                 "type" : "pipe"
             }
@@ -188,7 +178,6 @@
     "type" : "handlers.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd07"), 
     "type" : "client_check_vedge.json", 
     "side" : "client", 
     "condition" : {
@@ -199,7 +188,7 @@
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "check_vedge_vpp.py", 
                 "standalone" : true, 
                 "subscribers" : [
@@ -217,7 +206,6 @@
     "order" : "1"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd08"), 
     "side" : "client", 
     "order" : "1", 
     "condition" : {
@@ -228,7 +216,7 @@
     "config" : {
         "checks" : {
             "{objtype}_{vnictype}_{objid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "check_vnic_vpp.py", 
                 "standalone" : true, 
                 "subscribers" : [
@@ -246,12 +234,11 @@
     "type" : "client_check_vnic.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd09"), 
     "side" : "client", 
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "check_vedge_ovs.py", 
                 "standalone" : true, 
                 "subscribers" : [
@@ -275,7 +262,6 @@
     "order" : "1"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd0a"), 
     "side" : "client", 
     "order" : "1", 
     "condition" : {
@@ -287,7 +273,7 @@
     "config" : {
         "checks" : {
             "link_{linktype}_{fromobjid}_{toobjid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "check_vnic_vconnector.py {bridge} {mac_address}", 
                 "standalone" : true, 
                 "subscribers" : [
@@ -305,7 +291,6 @@
     "type" : "client_check_link_vnic-vconnector.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd0b"), 
     "side" : "client", 
     "order" : "1", 
     "condition" : {
@@ -316,7 +301,7 @@
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "check_pnic_vpp.py", 
                 "standalone" : true, 
                 "subscribers" : [
@@ -334,7 +319,6 @@
     "type" : "client_check_pnic.json"
 },
 { 
-    "_id" : ObjectId("5963696aa43f181ebcb8cd0c"), 
     "side" : "client", 
     "order" : "1", 
     "condition" : {
@@ -346,7 +330,7 @@
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
-                "interval" : NumberInt(15), 
+                "interval" : 15, 
                 "command" : "PYTHONPATH=/etc/sensu/plugins check_vservice.py {service_type} {local_service_id}", 
                 "standalone" : true, 
                 "subscribers" : [

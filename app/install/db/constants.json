@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("5868d8a7d5596a17ac6e6058"), 
     "data" : [
         {
             "label" : "network", 
@@ -10,7 +9,6 @@
     "name" : "constraints"
 },
 { 
-    "_id" : ObjectId("5868faf792bad05704b46ab3"), 
     "data" : [
         {
             "label" : "Development", 
@@ -32,7 +30,6 @@
     "name" : "env_types"
 },
 { 
-    "_id" : "uiThxAfiP2K6tzYg6", 
     "data" : [
         {
             "label" : "CRITICAL", 
@@ -62,7 +59,6 @@
     "name" : "log_levels"
 },
 { 
-    "_id" : "Gprd9Cd7H3ZLTH27b", 
     "data" : [
         {
             "label" : "OVS", 
@@ -88,7 +84,6 @@
     "name" : "mechanism_drivers"
 },
 { 
-    "_id" : "7ChNmkGkXP9ZczMF7", 
     "data" : [
         {
             "label" : "local", 
@@ -114,7 +109,6 @@
     "name" : "type_drivers"
 },
 { 
-    "_id" : "uLMDDfgC69T9gQ683", 
     "data" : [
         {
             "label" : "Sensu", 
@@ -124,7 +118,6 @@
     "name" : "environment_monitoring_types"
 },
 { 
-    "_id" : ObjectId("588796ac2e8f4d02b8e7aa2a"), 
     "data" : [
         {
             "label" : "up", 
@@ -138,7 +131,6 @@
     "name" : "link_states"
 },
 { 
-    "_id" : "qkqJJt93CSmvYMF7M", 
     "name" : "environment_provision_types", 
     "data" : [
         {
@@ -160,7 +152,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("588794f52e8f4d02b8e7aa28"), 
     "name" : "link_types", 
     "data" : [
         {
@@ -242,7 +233,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("5887de192e8f4d02b8e7aa30"), 
     "name" : "monitoring_sides", 
     "data" : [
         {
@@ -256,7 +246,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("588bc4342e8f4d154386c71f"), 
     "name" : "messages_severity", 
     "data" : [
         {
@@ -294,7 +283,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("589a4d642e8f4d154386c72b"), 
     "name" : "object_types", 
     "data" : [
         {
@@ -352,7 +340,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("588797162e8f4d02b8e7aa2c"), 
     "name" : "scan_statuses", 
     "data" : [
         {
@@ -382,7 +369,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("734895291e15d0773561bdcf"), 
     "name" : "scans_statuses", 
     "data" : [
         {
@@ -412,7 +398,6 @@
     ]
 },
 { 
-    "_id" : "YmPDAQAchr39KjECQ", 
     "data" : [
         {
             "label" : "Mirantis-6.0", 
@@ -490,7 +475,6 @@
     "name" : "distributions"
 },
 { 
-    "_id" : ObjectId("155c94ca42ba07acca42f6e8"), 
     "name" : "message_source_systems", 
     "data" : [
         {
@@ -504,7 +488,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("0a575f24cca383693e3b2b47"), 
     "name" : "object_types_for_links", 
     "data" : [
         {
@@ -562,7 +545,6 @@
     ]
 },
 { 
-    "_id" : ObjectId("594141185eaf3f4bec33d34f"), 
     "name" : "scan_object_types", 
     "data" : [
         {

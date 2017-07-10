@@ -1,6 +1,5 @@
 [
 { 
-    "_id" : ObjectId("86031639589d561686af6509"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "instance-vnic", 
     "endPointA" : "instance", 
@@ -8,7 +7,6 @@
     "type" : "instance-vnic"
 },
 { 
-    "_id" : ObjectId("c49175afa6984c6705687d3d"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vnic-vconnector", 
     "endPointA" : "vnic", 
@@ -16,7 +14,6 @@
     "type" : "vnic-vconnector"
 },
 { 
-    "_id" : ObjectId("8ae158362e75a972074b4c24"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vconnector-vedge", 
     "endPointA" : "vconnector", 
@@ -24,7 +21,6 @@
     "type" : "vconnector-vedge"
 },
 { 
-    "_id" : ObjectId("77ebfca44cd98b3d94aa5fce"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vedge-otep", 
     "endPointA" : "vedge", 
@@ -32,7 +28,6 @@
     "type" : "vedge-otep"
 },
 { 
-    "_id" : ObjectId("2601fa5e4c14dbc6487c7a20"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vconnector-pnic", 
     "endPointA" : "vconnector", 
@@ -40,7 +35,6 @@
     "type" : "vconnector-pnic"
 },
 { 
-    "_id" : ObjectId("fc65c0124b3dfaec9bb25dba"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "pnic-network", 
     "endPointA" : "pnic", 
@@ -48,7 +42,6 @@
     "type" : "pnic-network"
 },
 { 
-    "_id" : ObjectId("3c50a6f367acd6c8fef2c679"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "otep-vconnector", 
     "endPointA" : "otep", 
@@ -56,7 +49,6 @@
     "type" : "otep-vconnector"
 },
 { 
-    "_id" : ObjectId("c10f8bea4599c764531b3063"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vnic-vedge", 
     "endPointA" : "vnic", 
@@ -64,7 +56,6 @@
     "type" : "vnic-vedge"
 },
 { 
-    "_id" : ObjectId("54c16f24e1a7e72e186e4e4c"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "network-pnic", 
     "endPointA" : "network", 
@@ -72,7 +63,6 @@
     "type" : "network-pnic"
 },
 { 
-    "_id" : ObjectId("d2ae1a350e214a352bf09f11"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vedge-vconnector", 
     "endPointA" : "vedge", 
@@ -80,7 +70,6 @@
     "type" : "vedge-vconnector"
 },
 { 
-    "_id" : ObjectId("4c3557e2cfbc0a8d82337ef4"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vconnector-vnic", 
     "endPointA" : "vconnector", 
@@ -88,7 +77,6 @@
     "type" : "vconnector-vnic"
 },
 { 
-    "_id" : ObjectId("195f99134835c319cd9327ec"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vnic-instance", 
     "endPointA" : "vnic", 
@@ -96,7 +84,6 @@
     "type" : "vnic-instance"
 },
 { 
-    "_id" : ObjectId("0c43e863209abc6e35b45a18"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vnic-vservice", 
     "endPointA" : "vnic", 
@@ -104,7 +91,6 @@
     "type" : "vnic-vservice"
 },
 { 
-    "_id" : ObjectId("7e70e889e269c484395914a0"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vservice-vnic", 
     "endPointA" : "vservice", 
@@ -112,7 +98,6 @@
     "type" : "vservice-vnic"
 },
 { 
-    "_id" : ObjectId("622c9279026224c0d2d2753a"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "pnic-vconnector", 
     "endPointA" : "pnic", 
@@ -120,7 +105,6 @@
     "type" : "pnic-vconnector"
 },
 { 
-    "_id" : ObjectId("4dc375d06eb63d0540075c5f"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vconnector-otep", 
     "endPointA" : "vconnector", 
@@ -128,7 +112,6 @@
     "type" : "vconnector-otep"
 },
 { 
-    "_id" : ObjectId("3cabe1c5453b62a181d7c668"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "otep-vedge", 
     "endPointA" : "otep", 
@@ -136,7 +119,6 @@
     "type" : "otep-vedge"
 },
 { 
-    "_id" : ObjectId("f22ff6f37409fb4a8f20fb6f"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "vedge-vnic", 
     "endPointA" : "vedge", 
@@ -144,7 +126,6 @@
     "type" : "vedge-vnic"
 },
 { 
-    "_id" : ObjectId("595f826a39c17568aff3807a"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "pnic-host", 
     "endPointA" : "pnic", 
@@ -152,7 +133,6 @@
     "type" : "pnic-host"
 },
 { 
-    "_id" : ObjectId("595f829c39c17568aff3807b"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "host-pnic", 
     "endPointA" : "host", 
@@ -160,7 +140,6 @@
     "type" : "host-pnic"
 },
 { 
-    "_id" : ObjectId("595f833239c17568aff3807c"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "host-network", 
     "endPointA" : "host", 
@@ -168,7 +147,6 @@
     "type" : "host-network"
 },
 { 
-    "_id" : ObjectId("595f834739c17568aff3807d"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "network-host", 
     "endPointA" : "network", 
@@ -176,7 +154,6 @@
     "type" : "network-host"
 },
 { 
-    "_id" : ObjectId("595f837c39c17568aff3807e"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "network-switch_pnic", 
     "endPointA" : "network", 
@@ -184,7 +161,6 @@
     "type" : "network-switch_pnic"
 },
 { 
-    "_id" : ObjectId("595f839639c17568aff3807f"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "switch_pnic-network", 
     "endPointA" : "switch_pnic", 
@@ -192,7 +168,6 @@
     "type" : "switch_pnic-network"
 },
 { 
-    "_id" : ObjectId("595f83b839c17568aff38080"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "switch_pnic-switch", 
     "endPointA" : "switch_pnic", 
@@ -200,7 +175,6 @@
     "type" : "switch_pnic-switch"
 },
 { 
-    "_id" : ObjectId("595f83c739c17568aff38081"), 
     "user_id" : "WS7j8oTbWPf3LbNne", 
     "description" : "switch-switch_pnic", 
     "endPointA" : "switch", 
