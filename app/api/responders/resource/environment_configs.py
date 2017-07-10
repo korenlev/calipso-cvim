@@ -29,8 +29,10 @@ class EnvironmentConfigs(ResponderBase):
         }
         self.COLLECTION = "environments_config"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
-                                     "CLI", "AMQP", "Monitoring", "NFV_provider"]
-        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring", "NFV_provider"]
+                                     "CLI", "AMQP", "Monitoring",
+                                     "NFV_provider", "ACI"]
+        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring",
+                                              "NFV_provider", "ACI"]
 
         self.provision_types = self.\
             get_constants_by_name("environment_provision_types")
@@ -152,6 +154,15 @@ class EnvironmentConfigs(ResponderBase):
                                      DataValidate.REGEX,
                                      regex.PORT,
                                      True),
+                "user": self.require(str, mandatory=True),
+                "pwd": self.require(str, mandatory=True)
+            },
+            "ACI": {
+                "name": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
                 "user": self.require(str, mandatory=True),
                 "pwd": self.require(str, mandatory=True)
             }
