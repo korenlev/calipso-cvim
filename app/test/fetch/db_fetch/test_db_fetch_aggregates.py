@@ -11,11 +11,7 @@ class TestDbFetchAggregates(TestFetch):
         self.fetcher = DbFetchAggregates()
 
     def test_get(self):
-        # store original method
-        original_get_objects_list = self.fetcher.get_objects_list
-        # mock get_objects_list
         self.fetcher.get_objects_list = MagicMock(return_value=OBJECTS_LIST)
-        result = self.fetcher.get(REGION['id'])
-        # reset method
-        self.fetcher.get_objects_list = original_get_objects_list
-        self.assertNotEqual(result, [], "Can't get aggregates")
+        result = self.fetcher.get(REGION_ID)
+        self.assertEqual(result, OBJECTS_LIST, "Can't get correct " +
+                                               "aggregates info")
