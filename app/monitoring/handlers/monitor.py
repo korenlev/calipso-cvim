@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 
 # handle monitoring events
 
@@ -75,7 +76,8 @@ if object_type in basic_handling_types:
     handler = BasicCheckHandler(args)
 else:
     module_name = 'handle_' + object_type
-    handler = ClassResolver.get_instance_of_class(module_name=module_name,
-                                                  package='monitoring.handlers')
+    handler = ClassResolver.get_instance_single_arg(args,
+                                                    module_name=module_name,
+                                                    package='monitoring.handlers')
 if handler:
     handler.handle(object_id, check_result)

@@ -2,8 +2,8 @@
 { 
     "data" : [
         {
-            "value" : "network", 
-            "label" : "network"
+            "label" : "network", 
+            "value" : "network"
         }
     ], 
     "name" : "constraints"
@@ -11,20 +11,20 @@
 { 
     "data" : [
         {
-            "value" : "development", 
-            "label" : "Development"
+            "label" : "Development", 
+            "value" : "development"
         }, 
         {
-            "value" : "testing", 
-            "label" : "Testing"
+            "label" : "Testing", 
+            "value" : "testing"
         }, 
         {
-            "value" : "staging", 
-            "label" : "Staging"
+            "label" : "Staging", 
+            "value" : "staging"
         }, 
         {
-            "value" : "production", 
-            "label" : "Production"
+            "label" : "Production", 
+            "value" : "production"
         }
     ], 
     "name" : "env_types"
@@ -32,28 +32,28 @@
 { 
     "data" : [
         {
-            "value" : "critical", 
-            "label" : "CRITICAL"
+            "label" : "CRITICAL", 
+            "value" : "critical"
         }, 
         {
-            "value" : "error", 
-            "label" : "ERROR"
+            "label" : "ERROR", 
+            "value" : "error"
         }, 
         {
-            "value" : "warning", 
-            "label" : "WARNING"
+            "label" : "WARNING", 
+            "value" : "warning"
         }, 
         {
-            "value" : "info", 
-            "label" : "INFO"
+            "label" : "INFO", 
+            "value" : "info"
         }, 
         {
-            "value" : "debug", 
-            "label" : "DEBUG"
+            "label" : "DEBUG", 
+            "value" : "debug"
         }, 
         {
-            "value" : "notset", 
-            "label" : "NOTSET"
+            "label" : "NOTSET", 
+            "value" : "notset"
         }
     ], 
     "name" : "log_levels"
@@ -61,24 +61,24 @@
 { 
     "data" : [
         {
-            "value" : "OVS", 
-            "label" : "OVS"
+            "label" : "OVS", 
+            "value" : "OVS"
         }, 
         {
-            "value" : "VPP", 
-            "label" : "VPP"
+            "label" : "VPP", 
+            "value" : "VPP"
         }, 
         {
-            "value" : "LXB", 
-            "label" : "LXB"
+            "label" : "LXB", 
+            "value" : "LXB"
         }, 
         {
-            "value" : "Arista", 
-            "label" : "Arista"
+            "label" : "Arista", 
+            "value" : "Arista"
         }, 
         {
-            "value" : "Nexus", 
-            "label" : "Nexus"
+            "label" : "Nexus", 
+            "value" : "Nexus"
         }
     ], 
     "name" : "mechanism_drivers"
@@ -86,24 +86,24 @@
 { 
     "data" : [
         {
-            "value" : "local", 
-            "label" : "local"
+            "label" : "local", 
+            "value" : "local"
         }, 
         {
-            "value" : "vlan", 
-            "label" : "vlan"
+            "label" : "vlan", 
+            "value" : "vlan"
         }, 
         {
-            "value" : "vxlan", 
-            "label" : "vxlan"
+            "label" : "vxlan", 
+            "value" : "vxlan"
         }, 
         {
-            "value" : "gre", 
-            "label" : "gre"
+            "label" : "gre", 
+            "value" : "gre"
         }, 
         {
-            "value" : "flat", 
-            "label" : "flat"
+            "label" : "flat", 
+            "value" : "flat"
         }
     ], 
     "name" : "type_drivers"
@@ -111,8 +111,8 @@
 { 
     "data" : [
         {
-            "value" : "Sensu", 
-            "label" : "Sensu"
+            "label" : "Sensu", 
+            "value" : "Sensu"
         }
     ], 
     "name" : "environment_monitoring_types"
@@ -120,137 +120,256 @@
 { 
     "data" : [
         {
-            "value" : "up", 
-            "label" : "up"
+            "label" : "up", 
+            "value" : "up"
         }, 
         {
-            "value" : "down", 
-            "label" : "down"
+            "label" : "down", 
+            "value" : "down"
         }
     ], 
     "name" : "link_states"
 },
 { 
+    "name" : "environment_provision_types", 
     "data" : [
         {
-            "value" : "None", 
-            "label" : "None"
+            "label" : "None", 
+            "value" : "None"
         }, 
         {
-            "value" : "Deploy", 
-            "label" : "Deploy"
+            "label" : "Deploy", 
+            "value" : "Deploy"
         }, 
         {
-            "value" : "Files", 
-            "label" : "Files"
+            "label" : "Files", 
+            "value" : "Files"
         }, 
         {
-            "value" : "DB", 
-            "label" : "DB"
+            "label" : "DB", 
+            "value" : "DB"
         }
-    ], 
-    "name" : "environment_provision_types"
+    ]
 },
 { 
+    "name" : "link_types", 
     "data" : [
         {
-            "value" : "instance-vnic", 
-            "label" : "instance-vnic"
+            "label" : "instance-vnic", 
+            "value" : "instance-vnic"
         }, 
         {
-            "value" : "otep-vconnector", 
-            "label" : "otep-vconnector"
+            "label" : "otep-vconnector", 
+            "value" : "otep-vconnector"
         }, 
         {
-            "value" : "otep-pnic", 
-            "label" : "otep-pnic"
+            "label" : "otep-pnic", 
+            "value" : "otep-pnic"
         }, 
         {
-            "value" : "pnic-network", 
-            "label" : "pnic-network"
+            "label" : "pnic-network", 
+            "value" : "pnic-network"
         }, 
         {
-            "value" : "vedge-otep", 
-            "label" : "vedge-otep"
+            "label" : "vedge-otep", 
+            "value" : "vedge-otep"
         }, 
         {
-            "value" : "vnic-vconnector", 
-            "label" : "vnic-vconnector"
+            "label" : "vnic-vconnector", 
+            "value" : "vnic-vconnector"
         }, 
         {
-            "value" : "vconnector-pnic", 
-            "label" : "vconnector-pnic"
+            "label" : "vconnector-pnic", 
+            "value" : "vconnector-pnic"
         }, 
         {
-            "value" : "vnic-vedge", 
-            "label" : "vnic-vedge"
+            "label" : "vnic-vedge", 
+            "value" : "vnic-vedge"
         }, 
         {
-            "value" : "vconnector-vedge", 
-            "label" : "vconnector-vedge"
+            "label" : "vconnector-vedge", 
+            "value" : "vconnector-vedge"
         }, 
         {
-            "value" : "vedge-pnic", 
-            "label" : "vedge-pnic"
+            "label" : "vedge-pnic", 
+            "value" : "vedge-pnic"
         }, 
         {
-            "value" : "vservice-vnic", 
-            "label" : "vservice-vnic"
+            "label" : "vservice-vnic", 
+            "value" : "vservice-vnic"
+        }, 
+        {
+            "label" : "pnic-host", 
+            "value" : "pnic-host"
+        }, 
+        {
+            "label" : "host-pnic", 
+            "value" : "host-pnic"
+        }, 
+        {
+            "label" : "host-network", 
+            "value" : "host-network"
+        }, 
+        {
+            "label" : "network-host", 
+            "value" : "network-host"
+        }, 
+        {
+            "label" : "switch_pnic-network", 
+            "value" : "switch_pnic-network"
+        }, 
+        {
+            "label" : "network-switch_pnic", 
+            "value" : "network-switch_pnic"
+        }, 
+        {
+            "label" : "switch_pnic-switch", 
+            "value" : "switch_pnic-switch"
+        }, 
+        {
+            "label" : "switch-switch_pnic", 
+            "value" : "switch-switch_pnic"
         }
-    ], 
-    "name" : "link_types"
+    ]
 },
 { 
+    "name" : "monitoring_sides", 
     "data" : [
         {
-            "value" : "client", 
-            "label" : "client"
+            "label" : "client", 
+            "value" : "client"
         }, 
         {
-            "value" : "server", 
-            "label" : "server"
+            "label" : "server", 
+            "value" : "server"
         }
-    ], 
-    "name" : "monitoring_sides"
+    ]
 },
 { 
+    "name" : "messages_severity", 
     "data" : [
         {
-            "value" : "panic", 
-            "label" : "panic"
+            "label" : "panic", 
+            "value" : "panic"
         }, 
         {
-            "value" : "alert", 
-            "label" : "alert"
+            "label" : "alert", 
+            "value" : "alert"
         }, 
         {
-            "value" : "crit", 
-            "label" : "crit"
+            "label" : "crit", 
+            "value" : "crit"
         }, 
         {
-            "value" : "error", 
-            "label" : "error"
+            "label" : "error", 
+            "value" : "error"
         }, 
         {
-            "value" : "warn", 
-            "label" : "warn"
+            "label" : "warn", 
+            "value" : "warn"
         }, 
         {
-            "value" : "notice", 
-            "label" : "notice"
+            "label" : "notice", 
+            "value" : "notice"
         }, 
         {
-            "value" : "info", 
-            "label" : "info"
+            "label" : "info", 
+            "value" : "info"
         }, 
         {
-            "value" : "debug", 
-            "label" : "debug"
+            "label" : "debug", 
+            "value" : "debug"
         }
-    ], 
-    "name" : "messages_severity"
+    ]
 },
 { 
+    "name" : "object_types", 
+    "data" : [
+        {
+            "label" : "vnic", 
+            "value" : "vnic"
+        }, 
+        {
+            "label" : "vconnector", 
+            "value" : "vconnector"
+        }, 
+        {
+            "label" : "vedge", 
+            "value" : "vedge"
+        }, 
+        {
+            "label" : "instance", 
+            "value" : "instance"
+        }, 
+        {
+            "label" : "vservice", 
+            "value" : "vservice"
+        }, 
+        {
+            "label" : "pnic", 
+            "value" : "pnic"
+        }, 
+        {
+            "label" : "network", 
+            "value" : "network"
+        }, 
+        {
+            "label" : "port", 
+            "value" : "port"
+        }, 
+        {
+            "label" : "otep", 
+            "value" : "otep"
+        }, 
+        {
+            "label" : "agent", 
+            "value" : "agent"
+        }, 
+        {
+            "label" : "host", 
+            "value" : "host"
+        }, 
+        {
+            "label" : "switch_pnic", 
+            "value" : "switch_pnic"
+        }, 
+        {
+            "label" : "switch", 
+            "value" : "switch"
+        }
+    ]
+},
+{ 
+    "name" : "scan_statuses", 
+    "data" : [
+        {
+            "label" : "draft", 
+            "value" : "draft"
+        }, 
+        {
+            "label" : "pending", 
+            "value" : "pending"
+        }, 
+        {
+            "label" : "running", 
+            "value" : "running"
+        }, 
+        {
+            "label" : "completed", 
+            "value" : "completed"
+        }, 
+        {
+            "label" : "failed", 
+            "value" : "failed"
+        }, 
+        {
+            "label" : "aborted", 
+            "value" : "aborted"
+        }
+    ]
+},
+{ 
+    "name" : "scans_statuses", 
     "data" : [
         {
             "value" : "draft", 
@@ -276,140 +395,197 @@
             "value" : "aborted", 
             "label" : "Aborted"
         }
-    ], 
-    "name" : "scans_statuses"
+    ]
 },
 { 
     "data" : [
         {
-            "value" : "Mirantis-6.0", 
-            "label" : "Mirantis-6.0"
+            "label" : "Mirantis-6.0", 
+            "value" : "Mirantis-6.0"
         }, 
         {
-            "value" : "Mirantis-7.0", 
-            "label" : "Mirantis-7.0"
+            "label" : "Mirantis-7.0", 
+            "value" : "Mirantis-7.0"
         }, 
         {
-            "value" : "Mirantis-8.0", 
-            "label" : "Mirantis-8.0"
+            "label" : "Mirantis-8.0", 
+            "value" : "Mirantis-8.0"
         }, 
         {
-            "value" : "Mirantis-9.0", 
-            "label" : "Mirantis-9.0"
+            "label" : "Mirantis-9.0", 
+            "value" : "Mirantis-9.0"
         }, 
         {
-            "value" : "RDO-Mitaka", 
-            "label" : "RDO-Mitaka"
+            "label" : "RDO-Mitaka", 
+            "value" : "RDO-Mitaka"
         }, 
         {
-            "value" : "RDO-Liberty", 
-            "label" : "RDO-Liberty"
+            "label" : "RDO-Liberty", 
+            "value" : "RDO-Liberty"
         }, 
         {
-            "value" : "RDO-Juno", 
-            "label" : "RDO-Juno"
+            "label" : "RDO-Juno", 
+            "value" : "RDO-Juno"
         }, 
         {
-            "value" : "RDO-kilo", 
-            "label" : "RDO-kilo"
+            "label" : "RDO-kilo", 
+            "value" : "RDO-kilo"
         }, 
         {
-            "value" : "devstack-liberty", 
-            "label" : "devstack-liberty"
+            "label" : "devstack-liberty", 
+            "value" : "devstack-liberty"
         }, 
         {
-            "value" : "Canonical-icehouse", 
-            "label" : "Canonical-icehouse"
+            "label" : "Canonical-icehouse", 
+            "value" : "Canonical-icehouse"
         }, 
         {
-            "value" : "Canonical-juno", 
-            "label" : "Canonical-juno"
+            "label" : "Canonical-juno", 
+            "value" : "Canonical-juno"
         }, 
         {
-            "value" : "Canonical-liberty", 
-            "label" : "Canonical-liberty"
+            "label" : "Canonical-liberty", 
+            "value" : "Canonical-liberty"
         }, 
         {
-            "value" : "Canonical-mitaka", 
-            "label" : "Canonical-mitaka"
+            "label" : "Canonical-mitaka", 
+            "value" : "Canonical-mitaka"
         }, 
         {
-            "value" : "Apex-Mitaka", 
-            "label" : "Apex-Mitaka"
+            "label" : "Apex-Mitaka", 
+            "value" : "Apex-Mitaka"
         }, 
         {
-            "value" : "Devstack-Mitaka", 
-            "label" : "Devstack-Mitaka"
+            "label" : "Devstack-Mitaka", 
+            "value" : "Devstack-Mitaka"
         }, 
         {
-            "value" : "packstack-7.0.0-0.10.dev1682", 
-            "label" : "packstack-7.0.0-0.10.dev1682"
+            "label" : "packstack-7.0.0-0.10.dev1682", 
+            "value" : "packstack-7.0.0-0.10.dev1682"
         }, 
         {
-            "value" : "Stratoscale-v2.1.6", 
-            "label" : "Stratoscale-v2.1.6"
+            "label" : "Stratoscale-v2.1.6", 
+            "value" : "Stratoscale-v2.1.6"
         }, 
         {
-            "value" : "Mirantis-9.1", 
-            "label" : "Mirantis-9.1"
+            "label" : "Mirantis-9.1", 
+            "value" : "Mirantis-9.1"
         }
     ], 
     "name" : "distributions"
 },
 { 
+    "name" : "message_source_systems", 
     "data" : [
         {
-            "value" : "OpenStack", 
-            "label" : "OpenStack"
+            "label" : "OpenStack", 
+            "value" : "OpenStack"
         }, 
         {
-            "value" : "OSDNA_Sensu", 
-            "label" : "OSDNA_Sensu"
+            "label" : "OSDNA_Sensu", 
+            "value" : "OSDNA_Sensu"
         }
-    ], 
-    "name" : "message_source_systems"
+    ]
 },
 { 
+    "name" : "object_types_for_links", 
     "data" : [
         {
-            "value" : "vnic", 
-            "label" : "vnic"
+            "label" : "vnic", 
+            "value" : "vnic"
         }, 
         {
-            "value" : "vconnector", 
-            "label" : "vconnector"
+            "label" : "vconnector", 
+            "value" : "vconnector"
         }, 
         {
-            "value" : "vedge", 
-            "label" : "vedge"
+            "label" : "vedge", 
+            "value" : "vedge"
         }, 
         {
-            "value" : "instance", 
-            "label" : "instance"
+            "label" : "instance", 
+            "value" : "instance"
         }, 
         {
-            "value" : "vservice", 
-            "label" : "vservice"
+            "label" : "vservice", 
+            "value" : "vservice"
         }, 
         {
-            "value" : "pnic", 
-            "label" : "pnic"
+            "label" : "pnic", 
+            "value" : "pnic"
         }, 
         {
-            "value" : "network", 
-            "label" : "network"
+            "label" : "network", 
+            "value" : "network"
         }, 
         {
-            "value" : "port", 
-            "label" : "port"
+            "label" : "port", 
+            "value" : "port"
         }, 
         {
-            "value" : "otep", 
-            "label" : "otep"
+            "label" : "otep", 
+            "value" : "otep"
         }, 
         {
-            "value" : "agent", 
-            "label" : "agent"
+            "label" : "agent", 
+            "value" : "agent"
+        }, 
+        {
+            "label" : "host", 
+            "value" : "host"
+        }, 
+        {
+            "label" : "switch_pnic", 
+            "value" : "switch_pnic"
+        }, 
+        {
+            "label" : "switch", 
+            "value" : "switch"
+        }
+    ]
+},
+{ 
+    "name" : "scan_object_types", 
+    "data" : [
+        {
+            "label" : "vnic", 
+            "value" : "vnic"
+        }, 
+        {
+            "label" : "vconnector", 
+            "value" : "vconnector"
+        }, 
+        {
+            "label" : "vedge", 
+            "value" : "vedge"
+        }, 
+        {
+            "label" : "instance", 
+            "value" : "instance"
+        }, 
+        {
+            "label" : "vservice", 
+            "value" : "vservice"
+        }, 
+        {
+            "label" : "pnic", 
+            "value" : "pnic"
+        }, 
+        {
+            "label" : "network", 
+            "value" : "network"
+        }, 
+        {
+            "label" : "port", 
+            "value" : "port"
+        }, 
+        {
+            "label" : "otep", 
+            "value" : "otep"
+        }, 
+        {
+            "label" : "agent", 
+            "value" : "agent"
         }, 
         {
             "value" : "availability_zone", 
@@ -476,10 +652,6 @@
             "label" : "host"
         }, 
         {
-            "value" : "host", 
-            "label" : "host"
-        }, 
-        {
             "value" : "region", 
             "label" : "region"
         }, 
@@ -492,116 +664,12 @@
             "label" : "network_services_folder"
         }, 
         {
-            "value" : "network_agent", 
-            "label" : "network_agent"
-        }
-    ], 
-    "name" : "scan_object_types"
-},
-{ 
-    "data" : [
-        {
-            "value" : "vnic", 
-            "label" : "vnic"
+            "label" : "switch_pnic", 
+            "value" : "switch_pnic"
         }, 
         {
-            "value" : "vconnector", 
-            "label" : "vconnector"
-        }, 
-        {
-            "value" : "vedge", 
-            "label" : "vedge"
-        }, 
-        {
-            "value" : "instance", 
-            "label" : "instance"
-        }, 
-        {
-            "value" : "vservice", 
-            "label" : "vservice"
-        }, 
-        {
-            "value" : "pnic", 
-            "label" : "pnic"
-        }, 
-        {
-            "value" : "network", 
-            "label" : "network"
-        }, 
-        {
-            "value" : "port", 
-            "label" : "port"
-        }, 
-        {
-            "value" : "otep", 
-            "label" : "otep"
-        }, 
-        {
-            "value" : "agent", 
-            "label" : "agent"
-        }
-    ], 
-    "name" : "object_types_for_links"
-},
-{ 
-    "data" : [
-        {
-            "value" : "vnic", 
-            "label" : "vnic"
-        }, 
-        {
-            "value" : "vconnector", 
-            "label" : "vconnector"
-        }, 
-        {
-            "value" : "vedge", 
-            "label" : "vedge"
-        }, 
-        {
-            "value" : "instance", 
-            "label" : "instance"
-        }, 
-        {
-            "value" : "vservice", 
-            "label" : "vservice"
-        }, 
-        {
-            "value" : "pnic", 
-            "label" : "pnic"
-        }, 
-        {
-            "value" : "network", 
-            "label" : "network"
-        }, 
-        {
-            "value" : "port", 
-            "label" : "port"
-        }, 
-        {
-            "value" : "otep", 
-            "label" : "otep"
-        }, 
-        {
-            "value" : "agent", 
-            "label" : "agent"
-        }
-    ], 
-    "name" : "object_types"
-},
-{ 
-    "name" : "environment_operational_status", 
-    "data" : [
-        {
-            "label" : "stopped", 
-            "value" : "stopped"
-        }, 
-        {
-            "label" : "running", 
-            "value" : "running"
-        }, 
-        {
-            "label" : "error", 
-            "value" : "error"
+            "label" : "switch", 
+            "value" : "switch"
         }
     ]
 }

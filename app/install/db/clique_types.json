@@ -13,6 +13,17 @@
     ], 
     "name" : "instance"
 },
+{  
+    "environment" : "ANY", 
+    "focal_point_type" : "pnic", 
+    "link_types" : [
+        "pnic-host", 
+        "host-network", 
+        "network-switch_pnic", 
+        "switch_pnic-switch"
+    ], 
+    "name" : "pnic_clique"
+},
 { 
     "environment" : "ANY", 
     "focal_point_type" : "vservice", 

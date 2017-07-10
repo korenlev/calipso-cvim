@@ -1,11 +1,12 @@
-########################################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others #
-#                                                                                      #
-# All rights reserved. This program and the accompanying materials                     #
-# are made available under the terms of the Apache License, Version 2.0                #
-# which accompanies this distribution, and is available at                             #
-# http://www.apache.org/licenses/LICENSE-2.0                                           #
-########################################################################################
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 import importlib
 import signal
 from argparse import Namespace
@@ -42,19 +43,15 @@ class ClassResolver:
     # convert module file name in underscores to class name in camel case
     @staticmethod
     def get_class_name_by_module(module_name):
-        name_parts = [word.captialize() for word in module_name.split('_')]
+        name_parts = [word.capitalize() for word in module_name.split('_')]
         class_name = ''.join(name_parts)
         return class_name
 
+
     @staticmethod
-    def get_instance_of_class(class_name: str = None, package: str ="discover",
-                              module_name: str =None):
-        if not class_name and not module_name:
-            raise ValueError('class_name or module_name must be provided')
-        if not class_name:
-            class_name = ClassResolver.get_class_name_by_module(module_name)
-        if class_name in ClassResolver.instances:
-            return ClassResolver.instances[class_name]
+    def get_fully_qualified_class(class_name: str = None,
+                                  package: str = "discover",
+                                  module_name: str = None):
         module_file = module_name if module_name \
             else ClassResolver.get_module_file_by_class_name(class_name)
         module_parts = [package, module_file]
@@ -65,7 +62,46 @@ class ClassResolver:
             raise ValueError('could not import module {}'.format(module_name))
 
         clazz = getattr(class_module, class_name)
+        return clazz
+
+    @staticmethod
+    def prepare_class(class_name: str = None, package: str ="discover",
+                      module_name: str = None):
+        if not class_name and not module_name:
+            raise ValueError('class_name or module_name must be provided')
+        if not class_name:
+            class_name = ClassResolver.get_class_name_by_module(module_name)
+        if class_name in ClassResolver.instances:
+            return 'instance', ClassResolver.instances[class_name]
+        clazz = ClassResolver.get_fully_qualified_class(class_name, package,
+                                                        module_name)
+        return 'class', clazz
+
+    @staticmethod
+    def get_instance_of_class(class_name: str = None, package: str ="discover",
+                              module_name: str = None):
+        val_type, clazz = \
+            ClassResolver.prepare_class(class_name=class_name,
+                                        package=package,
+                                        module_name=module_name)
+        if val_type == 'instance':
+            return clazz
         instance = clazz()
+        ClassResolver.instances[class_name] = instance
+        return instance
+
+    @staticmethod
+    def get_instance_single_arg(arg: object,
+                                class_name: str = None,
+                                package: str ="discover",
+                                module_name: str = None):
+        val_type, clazz = \
+            ClassResolver.prepare_class(class_name=class_name,
+                                        package=package,
+                                        module_name=module_name)
+        if val_type == 'instance':
+            return clazz
+        instance = clazz(arg)
         ClassResolver.instances[class_name] = instance
         return instance
 
