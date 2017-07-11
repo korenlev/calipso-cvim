@@ -1,8 +1,10 @@
 COMPUTE_HOST_ID = "node-5.cisco.com"
 COMMAND = "virsh list"
-CACHED_COMMAND = "ssh -o StrictHostKeyChecking=no " + COMPUTE_HOST_ID + " sudo " + COMMAND
-
-RUN_RESULT = " Id    Name                           State\n----------------------------------------------------\n 2     instance-00000002              running\n 27    instance-0000001c              running\n 38    instance-00000026              running"
+NON_GATEWAY_CACHED_COMMAND = COMPUTE_HOST_ID + "," + "ssh -o StrictHostKeyChecking=no " + \
+                             COMPUTE_HOST_ID + " sudo " + COMMAND
+GATEWAY_CACHED_COMMAND = COMPUTE_HOST_ID + "," + "sudo " + COMMAND
+CACHED_COMMAND_RESULT = " Id  Name  State\n---\n 2 instance-00000003 running"
+RUN_RESULT = " Id  Name  State\n---\n 2 instance-00000002 running"
 
 LINES_FOR_FIX = [
     "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952",

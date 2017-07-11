@@ -4,6 +4,7 @@ from test.fetch.cli_fetch.test_data.cli_access import *
 from test.fetch.test_fetch import TestFetch
 from unittest.mock import MagicMock, patch
 from utils.cli_access import CliAccess
+from utils.ssh_conn import SshConn
 
 
 class TestCliAccess(TestFetch):
@@ -13,47 +14,105 @@ class TestCliAccess(TestFetch):
         self.cli_access = CliAccess()
 
     @patch("utils.ssh_conn.SshConn.exec")
-    def test_run(self, ssh_conn_exec):
-        # mock the command result
-        ssh_conn_exec.return_value = RUN_RESULT
+    def check_run_result(self, is_gateway_host,
+                         enable_cache,
+                         cached_command_result, exec_result,
+                         expected_result, err_msg,
+                         ssh_con_exec):
+        # mock cached commands
+        if not is_gateway_host:
+            self.cli_access.cached_commands = {
+                NON_GATEWAY_CACHED_COMMAND: cached_command_result
+            }
+        else:
+            self.cli_access.cached_commands = {
+                GATEWAY_CACHED_COMMAND: cached_command_result
+            }
+        original_is_gateway_host = SshConn.is_gateway_host
+        SshConn.is_gateway_host = MagicMock(return_value=is_gateway_host)
+        ssh_con_exec.return_value = exec_result
+        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID,
+                                     on_gateway=False, enable_cache=enable_cache)
+        self.assertEqual(result, expected_result, err_msg)
 
-        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID)
-
-        # clear the cached command
+        # reset the cached commands after testing
         self.cli_access.cached_commands = {}
-        self.assertNotEqual(result, "", "Can't get ip configuration from command line")
+        # reset method
+        SshConn.is_gateway_host = original_is_gateway_host
 
-    @patch("utils.ssh_conn.SshConn.exec")
-    def test_run_with_valid_cached_result(self, ssh_conn_exec):
-        # add command and command result to cached commands
+    def test_run(self):
         curr_time = time.time()
-        self.cli_access.cached_commands[CACHED_COMMAND] = {
-            "timestamp": curr_time,
-            "result": RUN_RESULT
-        }
-        # mock the run command result
-        ssh_conn_exec.return_value = ""
+        test_cases = [
+            {
+                "is_gateway_host": True,
+                "enable_cache": False,
+                "cached_command_result": None,
+                "exec_result": RUN_RESULT,
+                "expected_result": RUN_RESULT,
+                "err_msg": "Can't get the " +
+                           "result of the command"
+            },
+            {
+                "is_gateway_host": True,
+                "enable_cache": True,
+                "cached_command_result": {
+                    "timestamp": curr_time,
+                    "result": CACHED_COMMAND_RESULT
+                },
+                "exec_result": None,
+                "expected_result": CACHED_COMMAND_RESULT,
+                "err_msg": "Can't get the cached " +
+                           "result of the command " +
+                           "when the host is a gateway host"
+            },
+            {
+                "is_gateway_host": False,
+                "enable_cache": True,
+                "cached_command_result": {
+                    "timestamp": curr_time,
+                    "result": CACHED_COMMAND_RESULT
+                },
+                "exec_result": None,
+                "expected_result": CACHED_COMMAND_RESULT,
+                "err_msg": "Can't get the cached " +
+                           "result of the command " +
+                           "when the host is not a gateway host"
+            },
+            {
+                "is_gateway_host": True,
+                "enable_cache": True,
+                "cached_command_result": {
+                    "timestamp": curr_time - self.cli_access.cache_lifetime,
+                    "result": CACHED_COMMAND_RESULT
+                },
+                "exec_result": RUN_RESULT,
+                "expected_result": RUN_RESULT,
+                "err_msg": "Can't get the result " +
+                           "of the command when the cached result expired " +
+                           "and the host is a gateway host"
+            },
+            {
+                "is_gateway_host": False,
+                "enable_cache": True,
+                "cached_command_result": {
+                    "timestamp": curr_time - self.cli_access.cache_lifetime,
+                    "result": CACHED_COMMAND_RESULT
+                },
+                "exec_result": RUN_RESULT,
+                "expected_result": RUN_RESULT,
+                "err_msg": "Can't get the result " +
+                           "of the command when the cached result expired " +
+                           "and the host is a not gateway host"
+            }
+        ]
 
-        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID)
-        # clear the cached command
-        self.cli_access.cached_commands = {}
-        self.assertNotEqual(result, "", "Can't get cached command result")
-
-    @patch("utils.ssh_conn.SshConn.exec")
-    def test_run_with_expired_cached_result(self, ssh_conn_exec):
-        # add overtime command and command result to cached commands
-        curr_time = time.time()
-        self.cli_access.cached_commands[CACHED_COMMAND] = {
-            "timestamp": curr_time - self.cli_access.cache_lifetime,
-            "result": RUN_RESULT
-        }
-        # mock the run command result
-        ssh_conn_exec.return_value = ""
-
-        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID)
-        # clear the cached command
-        self.cli_access.cached_commands = {}
-        self.assertEqual(result, "", "Get the overtime cached data")
+        for test_case in test_cases:
+            self.check_run_result(test_case["is_gateway_host"],
+                                  test_case["enable_cache"],
+                                  test_case["cached_command_result"],
+                                  test_case["exec_result"],
+                                  test_case["expected_result"],
+                                  test_case["err_msg"])
 
     def test_run_fetch_lines(self):
         # store the original run method
