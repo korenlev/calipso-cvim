@@ -340,35 +340,6 @@
     ]
 },
 { 
-    "name" : "scan_statuses", 
-    "data" : [
-        {
-            "label" : "draft", 
-            "value" : "draft"
-        }, 
-        {
-            "label" : "pending", 
-            "value" : "pending"
-        }, 
-        {
-            "label" : "running", 
-            "value" : "running"
-        }, 
-        {
-            "label" : "completed", 
-            "value" : "completed"
-        }, 
-        {
-            "label" : "failed", 
-            "value" : "failed"
-        }, 
-        {
-            "label" : "aborted", 
-            "value" : "aborted"
-        }
-    ]
-},
-{ 
     "name" : "scans_statuses", 
     "data" : [
         {
