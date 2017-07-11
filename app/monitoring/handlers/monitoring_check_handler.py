@@ -78,7 +78,7 @@ class MonitoringCheckHandler(SpecialCharConverter):
 
     def keep_message(self, doc, check_result, error_level=None):
         msg_id = check_result['id']
-        obj_id = ObjectId(doc['_id'])
+        obj_id = ObjectId(doc['id'])
         display_context = doc['id']
         level = error_level if error_level else ERROR_LEVEL[check_result['status']]
         dt = datetime.datetime.utcfromtimestamp(check_result['executed'])
