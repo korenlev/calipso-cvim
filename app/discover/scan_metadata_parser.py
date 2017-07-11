@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.folder_fetcher import FolderFetcher
+from discover.fetchers.folder_fetcher import FolderFetcher
 from utils.metadata_parser import MetadataParser
 from utils.mongo_access import MongoAccess
 from utils.util import ClassResolver
@@ -37,7 +37,6 @@ class ScanMetadataParser(MetadataParser):
     def __init__(self, inventory_mgr):
         super().__init__()
         self.inv = inventory_mgr
-        self.scanners = {}
         self.constants = {}
 
     def get_required_fields(self):
@@ -51,7 +50,12 @@ class ScanMetadataParser(MetadataParser):
                            .format(scanner_name, str(type_index)))
         elif isinstance(fetcher, str):
             try:
-                instance = ClassResolver.get_instance_of_class(fetcher, package)
+                module_name = ClassResolver.get_module_file_by_class_name(fetcher)
+                fetcher_package = module_name.split("_")[0]
+                if package:
+                    fetcher_package = ".".join((package, fetcher_package))
+                instance = ClassResolver.get_instance_of_class(package_name=fetcher_package,
+                                                               class_name=fetcher)
             except ValueError:
                 instance = None
             if not instance:
@@ -187,7 +191,7 @@ class ScanMetadataParser(MetadataParser):
 
     def validate_metadata(self, metadata: dict) -> bool:
         super().validate_metadata(metadata)
-        scanners = metadata.get(self.SCANNERS, [])
+        scanners = metadata.get(self.SCANNERS, {})
         package = metadata.get(self.SCANNERS_PACKAGE)
         if not scanners:
             self.add_error('no scanners found in scanners list')

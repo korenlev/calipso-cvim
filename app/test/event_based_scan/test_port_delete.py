@@ -9,8 +9,8 @@
 ###############################################################################
 from unittest.mock import MagicMock
 
-from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.events.event_port_delete import EventPortDelete
+from discover.fetchers.api.api_fetch_host_instances import ApiFetchHostInstances
 from test.event_based_scan.test_data.event_payload_port_delete import EVENT_PAYLOAD_PORT_DELETE, PORT_DOC, VNIC_DOCS, \
     INSTANCE_DOC, INSTANCE_DOCS
 from test.event_based_scan.test_event import TestEvent
