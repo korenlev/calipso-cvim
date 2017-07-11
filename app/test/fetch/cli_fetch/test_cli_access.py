@@ -1,9 +1,9 @@
 import time
 
-from utils.cli_access import CliAccess
-from test.fetch.test_fetch import TestFetch
 from test.fetch.cli_fetch.test_data.cli_access import *
-from unittest.mock import MagicMock,patch
+from test.fetch.test_fetch import TestFetch
+from unittest.mock import MagicMock, patch
+from utils.cli_access import CliAccess
 
 
 class TestCliAccess(TestFetch):
