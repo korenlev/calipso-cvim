@@ -32,7 +32,7 @@ class MonitoringCheckHandler(SpecialCharConverter):
     def __init__(self, args):
         super().__init__()
         self.log = FullLogger()
-        self.log.set_loglevel('WARNING')
+        self.log.set_loglevel(args.loglevel)
         self.env = args.env
         try:
             self.conf = Configuration(args.mongo_config)
