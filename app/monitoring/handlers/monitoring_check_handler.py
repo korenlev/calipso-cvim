@@ -32,11 +32,12 @@ class MonitoringCheckHandler(SpecialCharConverter):
     def __init__(self, args):
         super().__init__()
         self.log = FullLogger()
-        self.log.set_loglevel('WARNING')
+        self.log.set_loglevel(args.loglevel)
         self.env = args.env
         try:
             self.conf = Configuration(args.mongo_config)
             self.inv = InventoryMgr()
+            self.inv.log.set_loglevel(args.loglevel)
             self.inv.set_collections(args.inventory)
         except FileNotFoundError:
             sys.exit(1)
@@ -78,9 +79,11 @@ class MonitoringCheckHandler(SpecialCharConverter):
 
     def keep_message(self, doc, check_result, error_level=None):
         msg_id = check_result['id']
-        obj_id = ObjectId(doc['_id'])
-        display_context = doc['id']
-        level = error_level if error_level else ERROR_LEVEL[check_result['status']]
+        obj_id = doc['id']
+        display_context = doc['network_id'] if doc['type'] == 'port'\
+            else doc['id']
+        level = error_level if error_level\
+            else ERROR_LEVEL[check_result['status']]
         dt = datetime.datetime.utcfromtimestamp(check_result['executed'])
         ts = stringify_datetime(dt)
         message = Message(msg_id=msg_id, env=self.env, source=SOURCE_SYSTEM,
