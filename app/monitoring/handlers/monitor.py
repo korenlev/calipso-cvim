@@ -45,9 +45,9 @@ def get_args():
                         help="read input from the specifed file \n" +
                         "(default: from stdin)")
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
-                        default=self.DEFAULTS["loglevel"],
+                        default=DEFAULTS["loglevel"],
                         help="logging level \n(default: '{}')"
-                        .format(self.DEFAULTS["loglevel"]))
+                        .format(DEFAULTS["loglevel"]))
     args = parser.parse_args()
     return args
 
