@@ -20,7 +20,7 @@ class MongoLoggingHandler(logging.Handler):
     """
     Logging handler for MongoDB
     """
-    SOURCE_SYSTEM = 'CALIPSO'
+    SOURCE_SYSTEM = 'Calipso'
 
     def __init__(self, env: str, level: str):
         super().__init__(Logger.get_numeric_level(level))
