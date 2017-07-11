@@ -12,11 +12,14 @@ from api.validation.data_validate import DataValidate
 from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
 from datetime import datetime
+from utils.constants import EnvironmentFeatures
+from utils.inventory_mgr import InventoryMgr
 
 
 class EnvironmentConfigs(ResponderBase):
     def __init__(self):
         super(EnvironmentConfigs, self).__init__()
+        self.inv = InventoryMgr()
         self.ID = "name"
         self.PROJECTION = {
             self.ID: True,
@@ -25,10 +28,11 @@ class EnvironmentConfigs(ResponderBase):
             "distribution": True
         }
         self.COLLECTION = "environments_config"
-        self.SUPPORTED_ENVS_COLL = "supported_environments"
         self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
-                                     "CLI", "AMQP", "Monitoring", "NFV_provider"]
-        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring", "NFV_provider"]
+                                     "CLI", "AMQP", "Monitoring",
+                                     "NFV_provider", "ACI"]
+        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring",
+                                              "NFV_provider", "ACI"]
 
         self.provision_types = self.\
             get_constants_by_name("environment_provision_types")
@@ -117,6 +121,11 @@ class EnvironmentConfigs(ResponderBase):
                 "api_port": self.require(int, True, mandatory=True),
                 "rabbitmq_pass": self.require(str, mandatory=True),
                 "rabbitmq_user": self.require(str, mandatory=True),
+                "rabbitmq_port": self.require(int,
+                                              True,
+                                              validate=DataValidate.REGEX,
+                                              requirement=regex.PORT,
+                                              mandatory=True),
                 "ssh_port": self.require(int,
                                          True,
                                          validate=DataValidate.REGEX,
@@ -147,7 +156,20 @@ class EnvironmentConfigs(ResponderBase):
                                      True),
                 "user": self.require(str, mandatory=True),
                 "pwd": self.require(str, mandatory=True)
+            },
+            "ACI": {
+                "name": self.require(str, mandatory=True),
+                "host": self.require(str,
+                                     validate=DataValidate.REGEX,
+                                     requirement=[regex.IP, regex.HOSTNAME],
+                                     mandatory=True),
+                "user": self.require(str, mandatory=True),
+                "pwd": self.require(str, mandatory=True)
             }
+        }
+        self.AUTH_REQUIREMENTS = {
+            "view-env": self.require(list, mandatory=True),
+            "edit-env": self.require(list, mandatory=True)
         }
 
     def on_get(self, req, resp):
@@ -228,10 +250,15 @@ class EnvironmentConfigs(ResponderBase):
             "last_scanned": self.require(str),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str, False, DataValidate.LIST,
-                                         self.type_drivers, True)
+                                         self.type_drivers, True),
+            "enable_monitoring": self.require(bool, True),
+            "monitoring_setup_done": self.require(bool, True),
+            "auth": self.require(dict)
         }
         self.validate_query_data(env_config,
-                                 environment_config_requirement)
+                                 environment_config_requirement,
+                                 can_be_empty_keys=["last_scanned"]
+                                 )
         self.check_and_convert_datetime("last_scanned", env_config)
         # validate the configurations
         configurations = env_config['configuration']
@@ -247,6 +274,12 @@ class EnvironmentConfigs(ResponderBase):
         err_msg = self.validate_env_config_with_constraints(env_config)
         if err_msg:
             self.bad_request(err_msg)
+
+        if "auth" in env_config:
+            err_msg = self.validate_data(env_config.get("auth"),
+                                         self.AUTH_REQUIREMENTS)
+            if err_msg:
+                self.bad_request("auth error: " + err_msg)
 
         if "scanned" not in env_config:
             env_config["scanned"] = False
@@ -314,27 +347,23 @@ class EnvironmentConfigs(ResponderBase):
             'environment.mechanism_drivers': {'$in': env_config['mechanism_drivers']}
         }
 
-        supported_envs = self.read(self.SUPPORTED_ENVS_COLL, matches)
-        if not supported_envs:
-            return
-
-        supported_env = supported_envs[0]
-        features = supported_env["features"]
-
         err_prefix = 'configuration not accepted: '
-        if not features['scanning']:
+        if not self.inv.is_feature_supported_in_env(matches,
+                                                    EnvironmentFeatures.SCANNING):
             return err_prefix + 'scanning is not supported in this environment'
 
         configs = env_config['configuration']
-        if not features['monitoring'] and \
-                self.get_configuration_by_name('Monitoring', configs):
+        if not self.inv.is_feature_supported_in_env(matches,
+                                                    EnvironmentFeatures.MONITORING) \
+                and self.get_configuration_by_name('Monitoring', configs):
             return err_prefix + 'monitoring is not supported in this environment, ' \
-                                'please removed the Monitoring configuration'
+                                'please remove the Monitoring configuration'
 
-        if not features['listening'] and \
-                self.get_configuration_by_name('AMQP', configs):
+        if not self.inv.is_feature_supported_in_env(matches,
+                                                    EnvironmentFeatures.LISTENING) \
+                and self.get_configuration_by_name('AMQP', configs):
             return err_prefix + 'listening is not supported in this environment, ' \
-                                'please removed the AMQP configuration'
+                                'please remove the AMQP configuration'
 
         return None
 
