@@ -1,6 +1,6 @@
 import time
 
-from discover.cli_access import CliAccess
+from utils.cli_access import CliAccess
 from test.fetch.test_fetch import TestFetch
 from test.fetch.cli_fetch.test_data.cli_access import *
 from unittest.mock import MagicMock,patch
@@ -12,18 +12,18 @@ class TestCliAccess(TestFetch):
         self.configure_environment()
         self.cli_access = CliAccess()
 
-    @patch("discover.ssh_conn.SshConn.exec")
+    @patch("utils.ssh_conn.SshConn.exec")
     def test_run(self, ssh_conn_exec):
         # mock the command result
         ssh_conn_exec.return_value = RUN_RESULT
 
-        result = self.cli_access.run(COMMAND, COMPUTE_HOST['id'])
+        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID)
 
         # clear the cached command
         self.cli_access.cached_commands = {}
         self.assertNotEqual(result, "", "Can't get ip configuration from command line")
 
-    @patch("discover.ssh_conn.SshConn.exec")
+    @patch("utils.ssh_conn.SshConn.exec")
     def test_run_with_valid_cached_result(self, ssh_conn_exec):
         # add command and command result to cached commands
         curr_time = time.time()
@@ -34,12 +34,12 @@ class TestCliAccess(TestFetch):
         # mock the run command result
         ssh_conn_exec.return_value = ""
 
-        result = self.cli_access.run(COMMAND, COMPUTE_HOST['id'])
+        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID)
         # clear the cached command
         self.cli_access.cached_commands = {}
         self.assertNotEqual(result, "", "Can't get cached command result")
 
-    @patch("discover.ssh_conn.SshConn.exec")
+    @patch("utils.ssh_conn.SshConn.exec")
     def test_run_with_expired_cached_result(self, ssh_conn_exec):
         # add overtime command and command result to cached commands
         curr_time = time.time()
@@ -50,7 +50,7 @@ class TestCliAccess(TestFetch):
         # mock the run command result
         ssh_conn_exec.return_value = ""
 
-        result = self.cli_access.run(COMMAND, COMPUTE_HOST['id'])
+        result = self.cli_access.run(COMMAND, COMPUTE_HOST_ID)
         # clear the cached command
         self.cli_access.cached_commands = {}
         self.assertEqual(result, "", "Get the overtime cached data")
@@ -61,7 +61,7 @@ class TestCliAccess(TestFetch):
         # mock the result from run method
         self.cli_access.run = MagicMock(return_value=RUN_RESULT)
 
-        result = self.cli_access.run_fetch_lines(COMMAND, COMPUTE_HOST['id'])
+        result = self.cli_access.run_fetch_lines(COMMAND, COMPUTE_HOST_ID)
 
         # reset run method
         self.cli_access.run = original_run
@@ -74,7 +74,7 @@ class TestCliAccess(TestFetch):
         # mock the empty result from run method
         self.cli_access.run = MagicMock(return_value="")
 
-        result = self.cli_access.run_fetch_lines(COMMAND, COMPUTE_HOST['id'])
+        result = self.cli_access.run_fetch_lines(COMMAND, COMPUTE_HOST_ID)
 
         # reset run method
         self.cli_access.run = original_run
