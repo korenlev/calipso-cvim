@@ -474,16 +474,20 @@
     ], 
     "name" : "distributions"
 },
-{ 
+{  
     "name" : "message_source_systems", 
     "data" : [
         {
-            "label" : "OpenStack", 
-            "value" : "OpenStack"
+            "value" : "OpenStack", 
+            "label" : "OpenStack"
         }, 
         {
-            "label" : "OSDNA_Sensu", 
-            "value" : "OSDNA_Sensu"
+            "value" : "CALIPSO", 
+            "label" : "CALIPSO"
+        }, 
+        {
+            "value" : "Sensu", 
+            "label" : "Sensu"
         }
     ]
 },
