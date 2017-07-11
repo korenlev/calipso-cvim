@@ -37,6 +37,7 @@ class MonitoringCheckHandler(SpecialCharConverter):
         try:
             self.conf = Configuration(args.mongo_config)
             self.inv = InventoryMgr()
+            self.inv.log.set_loglevel(args.loglevel)
             self.inv.set_collections(args.inventory)
         except FileNotFoundError:
             sys.exit(1)
