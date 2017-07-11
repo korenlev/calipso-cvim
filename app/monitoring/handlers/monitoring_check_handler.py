@@ -78,8 +78,8 @@ class MonitoringCheckHandler(SpecialCharConverter):
 
     def keep_message(self, doc, check_result, error_level=None):
         msg_id = check_result['id']
-        obj_id = ObjectId(doc['id'])
-        display_context = doc['id']
+        obj_id = doc['id']
+        display_context = doc['network_id'] if doc['type'] == 'port' else doc['id']
         level = error_level if error_level else ERROR_LEVEL[check_result['status']]
         dt = datetime.datetime.utcfromtimestamp(check_result['executed'])
         ts = stringify_datetime(dt)
