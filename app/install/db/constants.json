@@ -152,6 +152,23 @@
     ]
 },
 { 
+    "name" : "environment_operational_status", 
+    "data" : [
+        {
+            "value" : "stopped", 
+            "label" : "stopped"
+        }, 
+        {
+            "value" : "running", 
+            "label" : "running"
+        }, 
+        {
+            "value" : "error", 
+            "label" : "error"
+        }
+    ]
+},
+{ 
     "name" : "link_types", 
     "data" : [
         {
