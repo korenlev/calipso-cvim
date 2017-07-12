@@ -16,21 +16,27 @@ LINES_FOR_FIX = [
     "\t\t\t\t\t\t\tp_ff798dba-0",
     "\t\t\t\t\t\t\tv_public",
     "\t\t\t\t\t\t\tv_vrouter_pub",
-    "br-fw-admin\t\t8000.005056ace897\tno\t\teno16777728",
-    "br-mesh\t\t8000.005056acc9a2\tno\t\teno33554952.103",
-    "br-mgmt\t\t8000.005056ace897\tno\t\teno16777728.101",
-    "\t\t\t\t\t\t\tmgmt-conntrd",
-    "\t\t\t\t\t\t\tv_management",
-    "\t\t\t\t\t\t\tv_vrouter",
-    "br-storage\t\t8000.005056ace897\tno\t\teno16777728.102"
+    "br-fw-admin\t\t8000.005056ace897\tno\t\teno16777728"
 ]
 
 FIXED_LINES = [
     "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952,p_ff798dba-0,v_public,v_vrouter_pub",
-    "br-fw-admin\t\t8000.005056ace897\tno\t\teno16777728",
-    "br-mesh\t\t8000.005056acc9a2\tno\t\teno33554952.103",
-    "br-mgmt\t\t8000.005056ace897\tno\t\teno16777728.101,mgmt-conntrd,v_management,v_vrouter",
-    "br-storage\t\t8000.005056ace897\tno\t\teno16777728.102"
+    "br-fw-admin\t\t8000.005056ace897\tno\t\teno16777728"
+]
+
+PARSED_CMD_RESULT = [
+    {
+        "bridge_id": "8000.005056acc9a2",
+        "bridge_name": "br-ex",
+        "interfaces": "eno33554952,p_ff798dba-0,v_public,v_vrouter_pub",
+        "stp_enabled": "no"
+    },
+    {
+        "bridge_id": "8000.005056ace897",
+        "bridge_name": "br-fw-admin",
+        "interfaces": "eno16777728",
+        "stp_enabled": "no"
+    }
 ]
 
 LINE_FOR_PARSE = "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952,p_ff798dba-0,v_public,v_vrouter_pub"
