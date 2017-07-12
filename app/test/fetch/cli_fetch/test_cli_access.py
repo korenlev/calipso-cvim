@@ -115,30 +115,23 @@ class TestCliAccess(TestFetch):
                                   test_case["err_msg"])
 
     def test_run_fetch_lines(self):
-        # store the original run method
         original_run = self.cli_access.run
-        # mock the result from run method
         self.cli_access.run = MagicMock(return_value=RUN_RESULT)
 
         result = self.cli_access.run_fetch_lines(COMMAND, COMPUTE_HOST_ID)
 
-        # reset run method
+        self.assertEqual(result, FETCH_LINES_RESULT,
+                         "Can't get correct result of the command line")
         self.cli_access.run = original_run
 
-        self.assertNotEqual(len(result), 1, "Can't split the command result into lines")
-
     def test_run_fetch_lines_with_empty_command_result(self):
-        # store the original run method
         original_run = self.cli_access.run
-        # mock the empty result from run method
         self.cli_access.run = MagicMock(return_value="")
 
         result = self.cli_access.run_fetch_lines(COMMAND, COMPUTE_HOST_ID)
-
-        # reset run method
+        self.assertEqual(result, [], "Can't get [] when the command " +
+                                     "result is empty")
         self.cli_access.run = original_run
-
-        self.assertEqual(result, [], "Can't get empty array when the command result is empty")
 
     def test_merge_ws_spillover_lines(self):
         fixed_lines = self.cli_access.merge_ws_spillover_lines(LINES_FOR_FIX)

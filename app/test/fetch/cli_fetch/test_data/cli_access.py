@@ -5,6 +5,11 @@ NON_GATEWAY_CACHED_COMMAND = COMPUTE_HOST_ID + "," + "ssh -o StrictHostKeyChecki
 GATEWAY_CACHED_COMMAND = COMPUTE_HOST_ID + "," + "sudo " + COMMAND
 CACHED_COMMAND_RESULT = " Id  Name  State\n---\n 2 instance-00000003 running"
 RUN_RESULT = " Id  Name  State\n---\n 2 instance-00000002 running"
+FETCH_LINES_RESULT = [
+    " Id  Name  State",
+    "---",
+    " 2 instance-00000002 running"
+]
 
 LINES_FOR_FIX = [
     "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952",
