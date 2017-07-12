@@ -1,14 +1,14 @@
-from discover.cli_fetch_host_pnics_ovs import CliFetchHostPnicsOvs
+from discover.cli_fetch_host_pnics import CliFetchHostPnics
 from test.fetch.cli_fetch.test_data.cli_fetch_host_pnics_ovs import *
 from test.fetch.test_fetch import TestFetch
 from unittest.mock import MagicMock
 
 
-class TestCliFetchHostPnicsOvs(TestFetch):
+class TestCliFetchHostPnics(TestFetch):
 
     def setUp(self):
         self.configure_environment()
-        self.fetcher = CliFetchHostPnicsOvs()
+        self.fetcher = CliFetchHostPnics()
         self.fetcher.set_env(self.env)
 
     def test_get(self):
