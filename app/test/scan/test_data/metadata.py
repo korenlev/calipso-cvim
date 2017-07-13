@@ -9,23 +9,23 @@
 ###############################################################################
 METADATA_EMPTY = {}
 
-METADATA_SCANNERS_MISSING = {"scanners_package": "discover"}
+METADATA_SCANNERS_MISSING = {"scanners_package": "discover.fetchers"}
 
 METADATA_NO_PACKAGE = {
   "scanners": {}
 }
 
 METADATA_NO_SCANNERS = {
-  "scanners_package": "discover"
+  "scanners_package": "discover.fetchers"
 }
 
 METADATA_ZERO_SCANNERS = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {}
 }
 
 METADATA_SIMPLE_SCANNER = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregate": [
       {
@@ -37,7 +37,7 @@ METADATA_SIMPLE_SCANNER = {
 }
 
 METADATA_SCANNER_UNKNOWN_ATTRIBUTE = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregate": [
       {
@@ -50,7 +50,7 @@ METADATA_SCANNER_UNKNOWN_ATTRIBUTE = {
 }
 
 METADATA_SCANNER_NO_TYPE = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregate": [
       {
@@ -61,7 +61,7 @@ METADATA_SCANNER_NO_TYPE = {
 }
 
 METADATA_SCANNER_NO_FETCHER = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregate": [
       {
@@ -72,7 +72,7 @@ METADATA_SCANNER_NO_FETCHER = {
 }
 
 METADATA_SCANNER_INCORRECT_TYPE = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregate": [
       {
@@ -84,7 +84,7 @@ METADATA_SCANNER_INCORRECT_TYPE = {
 }
 
 METADATA_SCANNER_INCORRECT_FETCHER = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregate": [
       {
@@ -96,7 +96,7 @@ METADATA_SCANNER_INCORRECT_FETCHER = {
 }
 
 METADATA_SCANNER_WITH_CHILD = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregatesRoot": [
       {
@@ -115,7 +115,7 @@ METADATA_SCANNER_WITH_CHILD = {
 }
 
 METADATA_SCANNER_WITH_INCORRECT_CHILD = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregatesRoot": [
       {
@@ -128,7 +128,7 @@ METADATA_SCANNER_WITH_INCORRECT_CHILD = {
 }
 
 METADATA_SCANNER_WITH_MISSING_CHILD = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanAggregatesRoot": [
       {
@@ -141,7 +141,7 @@ METADATA_SCANNER_WITH_MISSING_CHILD = {
 }
 
 METADATA_SCANNER_FETCHER_INVALID_DICT = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanEnvironment": [
       {
@@ -157,7 +157,7 @@ METADATA_SCANNER_FETCHER_INVALID_DICT = {
 }
 
 METADATA_SCANNER_WITH_FOLDER = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanEnvironment": [
       {
@@ -181,7 +181,7 @@ METADATA_SCANNER_WITH_FOLDER = {
 }
 
 METADATA_SCANNER_WITH_INVALID_CONDITION = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanHost": [
       {
@@ -194,7 +194,7 @@ METADATA_SCANNER_WITH_INVALID_CONDITION = {
 }
 
 METADATA_SCANNER_WITH_INVALID_MECHANISM_DRIVER_CONDITION = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanHost": [
       {
@@ -214,7 +214,7 @@ METADATA_SCANNER_WITH_INVALID_MECHANISM_DRIVER_CONDITION = {
 }
 
 METADATA_SCANNER_WITH_INVALID_MECHANISM_DRIVER = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanHost": [
       {
@@ -234,7 +234,7 @@ METADATA_SCANNER_WITH_INVALID_MECHANISM_DRIVER = {
 }
 
 METADATA_SCANNER_WITH_CONDITION = {
-  "scanners_package": "discover",
+  "scanners_package": "discover.fetchers",
   "scanners": {
     "ScanHost": [
       {

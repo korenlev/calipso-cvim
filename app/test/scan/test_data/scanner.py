@@ -1,5 +1,5 @@
 import queue
-from discover.folder_fetcher import FolderFetcher
+from discover.fetchers.folder_fetcher import FolderFetcher
 
 
 SCANNER_TYPE_FOR_ENV = "ScanEnvironment"

@@ -115,7 +115,7 @@ class TestScanner(TestScan):
         except:
             pass
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_with_get_exception(self, fetcher_get):
         fetcher_get.side_effect = Exception("get exception")
 
@@ -126,7 +126,7 @@ class TestScanner(TestScan):
         except:
             pass
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_without_master_parent(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITHOUT_MASTER_PARENT_IN_DB
 
@@ -146,7 +146,7 @@ class TestScanner(TestScan):
         self.assertEqual(result, [], "Can't get [], when the master parent " +
                          "doesn't exist in database")
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_with_master_parent(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITH_MASTER_PARENT_IN_DB
 
@@ -167,7 +167,7 @@ class TestScanner(TestScan):
         self.scanner.inv.get_by_id = original_get_by_id
         self.scanner.inv.set = original_set
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_with_in_project(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITH_PROJECT
 
@@ -185,7 +185,7 @@ class TestScanner(TestScan):
 
         self.scanner.inv.set = original_set
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_without_create_object(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITHOUT_CREATE_OBJECT
 
@@ -199,7 +199,7 @@ class TestScanner(TestScan):
 
         self.scanner.inv.set = original_set
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_with_create_object(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITH_CREATE_OBJECT
 
@@ -213,7 +213,7 @@ class TestScanner(TestScan):
 
         self.scanner.inv.set = original_set
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_with_children_scanner(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITH_CREATE_OBJECT
 
@@ -231,7 +231,7 @@ class TestScanner(TestScan):
         self.scanner.inv.set = original_set
         self.scanner.queue_for_scan = original_queue_for_scan
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type_without_children_scanner(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITH_CREATE_OBJECT
 
@@ -250,7 +250,7 @@ class TestScanner(TestScan):
         self.scanner.inv.set = original_set
         self.scanner.queue_for_scan = original_queue_for_scan
 
-    @patch("discover.folder_fetcher.FolderFetcher.get")
+    @patch("discover.fetchers.folder_fetcher.FolderFetcher.get")
     def test_scan_type(self, fetcher_get):
         fetcher_get.return_value = DB_RESULTS_WITH_CREATE_OBJECT
 
