@@ -1,9 +1,9 @@
 import time
 
+from discover.fetchers.cli.cli_access import CliAccess
 from test.fetch.cli_fetch.test_data.cli_access import *
 from test.fetch.test_fetch import TestFetch
 from unittest.mock import MagicMock, patch
-from utils.cli_access import CliAccess
 from utils.ssh_conn import SshConn
 
 

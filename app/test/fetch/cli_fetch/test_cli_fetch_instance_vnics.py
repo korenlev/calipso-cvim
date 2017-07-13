@@ -1,4 +1,4 @@
-from discover.cli_fetch_instance_vnics import CliFetchInstanceVnics
+from discover.fetchers.cli.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from test.fetch.test_fetch import TestFetch
 from test.fetch.cli_fetch.test_data.cli_fetch_instance_vnics import *
 from unittest.mock import MagicMock

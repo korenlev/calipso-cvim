@@ -1,5 +1,5 @@
-from discover.api_access import ApiAccess
-from discover.api_fetch_regions import ApiFetchRegions
+from discover.fetchers.api.api_access import ApiAccess
+from discover.fetchers.api.api_fetch_regions import ApiFetchRegions
 from test.fetch.test_fetch import TestFetch
 from test.fetch.api_fetch.test_data.api_fetch_regions import *
 from test.fetch.api_fetch.test_data.token import TOKEN

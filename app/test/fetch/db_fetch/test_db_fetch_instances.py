@@ -1,4 +1,4 @@
-from discover.db_fetch_instances import DbFetchInstances
+from discover.fetchers.db.db_fetch_instances import DbFetchInstances
 from test.fetch.test_fetch import TestFetch
 from unittest.mock import MagicMock
 from test.fetch.db_fetch.test_data.db_fetch_instances import *

@@ -1,7 +1,7 @@
 import unittest
 
 from discover.configuration import Configuration
-from discover.db_access import DbAccess
+from discover.fetchers.db.db_access import DbAccess
 from test.fetch.config.test_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
 from test.fetch.api_fetch.test_data.regions import REGIONS
 from test.fetch.api_fetch.test_data.configurations import CONFIGURATIONS

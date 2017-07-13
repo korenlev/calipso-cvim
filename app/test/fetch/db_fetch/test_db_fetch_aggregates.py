@@ -1,4 +1,4 @@
-from discover.db_fetch_aggregates import DbFetchAggregates
+from discover.fetchers.db.db_fetch_aggregates import DbFetchAggregates
 from test.fetch.test_fetch import TestFetch
 from test.fetch.db_fetch.test_data.db_fetch_aggregates import *
 from unittest.mock import MagicMock

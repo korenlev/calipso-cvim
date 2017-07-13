@@ -1,4 +1,4 @@
-from discover.cli_fetch_vconnectors_ovs import CliFetchVconnectorsOvs
+from discover.fetchers.cli.cli_fetch_vconnectors_ovs import CliFetchVconnectorsOvs
 from test.fetch.test_fetch import TestFetch
 from test.fetch.cli_fetch.test_data.cli_fetch_vconnectors_ovs import *
 from unittest.mock import MagicMock
