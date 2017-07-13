@@ -1,5 +1,5 @@
 from discover.cli_fetch_host_pnics import CliFetchHostPnics
-from test.fetch.cli_fetch.test_data.cli_fetch_host_pnics_ovs import *
+from test.fetch.cli_fetch.test_data.cli_fetch_host_pnics import *
 from test.fetch.test_fetch import TestFetch
 from unittest.mock import MagicMock
 from unittest.mock import call
