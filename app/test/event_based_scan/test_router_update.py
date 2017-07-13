@@ -9,9 +9,9 @@
 ###############################################################################
 from unittest.mock import MagicMock
 
-from discover.api_fetch_port import ApiFetchPort
-from discover.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.events.event_router_update import EventRouterUpdate
+from discover.fetchers.api.api_fetch_port import ApiFetchPort
+from discover.fetchers.cli.cli_fetch_host_vservice import CliFetchHostVservice
 from test.event_based_scan.test_data.event_payload_router_update import EVENT_PAYLOAD_ROUTER_UPDATE, ROUTER_DOCUMENT, \
     EVENT_PAYLOAD_ROUTER_SET_GATEWAY, EVENT_PAYLOAD_ROUTER_DEL_GATEWAY, ROUTER_VSERVICE, PORTS, NETWORK_DOC, HOST_DOC
 from test.event_based_scan.test_event import TestEvent

@@ -87,6 +87,6 @@ else:
     module_name = 'handle_' + object_type
     handler = ClassResolver.get_instance_single_arg(args,
                                                     module_name=module_name,
-                                                    package='monitoring.handlers')
+                                                    package_name='monitoring.handlers')
 if handler:
     handler.handle(object_id, check_result)

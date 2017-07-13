@@ -7,29 +7,15 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.configuration import Configuration
-from utils.logging.full_logger import FullLogger
+from discover.fetchers.db.db_access import DbAccess
 
 
-class Fetcher:
-
-    def __init__(self):
-        super().__init__()
-        self.env = None
-        self.log = FullLogger()
-        self.configuration = None
-
-    @staticmethod
-    def escape(string):
-        return string
-
-    def set_env(self, env):
-        self.env = env
-        self.log.set_env(env)
-        self.configuration = Configuration()
-
-    def get_env(self):
-        return self.env
-
-    def get(self, object_id):
-        return None
+class DbFetchAggregates(DbAccess):
+    def get(self, id):
+        return self.get_objects_list(
+            """
+              SELECT id, name
+              FROM nova.aggregates
+              WHERE deleted = 0
+            """,
+            "host aggregate")

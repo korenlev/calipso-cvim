@@ -7,29 +7,25 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.configuration import Configuration
-from utils.logging.full_logger import FullLogger
+import json
+
+from discover.fetchers.db.db_access import DbAccess
 
 
-class Fetcher:
+class DbFetchAZNetworkHosts(DbAccess):
 
-    def __init__(self):
-        super().__init__()
-        self.env = None
-        self.log = FullLogger()
-        self.configuration = None
+  def get(self, id):
+    query = """
+      SELECT DISTINCT host, host AS id, configurations
+      FROM neutron.agents
+      WHERE agent_type = 'Metadata agent'
+    """
+    results = self.get_objects_list(query, "host")
+    for r in results:
+      self.set_host_details(r)
+    return results
 
-    @staticmethod
-    def escape(string):
-        return string
-
-    def set_env(self, env):
-        self.env = env
-        self.log.set_env(env)
-        self.configuration = Configuration()
-
-    def get_env(self):
-        return self.env
-
-    def get(self, object_id):
-        return None
+  def set_host_details(self, r):
+    config = json.loads(r["configurations"])
+    r["ip_address"] = config["nova_metadata_ip"]
+    r["host_type"] = "Network Node"

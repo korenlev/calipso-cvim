@@ -7,29 +7,12 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.configuration import Configuration
-from utils.logging.full_logger import FullLogger
+from discover.fetchers.cli.cli_fetch_instance_vnics_base import CliFetchInstanceVnicsBase
 
 
-class Fetcher:
-
+class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
     def __init__(self):
         super().__init__()
-        self.env = None
-        self.log = FullLogger()
-        self.configuration = None
 
-    @staticmethod
-    def escape(string):
-        return string
-
-    def set_env(self, env):
-        self.env = env
-        self.log.set_env(env)
-        self.configuration = Configuration()
-
-    def get_env(self):
-        return self.env
-
-    def get(self, object_id):
-        return None
+    def get_vnic_name(self, v, instance):
+        return instance["name"] + "-" + v["@type"] + "-" + v["mac"]["@address"]

@@ -50,11 +50,11 @@ class ClassResolver:
 
     @staticmethod
     def get_fully_qualified_class(class_name: str = None,
-                                  package: str = "discover",
+                                  package_name: str = "discover",
                                   module_name: str = None):
         module_file = module_name if module_name \
             else ClassResolver.get_module_file_by_class_name(class_name)
-        module_parts = [package, module_file]
+        module_parts = [package_name, module_file]
         module_name = ".".join(module_parts)
         try:
             class_module = importlib.import_module(module_name)
@@ -65,7 +65,8 @@ class ClassResolver:
         return clazz
 
     @staticmethod
-    def prepare_class(class_name: str = None, package: str ="discover",
+    def prepare_class(class_name: str = None,
+                      package_name: str = "discover",
                       module_name: str = None):
         if not class_name and not module_name:
             raise ValueError('class_name or module_name must be provided')
@@ -73,16 +74,17 @@ class ClassResolver:
             class_name = ClassResolver.get_class_name_by_module(module_name)
         if class_name in ClassResolver.instances:
             return 'instance', ClassResolver.instances[class_name]
-        clazz = ClassResolver.get_fully_qualified_class(class_name, package,
+        clazz = ClassResolver.get_fully_qualified_class(class_name, package_name,
                                                         module_name)
         return 'class', clazz
 
     @staticmethod
-    def get_instance_of_class(class_name: str = None, package: str ="discover",
+    def get_instance_of_class(class_name: str = None,
+                              package_name: str = "discover",
                               module_name: str = None):
         val_type, clazz = \
             ClassResolver.prepare_class(class_name=class_name,
-                                        package=package,
+                                        package_name=package_name,
                                         module_name=module_name)
         if val_type == 'instance':
             return clazz
@@ -93,11 +95,11 @@ class ClassResolver:
     @staticmethod
     def get_instance_single_arg(arg: object,
                                 class_name: str = None,
-                                package: str ="discover",
+                                package_name: str = "discover",
                                 module_name: str = None):
         val_type, clazz = \
             ClassResolver.prepare_class(class_name=class_name,
-                                        package=package,
+                                        package_name=package_name,
                                         module_name=module_name)
         if val_type == 'instance':
             return clazz

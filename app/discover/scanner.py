@@ -116,9 +116,6 @@ class Scanner(Fetcher):
 
         # get Fetcher instance
         fetcher = type_to_fetch["fetcher"]
-        if isinstance(fetcher, str):
-            fetcher_class = type_to_fetch["fetcher"]
-            fetcher = ClassResolver.get_instance_of_class(fetcher_class)
         fetcher.set_env(self.get_env())
 
         # get children_scanner instance
