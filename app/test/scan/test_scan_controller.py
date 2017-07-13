@@ -130,13 +130,25 @@ class TestScanController(TestScan):
         self.check_scan_method_calls(Scanner.deploy_monitoring_setup,
                                      deploy_monitoring_setup_count)
 
-    @staticmethod
-    def prepare_scan_mocks():
+    def prepare_scan_mocks(self):
+        self.load_metadata = Scanner.load_metadata
+        self.scan = Scanner.scan
+        self.scan_links = Scanner.scan_links
+        self.scan_cliques = Scanner.scan_cliques
+        self.deploy_monitoring_setup = Scanner.deploy_monitoring_setup
+
         Scanner.load_metadata = MagicMock()
         Scanner.scan = MagicMock()
         Scanner.scan_links = MagicMock()
         Scanner.scan_cliques = MagicMock()
         Scanner.deploy_monitoring_setup = MagicMock()
+
+    def reset_methods(self):
+        Scanner.load_metadata = self.load_metadata
+        Scanner.scan = self.scan
+        Scanner.scan_links = self.scan_links
+        Scanner.scan_cliques = self.scan_cliques
+        Scanner.deploy_monitoring_setup = self.deploy_monitoring_setup
 
     def test_scan(self):
         self.scan_controller.get_args = MagicMock()
@@ -147,6 +159,7 @@ class TestScanController(TestScan):
 
         self.scan_controller.run()
         self.check_scan_counts(1, 1, 1, 0)
+        self.reset_methods()
 
     def test_scan_with_monitoring_setup(self):
         self.scan_controller.get_args = MagicMock()
@@ -157,6 +170,7 @@ class TestScanController(TestScan):
 
         self.scan_controller.run()
         self.check_scan_counts(1, 1, 1, 1)
+        self.reset_methods()
 
     def test_scan_with_inventory_only(self):
         self.scan_controller.get_args = MagicMock()
@@ -167,6 +181,7 @@ class TestScanController(TestScan):
 
         self.scan_controller.run()
         self.check_scan_counts(1, 0, 0, 0)
+        self.reset_methods()
 
     def test_scan_with_links_only(self):
         self.scan_controller.get_args = MagicMock()
@@ -177,6 +192,7 @@ class TestScanController(TestScan):
 
         self.scan_controller.run()
         self.check_scan_counts(0, 1, 0, 0)
+        self.reset_methods()
 
     def test_scan_with_cliques_only(self):
         self.scan_controller.get_args = MagicMock()
@@ -187,3 +203,4 @@ class TestScanController(TestScan):
 
         self.scan_controller.run()
         self.check_scan_counts(0, 0, 1, 0)
+        self.reset_methods()
