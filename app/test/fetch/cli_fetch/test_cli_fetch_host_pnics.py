@@ -2,6 +2,7 @@ from discover.cli_fetch_host_pnics import CliFetchHostPnics
 from test.fetch.cli_fetch.test_data.cli_fetch_host_pnics_ovs import *
 from test.fetch.test_fetch import TestFetch
 from unittest.mock import MagicMock
+from unittest.mock import call
 
 
 class TestCliFetchHostPnics(TestFetch):
@@ -11,39 +12,76 @@ class TestCliFetchHostPnics(TestFetch):
         self.fetcher = CliFetchHostPnics()
         self.fetcher.set_env(self.env)
 
-    def test_get(self):
-        # store original methods
+    def check_get_result(self, host,
+                         interface_lines, interface_names,
+                         interface_details, expected_result,
+                         err_msg):
         original_get_by_id = self.fetcher.inv.get_by_id
         original_run_fetch_lines = self.fetcher.run_fetch_lines
         original_find_interface_details = self.fetcher.find_interface_details
 
-        # mock the methods
-        self.fetcher.inv.get_by_id = MagicMock(return_value=NETWORK_NODE)
-        self.fetcher.run_fetch_lines = MagicMock(return_value=INTERFACES_NAMES)
-        self.fetcher.find_interface_details = MagicMock(return_value=INTERFACE)
+        self.fetcher.inv.get_by_id = MagicMock(return_value=host)
+        self.fetcher.run_fetch_lines = MagicMock(return_value=interface_lines)
+        self.fetcher.find_interface_details = MagicMock(side_effect=
+                                                        interface_details)
+        result = self.fetcher.get(PNICS_FOLDER_ID)
+        self.assertEqual(result, expected_result, err_msg)
 
-        result = self.fetcher.get(PNICS_FOLDER["id"])
-
+        if interface_names:
+            interface_calls = [call(HOST_ID, interface_name) for
+                               interface_name in interface_names]
+            self.fetcher.find_interface_details.assert_has_calls(interface_calls,
+                                                                 any_order=True)
         # reset the methods
         self.fetcher.inv.get_by_id = original_get_by_id
         self.fetcher.run_fetch_lines = original_run_fetch_lines
         self.fetcher.find_interface_details = original_find_interface_details
 
-        self.assertNotEqual(result, [], "Can't get pnics info")
-
-    def test_get_with_wrong_host_type_node(self):
-        # store original methods
-        original_get_by_id = self.fetcher.inv.get_by_id
-
-        # mock the methods
-        self.fetcher.inv.get_by_id = MagicMock(return_value=WRONG_NODE)
-
-        result = self.fetcher.get(PNICS_FOLDER["id"])
-
-        # reset the methods
-        self.fetcher.inv.get_by_id = original_get_by_id
-
-        self.assertEqual(result, [], "Can't get empty array when the host_type contains neither Compute and Network")
+    def test_get(self):
+        test_cases = [
+            {
+                "host": NETWORK_NODE,
+                "interface_lines": INTERFACE_LINES,
+                "interface_names": INTERFACE_NAMES,
+                "interface_details": [INTERFACE, None],
+                "expected_results": INTERFACES_GET_RESULTS,
+                "err_msg": "Can't get interfaces"
+            },
+            {
+                "host": [],
+                "interface_lines": None,
+                "interface_names": None,
+                "interface_details": None,
+                "expected_results": [],
+                "err_msg": "Can't get [] when the host " +
+                           "doesn't exist in the database"
+            },
+            {
+                "host": WRONG_NODE,
+                "interface_lines": None,
+                "interface_names": None,
+                "interface_details": None,
+                "expected_results": [],
+                "err_msg": "Can't get [] when the host doesn't " +
+                           "have required host type"
+            },
+            {
+                "host": NETWORK_NODE,
+                "interface_lines": [],
+                "interface_names": None,
+                "interface_details":None,
+                "expected_results": [],
+                "err_msg": "Can't get [] when " +
+                           "the interface lines is []"
+            }
+        ]
+        for test_case in test_cases:
+            self.check_get_result(test_case["host"],
+                                  test_case["interface_lines"],
+                                  test_case["interface_names"],
+                                  test_case["interface_details"],
+                                  test_case["expected_results"],
+                                  test_case["err_msg"])
 
     def test_find_interface_details(self):
         # store original methods
@@ -56,7 +94,7 @@ class TestCliFetchHostPnics(TestFetch):
         self.fetcher.handle_line = MagicMock()
         self.fetcher.set_interface_data = MagicMock()
 
-        result = self.fetcher.find_interface_details(NETWORK_NODE['id'], INTERFACES_NAMES[0])
+        result = self.fetcher.find_interface_details(NETWORK_NODE['id'], INTERFACE_LINES[0])
 
         # reset the methods
         self.fetcher.run_fetch_lines = original_run_fetch_lines
