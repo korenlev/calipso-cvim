@@ -55,6 +55,7 @@ class ScanMetadataParser(MetadataParser):
                 if package:
                     fetcher_package = ".".join((package, fetcher_package))
                 instance = ClassResolver.get_instance_of_class(package_name=fetcher_package,
+                                                               module_name=module_name,
                                                                class_name=fetcher)
             except ValueError:
                 instance = None

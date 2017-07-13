@@ -8,11 +8,9 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import calendar
-import json
 import re
+import requests
 import time
-
-import httplib2 as http
 
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
@@ -99,12 +97,8 @@ class ApiAccess(Fetcher):
         if subject_token:
             return subject_token
         req_url = ApiAccess.base_url + "/v2.0/tokens"
-        request_body = json.dumps(post_body)
-        method = 'POST'
-        h = http.Http()
-        response, content = h.request(req_url, method, request_body, headers)
-        content_string = content.decode('utf-8')
-        ApiAccess.auth_response = json.loads(content_string)
+        response = requests.post(req_url, json=post_body, headers=headers)
+        ApiAccess.auth_response = response.json()
         if 'error' in self.auth_response:
             e = self.auth_response['error']
             self.log.error(str(e['code']) + ' ' + e['title'] + ': ' +
@@ -146,27 +140,21 @@ class ApiAccess(Fetcher):
         }
         return self.v2_auth(project_id, headers, post_body)
 
-    def get(self, object_id):
-        return None
-
     def get_rel_url(self, relative_url, headers):
         req_url = ApiAccess.base_url + relative_url
         return self.get_url(req_url, headers)
 
     def get_url(self, req_url, headers):
-        method = 'GET'
-        h = http.Http()
-        response, content = h.request(req_url, method, "", headers)
-        if int(response["status"]) != 200:
+        response = requests.get(req_url, headers=headers)
+        if response.status_code != requests.codes.ok:
             # some error happened
             if "reason" in response:
-                msg = ", reason: " + response["reason"]
+                msg = ", reason: {}".format(response.reason)
             else:
-                msg = ", response: " + str(response)
-            self.log.error("req_url:" + req_url + msg)
+                msg = ", response: {}".format(response.text)
+            self.log.error("req_url: {} {}".format(req_url, msg))
             return response
-        content_string = content.decode('utf-8')
-        ret = json.loads(content_string)
+        ret = response.json()
         return ret
 
     def get_region_url(self, region_name, service):
