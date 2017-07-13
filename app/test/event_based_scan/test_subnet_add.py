@@ -8,8 +8,9 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from unittest.mock import MagicMock
-from discover.api_access import ApiAccess
+
 from discover.events.event_subnet_add import EventSubnetAdd
+from discover.fetchers.api.api_access import ApiAccess
 from discover.find_links_for_pnics import FindLinksForPnics
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from test.event_based_scan.test_data.event_payload_subnet_add import EVENT_PAYLOAD_SUBNET_ADD,\

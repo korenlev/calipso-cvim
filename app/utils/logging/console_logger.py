@@ -14,7 +14,8 @@ from utils.logging.logger import Logger
 
 class ConsoleLogger(Logger):
 
-    def __init__(self):
-        super().__init__(logger_name="{}-Console".format(self.PROJECT_NAME))
+    def __init__(self, level: str = Logger.default_level):
+        super().__init__(logger_name="{}-Console".format(self.PROJECT_NAME),
+                         level=level)
         self.add_handler(logging.StreamHandler())
 

@@ -7,8 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.api_access import ApiAccess
 from discover.events.event_subnet_update import EventSubnetUpdate
+from discover.fetchers.api.api_access import ApiAccess
 from test.event_based_scan.test_data.event_payload_subnet_add import  \
     EVENT_PAYLOAD_REGION
 from test.event_based_scan.test_data.event_payload_subnet_update import EVENT_PAYLOAD_SUBNET_UPDATE, NETWORK_DOC

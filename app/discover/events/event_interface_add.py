@@ -8,14 +8,15 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import time
+
 from functools import partial
 
-from discover.api_access import ApiAccess
-from discover.api_fetch_regions import ApiFetchRegions
-from discover.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.events.event_base import EventBase, EventResult
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_subnet_add import EventSubnetAdd
+from discover.fetchers.api.api_access import ApiAccess
+from discover.fetchers.api.api_fetch_regions import ApiFetchRegions
+from discover.fetchers.cli.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
 from discover.scanner import Scanner
 from utils.util import decode_router_id, encode_router_id

@@ -152,6 +152,23 @@
     ]
 },
 { 
+    "name" : "environment_operational_status", 
+    "data" : [
+        {
+            "value" : "stopped", 
+            "label" : "stopped"
+        }, 
+        {
+            "value" : "running", 
+            "label" : "running"
+        }, 
+        {
+            "value" : "error", 
+            "label" : "error"
+        }
+    ]
+},
+{ 
     "name" : "link_types", 
     "data" : [
         {
@@ -340,35 +357,6 @@
     ]
 },
 { 
-    "name" : "scan_statuses", 
-    "data" : [
-        {
-            "label" : "draft", 
-            "value" : "draft"
-        }, 
-        {
-            "label" : "pending", 
-            "value" : "pending"
-        }, 
-        {
-            "label" : "running", 
-            "value" : "running"
-        }, 
-        {
-            "label" : "completed", 
-            "value" : "completed"
-        }, 
-        {
-            "label" : "failed", 
-            "value" : "failed"
-        }, 
-        {
-            "label" : "aborted", 
-            "value" : "aborted"
-        }
-    ]
-},
-{ 
     "name" : "scans_statuses", 
     "data" : [
         {
@@ -474,16 +462,20 @@
     ], 
     "name" : "distributions"
 },
-{ 
+{  
     "name" : "message_source_systems", 
     "data" : [
         {
-            "label" : "OpenStack", 
-            "value" : "OpenStack"
+            "value" : "OpenStack", 
+            "label" : "OpenStack"
         }, 
         {
-            "label" : "OSDNA_Sensu", 
-            "value" : "OSDNA_Sensu"
+            "value" : "Calipso", 
+            "label" : "Calipso"
+        }, 
+        {
+            "value" : "Sensu", 
+            "label" : "Sensu"
         }
     ]
 },

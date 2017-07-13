@@ -9,21 +9,20 @@
 ###############################################################################
 # handle specific setup of monitoring
 
-import copy
-import json
 import os
-import shutil
-import stat
+import json
 import subprocess
-from os.path import isfile, join
 from socket import *
 
+import copy
 import pymongo
+import shutil
+import stat
 from boltons.iterutils import remap
 
 from discover.configuration import Configuration
+from discover.fetchers.cli.cli_access import CliAccess
 from utils.binary_converter import BinaryConverter
-from utils.cli_access import CliAccess
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
@@ -310,17 +309,17 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             return
         gateway_host = SshConn.get_gateway_host(host)
         # copy scripts to host
-        scripts_dir = join(self.env_monitoring_config['app_path'],
-                           self.APP_SCRIPTS_FOLDER)
+        scripts_dir = os.path.join(self.env_monitoring_config['app_path'],
+                                   self.APP_SCRIPTS_FOLDER)
         script_files = [f for f in os.listdir(scripts_dir)
-                        if isfile(join(scripts_dir, f))]
+                        if os.path.isfile(os.path.join(scripts_dir, f))]
         script_mode = stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | \
             stat.S_IROTH | stat.S_IXOTH
         target_host = host if is_server else gateway_host
         self.make_remote_dir(target_host, self.REMOTE_SCRIPTS_FOLDER)
         for file_name in script_files:
-            remote_path = join(self.REMOTE_SCRIPTS_FOLDER, file_name)
-            local_path = join(scripts_dir, file_name)
+            remote_path = os.path.join(self.REMOTE_SCRIPTS_FOLDER, file_name)
+            local_path = os.path.join(scripts_dir, file_name)
             if not os.path.isfile(local_path):
                 continue
             if is_server:

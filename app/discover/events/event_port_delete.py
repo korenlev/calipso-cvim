@@ -7,9 +7,9 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.api_fetch_host_instances import ApiFetchHostInstances
 from discover.events.event_base import EventResult
 from discover.events.event_delete_base import EventDeleteBase
+from discover.fetchers.api.api_fetch_host_instances import ApiFetchHostInstances
 
 
 class EventPortDelete(EventDeleteBase):
