@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 from utils.ssh_connection import SshConnection
+from utils.ssh_conn import SshConn
 
 
 class TestFetch(unittest.TestCase):
@@ -29,6 +30,8 @@ class TestFetch(unittest.TestCase):
         self.inv.set_collections(self.inventory_collection)
         DbAccess.conn = MagicMock()
         SshConnection.connect = MagicMock()
+        SshConnection.check_definitions = MagicMock()
+        SshConn.check_definitions = MagicMock()
 
     def set_regions_for_fetcher(self, fetcher):
         fetcher.regions = REGIONS
