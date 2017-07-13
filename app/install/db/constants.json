@@ -152,6 +152,23 @@
     ]
 },
 { 
+    "name" : "environment_operational_status", 
+    "data" : [
+        {
+            "value" : "stopped", 
+            "label" : "stopped"
+        }, 
+        {
+            "value" : "running", 
+            "label" : "running"
+        }, 
+        {
+            "value" : "error", 
+            "label" : "error"
+        }
+    ]
+},
+{ 
     "name" : "link_types", 
     "data" : [
         {
@@ -336,35 +353,6 @@
         {
             "label" : "switch", 
             "value" : "switch"
-        }
-    ]
-},
-{ 
-    "name" : "scan_statuses", 
-    "data" : [
-        {
-            "label" : "draft", 
-            "value" : "draft"
-        }, 
-        {
-            "label" : "pending", 
-            "value" : "pending"
-        }, 
-        {
-            "label" : "running", 
-            "value" : "running"
-        }, 
-        {
-            "label" : "completed", 
-            "value" : "completed"
-        }, 
-        {
-            "label" : "failed", 
-            "value" : "failed"
-        }, 
-        {
-            "label" : "aborted", 
-            "value" : "aborted"
         }
     ]
 },
