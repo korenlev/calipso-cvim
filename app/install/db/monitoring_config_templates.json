@@ -134,10 +134,10 @@
     "order" : "1", 
     "config" : {
         "client" : {
-            "address" : "127.0.0.1", 
+            "address" : "sensu-server", 
             "socket" : {
                 "port" : 3030, 
-                "bind" : "{server_ip}"
+                "bind" : "127.0.0.1"
             }, 
             "subscriptions" : [
                 "dev", 

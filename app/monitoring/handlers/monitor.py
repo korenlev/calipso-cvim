@@ -18,7 +18,12 @@ import sys
 from utils.mongo_access import MongoAccess
 from utils.util import ClassResolver
 
-DEFAULT_ENV = "WebEX-Mirantis@Cisco"
+DEFAULTS = {
+    'env': 'WebEX-Mirantis@Cisco',
+    'inventory': 'inventory',
+    'loglevel': 'WARNING'
+}
+
 
 
 def get_args():
@@ -28,17 +33,21 @@ def get_args():
                         help="name of config file with MongoDB server " +
                         "access details")
     parser.add_argument("-e", "--env", nargs="?", type=str,
-                        default=DEFAULT_ENV,
+                        default=DEFAULTS['env'],
                         help="name of environment to scan \n" +
-                        "(default: " + DEFAULT_ENV + ")")
+                        "(default: {})".format(DEFAULTS['env']))
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
-                        default="inventory",
+                        default=DEFAULTS['inventory'],
                         help="name of inventory collection \n" +
-                        "(default: 'inventory')")
+                        "(default: {}".format(DEFAULTS['inventory']))
     parser.add_argument('-i', '--inputfile', nargs='?', type=str,
                         default='',
                         help="read input from the specifed file \n" +
                         "(default: from stdin)")
+    parser.add_argument("-l", "--loglevel", nargs="?", type=str,
+                        default=DEFAULTS["loglevel"],
+                        help="logging level \n(default: '{}')"
+                        .format(DEFAULTS["loglevel"]))
     args = parser.parse_args()
     return args
 
@@ -78,6 +87,6 @@ else:
     module_name = 'handle_' + object_type
     handler = ClassResolver.get_instance_single_arg(args,
                                                     module_name=module_name,
-                                                    package='monitoring.handlers')
+                                                    package_name='monitoring.handlers')
 if handler:
     handler.handle(object_id, check_result)

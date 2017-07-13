@@ -1,65 +1,78 @@
 [
 { 
-    "app_path" : "/home/scan/calipso_prod/app", 
+    "operational" : "stopped", 
+    "listen" : true, 
     "configuration" : [
         {
-            "port" : "3307", 
-            "host" : "7.7.7.7", 
-            "user" : "root", 
+            "name" : "OpenStack", 
+            "admin_token" : "sadgsgsagsa", 
+            "user" : "adminuser", 
+            "port" : 5000, 
+            "pwd" : "saggsgsasg", 
+            "host" : "10.0.0.1"
+        }, 
+        {
             "name" : "mysql", 
-            "password" : "the_password"
+            "password" : "sgasdggddsgsd", 
+            "port" : 3307, 
+            "user" : "mysqluser", 
+            "host" : "10.0.0.1"
         }, 
         {
-            "port" : "5000", 
-            "pwd" : "the_password", 
-            "host" : "7.7.7.7", 
-            "user" : "admin", 
-            "admin_token" : "the_token", 
-            "name" : "OpenStack"
+            "name" : "CLI", 
+            "user" : "sshuser", 
+            "pwd" : "sagsagsagsa", 
+            "host" : "10.0.0.1"
         }, 
         {
-            "host" : "7.7.7.7", 
-            "user" : "root", 
-            "pwd" : "the_optional_password", 
-            "key" : "/local_dir/staging-id_rsa", 
-            "name" : "CLI"
-        }, 
-        {
-            "port" : "5673", 
-            "host" : "7.7.7.7", 
-            "user" : "nova", 
             "name" : "AMQP", 
-            "password" : "the_password"
+            "password" : "sagssdgassgd", 
+            "port" : 5673, 
+            "user" : "rabbitmquser", 
+            "host" : "10.0.0.1"
         }, 
         {
+            "rabbitmq_port" : 5671, 
+            "ssh_user" : "root", 
+            "server_name" : "sensu_server", 
+            "env_type" : "production", 
             "provision" : "None", 
-            "ssh_user" : "scan", 
-            "server_name" : "calipso-sensu", 
-            "config_folder" : "/local_dir/sensu_config", 
-            "ssh_port" : "20022", 
             "name" : "Monitoring", 
-            "api_port" : 4567.0, 
-            "server_ip" : "korlev-calipso-dev.cisco.com", 
+            "ssh_port" : 20022, 
+            "rabbitmq_pass" : "sagsagss", 
+            "ssh_password" : "calipsoasgsagdg", 
             "rabbitmq_user" : "sensu", 
-            "ssh_password" : "scan", 
-            "rabbitmq_port" : "5671", 
+            "config_folder" : "/local_dir/sensu_config", 
             "type" : "Sensu", 
-            "env_type" : "development", 
-            "rabbitmq_pass" : "osdna"
+            "server_ip" : "10.0.0.1", 
+            "api_port" : 4567
+        }, 
+        {
+            "name" : "ACI", 
+            "user" : "admin", 
+            "pwd" : "Cisco123456", 
+            "host" : "10.1.1.104"
         }
     ], 
-    "listen" : true, 
-    "distribution" : "Mirantis-9.0", 
+    "enable_monitoring" : true, 
+    "name" : "DEMO-ENVIRONMENT-SCHEME", 
+    "distribution" : "Mirantis-8.0", 
+    "last_scanned" : "filled-by-scanning", 
+    "app_path" : "/home/scan/calipso_prod/app", 
     "scanned" : false, 
+    "type_drivers" : "vxlan", 
     "mechanism_drivers" : [
         "OVS"
     ], 
-    "name" : "demo-environment", 
-    "type_drivers" : "vxlan", 
-    "operational" : "yes", 
-    "last_scanned" : "2017-03-27T08:09:37Z", 
-    "monitoring_setup_done" : false, 
-    "user" : "WS7j8oTbWPf3LbNne", 
+    "user" : "wNLeBJxNDyw8G7Ssg", 
+    "auth" : {
+        "edit-env" : [
+            "wNLeBJxNDyw8G7Ssg"
+        ], 
+        "view-env" : [
+            "wNLeBJxNDyw8G7Ssg"
+        ]
+    }, 
     "type" : "environment"
 }
 ]

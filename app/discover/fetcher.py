@@ -30,3 +30,6 @@ class Fetcher:
 
     def get_env(self):
         return self.env
+
+    def get(self, object_id):
+        return None

@@ -111,6 +111,7 @@ class MongoAccess(DictNamingConverter):
         doc_id = document.pop('_id')
         collection.update_one({'_id': doc_id}, {'$set': document},
                               upsert=upsert)
+        document['_id'] = doc_id
 
     @staticmethod
     def encode_dots(s):

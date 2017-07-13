@@ -69,6 +69,9 @@ class MongoComm:
 
 DockerClient = docker.from_env()   # using local host docker environment parameters
 
+# use the below example for installer against a remote docker host:
+# DockerClient = docker.DockerClient(base_url='tcp://korlev-calipso-testing.cisco.com:2375')
+
 
 def copy_file(filename):
     c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)

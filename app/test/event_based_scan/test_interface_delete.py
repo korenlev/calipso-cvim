@@ -7,8 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.api_access import ApiAccess
 from discover.events.event_interface_delete import EventInterfaceDelete
+from discover.fetchers.api.api_access import ApiAccess
 from test.event_based_scan.test_data.event_payload_interface_delete import EVENT_PAYLOAD_INTERFACE_DELETE, NETWORK_DOC, \
     EVENT_PAYLOAD_REGION, PORT_DOC, ROUTER_DOCUMENT, HOST, VNIC_DOCS
 from test.event_based_scan.test_event import TestEvent

@@ -69,9 +69,11 @@ class ResponderBase(DataValidate, DictNamingConverter):
         self.set_error_response("Unauthorized", "401", message)
 
     def validate_query_data(self, data, data_requirements,
-                            additional_key_reg=None):
+                            additional_key_reg=None,
+                            can_be_empty_keys=[]):
         error_message = self.validate_data(data, data_requirements,
-                                           additional_key_reg)
+                                           additional_key_reg,
+                                           can_be_empty_keys)
         if error_message:
             self.bad_request(error_message)
 

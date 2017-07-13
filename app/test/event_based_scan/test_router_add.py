@@ -9,10 +9,10 @@
 ###############################################################################
 from unittest.mock import MagicMock
 
-from discover.cli_fetch_host_vservice import CliFetchHostVservice
 from discover.events.event_port_add import EventPortAdd
 from discover.events.event_router_add import EventRouterAdd
 from discover.events.event_subnet_add import EventSubnetAdd
+from discover.fetchers.cli.cli_fetch_host_vservice import CliFetchHostVservice
 from test.event_based_scan.test_data.event_payload_router_add import EVENT_PAYLOAD_ROUTER_ADD, ROUTER_DOCUMENT, \
     HOST_DOC, NETWORK_DOC
 from test.event_based_scan.test_event import TestEvent
