@@ -22,6 +22,7 @@ INTERFACE_LINES = [
 
 INTERFACE_NAMES = ["eno16777728", "eno33554952"]
 
+INTERFACE_NAME = INTERFACE_NAMES[0]
 IFCONFIG_CM_RESULT = [
     "eno16777728 Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97  ",
     "          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1",
@@ -32,11 +33,31 @@ IFCONFIG_CM_RESULT = [
     ""
 ]
 
+INTERFACE_DETAILS = {
+    "host": "node-6.cisco.com",
+    "id": "eno16777728-unknown_mac",
+    "lines": [],
+    "local_name": "eno16777728",
+    "name": "eno16777728",
+    "state": "UP"
+}
+
+MAC_ADDRESS_LINE = "eno16777728 Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97  "
+MAC_ADDRESS = "00:50:56:ac:e8:97"
 RAW_INTERFACE = {
     "host": "node-6.cisco.com",
     "lines": [],
     "local_name": "eno16777728",
     "name": "eno16777728"
+}
+
+INTERFACE_AFTER_LINE_HANDLE = {
+    "host": "node-6.cisco.com",
+    "lines": [MAC_ADDRESS_LINE.strip()],
+    "local_name": "eno16777728",
+    "name": "eno16777728",
+    "id": "eno16777728-" + MAC_ADDRESS,
+    "mac_address": MAC_ADDRESS
 }
 
 INTERFACE_FOR_SET = {
@@ -96,8 +117,6 @@ INTERFACE = {
 
 INTERFACES_GET_RESULTS = [INTERFACE]
 
-MAC_ADDRESS_LINE = "eno16777728 Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97  "
-MAC_ADDRESS = "00:50:56:ac:e8:97"
 IPV6_ADDRESS_LINE = "          inet6 addr: fe80::f816:3eff:fea1:eb73/64 Scope:Link"
 IPV6_ADDRESS = "fe80::f816:3eff:fea1:eb73/64"
 IPV4_ADDRESS_LINE = "          inet addr:172.16.13.2  Bcast:172.16.13.255  Mask:255.255.255.0"

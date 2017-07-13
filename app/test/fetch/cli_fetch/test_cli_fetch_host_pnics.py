@@ -84,28 +84,26 @@ class TestCliFetchHostPnics(TestFetch):
                                   test_case["err_msg"])
 
     def test_find_interface_details(self):
-        # store original methods
         original_run_fetch_lines = self.fetcher.run_fetch_lines
         original_handle_line = self.fetcher.handle_line
         original_set_interface_data = self.fetcher.set_interface_data
 
-        # mock the methods
         self.fetcher.run_fetch_lines = MagicMock(return_value=IFCONFIG_CM_RESULT)
         self.fetcher.handle_line = MagicMock()
         self.fetcher.set_interface_data = MagicMock()
 
-        result = self.fetcher.find_interface_details(NETWORK_NODE['id'], INTERFACE_LINES[0])
+        result = self.fetcher.find_interface_details(HOST_ID, INTERFACE_NAME)
 
-        # reset the methods
         self.fetcher.run_fetch_lines = original_run_fetch_lines
         self.fetcher.handle_line = original_handle_line
         self.fetcher.set_interface_data = original_set_interface_data
 
-        self.assertNotEqual(result, None, "Can't get interface")
+        self.assertEqual(result, INTERFACE_DETAILS, "Can't get interface details")
 
     def test_handle_mac_address_line(self):
         self.fetcher.handle_line(RAW_INTERFACE, MAC_ADDRESS_LINE)
-        self.assertEqual(RAW_INTERFACE['mac_address'], MAC_ADDRESS, "Can't get the correct mac address")
+        self.assertEqual(RAW_INTERFACE, INTERFACE_AFTER_LINE_HANDLE,
+                         "Can't get the correct mac address")
 
     # Test failed, defect, result: addr: expected result: fe80::f816:3eff:fea1:eb73/64
     # def test_handle_ipv6_address_line(self):
