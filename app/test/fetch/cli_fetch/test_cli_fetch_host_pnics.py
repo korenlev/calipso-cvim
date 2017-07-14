@@ -102,18 +102,19 @@ class TestCliFetchHostPnics(TestFetch):
 
     def test_handle_mac_address_line(self):
         self.fetcher.handle_line(RAW_INTERFACE, MAC_ADDRESS_LINE)
-        self.assertEqual(RAW_INTERFACE, INTERFACE_AFTER_LINE_HANDLE,
+        self.assertEqual(RAW_INTERFACE["mac_address"], MAC_ADDRESS,
                          "Can't get the correct mac address")
 
     # Test failed, defect, result: addr: expected result: fe80::f816:3eff:fea1:eb73/64
-    # def test_handle_ipv6_address_line(self):
-    #     self.fetcher.handle_line(RAW_INTERFACE, IPV6_ADDRESS_LINE)
-    #     self.assertEqual(RAW_INTERFACE['IPv6 Address'], IPV6_ADDRESS, "Can' get the correct ipv6 address")
-    #
-    # # Test failed, defect, result: addr:172.16.13.2 expected result: 172.16.13.2
-    # def test_handle_ipv4_address_line(self):
-    #     self.fetcher.handle_line(RAW_INTERFACE, IPV4_ADDRESS_LINE)
-    #     self.assertEqual(RAW_INTERFACE['IP Address'], IPV4_ADDRESS, "Can't get the correct ipv4 address")
+    def test_handle_ipv6_address_line(self):
+        self.fetcher.handle_line(RAW_INTERFACE, IPV6_ADDRESS_LINE)
+        self.assertEqual(RAW_INTERFACE['IPv6 Address'], IPV6_ADDRESS,
+                         "Can' get the correct ipv6 address")
+
+    def test_handle_ipv4_address_line(self):
+        self.fetcher.handle_line(RAW_INTERFACE, IPV4_ADDRESS_LINE)
+        self.assertEqual(RAW_INTERFACE['IP Address'], IPV4_ADDRESS,
+                         "Can't get the correct ipv4 address")
 
     def test_set_interface_data(self):
         # store the original methods
