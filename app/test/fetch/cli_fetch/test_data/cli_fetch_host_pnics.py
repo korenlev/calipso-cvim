@@ -62,19 +62,25 @@ INTERFACE_AFTER_LINE_HANDLE = {
 
 INTERFACE_FOR_SET = {
     "host": "node-6.cisco.com",
-    "id": "eno16777728-00:50:56:ac:e8:97",
     "lines": [
         "Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97",
-        "UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1",
-        "RX packets:409135553 errors:0 dropped:0 overruns:0 frame:0",
-        "TX packets:293954493 errors:0 dropped:0 overruns:0 carrier:0",
-        "collisions:0 txqueuelen:1000",
-        "RX bytes:103738298160 (103.7 GB)  TX bytes:165123015807 (165.1 GB)",
-        ""
+        "UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1"
     ],
     "local_name": "eno16777728",
+    "mac_address": "00:50:56:ac:e8:97"
+}
+
+INTERFACE_AFTER_SET = {
+    "host": "node-6.cisco.com",
+    "data": "Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97" +
+            "\nUP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1",
+    "local_name": "eno16777728",
     "mac_address": "00:50:56:ac:e8:97",
-    "name": "eno16777728"
+    "Supported ports": "[ TP ]",
+    "Supported link modes": ["10baseT/Half 10baseT/Full",
+                             "100baseT/Half 100baseT/Full",
+                             "1000baseT/Full"],
+    "Supported pause frame use": "No"
 }
 
 INTERFACE = {
@@ -129,31 +135,4 @@ ETHTOOL_RESULT = [
     "\t                        100baseT/Half 100baseT/Full ",
     "\t                        1000baseT/Full ",
     "\tSupported pause frame use: No",
-    "\tSupports auto-negotiation: Yes",
-    "\tAdvertised link modes:  10baseT/Half 10baseT/Full ",
-    "\t                        100baseT/Half 100baseT/Full ",
-    "\t                        1000baseT/Full ",
-    "\tAdvertised pause frame use: No",
-    "\tAdvertised auto-negotiation: Yes",
-    "\tSpeed: 1000Mb/s",
-    "\tDuplex: Full",
-    "\tPort: Twisted Pair",
-    "\tPHYAD: 0",
-    "\tTransceiver: internal",
-    "\tAuto-negotiation: on",
-    "\tMDI-X: off (auto)",
-    "\tSupports Wake-on: d",
-    "\tWake-on: d",
-    "\tCurrent message level: 0x00000007 (7)",
-    "\t\t\t       drv probe link",
-    "\tLink detected: yes"
 ]
-
-TEST_ATTRIBUTE1 = "Supported ports"
-EXPECTED_VALUE1 = "[ TP ]"
-TEST_ATTRIBUTE2 = "Supported link modes"
-EXPECTED_VALUE2 = [
-            "10baseT/Half 10baseT/Full",
-            "100baseT/Half 100baseT/Full",
-            "1000baseT/Full"
-        ]

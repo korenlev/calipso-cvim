@@ -117,16 +117,10 @@ class TestCliFetchHostPnics(TestFetch):
                          "Can't get the correct ipv4 address")
 
     def test_set_interface_data(self):
-        # store the original methods
         original_run_fetch_lines = self.fetcher.run_fetch_lines
-        # mock the method
         self.fetcher.run_fetch_lines = MagicMock(return_value=ETHTOOL_RESULT)
-
         self.fetcher.set_interface_data(INTERFACE_FOR_SET)
+        self.assertEqual(INTERFACE_FOR_SET, INTERFACE_AFTER_SET, "Can't get the attributes of the "
+                                                                 "interface from the CMD result")
 
-        # reset run_fetch_lines method
         self.fetcher.run_fetch_lines = original_run_fetch_lines
-
-        self.assertEqual(INTERFACE_FOR_SET[TEST_ATTRIBUTE1], EXPECTED_VALUE1)
-        self.assertEqual(INTERFACE_FOR_SET[TEST_ATTRIBUTE2], EXPECTED_VALUE2)
-
