@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from discover.api_fetch_project_hosts import ApiFetchProjectHosts
+from discover.fetchers.api.api_fetch_project_hosts import ApiFetchProjectHosts
 from test.fetch.test_fetch import TestFetch
 from test.fetch.api_fetch.test_data.api_fetch_host_project_hosts import *
 from test.fetch.api_fetch.test_data.token import TOKEN

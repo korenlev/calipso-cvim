@@ -1,4 +1,4 @@
-from discover.api_fetch_host_instances import ApiFetchHostInstances
+from discover.fetchers.api.api_fetch_host_instances import ApiFetchHostInstances
 from test.fetch.test_fetch import TestFetch
 from test.fetch.api_fetch.test_data.api_fetch_host_instances import *
 from test.fetch.api_fetch.test_data.token import TOKEN

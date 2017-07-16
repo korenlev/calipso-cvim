@@ -1,4 +1,4 @@
-from discover.db_access import DbAccess
+from discover.fetchers.db.db_access import DbAccess
 from test.fetch.test_fetch import TestFetch
 from test.fetch.db_fetch.test_data.db_access import *
 from unittest.mock import MagicMock, patch

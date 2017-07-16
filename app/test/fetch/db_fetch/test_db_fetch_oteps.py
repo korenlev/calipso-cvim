@@ -1,6 +1,6 @@
 import copy
 
-from discover.db_fetch_oteps import DbFetchOteps
+from discover.fetchers.db.db_fetch_oteps import DbFetchOteps
 from test.fetch.test_fetch import TestFetch
 from test.fetch.db_fetch.test_data.db_fetch_oteps import *
 from unittest.mock import MagicMock

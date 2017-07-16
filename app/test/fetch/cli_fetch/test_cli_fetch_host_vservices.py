@@ -1,4 +1,4 @@
-from discover.cli_fetch_host_vservices import CliFetchHostVservices
+from discover.fetchers.cli.cli_fetch_host_vservices import CliFetchHostVservices
 from test.fetch.test_fetch import TestFetch
 from test.fetch.cli_fetch.test_data.cli_fetch_host_verservices import *
 from unittest.mock import MagicMock
