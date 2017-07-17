@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.db_access import DbAccess
+from discover.fetchers.db.db_access import DbAccess
 from discover.scan_metadata_parser import ScanMetadataParser
 from test.scan.test_scan import TestScan
 from test.scan.test_data.metadata import *
