@@ -129,7 +129,8 @@ class Scanner(Fetcher):
             "" if "name" not in parent else parent["name"],
             escaped_id)
 
-        # fetch data from environment by CLI, API or MySQL
+        # fetch OpenStack data from environment by CLI, API or MySQL
+        # or physical devices data from ACI API
         # It depends on the Fetcher's config.
         try:
             db_results = fetcher.get(escaped_id)
@@ -167,106 +168,18 @@ class Scanner(Fetcher):
         children = []
 
         for o in results:
-            o["id"] = str(o["id"])
-            o["environment"] = environment
-            o["type"] = type_to_fetch["type"] if type_to_fetch["type"] \
-                else o["type"]
-            try:
-                o["show_in_tree"] = type_to_fetch["show_in_tree"]
-            except KeyError:
-                o["show_in_tree"] = True
+            saved = self.inv.save_inventory_object(o,
+                                                   parent=parent,
+                                                   environment=environment,
+                                                   type_to_fetch=type_to_fetch)
 
-            try:
-                parent_id_path = parent["id_path"]
-                parent_name_path = parent["name_path"]
-            except KeyError:
-                parent_id_path = "/" + environment
-                parent_name_path = "/" + environment
+            if saved:
+                # add objects into children list.
+                children.append(o)
 
-            try:
-                # case of dynamic folder added by need
-                master_parent_type = o["master_parent_type"]
-                master_parent_id = o["master_parent_id"]
-                master_parent = self.inv.get_by_id(self.get_env(),
-                                                   master_parent_id)
-                if not master_parent:
-                    self.log.error("failed to find master parent " +
-                                   master_parent_id)
-                    continue
-                folder_id_path = master_parent["id_path"] + "/" + \
-                    o["parent_id"]
-                folder_name_path = master_parent["name_path"] + "/" + \
-                    o["parent_text"]
-                folder = {
-                    "environment": parent["environment"],
-                    "parent_id": master_parent_id,
-                    "parent_type": master_parent_type,
-                    "id": o["parent_id"],
-                    "id_path": folder_id_path,
-                    "show_in_tree": True,
-                    "name_path": folder_name_path,
-                    "name": o["parent_id"],
-                    "type": o["parent_type"],
-                    "text": o["parent_text"]
-                }
-                # remove master_parent_type & master_parent_id after use,
-                # as they're there just ro help create the dynamic folder
-                o.pop("master_parent_type", True)
-                o.pop("master_parent_id", True)
-                self.inv.set(folder)
-            except KeyError:
-                pass
-
-            if "text" in o and o["text"]:
-                name = o["text"]
-            elif "name" in o and o["name"]:
-                name = o["name"]
-            else:
-                name = o["id"]
-            o["name"] = name
-
-            if "parent_id" not in o and parent:
-                parent_id = parent["id"]
-                o["parent_id"] = parent_id
-                o["parent_type"] = parent["type"]
-            elif "parent_id" in o and o["parent_id"] != parent["id"]:
-                # using alternate parent - fetch parent path from inventory
-                parent_obj = self.inv.get_by_id(environment,
-                                                o["parent_id"])
-                if parent_obj:
-                    parent_id_path = parent_obj["id_path"]
-                    parent_name_path = parent_obj["name_path"]
-            o["id_path"] = parent_id_path + "/" + o["id"].strip()
-            o["name_path"] = parent_name_path + "/" + name
-
-            # keep list of projects that an object is in
-            associated_projects = []
-            keys_to_remove = []
-            for k in o:
-                if k.startswith("in_project-"):
-                    proj_name = k[k.index('-') + 1:]
-                    associated_projects.append(proj_name)
-                    keys_to_remove.append(k)
-            for k in keys_to_remove:
-                o.pop(k)
-            if len(associated_projects) > 0:
-                projects = o["projects"] if "projects" in o.keys() else []
-                projects.extend(associated_projects)
-                if projects:
-                    o["projects"] = projects
-
-            if "create_object" not in o or o["create_object"]:
-                # add/update object in DB
-                self.inv.set(o)
-                if self.inv.is_feature_supported(environment, EnvironmentFeatures.MONITORING):
-                    self.inv.monitoring_setup_manager.create_setup(o)
-
-            # add objects into children list.
-            children.append(o)
-
-            # put children scanner into queue
-            if children_scanner:
-                self.queue_for_scan(o, child_id_field, children_scanner)
+                # put children scanner into queue
+                if children_scanner:
+                    self.queue_for_scan(o, child_id_field, children_scanner)
         return children
 
     # scanning queued items, rather than going depth-first (DFS)
