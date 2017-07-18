@@ -82,7 +82,8 @@
             "{objtype}_{objid}_{portid}" : {
                 "interval" : 15, 
                 "command" : "check_ping.py -c 10 -i 0.5 -p 4f532d444e41 -w 10 -s 256 -f {otep_src_ip} -t {otep_dest_ip} -W 1%/301.11/600 -C 10%/1020.12/2000", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 
@@ -157,6 +158,25 @@
     "monitoring_system" : "sensu", 
     "type" : "client.json"
 },
+{
+    "side" : "server",
+    "order" : "1",
+    "config" : {
+        "filters" : {
+            "state_change_only" : {
+                "negate" : true,
+                "attributes" : {
+                    "check" : {
+                        "history" : "eval: value.last == value[-2]"
+                    }
+                }
+
+            }
+        }
+    },
+    "monitoring_system" : "sensu",
+    "type" : "filters.json"
+},
 { 
     "side" : "server", 
     "order" : "1", 
@@ -165,12 +185,14 @@
             "osdna-monitor" : {
                 "timeout" : 20, 
                 "command" : "PYTHONPATH={app_path} {app_path}/monitoring/handlers/monitor.py -m /local_dir/calipso_mongo_access.conf", 
-                "type" : "pipe"
+                "type" : "pipe",
+                "filter" : "state_change_only"
             }, 
             "file" : {
                 "timeout" : 20, 
                 "command" : "/etc/sensu/plugins/event-file.rb", 
-                "type" : "pipe"
+                "type" : "pipe",
+                "filter" : "state_change_only"
             }
         }
     }, 
@@ -190,7 +212,8 @@
             "{objtype}_{objid}" : {
                 "interval" : 15, 
                 "command" : "check_vedge_vpp.py", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 
@@ -218,7 +241,8 @@
             "{objtype}_{vnictype}_{objid}" : {
                 "interval" : 15, 
                 "command" : "check_vnic_vpp.py", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 
@@ -240,7 +264,8 @@
             "{objtype}_{objid}" : {
                 "interval" : 15, 
                 "command" : "check_vedge_ovs.py", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 
@@ -275,7 +300,8 @@
             "link_{linktype}_{fromobjid}_{toobjid}" : {
                 "interval" : 15, 
                 "command" : "check_vnic_vconnector.py {bridge} {mac_address}", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 
@@ -303,7 +329,8 @@
             "{objtype}_{objid}" : {
                 "interval" : 15, 
                 "command" : "check_pnic_vpp.py", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 
@@ -332,7 +359,8 @@
             "{objtype}_{objid}" : {
                 "interval" : 15, 
                 "command" : "PYTHONPATH=/etc/sensu/plugins check_vservice.py {service_type} {local_service_id}", 
-                "standalone" : true, 
+                "standalone" : true,
+                "type": "metric",
                 "subscribers" : [
                     "base"
                 ], 

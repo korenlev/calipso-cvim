@@ -18,6 +18,9 @@ class ApiFetchProjects(ApiAccess):
         token = self.v2_auth_pwd(self.admin_project)
         if not token:
             return []
+        if not self.regions:
+            self.log.error('No regions found')
+            return []
         ret = []
         for region in self.regions:
             ret.extend(self.get_for_region(region, token))
