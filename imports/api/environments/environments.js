@@ -242,8 +242,8 @@ let simpleSchema = new SimpleSchema({
 
   operational: {
     type: String,
-    allowedValues: ['yes', 'no'],
-    defaultValue: 'no'
+    allowedValues: ['stopped', 'running', 'error'],
+    defaultValue: 'stopped'
   },
 
   scanned: { type: Boolean, defaultValue: false },
@@ -303,6 +303,7 @@ let simpleSchema = new SimpleSchema({
   },
   aci: {
     type: Boolean,
+    defaultValue: false,
   },
 });
 
