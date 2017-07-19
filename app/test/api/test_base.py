@@ -13,9 +13,11 @@ import copy
 from api.app import App
 from api.middleware.authentication import AuthenticationMiddleware
 from api.responders.responder_base import ResponderBase
+from api.backends.ldap_access import LDAPAccess
 from falcon.testing import TestCase
 from test.api.responders_test.test_data import base
 from unittest.mock import MagicMock
+from utils.mongo_access import MongoAccess
 
 
 def mock_auth_method(*args):
@@ -34,6 +36,13 @@ class TestBase(TestCase):
 
         ResponderBase.get_constants_by_name = MagicMock(side_effect=
                                                         lambda name: base.CONSTANTS_BY_NAMES[name])
+        # mock mongo access
+        MongoAccess.mongo_connect = MagicMock()
+        MongoAccess.db = MagicMock()
+        MongoAccess.client = MagicMock()
+        # mock ldap access
+        LDAPAccess.get_ldap_params = MagicMock()
+        LDAPAccess.connect_ldap_server = MagicMock()
 
         log_level = 'debug'
         self.app = App(log_level=log_level).get_app()
