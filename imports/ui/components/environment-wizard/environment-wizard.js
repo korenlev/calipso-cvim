@@ -29,7 +29,7 @@ import '/imports/ui/components/env-main-info/env-main-info';
 import '/imports/ui/components/env-os-api-endpoint-info/env-os-api-endpoint-info';
 import '/imports/ui/components/env-open-stack-db-credentials-info/env-open-stack-db-credentials-info';
 import '/imports/ui/components/env-master-host-credentials-info/env-master-host-credentials-info';
-import '/imports/ui/components/env-nfv-info/env-nfv-info';
+//import '/imports/ui/components/env-nfv-info/env-nfv-info';
 import '/imports/ui/components/env-aci-info/env-aci-info';
 import '/imports/ui/components/env-amqp-credentials-info/env-amqp-credentials-info';
 import '/imports/ui/components/env-monitoring-info/env-monitoring-info';
@@ -244,7 +244,8 @@ Template.EnvironmentWizard.helpers({
         onNextRequested: activateNextTab.bind(null, 'aci'),
         action: action,
       }
-    }, {
+    }, 
+    /*  {
       label: 'NFV Credentials',
       localLink: 'nfv',
       disabled: false,
@@ -261,7 +262,8 @@ Template.EnvironmentWizard.helpers({
         onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
         action: action,
       }
-    }, {
+    }, */
+    {
       label: 'ACI Credentials',
       localLink: 'aci',
       disabled: isAciTabDisabled,
