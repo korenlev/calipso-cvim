@@ -97,8 +97,11 @@ let d3Graph = {
   */
 
   getGraphDataByClique:function(nodeObjId){
+    // Clique: one instance per graph. A focal point describing a node, and with links data.
+    // TODO: findOne or .each.
     var cliques = Cliques.find({ focal_point: new Mongo.ObjectID(nodeObjId) }).fetch();
-    var cliquesLinks = [];
+
+
     var nodes = [];
     var edges_new = [];
     
@@ -106,17 +109,27 @@ let d3Graph = {
       return;
     }
 
+    // CliquesLinks: All the links for a specific clique
+    var cliquesLinks = [];
     cliques[0].links.forEach(function(n){
       cliquesLinks.push(n);
     });
+
+    // LinksList = Map(Clique.links -> links collection)
     var linksList = Links.find({ _id: {$in: cliquesLinks}}).fetch();
     //console.log(linksList);
 
+    // Create nodes from the links endpoints.
+    // Nodes = link source & target (objectid)
     linksList.forEach(function(linkItem){
       nodes.push(linkItem['source']);
       nodes.push(linkItem['target']);
     });
+
+    // NodesList = Nodes exapneded.
     var nodesList = Inventory.find({ _id: {$in: nodes}}).fetch();
+
+    // Links list: expanend source/target nodes to create in memory data graph - links,nodes.
     linksList.forEach(function(linkItem){
       var sourceNode = nodesList.filter(function(n) { 
         return n._id._str === linkItem.source._str; 
@@ -135,6 +148,8 @@ let d3Graph = {
       });
 
     });
+    
+    // Expend nodeslist to include linked attributes.
     nodesList.forEach(function(nodeItem){
       nodeItem.attributes = [];
       var attrHoverFields = NodeHoverAttr.find({ 'type': nodeItem['type']}).fetch();

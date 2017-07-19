@@ -51,7 +51,7 @@ let schema = {
     type: String,
     custom: function () {
       let that = this;
-      let values = Constants.findOne({ name: 'messages_source_systems' }).data;
+      let values = Constants.findOne({ name: 'message_source_systems' }).data;
 
       if (R.isNil(R.find(R.propEq('value', that.value), values))) {
         return 'notAllowed';

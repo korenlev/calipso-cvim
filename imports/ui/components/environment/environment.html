@@ -34,8 +34,12 @@
             {{#if (getShow 'graph') }}
               {{#if isSelectedNodeAGraph }}
 
-                <div class="sm-graph">
-                  {{> d3graph argsD3Graph }}
+                <!--div class="sm-graph">
+                  > d3graph argsD3Graph
+                </div-->
+
+                <div class="sm-network-graph">
+                  {{> NetworkGraphManager argsNetworkGraphManager }}
                 </div>
 
                 {{> GraphTooltipWindow (argsGraphTooltipWindow graphTooltipWindow) }}

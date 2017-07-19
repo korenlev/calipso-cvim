@@ -4,7 +4,7 @@
   "description": "",
   "dependencies": {
     "babel-runtime": "^6.23.0",
-    "bcrypt": "^0.8.7",
+    "bcrypt": "^1.0.2",
     "bson": "^1.0.4",
     "d3": "^4.5.0",
     "jquery": "^1.9.1",

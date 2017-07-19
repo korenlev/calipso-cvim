@@ -60,6 +60,7 @@ import '/imports/ui/components/env-delete-modal/env-delete-modal';
 import '/imports/ui/components/environment-dashboard/environment-dashboard';
 import '/imports/ui/components/general-folder-node-dashboard/general-folder-node-dashboard';
 import '/imports/ui/components/general-node-dashboard/general-node-dashboard';
+import '/imports/ui/components/network-graph-manager/network-graph-manager';
 
 import './environment.html';
 
@@ -347,6 +348,15 @@ Template.Environment.helpers({
   },
 
   argsD3Graph: function () {
+    let instance = Template.instance();
+    let idPath = instance.rdxSelectedNodeIdPath.get();
+
+    return {
+      id_path: idPath
+    };
+  },
+
+  argsNetworkGraphManager: function () {
     let instance = Template.instance();
     let idPath = instance.rdxSelectedNodeIdPath.get();
 
