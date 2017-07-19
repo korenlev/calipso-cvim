@@ -16,7 +16,6 @@ class MonitoringCheckHandler(MonitoringHandler, SpecialCharConverter):
 
     def __init__(self, env):
         super().__init__(env)
-        self.inv = InventoryMgr()
 
     # add monitoring setup on remote host for given object
     def create_monitoring_for_object(self, o, values):

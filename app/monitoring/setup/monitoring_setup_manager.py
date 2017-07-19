@@ -57,6 +57,16 @@ class MonitoringSetupManager(MonitoringHandler):
             content = self.prepare_config_file(file_name, {'side': 'server'})
             self.write_config_file(file_name, sub_dir, server_host, content,
                                    is_container=is_container, is_server=True)
+        # restart sensu server and Uchiwa services
+        # so it takes the new setup
+        self.restart_service(host=server_host, service='sensu-server',
+                             is_server=True,
+                             msg='restart sensu-server on {}'
+                             .format(server_host))
+        self.restart_service(host=server_host, service='uchiwa',
+                             is_server=True,
+                             msg='restart uchiwa on {}'
+                             .format(server_host))
         self.configuration.update_env({'monitoring_setup_done': True})
 
     # add setup for inventory object
