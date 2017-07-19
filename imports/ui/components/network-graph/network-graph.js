@@ -96,6 +96,7 @@ function genConfig() {
   }
 
   return {
+    initialLinkLabelsFontSize: 18,
     tocolor: tocolor,
     towhite: towhite,
     text_center: false,
@@ -152,20 +153,20 @@ function renderGraph(
     .attr('height', '100%');
   */
   let zoom = genZoomBehavior(d3, config);
+  zoom.on('zoom', zoomFn);
 
-  let g = svg.append('g');
+  let mainEl = svg.append('g');
   
   activateForce(force, graph.nodes, graph.links, graph.groups);
 
-  let groups = genSvgGroups(g, graph.groups, drag);
+  let groups = genSvgGroups(mainEl, graph.groups, drag);
   let {svgLinkLines, svgLinkLabels} = genSvgLinks(
-    g, graph.links, config.nominal_stroke, config.default_link_color);
-  let [nodes] = genSvgNodes(g, graph.nodes, drag, onNodeOver, onNodeOut, onNodeClick); 
-
-  zoom.on('zoom', function () {
-    //g.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
-    g.attr('transform', d3.event.transform);
-  });
+    mainEl, graph.links, 
+    config.nominal_stroke, 
+    config.default_link_color,
+    config.initialLinkLabelsFontSize
+  );
+  let {svgNodes, svgImages} = genSvgNodes(mainEl, graph.nodes, drag, onNodeOver, onNodeOut, onNodeClick); 
 
   svg.call(zoom);
   //background.call(zoom);
@@ -174,12 +175,14 @@ function renderGraph(
   force.on('tick', tickFn);
   
   function tickFn() {
-    nodes.attr('transform', function(d) {
+    svgNodes.attr('transform', function(d) {
       return 'translate(' + d.x + ',' + d.y + ')';
     });
 
+    /*
     nodes.attr('cx', function(d) { return d.x; })
     .attr('cy', function(d) { return d.y; });
+    */
 
     /*
     nodes.attr('x', function (d) {
@@ -220,6 +223,40 @@ function renderGraph(
         if (d.bounds) { return d.bounds.height(); } 
       });
   }
+
+  function zoomFn() {
+    mainEl.attr('transform', d3.event.transform);
+    
+    let trn = d3.event.transform;
+
+    let maxZoomAllowedForNodes = 1.8;
+    let imageInitialLength = 36;
+    let imageLength;
+
+    if (trn.k > maxZoomAllowedForNodes) {
+      imageLength = (imageInitialLength / trn.k) * maxZoomAllowedForNodes;
+    } else {
+      imageLength = imageInitialLength;
+    }
+
+    svgImages 
+      .attr('x', -(Math.floor(imageLength / 2)))
+      .attr('y', -(Math.floor(imageLength / 2)))
+      .attr('width', imageLength)
+      .attr('height', imageLength)
+    ;
+
+    let labelsFontSize;
+
+    if (trn.k > maxZoomAllowedForNodes) {
+      labelsFontSize = (config.initialLinkLabelsFontSize / trn.k) * maxZoomAllowedForNodes;
+    } else {
+      labelsFontSize = config.initialLinkLabelsFontSize;
+    }
+
+    svgLinkLabels
+      .attr('font-size', labelsFontSize);
+  }
 }
 
  // d3.select(window).on('resize', resize);
@@ -241,7 +278,7 @@ function genSvg(d3, mainElement) {
   return svg;
 }
 
-function genSvgLinks(g, links, nominal_stroke, default_link_color) {
+function genSvgLinks(g, links, nominal_stroke, default_link_color, initialLinkLabelsFontSize) {
   let svgLinks = g.selectAll('.link')
     .data(links)
     .enter()
@@ -266,7 +303,9 @@ function genSvgLinks(g, links, nominal_stroke, default_link_color) {
     .attr('x', function(d) { return (d.source.x + (d.target.x - d.source.x) * 0.5); })
     .attr('y', function(d) { return (d.source.y + (d.target.y - d.source.y) * 0.5); })
     .attr('dy', '.25em')
-    .attr('text-anchor', 'right');
+    .attr('text-anchor', 'right')
+    .attr('font-size', initialLinkLabelsFontSize)
+  ;
 
   return {svgLinks, svgLinkLines, svgLinkLabels};
 }
@@ -282,7 +321,7 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick) {
   ;
   
   let imageLength = 36;
-  let images = svgNodes.append('image')
+  let svgImages = svgNodes.append('image')
     .attr('xlink:href', function(d) {
       return `/${calcImageForNodeType(d._osmeta.type)}`;
     })
@@ -301,7 +340,7 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick) {
     })
   ;
 
-  return [svgNodes, images];
+  return {svgNodes, svgImages};
   //return [svgNodes];
 }
 
@@ -330,7 +369,7 @@ function genForceCola(cola, d3, w, h) {
   let force = cola.d3adaptor(d3)
     .convergenceThreshold(0.1)
   //  .convergenceThreshold(1e-9)
-    .linkDistance(100)
+    .linkDistance(120)
     .size([w,h]);
 
   return force;
