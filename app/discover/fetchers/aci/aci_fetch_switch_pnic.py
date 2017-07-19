@@ -2,8 +2,7 @@ import re
 
 from discover.fetchers.aci.aci_access import AciAccess
 from utils.inventory_mgr import InventoryMgr
-from utils.string_utils import encode_aci_dn
-from utils.util import get_object_path_part
+from utils.util import encode_aci_dn, get_object_path_part
 
 
 class AciFetchSwitchPnic(AciAccess):
