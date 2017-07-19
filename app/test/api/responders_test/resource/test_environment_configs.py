@@ -393,26 +393,28 @@ class TestEnvironmentConfigs(TestBase):
                                    body=json.dumps(environment_configs.ENV_CONFIG),
                                    expected_code=base.CREATED_CODE)
 
-    def test_post_scanning_unsupported_environment_config(self):
-        self.mock_validate_env_config_with_supported_envs(False, True, True)
-        scanning_unsupported_config = self.get_updated_data(environment_configs.
-                                                            ENV_CONFIG)
-        self.validate_post_request(environment_configs.URL,
-                                   body=json.dumps(scanning_unsupported_config),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_monitoring_unsupported_environment_config(self):
-        self.mock_validate_env_config_with_supported_envs(True, False, True)
-        monitoring_unsupported_config = self.get_updated_data(environment_configs.
-                                                              ENV_CONFIG)
-        self.validate_post_request(environment_configs.URL,
-                                   body=json.dumps(monitoring_unsupported_config),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_listening_unsupported_environment_config(self):
-        self.mock_validate_env_config_with_supported_envs(True, True, False)
-        listening_unsupported_config = self.get_updated_data(environment_configs.
-                                                             ENV_CONFIG)
-        self.validate_post_request(environment_configs.URL,
-                                   body=json.dumps(listening_unsupported_config),
-                                   expected_code=base.BAD_REQUEST_CODE)
+    def test_post_unsupported_environment_config(self):
+        test_cases = [
+            {
+                "scanning": False,
+                "monitoring": True,
+                "listening": True
+            },
+            {
+                "scanning": True,
+                "monitoring": False,
+                "listening": True
+            },
+            {
+                "scanning": True,
+                "monitoring": True,
+                "listening": False
+            }
+        ]
+        for test_case in test_cases:
+            self.mock_validate_env_config_with_supported_envs(test_case["scanning"],
+                                                              test_case["monitoring"],
+                                                              test_case["listening"])
+            self.validate_post_request(environment_configs.URL,
+                                       body=json.dumps(environment_configs.ENV_CONFIG),
+                                       expected_code=base.BAD_REQUEST_CODE)
