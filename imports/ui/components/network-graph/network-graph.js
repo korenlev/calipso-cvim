@@ -113,8 +113,8 @@ function genConfig() {
     nominal_stroke: 1.5,
     max_stroke: 4.5,
     max_base_node_size: 36,
-    min_zoom: 0.1,
-    max_zoom: 7,
+    min_zoom: 0.3,
+    max_zoom: 5,
   };
 }
 
