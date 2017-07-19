@@ -145,6 +145,24 @@
       </div>
 
       <div class="form-group">
+        <label for="" 
+          class="col-sm-2 control-label"
+          >Enable ACI</label>
+
+        <div class="col-sm-3">
+          {{> InputModel(createInputArgs
+                value=model.aci
+                key='aci'
+                type="checkbox"
+                disabled=disabled)
+          }}
+        </div>
+        <div class="col-sm-4">
+          <p>Enable ACI</p>
+        </div>
+      </div>
+
+      <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
           <button type="button" 
             class="sm-next-button mdl-button mdl-js-button 

@@ -16,6 +16,7 @@ import { MonitoringSchema } from './configuration-groups/monitoring-configuratio
 import { CLISchema } from './configuration-groups/cli-configuration';
 import { AMQPSchema } from './configuration-groups/amqp-configuration';
 import { NfvProviderSchema } from './configuration-groups/nfv-provider-configuration';
+import { AciSchema } from './configuration-groups/aci-configuration';
 import {
   isMonitoringSupported,
   isListeningSupported,
@@ -34,6 +35,7 @@ export const optionalConfGroups = [
   'NFV_provider',
   'AMQP',
   'Monitoring',
+  'ACI',
 ];
 
 let simpleSchema = new SimpleSchema({
@@ -65,6 +67,8 @@ let simpleSchema = new SimpleSchema({
           enable_monitoring, 
           listen 
         } = extractCalcEnvSupportedRelatedValues(that);
+        let dbNode = getDbNode(that);
+        let aci = extractValue('aci', that, dbNode);
 
         if (enable_monitoring && isMonitoringSupportedRes) {
           if (! R.find(R.propEq('name', 'Monitoring'), confGroups)) {
@@ -82,6 +86,15 @@ let simpleSchema = new SimpleSchema({
         } else {
           console.log('env - configurations - autovalue - listening not supported');
           confGroups = R.reject(R.propEq('name', 'AMQP'), confGroups);
+        }
+
+        if (aci) {
+          if (! R.find(R.propEq('name', 'ACI'), confGroups)) {
+            confGroups = R.append(createNewConfGroup('ACI'), confGroups);
+          }
+        } else {
+          console.log('env - configurations - autovalue - aci not requested');
+          confGroups = R.reject(R.propEq('name', 'ACI'), confGroups);
         }
 
         confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
@@ -288,6 +301,9 @@ let simpleSchema = new SimpleSchema({
       return newValue;
     },
   },
+  aci: {
+    type: Boolean,
+  },
 });
 
 /*
@@ -320,6 +336,8 @@ function getSchemaForGroupName(groupName) {
     return AMQPSchema;
   case 'NFV_provider':
     return NfvProviderSchema;
+  case 'ACI':
+    return AciSchema;
   case 'Monitoring':
     return MonitoringSchema;
   default:
@@ -411,9 +429,14 @@ function extractValue(name, schemaValidator, dbNode) {
   return value;
 }
 
-function extractCalcEnvSupportedRelatedValues(schemaHelper) {
+function getDbNode(schemaHelper) {
   let _id = R.defaultTo(schemaHelper.docId, R.path(['value'], schemaHelper.field('_id')));
   let dbNode = R.defaultTo(null, Environments.findOne({ _id: _id }));
+  return dbNode;
+}
+
+function extractCalcEnvSupportedRelatedValues(schemaHelper) {
+  let dbNode = getDbNode(schemaHelper);
 
   let dist = extractValue('distribution', schemaHelper, dbNode);
   let typeDrivers = extractValue('type_drivers', schemaHelper, dbNode);

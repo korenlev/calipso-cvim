@@ -30,6 +30,7 @@ import '/imports/ui/components/env-os-api-endpoint-info/env-os-api-endpoint-info
 import '/imports/ui/components/env-open-stack-db-credentials-info/env-open-stack-db-credentials-info';
 import '/imports/ui/components/env-master-host-credentials-info/env-master-host-credentials-info';
 import '/imports/ui/components/env-nfv-info/env-nfv-info';
+import '/imports/ui/components/env-aci-info/env-aci-info';
 import '/imports/ui/components/env-amqp-credentials-info/env-amqp-credentials-info';
 import '/imports/ui/components/env-monitoring-info/env-monitoring-info';
 
@@ -155,6 +156,7 @@ Template.EnvironmentWizard.helpers({
 
     let amqpTabDisabled = !(environmentModel.listen && isListeningSupportedRes);
     let monitoringTabDisabled = !(environmentModel.enable_monitoring && isMonSupportedRes);
+    let isAciTabDisabled = !(environmentModel.aci);
 
     return [{
       label: 'Main Info',
@@ -239,7 +241,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('AMQP', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'nfv'),
+        onNextRequested: activateNextTab.bind(null, 'aci'),
         action: action,
       }
     }, {
@@ -254,6 +256,23 @@ Template.EnvironmentWizard.helpers({
           Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('NFV_provider', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
+        action: action,
+      }
+    }, {
+      label: 'ACI Credentials',
+      localLink: 'aci',
+      disabled: isAciTabDisabled,
+      templateName: 'EnvAciInfo',
+      templateData: {
+        model: getGroupInArray('ACI', environmentModel.configuration),
+        disabled: isAciTabDisabled,
+        setModel: function (newSubModel) {
+          Session.set('isDirty', true);
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('ACI', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
         onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
@@ -406,6 +425,7 @@ function doSubmit(instance) {
       mechanism_drivers: environment.mechanism_drivers,
       listen: environment.listen,
       enable_monitoring: environment.enable_monitoring,
+      aci: environment.aci,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -419,6 +439,7 @@ function doSubmit(instance) {
       mechanism_drivers: environment.mechanism_drivers,
       listen: environment.listen,
       enable_monitoring: environment.enable_monitoring,
+      aci: environment.aci,
     }, processActionResult.bind(null, instance));
     break;
 
