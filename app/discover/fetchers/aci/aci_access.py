@@ -21,7 +21,56 @@ class AciAccess(Fetcher):
         return "https://{}/api".format(self.host)
 
     # Unwrap ACI response payload
-    # and return an array of desired fields' values
+    # and return an array of desired fields' values.
+    #
+    # Parameters
+    # ----------
+    #
+    # payload: dict
+    #       Full json response payload returned by ACI
+    # *field_names: Tuple[str]
+    #       Enumeration of fields that are used to traverse ACI "imdata" array
+    #       (order is important)
+    #
+    # Returns
+    # ----------
+    # list
+    #       List of unwrapped dictionaries (or primitives)
+    #
+    # Example
+    # ----------
+    # Given payload:
+    #
+    #   {
+    #       "totalCount": "2",
+    #       "imdata": [
+    #           {
+    #               "aaa": {
+    #                   "bbb": {
+    #                       "ccc": "value1"
+    #                   }
+    #               }
+    #           },
+    #           {
+    #               "aaa": {
+    #                   "bbb": {
+    #                       "ccc": "value2"
+    #                   }
+    #               }
+    #           }
+    #       ]
+    #   }
+    #
+    #   Executing get_objects_by_field_names(payload, "aaa", "bbb")
+    #   will yield the following result:
+    #
+    #   >>> [{"ccc": "value1"}, {"ccc": "value2"}]
+    #
+    #   Executing get_objects_by_field_names(payload, "aaa", "bbb", "ccc")
+    #   will yield the following result:
+    #
+    #   >>> ["value1", "value2"]
+    #
     @staticmethod
     def get_objects_by_field_names(payload, *field_names):
         results = payload.get("imdata", [])
