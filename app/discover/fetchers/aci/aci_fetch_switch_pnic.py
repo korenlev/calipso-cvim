@@ -56,7 +56,8 @@ class AciFetchSwitchPnic(AciAccess):
             switch_json = {
                 "id": db_switch_id,
                 "ip_address": switch_data["address"],
-                "type": "switch"
+                "type": "switch",
+                "aci_document": switch_data
             }
             # Region name is the same as region id
             region_id = get_object_path_part(pnic["name_path"], "Regions")
@@ -70,7 +71,8 @@ class AciFetchSwitchPnic(AciAccess):
             "id": db_pnic_id,
             "type": "pnic",
             "pnic_type": "switch",
-            "mac_address": mac_address
+            "mac_address": mac_address,
+            "aci_document": switch_pnic
         }
         return [pnic_json]
 
