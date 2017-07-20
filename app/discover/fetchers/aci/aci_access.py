@@ -14,8 +14,13 @@ class AciAccess(Fetcher):
     def __init__(self):
         super().__init__()
         self.configuration = Configuration()
-        self.aci_configuration = self.configuration.get("ACI")
-        self.host = self.aci_configuration["host"]
+        self.aci_enabled = self.configuration.get_env_config() \
+            .get('aci_enabled', False)
+        self.aci_configuration = None
+        self.host = None
+        if self.aci_enabled:
+            self.aci_configuration = self.configuration.get("ACI")
+            self.host = self.aci_configuration["host"]
 
     def get_base_url(self):
         return "https://{}/api".format(self.host)
@@ -96,6 +101,8 @@ class AciAccess(Fetcher):
         AciAccess.cookie_token = {"APIC-Cookie": token}
 
     def login(self):
+        if not self.aci_enabled:
+            return
         url = "/".join((self.get_base_url(), "aaaLogin.json"))
         payload = {
             "aaaUser": {
@@ -113,6 +120,8 @@ class AciAccess(Fetcher):
 
     # Refresh token or login if token has expired
     def refresh_token(self):
+        if not self.aci_enabled:
+            return
         # First time login
         if not AciAccess.cookie_token:
             self.login()
@@ -165,6 +174,8 @@ class AciAccess(Fetcher):
                       headers: dict = None,
                       cookies: dict = None,
                       response_format: str = RESPONSE_FORMAT):
+        if not self.aci_enabled:
+            return None
         url = "/".join((self.get_base_url(), "mo", "topology",
                         "{dn}.{f}".format(dn=dn, f=response_format)))
 
