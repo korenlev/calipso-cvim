@@ -17,7 +17,5 @@ class MonitoringPnic(MonitoringSimpleObject):
 
     # add monitoring setup for remote host
     def create_setup(self, o):
-        self.setup('pnic', o)
-
-    def is_monitoring_enabled(self, o):
-        return o.get("pnic_type") != "switch"  # TODO: make a more educated guess
+        if o.get("pnic_type") != "switch":
+            self.setup('pnic', o)

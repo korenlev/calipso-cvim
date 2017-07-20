@@ -77,7 +77,7 @@ class MonitoringSetupManager(MonitoringHandler):
         type_attribute = 'type' if 'type' in o else 'link_type'
         type_value = o[type_attribute]
         object_handler = self.object_handlers.get(type_value)
-        if object_handler and object_handler.is_monitoring_enabled(o):
+        if object_handler:
             object_handler.create_setup(o)
 
     def simulate_track_changes(self):
