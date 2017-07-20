@@ -29,9 +29,10 @@ class AciFetchSwitchPnic(AciAccess):
 
     def get(self, pnic_id):
         environment = self.get_env()
-        mac_address = pnic_id.split('-')[-1]
-        pnic = self.inv.get(environment=environment, item_type="pnic",
-                            item_id=pnic_id, get_single=True)
+        pnic = self.inv.get_by_id(environment=environment, item_id=pnic_id)
+        mac_address = pnic.get("mac_address")
+        if not mac_address:
+            return []
 
         switch_pnics = self.fetch_pnics_by_mac_address(mac_address)
         if not switch_pnics:
