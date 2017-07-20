@@ -20,14 +20,8 @@ class AciAccess(Fetcher):
     def get_base_url(self):
         return "https://{}/api".format(self.host)
 
-    @staticmethod
-    def get_object_by_field_name(payload, field_name):
-        imdata = payload.get("imdata", [])
-        if not imdata:
-            return None
-
-        return imdata[0].get(field_name, {})
-
+    # Unwrap ACI response payload
+    # and return an array of desired fields' values
     @staticmethod
     def get_objects_by_field_names(payload, *field_names):
         results = payload.get("imdata", [])
@@ -40,10 +34,17 @@ class AciAccess(Fetcher):
 
     # Set auth tokens in request headers and cookies
     @staticmethod
-    def _insert_tokens(cookies):
+    def _insert_token_into_request(cookies):
         return dict(cookies, **AciAccess.cookie_token) \
             if cookies \
             else AciAccess.cookie_token
+
+    @staticmethod
+    def _set_token(response):
+        tokens = AciAccess.get_objects_by_field_names(response.json(), "aaaLogin", "attributes", "token")
+        token = tokens[0]
+
+        AciAccess.cookie_token = {"APIC-Cookie": token}
 
     def login(self):
         url = "/".join((self.get_base_url(), "aaaLogin.json"))
@@ -59,11 +60,7 @@ class AciAccess(Fetcher):
         response = requests.post(url, json=payload, verify=False)
         response.raise_for_status()
 
-        response_object = self.get_object_by_field_name(payload=response.json(),
-                                                        field_name="aaaLogin")
-        token = response_object["attributes"]["token"]
-
-        AciAccess.cookie_token = {"APIC-Cookie": token}
+        AciAccess._set_token(response)
 
     # Refresh token or login if token has expired
     def refresh_token(self):
@@ -84,16 +81,12 @@ class AciAccess(Fetcher):
         elif response.status_code != requests.codes.ok:
             response.raise_for_status()
 
-        response_object = self.get_object_by_field_name(payload=response.json(),
-                                                        field_name="aaaLogin")
-        token = response_object["attributes"]["token"]
-
-        AciAccess.cookie_token = token
+        AciAccess._set_token(response)
 
     def send_get(self, url, params, headers, cookies):
         self.refresh_token()
 
-        cookies = self._insert_tokens(cookies)
+        cookies = self._insert_token_into_request(cookies)
 
         response = requests.get(url, params=params, headers=headers,
                                 cookies=cookies, verify=False)
