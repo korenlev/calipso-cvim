@@ -29,9 +29,10 @@ class AciFetchSwitchPnic(AciAccess):
 
     def get(self, pnic_id):
         environment = self.get_env()
-        mac_address = pnic_id.split('-')[-1]
-        pnic = self.inv.get(environment=environment, item_type="pnic",
-                            item_id=pnic_id, get_single=True)
+        pnic = self.inv.get_by_id(environment=environment, item_id=pnic_id)
+        mac_address = pnic.get("mac_address")
+        if not mac_address:
+            return []
 
         switch_pnics = self.fetch_pnics_by_mac_address(mac_address)
         if not switch_pnics:
@@ -56,7 +57,8 @@ class AciFetchSwitchPnic(AciAccess):
             switch_json = {
                 "id": db_switch_id,
                 "ip_address": switch_data["address"],
-                "type": "switch"
+                "type": "switch",
+                "aci_document": switch_data
             }
             # Region name is the same as region id
             region_id = get_object_path_part(pnic["name_path"], "Regions")
@@ -70,7 +72,8 @@ class AciFetchSwitchPnic(AciAccess):
             "id": db_pnic_id,
             "type": "pnic",
             "pnic_type": "switch",
-            "mac_address": mac_address
+            "mac_address": mac_address,
+            "aci_document": switch_pnic
         }
         return [pnic_json]
 
