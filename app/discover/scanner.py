@@ -81,25 +81,26 @@ class Scanner(Fetcher):
         # check if type is to be run in this environment
         if "environment_condition" not in type_to_fetch:
             return True
-        env_cond = type_to_fetch["environment_condition"]
+        env_cond = type_to_fetch.get("environment_condition", {})
+        if not env_cond:
+            return True
+        if not isinstance(env_cond, dict):
+            self.log.warn('illegal environment_condition given '
+                          'for type {}'.format(type_to_fetch['type']))
+            return True
         conf = self.config.get_env_config()
-
         for attr, required_val in env_cond.items():
             if attr == "mechanism_drivers":
-                continue
-            if attr not in conf or conf[attr] != required_val:
+                if "mechanism_drivers" not in conf:
+                    self.log.warn('illegal environment configuration: '
+                                  'missing mechanism_drivers')
+                    return False
+                if not isinstance(required_val, list):
+                    required_val = [required_val]
+                return bool(set(required_val) & set(conf["mechanism_drivers"]))
+            elif attr not in conf or conf[attr] != required_val:
                 return False
-
-        # check network plugins
-        if "mechanism_drivers" in env_cond:
-            if "mechanism_drivers" not in conf:
-                return False
-            drivers_used = conf["mechanism_drivers"]
-            if isinstance(required_val, list):
-                return bool(set(required_val).intersection(set(drivers_used)))
-            if required_val not in drivers_used:
-                return False
-
+        # no check failed
         return True
 
     def scan_type(self, type_to_fetch, parent, id_field):

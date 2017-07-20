@@ -25,7 +25,8 @@ from utils.string_utils import jsonify, stringify_object_values_by_types
 class ResponderBase(DataValidate, DictNamingConverter):
     UNCHANGED_COLLECTIONS = ["monitoring_config_templates",
                              "environments_config",
-                             "messages"]
+                             "messages",
+                             "scheduled_scans"]
 
     def __init__(self):
         super().__init__()
@@ -110,7 +111,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
         return obj
 
     def get_objects_list(self, collection, query, page, page_size,
-                         projection):
+                         projection, stringify_types=None):
         objects = self.read(collection, query, projection, page, page_size)
         if not objects:
             env_name = query.get("environment")
@@ -123,6 +124,9 @@ class ResponderBase(DataValidate, DictNamingConverter):
                 obj["id"] = str(obj["_id"])
             if "_id" in obj:
                 del obj["_id"]
+        if stringify_types:
+            stringify_object_values_by_types(objects, stringify_types)
+
         return objects
 
     def parse_query_params(self, req):

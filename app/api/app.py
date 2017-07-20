@@ -30,6 +30,7 @@ class App:
         "/clique_types": "resource.clique_types.CliqueTypes",
         "/clique_constraints": "resource.clique_constraints.CliqueConstraints",
         "/scans": "resource.scans.Scans",
+        "/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
         "/constants": "resource.constants.Constants",
         "/monitoring_config_templates":
             "resource.monitoring_config_templates.MonitoringConfigTemplates",

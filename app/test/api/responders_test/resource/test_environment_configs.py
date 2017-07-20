@@ -12,6 +12,8 @@ import json
 from test.api.responders_test.test_data import base
 from test.api.test_base import TestBase
 from test.api.responders_test.test_data import environment_configs
+from utils.constants import EnvironmentFeatures
+from utils.inventory_mgr import InventoryMgr
 from unittest.mock import patch
 
 
@@ -373,11 +375,44 @@ class TestEnvironmentConfigs(TestBase):
                                    body=json.dumps(test_data),
                                    expected_code=base.BAD_REQUEST_CODE)
 
+    def mock_validate_env_config_with_supported_envs(self, scanning,
+                                                     monitoring, listening):
+        InventoryMgr.is_feature_supported_in_env = lambda self, matches, feature: {
+            EnvironmentFeatures.SCANNING: scanning,
+            EnvironmentFeatures.MONITORING: monitoring,
+            EnvironmentFeatures.LISTENING: listening
+        }[feature]
+
     @patch(base.RESPONDER_BASE_WRITE)
     def test_post_environment_config(self, write):
+        self.mock_validate_env_config_with_supported_envs(True, True, True)
         self.validate_post_request(environment_configs.URL,
                                    mocks={
                                        write: None
                                    },
                                    body=json.dumps(environment_configs.ENV_CONFIG),
                                    expected_code=base.CREATED_CODE)
+
+    def test_post_scanning_unsupported_environment_config(self):
+        self.mock_validate_env_config_with_supported_envs(False, True, True)
+        scanning_unsupported_config = self.get_updated_data(environment_configs.
+                                                            ENV_CONFIG)
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(scanning_unsupported_config),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_monitoring_unsupported_environment_config(self):
+        self.mock_validate_env_config_with_supported_envs(True, False, True)
+        monitoring_unsupported_config = self.get_updated_data(environment_configs.
+                                                              ENV_CONFIG)
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(monitoring_unsupported_config),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_listening_unsupported_environment_config(self):
+        self.mock_validate_env_config_with_supported_envs(True, True, False)
+        listening_unsupported_config = self.get_updated_data(environment_configs.
+                                                             ENV_CONFIG)
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(listening_unsupported_config),
+                                   expected_code=base.BAD_REQUEST_CODE)
