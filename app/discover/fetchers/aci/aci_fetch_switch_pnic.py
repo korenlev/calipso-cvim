@@ -1,6 +1,6 @@
 import re
 
-from discover.fetchers.aci.aci_access import AciAccess
+from discover.fetchers.aci.aci_access import AciAccess, aci_config_required
 from utils.inventory_mgr import InventoryMgr
 from utils.util import encode_aci_dn, get_object_path_part
 
@@ -27,9 +27,12 @@ class AciFetchSwitchPnic(AciAccess):
         switch_data = self.get_objects_by_field_names(response, "topSystem", "attributes")
         return switch_data[0] if switch_data else None
 
+    @aci_config_required(default=[])
     def get(self, pnic_id):
         environment = self.get_env()
         pnic = self.inv.get_by_id(environment=environment, item_id=pnic_id)
+        if not pnic:
+            return []
         mac_address = pnic.get("mac_address")
         if not mac_address:
             return []

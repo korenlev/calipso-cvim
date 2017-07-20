@@ -6,6 +6,16 @@ from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 
 
+def aci_config_required(default=None):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            if not self.aci_enabled:
+                return default
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
 class AciAccess(Fetcher):
 
     RESPONSE_FORMAT = "json"
@@ -100,9 +110,8 @@ class AciAccess(Fetcher):
 
         AciAccess.cookie_token = {"APIC-Cookie": token}
 
+    @aci_config_required()
     def login(self):
-        if not self.aci_enabled:
-            return
         url = "/".join((self.get_base_url(), "aaaLogin.json"))
         payload = {
             "aaaUser": {
@@ -119,9 +128,8 @@ class AciAccess(Fetcher):
         AciAccess._set_token(response)
 
     # Refresh token or login if token has expired
+    @aci_config_required()
     def refresh_token(self):
-        if not self.aci_enabled:
-            return
         # First time login
         if not AciAccess.cookie_token:
             self.login()
@@ -141,6 +149,7 @@ class AciAccess(Fetcher):
 
         AciAccess._set_token(response)
 
+    @aci_config_required(default={})
     def send_get(self, url, params, headers, cookies):
         self.refresh_token()
 
@@ -154,13 +163,13 @@ class AciAccess(Fetcher):
         return response.json()
 
     # Search ACI for Managed Objects (MOs) of a specific class
+    @aci_config_required(default=[])
     def fetch_objects_by_class(self,
                                class_name: str,
                                params: dict = None,
                                headers: dict = None,
                                cookies: dict = None,
                                response_format: str = RESPONSE_FORMAT):
-
         url = "/".join((self.get_base_url(),
                         "class", "{cn}.{f}".format(cn=class_name, f=response_format)))
 
@@ -168,14 +177,13 @@ class AciAccess(Fetcher):
         return self.get_objects_by_field_names(response_json, class_name)
 
     # Fetch data for a specific Managed Object (MO)
+    @aci_config_required(default=[])
     def fetch_mo_data(self,
                       dn: str,
                       params: dict = None,
                       headers: dict = None,
                       cookies: dict = None,
                       response_format: str = RESPONSE_FORMAT):
-        if not self.aci_enabled:
-            return None
         url = "/".join((self.get_base_url(), "mo", "topology",
                         "{dn}.{f}".format(dn=dn, f=response_format)))
 
