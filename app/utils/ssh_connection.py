@@ -107,7 +107,7 @@ class SshConnection(BinaryConverter):
                               "due to call count: %s ******",
                               self.host, self.call_count)
             else:
-                return
+                return True
             connection.close()
             self.ssh = None
         self.ssh = paramiko.SSHClient()
