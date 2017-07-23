@@ -17,7 +17,8 @@ class FindLinksForPnics(FindLinks):
     def add_links(self):
         pnics = self.inv.find_items({
             "environment": self.get_env(),
-            "type": "pnic"
+            "type": "pnic",
+            "pnic_type": {"$ne": "switch"}  # TODO: make a more educated guess
         })
         for pnic in pnics:
             self.add_pnic_network_links(pnic)

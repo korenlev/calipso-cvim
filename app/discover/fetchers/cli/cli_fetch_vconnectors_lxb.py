@@ -28,8 +28,8 @@ class CliFetchVconnectorsLxb(CliFetchVconnectorsOvs, DbAccess):
             """.format(self.neutron_db)
             host = doc['host']
             matches = self.get_objects_list_for_id(query, '', host)
-            if matches is None:
-                raise ValueError('No Linux bridge agent in DB for host' + host)
+            if not matches:
+                raise ValueError('No Linux bridge agent in DB for host: {}'.format(host))
             agent = matches[0]
             doc['configurations'] = json.loads(agent['configurations'])
         return ret

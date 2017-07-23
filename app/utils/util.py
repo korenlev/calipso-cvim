@@ -157,3 +157,16 @@ def decode_router_id(router_id: str):
 
 def get_extension(file_path: str) -> str:
     return os.path.splitext(file_path)[1][1:]
+
+
+def encode_aci_dn(object_id):
+    return object_id.replace("topology/", "").replace("/", "___").replace("-", "__")
+
+
+def decode_aci_dn(object_id):
+    return object_id.replace("___", "/").replace("__", "-")
+
+
+def get_object_path_part(path: str, part_name: str):
+    match = re.match(".*/{}/(.+?)/.*".format(part_name), path)
+    return match.group(1) if match else None
