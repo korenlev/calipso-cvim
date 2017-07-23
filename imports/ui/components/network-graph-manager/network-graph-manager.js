@@ -109,8 +109,7 @@ Template.NetworkGraphManager.helpers({
       onNodeOut: function (_nodeId) {
         store.dispatch(closeGraphTooltipWindow());
       },
-      onNodeClick: function (nodeId) {
-        console.log(`on node click ${nodeId}`);
+      onNodeClick: function (_nodeId) {
       },
       onDragStart: function () {
         isDragging = true;
@@ -256,7 +255,8 @@ function calcGroups(nodes) {
     if (groupIndex < 0) {
       let group = { 
         _osid: host,
-        leaves: [node]
+        leaves: [node],
+        isExpanded: true,
       };
       accGroups = R.append(group, accGroups);
 
