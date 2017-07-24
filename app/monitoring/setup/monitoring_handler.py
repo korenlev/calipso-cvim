@@ -350,7 +350,8 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         for file_path in self.fetch_ssl_files:
             tmp_path = os.path.join(self.TMP_SSL_FOLDER,
                                     os.path.basename(file_path))
-            os.remove(tmp_path)  # remove files from temporary folder
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)  # remove files from temporary folder
 
     def deploy_scripts_to_host(self, host_details):
         host = host_details['host']
@@ -361,6 +362,19 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         if is_server:
             return  # this was done earlier
         self.copy_from_gateway_to_host(host, local_path, remote_path)
+
+    def restart_service(self, host: str = None,
+                        service: str = 'sensu-client',
+                        is_server: bool = False,
+                        msg: str =None):
+        ssh = self.get_ssh(host)
+        cmd = 'sudo /etc/init.d/{} restart'.format(service)
+        log_msg = msg if msg else 'deploying config to host {}'.format(host)
+        self.log.info(log_msg)
+        if is_server:
+            ssh.exec(cmd)
+        else:
+            self.run(cmd, ssh_to_host=host, ssh=ssh)
 
     def deploy_config_to_target(self, host_details):
         host = host_details['host']
@@ -374,13 +388,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                 self.move_setup_files_to_remote_host(host, local_dir)
             # restart the Sensu client on the remote host,
             # so it takes the new setup
-            ssh = self.get_ssh(host)
-            cmd = 'sudo /etc/init.d/sensu-client restart'
-            self.log.info('deploying config to host {}'.format(host))
-            if is_server:
-                ssh.exec(cmd)
-            else:
-                self.run(cmd, ssh_to_host=host, ssh=ssh)
+            self.restart_service(host)
 
     def run_cmd_locally(self, cmd):
         try:

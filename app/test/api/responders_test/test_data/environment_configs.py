@@ -195,6 +195,7 @@ ENV_CONFIG = {
             "env_type": "development",
             "name": "Monitoring",
             "api_port": "4567",
+            "rabbitmq_port": "5671",
             "rabbitmq_pass": "sensuaccess",
             "rabbitmq_user": "sensu",
             "ssh_port": "20022",

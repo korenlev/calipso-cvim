@@ -94,7 +94,7 @@ class SshConnection(BinaryConverter):
     def set_call_limit(self, _limit: int):
         self.call_count_limit = _limit
 
-    def connect(self, reconnect=False):
+    def connect(self, reconnect=False) -> bool:
         connection = self.get_connection(self.host, self.for_sftp)
         if connection:
             self.ssh = connection
@@ -121,14 +121,23 @@ class SshConnection(BinaryConverter):
                              else self.DEFAULT_PORT,
                              password=self.pwd, timeout=30)
         else:
-            self.ssh.connect(self.host, username=self.user, password=self.pwd,
-                             port=self.port if self.port is not None
-                             else self.DEFAULT_PORT,
-                             timeout=30)
+            try:
+                port = self.port if self.port is not None else self.DEFAULT_PORT
+                self.ssh.connect(self.host,
+                                 username=self.user,
+                                 password=self.pwd,
+                                 port=port,
+                                 timeout=30)
+            except paramiko.ssh_exception.AuthenticationException:
+                self.log.error('Failed SSH connect to host {}, port={}'
+                               .format(self.host, port))
+                self.ssh = None
         self.call_count = 0
+        return self.ssh is not None
 
     def exec(self, cmd):
-        self.connect()
+        if not self.connect():
+            return ''
         self.call_count += 1
         self.log.debug("call count: %s, running call:\n%s\n",
                        str(self.call_count), cmd)
@@ -152,7 +161,8 @@ class SshConnection(BinaryConverter):
         return ret
 
     def copy_file(self, local_path, remote_path, mode=None):
-        self.connect()
+        if not self.connect():
+            return
         if not self.ftp:
             self.ftp = self.ssh.open_sftp()
         try:
@@ -187,7 +197,8 @@ class SshConnection(BinaryConverter):
         return ''
 
     def copy_file_from_remote(self, remote_path, local_path):
-        self.connect()
+        if not self.connect():
+            return
         if not self.ftp:
             self.ftp = self.ssh.open_sftp()
         try:

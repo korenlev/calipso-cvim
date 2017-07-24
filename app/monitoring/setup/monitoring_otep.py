@@ -17,8 +17,9 @@ class MonitoringOtep(MonitoringCheckHandler):
 
     # add monitoring setup for remote host
     def create_setup(self, o):
-        for port in o['ports'].values():
-            self.create_monitoring_for_otep_port(o, port)
+        if o['ports']:
+            for port in o['ports'].values():
+                self.create_monitoring_for_otep_port(o, port)
 
     def create_monitoring_for_otep_port(self, o, port):
         if port['type'] not in ['vxlan', 'gre']:
