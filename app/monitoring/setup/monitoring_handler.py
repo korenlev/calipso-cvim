@@ -482,3 +482,4 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     def get_file(self, host, remote_path, local_path):
         ftp_ssh = self.get_ssh(host, for_sftp=True)
         ftp_ssh.copy_file_from_remote(remote_path, local_path)
+

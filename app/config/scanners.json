@@ -218,7 +218,14 @@
             "LXB"
           ]
         },
-        "fetcher": "CliFetchHostPnics"
+        "fetcher": "CliFetchHostPnics",
+        "children_scanner": "ScanHostPnic"
+      }
+    ],
+    "ScanHostPnic": [
+      {
+        "type": "pnic",
+        "fetcher": "AciFetchSwitchPnic"
       }
     ],
     "ScanProject": [
