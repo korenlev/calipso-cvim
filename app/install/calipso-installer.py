@@ -268,138 +268,25 @@ def start_ui(host, dbuser, dbpassword, webport, dbport):
         return
 
 
-# functions to check and stop calipso containers:
-def stop_mongo():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
-        print("fetching container name calipso-mongo...\n")
-        calipso_mongo = DockerClient.containers.get("calipso-mongo")
-        if calipso_mongo.status != "running":
-            print("calipso-mongo is not running...")
+# function to check and stop calipso containers:
+
+def container_stop(container_name):
+    if DockerClient.containers.list(all=True, filters={"name": container_name}):
+        print("fetching container name", container_name, "...\n")
+        c = DockerClient.containers.get(container_name)
+        if c.status != "running":
+            print(container_name, "is not running...")
             time.sleep(1)
-            print("removing container name", calipso_mongo.name, "...\n")
-            calipso_mongo.remove()
+            print("removing container name", c.name, "...\n")
+            c.remove()
         else:
-            print("killing container name", calipso_mongo.name, "...\n")
-            calipso_mongo.kill()
+            print("killing container name", c.name, "...\n")
+            c.kill()
             time.sleep(1)
-            print("removing container name", calipso_mongo.name, "...\n")
-            calipso_mongo.remove()
+            print("removing container name", c.name, "...\n")
+            c.remove()
     else:
-        print("no container named 'calipso-mongo' found...")
-
-
-def stop_listen():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-listen"}):
-        print("fetching container name calipso-listen...\n")
-        calipso_listen = DockerClient.containers.get("calipso-listen")
-        if calipso_listen.status != "running":
-            print("calipso-listen is not running...")
-            time.sleep(1)
-            print("removing container name", calipso_listen.name, "...\n")
-            calipso_listen.remove()
-        else:
-            print("killing container name", calipso_listen.name, "...\n")
-            calipso_listen.kill()
-            time.sleep(1)
-            print("removing container name", calipso_listen.name, "...\n")
-            calipso_listen.remove()
-    else:
-        print("no container named 'calipso-listen' found...")
-
-
-def stop_ldap():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-ldap"}):
-        print("fetching container name calipso-ldap...\n")
-        calipso_ldap = DockerClient.containers.get("calipso-ldap")
-        if calipso_ldap.status != "running":
-            print("calipso-ldap is not running...")
-            time.sleep(1)
-            print("removing container name", calipso_ldap.name, "...\n")
-            calipso_ldap.remove()
-        else:
-            print("killing container name", calipso_ldap.name, "...\n")
-            calipso_ldap.kill()
-            time.sleep(1)
-            print("removing container name", calipso_ldap.name, "...\n")
-            calipso_ldap.remove()
-    else:
-        print("no container named 'calipso-ldap' found...")
-
-
-def stop_api():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-api"}):
-        print("fetching container name calipso-api...\n")
-        calipso_api = DockerClient.containers.get("calipso-api")
-        if calipso_api.status != "running":
-            print("calipso-api is not running...")
-            time.sleep(1)
-            print("removing container name", calipso_api.name, "...\n")
-            calipso_api.remove()
-        else:
-            print("killing container name", calipso_api.name, "...\n")
-            calipso_api.kill()
-            time.sleep(1)
-            print("removing container name", calipso_api.name, "...\n")
-            calipso_api.remove()
-    else:
-        print("no container named 'calipso-api' found...")
-
-
-def stop_scan():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-scan"}):
-        print("fetching container name calipso-scan...\n")
-        calipso_scan = DockerClient.containers.get("calipso-scan")
-        if calipso_scan.status != "running":
-            print("calipso-scan is not running...")
-            time.sleep(1)
-            print("removing container name", calipso_scan.name, "...\n")
-            calipso_scan.remove()
-        else:
-            print("killing container name", calipso_scan.name, "...\n")
-            calipso_scan.kill()
-            time.sleep(1)
-            print("removing container name", calipso_scan.name, "...\n")
-            calipso_scan.remove()
-    else:
-        print("no container named 'calipso-scan' found...")
-
-
-def stop_sensu():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-sensu"}):
-        print("fetching container name calipso-sensu...\n")
-        calipso_sensu = DockerClient.containers.get("calipso-sensu")
-        if calipso_sensu.status != "running":
-            print("calipso-sensu is not running...")
-            time.sleep(1)
-            print("removing container name", calipso_sensu.name, "...\n")
-            calipso_sensu.remove()
-        else:
-            print("killing container name", calipso_sensu.name, "...\n")
-            calipso_sensu.kill()
-            time.sleep(1)
-            print("removing container name", calipso_sensu.name, "...\n")
-            calipso_sensu.remove()
-    else:
-        print("no container named 'calipso-sensu' found...")
-
-
-def stop_ui():
-    if DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
-        print("fetching container name calipso-ui...\n")
-        calipso_ui = DockerClient.containers.get("calipso-ui")
-        if calipso_ui.status != "running":
-            print("calipso-ui is not running...")
-            time.sleep(1)
-            print("removing container name", calipso_ui.name, "...\n")
-            calipso_ui.remove()
-        else:
-            print("killing container name", calipso_ui.name, "...\n")
-            calipso_ui.kill()
-            time.sleep(1)
-            print("removing container name", calipso_ui.name, "...\n")
-            calipso_ui.remove()
-    else:
-        print("no container named 'calipso-ui' found...")
+        print("no container named", container_name, "found...")
 
 
 # parser for getting optional command arguments:
@@ -478,18 +365,16 @@ if action == "start":
 # stopping the containers per arguments:
 if action == "stop":
     if container == "calipso-mongo" or container == "all":
-        stop_mongo()
+        container_stop("calipso-mongo")
     if container == "calipso-listen" or container == "all":
-        stop_listen()
+        container_stop("calipso-listen")
     if container == "calipso-ldap" or container == "all":
-        stop_ldap()
+        container_stop("calipso-ldap")
     if container == "calipso-api" or container == "all":
-        stop_api()
+        container_stop("calipso-api")
     if container == "calipso-scan" or container == "all":
-        stop_scan()
+        container_stop("calipso-scan")
     if container == "calipso-sensu" or container == "all":
-        stop_sensu()
+        container_stop("calipso-sensu")
     if container == "calipso-ui" or container == "all":
-        stop_ui()
-
-
+        container_stop("calipso-ui")
