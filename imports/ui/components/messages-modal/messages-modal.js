@@ -13,9 +13,9 @@
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-import { Counts } from 'meteor/tmeasday:publish-counts';
+import { Counter } from 'meteor/natestrauser:publish-performant-counts';
 import * as R from 'ramda';
-import { Messages } from '/imports/api/messages/messages';
+//import { Messages } from '/imports/api/messages/messages';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
         
@@ -37,15 +37,45 @@ Template.MessagesModal.onCreated(function() {
     envName: null,
     page: 1,
     amountPerPage: 10,
+    messages: [],
   });
 
   instance.autorun(function () {
-    let amountPerPage = instance.state.get('amountPerPage');
-    let page = instance.state.get('page');
+ 
+    //let amountPerPage = instance.state.get('amountPerPage');
+    //let page = instance.state.get('page');
     let envName = instance.state.get('envName');
     let messageLevel = instance.state.get('messageLevel');
+    /*
 
     instance.subscribe('messages?env&level&page&amount', envName, messageLevel, page, amountPerPage);
+    */
+
+    if (R.isNil(envName)) {
+      instance.subscribe('messages/count?level', messageLevel);
+    } else {
+      instance.subscribe('messages/count?level&env', messageLevel, envName);
+    }
+  });
+
+  instance.autorun(function () {
+    let level = instance.state.get('messageLevel');
+    let envName = instance.state.get('envName');
+    let page = instance.state.get('page');
+    let amountPerPage = instance.state.get('amountPerPage');
+
+    Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
+      level, envName, page, amountPerPage, null, null
+    ], {
+      wait: false
+    }, function (err, res) {
+      if (err) {
+        console.error(R.toString(err));
+        return;
+      }
+
+      instance.state.set('messages', res);
+    });
   });
 });  
 
@@ -124,18 +154,7 @@ Template.MessagesModal.helpers({
 
   messages: function () {
     let instance = Template.instance();
-    let level = instance.state.get('messageLevel');
-    let envName = instance.state.get('envName');
-    let page = instance.state.get('page');
-    let amountPerPage = instance.state.get('amountPerPage');
-    let skip = (page - 1) * amountPerPage;
-    let pQuery = { limit: amountPerPage, skip: skip };
-
-    if (R.isNil(envName)) {
-      return Messages.find({ level: level }, pQuery);
-    } else {
-      return Messages.find({ level: level, environment: envName }, pQuery);
-    }
+    return instance.state.get('messages');
   },
 
   currentPage: function () {
@@ -152,15 +171,12 @@ Template.MessagesModal.helpers({
     let instance = Template.instance();
     let level = instance.state.get('messageLevel');
     let env = instance.state.get('envName');
-    let page = instance.state.get('page');
-    let amountPerPage = instance.state.get('amountPerPage');
-    env = env ? env : null;
 
-    return Counts.get('messages?env&level&page&amount!counter?env=' +
-      R.toString(env) + '&level=' + R.toString(level) +
-      '&page=' + R.toString(page) +
-      '&amount=' + R.toString(amountPerPage)
-    );
+    if (R.isNil(env)) {
+      return Counter.get(`messages/count?level=${level}`);
+    } else {
+      return Counter.get(`messages/count?level=${level}&env=${env}`);
+    }
   },
 
   argsPager: function (currentPage, amountPerPage, totalMessages) {

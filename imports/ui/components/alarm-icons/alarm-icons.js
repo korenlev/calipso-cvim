@@ -24,9 +24,9 @@ Template.alarmIcons.onCreated(function () {
   let instance = this;
 
   instance.autorun(function () {
-    instance.subscribe('messages?level', 'info');
-    instance.subscribe('messages?level', 'warning');
-    instance.subscribe('messages?level', 'error');
+    instance.subscribe('messages/count?level', 'info');
+    instance.subscribe('messages/count?level', 'warning');
+    instance.subscribe('messages/count?level', 'error');
   });
 });
 

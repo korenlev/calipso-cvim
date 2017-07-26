@@ -10,7 +10,7 @@
     "jquery": "^1.9.1",
     "jquery.scrollto": "^2.1.2",
     "meteor-node-stubs": "^0.2.1",
-    "ramda": "^0.22.1",
+    "ramda": "^0.24.1",
     "reactive-redux": "^1.1.0",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",

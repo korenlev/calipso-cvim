@@ -23,6 +23,7 @@ import '../../api/scheduled-scans/methods.js';
 import '../../api/scheduled-scans/server/methods.js';
 
 import '../../api/messages/server/publications';
+import '../../api/messages/server/methods';
 import '../../api/messages/methods.js';
 
 import '../../api/cliques/server/publications';

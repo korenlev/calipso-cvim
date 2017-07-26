@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import * as R from 'ramda';
 import * as utils from '/imports/lib/utilities';
+import { Counter } from 'meteor/natestrauser:publish-performant-counts';
 
 Template.registerHelper('asHash', function (params) {
   return params.hash;
@@ -22,4 +23,10 @@ Template.registerHelper('rPath', function (source, pathStr) {
 
 Template.registerHelper('asArray', function (val) {
   return [val];
+});
+
+Template.registerHelper('countOf', function (name) {
+  if (name) {
+    return Counter.get(name);
+  }
 });

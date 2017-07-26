@@ -13,11 +13,13 @@
 //import * as R from 'ramda';
 import * as _ from 'lodash';
 import { Environments } from '/imports/api/environments/environments';
-import { Messages, calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessagesInfoBox } 
-  from '/imports/api/messages/messages';
+import { //Messages, 
+  calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessagesInfoBox 
+} from '/imports/api/messages/messages';
 import { Template } from 'meteor/templating';
 import { Inventory } from '/imports/api/inventories/inventories';
 import { Counts } from 'meteor/tmeasday:publish-counts';
+import { Counter } from 'meteor/natestrauser:publish-performant-counts';
 //import { Messages } from '/imports/api/messages/messages';
 import { store } from '/imports/ui/store/store';
 import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
@@ -35,9 +37,10 @@ Template.Dashboard.onCreated(function () {
 
   instance.autorun(function () {
     instance.subscribe('environments_config');
-    instance.subscribe('messages?level', 'info');
-    instance.subscribe('messages?level', 'warning');
-    instance.subscribe('messages?level', 'error');
+
+    instance.subscribe('messages/count?level', 'info');
+    instance.subscribe('messages/count?level', 'warning');
+    instance.subscribe('messages/count?level', 'error');
 
     Environments.find({}).forEach(function (envItem) {
       instance.subscribe('inventory?env+type', envItem.name, 'instance');
@@ -47,10 +50,6 @@ Template.Dashboard.onCreated(function () {
       instance.subscribe('inventory?env+type', envItem.name, 'project');
       instance.subscribe('inventory?env+type', envItem.name, 'region');
     });
-
-    instance.subscribe('messages?level', 'notify');
-    instance.subscribe('messages?level', 'warn');
-    instance.subscribe('messages?level', 'error');
 
     store.dispatch(setMainAppSelectedEnvironment(null));
   });
@@ -198,7 +197,7 @@ Template.Dashboard.helpers({
   },
 
   messageCount: function (level) {
-    return Messages.find({ level: level }).count();
+    return Counter.get(`messages/count?level=${level}`);
   },
 
   argsMessagesInfoBox: function(boxDef, messageCount) {

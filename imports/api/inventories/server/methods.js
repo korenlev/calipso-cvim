@@ -6,8 +6,6 @@
 // which accompanies this distribution, and is available at                             /
 // http://www.apache.org/licenses/LICENSE-2.0                                           /
 /////////////////////////////////////////////////////////////////////////////////////////
-//import * as R from 'ramda';
-
 import { check } from 'meteor/check';
 import * as R from 'ramda';
 import { Inventory } from '../inventories';

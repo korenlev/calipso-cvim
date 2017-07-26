@@ -13,10 +13,10 @@
 //import { Meteor } from 'meteor/meteor'; 
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
-import { Counts } from 'meteor/tmeasday:publish-counts';
+import { Counter } from 'meteor/natestrauser:publish-performant-counts';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { Messages } from '/imports/api/messages/messages';
+//import { Messages } from '/imports/api/messages/messages';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
         
@@ -39,6 +39,7 @@ Template.MessagesList.onCreated(function() {
     amountPerPage: 10,
     sortField: null,
     sortDirection: null,
+    messsages: [],
   });
 
   instance.autorun(function () {
@@ -52,6 +53,7 @@ Template.MessagesList.onCreated(function() {
     }).validate(query);
 
     instance.subscribe('environments_config');
+    instance.subscribe('messages/count');
   });
 
   instance.autorun(function () {
@@ -60,8 +62,18 @@ Template.MessagesList.onCreated(function() {
     let sortField = instance.state.get('sortField');
     let sortDirection = instance.state.get('sortDirection');
 
-    instance.subscribe('messages?page&amount&sortField&sortDirection', 
-      page, amountPerPage, sortField, sortDirection);
+    Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
+      null, null, page, amountPerPage, sortField, sortDirection
+    ], {
+      wait: false
+    }, function (err, res) {
+      if (err) {
+        console.error(R.toString(err));
+        return;
+      }
+
+      instance.state.set('messages', res);
+    });
   });
 });  
 
@@ -182,23 +194,7 @@ Template.MessagesList.events({
 Template.MessagesList.helpers({    
   messages: function () {
     let instance = Template.instance();
-    let page = instance.state.get('page');
-    let amountPerPage = instance.state.get('amountPerPage');
-    let sortField = instance.state.get('sortField');
-    let sortDirection = instance.state.get('sortDirection');
-
-    let skip = (page - 1) * amountPerPage;
-    let sortParams = {};
-    sortParams = R.ifElse(R.isNil, R.always(sortParams), 
-      R.assoc(R.__, sortDirection, sortParams))(sortField);
-
-    let qParams = {
-      limit: amountPerPage,
-      skip: skip,
-      sort: sortParams,
-    };
-
-    return Messages.find({}, qParams); 
+    return instance.state.get('messages');
   },
 
   currentPage: function () {
@@ -212,13 +208,7 @@ Template.MessagesList.helpers({
   },
 
   totalMessages: function () {
-    let instance = Template.instance();
-    let page = instance.state.get('page');
-    let amountPerPage = instance.state.get('amountPerPage');
-    let counterName = 'messages?page&amount!count?page=' + R.toString(page) + 
-      '&amount=' + R.toString(amountPerPage);
-
-    return Counts.get(counterName);
+    return Counter.get(`messages/count`);
   },
 
   toIsoFormatStr: function (date) {
