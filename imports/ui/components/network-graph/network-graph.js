@@ -151,8 +151,8 @@ function renderGraph(
 
   let mainEl = svg.append('g');
   let groupsEl = mainEl.append('g').attr('class', 'groups-container');
-  let nodesEl = mainEl.append('g').attr('class', 'nodes-container');
   let linksEl = mainEl.append('g').attr('class', 'links-container');
+  let nodesEl = mainEl.append('g').attr('class', 'nodes-container');
   
   renderView(force, {
     graph: graph, 
