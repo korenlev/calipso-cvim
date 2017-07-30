@@ -83,7 +83,7 @@ CONFIGURATIONS = {
             "mock": "True",
             "host": "10.56.20.239",
             "name": "mysql",
-            "password": "102QreDdiD5sKcvNf9qbHrmr",
+            "pwd": "102QreDdiD5sKcvNf9qbHrmr",
             "port": 3307.0,
             "user": "root",
             "schema": "nova"
@@ -108,7 +108,7 @@ CONFIGURATIONS = {
             "host": "10.56.20.239",
             "port": "5673",
             "user": "nova",
-            "password": "NF2nSv3SisooxPkCTr8fbfOa"
+            "pwd": "NF2nSv3SisooxPkCTr8fbfOa"
         }
     ],
     "distribution": "Mirantis-8.0",
@@ -293,7 +293,7 @@ CONFIGURATIONS_WITHOUT_MECHANISM_DRIVERS = {
             "mock": "True",
             "host": "10.56.20.239",
             "name": "mysql",
-            "password": "102QreDdiD5sKcvNf9qbHrmr",
+            "pwd": "102QreDdiD5sKcvNf9qbHrmr",
             "port": 3307.0,
             "user": "root",
             "schema": "nova"
@@ -318,7 +318,7 @@ CONFIGURATIONS_WITHOUT_MECHANISM_DRIVERS = {
             "host": "10.56.20.239",
             "port": "5673",
             "user": "nova",
-            "password": "NF2nSv3SisooxPkCTr8fbfOa"
+            "pwd": "NF2nSv3SisooxPkCTr8fbfOa"
         }
     ],
     "distribution": "Mirantis-8.0",
