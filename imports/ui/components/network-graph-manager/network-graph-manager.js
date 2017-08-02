@@ -221,10 +221,14 @@ function addNodeToGraph(node, graphData) {
     name: node._id._str,
   };
 
-  newNode = R.ifElse(R.isNil, 
-    R.always(newNode),
-    R.assocPath(['_osmeta', 'host'], R.__, newNode)
-  )(node.host);
+  let groupMarkers = ['host', 'switch'];
+  let groupKey = R.find((key) => {
+    if (R.isNil(R.path([key], node))) { return false; }
+    return true;
+  })(groupMarkers);
+  if (groupKey) {
+    newNode = R.assocPath(['_osmeta', 'groupId'], node[groupKey], newNode);
+  }
 
   let nodes = R.unionWith(R.eqBy(R.prop('_osid')), graphData.nodes, [newNode]);
   let links = expandLinks(graphData.links, nodes);
@@ -245,7 +249,7 @@ function calcIsReady(graphData) {
 
 function calcGroups(nodes) {
   return R.reduce((accGroups, node) => {
-    let groupId = R.path(['_osmeta', 'host'], node);
+    let groupId = R.path(['_osmeta', 'groupId'], node);
     if (R.isNil(groupId)) {
       return accGroups;
     }

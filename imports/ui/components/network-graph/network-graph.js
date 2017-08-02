@@ -587,10 +587,10 @@ function calcClosedGroupsNodes(rejectedGroups, prevViewNodes) {
 function calcNodesAndRejectedNodes(originalNodes, originalGroups) {
   let rejectedNodes = [];
   let nodes = R.reject((node) => {
-    let host = R.path(['_osmeta', 'host'], node);
-    if (R.isNil(host)) { return false; }
+    let groupId = R.path(['_osmeta', 'groupId'], node);
+    if (R.isNil(groupId)) { return false; }
 
-    let group = R.find(R.propEq('_osid', host), originalGroups);
+    let group = R.find(R.propEq('_osid', groupId), originalGroups);
     if (R.isNil(group)) { return false; }
 
     if (group.isExpanded) { return false; } 
@@ -631,8 +631,8 @@ function calcLinksAndRejectedLinks(originalLinks, rejectedNodes) {
 
 function calcNewLinksForRejectedSource(rejectedSourceLinks, nodes, prevLinks) {
   let newLinksForRejectedSource = R.reduce((acc, link) => {
-    let host = R.path(['_osmeta', 'host'], link.source);
-    let groupNodeId = `${host}-group-node`;
+    let groupId = R.path(['_osmeta', 'groupId'], link.source);
+    let groupNodeId = `${groupId}-group-node`;
     let newSource = R.find(R.propEq('_osid', groupNodeId), nodes);
     if (R.isNil(newSource)) { 
       throw 'error in new links for rejected source function';
@@ -663,8 +663,8 @@ function calcNewLinksForRejectedSource(rejectedSourceLinks, nodes, prevLinks) {
 
 function calcNewLinksForRejectedTarget(rejectedLinks, nodes, prevLinks) {
   let newLinks = R.reduce((acc, link) => {
-    let host = R.path(['_osmeta', 'host'], link.target);
-    let groupNodeId = `${host}-group-node`;
+    let groupId = R.path(['_osmeta', 'groupId'], link.target);
+    let groupNodeId = `${groupId}-group-node`;
     let newTarget = R.find(R.propEq('_osid', groupNodeId), nodes);
     if (R.isNil(newTarget)) { 
       throw 'error in new links for rejected target function';
@@ -695,8 +695,8 @@ function calcNewLinksForRejectedTarget(rejectedLinks, nodes, prevLinks) {
 
 function calcNewLinksForRejectedBoth(rejectedLinks, nodes, prevLinks) {
   let newLinks = R.reduce((acc, link) => {
-    let targetHost = R.path(['_osmeta', 'host'], link.target);
-    let sourceHost = R.path(['_osmeta', 'host'], link.source);
+    let targetHost = R.path(['_osmeta', 'groupId'], link.target);
+    let sourceHost = R.path(['_osmeta', 'groupId'], link.source);
     let groupSourceNodeId = `${sourceHost}-group-node`;
     let groupTargetNodeId = `${targetHost}-group-node`;
 
