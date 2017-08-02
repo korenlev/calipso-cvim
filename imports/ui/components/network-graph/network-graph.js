@@ -381,18 +381,37 @@ function renderView(force,
   function tickFn() {
     let svgGroups = mainEl.selectAll('.group');
     svgGroups
+      .attr('transform', function (d) {
+        let x = R.path(['bounds', 'x'], d);
+        let y = R.path(['bounds', 'y'], d);
+        return `translate(${x},${y})`;
+      })
+    ;
+    /*
       .attr('x', function (d) { 
         return R.path(['bounds', 'x'], d); 
       })
       .attr('y', function (d) { 
         return R.path(['bounds', 'y'], d);
       })
+      */
+
+    svgGroups.selectAll('.group-shape')
       .attr('width', function (d) { 
         if (d.bounds) { return d.bounds.width(); } 
       })
       .attr('height', function (d) { 
         if (d.bounds) { return d.bounds.height(); } 
       });
+
+    svgGroups.selectAll('.group-name')
+      .attr('x', function(d) { 
+        return (d.bounds.width() / 2);
+      })
+      .attr('y', function(_d) { 
+        return 30;
+      })
+    ;
 
     let svgNodes = mainEl.selectAll('.node');
     svgNodes.attr('transform', function(d) {
@@ -462,20 +481,44 @@ function genSvgGroups(g, groups, drag, onRenderViewReq) {
   let svgGroups = g.selectAll('.group')
       .data(groups, (d) => d._osid);
 
-  //let rects = 
-  svgGroups.enter()
+  let enterGroups = svgGroups.enter();
+
+  let groupsContainers = 
+    enterGroups
+      .append('g')
+        .attr('class', 'group')
+        .attr('data-group-id', (d) => d._osid)
+        .call(drag)
+        .on('click', function (d) {
+          console.log('click', d);
+          d.isExpanded = !d.isExpanded;
+          onRenderViewReq();
+        });
+
+  groupsContainers
     .append('rect')
+      .attr('class', 'group-shape')
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('class', 'group')
-      .attr('data-group-id', (d) => d._osid)
       .style('fill', function (_d, _i) { return 'lightblue'; })
-      .call(drag)
-      .on('click', function (d) {
-        console.log('click', d);
-        d.isExpanded = !d.isExpanded;
-        onRenderViewReq();
-      });
+  ;
+
+  groupsContainers
+    .append('text')
+    .text(function(d) { 
+      return d.name;
+    })
+    .attr('class', 'group-name')
+    .attr('x', function(d) { 
+      return (d.bounds.width() / 2);
+    })
+    .attr('y', function(_d) { 
+      return 30;
+    })
+    .attr('dy', '.25em')
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 20)
+  ;
 
   svgGroups.exit()
     .remove();

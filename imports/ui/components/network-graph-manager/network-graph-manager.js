@@ -245,18 +245,19 @@ function calcIsReady(graphData) {
 
 function calcGroups(nodes) {
   return R.reduce((accGroups, node) => {
-    let host = R.path(['_osmeta', 'host'], node);
-    if (R.isNil(host)) {
+    let groupId = R.path(['_osmeta', 'host'], node);
+    if (R.isNil(groupId)) {
       return accGroups;
     }
 
-    let groupIndex = R.findIndex(R.propEq('_osid', host), accGroups);
+    let groupIndex = R.findIndex(R.propEq('_osid', groupId), accGroups);
     let group = null;
     if (groupIndex < 0) {
       let group = { 
-        _osid: host,
+        _osid: groupId,
         leaves: [node],
         isExpanded: true,
+        name: groupId,
       };
       accGroups = R.append(group, accGroups);
 
