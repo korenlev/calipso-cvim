@@ -18,13 +18,31 @@ import time
 import json
 
 
+C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
+H_MONGO_CONFIG = "/home/calipso/calipso_mongo_access.conf"
+PYTHONPATH = "/home/scan/calipso_prod/app"
+C_LDAP_CONFIG = "/local_dir/ldap.conf"
+H_LDAP_CONFIG = "/home/calipso/ldap.conf"
+
+
+calipso_volume = {'/home/calipso': {'bind': '/local_dir', 'mode': 'rw'}}
+RESTART_POLICY = {"Name": "always"}
+
+# environment variables definitions
+PYTHON_PATH = "PYTHONPATH=" + PYTHONPATH
+MONGO_CONFIG = "MONGO_CONFIG=" + C_MONGO_CONFIG
+LDAP_CONFIG = "LDAP_CONFIG=" + C_LDAP_CONFIG
+LOG_LEVEL = "LOG_LEVEL=DEBUG"
+
+
 class MongoComm:
-    # deals with communication from host/installer server to mongoDB, includes methods for future use
+    # deals with communication from host/installer server to mongoDB,
+    # includes methods for future use
     try:
 
-        def __init__(self, host, user, password, port):
+        def __init__(self, host, user, pwd, port):
             self.uri = "mongodb://%s:%s@%s:%s/%s" % (
-                quote_plus(user), quote_plus(password), host, port, "calipso")
+                quote_plus(user), quote_plus(pwd), host, port, "calipso")
             self.client = MongoClient(self.uri)
 
         def find(self, coll, key, val):
@@ -60,17 +78,21 @@ class MongoComm:
 
         def update(self, coll, doc, upsert=False):
             collection = self.client.calipso[coll]
-            doc_id = collection.update_one({'_id': doc['_id']},{'$set': doc}, upsert=upsert)
+            doc_id = collection.update_one({'_id': doc['_id']},
+                                           {'$set': doc},
+                                           upsert=upsert)
             return doc_id
 
     except ConnectionFailure:
         print("MongoDB Server not available")
 
 
-DockerClient = docker.from_env()   # using local host docker environment parameters
+# using local host docker environment parameters
+DockerClient = docker.from_env()
 
 # use the below example for installer against a remote docker host:
-# DockerClient = docker.DockerClient(base_url='tcp://korlev-calipso-testing.cisco.com:2375')
+# DockerClient = \
+# docker.DockerClient(base_url='tcp://korlev-calipso-testing.cisco.com:2375')
 
 
 def copy_file(filename):
@@ -83,252 +105,278 @@ def copy_file(filename):
     time.sleep(1)
 
 
-C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
-H_MONGO_CONFIG = "/home/calipso/calipso_mongo_access.conf"
-PYTHONPATH = "/home/scan/calipso_prod/app"
-C_LDAP_CONFIG = "/local_dir/ldap.conf"
-H_LDAP_CONFIG = "/home/calipso/ldap.conf"
+def container_started(name: str, print_message=True):
+    found = DockerClient.containers.list(all=True, filters={"name": name})
+    if found and print_message:
+        print("container named {} already exists, "
+              "please deal with it using docker...\n"
+              .format(name))
+    return bool(found)
+
+
+def download_image(image_name):
+    image = DockerClient.images.list(all=True, name=image_name)
+
+    if image:
+        print(image, "exists...not downloading...")
+        return
+
+    print("image {} missing, "
+          "hold on while downloading first...\n"
+          .format(image_name))
+    image = DockerClient.images.pull(image_name)
+    print("Downloaded", image, "\n\n")
+
 
 # functions to check and start calipso containers:
 def start_mongo(dbport):
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-mongo"}):
-        print("\nstarting container calipso-mongo, please wait...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:mongo")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:mongo missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:mongo")
-            print("Downloaded", image, "\n\n")
-        mongocontainer = DockerClient.containers.run('korenlev/calipso:mongo', detach=True, name="calipso-mongo",
-                                                     ports={'27017/tcp': dbport, '28017/tcp': 28017},
-                                                     restart_policy={"Name": "always"})
-        # wait a bit till mongoDB is up before starting to copy the json files from 'db' folder:
-        time.sleep(5)
-        enable_copy = input("create initial calipso DB ? (copy json files from 'db' folder to mongoDB -"
-                            " 'c' to copy, 'q' to skip):")
-        if enable_copy == "c":
-            print("\nstarting to copy json files to mongoDB...\n\n")
-            print("-----------------------------------------\n\n")
-            time.sleep(1)
-            copy_file("attributes_for_hover_on_data")
-            copy_file("clique_constraints")
-            copy_file("clique_types")
-            copy_file("cliques")
-            copy_file("constants")
-            copy_file("environments_config")
-            copy_file("inventory")
-            copy_file("link_types")
-            copy_file("links")
-            copy_file("messages")
-            copy_file("meteor_accounts_loginServiceConfiguration")
-            copy_file("users")
-            copy_file("monitoring_config")
-            copy_file("monitoring_config_templates")
-            copy_file("network_agent_types")
-            copy_file("roles")
-            copy_file("scans")
-            copy_file("scheduled_scans")
-            copy_file("statistics")
-            copy_file("supported_environments")
-
-            # note : 'messages', 'roles', 'users' and some of the 'constants' are filled by calipso-ui at runtime
-            # some other docs are filled later by scanning, logging and monitoring
-        else:
-            return
-    else:
-        print("container named calipso-mongo already exists, please deal with it using docker...\n")
+    name = "calipso-mongo"
+    if container_started(name):
         return
+    print("\nstarting container {}, please wait...\n".format(name))
+    image_name = "korenlev/calipso:mongo"
+    download_image(image_name)
+    mongo_ports = {'27017/tcp': dbport, '28017/tcp': 28017}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=mongo_ports,
+                                restart_policy=RESTART_POLICY)
+    # wait a bit till mongoDB is up before starting to copy the json files
+    # from 'db' folder:
+    time.sleep(5)
+    enable_copy = input("create initial calipso DB ? "
+                        "(copy json files from 'db' folder to mongoDB - "
+                        "'c' to copy, 'q' to skip):")
+    if enable_copy != "c":
+        return
+    print("\nstarting to copy json files to mongoDB...\n\n")
+    print("-----------------------------------------\n\n")
+    time.sleep(1)
+    copy_file("attributes_for_hover_on_data")
+    copy_file("clique_constraints")
+    copy_file("clique_types")
+    copy_file("cliques")
+    copy_file("constants")
+    copy_file("environments_config")
+    copy_file("inventory")
+    copy_file("link_types")
+    copy_file("links")
+    copy_file("messages")
+    copy_file("meteor_accounts_loginServiceConfiguration")
+    copy_file("users")
+    copy_file("monitoring_config")
+    copy_file("monitoring_config_templates")
+    copy_file("network_agent_types")
+    copy_file("roles")
+    copy_file("scans")
+    copy_file("scheduled_scans")
+    copy_file("statistics")
+    copy_file("supported_environments")
+
+    # note : 'messages', 'roles', 'users' and some of the 'constants'
+    # are filled by calipso-ui at runtime
+    # some other docs are filled later by scanning, logging
+    # and monitoring
 
 
 def start_listen():
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-listen"}):
-        print("\nstarting container calipso-listen...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:listen")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:listen missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:listen")
-            print("Downloaded", image, "\n\n")
-        listencontainer = DockerClient.containers.run('korenlev/calipso:listen', detach=True, name="calipso-listen",
-                                                      ports={'22/tcp': 50022},
-                                                      restart_policy={"Name": "always"},
-                                                      environment=["PYTHONPATH=" + PYTHONPATH,
-                                                                   "MONGO_CONFIG=" + C_MONGO_CONFIG],
-                                                      volumes={'/home/calipso': {'bind': '/local_dir', 'mode': 'rw'}})
-    else:
-        print("container named calipso-listen already exists, please deal with it using docker...\n")
+    name = "calipso-listen"
+    if container_started(name):
         return
+    print("\nstarting container {}...\n".format(name))
+    image_name = "korenlev/calipso:listen"
+    download_image(image_name)
+    ports = {'22/tcp': 50022}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=ports,
+                                restart_policy=RESTART_POLICY,
+                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                volumes=calipso_volume)
 
 
 def start_ldap():
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-ldap"}):
-        print("\nstarting container calipso-ldap...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:ldap")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:ldap missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:ldap")
-            print("Downloaded", image, "\n\n")
-        ldapcontainer = DockerClient.containers.run('korenlev/calipso:ldap', detach=True, name="calipso-ldap",
-                                                    ports={'389/tcp': 389, '389/udp': 389},
-                                                    restart_policy={"Name": "always"},
-                                                    volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
-    else:
-        print("container named calipso-ldap already exists, please deal with it using docker...\n")
+    name = "calipso-ldap"
+    if container_started(name):
         return
+    print("\nstarting container {}...\n".format(name))
+    image_name = "korenlev/calipso:ldap"
+    download_image(image_name)
+    ports = {'389/tcp': 389, '389/udp': 389}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=ports,
+                                restart_policy=RESTART_POLICY,
+                                volumes=calipso_volume)
 
 
 def start_api():
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-api"}):
-        print("\nstarting container calipso-api...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:api")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:api missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:api")
-            print("Downloaded", image, "\n\n")
-        apicontainer = DockerClient.containers.run('korenlev/calipso:api', detach=True, name="calipso-api",
-                                                   ports={'8000/tcp': 8000, '22/tcp': 40022},
-                                                   restart_policy={"Name": "always"},
-                                                   environment=["PYTHONPATH=" + PYTHONPATH,
-                                                                "MONGO_CONFIG=" + C_MONGO_CONFIG,
-                                                                "LDAP_CONFIG=" + C_LDAP_CONFIG,
-                                                                "LOG_LEVEL=DEBUG"],
-                                                   volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
-    else:
-        print("container named calipso-api already exists, please deal with it using docker...\n")
+    name = "calipso-api"
+    if container_started(name):
         return
+    print("\nstarting container {}...\n".format(name))
+    image_name = "korenlev/calipso:api"
+    download_image(image_name)
+    api_ports = {'8000/tcp': 8000, '22/tcp': 40022}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=api_ports,
+                                restart_policy=RESTART_POLICY,
+                                environment=[PYTHON_PATH, MONGO_CONFIG,
+                                             LDAP_CONFIG,
+                                             LOG_LEVEL],
+                                volumes=calipso_volume)
 
 
 def start_scan():
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-scan"}):
-        print("\nstarting container calipso-scan...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:scan")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:scan missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:scan")
-            print("Downloaded", image, "\n\n")
-        scancontainer = DockerClient.containers.run('korenlev/calipso:scan', detach=True, name="calipso-scan",
-                                                    ports={'22/tcp': 30022},
-                                                    restart_policy={"Name": "always"},
-                                                    environment=["PYTHONPATH=" + PYTHONPATH,
-                                                                 "MONGO_CONFIG=" + C_MONGO_CONFIG],
-                                                    volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
-    else:
-        print("container named calipso-scan already exists, please deal with it using docker...\n")
+    name = "calipso-scan"
+    if container_started(name):
         return
+    print("\nstarting container {}...\n".format(name))
+    image_name = "korenlev/calipso:scan"
+    download_image(image_name)
+    ports = {'22/tcp': 30022}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=ports,
+                                restart_policy=RESTART_POLICY,
+                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                volumes=calipso_volume)
 
 
 def start_sensu():
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-sensu"}):
-        print("\nstarting container calipso-sensu...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:sensu")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:sensu missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:sensu")
-            print("Downloaded", image, "\n\n")
-        sensucontainer = DockerClient.containers.run('korenlev/calipso:sensu', detach=True, name="calipso-sensu",
-                                                     ports={'22/tcp': 20022, '3000/tcp': 3000, '4567/tcp': 4567,
-                                                            '5671/tcp': 5671, '15672/tcp': 15672},
-                                                     restart_policy={"Name": "always"},
-                                                     environment=["PYTHONPATH=" + PYTHONPATH],
-                                                     volumes={'/home/calipso/': {'bind': '/local_dir/', 'mode': 'rw'}})
-    else:
-        print("container named calipso-sensu already exists, please deal with it using docker...\n")
+    name = "calipso-sensu"
+    if container_started(name):
         return
+    print("\nstarting container {}...\n".format(name))
+    image_name = "korenlev/calipso:sensu"
+    download_image(image_name)
+    sensu_ports = {'22/tcp': 20022, '3000/tcp': 3000, '4567/tcp': 4567,
+                   '5671/tcp': 5671, '15672/tcp': 15672}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=sensu_ports,
+                                restart_policy=RESTART_POLICY,
+                                environment=[PYTHON_PATH],
+                                volumes=calipso_volume)
 
 
 def start_ui(host, dbuser, dbpassword, webport, dbport):
-    if not DockerClient.containers.list(all=True, filters={"name": "calipso-ui"}):
-        print("\nstarting container calipso-ui...\n")
-        image = DockerClient.images.list(all=True, name="korenlev/calipso:ui")
-        if image:
-            print(image, "exists...not downloading...")
-        else:
-            print("image korenlev/calipso:ui missing, hold on while downloading first...\n")
-            image = DockerClient.images.pull("korenlev/calipso:ui")
-            print("Downloaded", image, "\n\n")
-        uicontainer = DockerClient.containers.run('korenlev/calipso:ui', detach=True, name="calipso-ui",
-                                                  ports={'3000/tcp': webport},
-                                                  restart_policy={"Name": "always"},
-                                                  environment=["ROOT_URL=http://{}:{}".format(host, str(webport)),
-                                                               "MONGO_URL=mongodb://{}:{}@{}:{}/calipso".format
-                                                               (dbuser, dbpassword, host, str(dbport)),
-                                                               "LDAP_CONFIG=" + C_LDAP_CONFIG])
-    else:
-        print("container named calipso-ui already exists, please deal with it using docker...\n")
+    name = "calipso-ui"
+    if container_started(name):
         return
+    print("\nstarting container {}...\n".format(name))
+    image_name = "korenlev/calipso:ui"
+    download_image(image_name)
+    root_url = "ROOT_URL=http://{}:{}".format(host, str(webport))
+    mongo_url = "MONGO_URL=mongodb://{}:{}@{}:{}/calipso"\
+                .format(dbuser, dbpassword, host, str(dbport))
+    ports = {'3000/tcp': webport}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=ports,
+                                restart_policy=RESTART_POLICY,
+                                environment=[root_url, mongo_url, LDAP_CONFIG])
 
 
-# function to check and stop calipso containers:
-
+# check and stop a calipso container by given name
 def container_stop(container_name):
-    if DockerClient.containers.list(all=True, filters={"name": container_name}):
-        print("fetching container name", container_name, "...\n")
-        c = DockerClient.containers.get(container_name)
-        if c.status != "running":
-            print(container_name, "is not running...")
-            time.sleep(1)
-            print("removing container name", c.name, "...\n")
-            c.remove()
-        else:
-            print("killing container name", c.name, "...\n")
-            c.kill()
-            time.sleep(1)
-            print("removing container name", c.name, "...\n")
-            c.remove()
-    else:
+    if not container_started(container_name, print_message=False):
         print("no container named", container_name, "found...")
+        return
+    print("fetching container name", container_name, "...\n")
+    c = DockerClient.containers.get(container_name)
+    if c.status != "running":
+        print(container_name, "is not running...")
+    else:
+        print("killing container name", c.name, "...\n")
+        c.kill()
+        time.sleep(1)
+    print("removing container name", c.name, "...\n")
+    c.remove()
 
 
 # parser for getting optional command arguments:
 parser = argparse.ArgumentParser()
-parser.add_argument("--hostname", help="Hostname or IP address of the server (default=172.17.0.1)",type=str,
-                    default="172.17.0.1", required=False)
-parser.add_argument("--webport", help="Port for the Calipso WebUI (default=80)",type=int,
-                    default="80", required=False)
-parser.add_argument("--dbport", help="Port for the Calipso MongoDB (default=27017)",type=int,
-                    default="27017", required=False)
-parser.add_argument("--dbuser", help="User for the Calipso MongoDB (default=calipso)",type=str,
-                    default="calipso", required=False)
-parser.add_argument("--dbpassword", help="Password for the Calipso MongoDB (default=calipso_default)",type=str,
-                    default="calipso_default", required=False)
+parser.add_argument("--hostname",
+                    help="Hostname or IP address of the server "
+                         "(default=172.17.0.1)",
+                    type=str,
+                    default="172.17.0.1",
+                    required=False)
+parser.add_argument("--webport",
+                    help="Port for the Calipso WebUI "
+                         "(default=80)",
+                    type=int,
+                    default="80",
+                    required=False)
+parser.add_argument("--dbport",
+                    help="Port for the Calipso MongoDB"
+                         "(default=27017)",
+                    type=int,
+                    default="27017",
+                    required=False)
+parser.add_argument("--dbuser",
+                    help="User for the Calipso MongoDB "
+                         "(default=calipso)",
+                    type=str,
+                    default="calipso",
+                    required=False)
+parser.add_argument("--dbpassword",
+                    help="Password for the Calipso MongoDB "
+                         "(default=calipso_default)",
+                    type=str,
+                    default="calipso_default",
+                    required=False)
 args = parser.parse_args()
 
 container = ""
 action = ""
-container_names = ["all", "calipso-mongo", "calipso-scan", "calipso-listen", "calipso-ldap", "calipso-api",
-                     "calipso-sensu", "calipso-ui"]
+container_names = ["calipso-mongo", "calipso-scan", "calipso-listen",
+                   "calipso-ldap", "calipso-api", "calipso-sensu", "calipso-ui"]
 container_actions = ["stop", "start"]
 while action not in container_actions:
     action = input("Action? (stop, start, or 'q' to quit):\n")
     if action == "q":
         exit()
-while container not in container_names:
-    container = input("Container? (all, calipso-mongo, calipso-scan, calipso-listen, calipso-ldap, calipso-api, "
-                      "calipso-sensu, calipso-ui or 'q' to quit):\n")
+while container != "all" and container not in container_names:
+    container = input("Container? (all, {} or 'q' to quit):\n"
+                      .format(", ".join(container_names)))
     if container == "q":
         exit()
 
 # starting the containers per arguments:
 if action == "start":
-    # building /home/calipso/calipso_mongo_access.conf and /home/calipso/ldap.conf files, per the arguments:
-    calipso_mongo_access_text = "server " + args.hostname + "\nuser " + args.dbuser + "\npwd " + \
-                                args.dbpassword + "\nauth_db calipso"
-    ldap_text = "user admin" + "\npassword password" + "\nurl ldap://" + args.hostname + ":389" + \
-                "\nuser_id_attribute CN" + "\nuser_pass_attribute userpassword" + \
-                "\nuser_objectclass inetOrgPerson" + \
-                "\nuser_tree_dn OU=Users,DC=openstack,DC=org" + "\nquery_scope one" + \
-                "\ntls_req_cert allow" + \
-                "\ngroup_member_attribute member"
+    # building /home/calipso/calipso_mongo_access.conf and
+    # /home/calipso/ldap.conf files, per the arguments:
+    calipso_mongo_access_text = \
+        "server {}\n" \
+        "user {}\n" \
+        "pwd {}\n" \
+        "auth_db calipso" \
+        .format(args.hostname, args.dbuser, args.dbpassword)
+    LDAP_PWD_ATTRIBUTE = "password password"
+    LDAP_USER_PWD_ATTRIBUTE = "password"
+    ldap_text = \
+        "user admin\n" + \
+        "{}\n" + \
+        "url ldap://{}:389\n" + \
+        "user_id_attribute CN\n" + \
+        "user_pass_attribute {}\n" + \
+        "user_objectclass inetOrgPerson\n" + \
+        "user_tree_dn OU=Users,DC=openstack,DC=org\n" + \
+        "query_scope one\n" + \
+        "tls_req_cert allow\n" + \
+        "group_member_attribute member"
+    ldap_text = ldap_text.format(LDAP_PWD_ATTRIBUTE, args.hostname,
+                                 LDAP_USER_PWD_ATTRIBUTE)
     print("creating default", H_MONGO_CONFIG, "file...\n")
     calipso_mongo_access_file = open(H_MONGO_CONFIG, "w+")
     time.sleep(1)
@@ -359,22 +407,12 @@ if action == "start":
         start_sensu()
         time.sleep(1)
     if container == "calipso-ui" or container == "all":
-        start_ui(args.hostname, args.dbuser, args.dbpassword, args.webport, args.dbport)
+        start_ui(args.hostname, args.dbuser, args.dbpassword, args.webport,
+                 args.dbport)
         time.sleep(1)
 
 # stopping the containers per arguments:
 if action == "stop":
-    if container == "calipso-mongo" or container == "all":
-        container_stop("calipso-mongo")
-    if container == "calipso-listen" or container == "all":
-        container_stop("calipso-listen")
-    if container == "calipso-ldap" or container == "all":
-        container_stop("calipso-ldap")
-    if container == "calipso-api" or container == "all":
-        container_stop("calipso-api")
-    if container == "calipso-scan" or container == "all":
-        container_stop("calipso-scan")
-    if container == "calipso-sensu" or container == "all":
-        container_stop("calipso-sensu")
-    if container == "calipso-ui" or container == "all":
-        container_stop("calipso-ui")
+    for name_to_stop in container_names:
+        if container == name_to_stop or container == "all":
+            container_stop(name_to_stop)

@@ -74,7 +74,6 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         if self.inv.is_feature_supported(self.env_name, EnvironmentFeatures.MONITORING):
             self.inv.monitoring_setup_manager = \
                 MonitoringSetupManager(self.env_name)
-            self.inv.monitoring_setup_manager.server_setup()
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=self.event_queues,
@@ -99,8 +98,6 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         # or it's not intended for env listener to handle,
         # leave the message in the queue unless "consume_all" flag is set
         if processable and event_data["event_type"] in self.handler.handlers:
-            with open("/tmp/listener.log", "a") as f:
-                f.write("{}\n".format(event_data))
             event_result = self.handle_event(event_data["event_type"],
                                              event_data)
             finished_timestamp = stringify_datetime(datetime.datetime.now())

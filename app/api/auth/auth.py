@@ -53,8 +53,8 @@ class Auth:
 
         return error
 
-    def validate_credentials(self, username, password):
-        return self.ldap_access.authenticate_user(username, password)
+    def validate_credentials(self, username, pwd):
+        return self.ldap_access.authenticate_user(username, pwd)
 
     def validate_token(self, token):
         error = None

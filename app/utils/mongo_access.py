@@ -94,7 +94,7 @@ class MongoAccess(DictNamingConverter):
 
     def prepare_connect_uri(self):
         params = self.connect_params
-        self.log.debug('connecting to MongoDb server: {}'
+        self.log.debug('connecting to MongoDB server: {}'
                        .format(params['server']))
         uri = 'mongodb://'
         if 'pwd' in params:

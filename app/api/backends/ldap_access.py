@@ -70,13 +70,13 @@ class LDAPAccess(metaclass=Singleton):
 
         return Server(ldap_url, use_ssl=self.user_ssl)
 
-    def authenticate_user(self, username, password):
+    def authenticate_user(self, username, pwd):
         if not self.server:
             self.server = self.connect_ldap_server()
 
-        user_dn = self.ldap_params['user_id_attribute'] + "=" + username + \
-                  "," + self.ldap_params['user_tree_dn']
-        connection = Connection(self.server, user=user_dn, password=password)
+        user_dn = self.ldap_params['user_id_attribute'] + "=" +
+                  username + "," + self.ldap_params['user_tree_dn']
+        connection = Connection(self.server, user=user_dn, password=pwd)
         # validate the user by binding
         # bound is true if binding succeed, otherwise false
         bound = False
