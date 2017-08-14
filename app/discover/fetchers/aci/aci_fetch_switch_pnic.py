@@ -11,7 +11,7 @@ import re
 
 from discover.fetchers.aci.aci_access import AciAccess, aci_config_required
 from utils.inventory_mgr import InventoryMgr
-from utils.util import encode_aci_dn, get_object_path_part
+from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
 
 
 # Fetches and adds to database:
@@ -44,6 +44,26 @@ class AciFetchSwitchPnic(AciAccess):
         switch_data = self.get_objects_by_field_names(response, "topSystem",
                                                       "attributes")
         return switch_data[0] if switch_data else None
+
+    def fetch_client_endpoints(self, mac_address):
+        mac_filter = "eq(fvCEp.mac,\"{}\")".format(mac_address)
+        query_params = {
+            "rsp-subtree": "children",
+            "query-target-filter": mac_filter
+        }
+
+        endpoints = self.fetch_objects_by_class("fvCEp", query_params)
+
+        results = []
+        for endpoint in endpoints:
+            result = endpoint["attributes"]
+            result["fvRsCEpToPathEp"] = []
+            for path in filter(lambda child: "fvRsCEpToPathEp" in child,
+                               endpoint.get("children", [])):
+                result["fvRsCEpToPathEp"].append(path["fvRsCEpToPathEp"]["attributes"])
+            results.append(result)
+
+        return results
 
     @aci_config_required(default=[])
     def get(self, pnic_id):
@@ -91,17 +111,22 @@ class AciFetchSwitchPnic(AciAccess):
                                            environment=environment)
 
         # Prepare pnic json for results list
-        db_pnic_id = "-".join((db_leaf_id,
+        fvCEp = self.fetch_client_endpoints(mac_address)
+
+        db_pnic_id = "-".join([db_leaf_id,
                                encode_aci_dn(leaf_pnic["ifId"]),
-                               mac_address))
+                               mac_address])
+
         pnic_json = {
             "id": db_pnic_id,
-            "type": "pnic",
+            "object_name": leaf_pnic["ifId"],
+            "type": "switch_pnic",
             "role": "hostlink",
             "parent_id": db_leaf_id,
-            "pnic_type": "switch",
+            "parent_type": "switch",
             "mac_address": mac_address,
             "switch": db_leaf_id,
-            "aci_document": leaf_pnic
+            "aci_document": leaf_pnic,
+            "fvCEp": fvCEp
         }
         return [pnic_json]

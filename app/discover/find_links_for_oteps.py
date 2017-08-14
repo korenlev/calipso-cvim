@@ -16,7 +16,7 @@ class FindLinksForOteps(FindLinks):
 
     def add_links(self):
         self.log.info("adding link types: " +
-                      "vedge-otep, otep-vconnector, otep-pnic")
+                      "vedge-otep, otep-vconnector, otep-host_pnic")
         oteps = self.inv.find_items({
             "environment": self.get_env(),
             "type": "otep"
@@ -36,9 +36,10 @@ class FindLinksForOteps(FindLinks):
         link_name = vedge["name"] + "-otep"
         state = "up"  # TBD
         link_weight = 0  # TBD
-        self.create_link(self.get_env(), vedge["host"],
+        self.create_link(self.get_env(),
                          source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight)
+                         link_type, link_name, state, link_weight,
+                         host=vedge["host"])
 
     def add_otep_vconnector_link(self, otep):
         if "vconnector" not in otep:
@@ -59,14 +60,15 @@ class FindLinksForOteps(FindLinks):
         link_name = otep["name"] + "-" + otep["vconnector"]
         state = "up"  # TBD
         link_weight = 0  # TBD
-        self.create_link(self.get_env(), otep["host"],
+        self.create_link(self.get_env(),
                          source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight)
+                         link_type, link_name, state, link_weight,
+                         host=otep["host"])
 
     def add_otep_pnic_link(self, otep):
         pnic = self.inv.find_items({
             "environment": self.get_env(),
-            "type": "pnic",
+            "type": "host_pnic",
             "host": otep["host"],
             "IP Address": otep["ip_address"]
         }, get_single=True)
@@ -76,10 +78,11 @@ class FindLinksForOteps(FindLinks):
         source_id = otep["id"]
         target = pnic["_id"]
         target_id = pnic["id"]
-        link_type = "otep-pnic"
+        link_type = "otep-host_pnic"
         link_name = otep["host"] + "pnic" + pnic["name"]
         state = "up"  # TBD
         link_weight = 0  # TBD
-        self.create_link(self.get_env(), otep["host"],
+        self.create_link(self.get_env(),
                          source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight)
+                         link_type, link_name, state, link_weight,
+                         host=otep["host"])
