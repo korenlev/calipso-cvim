@@ -317,6 +317,11 @@ Router.route('environment', {
       data = R.assoc('selectedNodeId', selectedNodeId, data);
     }
 
+    let refresh = that.params.query.r;
+    if (! R.isNil(refresh)) {
+      data = R.assoc('refresh', refresh, data);
+    }
+
     return data;
   }
 });
