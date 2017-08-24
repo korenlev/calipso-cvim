@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import MagicMock, Mock
 
 import requests
 
@@ -20,11 +20,10 @@ from test.fetch.api_fetch.test_data.regions import REGIONS
 class TestApiAccess(TestFetch):
 
     def setUp(self):
+        super().setUp()
         self.configure_environment()
         self.api_access = ApiAccess()
         self.set_regions_for_fetcher(self.api_access)
-        self.response = MagicMock()
-        self.response.status_code = requests.codes.ok
 
     def test_parse_time_without_dot_in_time(self):
         time = self.api_access.parse_time(TIME_WITHOUT_DOT)
@@ -49,38 +48,30 @@ class TestApiAccess(TestFetch):
         self.assertEqual(token, None, "Can't get None when the token doesn't " +
                                       "exist in tokens")
 
-    @patch("requests.post")
-    def test_v2_auth(self, mock_request):
+    def test_v2_auth(self):
         self.api_access.get_existing_token = MagicMock(return_value=None)
         self.response.json = Mock(return_value=CORRECT_AUTH_CONTENT)
         # mock authentication info from OpenStack Api
-        mock_request.return_value = self.response
         token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
         self.assertNotEqual(token_details, None, "Can't get the token details")
 
-    @patch("requests.post")
-    def test_v2_auth_with_error_content(self, mock_request):
+    def test_v2_auth_with_error_content(self):
         self.api_access.get_existing_token = MagicMock(return_value=None)
         self.response.json = Mock(return_value=ERROR_AUTH_CONTENT)
         # authentication content from OpenStack Api will be incorrect
-        mock_request.return_value = self.response
         token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
         self.assertIs(token_details, None, "Can't get None when the content is wrong")
 
-    @patch("requests.post")
-    def test_v2_auth_with_error_token(self, mock_request):
+    def test_v2_auth_with_error_token(self):
         self.response.status_code = requests.codes.bad_request
         self.response.json = Mock(return_value=ERROR_TOKEN_CONTENT)
         # authentication info from OpenStack Api will not contain token info
-        mock_request.return_value = self.response
         token_details = self.api_access.v2_auth(TEST_PROJECT, TEST_HEADER, TEST_BODY)
         self.assertIs(token_details, None, "Can't get None when the content " +
                                            "doesn't contain any token info")
 
-    @patch("requests.post")
-    def test_v2_auth_with_error_expiry_time(self, mock_request):
+    def test_v2_auth_with_error_expiry_time(self):
         self.response.json = Mock(return_value=CORRECT_AUTH_CONTENT)
-        mock_request.return_value = self.response
 
         # store original parse_time method
         original_method = self.api_access.parse_time
@@ -94,30 +85,24 @@ class TestApiAccess(TestFetch):
         self.assertIs(token_details, None, "Can't get None when the time in token " +
                                            "can't be parsed")
 
-    @patch("requests.post")
-    def test_v2_auth_pwd(self, mock_request):
+    def test_v2_auth_pwd(self):
         self.response.json = Mock(return_value=CORRECT_AUTH_CONTENT)
         # mock the authentication info from OpenStack Api
-        mock_request.return_value = self.response
         token = self.api_access.v2_auth_pwd(PROJECT)
         self.assertNotEqual(token, None, "Can't get token")
 
-    @patch("requests.get")
-    def test_get_url(self, mock_request):
+    def test_get_url(self):
         self.response.json = Mock(return_value=GET_CONTENT)
-        mock_request.return_value = self.response
         result = self.api_access.get_url(TEST_URL, TEST_HEADER)
         # check whether it returns content message when the response is correct
         self.assertNotEqual(result, None, "Can't get content when the "
                                           "response is correct")
 
-    @patch("requests.get")
-    def test_get_url_with_error_response(self, mock_request):
+    def test_get_url_with_error_response(self):
         self.response.status_code = requests.codes.bad_request
         self.response.json = Mock(return_value=None)
         self.response.text = "Bad request"
         # the response will be wrong
-        mock_request.return_value = self.response
         result = self.api_access.get_url(TEST_URL, TEST_HEADER)
         self.assertEqual(result, None, "Result returned" +
                                        "when the response status is not 200")
