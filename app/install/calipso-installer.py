@@ -346,7 +346,7 @@ parser.add_argument("--command",
                     required=False)
 parser.add_argument("--copy",
                     help="'c' to copy json files from 'db' folder to mongoDB, 'q' to skip copy of files "
-                         "(default=q)",
+                         "(default=None)",
                     type=str,
                     default=None,
                     required=False)
