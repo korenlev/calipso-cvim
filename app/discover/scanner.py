@@ -10,24 +10,19 @@
 # base class for scanners
 
 import json
-import queue
 import os
+import queue
 import traceback
 
 from discover.clique_finder import CliqueFinder
 from discover.configuration import Configuration
 from discover.fetcher import Fetcher
-from discover.find_links_for_instance_vnics import FindLinksForInstanceVnics
-from discover.find_links_for_oteps import FindLinksForOteps
-from discover.find_links_for_pnics import FindLinksForPnics
-from discover.find_links_for_vconnectors import FindLinksForVconnectors
-from discover.find_links_for_vedges import FindLinksForVedges
-from discover.find_links_for_vservice_vnics import FindLinksForVserviceVnics
+from discover.link_finders.find_links_metadata_parser import \
+    FindLinksMetadataParser
 from discover.scan_error import ScanError
 from discover.scan_metadata_parser import ScanMetadataParser
-from utils.constants import EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
-from utils.util import ClassResolver
+from utils.ssh_connection import SshError
 
 
 class Scanner(Fetcher):
@@ -38,6 +33,9 @@ class Scanner(Fetcher):
     scan_queue = queue.Queue()
     scan_queue_track = {}
 
+    # keep errors indication per environment
+    found_errors = {}
+
     def __init__(self):
         """
         Scanner is the base class for scanners.
@@ -47,7 +45,9 @@ class Scanner(Fetcher):
         self.inv = InventoryMgr()
         self.scanners_package = None
         self.scanners = {}
-        self.load_metadata()
+        self.link_finders = []
+        self.load_scanners_metadata()
+        self.load_link_finders_metadata()
 
     def scan(self, scanner_type, obj, id_field="id",
              limit_to_child_id=None, limit_to_child_type=None):
@@ -71,6 +71,9 @@ class Scanner(Fetcher):
                                       "children": children})
         except ValueError:
             return False
+        except SshError:
+            # mark the error
+            self.found_errors[self.get_env()] = True
         if limit_to_child_id and len(types_children) > 0:
             t = types_children[0]
             children = t["children"]
@@ -135,6 +138,9 @@ class Scanner(Fetcher):
         # It depends on the Fetcher's config.
         try:
             db_results = fetcher.get(escaped_id)
+        except SshError:
+            self.found_errors[self.get_env()] = True
+            return []
         except Exception as e:
             self.log.error("Error while scanning : " +
                            "fetcher=%s, " +
@@ -215,15 +221,7 @@ class Scanner(Fetcher):
 
     def scan_links(self):
         self.log.info("scanning for links")
-        fetchers_implementing_add_links = [
-            FindLinksForPnics(),
-            FindLinksForInstanceVnics(),
-            FindLinksForVserviceVnics(),
-            FindLinksForVconnectors(),
-            FindLinksForVedges(),
-            FindLinksForOteps()
-        ]
-        for fetcher in fetchers_implementing_add_links:
+        for fetcher in self.link_finders:
             fetcher.set_env(self.get_env())
             fetcher.add_links()
 
@@ -233,9 +231,11 @@ class Scanner(Fetcher):
         clique_scanner.find_cliques()
 
     def deploy_monitoring_setup(self):
-        self.inv.monitoring_setup_manager.handle_pending_setup_changes()
+        ret = self.inv.monitoring_setup_manager.handle_pending_setup_changes()
+        if not ret:
+            self.found_errors[self.get_env()] = True
 
-    def load_metadata(self):
+    def load_scanners_metadata(self):
         parser = ScanMetadataParser(self.inv)
         conf = self.config.get_env_config()
         scanners_file = os.path.join(conf.get('app_path', '/etc/calipso'),
@@ -245,6 +245,15 @@ class Scanner(Fetcher):
         metadata = parser.parse_metadata_file(scanners_file)
         self.scanners_package = metadata[ScanMetadataParser.SCANNERS_PACKAGE]
         self.scanners = metadata[ScanMetadataParser.SCANNERS]
+
+    def load_link_finders_metadata(self):
+        parser = FindLinksMetadataParser()
+        conf = self.config.get_env_config()
+        finders_file = os.path.join(conf.get('app_path', '/etc/calipso'),
+                                    'config',
+                                    FindLinksMetadataParser.FINDERS_FILE)
+        metadata = parser.parse_metadata_file(finders_file)
+        self.link_finders = metadata[FindLinksMetadataParser.LINK_FINDERS]
 
     def get_scanner_package(self):
         return self.scanners_package
