@@ -170,7 +170,7 @@ function renderGraph(
   onNodeOver, onNodeOut, onNodeClick);
 }
 
- // d3.select(window).on('resize', resize);
+// d3.select(window).on('resize', resize);
 
 function genSvg(d3, mainElement) {
   let svg = d3.select(mainElement).append('svg');
@@ -189,11 +189,11 @@ function genSvgLinks(g, links, nominal_stroke, default_link_color, initialLinkLa
 
   let svgLinksEnter = svgLinks
     .enter()
-      .append('g')
-        .attr('class', 'link-group')
-        .attr('data-link-id', function (d) {
-          return d._osid;
-        })
+    .append('g')
+    .attr('class', 'link-group')
+    .attr('data-link-id', function (d) {
+      return d._osid;
+    })
   ;
 
   //let svgLinksExit = 
@@ -205,9 +205,9 @@ function genSvgLinks(g, links, nominal_stroke, default_link_color, initialLinkLa
     .attr('class', 'link-line')
     .style('stroke-width', nominal_stroke)
     .style('stroke', 
-    function(_d) { 
-      return default_link_color;
-    });
+      function(_d) { 
+        return default_link_color;
+      });
 
   let svgLinkLabels = svgLinksEnter
     .append('text')
@@ -232,9 +232,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
   let svgNodesEnter = svgNodes
     .enter()
     .append('g')
-      .attr('class', 'node')
-      .attr('data-node-id', (d) => d._osid)
-      .call(drag);
+    .attr('class', 'node')
+    .attr('data-node-id', (d) => d._osid)
+    .call(drag);
 
   //let svgNodesExit = 
   svgNodes
@@ -292,7 +292,7 @@ function genForceD3(d3, w, h) {
 function genForceCola(cola, d3, w, h) {
   let force = cola.d3adaptor(d3)
     .convergenceThreshold(0.1)
-  //  .convergenceThreshold(1e-9)
+    //.convergenceThreshold(1e-9)
     .linkDistance(120)
     .size([w,h]);
 
@@ -308,7 +308,7 @@ function activateForce(force, nodes, links, groups) {
     .handleDisconnected(true)
     .avoidOverlaps(true)
     .start(50, 100, 200);
-    //.start();
+  //.start();
 }
 
 /*
@@ -479,28 +479,28 @@ function renderView(force,
 
 function genSvgGroups(g, groups, drag, onRenderViewReq) {
   let svgGroups = g.selectAll('.group')
-      .data(groups, (d) => d._osid);
+    .data(groups, (d) => d._osid);
 
   let enterGroups = svgGroups.enter();
 
   let groupsContainers = 
     enterGroups
       .append('g')
-        .attr('class', 'group')
-        .attr('data-group-id', (d) => d._osid)
-        .call(drag)
-        .on('click', function (d) {
-          console.log('click', d);
-          d.isExpanded = !d.isExpanded;
-          onRenderViewReq();
-        });
+      .attr('class', 'group')
+      .attr('data-group-id', (d) => d._osid)
+      .call(drag)
+      .on('click', function (d) {
+        console.log('click', d);
+        d.isExpanded = !d.isExpanded;
+        onRenderViewReq();
+      });
 
   groupsContainers
     .append('rect')
-      .attr('class', 'group-shape')
-      .attr('rx', 8)
-      .attr('ry', 8)
-      .style('fill', function (_d, _i) { return 'lightblue'; })
+    .attr('class', 'group-shape')
+    .attr('rx', 8)
+    .attr('ry', 8)
+    .style('fill', function (_d, _i) { return 'lightblue'; })
   ;
 
   groupsContainers
