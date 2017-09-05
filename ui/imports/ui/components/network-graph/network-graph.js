@@ -205,8 +205,18 @@ function genSvgLinks(g, links, nominal_stroke, default_link_color, initialLinkLa
     .attr('class', 'link-line')
     .style('stroke-width', nominal_stroke)
     .style('stroke', 
-      function(_d) { 
-        return default_link_color;
+      function(d) { 
+        switch(R.path(['_osmeta', 'status'], d)) {
+        case 'ok': 
+          return 'green';
+        case 'warning':
+          return 'orange';
+        case 'error':
+          return 'red';
+        default:
+          return default_link_color;
+        }
+
       });
 
   let svgLinkLabels = svgLinksEnter
@@ -244,7 +254,7 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
   let svgImages = svgNodesEnter.append('image')
     .attr('class', 'node-image')
     .attr('xlink:href', function(d) {
-      return `/${calcImageForNodeType(d._osmeta.type)}`;
+      return `/${calcImageForNodeType(d._osmeta.type, d._osmeta.status)}`;
     })
     .attr('x', -(Math.floor(imageLength / 2)))
     .attr('y', -(Math.floor(imageLength / 2)))
@@ -268,8 +278,13 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
   //return [svgNodes];
 }
 
-function calcImageForNodeType(nodeType) {
-  return R.defaultTo(defaultNodeTypeImage, R.prop(nodeType, imagesForNodeType));
+function calcImageForNodeType(nodeType, status) {
+  let image = R.defaultTo(defaultNodeTypeImage, R.prop(nodeType, imagesForNodeType));
+  if (typeof image === 'object') {
+    image = R.defaultTo(image.default, image[status]);
+  }
+
+  return image;
 }
 
 function genZoomBehavior(d3, config) {
