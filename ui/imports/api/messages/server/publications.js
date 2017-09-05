@@ -94,5 +94,7 @@ Meteor.publish('messages/count?level&env', function (level, env) {
 
   let query = { level: level };
   query = R.ifElse(R.isNil, R.always(query), R.assoc('environment', R.__, query))(env);
+  console.log(`query: ${R.toString(query)}`);
 
-  return new Counter(counterName, Messages.find(query)); });
+  return new Counter(counterName, Messages.find(query)); 
+});
