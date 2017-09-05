@@ -15,7 +15,7 @@
        
         <div class="dropdown">
             <div class="material-icons mdl-badge mdl-badge--overlap dropdown-toggle" 
-              data-badge="{{countOf 'messages/count?level=info'}}" 
+              data-badge="{{ countOf (msgCounterName 'info') }}" 
               type="button" 
               id="dropdownMenu1" 
               data-toggle="modal" 
@@ -27,7 +27,7 @@
 
         <div class="dropdown">
             <div class="material-icons mdl-badge mdl-badge--overlap dropdown-toggle" 
-              data-badge="{{countOf 'messages/count?level=warning'}}" 
+              data-badge="{{ countOf (msgCounterName 'warning') }}" 
               type="button" 
               id="dropdownMenu1" 
               data-toggle="modal" 
@@ -39,7 +39,7 @@
 
         <div class="dropdown">
             <div class="material-icons mdl-badge mdl-badge--overlap dropdown-toggle" 
-              data-badge="{{countOf 'messages/count?level=error'}}" 
+              data-badge="{{ countOf (msgCounterName 'error') }}" 
               type="button" 
               id="dropdownMenu1" 
               data-toggle="modal" 
@@ -72,6 +72,10 @@
                   <a href="{{pathFor route='user-list' query=''}}">Users</a>
                 </li> 
                 {{/if }}
+
+                <li class="dropdown-header">
+                  <a href="{{pathFor route='configuration' query=''}}" >Configuration</a>
+                </li>
             </ul>
         </div>
 

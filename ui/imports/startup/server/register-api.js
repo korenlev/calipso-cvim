@@ -53,4 +53,7 @@ import '../../api/accounts/methods';
 import '../../api/supported_environments/server/publications';
 import '../../api/supported_environments/methods';
 
+import '../../api/configurations/server/publications';
+import '../../api/configurations/methods';
+
 import '../../api/migrations/migrations';
