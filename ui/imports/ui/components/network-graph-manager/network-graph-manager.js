@@ -37,7 +37,8 @@ Template.NetworkGraphManager.onCreated(function() {
       links: [],
       nodes: [],
       groups: [],
-    }
+    },
+    nodeOfInterest: null
   };
 
   instance.autorun(function () {
@@ -95,6 +96,14 @@ Template.NetworkGraphManager.helpers({
           return;
         }
 
+        if (instance.simpleState.nodeOfInterest === nodeId) {
+          instance.simpleState.nodeOfInterest = null;
+          return;
+        }
+
+        console.log('node over');
+        instance.simpleState.nodeOfInterest = nodeId;
+
         Meteor.apply('inventoryFindNode?DataAndAttrs', [ nodeId ], 
           { wait: false }, function (err, res) {
             if (err) {
@@ -118,6 +127,10 @@ Template.NetworkGraphManager.helpers({
       onDragEnd: function () {
         isDragging = false;
       },
+      onGroupOver: function () {
+        instance.simpleState.nodeOfInterest = null;
+        store.dispatch(closeGraphTooltipWindow());
+      }
     };
   },
 

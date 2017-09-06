@@ -37,6 +37,7 @@ Template.NetworkGraph.onCreated(function() {
       onNodeClick: { type: Function, optional: true },
       onDragStart: { type: Function, optional: true },
       onDragEnd: { type: Function, optional: true },
+      onGroupOver: { type: Function, optional: true },
     }).validate(data);
 
     instance.simpleState.graphData = data.graphData;
@@ -46,6 +47,7 @@ Template.NetworkGraph.onCreated(function() {
     instance.onNodeClick = R.defaultTo(() => {}, data.onNodeClick);
     instance.onDragStart = R.defaultTo(() => {}, data.onDragStart);
     instance.onDragEnd = R.defaultTo(() => {}, data.onDragEnd);
+    instance.onGroupOver = R.defaultTo(() => {}, data.onGroupOver);
   });
 });  
 
@@ -66,7 +68,8 @@ Template.NetworkGraph.rendered = function() {
       instance.onNodeOut, 
       instance.onNodeClick,
       instance.onDragStart,
-      instance.onDragEnd
+      instance.onDragEnd,
+      instance.onGroupOver
     );
   });
 };  
@@ -129,7 +132,8 @@ function renderGraph(
   onNodeOut, 
   onNodeClick,
   onDragStart,
-  onDragEnd
+  onDragEnd,
+  onGroupOver
 ) {
 
   let force = genForceCola(cola, d3, w, h);
@@ -167,7 +171,11 @@ function renderGraph(
   nodesEl,
   linksEl,
   drag, zoom, config, 
-  onNodeOver, onNodeOut, onNodeClick);
+  onNodeOver, 
+  onNodeOut, 
+  onNodeClick,
+  onGroupOver
+  );
 }
 
 // d3.select(window).on('resize', resize);
@@ -355,7 +363,9 @@ function renderView(force,
   config, 
   onNodeOver, 
   onNodeOut, 
-  onNodeClick) {
+  onNodeClick,
+  onGroupOver
+) {
 
   state.viewGraph = calcViewGraph(state.graph, state.viewGraph);
 
@@ -363,7 +373,7 @@ function renderView(force,
 
   zoom.on('zoom', zoomFn);
 
-  genSvgGroups(groupsEl, state.viewGraph.groups, drag, onRenderViewReq);
+  genSvgGroups(groupsEl, state.viewGraph.groups, drag, onRenderViewReq, onGroupOver);
 
   genSvgLinks(
     linksEl, state.viewGraph.links, 
@@ -381,7 +391,7 @@ function renderView(force,
       state.viewGraph = renderView(force, state, 
         mainEl, groupsEl, nodesEl, linksEl,
         drag, zoom, config, 
-        onNodeOver, onNodeOut, onNodeClick);
+        onNodeOver, onNodeOut, onNodeClick, onGroupOver);
     }); 
 
   force.on('tick', tickFn);
@@ -390,7 +400,7 @@ function renderView(force,
     state.viewGraph = renderView(force, state, 
       mainEl, groupsEl, nodesEl, linksEl,
       drag, zoom, config, 
-      onNodeOver, onNodeOut, onNodeClick);
+      onNodeOver, onNodeOut, onNodeClick, onGroupOver);
   }
 
   function tickFn() {
@@ -492,7 +502,7 @@ function renderView(force,
   return state.viewGraph;
 }
 
-function genSvgGroups(g, groups, drag, onRenderViewReq) {
+function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver) {
   let svgGroups = g.selectAll('.group')
     .data(groups, (d) => d._osid);
 
@@ -504,6 +514,9 @@ function genSvgGroups(g, groups, drag, onRenderViewReq) {
       .attr('class', 'group')
       .attr('data-group-id', (d) => d._osid)
       .call(drag)
+      .on('mouseover', function (_d) {
+        onGroupOver();
+      })
       .on('click', function (d) {
         console.log('click', d);
         d.isExpanded = !d.isExpanded;

@@ -47,11 +47,23 @@ Template.GraphTooltipWindow.rendered = function() {
  */
 
 Template.GraphTooltipWindow.events({
-  'mouseout .os-graph-tooltip-window': function(e, _instance) {
+  'mouseout .os-graph-tooltip-window': function(_e, _instance) {
+    /*
+    if (!instance.data.show) { return; }
+
     e.preventDefault();
     e.stopPropagation();
     store.dispatch(closeGraphTooltipWindow());
-  }
+    */
+  },
+
+  'click .os-graph-tooltip-window': function(e, instance) {
+    if (!instance.data.show) { return; }
+
+    e.preventDefault();
+    e.stopPropagation();
+    store.dispatch(closeGraphTooltipWindow());
+  },
 });
    
 /*  
