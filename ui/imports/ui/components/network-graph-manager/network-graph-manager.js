@@ -103,11 +103,11 @@ Template.NetworkGraphManager.helpers({
             }
 
             store.dispatch(
-              activateGraphTooltipWindow(res.nodeName, res.attributes, x, y));
+              activateGraphTooltipWindow(res.nodeName, res.attributes, x - 30, y - 10));
           });
       },
       onNodeOut: function (_nodeId) {
-        store.dispatch(closeGraphTooltipWindow());
+        //store.dispatch(closeGraphTooltipWindow());
       },
       onNodeClick: function (_nodeId) {
       },
