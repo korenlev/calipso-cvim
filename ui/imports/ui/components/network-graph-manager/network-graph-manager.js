@@ -180,7 +180,10 @@ function addLinkToGraph(link, graphData) {
     sourceId: link.source, 
     targetId: link.target, 
     label: link.link_name,
-    _osid: link._id
+    _osid: link._id,
+    _osmeta: {
+      status: link.status
+    }
   };
 
   let links = R.unionWith(R.eqBy(R.prop('_osid')), graphData.links, [newLink]);
@@ -215,6 +218,7 @@ function addNodeToGraph(node, graphData) {
     _osmeta: {
       type: node.type,
       nodeId: node._id,
+      status: node.status,
     },
     width: 60,
     height: 40,
