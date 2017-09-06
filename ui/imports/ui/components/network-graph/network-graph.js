@@ -38,6 +38,7 @@ Template.NetworkGraph.onCreated(function() {
       onDragStart: { type: Function, optional: true },
       onDragEnd: { type: Function, optional: true },
       onGroupOver: { type: Function, optional: true },
+      onLinkOver: { type: Function, optional: true },
     }).validate(data);
 
     instance.simpleState.graphData = data.graphData;
@@ -48,6 +49,7 @@ Template.NetworkGraph.onCreated(function() {
     instance.onDragStart = R.defaultTo(() => {}, data.onDragStart);
     instance.onDragEnd = R.defaultTo(() => {}, data.onDragEnd);
     instance.onGroupOver = R.defaultTo(() => {}, data.onGroupOver);
+    instance.onLinkOver = R.defaultTo(() => {}, data.onLinkOver);
   });
 });  
 
@@ -69,7 +71,8 @@ Template.NetworkGraph.rendered = function() {
       instance.onNodeClick,
       instance.onDragStart,
       instance.onDragEnd,
-      instance.onGroupOver
+      instance.onGroupOver,
+      instance.onLinkOver
     );
   });
 };  
@@ -133,7 +136,8 @@ function renderGraph(
   onNodeClick,
   onDragStart,
   onDragEnd,
-  onGroupOver
+  onGroupOver,
+  onLinkOver
 ) {
 
   let force = genForceCola(cola, d3, w, h);
@@ -174,7 +178,8 @@ function renderGraph(
   onNodeOver, 
   onNodeOut, 
   onNodeClick,
-  onGroupOver
+  onGroupOver,
+  onLinkOver
   );
 }
 
@@ -191,7 +196,14 @@ function genSvg(d3, mainElement) {
   return svg;
 }
 
-function genSvgLinks(g, links, nominal_stroke, default_link_color, initialLinkLabelsFontSize) {
+function genSvgLinks(
+  g, 
+  links, 
+  nominal_stroke, 
+  default_link_color, 
+  initialLinkLabelsFontSize,
+  onLinkOver
+) {
   let svgLinks = g.selectAll('.link-group')
     .data(links, (d) => d._osid);
 
@@ -224,8 +236,11 @@ function genSvgLinks(g, links, nominal_stroke, default_link_color, initialLinkLa
         default:
           return default_link_color;
         }
-
-      });
+      })
+    .on('mouseover', function (d) {
+      onLinkOver(d._osmeta.linkId, d3.event.pageX, d3.event.pageY);
+    })
+  ;
 
   let svgLinkLabels = svgLinksEnter
     .append('text')
@@ -364,7 +379,8 @@ function renderView(force,
   onNodeOver, 
   onNodeOut, 
   onNodeClick,
-  onGroupOver
+  onGroupOver,
+  onLinkOver
 ) {
 
   state.viewGraph = calcViewGraph(state.graph, state.viewGraph);
@@ -379,7 +395,8 @@ function renderView(force,
     linksEl, state.viewGraph.links, 
     config.nominal_stroke, 
     config.default_link_color,
-    config.initialLinkLabelsFontSize
+    config.initialLinkLabelsFontSize,
+    onLinkOver
   );
 
   genSvgNodes(
@@ -391,7 +408,7 @@ function renderView(force,
       state.viewGraph = renderView(force, state, 
         mainEl, groupsEl, nodesEl, linksEl,
         drag, zoom, config, 
-        onNodeOver, onNodeOut, onNodeClick, onGroupOver);
+        onNodeOver, onNodeOut, onNodeClick, onGroupOver, onLinkOver);
     }); 
 
   force.on('tick', tickFn);
@@ -400,7 +417,7 @@ function renderView(force,
     state.viewGraph = renderView(force, state, 
       mainEl, groupsEl, nodesEl, linksEl,
       drag, zoom, config, 
-      onNodeOver, onNodeOut, onNodeClick, onGroupOver);
+      onNodeOver, onNodeOut, onNodeClick, onGroupOver, onLinkOver);
   }
 
   function tickFn() {

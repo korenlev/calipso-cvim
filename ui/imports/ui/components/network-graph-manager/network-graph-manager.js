@@ -38,7 +38,7 @@ Template.NetworkGraphManager.onCreated(function() {
       nodes: [],
       groups: [],
     },
-    nodeOfInterest: null
+    itemOfInterest: null
   };
 
   instance.autorun(function () {
@@ -96,13 +96,12 @@ Template.NetworkGraphManager.helpers({
           return;
         }
 
-        if (instance.simpleState.nodeOfInterest === nodeId) {
-          instance.simpleState.nodeOfInterest = null;
+        if (instance.simpleState.itemOfInterest === nodeId) {
+          instance.simpleState.itemOfInterest = null;
           return;
         }
 
-        console.log('node over');
-        instance.simpleState.nodeOfInterest = nodeId;
+        instance.simpleState.itemOfInterest = nodeId;
 
         Meteor.apply('inventoryFindNode?DataAndAttrs', [ nodeId ], 
           { wait: false }, function (err, res) {
@@ -128,9 +127,32 @@ Template.NetworkGraphManager.helpers({
         isDragging = false;
       },
       onGroupOver: function () {
-        instance.simpleState.nodeOfInterest = null;
+        instance.simpleState.itemOfInterest = null;
         store.dispatch(closeGraphTooltipWindow());
-      }
+      },
+      onLinkOver: function (linkId, x, y) {
+        if (isDragging) {
+          return;
+        }
+
+        if (instance.simpleState.itemOfInterest === linkId) {
+          instance.simpleState.itemOfInterest = null;
+          return;
+        }
+
+        instance.simpleState.itemOfInterest = linkId;
+
+        Meteor.apply('linksFind?DataAndAttrs', [ linkId ], 
+          { wait: false }, function (err, res) {
+            if (err) {
+              console.error(`error fetching attrs for link for showing: ${R.toString(err)}`);
+              return;
+            }
+
+            store.dispatch(
+              activateGraphTooltipWindow(res.linkName, res.attributes, x - 30, y - 10));
+          });
+      },
     };
   },
 
@@ -195,7 +217,8 @@ function addLinkToGraph(link, graphData) {
     label: link.link_name,
     _osid: link._id,
     _osmeta: {
-      status: link.status
+      status: link.status,
+      linkId: link._id
     }
   };
 
