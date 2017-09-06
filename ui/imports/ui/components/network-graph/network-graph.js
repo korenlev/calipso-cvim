@@ -9,6 +9,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 import * as cola from 'webcola';
 import { imagesForNodeType, defaultNodeTypeImage } from '/imports/lib/images-for-node-type';
+import * as _ from 'lodash';
         
 import './network-graph.html';     
     
@@ -226,7 +227,9 @@ function genSvgLinks(
     .style('stroke-width', nominal_stroke)
     .style('stroke', 
       function(d) { 
-        switch(R.path(['_osmeta', 'status'], d)) {
+        let status = R.defaultTo('', R.path(['_osmeta', 'status'], d));
+        status = _.toLower(status);
+        switch(status) {
         case 'ok': 
           return 'green';
         case 'warning':
@@ -277,7 +280,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
   let svgImages = svgNodesEnter.append('image')
     .attr('class', 'node-image')
     .attr('xlink:href', function(d) {
-      return `/${calcImageForNodeType(d._osmeta.type, d._osmeta.status)}`;
+      let status = R.defaultTo('', R.path(['_osmeta', 'status'], d));
+      status = _.toLower(status);
+      return `/${calcImageForNodeType(d._osmeta.type, status)}`;
     })
     .attr('x', -(Math.floor(imageLength / 2)))
     .attr('y', -(Math.floor(imageLength / 2)))
