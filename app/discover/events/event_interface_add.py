@@ -87,7 +87,7 @@ class EventInterfaceAdd(EventBase):
         host_id = values["publisher_id"].replace("network.", "", 1)
         port_id = interface['port_id']
         subnet_id = interface['subnet_id']
-        router_id = encode_router_id(host_id, interface['id'])
+        router_id = encode_router_id(interface['id'])
 
         network_document = self.inv.get_by_field(env, "network", "subnet_ids",
                                                  subnet_id, get_single=True)
