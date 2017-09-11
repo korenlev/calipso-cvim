@@ -226,26 +226,26 @@ Template.Environment.onCreated(function () {
     
   });
 
-    /*
-    (() => {
-      if (R.isNil(controller.params.query.selectedNodeId) &&
-          R.isNil(selectedNodeId)) {
-        return;
-      }
+  /*
+  (() => {
+    if (R.isNil(controller.params.query.selectedNodeId) &&
+        R.isNil(selectedNodeId)) {
+      return;
+    }
 
-      let srlSelectedNodeId = idToStr(selectedNodeId);
-      if (R.equals(controller.params.query.selectedNodeId, srlSelectedNodeId)) {
-        return;
-      }
+    let srlSelectedNodeId = idToStr(selectedNodeId);
+    if (R.equals(controller.params.query.selectedNodeId, srlSelectedNodeId)) {
+      return;
+    }
 
-      setTimeout(() => {
-        Router.go('environment', 
-          { _id: controller.params._id }, 
-          { query: { selectedNodeId: srlSelectedNodeId } });
-      }, 1);
+    setTimeout(() => {
+      Router.go('environment', 
+        { _id: controller.params._id }, 
+        { query: { selectedNodeId: srlSelectedNodeId } });
+    }, 1);
 
-    })();
-    */
+  })();
+  */
 
 });
 
