@@ -624,7 +624,7 @@ function calcClosedGroupsNodes(rejectedGroups, prevViewNodes) {
     return R.append({
       _osid: nodeId,
       _osmeta: {
-        type: 'view_group',
+        type: `view_group-${group.type}`,
         nodeId: group._osid,
       },
       width: 60,
