@@ -77,9 +77,9 @@ Template.EnvironmentWizard.onCreated(function(){
     let action = instance.state.get('action');
     if (action === 'update') {
       Environments.find({'name': envName})
-      .forEach(function (envItem) {
-        instance.state.set('environmentModel', R.clone(envItem));
-      });
+        .forEach(function (envItem) {
+          instance.state.set('environmentModel', R.clone(envItem));
+        });
     } else if (action === 'insert') {
       instance.state.set('environmentModel', generateNewEnv());
     }
@@ -135,6 +135,7 @@ Template.EnvironmentWizard.helpers({
 
     let isMonSupportedRes = isMonitoringSupported(
       environmentModel.distribution, 
+      environmentModel.distribution_version, 
       environmentModel.type_drivers,
       environmentModel.mechanism_drivers
     );
@@ -149,6 +150,7 @@ Template.EnvironmentWizard.helpers({
     
     let isListeningSupportedRes = isListeningSupported(
       environmentModel.distribution, 
+      environmentModel.distribution_version, 
       environmentModel.type_drivers,
       environmentModel.mechanism_drivers
     );
@@ -422,6 +424,7 @@ function doSubmit(instance) {
     insert.call({
       configuration: environment.configuration,
       distribution: environment.distribution,
+      distribution_version: environment.distribution_version,
       name: environment.name,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
