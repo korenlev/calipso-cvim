@@ -12,6 +12,7 @@ import time
 
 from discover.fetcher import Fetcher
 from utils.binary_converter import BinaryConverter
+from utils.cli_dist_translator import CliDistTranslator
 from utils.logging.console_logger import ConsoleLogger
 from utils.ssh_conn import SshConn
 
@@ -41,11 +42,8 @@ class CliAccess(BinaryConverter, Fetcher):
     def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False,
             ssh=None, use_sudo=True):
         ssh_conn = ssh if ssh else SshConn(ssh_to_host)
-        if use_sudo and not cmd.strip().startswith("sudo "):
-            cmd = "sudo " + cmd
-        if not on_gateway and ssh_to_host \
-                and not ssh_conn.is_gateway_host(ssh_to_host):
-            cmd = self.ssh_cmd + ssh_to_host + " " + cmd
+        cmd = self.adapt_cmd_to_env(ssh_conn, cmd, use_sudo, on_gateway,
+                                    ssh_to_host)
         curr_time = time.time()
         cmd_path = ssh_to_host + ',' + cmd
         if enable_cache and cmd_path in self.cached_commands:
@@ -75,6 +73,24 @@ class CliAccess(BinaryConverter, Fetcher):
         if len(ret) == 1:
             ret = [l for l in out.split("\\n") if l != ""]
         return ret
+
+    def adapt_cmd_to_env(self, ssh_conn, cmd, use_sudo, on_gateway,
+                         ssh_to_host):
+        cmd = self.adapt_cmd_to_dist(cmd)
+        if use_sudo and not cmd.strip().startswith("sudo "):
+            cmd = "sudo " + cmd
+        if not on_gateway and ssh_to_host \
+                and not ssh_conn.is_gateway_host(ssh_to_host):
+            cmd = self.ssh_cmd + ssh_to_host + " " + cmd
+        return cmd
+
+    def adapt_cmd_to_dist(self, cmd):
+        env_conf = self.configuration.get_env_config()
+        dist = env_conf.get('distribution')
+        dist_version = env_conf.get('distribution_version')
+        translator = CliDistTranslator(dist, dist_version=dist_version)
+        cmd = translator.translate(cmd)
+        return cmd
 
     # parse command output columns separated by whitespace
     # since headers can contain whitespace themselves,
