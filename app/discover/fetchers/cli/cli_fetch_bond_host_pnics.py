@@ -35,7 +35,7 @@ class CliFetchBondHostPnics(CliAccess):
             return []
         lines = self.run_fetch_lines(cmd, host_id)
         if lines and 'No such file or directory' in lines[0]:
-            return  # no bonds so directory does not exist
+            return []  # no bonds so directory does not exist
         bonds = []
         for line in lines:
             bond = self.get_bond_details(host_id, line)
