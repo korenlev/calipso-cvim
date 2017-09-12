@@ -193,6 +193,20 @@ let simpleSchema = new SimpleSchema({
       }
     },
   },
+  distribution_version: {
+    type: String,
+    custom: function () {
+      let that = this;
+      let constsDist = Constants.findOne({ name: 'distribution_versions' });
+
+      if (R.isNil(constsDist.data)) { return 'notAllowed'; }
+      let dist_versions = constsDist.data;
+
+      if (R.isNil(R.find(R.propEq('value', that.value), dist_versions))) {
+        return 'notAllowed';
+      }
+    },
+  },
   last_scanned: {
     type: String, defaultValue: ''
   },
@@ -219,7 +233,7 @@ let simpleSchema = new SimpleSchema({
 
   mechanism_drivers: {
     type: [String],
-    defaultValue: ['ovs'],
+    defaultValue: ['OVS'],
     minCount: 1,
     custom: function () {
       let that = this;
@@ -440,13 +454,14 @@ function extractCalcEnvSupportedRelatedValues(schemaHelper) {
   let dbNode = getDbNode(schemaHelper);
 
   let dist = extractValue('distribution', schemaHelper, dbNode);
+  let dist_version = extractValue('distribution_version', schemaHelper, dbNode);
   let typeDrivers = extractValue('type_drivers', schemaHelper, dbNode);
   let mechDrivers = extractValue('mechanism_drivers', schemaHelper, dbNode);
   let enable_monitoring = extractValue('enable_monitoring', schemaHelper, dbNode);
   let listen = extractValue('listen', schemaHelper, dbNode);
 
-  let isMonitoringSupportedRes = isMonitoringSupported(dist, typeDrivers, mechDrivers);
-  let isListeningSupportedRes = isListeningSupported(dist, typeDrivers, mechDrivers);
+  let isMonitoringSupportedRes = isMonitoringSupported(dist, dist_version, typeDrivers, mechDrivers);
+  let isListeningSupportedRes = isListeningSupported(dist, dist_version, typeDrivers, mechDrivers);
 
   return {
     enable_monitoring,
