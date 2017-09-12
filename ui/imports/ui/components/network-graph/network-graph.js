@@ -295,7 +295,8 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       onNodeOut(d._osmeta.nodeId);
     })
     .on('click', function (d) {
-      if (R.path(['_osmeta', 'type'], d) === 'view_group') {
+      let type = R.defaultTo('', R.path(['_osmeta', 'type'], d));
+      if (R.contains(type, ['view_group-host', 'view_group-switch'])) {
         onGroupNodeClick(d._osmeta.nodeId);
       }
       onNodeClick(d._osmeta.nodeId);
