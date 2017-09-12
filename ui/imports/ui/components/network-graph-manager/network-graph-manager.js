@@ -268,6 +268,7 @@ function addNodeToGraph(node, graphData) {
   })(groupMarkers);
   if (groupKey) {
     newNode = R.assocPath(['_osmeta', 'groupId'], node[groupKey], newNode);
+    newNode = R.assocPath(['_osmeta', 'groupType'], groupKey, newNode);
   }
 
   let nodes = R.unionWith(R.eqBy(R.prop('_osid')), graphData.nodes, [newNode]);
@@ -302,6 +303,7 @@ function calcGroups(nodes) {
         leaves: [node],
         isExpanded: true,
         name: groupId,
+        type: node._osmeta.groupType,
       };
       accGroups = R.append(group, accGroups);
 
