@@ -348,9 +348,13 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if isinstance(env_config['mechanism_drivers'], list) \
             else env_config['mechanism_drivers']
 
-        full_env = {'environment.distribution': env_config['distribution'],
-                    'environment.type_drivers': env_config['type_drivers'],
-                    'environment.mechanism_drivers': mechanism_driver}
+        full_env = {
+            'environment.distribution': env_config['distribution'],
+            'environment.distribution_version':
+                {"$in": [env_config['distribution_version']]},
+            'environment.type_drivers': env_config['type_drivers'],
+            'environment.mechanism_drivers': mechanism_driver
+        }
         return self.is_feature_supported_in_env(full_env, feature)
 
     def is_feature_supported_in_env(self, env_def: dict,

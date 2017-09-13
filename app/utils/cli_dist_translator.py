@@ -16,7 +16,7 @@ class CliDistTranslator:
     }
 
     def __init__(self, dist: str, dist_version: str=''):
-        self.translation = self.TRANSLATIONS[dist]
+        self.translation = self.TRANSLATIONS.get(dist, {})
         self.dist_version = dist_version
 
     def translate(self, command_to_translate: str) -> str:
