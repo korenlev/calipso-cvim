@@ -106,7 +106,7 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
         if "tunneling_ip" not in doc["configurations"]:
             return {}
         if not doc["configurations"]["tunneling_ip"]:
-            self.get_bridge_pnic(doc)
+            self.get_pnics(doc)
             return {}
 
         # read the 'br-tun' interface ports
@@ -148,31 +148,43 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
             tunnel_ports[port["name"]] = port
         return tunnel_ports
 
-    def get_bridge_pnic(self, doc):
-        conf = doc["configurations"]
-        if "bridge_mappings" not in conf or not conf["bridge_mappings"]:
-            return
-        for v in conf["bridge_mappings"].values(): br = v
-        ifaces_list_lines = self.run_fetch_lines("ovs-vsctl list-ifaces " + br,
-                                                 doc["host"])
-        br_pnic_postfix = br + "--br-"
-        interface = ""
+    def get_pnics(self, vedge):
+        bridges = vedge["configurations"].get("bridge_mappings", {})
+        for bridge in bridges.values():
+            self.get_bridge_pnic(vedge, bridge)
+
+    MIRANTIS_DIST = "Mirantis"
+
+    def get_bridge_pnic(self, vedge, bridge):
+        cmd = "ovs-vsctl list-ifaces {}".format(bridge)
+        ifaces_list_lines = self.run_fetch_lines(cmd, vedge["host"])
+        env_config = self.configuration.get_env_config()
+        distribution = env_config.get("distribution")
+        dist_version = env_config.get("distribution_version")
+        use_br_postfix = distribution == self.MIRANTIS_DIST and \
+            dist_version in ["6.0", "7.0", "8.0"]
         for l in ifaces_list_lines:
-            if l.startswith(br_pnic_postfix):
-                interface = l[len(br_pnic_postfix):]
-                break
-        if not interface:
-            return
-        doc["pnic"] = interface
+            if use_br_postfix:
+                br_pnic_postfix = "{}--br-".format(bridge)
+                interface = l[len(br_pnic_postfix):] \
+                    if l.startswith(br_pnic_postfix) \
+                    else ""
+            else:
+                interface = l
+            if interface:
+                self.find_pnic_for_interface(vedge, interface)
+
+    def find_pnic_for_interface(self, vedge, interface):
         # add port ID to pNIC
         pnic = self.inv.find_items({
             "environment": self.get_env(),
             "type": "host_pnic",
-            "host": doc["host"],
+            "host": vedge["host"],
             "name": interface
         }, get_single=True)
         if not pnic:
             return
-        port = doc["ports"][interface]
-        pnic["port_id"] = port["id"]
+        vedge["pnic"] = interface
+        port = vedge["ports"].get(interface, {})
+        pnic["port_id"] = port.get("id", "")
         self.inv.set(pnic)
