@@ -92,7 +92,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
             return False, None
 
     def process_task(self, body, message):
-        received_timestamp = stringify_datetime(datetime.datetime.now())
+        received_timestamp = datetime.datetime.now()
         processable, event_data = self._extract_event_data(body)
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
@@ -100,7 +100,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         if processable and event_data["event_type"] in self.handler.handlers:
             event_result = self.handle_event(event_data["event_type"],
                                              event_data)
-            finished_timestamp = stringify_datetime(datetime.datetime.now())
+            finished_timestamp = datetime.datetime.now()
             self.save_message(message_body=event_data,
                               result=event_result,
                               started=received_timestamp,
@@ -154,8 +154,9 @@ class DefaultListener(ListenerBase, ConsumerMixin):
             return EventResult(result=False, retry=False)
 
     def save_message(self, message_body: dict, result: EventResult,
-                     started: str, finished: str):
+                     started: datetime, finished: datetime):
         try:
+            ts = datetime.datetime.fromtimestamp(message_body.get('timestamp'))
             message = Message(
                 msg_id=message_body.get('message_id'),
                 env=self.env_name,
@@ -164,7 +165,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
                 display_context=result.display_context,
                 level=message_body.get('priority'),
                 msg=message_body,
-                ts=message_body.get('timestamp'),
+                ts=ts,
                 received_ts=started,
                 finished_ts=finished
             )
