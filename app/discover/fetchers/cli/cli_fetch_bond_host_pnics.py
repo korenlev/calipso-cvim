@@ -84,7 +84,8 @@ class CliFetchBondHostPnics(CliAccess):
             else:
                 self.get_attribute_from_line(info_objects[-1], line)
         for slave in list(interface['members'].values()):
-            self.set_slave_host_pnic_bond_attributes(slave, interface_id)
+            self.set_slave_host_pnic_bond_attributes(host_id, slave,
+                                                     interface_id)
         return interface
 
     def get_bond_status_and_mac_address(self, host_id: str, name: str):
@@ -113,16 +114,21 @@ class CliFetchBondHostPnics(CliAccess):
         value = line[len(attr)+1:]
         obj[attr.strip()] = value.strip()
 
-    def set_slave_host_pnic_bond_attributes(self, slave, interface_id):
-        mac_address = slave.get('Permanent HW addr', 'unknown_mac')
-        slave_id = '{}-{}'.format(slave.get('name', ''), mac_address)
-        slave['mac_address'] = mac_address
-        slave['id'] = slave_id
-        pnic = self.inv.get_by_id(self.get_env(), slave_id)
+    def set_slave_host_pnic_bond_attributes(self, host, slave, interface_id):
+        pnic = self.inv.find_one({
+            'environment': self.get_env(),
+            'host': host,
+            'type': 'host_pnic',
+            'name': slave['name']
+        })
         if not pnic:
             self.log.error('unable to find slave pNIC {} under bond {}'
                            .format(slave_id, interface_id))
             return
+        mac_address = pnic['mac_address']
+        slave_id = '{}-{}'.format(slave.get('name', ''), mac_address)
+        slave['mac_address'] = mac_address
+        slave['id'] = slave_id
         pnic['EtherChannel'] = True
         pnic['EtherChannel Master'] = interface_id
         self.inv.set(pnic)
