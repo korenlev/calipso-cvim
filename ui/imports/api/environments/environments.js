@@ -194,7 +194,9 @@ let simpleSchema = new SimpleSchema({
     },
   },
   distribution_version: {
-    type: String,
+    type: [String],
+    minCount: 1,
+    defaultValue: [],
     custom: function () {
       let that = this;
       let constsDist = Constants.findOne({ name: 'distribution_versions' });
@@ -202,9 +204,14 @@ let simpleSchema = new SimpleSchema({
       if (R.isNil(constsDist.data)) { return 'notAllowed'; }
       let dist_versions = constsDist.data;
 
-      if (R.isNil(R.find(R.propEq('value', that.value), dist_versions))) {
-        return 'notAllowed';
-      }
+      let result = R.find((selected_dist_version) => {
+        return R.pipe(
+          R.find(R.propEq('value', selected_dist_version)),
+          R.isNil
+        )(dist_versions); 
+      }, that.value);
+
+      if (result) { return 'notAllowed'; }
     },
   },
   last_scanned: {
