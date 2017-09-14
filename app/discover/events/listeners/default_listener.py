@@ -30,16 +30,18 @@ from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import OperationalStatus, EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
+from utils.logging.logger import Logger
 from utils.mongo_access import MongoAccess
-from utils.string_utils import stringify_datetime
 from utils.util import SignalHandler, setup_args
 
 
 class DefaultListener(ListenerBase, ConsumerMixin):
 
     SOURCE_SYSTEM = "OpenStack"
-
     COMMON_METADATA_FILE = "events.json"
+
+    LOG_FILENAME = "default_listener.log"
+    LOG_LEVEL = Logger.INFO
 
     DEFAULTS = {
         "env": "Mirantis-Liberty",
@@ -143,8 +145,8 @@ class DefaultListener(ListenerBase, ConsumerMixin):
     # 'Retry' flag specifies if the error is recoverable or not
     # 'Retry' flag is checked only is 'result' is False
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
-        print("Got notification.\nEvent_type: {}\nNotification:\n{}".
-              format(event_type, notification))
+        self.log.error("Got notification.\nEvent_type: {}\nNotification:\n{}".
+                       format(event_type, notification))
         try:
             result = self.handler.handle(event_name=event_type,
                                          notification=notification)
@@ -156,7 +158,6 @@ class DefaultListener(ListenerBase, ConsumerMixin):
     def save_message(self, message_body: dict, result: EventResult,
                      started: datetime, finished: datetime):
         try:
-            ts = datetime.datetime.fromtimestamp(message_body.get('timestamp'))
             message = Message(
                 msg_id=message_body.get('message_id'),
                 env=self.env_name,
@@ -165,7 +166,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
                 display_context=result.display_context,
                 level=message_body.get('priority'),
                 msg=message_body,
-                ts=ts,
+                ts=message_body.get('timestamp'),
                 received_ts=started,
                 finished_ts=finished
             )
