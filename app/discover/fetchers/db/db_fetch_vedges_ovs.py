@@ -24,8 +24,8 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
         self.port_re = re.compile("^\s*port (\d+): ([^(]+)( \(internal\))?$")
         self.port_line_header_prefix = " " * 8 + "Port "
 
-    def get(self, id):
-        host_id = id[:id.rindex('-')]
+    def get(self, parent_id):
+        host_id = parent_id[:parent_id.rindex('-')]
         results = self.get_objects_list_for_id(
             """
               SELECT *
@@ -66,11 +66,11 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
             if not port_matches:
                 continue
             port = {}
-            id = port_matches.group(1)
+            port_id = port_matches.group(1)
             name = port_matches.group(2)
             is_internal = port_matches.group(3) == " (internal)"
             port["internal"] = is_internal
-            port["id"] = id
+            port["id"] = port_id
             port["name"] = name
             ports[name] = port
         return ports
@@ -148,14 +148,16 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
             tunnel_ports[port["name"]] = port
         return tunnel_ports
 
-    def get_pnics(self, vedge):
+    def get_pnics(self, vedge) -> dict:
         bridges = vedge["configurations"].get("bridge_mappings", {})
+        pnics = {}
         for bridge in bridges.values():
-            self.get_bridge_pnic(vedge, bridge)
+            self.get_bridge_pnic(pnics, vedge, bridge)
+        return pnics
 
     MIRANTIS_DIST = "Mirantis"
 
-    def get_bridge_pnic(self, vedge, bridge):
+    def get_bridge_pnic(self, pnics: dict, vedge: dict, bridge: dict):
         cmd = "ovs-vsctl list-ifaces {}".format(bridge)
         ifaces_list_lines = self.run_fetch_lines(cmd, vedge["host"])
         env_config = self.configuration.get_env_config()
@@ -172,7 +174,9 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
             else:
                 interface = l
             if interface:
-                self.find_pnic_for_interface(vedge, interface)
+                pnic = self.find_pnic_for_interface(vedge, interface)
+                if pnic:
+                    pnics[pnic["name"]] = pnic
 
     def find_pnic_for_interface(self, vedge, interface):
         # add port ID to pNIC
@@ -188,3 +192,4 @@ class DbFetchVedgesOvs(DbAccess, CliAccess, metaclass=Singleton):
         port = vedge["ports"].get(interface, {})
         pnic["port_id"] = port.get("id", "")
         self.inv.set(pnic)
+        return pnic
