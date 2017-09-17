@@ -83,6 +83,7 @@ class EventInterfaceAdd(EventBase):
 
     def handle(self, env, values):
         interface = values['payload']['router_interface']
+        project_id = values['_context_project_id']
         project = values['_context_project_name']
         host_id = values["publisher_id"].replace("network.", "", 1)
         port_id = interface['port_id']
@@ -98,10 +99,10 @@ class EventInterfaceAdd(EventBase):
         network_id = network_document['id']
 
         # add router-interface port document.
-        if len(ApiAccess.regions) == 0:
+        if not ApiAccess.regions:
             fetcher = ApiFetchRegions()
             fetcher.set_env(env)
-            fetcher.get(None)
+            fetcher.get(project_id)
         port_doc = EventSubnetAdd().add_port_document(env, port_id,
                                                       network_name=network_name)
 
