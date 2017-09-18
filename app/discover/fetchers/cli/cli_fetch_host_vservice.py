@@ -33,6 +33,12 @@ class CliFetchHostVservice(CliAccess, DbAccess):
         id_full = r["local_service_id"].strip()
         prefix = id_full[:id_full.index('-')]
         id_clean = id_full[len(prefix)+1:]
+        r["service_type"] = prefix[1:]
+        name = self.get_router_name(r, id_clean) \
+            if r["service_type"] == "router" \
+            else self.get_network_name(id_clean)
+        prefix = id_full[:id_full.index('-')]
+        id_clean = id_full[len(prefix)+1:]
         r["service_type"] = prefix
         name = self.get_router_name(r, id_clean) if prefix[1:] == "router" \
             else self.get_network_name(id_clean)
