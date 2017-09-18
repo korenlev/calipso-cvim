@@ -31,8 +31,8 @@ class CliFetchHostVservice(CliAccess, DbAccess):
     def set_details(self, host_id, r):
         # keep the index without prefix
         id_full = r["local_service_id"].strip()
-        prefix, id_clean = re.match("([A-Za-z]+)-([0-9A-Za-z\-]+)",
-                                    id_full).groups()
+        prefix = id_full[:id_full.index('-')]
+        id_clean = id_full[len(prefix)+1:]
         r["service_type"] = prefix
         name = self.get_router_name(r, id_clean) if prefix[1:] == "router" \
             else self.get_network_name(id_clean)
@@ -41,25 +41,26 @@ class CliFetchHostVservice(CliAccess, DbAccess):
         r["id"] = id_full
         self.set_agent_type(r)
 
-    def get_network_name(self, id):
+    def get_network_name(self, network_id):
         query = """
                 SELECT name
                 FROM {}.networks
                 WHERE id = %s
                 """.format(self.neutron_db)
-        results = self.get_objects_list_for_id(query, "router", id)
+        results = self.get_objects_list_for_id(query, "router", network_id)
         if not list(results):
             return id
         for db_row in results:
             return db_row["name"]
 
-    def get_router_name(self, r, id):
+    def get_router_name(self, r, router_id):
         query = """
                 SELECT *
                 FROM {}.routers
                 WHERE id = %s
                 """.format(self.neutron_db)
-        results = self.get_objects_list_for_id(query, "router", id.strip())
+        results = self.get_objects_list_for_id(query, "router",
+                                               router_id.strip())
         for db_row in results:
             r.update(db_row)
         return r["name"]
