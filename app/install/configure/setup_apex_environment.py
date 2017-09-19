@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from abc import ABC
+from logging.handlers import WatchedFileHandler
 import argparse
 import distutils.version
+import json
 import logging
 import os.path
 import re
@@ -114,7 +116,7 @@ class FileLogger(Logger):
     def __init__(self, log_file: str, level: str = Logger.default_level):
         super().__init__(logger_name="{}-File".format(self.PROJECT_NAME),
                          level=level)
-        self.add_handler(logging.handlers.WatchedFileHandler(log_file))
+        self.add_handler(WatchedFileHandler(log_file))
 
 
 class ApexEnvironmentFetcher:
@@ -134,13 +136,32 @@ class ApexEnvironmentFetcher:
     REPO_LOCAL_NAME = 'Calipso'
     INSTALLER = 'python3 app/install/calipso-installer.py --command start-all'
     CONFIG_FILE_NAME = 'apex-configuration.conf'
+    OVERCLOUDRC_FILE = 'overcloudrc.v3'
     SSH_DIR = '/home/calipso/.ssh'
+    SSH_OPTIONS = '-q -o StrictHostKeyChecking=no'
+    UNDERCLOUD_KEY_FILE = 'uc-id_rsa'
+    UNDERCLOUD_PUBLIC_KEY_FILE = '{}/uc-id_rsa.pub'.format(SSH_DIR)
+    OVERCLOUD_USER = 'heat-admin'
+    OVERCLOUD_KEY_FILE = 'oc-id_rsa'
+    OVERCLOUD_KEYSTONE_CONF = 'oc-keystone.conf'
+    OVERCLOUD_ML2_CONF = 'overcloud_ml2_conf.ini'
 
     def __init__(self):
         self.args = self.get_args()
         self.log = None
         self.config_file = '{}/{}'.format(self.args.config_dir,
                                           self.CONFIG_FILE_NAME)
+        self.undercloud_user = 'root'
+        self.undercloud_host = '192.0.2.1'
+        self.undercloud_key = '{}/{}'.format(self.SSH_DIR,
+                                             self.UNDERCLOUD_KEY_FILE)
+        self.overcloud_config_file = '{}/{}'\
+            .format(self.args.config_dir, self.OVERCLOUDRC_FILE)
+        self.overcloud_key = '{}/{}'.format(self.SSH_DIR,
+                                            self.OVERCLOUD_KEY_FILE)
+        self.undercloud_ip = None
+        self.overcloud_ip = None
+        self.conf_lines = {}
 
     def get_args(self):
         # try to read scan plan from command line parameters
@@ -247,7 +268,7 @@ class ApexEnvironmentFetcher:
                      .format(self.REPO_LOCAL_NAME, self.INSTALLER),
                      as_user=self.USER_NAME)
 
-    def get_inet(self):
+    def get_undercloud_ip(self):
         output = self.run_cmd('ifconfig br-admin')
         lines = output.splitlines()
         if not lines or len(lines) < 2:
@@ -258,23 +279,217 @@ class ApexEnvironmentFetcher:
         inet_address = inet_parts[1]
         return inet_address
 
+    def get_overcloud_ip(self):
+        with open('{}'.format(self.overcloud_config_file)) as rc_file:
+            lines = rc_file.readlines()
+            no_proxy_line = [l for l in lines if 'no_proxy=' in l]
+            no_proxy_line = no_proxy_line[0]
+            value = no_proxy_line[no_proxy_line.index('=')+2:]
+            parts = value.strip().split(',')
+            inet_address = parts[-1]
+            return inet_address
+
     def set_ssh_dir(self):
         self.run_cmd('mkdir -p {}'.format(self.SSH_DIR))
         # will be used to access undercloud VM
-        self.run_cmd('cp /root/.ssh/id_rsa {}/uc-id_rsa'.format(self.SSH_DIR))
-        self.run_cmd('cp /root/.ssh/id_rsa.pub {}/uc-id_rsa.pub'
-                     .format(self.SSH_DIR))
+        self.run_cmd('cp /root/.ssh/id_rsa {}'.format(self.undercloud_key))
+        self.run_cmd('cp /root/.ssh/id_rsa.pub {}'
+                     .format(self.UNDERCLOUD_PUBLIC_KEY_FILE))
         self.run_cmd('chown calipso.calipso {}/uc-id_rsa*'.format(self.SSH_DIR))
+        self.copy_undercloud_file('/home/stack/.ssh/id_rsa',
+                                  local_dir=self.SSH_DIR,
+                                  local_name=self.OVERCLOUD_KEY_FILE)
+        self.copy_undercloud_file('/home/stack/.ssh/id_rsa.pub',
+                                  local_dir=self.SSH_DIR,
+                                  local_name='oc-id_rsa.pub')
+        self.run_cmd('chown calipso.calipso {}/oc-id_rsa*'.format(self.SSH_DIR))
+
+    def copy_undercloud_file(self, file_path, local_dir=None, local_name=None):
+        cmd = 'scp {} -i {} {}@{}:{} {}/{}' \
+            .format(self.SSH_OPTIONS,
+                    self.undercloud_key,
+                    self.undercloud_user, self.undercloud_host,
+                    file_path,
+                    local_dir if local_dir else self.args.config_dir,
+                    local_name if local_name else '')
+        self.run_cmd(cmd)
+
+    def copy_undercloud_conf_file(self, file_name, local_name=None):
+        self.copy_undercloud_file('/home/stack/{}'.format(file_name),
+                                  local_name)
+
+    def get_undercloud_setup(self):
+        self.copy_undercloud_conf_file('undercloud.conf')
+        self.copy_undercloud_conf_file('opnfv-environment.yaml')
+        self.copy_undercloud_conf_file('overcloudrc')
+        self.copy_undercloud_conf_file('stackrc')
+        self.copy_undercloud_conf_file('overcloudrc.v3')
+        self.copy_undercloud_conf_file('deploy_command')
+        self.copy_undercloud_conf_file('apex-undercloud-install.log')
+        self.copy_undercloud_conf_file('undercloud-passwords.conf')
+        self.copy_undercloud_file('/etc/keystone/keystone.conf',
+                                  local_name='uc-keystone.conf')
+        self.run_cmd('mkdir -p {}/deploy_logs'.format(self.args.config_dir))
+        self.copy_undercloud_file('/home/stack/deploy_logs/*',
+                                  local_name='deploy_logs/')
+
+    def fetch_conf_file(self, file_name, target_file, lines_property=None):
+        conf = \
+            self.run_cmd('ssh -i {} {} {}@{} '
+                         'sudo grep -v "^#" {}'
+                         .format(self.overcloud_key,
+                                 self.SSH_OPTIONS,
+                                 self.OVERCLOUD_USER,
+                                 self.overcloud_ip,
+                                 file_name))
+        conf_file_path = '{}/{}'.format(self.args.config_dir, target_file)
+        if lines_property:
+            self.conf_lines[lines_property] = conf.splitlines()
+        with open(conf_file_path, 'w') as conf_file:
+            conf_file.write(conf)
+
+    def fetch_keystone_conf(self):
+        self.fetch_conf_file('/etc/keystone/keystone.conf',
+                             self.OVERCLOUD_KEYSTONE_CONF,
+                             lines_property='keystone_conf')
+
+    def fetch_ml2_conf(self):
+        self.fetch_conf_file('/etc/neutron/plugins/ml2/ml2_conf.ini',
+                             self.OVERCLOUD_ML2_CONF,
+                             lines_property='ml2_conf')
+
+    def fetch_rabbitmq_conf(self):
+        self.fetch_conf_file('/etc/rabbitmq/rabbitmq.config',
+                             self.OVERCLOUD_ML2_CONF,
+                             lines_property='ml2_conf')
+
+    def copy_local_file_to_overcloud(self, local_file, remote_file_path,
+                                     local_dir=None):
+        source_dir = local_dir if local_dir else self.args.config_dir
+        local_file_path = '{}/{}'.format(source_dir, local_file)
+        cmd = 'scp {} -i {} {} {}@{}:{}' \
+            .format(self.SSH_OPTIONS,
+                    self.overcloud_key,
+                    local_file_path,
+                    self.OVERCLOUD_USER, self.overcloud_ip,
+                    remote_file_path)
+        self.run_cmd(cmd)
+
+    def get_overcloud_keys(self):
+        remote_ssh_dir = '/home/{}/.ssh'.format(self.OVERCLOUD_USER)
+        remote_private_key = '{}/id_rsa'.format(remote_ssh_dir)
+        self.copy_local_file_to_overcloud(self.OVERCLOUD_KEY_FILE,
+                                          remote_private_key,
+                                          local_dir=self.SSH_DIR)
+        public_key = '{}.pub'.format(self.OVERCLOUD_KEY_FILE)
+        remote_public_key = '{}/id_rsa.pub'.format(remote_ssh_dir)
+        self.copy_local_file_to_overcloud(public_key, remote_public_key,
+                                          local_dir=self.SSH_DIR)
+
+    def get_overcloud_setup(self):
+        self.get_overcloud_keys()
+        self.fetch_keystone_conf()
+        self.fetch_ml2_conf()
+        self.fetch_rabbitmq_conf()
+
+    def get_value_from_file(self, file_attr, attr, regex=None, separator='='):
+        line_prefix = 'export ' if separator == '=' else ''
+        prefix = '{}{}{}'.format(line_prefix, attr, separator)
+        lines = self.conf_lines.get(file_attr, {})
+        matches = [l for l in lines if l.startswith(prefix)]
+        if not matches:
+            self.log.error('failed to find attribute {}'.format(attr))
+            return ''
+        line = matches[0].strip()
+        value = line[line.index(separator)+len(separator):]
+        if not regex:
+            return value
+        matches = re.search(regex, value)
+        if not matches:
+            return ''
+        match = matches.group(1)
+        return match
+
+    def get_value_from_rc_file(self, lines, attr, regex=None):
+        return self.get_value_from_file(lines, attr, regex=regex)
+
+    def get_api_config(self):
+        with open('{}'.format(self.overcloud_config_file)) as rc_file:
+            self.conf_lines['overcloudrc'] = rc_file.readlines()
+        api_config = {
+            'name': 'OpenStack',
+            'host': self.overcloud_ip,
+            'port': self.get_value_from_rc_file('overcloudrc',
+                                                'OS_AUTH_URL',
+                                                regex=':(\d+)/'),
+            'user': self.get_value_from_rc_file('overcloudrc', 'OS_USERNAME'),
+            'pwd': self.get_value_from_rc_file('overcloudrc', 'OS_PASSWORD'),
+            'admin_token': self.get_value_from_file('keystone_conf',
+                                                    'admin_token',
+                                                    separator=' = ')
+        }
+        return api_config
+
+    def get_mysql_config(self):
+        password = self.run_cmd('openssl rand -base64 18')
+        mysql_config = {
+            'name': 'mysql',
+            'host': self.overcloud_ip
+        }
+        return mysql_config
+
+    def get_cli_config(self):
+        return {
+            'name': 'CLI',
+            'host': self.overcloud_ip,
+            'user': self.OVERCLOUD_USER,
+            'key': self.overcloud_key
+        }
+
+    def get_amqp_config(self):
+        return {
+            'name': 'AMQP',
+            'host': self.overcloud_ip,
+            'user': self.OVERCLOUD_USER,
+            'key': self.overcloud_key
+        }
+
+    def prepare_env_configuration_array(self):
+        config_array = [
+            self.get_api_config(),
+            self.get_mysql_config(),
+            self.get_cli_config(),
+            self.get_amqp_config()
+        ]
+        self.env_config['configuration'] = config_array
+
+    def set_env_level_attributes(self):
+        self.env_config['name'] = self.args.env
+        # TBD: type_drivers: from overcloud_ml2_conf.ini file,
+        #      take tenant_network_types= vxlan
+        # TBD: mechanism_drivers: from overcloud_ml2_conf.ini file:
+        #      take mechanism_drivers = openvswitch --> "OVS"
+        pass
+
+    def prepare_env_config(self):
+        self.prepare_env_configuration_array()
+        self.set_env_level_attributes()
 
     def setup_environment_config(self, config_file):
         self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
-        env_config = {
+        self.env_config = {
             'name': self.args.env,
             'configuration': []
         }
-        inet = self.get_inet()
-        config_file.write('inet {}\n'.format(inet))
+        self.undercloud_ip = self.get_undercloud_ip()
+        config_file.write('jumphost_admin_ip {}\n'.format(self.undercloud_ip))
         self.set_ssh_dir()
+        self.get_undercloud_setup()
+        self.overcloud_ip = self.get_overcloud_ip()
+        config_file.write('overcloud_admin_ip {}\n'.format(self.overcloud_ip))
+        self.get_overcloud_setup()
+        self.prepare_env_config()
+        print(json.dumps(self.env_config))
 
     def setup_environment(self):
         print('Fetching Apex environment settings')
@@ -286,6 +501,7 @@ class ApexEnvironmentFetcher:
             if self.args.root:
                 self.get_source_tree()
             self.run_installer()
+        self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
         with open(self.config_file, 'w') as config_file:
             self.setup_environment_config(config_file)
         print('Finished fetching Apex environment settings')
@@ -296,6 +512,7 @@ class ApexEnvironmentFetcher:
             return True, 'Environment setup finished successfully'
         except RuntimeError as e:
             return False, str(e)
+
 
 if __name__ == '__main__':
     fetcher = ApexEnvironmentFetcher()
