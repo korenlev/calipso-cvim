@@ -180,7 +180,7 @@ let simpleSchema = new SimpleSchema({
   },
   distribution: {
     type: String,
-    defaultValue: 'Mirantis-8.0',
+    defaultValue: 'Mirantis',
     custom: function () {
       let that = this;
       let constsDist = Constants.findOne({ name: 'distributions' });
