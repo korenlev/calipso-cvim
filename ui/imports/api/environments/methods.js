@@ -29,7 +29,6 @@ export const insert = new ValidatedMethod({
       'configuration.$', 
       'distribution', 
       'distribution_version', 
-      'distribution_version.$', 
       'name', 
       'type_drivers',
       'mechanism_drivers',

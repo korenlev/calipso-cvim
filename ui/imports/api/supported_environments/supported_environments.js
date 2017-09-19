@@ -28,7 +28,7 @@ export function isMonitoringSupported(
 
   let result = SupportedEnvironments.find({
     'environment.distribution': distribution,
-    'environment.distribution_version': { $in: distribution_version },
+    'environment.distribution_version': { $in: [ distribution_version ] },
     'environment.type_drivers': type_drivers,
     'environment.mechanism_drivers': { $in: mechanism_drivers },
     'features.monitoring': true
@@ -52,7 +52,7 @@ export function isListeningSupported(
 
   let result = SupportedEnvironments.find({
     'environment.distribution': distribution,
-    'environment.distribution_version': { $in: distribution_version },
+    'environment.distribution_version': { $in: [ distribution_version ] },
     'environment.type_drivers': type_drivers,
     'environment.mechanism_drivers': { $in: mechanism_drivers },
     'features.listening': true
