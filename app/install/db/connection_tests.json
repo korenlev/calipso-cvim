@@ -20,7 +20,7 @@
     "submit_timestamp" : "2017-05-17T07:53:09.194+0000", 
     "response_time" : "78ms", 
     "response_timestamp" : "2017-03-17T11:00:17.939+0000", 
-    "status" : "completed", 
+    "status" : "response", 
     "last_response_message" : "cli says yes i am alive"
 },
 { 
@@ -44,7 +44,7 @@
     "submit_timestamp" : "2017-05-17T07:53:09.194+0000", 
     "response_time" : "56ms", 
     "response_timestamp" : "2017-05-17T11:00:17.939+0000", 
-    "status" : "completed", 
+    "status" : "response", 
     "last_response_message" : "mysql says yes i am alive"
 }
 ]
