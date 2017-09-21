@@ -1,0 +1,50 @@
+[
+{ 
+    "environment" : "My-Environment", 
+    "test_target" : [
+        "AMQP", 
+        "CLI", 
+        "ACI", 
+        "mysql", 
+        "OpenStack", 
+        "Monitoring"
+    ], 
+    "test_result" : {
+        "AMQP" : false, 
+        "CLI" : true, 
+        "ACI" : false, 
+        "mysql" : false, 
+        "OpenStack" : false, 
+        "Monitoring" : false
+    }, 
+    "submit_timestamp" : "2017-05-17T07:53:09.194+0000", 
+    "response_time" : "78ms", 
+    "response_timestamp" : "2017-03-17T11:00:17.939+0000", 
+    "status" : "completed", 
+    "last_response_message" : "cli says yes i am alive"
+},
+{ 
+    "environment" : "Mirantis-Liberty", 
+    "test_target" : [
+        "AMQP", 
+        "CLI", 
+        "ACI", 
+        "mysql", 
+        "OpenStack", 
+        "Monitoring"
+    ], 
+    "test_result" : {
+        "AMQP" : false, 
+        "CLI" : false, 
+        "ACI" : false, 
+        "mysql" : true, 
+        "OpenStack" : false, 
+        "Monitoring" : false
+    }, 
+    "submit_timestamp" : "2017-05-17T07:53:09.194+0000", 
+    "response_time" : "56ms", 
+    "response_timestamp" : "2017-05-17T11:00:17.939+0000", 
+    "status" : "completed", 
+    "last_response_message" : "mysql says yes i am alive"
+}
+]
