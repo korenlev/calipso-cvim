@@ -46,6 +46,7 @@ export const insert = new ValidatedMethod({
       submit_timestamp
     });
 
-    ConnectionTests.insert(connection_test);
+    let insertResult = ConnectionTests.insert(connection_test);
+    return insertResult;
   },
 });

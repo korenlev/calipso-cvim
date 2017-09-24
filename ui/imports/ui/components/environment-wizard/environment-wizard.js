@@ -14,6 +14,7 @@ import { Session } from 'meteor/session';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import * as R from 'ramda';
+import { ConnectionTests } from '/imports/api/connection-tests/connection-tests';
 
 import { Environments } from '/imports/api/environments/environments';
 import { subsNameSupportedEnvs, 
@@ -56,6 +57,7 @@ Template.EnvironmentWizard.onCreated(function(){
     isMessage: false,
     message: null,
     disabled: false,
+    connectionTestId: null
   });
 
   instance.autorun(function () {
@@ -87,10 +89,31 @@ Template.EnvironmentWizard.onCreated(function(){
     }
   });
 
+  instance.autorun(function () {
+    let connectionTestId = instance.state.get('connectionTestId');
+    if (R.isNil(connectionTestId)) { return; }
+    
+    instance.subscribe('connection_tests?_id', connectionTestId);
+    ConnectionTests.find({ _id: connectionTestId }).forEach((connTest) => {
+      if (connTest.status !== 'response') { 
+        return; 
+      }
+
+      R.mapObjIndexed((success, groupName) => {
+        if (success) {
+          toastr.success(`${groupName} connection is OK`, { timeOut: 5000 });
+        } else {
+          toastr.error(`${groupName} connection is DOWN`, { timeOut: 5000 });
+        }
+      }, connTest.test_results);
+    });
+  });
+
   instance.storeUnsubscribe = store.subscribe(() => {
     let i18n = store.getState().api.i18n;
     instance.state.set('i18n', i18n);
   });
+
 
   let i18n = store.getState().api.i18n;
   instance.state.set('i18n', i18n);
@@ -439,7 +462,7 @@ function processActionResult(instance, error) {
   }
 }
 
-function processInsertTestConnnectionResult(instance, error) {
+function processInsertTestConnnectionResult(instance, error, itemId) {
   if (error) {
     instance.state.set('isError', true);
     instance.state.set('isSuccess', false);
@@ -457,13 +480,16 @@ function processInsertTestConnnectionResult(instance, error) {
       instance.state.set('message', message);
     }
 
-  } else {
-    instance.state.set('isError', false);
-    instance.state.set('isSuccess', true);
-    instance.state.set('isMessage', true);  
+    return;
+  } 
 
-    instance.state.set('message', 'Connection send to be tested');
-  }
+  instance.state.set('connectionTestId', itemId);
+
+  instance.state.set('isError', false);
+  instance.state.set('isSuccess', true);
+  instance.state.set('isMessage', true);  
+
+  instance.state.set('message', 'Connection send to be tested');
 }
 
 function getGroupInArray(groupName, array) {
