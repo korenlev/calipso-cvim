@@ -339,7 +339,7 @@ SimpleSchema.messages({
 Environments.schema = simpleSchema;
 Environments.attachSchema(Environments.schema);
 
-function getSchemaForGroupName(groupName) {
+export function getSchemaForGroupName(groupName) {
   switch (groupName) {
   case 'mysql':
     return MysqlSchema;
