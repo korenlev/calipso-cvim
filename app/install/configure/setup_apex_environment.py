@@ -7,6 +7,7 @@ import json
 import logging
 import os.path
 import re
+import shlex
 import subprocess
 import sys
 
@@ -136,6 +137,7 @@ class ApexEnvironmentFetcher:
     REPO_LOCAL_NAME = 'Calipso'
     INSTALLER = 'python3 app/install/calipso-installer.py --command start-all'
     CONFIG_FILE_NAME = 'apex-configuration.conf'
+    ENV_CONFIG_FILE_NAME = 'environment_config.json'
     OVERCLOUDRC_FILE = 'overcloudrc.v3'
     SSH_DIR = '/home/calipso/.ssh'
     SSH_OPTIONS = '-q -o StrictHostKeyChecking=no'
@@ -145,12 +147,15 @@ class ApexEnvironmentFetcher:
     OVERCLOUD_KEY_FILE = 'oc-id_rsa'
     OVERCLOUD_KEYSTONE_CONF = 'oc-keystone.conf'
     OVERCLOUD_ML2_CONF = 'overcloud_ml2_conf.ini'
+    OVERCLOUD_RABBITMQ_CONF = 'overcloud_rabbitmq_conf.ini'
 
     def __init__(self):
         self.args = self.get_args()
         self.log = None
         self.config_file = '{}/{}'.format(self.args.config_dir,
                                           self.CONFIG_FILE_NAME)
+        self.env_config_file = '{}/{}'.format(self.args.config_dir,
+                                              self.ENV_CONFIG_FILE_NAME)
         self.undercloud_user = 'root'
         self.undercloud_host = '192.0.2.1'
         self.undercloud_key = '{}/{}'.format(self.SSH_DIR,
@@ -162,6 +167,7 @@ class ApexEnvironmentFetcher:
         self.undercloud_ip = None
         self.overcloud_ip = None
         self.conf_lines = {}
+        self.env_config = None
 
     def get_args(self):
         # try to read scan plan from command line parameters
@@ -180,7 +186,10 @@ class ApexEnvironmentFetcher:
         parser.add_argument('-a', '--apex', nargs='?', type=str,
                             help='name of environment to Apex host')
         parser.add_argument('-e', '--env', nargs='?', type=str,
-                            help='name of environment to create')
+                            default=self.DEFAULTS['env'],
+                            help='name of environment to create'
+                                 '(Default: {})'
+                                  .format(self.DEFAULTS['env']))
         parser.add_argument('-l', '--loglevel', nargs='?', type=str,
                             default=self.DEFAULTS['loglevel'],
                             help='logging level \n(default: "{}")'
@@ -360,8 +369,8 @@ class ApexEnvironmentFetcher:
 
     def fetch_rabbitmq_conf(self):
         self.fetch_conf_file('/etc/rabbitmq/rabbitmq.config',
-                             self.OVERCLOUD_ML2_CONF,
-                             lines_property='ml2_conf')
+                             self.OVERCLOUD_RABBITMQ_CONF,
+                             lines_property='rabbitmq_conf')
 
     def copy_local_file_to_overcloud(self, local_file, remote_file_path,
                                      local_dir=None):
@@ -430,11 +439,41 @@ class ApexEnvironmentFetcher:
         }
         return api_config
 
+    def run_command_on_overcloud(self, cmd):
+        output = \
+            self.run_cmd('ssh -i {} {} {}@{} {}'
+                         .format(self.overcloud_key,
+                                 self.SSH_OPTIONS,
+                                 self.OVERCLOUD_USER,
+                                 self.overcloud_ip,
+                                 shlex.quote(cmd)))
+        return output
+
+    def create_mysql_user(self, host):
+        pwd = self.run_cmd('openssl rand -base64 18').strip()
+        mysql_file_name = '/tmp/create_user.sql'
+        # create calipso MySQL user with access from jump host to all tables
+        echo_cmd = "echo \"GRANT ALL PRIVILEGES ON *.* " \
+                   "TO 'calipso'@'{}' " \
+                   "IDENTIFIED BY '{}'; " \
+                   "FLUSH PRIVILEGES;\" > {}"\
+            .format(host, pwd, mysql_file_name)
+        self.run_command_on_overcloud(echo_cmd)
+        run_mysql_cmd = 'sudo mysql < {}'.format(mysql_file_name)
+        self.run_command_on_overcloud(run_mysql_cmd)
+        remove_file_cmd = 'rm {}'.format(mysql_file_name)
+        self.run_command_on_overcloud(remove_file_cmd)
+        return pwd
+
     def get_mysql_config(self):
-        password = self.run_cmd('openssl rand -base64 18')
+        self.create_mysql_user(self.undercloud_ip)
+        pwd = self.create_mysql_user(self.overcloud_ip)
         mysql_config = {
             'name': 'mysql',
-            'host': self.overcloud_ip
+            'host': self.overcloud_ip,
+            'port': '3306',
+            'user': 'calipso',
+            'pwd': pwd
         }
         return mysql_config
 
@@ -447,11 +486,43 @@ class ApexEnvironmentFetcher:
         }
 
     def get_amqp_config(self):
+        user = self.get_value_from_file('rabbitmq_conf',
+                                        '    {default_user',
+                                        separator=',',
+                                        regex='"(.+)"')
+        pwd = self.get_value_from_file('rabbitmq_conf',
+                                       '    {default_pass',
+                                       separator=',',
+                                       regex='"(.+)"')
+        port = self.get_value_from_file('rabbitmq_conf',
+                                        '    {tcp_listeners',
+                                        separator=',',
+                                        regex=', (\d+)')
+        port = int(port)
         return {
             'name': 'AMQP',
             'host': self.overcloud_ip,
-            'user': self.OVERCLOUD_USER,
-            'key': self.overcloud_key
+            'port': port,
+            'user': user,
+            'pwd': pwd
+        }
+
+    def get_monitoring_config(self):
+        return {
+            'name': 'Monitoring',
+            'config_folder': '/local_dir/sensu_config',
+            'env_type': 'production',
+            'rabbitmq_port': '5671',
+            'rabbitmq_user': 'sensu',
+            'server_ip': self.undercloud_ip,
+            'server_name': 'sensu_server',
+            'type': 'Sensu',
+            'provision': 'None',
+            'ssh_port': '20022',
+            'ssh_user': 'root',
+            'ssh_password': 'scan',
+            'api_port': 4567,
+            'rabbitmq_pass': 'osdna'
         }
 
     def prepare_env_configuration_array(self):
@@ -459,21 +530,48 @@ class ApexEnvironmentFetcher:
             self.get_api_config(),
             self.get_mysql_config(),
             self.get_cli_config(),
-            self.get_amqp_config()
+            self.get_amqp_config(),
+            self.get_monitoring_config()
         ]
         self.env_config['configuration'] = config_array
 
+    UI_USER = 'wNLeBJxNDyw8G7Ssg'
+
+    def add_env_ui_conf(self):
+        self.env_config.update({
+            'user': self.UI_USER,
+            'auth': {
+                'view-env': [self.UI_USER],
+                'edit-env': [self.UI_USER]
+            }
+        })
+
+    def get_mechanism_driver(self):
+        driver = self.get_value_from_file('ml2_conf', 'mechanism_drivers',
+                                          separator=' =')
+        return 'OVS' if driver == 'openvswitch' else driver
+
     def set_env_level_attributes(self):
-        self.env_config['name'] = self.args.env
+        self.env_config.update({
+            'name': self.args.env,
+            'distribution': 'Apex-Euphrates',
+            'type_drivers': self.get_value_from_file('ml2_conf',
+                                                     'tenant_network_types',
+                                                     separator=' = '),
+            'mechanism_drivers': [self.get_mechanism_driver()]
+        })
         # TBD: type_drivers: from overcloud_ml2_conf.ini file,
         #      take tenant_network_types= vxlan
         # TBD: mechanism_drivers: from overcloud_ml2_conf.ini file:
         #      take mechanism_drivers = openvswitch --> "OVS"
-        pass
 
     def prepare_env_config(self):
         self.prepare_env_configuration_array()
         self.set_env_level_attributes()
+        config_dump = json.dumps(self.env_config, sort_keys=True, indent=4,
+                                 separators=(',', ': '))
+        with open(self.env_config_file, 'w') as config_file:
+            config_file.write(config_dump)
 
     def setup_environment_config(self, config_file):
         self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
@@ -488,8 +586,12 @@ class ApexEnvironmentFetcher:
         self.overcloud_ip = self.get_overcloud_ip()
         config_file.write('overcloud_admin_ip {}\n'.format(self.overcloud_ip))
         self.get_overcloud_setup()
+        # now get correct IP of overcloud from RabbitMQ setup
+        self.overcloud_ip = self.get_value_from_file('rabbitmq_conf',
+                                                     '    {tcp_listeners',
+                                                     regex='"(.*)"',
+                                                     separator=',')
         self.prepare_env_config()
-        print(json.dumps(self.env_config))
 
     def setup_environment(self):
         print('Fetching Apex environment settings')
