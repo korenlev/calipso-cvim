@@ -560,3 +560,6 @@ Validating calipso-ldap module
 .. |image5| image:: media/image6.png
    :width: 6.50000in
    :height: 1.55903in
+.. |image6| image:: media/image7.png
+   :width: 6.50000in
+   :height: 1.55903in
