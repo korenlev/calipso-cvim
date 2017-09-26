@@ -1,7 +1,7 @@
 | Calipso.io
 | Quick Start Guide
 
-|image1|
+|image0|
 
 Project “Calipso” tries to illuminate complex virtual networking with
 real time operational state visibility for large and highly distributed
