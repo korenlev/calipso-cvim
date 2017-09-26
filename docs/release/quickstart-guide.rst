@@ -91,7 +91,7 @@ Calipso containers details
 
     Expected results (as of Aug 2017):
 
-    **REPOSITORY TAG IMAGE ID CREATED SIZE**
+    **REPOSITORY        TAG       IMAGE    ID CREATED     SIZE**
 
     **korenlev/calipso listen 12086aaedbc3 6 hours ago 1.05GB**
 
@@ -118,7 +118,7 @@ Calipso containers details
 
     Expected results and details (as of Aug 2017):
 
-|image1|
+|image2|
 
     The above listed TCP ports are used by default on the hosts to map
     to each calipso container, you should be familiar with these
@@ -131,7 +131,7 @@ Calipso containers details
 
     Expected results (as of Aug 2017):
 
-|image2|
+|image3|
 
     Calipso containers configuration can be listed with **docker
     inspect**, summarized in the table above. In a none-containerized
@@ -212,12 +212,12 @@ Validating calipso-mongo module
     The following is a screenshot of a correct connection setup in
     MongoChef:
 
-    |image3|
+    |image4|
 
     When clicking on the new defined connection the calipso DB should be
     listed:
 
-    |image4|
+    |image5|
 
     At this stage you can checkout calipso-mongo collections data and
     validate as needed.
@@ -448,7 +448,7 @@ Validating calipso-ui module
     expect a login page. Use admin/123456 as default credentials to
     login:
 
-    |image5|
+    |image6|
 
 Validating calipso-ldap module
 ------------------------------
