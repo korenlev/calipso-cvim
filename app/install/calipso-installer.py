@@ -177,6 +177,7 @@ def start_mongo(dbport, copy):
     copy_file("statistics")
     copy_file("supported_environments")
     copy_file("connection_tests")
+    copy_file("api_tokens")
 
     # note : 'messages', 'roles', 'users' and some of the 'constants'
     # are filled by calipso-ui at runtime
