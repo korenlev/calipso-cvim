@@ -111,7 +111,7 @@ Template.NetworkGraphManager.helpers({
             }
 
             store.dispatch(
-              activateGraphTooltipWindow(res.nodeName, res.attributes, x - 30, y - 10));
+              activateGraphTooltipWindow(res.nodeName, res.attributes, x + 30, y - 10));
           });
       },
       onNodeOut: function (_nodeId) {
@@ -127,8 +127,8 @@ Template.NetworkGraphManager.helpers({
         isDragging = false;
       },
       onGroupOver: function () {
-        instance.simpleState.itemOfInterest = null;
-        store.dispatch(closeGraphTooltipWindow());
+        //instance.simpleState.itemOfInterest = null;
+        //store.dispatch(closeGraphTooltipWindow());
       },
       onLinkOver: function (linkId, x, y) {
         if (isDragging) {

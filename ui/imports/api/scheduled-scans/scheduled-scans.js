@@ -54,7 +54,6 @@ let schema = new SimpleSchema({
   },
   scheduled_timestamp: {
     type: Date,
-    defaultValue: null,
     optional: true,
   }
 });
