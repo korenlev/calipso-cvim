@@ -63,7 +63,10 @@ Template.NetworkGraphManager.onCreated(function() {
     let id_path = instance.state.get('id_path');
 
     instance.simpleState.graphData = generateGraphData();
+    instance.state.set('graphDataChanged', null);
     instance.state.set('isReady', false);
+    instance.state.set('inventoriesToFind', []);
+    instance.state.set('cliquesToFind', []);
     instance.state.set('linksToFind', []);
     instance.state.set('nodesToFind', []);
     instance.state.set('graphLinks', []);
