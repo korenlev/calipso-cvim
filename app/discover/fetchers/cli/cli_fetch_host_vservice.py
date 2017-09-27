@@ -41,7 +41,7 @@ class CliFetchHostVservice(CliAccess, DbAccess):
             else self.get_network_name(id_clean)
         r["name"] = prefix + "-" + name
         r["host"] = host_id
-        r["id"] = id_full
+        r["id"] = "{}-{}".format(host_id, id_full)
         self.set_agent_type(r)
 
     def get_network_name(self, network_id):
