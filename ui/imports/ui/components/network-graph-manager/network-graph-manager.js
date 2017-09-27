@@ -36,6 +36,7 @@ Template.NetworkGraphManager.onCreated(function() {
     cliquesToFind: [],
     linksToFind: [],
     nodesToFind: [],
+    graphLinks: [],
     graphNodes: [],
   });
 
@@ -65,6 +66,7 @@ Template.NetworkGraphManager.onCreated(function() {
     instance.state.set('isReady', false);
     instance.state.set('linksToFind', []);
     instance.state.set('nodesToFind', []);
+    instance.state.set('graphLinks', []);
     instance.state.set('graphNodes', []);
 
     //instance.subscribe('attributes_for_hover_on_data');
@@ -115,15 +117,30 @@ Template.NetworkGraphManager.onCreated(function() {
     instance.subscribe('links?_id-in', linksToFind);
 
     Links.find({ _id: {$in: linksToFind} }).forEach(function(link) {
-      instance.simpleState.graphData = addLinkToGraph(link, instance.simpleState.graphData);
-      instance.state.set('graphDataChanged', Date.now());
-
-      // Find nodes for link
-      let nodesIds = [ link['source'], link['target'] ];
-      let nodesToFind = EJSON.parse(instance.state.keys['nodesToFind']);
-      nodesToFind = R.concat(nodesIds, nodesToFind);
-      instance.state.set('nodesToFind', nodesToFind);
+      let graphLinks = EJSON.parse(instance.state.keys['graphLinks']);
+      graphLinks = R.concat([link], graphLinks);
+      instance.state.set('graphLinks', graphLinks);
     });
+  });
+
+  instance.autorun(function () {
+    let graphLinks = instance.state.get('graphLinks');
+    if (graphLinks.length <= 0) { 
+      return; 
+    }
+
+    instance.simpleState.graphData = addLinksToGraph(graphLinks, instance.simpleState.graphData);
+    instance.state.set('graphDataChanged', Date.now());
+
+    // Find nodes for link
+    // todo: remove dubplicates.
+    let nodesIds = R.chain(link => {
+      return [ link['source'], link['target'] ]; 
+    }, graphLinks); 
+
+    let nodesToFind = EJSON.parse(instance.state.keys['nodesToFind']);
+    nodesToFind = R.concat(nodesIds, nodesToFind);
+    instance.state.set('nodesToFind', nodesToFind);
   });
 
   instance.autorun(function () {
@@ -264,7 +281,7 @@ function generateGraphData() {
   };
 }
 
-function addLinkToGraph(link, graphData) {
+function genGraphLink(link) {
   let newLink = {
     sourceId: link.source, 
     targetId: link.target, 
@@ -276,6 +293,24 @@ function addLinkToGraph(link, graphData) {
     }
   };
 
+  return newLink;
+}
+
+function addLinksToGraph(linksInfo, graphData) {
+  let newLinks = R.map(link => genGraphLink(link), linksInfo);
+
+  let links = R.unionWith(R.eqBy(R.prop('_osid')), graphData.links, newLinks);
+  links = expandLinks(links, graphData.nodes);
+
+  return R.merge(graphData, {
+    links: links
+  });
+}
+
+/*
+function addLinkToGraph(link, graphData) {
+  let newLink = genGraphLink(link);
+
   let links = R.unionWith(R.eqBy(R.prop('_osid')), graphData.links, [newLink]);
   links = expandLinks(links, graphData.nodes);
 
@@ -283,6 +318,7 @@ function addLinkToGraph(link, graphData) {
     links: links
   });
 }
+*/
 
 function expandLinks(links, nodes) {
   return R.map((link) => {
