@@ -721,5 +721,34 @@
             "value" : "switch"
         }
     ]
+},
+{
+    "name" : "configuration_targets",
+    "data" : [
+        {
+            "label" : "AMQP",
+            "value" : "AMQP"
+        },
+        {
+            "label" : "CLI",
+            "value" : "CLI"
+        },
+        {
+            "label" : "ACI",
+            "value" : "ACI"
+        },
+        {
+            "label" : "mysql",
+            "value" : "mysql"
+        },
+        {
+            "label" : "OpenStack",
+            "value" : "OpenStack"
+        },
+        {
+            "label" : "Monitoring",
+            "value" : "Monitoring"
+        }
+    ]
 }
 ]
