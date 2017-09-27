@@ -42,7 +42,7 @@ class CliFetchVserviceVnics(CliAccess):
             return []
         if "Network" not in host["host_type"]:
             return []
-        lines = self.run_fetch_lines("ip netns", host_id)
+        lines = self.run_fetch_lines("ip netns list", host_id)
         ret = []
         for l in [l for l in lines
                   if l.startswith("qdhcp") or l.startswith("qrouter")]:
