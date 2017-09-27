@@ -52,7 +52,7 @@ class CliFetchHostVservice(CliAccess, DbAccess):
                 """.format(self.neutron_db)
         results = self.get_objects_list_for_id(query, "router", network_id)
         if not list(results):
-            return id
+            return network_id
         for db_row in results:
             return db_row["name"]
 
