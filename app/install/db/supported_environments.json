@@ -51,6 +51,19 @@
       "monitoring" : false
     }
   },
+  { 
+    "features" : {
+        "listening" : true, 
+        "monitoring" : true, 
+        "scanning" : true
+    }, 
+    "environment" : {
+        "mechanism_drivers" : "OVS", 
+        "type_drivers" : "vlan", 
+        "distribution" : "Mercury", 
+        "distribution_version" : ["10918"]
+    }
+  },
   {
     "environment" : {
       "distribution" : "Mirantis",
