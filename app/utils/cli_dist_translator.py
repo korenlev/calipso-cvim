@@ -3,6 +3,7 @@ class CliDistTranslator:
     DOCKER_CALL = 'docker exec --user root'
 
     TRANSLATIONS = {
+        # special handling of cli commands in Mercury environments
         'Mercury': {
             'ip netns list': '{docker_call} neutron_l3_agent_{version} {cmd} && '
                              '{docker_call} neutron_dhcp_agent_{version} {cmd}',
