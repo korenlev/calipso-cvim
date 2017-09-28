@@ -54,8 +54,8 @@ import '../../api/accounts/methods';
 import '../../api/supported_environments/server/publications';
 import '../../api/supported_environments/methods';
 
-import '../../api/configurations/server/publications';
-import '../../api/configurations/methods';
+import '../../api/user-settings/server/publications';
+import '../../api/user-settings/methods';
 
 import '../../api/connection-tests/server/publications';
 import '../../api/connection-tests/methods';
