@@ -27,6 +27,7 @@ Template.NetworkGraph.onCreated(function() {
   instance.simpleState = {
     graphData: null
   };
+  instance.prevForce = null;
 
   instance.autorun(function () {
     let data = Template.currentData();
@@ -73,11 +74,27 @@ Template.NetworkGraph.rendered = function() {
       instance.onDragStart,
       instance.onDragEnd,
       instance.onGroupOver,
-      instance.onLinkOver
+      instance.onLinkOver,
+      function onNewForce(newForce) {
+        if (instance.prevForce) {
+          instance.prevForce.stop();
+        }
+        instance.prevForce = newForce;
+      }
     );
   });
 };  
 
+Template.NetworkGraph.onDestroyed(function () {
+  let instance = Template.instance();
+  let graphEl = instance.$('.sm-graph')[0];
+  let svg = d3.select(graphEl).select('svg');
+  if (instance.prevForce) {
+    instance.prevForce.stop();
+  }
+  
+  svg.remove();
+});
 /*
  * Events
  */
@@ -138,10 +155,13 @@ function renderGraph(
   onDragStart,
   onDragEnd,
   onGroupOver,
-  onLinkOver
+  onLinkOver,
+  onNewForce
 ) {
 
   let force = genForceCola(cola, d3, w, h);
+  onNewForce(force);
+
   let drag = force.drag()
     .on('start', function (_d) {
       onDragStart();
