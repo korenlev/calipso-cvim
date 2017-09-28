@@ -11,7 +11,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 import { Roles } from 'meteor/alanning:roles';
 import { Environments } from '/imports/api/environments/environments';
-import { Configurations } from '/imports/api/configurations/configurations';
+import { UserSettings } from '/imports/api/user-settings/user-settings';
 
 let userSchema = new SimpleSchema({
   _id: { type: String },
@@ -50,11 +50,11 @@ export const insert = new ValidatedMethod({
     addRole(viewEnvs, 'view-env', userId);
     addRole(editEnvs, 'edit-env', userId);
     
-    let conf =  Configurations.schema.clean({});
-    conf = R.merge(conf, {
+    let userSettings =  UserSettings.schema.clean({});
+    userSettings = R.merge(userSettings, {
       user_id: userId,
     });
-    Configurations.insert(conf);
+    UserSettings.insert(userSettings);
   }
 });
 

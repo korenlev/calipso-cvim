@@ -8,14 +8,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import { Meteor } from 'meteor/meteor';
 
-import { Configurations } from '../configurations.js';
+import { UserSettings } from '../user-settings.js';
 
-Meteor.publish('configurations?user', function () {
-  console.log('server subscribtion: configurations?user');
+Meteor.publish('user_settings?user', function () {
+  console.log('server subscribtion: user_settings?user');
 
   let userId = this.userId;
 
   let query = { user_id: userId };
   console.log('-query: ', query);
-  return Configurations.find(query); 
+  return UserSettings.find(query); 
 });
