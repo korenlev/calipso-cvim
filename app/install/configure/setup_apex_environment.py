@@ -498,7 +498,6 @@ class ApexEnvironmentFetcher:
                                                      'tenant_network_types',
                                                      separator=' = '),
             'mechanism_drivers': [self.get_mechanism_driver()],
-            'configuration': [],
             "operational": "running",
             "scanned": False,
             "type": "environment",
