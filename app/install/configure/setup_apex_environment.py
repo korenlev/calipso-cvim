@@ -2,10 +2,8 @@
 from abc import ABC
 from logging.handlers import WatchedFileHandler
 import argparse
-import distutils.version
 import json
 import logging
-import os.path
 import re
 import shlex
 import subprocess
@@ -139,13 +137,13 @@ class ApexEnvironmentFetcher:
     CONFIG_FILE_NAME = 'apex-configuration.conf'
     ENV_CONFIG_FILE_NAME = 'apex_environment_config.json'
     OVERCLOUDRC_FILE = 'overcloudrc.v3'
-    SSH_DIR = '/home/calipso'
+    SSH_DIR = '/home/calipso/.ssh'
     SSH_OPTIONS = '-q -o StrictHostKeyChecking=no'
     UNDERCLOUD_KEY_FILE = 'uc-id_rsa'
     UNDERCLOUD_PUBLIC_KEY_FILE = '{}/uc-id_rsa.pub'.format(SSH_DIR)
     OVERCLOUD_USER = 'heat-admin'
     OVERCLOUD_KEY_FILE = 'oc-id_rsa'
-    SCAN_CONTAINER_DIR = '/local_dir'
+    MOUNT_SSH_DIR = '/local_dir/.ssh'
     OVERCLOUD_KEYSTONE_CONF = 'oc-keystone.conf'
     OVERCLOUD_ML2_CONF = 'overcloud_ml2_conf.ini'
     OVERCLOUD_RABBITMQ_CONF = 'overcloud_rabbitmq_conf.ini'
@@ -165,7 +163,7 @@ class ApexEnvironmentFetcher:
             .format(self.args.config_dir, self.OVERCLOUDRC_FILE)
         self.overcloud_key = '{}/{}'.format(self.SSH_DIR,
                                             self.OVERCLOUD_KEY_FILE)
-        self.overcloud_key_container = '{}/{}'.format(self.SCAN_CONTAINER_DIR,
+        self.overcloud_key_container = '{}/{}'.format(self.MOUNT_SSH_DIR,
                                                       self.OVERCLOUD_KEY_FILE)
         self.undercloud_ip = None
         self.overcloud_ip = None
@@ -217,68 +215,6 @@ class ApexEnvironmentFetcher:
         command = '{}{}'.format(sudo_prefix, cmd)
         output = run_command(cmd=command, raise_on_error=True)
         return output
-
-    def add_user(self):
-        if not os.path.exists('/home/{}'.format(self.USER_NAME)):
-            self.run_cmd('adduser -p {} {}'.format(self.USER_PWD,
-                                                   self.USER_NAME))
-        self.run_cmd('usermod -aG wheel {}'.format(self.USER_NAME))
-
-    def add_log_dir(self):
-        log_dir = os.path.dirname(self.args.logfile)
-        self.run_cmd('mkdir -p {}'.format(log_dir), use_sudo=self.args.root)
-        self.run_cmd('chmod a+w {}'.format(log_dir), use_sudo=self.args.root)
-
-    def get_source_tree(self):
-        self.run_cmd('git clone {} {}'.format(self.args['git_repo'],
-                                              self.REPO_LOCAL_NAME),
-                     as_user=self.USER_NAME)
-
-    @staticmethod
-    def version_greater_eq(v1, v2):
-        return distutils.version.StrictVersion(v1) >= \
-               distutils.version.StrictVersion(v2)
-
-    def has_prerequisite(self, package: str, version: str=None):
-        try:
-            info = self.run_cmd('yum info {}'.format(package))
-            if not info or re.match('Error: No matching Packages', info):
-                return False
-            if not version:
-                return True
-            # check version
-            lines = info.splitlines()
-            matches = [l for l in lines if re.match('version *:', l)]
-            if not matches:
-                raise ValueError('version data missing in "yum info" output '
-                                 '(package {})'
-                                 .format(package))
-            actual_version = matches[0]
-            if not self.version_greater_eq(actual_version, version):
-                print('package {}: version required={}, actual={}'
-                      .format(package, version, actual_version))
-        except RuntimeError as e:
-            err_number, err_text = e.args
-            if 'not found' in err_text:
-                return False
-            else:
-                raise e
-
-    def install_prerequisite(self, package: str, version: str=None):
-        if self.has_prerequisite(package, version):
-            return
-        self.run_cmd('yum install {}'.format(package))
-        self.run_cmd('')
-
-    def run_installer(self):
-        if self.args.root:
-            self.install_prerequisite('python', '3.5')
-            self.install_prerequisite('docker', '17.03')
-            # XXX need to find name of docker lib
-            self.install_prerequisite('python docker lib')
-        self.run_cmd('cd {} && {}'
-                     .format(self.REPO_LOCAL_NAME, self.INSTALLER),
-                     as_user=self.USER_NAME)
 
     def get_undercloud_ip(self):
         output = self.run_cmd('ifconfig br-admin')
@@ -556,33 +492,12 @@ class ApexEnvironmentFetcher:
 
     def set_env_level_attributes(self):
         self.env_config.update({
-            'name': self.args.env,
             'distribution': 'Apex',
             'distribution_version': 'Euphrates',
             'type_drivers': self.get_value_from_file('ml2_conf',
                                                      'tenant_network_types',
                                                      separator=' = '),
-            'mechanism_drivers': [self.get_mechanism_driver()]
-        })
-        # TBD: type_drivers: from overcloud_ml2_conf.ini file,
-        #      take tenant_network_types= vxlan
-        # TBD: mechanism_drivers: from overcloud_ml2_conf.ini file:
-        #      take mechanism_drivers = openvswitch --> "OVS"
-
-    def prepare_env_config(self):
-        self.prepare_env_configuration_array()
-        self.set_env_level_attributes()
-        config_dump = json.dumps(self.env_config, sort_keys=True, indent=4,
-                                 separators=(',', ': '))
-        with open(self.env_config_file, 'w') as config_file:
-            config_file.write(config_dump)
-
-    def setup_environment_config(self, config_file):
-        self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
-        self.env_config = {
-            "user": "wNLeBJxNDyw8G7Ssg",
-            "auth": {"view-env": ["wNLeBJxNDyw8G7Ssg"],"edit-env": ["wNLeBJxNDyw8G7Ssg"]},
-            'name': self.args.env,
+            'mechanism_drivers': [self.get_mechanism_driver()],
             'configuration': [],
             "operational": "running",
             "scanned": False,
@@ -593,7 +508,20 @@ class ApexEnvironmentFetcher:
             "aci_enabled": False,
             "last_scanned": "",
             "monitoring_setup_done": False
-        }
+        })
+
+    def prepare_env_config(self):
+        self.prepare_env_configuration_array()
+        self.set_env_level_attributes()
+        self.add_env_ui_conf()
+        config_dump = json.dumps(self.env_config, sort_keys=True, indent=4,
+                                 separators=(',', ': '))
+        with open(self.env_config_file, 'w') as config_file:
+            config_file.write(config_dump)
+
+    def setup_environment_config(self, config_file):
+        self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
+        self.env_config = {'name': self.args.env}
         self.undercloud_ip = self.get_undercloud_ip()
         config_file.write('jumphost_admin_ip {}\n'.format(self.undercloud_ip))
         self.set_ssh_dir()
@@ -608,24 +536,14 @@ class ApexEnvironmentFetcher:
                                                      separator=',')
         self.prepare_env_config()
 
-    def setup_environment(self):
-        print('Fetching Apex environment settings')
-        if False:  # XXX currently disabled
-            if self.args.root:
-                self.add_user()
-            self.add_log_dir()
-            self.log = FileLogger(self.args.logfile)
-            if self.args.root:
-                self.get_source_tree()
-            self.run_installer()
-        self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
-        with open(self.config_file, 'w') as config_file:
-            self.setup_environment_config(config_file)
-        print('Finished fetching Apex environment settings')
-
     def get(self):
         try:
-            self.setup_environment()
+            print('Fetching Apex environment settings')
+            self.log = FileLogger(self.args.logfile)
+            self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
+            with open(self.config_file, 'w') as config_file:
+                self.setup_environment_config(config_file)
+            print('Finished fetching Apex environment settings')
             return True, 'Environment setup finished successfully'
         except RuntimeError as e:
             return False, str(e)
