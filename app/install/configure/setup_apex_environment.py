@@ -580,6 +580,8 @@ class ApexEnvironmentFetcher:
     def setup_environment_config(self, config_file):
         self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
         self.env_config = {
+            "user": "wNLeBJxNDyw8G7Ssg",
+            "auth": {"view-env": ["wNLeBJxNDyw8G7Ssg"],"edit-env": ["wNLeBJxNDyw8G7Ssg"]},
             'name': self.args.env,
             'configuration': [],
             "operational": "running",
