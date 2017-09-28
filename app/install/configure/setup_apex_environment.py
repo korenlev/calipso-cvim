@@ -139,13 +139,13 @@ class ApexEnvironmentFetcher:
     CONFIG_FILE_NAME = 'apex-configuration.conf'
     ENV_CONFIG_FILE_NAME = 'environment_config.json'
     OVERCLOUDRC_FILE = 'overcloudrc.v3'
-    SSH_DIR = '/home/calipso/'
+    SSH_DIR = '/home/calipso'
     SSH_OPTIONS = '-q -o StrictHostKeyChecking=no'
     UNDERCLOUD_KEY_FILE = 'uc-id_rsa'
     UNDERCLOUD_PUBLIC_KEY_FILE = '{}/uc-id_rsa.pub'.format(SSH_DIR)
     OVERCLOUD_USER = 'heat-admin'
     OVERCLOUD_KEY_FILE = 'oc-id_rsa'
-    SCAN_CONTAINER_DIR = '/local_dir/'
+    SCAN_CONTAINER_DIR = '/local_dir'
     OVERCLOUD_KEYSTONE_CONF = 'oc-keystone.conf'
     OVERCLOUD_ML2_CONF = 'overcloud_ml2_conf.ini'
     OVERCLOUD_RABBITMQ_CONF = 'overcloud_rabbitmq_conf.ini'
@@ -163,8 +163,10 @@ class ApexEnvironmentFetcher:
                                              self.UNDERCLOUD_KEY_FILE)
         self.overcloud_config_file = '{}/{}'\
             .format(self.args.config_dir, self.OVERCLOUDRC_FILE)
-        self.overcloud_key = '{}/{}'.format(self.SCAN_CONTAINER_DIR,
+        self.overcloud_key = '{}/{}'.format(self.SSH_DIR,
                                             self.OVERCLOUD_KEY_FILE)
+        self.overcloud_key_container = '{}/{}'.format(self.SCAN_CONTAINER_DIR,
+                                                      self.OVERCLOUD_KEY_FILE)
         self.undercloud_ip = None
         self.overcloud_ip = None
         self.conf_lines = {}
@@ -483,7 +485,7 @@ class ApexEnvironmentFetcher:
             'name': 'CLI',
             'host': self.overcloud_ip,
             'user': self.OVERCLOUD_USER,
-            'key': self.overcloud_key
+            'key': self.overcloud_key_container
         }
 
     def get_amqp_config(self):
