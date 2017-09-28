@@ -139,13 +139,13 @@ class ApexEnvironmentFetcher:
     CONFIG_FILE_NAME = 'apex-configuration.conf'
     ENV_CONFIG_FILE_NAME = 'environment_config.json'
     OVERCLOUDRC_FILE = 'overcloudrc.v3'
-    SSH_DIR = '/home/calipso/'
+    SSH_DIR = '/home/calipso'
     SSH_OPTIONS = '-q -o StrictHostKeyChecking=no'
     UNDERCLOUD_KEY_FILE = 'uc-id_rsa'
     UNDERCLOUD_PUBLIC_KEY_FILE = '{}/uc-id_rsa.pub'.format(SSH_DIR)
     OVERCLOUD_USER = 'heat-admin'
     OVERCLOUD_KEY_FILE = 'oc-id_rsa'
-    SCAN_CONTAINER_DIR = '/local_dir/'
+    SCAN_CONTAINER_DIR = '/local_dir'
     OVERCLOUD_KEYSTONE_CONF = 'oc-keystone.conf'
     OVERCLOUD_ML2_CONF = 'overcloud_ml2_conf.ini'
     OVERCLOUD_RABBITMQ_CONF = 'overcloud_rabbitmq_conf.ini'
@@ -163,8 +163,10 @@ class ApexEnvironmentFetcher:
                                              self.UNDERCLOUD_KEY_FILE)
         self.overcloud_config_file = '{}/{}'\
             .format(self.args.config_dir, self.OVERCLOUDRC_FILE)
-        self.overcloud_key = '{}/{}'.format(self.SCAN_CONTAINER_DIR,
+        self.overcloud_key = '{}/{}'.format(self.SSH_DIR,
                                             self.OVERCLOUD_KEY_FILE)
+        self.overcloud_key_container = '{}/{}'.format(self.SCAN_CONTAINER_DIR,
+                                                      self.OVERCLOUD_KEY_FILE)
         self.undercloud_ip = None
         self.overcloud_ip = None
         self.conf_lines = {}
@@ -483,7 +485,7 @@ class ApexEnvironmentFetcher:
             'name': 'CLI',
             'host': self.overcloud_ip,
             'user': self.OVERCLOUD_USER,
-            'key': self.overcloud_key
+            'key': self.overcloud_key_container
         }
 
     def get_amqp_config(self):
@@ -521,7 +523,7 @@ class ApexEnvironmentFetcher:
             'provision': 'None',
             'ssh_port': '20022',
             'ssh_user': 'root',
-            'ssh_password': 'scan',
+            'ssh_password': 'osdna',
             'api_port': 4567,
             'rabbitmq_pass': 'osdna'
         }
@@ -555,7 +557,8 @@ class ApexEnvironmentFetcher:
     def set_env_level_attributes(self):
         self.env_config.update({
             'name': self.args.env,
-            'distribution': 'Apex-Euphrates',
+            'distribution': 'Apex',
+            'distribution_version': 'Euphrates',
             'type_drivers': self.get_value_from_file('ml2_conf',
                                                      'tenant_network_types',
                                                      separator=' = '),
@@ -578,7 +581,16 @@ class ApexEnvironmentFetcher:
         self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
         self.env_config = {
             'name': self.args.env,
-            'configuration': []
+            'configuration': [],
+            "operational": "running",
+            "scanned": False,
+            "type": "environment",
+            "app_path": "/home/scan/calipso_prod/app",
+            "listen": True,
+            "enable_monitoring": True,
+            "aci_enabled": False,
+            "last_scanned": "",
+            "monitoring_setup_done": False
         }
         self.undercloud_ip = self.get_undercloud_ip()
         config_file.write('jumphost_admin_ip {}\n'.format(self.undercloud_ip))
