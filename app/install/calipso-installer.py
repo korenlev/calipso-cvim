@@ -416,9 +416,10 @@ if action == "start":
     calipso_mongo_access_text = \
         "server {}\n" \
         "user {}\n" \
+        "port {}\n" \
         "pwd {}\n" \
         "auth_db calipso" \
-            .format(args.hostname, args.dbuser, args.dbpassword)
+            .format(args.hostname, args.dbuser, args.dbport, args.dbpassword)
     LDAP_PWD_ATTRIBUTE = "password password"
     LDAP_USER_PWD_ATTRIBUTE = "userpassword"
     ldap_text = \
