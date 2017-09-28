@@ -523,7 +523,7 @@ class ApexEnvironmentFetcher:
             'provision': 'None',
             'ssh_port': '20022',
             'ssh_user': 'root',
-            'ssh_password': 'scan',
+            'ssh_password': 'osdna',
             'api_port': 4567,
             'rabbitmq_pass': 'osdna'
         }
@@ -557,7 +557,8 @@ class ApexEnvironmentFetcher:
     def set_env_level_attributes(self):
         self.env_config.update({
             'name': self.args.env,
-            'distribution': 'Apex-Euphrates',
+            'distribution': 'Apex',
+            'distribution_version': 'Euphrates',
             'type_drivers': self.get_value_from_file('ml2_conf',
                                                      'tenant_network_types',
                                                      separator=' = '),
@@ -580,7 +581,16 @@ class ApexEnvironmentFetcher:
         self.run_cmd('mkdir -p {}'.format(self.args.config_dir))
         self.env_config = {
             'name': self.args.env,
-            'configuration': []
+            'configuration': [],
+            "operational": "running",
+            "scanned": False,
+            "type": "environment",
+            "app_path": "/home/scan/calipso_prod/app",
+            "listen": True,
+            "enable_monitoring": True,
+            "aci_enabled": False,
+            "last_scanned": "",
+            "monitoring_setup_done": False
         }
         self.undercloud_ip = self.get_undercloud_ip()
         config_file.write('jumphost_admin_ip {}\n'.format(self.undercloud_ip))
