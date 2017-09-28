@@ -452,8 +452,7 @@ class ApexEnvironmentFetcher:
                                  shlex.quote(cmd)))
         return output
 
-    def create_mysql_user(self, host):
-        pwd = self.run_cmd('openssl rand -base64 18').strip()
+    def create_mysql_user(self, host, pwd):
         mysql_file_name = '/tmp/create_user.sql'
         # create calipso MySQL user with access from jump host to all tables
         echo_cmd = "echo \"GRANT ALL PRIVILEGES ON *.* " \
@@ -469,8 +468,9 @@ class ApexEnvironmentFetcher:
         return pwd
 
     def get_mysql_config(self):
-        self.create_mysql_user(self.undercloud_ip)
-        pwd = self.create_mysql_user(self.overcloud_ip)
+        pwd = self.run_cmd('openssl rand -base64 18').strip()
+        self.create_mysql_user(self.undercloud_ip, pwd)
+        pwd = self.create_mysql_user(self.overcloud_ip, pwd)
         mysql_config = {
             'name': 'mysql',
             'host': self.overcloud_ip,
