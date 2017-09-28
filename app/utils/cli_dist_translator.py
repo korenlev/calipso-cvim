@@ -5,10 +5,13 @@ class CliDistTranslator:
     TRANSLATIONS = {
         # special handling of cli commands in Mercury environments
         'Mercury': {
-            'ip netns list': '{docker_call} neutron_l3_agent_{version} {cmd} && '
-                             '{docker_call} neutron_dhcp_agent_{version} {cmd}',
-            'ip netns exec qdhcp': '{docker_call} neutron_dhcp_agent_{version} {cmd}',
-            'ip netns exec qrouter': '{docker_call} neutron_l3_agent_{version} {cmd}',
+            'ip netns list':
+                '{docker_call} neutron_l3_agent_{version} {cmd};;;'
+                '{docker_call} neutron_dhcp_agent_{version} {cmd}',
+            'ip netns exec qdhcp': \
+                '{docker_call} neutron_dhcp_agent_{version} {cmd}',
+            'ip netns exec qrouter': \
+                '{docker_call} neutron_l3_agent_{version} {cmd}',
             'virsh': '{docker_call} novalibvirt_{version} {cmd}',
             'ip link': '{docker_call} ovs_vswitch_{version} {cmd}',
             'ip -d link': '{docker_call} ovs_vswitch_{version} {cmd}',
