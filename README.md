@@ -22,7 +22,7 @@ Understands, Monitors and Troubleshoot highly distributed OpenStack and other vi
 Product developed using micro-services and following the Domain-Driven-Design process and procedures:
 ref: http://www.methodsandtools.com/archive/archive.php?id=97
 
-### Prototype Intent:
+### Product Intent:
 
 Provide CNA and TNA with support for:
 <br>
@@ -36,7 +36,7 @@ Provide CNA and TNA with support for:
 <br>
 5. baseline plugin framework for analytics of this type of data and details, like root cause analysis
 
-### Proto (pre-release, updated Aug 15th)
+### Promo (pre-release, updated Aug 15th)
 calipso.io 
 
 ### Contacts
