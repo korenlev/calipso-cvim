@@ -102,11 +102,11 @@ class ResponderBase(DataValidate, DictNamingConverter):
             env_name = query.get("environment")
             if env_name and \
                     not self.check_environment_name(env_name):
-                self.bad_request("unkown environment: " + env_name)
+                self.bad_request("unknown environment: " + env_name)
             self.not_found()
         obj = objs[0]
         stringify_object_values_by_types(obj, stringify_types)
-        if id is "_id":
+        if id == "_id":
             obj['id'] = obj.get('_id')
         return obj
 
