@@ -70,12 +70,10 @@ class CliqueTypes(ResponderBase):
             'environment': self.require(str, mandatory=True),
             'focal_point_type': self.require(str,
                                              mandatory=True,
-                                             convert_to_type=False,
                                              validate=DataValidate.LIST,
                                              requirement=focal_point_types),
             'link_types': self.require(list,
                                        mandatory=True,
-                                       convert_to_type=False,
                                        validate=DataValidate.LIST,
                                        requirement=link_types),
             'name': self.require(str, mandatory=True)

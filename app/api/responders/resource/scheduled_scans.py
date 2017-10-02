@@ -40,7 +40,6 @@ class ScheduledScans(ResponderBase):
             "environment": self.require(str, mandatory=True),
             "id": self.require(ObjectId, convert_to_type=True),
             "freq": self.require(str,
-                                 convert_to_type=False,
                                  validate=DataValidate.LIST,
                                  requirement=self.SCAN_FREQ),
             "page": self.require(int, convert_to_type=True),

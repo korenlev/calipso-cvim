@@ -28,7 +28,6 @@ class CliqueConstraints(ResponderBase):
         filters_requirements = {
             'id': self.require(ObjectId, convert_to_type=True),
             'focal_point_type': self.require(str,
-                                             convert_to_type=False,
                                              validate=DataValidate.LIST,
                                              requirement=focal_point_types),
             'constraint': self.require([list, str]),
