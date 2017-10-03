@@ -145,7 +145,7 @@ class ApexEnvironmentFetcher:
     REPO_LOCAL_NAME = 'Calipso'
     INSTALLER = 'python3 app/install/calipso-installer.py --command start-all'
     CONFIG_FILE_NAME = 'apex-configuration.conf'
-    ENV_CONFIG_FILE_NAME = 'apex_environment_config.json'
+    ENV_CONFIG_FILE_NAME = 'environments_config.json'
     OVERCLOUDRC_FILE = 'overcloudrc.v3'
     SSH_DIR = '/home/calipso/.ssh'
     SSH_OPTIONS = '-q -o StrictHostKeyChecking=no'
