@@ -305,7 +305,8 @@ class EnvironmentConfigs(ResponderBase):
                                                  .format(env_config["name"])},
                                      "201")
 
-    def validate_environment_config(self, configurations):
+    def validate_environment_config(self, configurations,
+                                    require_mandatory=True):
         configurations_of_names = {}
         validation = {"passed": True}
         if [config for config in configurations
@@ -332,7 +333,7 @@ class EnvironmentConfigs(ResponderBase):
                                                   "configuration for {0}".format(name)
                     return validation
                 configurations_of_names[name] = configs[0]
-            else:
+            elif require_mandatory:
                 if name not in self.OPTIONAL_CONFIGURATIONS_NAMES:
                     validation["passed"] = False
                     validation['error_message'] = "configuration for {0} " \
