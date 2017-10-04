@@ -284,14 +284,19 @@ Calipso.io Installation Guide 1
    Allows to enter a password to be used for mongoDB access on the host,
    an optional argument, default ‘calipso\_default’ (calipso-mongo
    container’s default) is deployed if not used.
+   
 8. **--apiport **
    Allows to enter a TCP port to be used for the Calipso API (default=8000)
+   
 9. **--uchiwaport **
    Allows to enter a TCP port to be used for the Sensu UI (default=3000)
+   
 10. **--rabbitmport **
    Allows to enter a TCP port to be used for the RabbitMQ mgmt (default=15672)
+   
 11. **--sensuport **
    Allows to enter a TCP port to be used for the Sensu API (default=4567)
+   
 12.	**--rabbitport **
    Allows to enter a TCP port to be used for the RabbitMQ BUS (default=5671)
 
