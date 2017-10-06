@@ -1,3 +1,5 @@
+| Calipso.io
+| Administration Guide
 ###############################################################################
 # Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
 # and others                                                                  #
@@ -7,9 +9,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-| Calipso.io
-| Administration Guide
-
 |image0|
 
 Project “Calipso” tries to illuminate complex virtual networking with
