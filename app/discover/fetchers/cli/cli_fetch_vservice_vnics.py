@@ -23,7 +23,7 @@ class CliFetchVserviceVnics(CliAccess):
             {'name': 'IP Address', 're': '^\s*inet ([0-9.]+)/'},
             {'name': 'netmask', 're': '^.*\slink/ether\s[^/]+/(\S+)'},
             {'name': 'IPv6 Address',
-             're': '^\s*inet6 ([^/]+)/'}
+             're': '^\s*inet6 ([^/]+)/.* global '}
         ]
 
     def get(self, host_id):

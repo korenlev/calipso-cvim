@@ -88,6 +88,8 @@ class TestCliFetchVserviceVnics(TestFetch):
         self.fetcher.set_interface_data = original_set_interface_data
 
         self.assertNotEqual(result, [], "Can't get interfaces data")
+        self.assertEqual(result[0].get("IPv6 Address"), IPV6_ADDRESS,
+                         "incorrect IPv6 address")
 
     def test_set_interface_data(self):
         # store original methods
