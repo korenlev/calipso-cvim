@@ -23,6 +23,7 @@ class CliqueTypes(ResponderBase):
         "environment": True,
         "name": True
     }
+    RESERVED_NAMES = ["ANY"]
 
     def on_get(self, req, resp):
         self.log.debug("Getting clique types")
@@ -82,7 +83,9 @@ class CliqueTypes(ResponderBase):
 
         env_name = clique_type['environment']
         if not self.check_environment_name(env_name):
-            self.bad_request("unknown environment: " + env_name)
+            self.bad_request("Unknown environment: {}".format(env_name))
+        elif env_name.upper() in self.RESERVED_NAMES:
+            self.bad_request("Environment name '{}' is reserved".format(env_name))
 
         self.write(clique_type, self.COLLECTION)
         self.set_successful_response(resp,
