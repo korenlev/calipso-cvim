@@ -13,17 +13,16 @@ from bson.objectid import ObjectId
 
 
 class CliqueTypes(ResponderBase):
-    def __init__(self):
-        super().__init__()
-        self.COLLECTION = "clique_types"
-        self.ID = "_id"
-        self.PROJECTION = {
-            self.ID: True,
-            "focal_point_type": True,
-            "link_types": True,
-            "environment": True,
-            "name": True
-        }
+
+    COLLECTION = "clique_types"
+    ID = "_id"
+    PROJECTION = {
+        ID: True,
+        "focal_point_type": True,
+        "link_types": True,
+        "environment": True,
+        "name": True
+    }
 
     def on_get(self, req, resp):
         self.log.debug("Getting clique types")

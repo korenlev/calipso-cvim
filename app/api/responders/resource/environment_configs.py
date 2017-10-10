@@ -17,22 +17,22 @@ from utils.inventory_mgr import InventoryMgr
 
 
 class EnvironmentConfigs(ResponderBase):
-    def __init__(self):
-        super(EnvironmentConfigs, self).__init__()
-        self.inv = InventoryMgr()
-        self.ID = "name"
-        self.PROJECTION = {
-            self.ID: True,
-            "_id": False,
-            "name": True,
-            "distribution": True
-        }
-        self.COLLECTION = "environments_config"
-        self.CONFIGURATIONS_NAMES = ["mysql", "OpenStack",
-                                     "CLI", "AMQP", "Monitoring",
+
+    COLLECTION = "environments_config"
+    ID = "name"
+    PROJECTION = {
+        ID: True,
+        "_id": False,
+        "name": True,
+        "distribution": True
+    }
+    CONFIGURATIONS_NAMES = ["mysql", "OpenStack", "CLI", "AMQP",
+                            "Monitoring", "NFV_provider", "ACI"]
+    OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring",
                                      "NFV_provider", "ACI"]
-        self.OPTIONAL_CONFIGURATIONS_NAMES = ["AMQP", "Monitoring",
-                                              "NFV_provider", "ACI"]
+
+    def __init__(self):
+        super().__init__()
 
         self.provision_types = self.\
             get_constants_by_name("environment_provision_types")
