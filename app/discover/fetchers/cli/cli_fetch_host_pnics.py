@@ -54,7 +54,7 @@ class CliFetchHostPnics(CliAccess):
         return interfaces
 
     def find_interface_details(self, host_id, interface_name):
-        cmd = "ip address.show {}".format(interface_name)
+        cmd = "ip address show {}".format(interface_name)
         lines = self.run_fetch_lines(cmd, host_id)
         interface = None
         status_up = None
