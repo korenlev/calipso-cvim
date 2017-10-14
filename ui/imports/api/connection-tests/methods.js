@@ -17,16 +17,16 @@ export const insert = new ValidatedMethod({
   validate: ConnectionTests.simpleSchema()
     .pick([
       'environment',
-      'test_configurations',
-      'test_configurations.$',
+      'targets_configuration',
+      'targets_configuration.$',
     ]).validator({ clean: true, filter: false }), 
   run({
     environment,
-    test_configurations,
+    targets_configuration,
   }) {
     let connection_test = ConnectionTests.schema.clean({});
 
-    test_configurations = R.filter((config) => {
+    targets_configuration = R.filter((config) => {
       let validationContext = getSchemaForGroupName(config.name).newContext();
       try {
         let result = validationContext.validate(config);
@@ -34,15 +34,15 @@ export const insert = new ValidatedMethod({
       } catch (_e) {
         return false;
       }
-    }, test_configurations);
+    }, targets_configuration);
 
-    let test_targets = R.map((config) => config.name, test_configurations);
+    let test_targets = R.map((config) => config.name, targets_configuration);
     let submit_timestamp = moment().format();
 
     connection_test = R.merge(connection_test, {
       environment,
       test_targets,
-      test_configurations,
+      targets_configuration,
       submit_timestamp
     });
 

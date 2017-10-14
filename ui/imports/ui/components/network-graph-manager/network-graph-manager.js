@@ -10,10 +10,11 @@ import { Inventory } from '/imports/api/inventories/inventories';
 import { Cliques } from '/imports/api/cliques/cliques.js';
 import { Links } from '/imports/api/links/links.js';
 import * as R from 'ramda';
+import * as _ from 'lodash';
 import { store } from '/imports/ui/store/store';
 import { activateGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
 import { closeGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
-//import { activateVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
+import { activateVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 import { EJSON } from 'meteor/ejson';
         
 import '/imports/ui/components/network-graph/network-graph';
@@ -231,7 +232,24 @@ Template.NetworkGraphManager.helpers({
       onNodeOut: function (_nodeId) {
         //store.dispatch(closeGraphTooltipWindow());
       },
-      onNodeClick: function (_nodeId) {
+      onNodeClick: function (nodeId, nodeType, env, x, y) {
+        if (nodeType === 'vedge') {
+          Meteor.apply('inventoryFindNode?_id', [ 
+            nodeId, 
+          ], { 
+            wait: false 
+          }, function (err, res) {
+            if (err) {
+              console.error(R.toString(err));
+              return;
+            }
+
+            if (_.lowerCase(R.path(['node', 'agent_type'], res)) === 'vpp') {
+              store.dispatch(activateVedgeInfoWindow(res.node, x, y));
+            }
+            return;
+          });
+        }
       },
       onDragStart: function () {
         isDragging = true;
@@ -348,6 +366,7 @@ function genGraphNode(node) {
       type: node.type,
       nodeId: node._id,
       status: node.status,
+      environment: node.environment,
     },
     width: 60,
     height: 40,

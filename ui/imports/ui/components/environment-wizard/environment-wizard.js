@@ -563,6 +563,6 @@ function testConnection(instance) {
   let environmentModel = instance.state.get('environmentModel');
   insertConnectionTests.call({
     environment: environmentModel.name,
-    test_configurations: environmentModel.configuration,
+    targets_configuration: environmentModel.configuration,
   }, processInsertTestConnnectionResult.bind(null, instance));
 }

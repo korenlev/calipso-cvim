@@ -118,6 +118,20 @@ Meteor.methods({
     };
   },
 
+  'inventoryFindNode?_id': function (_id) {
+    console.log('method server: inventoryFindNode?_id', 
+      R.toString(_id));
+
+    this.unblock();
+
+    let query = { _id: _id };
+    let node = Inventory.findOne(query);
+
+    return {
+      node: node
+    };
+  },
+
   'inventoryFindNode?DataAndAttrs': function (nodeId) {
     console.log(`method server: inventoryFindNode?DataAndAttrs. ${R.toString(nodeId)}`);
     //check(nodeId, ObjectId);
