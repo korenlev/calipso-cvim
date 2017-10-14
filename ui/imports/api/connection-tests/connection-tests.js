@@ -22,7 +22,7 @@ let simpleSchema = new SimpleSchema({
     type: [String],
   },
 
-  test_configurations: {
+  targets_configuration: {
     type: [Object],
     blackbox: true
   },
