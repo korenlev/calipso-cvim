@@ -21,7 +21,7 @@ class CliFetchVserviceVnics(CliAccess):
         self.regexps = [
             {'name': 'mac_address', 're': '^.*\slink/ether\s(\S+)\s'},
             {'name': 'IP Address', 're': '^\s*inet ([0-9.]+)/'},
-            {'name': 'netmask', 're': '^.*\slink/ether\s[^/]+/(\S+)'},
+            {'name': 'netmask', 're': '^\s*inet [0-9.]+/([0-9]+)'},
             {'name': 'IPv6 Address',
              're': '^\s*inet6 ([^/]+)/.* global '}
         ]
