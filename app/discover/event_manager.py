@@ -44,6 +44,7 @@ class EventManager(Manager):
             '6.0': DefaultListener,
             '7.0': DefaultListener,
             '8.0': DefaultListener,
+            '9.0': DefaultListener
         },
         'RDO': {
             'Mitaka': DefaultListener,
