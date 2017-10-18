@@ -27,7 +27,6 @@ class CliqueFinder(Fetcher):
         self.clique_types_by_type = {}
         self.clique_constraints = self.inv.collections["clique_constraints"]
         self.cliques = self.inv.collections["cliques"]
-        self.object_types = self.inv.collections["constants"]
 
     def set_env(self, env):
         super().set_env(env)
