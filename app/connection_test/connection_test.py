@@ -9,6 +9,7 @@
 ###############################################################################
 import argparse
 import datetime
+from kombu import Connection
 
 import time
 
@@ -57,7 +58,16 @@ def test_cli(config, test_request):
 
 
 def test_amqp(config, test_request):
-    pass
+    connect_url = 'amqp://{user}:{pwd}@{host}:{port}//' \
+        .format(user=config.get("user", ''),
+                pwd=config.get('pwd', ''),
+                host=config.get('host', ''),
+                port=int(config.get('port', 5671)))
+    conn = Connection(connect_url)
+    conn.connect()
+    ConnectionTest.set_test_result(test_request,
+                                   ConnectionTestType.AMQP.value,
+                                   True)
 
 
 def test_aci(config, test_request):
