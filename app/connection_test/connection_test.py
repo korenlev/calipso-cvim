@@ -28,9 +28,8 @@ from utils.ssh_connection import *
 def test_openstack(config, test_request):
     try:
         api = ApiAccess(config)
-        ConnectionTest.set_test_result(test_request,
-                                       ConnectionTestType.OPENSTACK.value,
-                                       True)
+        ConnectionTest.report_success(test_request,
+                                      ConnectionTestType.OPENSTACK.value)
         if api:
             pass
     except ValueError:
@@ -39,12 +38,12 @@ def test_openstack(config, test_request):
 
 def test_mysql(config, test_request):
     db_access = DbAccess(config)
-    ConnectionTest.set_test_result(test_request,
-                                   ConnectionTestType.MYSQL.value,
-                                   db_access.conn is not None)
+    ConnectionTest.report_success(test_request, ConnectionTestType.MYSQL.value)
+    if db_access:
+        pass
 
 
-def test_cli(config, test_request):
+def test_ssh_connect(config) -> bool:
     ssh = SshConnection(config.get('host', ''),
                         config.get('user', ''),
                         _pwd=config.get('pwd'),
@@ -52,12 +51,17 @@ def test_cli(config, test_request):
                         _port=int(config.get('port',
                                              SshConnection.DEFAULT_PORT)))
     ret = ssh.connect()
+    return ret
+
+
+def test_cli(config, test_request):
+    ret = test_ssh_connect(config)
     ConnectionTest.set_test_result(test_request,
                                    ConnectionTestType.CLI.value,
                                    ret)
 
 
-def test_amqp(config, test_request):
+def test_amqp_connect(config):
     connect_url = 'amqp://{user}:{pwd}@{host}:{port}//' \
         .format(user=config.get("user", ''),
                 pwd=config.get('pwd', ''),
@@ -65,9 +69,33 @@ def test_amqp(config, test_request):
                 port=int(config.get('port', 5671)))
     conn = Connection(connect_url)
     conn.connect()
-    ConnectionTest.set_test_result(test_request,
-                                   ConnectionTestType.AMQP.value,
-                                   True)
+
+
+def test_amqp(config, test_request):
+    test_amqp_connect(config)
+    ConnectionTest.report_success(test_request, ConnectionTestType.AMQP.value)
+
+
+def test_monitoring(config, test_request):
+    # for monitoring configuration test, need to test:
+    # 1. SSH access
+    # 2. RabbitMQ access
+    ssh_config = {
+        'host': config.get('server_ip'),
+        'user': config.get('ssh_user'),
+        'pwd': config.get('ssh_password'),
+        'port': int(config.get('ssh_port', 0))
+    }
+    if not test_ssh_connect(ssh_config):
+        return
+    amqp_connect_config = {
+        'user': config.get('rabbitmq_user', ''),
+        'pwd': config.get('rabbitmq_pass', ''),
+        'host': config.get('server_ip'),
+        'port': int(config.get('rabbitmq_port', 5672)),
+    }
+    test_amqp_connect(amqp_connect_config)
+    ConnectionTest.report_success(test_request, ConnectionTestType.AMQP.value)
 
 
 def test_aci(config, test_request):
@@ -80,6 +108,7 @@ TEST_HANDLERS = {
     ConnectionTestType.CLI.value: test_cli,
     ConnectionTestType.AMQP.value: test_amqp,
     ConnectionTestType.ACI.value: test_aci,
+    ConnectionTestType.MONITORING.value: test_monitoring
 }
 
 
@@ -185,12 +214,17 @@ class ConnectionTest(Manager):
         test_request.get('test_results', {})[target] = result
 
     @staticmethod
+    def report_success(test_request, target):
+        ConnectionTest.set_test_result(test_request, target, True)
+
+    @staticmethod
     def handle_test_target(target, test_request):
         targets_config = test_request.get('targets_configuration', [])
         try:
             config = next(t for t in targets_config if t['name'] == target)
         except StopIteration:
-            raise ValueError('failed to find {} in targets_configuration')
+            raise ValueError('failed to find {} in targets_configuration'
+                             .format(target))
         handler = TEST_HANDLERS.get(target)
         if not handler:
             raise ValueError('unknown test target: {}'.format(target))
@@ -204,8 +238,10 @@ class ConnectionTest(Manager):
                 self.handle_test_target(test_target, test_request)
             except Exception as e:
                 self.log.exception(e)
-                self.log.error('Test of target {} failed (id: {})'
-                               .format(test_target, test_request['_id']))
+                self.log.error('Test of target {} failed (id: {}):\n{}'
+                               .format(test_target,
+                                       test_request['_id'],
+                                       str(e)))
         # update the status and timestamps.
         self.log.info('Request {} has been tested.'
                       .format(test_request['_id']))
