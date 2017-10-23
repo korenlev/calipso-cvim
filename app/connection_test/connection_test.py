@@ -242,6 +242,7 @@ class ConnectionTest(Manager):
         targets = [t for t in test_request.get('test_targets', [])]
         test_request['test_results'] = {t: False for t in targets}
         for test_target in test_request.get('test_targets', []):
+            self.log.info('testing connection to: {}'.format(test_target))
             try:
                 self.handle_test_target(test_target, test_request)
             except Exception as e:
