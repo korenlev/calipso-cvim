@@ -13,11 +13,11 @@ from utils.logging.full_logger import FullLogger
 
 class Fetcher:
 
-    def __init__(self):
+    def __init__(self, configuration=None):
         super().__init__()
         self.env = None
         self.log = FullLogger()
-        self.configuration = None
+        self.configuration = configuration if configuration else Configuration()
 
     @staticmethod
     def escape(string):
@@ -26,7 +26,6 @@ class Fetcher:
     def set_env(self, env):
         self.env = env
         self.log.set_env(env)
-        self.configuration = Configuration()
 
     def get_env(self):
         return self.env
