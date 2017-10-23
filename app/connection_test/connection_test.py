@@ -206,6 +206,14 @@ class ConnectionTest(Manager):
         return args
 
     def _finalize_test(self, test_request: dict):
+        # update the status and timestamps.
+        self.log.info('Request {} has been tested.'
+                      .format(test_request['_id']))
+        start_time = test_request['submit_timestamp']
+        end_time = datetime.datetime.utcnow()
+        test_request['response_timestamp'] = end_time
+        test_request['response_time'] = \
+            str(end_time - start_time.replace(tzinfo=None))
         test_request['status'] = ConnectionTestStatus.RESPONSE.value
         self._update_document(test_request)
 
@@ -238,19 +246,13 @@ class ConnectionTest(Manager):
                 self.handle_test_target(test_target, test_request)
             except Exception as e:
                 self.log.exception(e)
+                if 'errors' not in test_request:
+                    test_request['errors'] = {}
+                test_request['errors'][test_target] = str(e)
                 self.log.error('Test of target {} failed (id: {}):\n{}'
                                .format(test_target,
                                        test_request['_id'],
                                        str(e)))
-        # update the status and timestamps.
-        self.log.info('Request {} has been tested.'
-                      .format(test_request['_id']))
-        start_time = test_request['submit_timestamp']
-        end_time = datetime.datetime.utcnow()
-        test_request['status'] = ConnectionTestStatus.RESPONSE.value
-        test_request['response_timestamp'] = end_time
-        test_request['response_time'] = \
-            str(end_time - start_time.replace(tzinfo=None))
         self._finalize_test(test_request)
         self._set_env_operational(test_request['environment'])
 
