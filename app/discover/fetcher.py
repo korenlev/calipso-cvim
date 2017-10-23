@@ -17,7 +17,7 @@ class Fetcher:
         super().__init__()
         self.env = None
         self.log = FullLogger()
-        self.configuration = configuration if configuration else Configuration()
+        self.configuration = None
 
     @staticmethod
     def escape(string):
