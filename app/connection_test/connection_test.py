@@ -88,14 +88,7 @@ def test_monitoring(config, test_request):
     }
     if not test_ssh_connect(ssh_config):
         return
-    amqp_connect_config = {
-        'user': config.get('rabbitmq_user', ''),
-        'pwd': config.get('rabbitmq_pass', ''),
-        'host': config.get('server_ip'),
-        'port': int(config.get('rabbitmq_port', 5672)),
-    }
-    test_amqp_connect(amqp_connect_config)
-    ConnectionTest.report_success(test_request, ConnectionTestType.AMQP.value)
+    ConnectionTest.report_success(test_request, ConnectionTestType.MONITORING.value)
 
 
 def test_aci(config, test_request):
@@ -210,6 +203,9 @@ class ConnectionTest(Manager):
         self.log.info('Request {} has been tested.'
                       .format(test_request['_id']))
         start_time = test_request['submit_timestamp']
+        if isinstance(start_time, str):
+            start_time = datetime.datetime. \
+                strptime(start_time, '%Y-%m-%dT%H:%M:%S%z')
         end_time = datetime.datetime.utcnow()
         test_request['response_timestamp'] = end_time
         test_request['response_time'] = \
@@ -241,14 +237,13 @@ class ConnectionTest(Manager):
     def do_test(self, test_request):
         targets = [t for t in test_request.get('test_targets', [])]
         test_request['test_results'] = {t: False for t in targets}
+        test_request['errors'] = {}
         for test_target in test_request.get('test_targets', []):
             self.log.info('testing connection to: {}'.format(test_target))
             try:
                 self.handle_test_target(test_target, test_request)
             except Exception as e:
                 self.log.exception(e)
-                if 'errors' not in test_request:
-                    test_request['errors'] = {}
                 test_request['errors'][test_target] = str(e)
                 self.log.error('Test of target {} failed (id: {}):\n{}'
                                .format(test_target,
