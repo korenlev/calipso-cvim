@@ -37,7 +37,7 @@ export const insert = new ValidatedMethod({
     }, targets_configuration);
 
     let test_targets = R.map((config) => config.name, targets_configuration);
-    let submit_timestamp = moment().format();
+    let submit_timestamp = Date.now()
 
     connection_test = R.merge(connection_test, {
       environment,

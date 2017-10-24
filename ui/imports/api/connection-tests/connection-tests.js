@@ -28,7 +28,8 @@ let simpleSchema = new SimpleSchema({
   },
 
   submit_timestamp: {
-    type: String,
+    type: Date,
+    defaultValue: null
   },
 
   status: {
