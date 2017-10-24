@@ -38,8 +38,7 @@ class DbAccess(Fetcher):
     conn = None
     query_count_per_con = 0
 
-    # connection timeout set to 30 seconds,
-    # due to problems over long connections
+    # connection timeout set to 5 seconds
     TIMEOUT = 5
 
     def __init__(self, mysql_config=None):

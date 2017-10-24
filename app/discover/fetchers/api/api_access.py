@@ -18,6 +18,9 @@ from utils.string_utils import jsonify
 
 
 class ApiAccess(Fetcher):
+
+    CONNECT_TIMEOUT = 5
+
     subject_token = None
     initialized = False
     regions = {}
@@ -97,7 +100,7 @@ class ApiAccess(Fetcher):
             return subject_token
         req_url = ApiAccess.base_url + "/v2.0/tokens"
         response = requests.post(req_url, json=post_body, headers=headers,
-                                 timeout=5)
+                                 timeout=self.CONNECT_TIMEOUT)
         response = response.json()
         ApiAccess.auth_response[project_id] = response
         if 'error' in response:
