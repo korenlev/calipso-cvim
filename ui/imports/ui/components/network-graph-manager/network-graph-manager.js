@@ -120,11 +120,13 @@ Template.NetworkGraphManager.onCreated(function() {
     // Find links for focal point.
     instance.subscribe('links?_id-in', linksToFind);
 
+    instance.state.set('graphLinks', []);
     Links.find({ _id: {$in: linksToFind} }).forEach(function(link) {
       let graphLinks = EJSON.parse(instance.state.keys['graphLinks']);
       graphLinks = R.concat([link], graphLinks);
       instance.state.set('graphLinks', graphLinks);
     });
+
   });
 
   instance.autorun(function () {
@@ -155,6 +157,7 @@ Template.NetworkGraphManager.onCreated(function() {
 
     instance.subscribe('inventory?_id-in', nodesToFind);
 
+    instance.state.set('graphNodes', []);
     Inventory.find({ _id: { $in: nodesToFind } }).forEach(function (node) {
       let graphNodes = EJSON.parse(instance.state.keys['graphNodes']);
       graphNodes = R.concat([node], graphNodes);
@@ -321,6 +324,13 @@ function addLinksToGraph(linksInfo, graphData) {
   let newLinks = R.map(link => genGraphLink(link), linksInfo);
 
   let links = R.unionWith(R.eqBy(R.prop('_osid')), graphData.links, newLinks);
+  links = R.map((link) => {
+    let newLink = R.find(R.pathEq(['_osid', '_str'], link._osid._str), newLinks);
+    if (newLink) {
+      link._osmeta.status = newLink._osmeta.status;
+    }
+    return link;
+  }, links);
   links = expandLinks(links, graphData.nodes);
 
   return R.merge(graphData, {
@@ -390,6 +400,14 @@ function addNodesToGraph(nodesInfo, graphData) {
   let newNodes = R.map((node) => genGraphNode(node), nodesInfo);
 
   let nodes = R.unionWith(R.eqBy(R.prop('_osid')), graphData.nodes, newNodes);
+  nodes = R.map((node) => {
+    let newNode = R.find(R.pathEq(['_osid', '_str'], node._osid._str), newNodes);
+    if (newNode) {
+      node._osmeta.status = newNode._osmeta.status;
+    }
+    return node;
+  }, nodes);
+
   let links = expandLinks(graphData.links, nodes);
   let groups = calcGroups(nodes);
 
