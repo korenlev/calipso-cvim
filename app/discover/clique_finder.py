@@ -48,61 +48,53 @@ class CliqueFinder(Fetcher):
             self.find_cliques_for_type(clique_type)
         self.log.info("finished scanning for cliques")
 
-    # Calculate priority score
+    # Calculate priority score for clique type per environment and configuration
     def _get_priority_score(self, clique_type):
+        # environment-specific clique type takes precedence
         if self.env == clique_type['environment']:
+            return 16
+        if (self.env_config['distribution'] == clique_type.get('distribution')
+            and
+            self.env_config['distribution_version'] ==
+                clique_type.get('distribution_version')):
+            return 8
+        if clique_type.get('mechanism_drivers') \
+                in self.env_config['mechanism_drivers']:
             return 4
-        if (self.env_config['distribution'] == clique_type.get('distribution') and
-            self.env_config['distribution_version'] == clique_type.get('distribution_version')):
-            return 3
-        if clique_type.get('mechanism_drivers') in self.env_config['mechanism_drivers']:
-            return 2
         if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
+            return 2
+        if clique_type.get('environment', '') == 'ANY':
+            # environment=ANY serves as fallback option, but it's not mandatory
             return 1
         else:
             return 0
 
     # Get clique type with max priority
-    # for given environment configuration and focal point type
-    def _get_clique_type(self, focal_point, clique_types):
-        # If there's no configuration match for the specified environment,
-        # we use the default clique type definition with environment='ANY'
-        fallback_type = next(
-            filter(lambda t: t['environment'] == 'ANY', clique_types),
-            None
-        )
-        if not fallback_type:
-            raise ValueError("No fallback clique type (ANY) "
-                             "defined for focal point type '{}'"
-                             .format(focal_point))
-
-        clique_types.remove(fallback_type)
-
-        priority_scores = [self._get_priority_score(clique_type)
-                           for clique_type
-                           in clique_types]
-        max_score = max(priority_scores) if priority_scores else 0
-
-        return (fallback_type
-                if max_score == 0
-                else clique_types[priority_scores.index(max_score)])
+    # for given focal point type
+    def _get_clique_type(self, clique_types):
+        scored_clique_types = [{'score': self._get_priority_score(clique_type),
+                                'clique_type': clique_type}
+                               for clique_type in clique_types]
+        max_score = max(scored_clique_types, key=lambda t: t['score'])
+        if max_score['score'] == 0:
+            self.log.warn('No matching clique types for focal point type: {}'
+                          .format(clique_types[0].get('focal_point_type')))
+            return None
+        return max_score.get('clique_type')
 
     def get_clique_types(self):
         if not self.clique_types_by_type:
-            clique_types_by_focal_point = self.clique_types.aggregate([{
-                "$group": {
-                    "_id": "$focal_point_type",
-                    "types": {"$push": "$$ROOT"}
-                }
-            }])
-
-            self.clique_types_by_type = {
-                cliques['_id']: self._get_clique_type(cliques['_id'],
-                                                      cliques['types'])
-                for cliques in
-                clique_types_by_focal_point
-            }
-
+            clique_types_candidates = {}
+            for clique in self.clique_types.find({}):
+                fp_type = clique.get('focal_point_type', '')
+                if not clique_types_candidates.get(fp_type):
+                    clique_types_candidates[fp_type] = []
+                clique_types_candidates[fp_type].append(clique)
+            for t in clique_types_candidates.keys():
+                selected = self._get_clique_type(clique_types_candidates[t])
+                if not selected:
+                    continue
+                self.clique_types_by_type[t] = selected
         return self.clique_types_by_type
 
     def find_cliques_for_type(self, clique_type):
@@ -125,11 +117,14 @@ class CliqueFinder(Fetcher):
             .find_one({"focal_point_type": o['type']})
         constraints = [] if not constraint else constraint["constraints"]
         clique_types = self.get_clique_types()
-        clique_type = clique_types[o['type']]
-        new_clique = self.construct_clique_for_focal_point(o, clique_type,
-                                                           constraints)
-        if not new_clique:
+        clique_type = clique_types.get(o['type'])
+        if not clique_type:
             self.cliques.delete({'_id': clique['_id']})
+        else:
+            new_clique = self.construct_clique_for_focal_point(o, clique_type,
+                                                               constraints)
+            if not new_clique:
+                self.cliques.delete({'_id': clique['_id']})
 
     def construct_clique_for_focal_point(self, o, clique_type, constraints):
         # keep a hash of nodes in clique that were visited for each type
