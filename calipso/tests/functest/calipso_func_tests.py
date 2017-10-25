@@ -17,5 +17,5 @@ import os
 # will start by calling/running connection_test.py on bash shell
 # future plan is to use multiple calls for multiple tests
 print(datetime.datetime.utcnow(), ": running connection_test")
-os.system("python3 connection_test.py -m $MONGO_CONFIG")
+os.system("python3 ./connection_test.py -m $MONGO_CONFIG")
 
