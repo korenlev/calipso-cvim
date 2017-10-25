@@ -121,7 +121,12 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess):
         """.format(self.neutron_db)
         results = self.get_objects_list(query, "")
         for r in results:
-            host = hosts[r["host"]]
+            host = r["host"]
+            if host not in hosts:
+                self.log.error("host from agents table not in hosts list: {}"
+                               .format(host))
+                continue
+            host = hosts[host]
             host["config"] = json.loads(r["configurations"])
             self.add_host_type(host, "Network", '')
 
