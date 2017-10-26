@@ -265,6 +265,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
     # source_label, target_label: labels for the ends of the link (optional)
     def create_link(self, env, src, source_id, target, target_id,
                     link_type, link_name, state, link_weight,
+                    implicit=False,
                     source_label="", target_label="",
                     host=None, switch=None,
                     extra_attributes=None):
@@ -282,6 +283,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             "link_weight": link_weight,
             "source_label": source_label,
             "target_label": target_label,
+            "implicit": implicit,
             "attributes": extra_attributes if extra_attributes else {}
         }
         if host:
