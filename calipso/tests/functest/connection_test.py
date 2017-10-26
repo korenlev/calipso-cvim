@@ -7,14 +7,17 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+
+# This is a connection-test used for testing environment config targets #
+# can be used for functional testing as well as for environment testing sent from the UI or API #
+
 import argparse
 import datetime
 from kombu import Connection
-
 import time
-
 import pymongo
 from functools import partial
+
 
 from discover.fetchers.api.api_access import ApiAccess
 from discover.fetchers.db.db_access import DbAccess
@@ -23,7 +26,6 @@ from utils.constants import ConnectionTestStatus, ConnectionTestType
 from utils.logging.file_logger import FileLogger
 from utils.mongo_access import MongoAccess
 from utils.ssh_connection import *
-
 
 def test_openstack(config, test_request):
     try:
@@ -272,7 +274,6 @@ class ConnectionTest(Manager):
                 time.sleep(self.interval)
             else:
                 self.do_test(results[0])
-
 
 if __name__ == '__main__':
     ConnectionTest().run()
