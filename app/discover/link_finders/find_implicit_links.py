@@ -15,11 +15,20 @@ class FindImplicitLinks(FindLinks):
     def __init__(self):
         super().__init__()
         self.links = []
+        self.constraint_attributes = self.get_constraint_attributes()
 
     def add_links(self):
         self.log.info('adding implicit links')
         self.get_existing_links()
         self.get_transitive_closure()
+
+    def get_constraint_attributes(self) -> list:
+        attributes = set()
+        for c in self.inv.find({'environment': self.get_env()},
+                               collection='clique_constraints'):
+            for a in c['constraints']:
+                attributes.add(a)
+        return list(attributes)
 
     def get_existing_links(self):
         self.log.info('fetching existing links')
@@ -28,10 +37,23 @@ class FindImplicitLinks(FindLinks):
         for l in existing_links:
             self.links.append({'pass': 0, 'link': l})
 
-    @staticmethod
-    def links_match(start, dest):
+    def constraints_match(self, link1, link2):
+        if 'attributes' not in link1 or 'attributes' not in link2:
+            return True
+        attr1 = link1['attributes']
+        attr2 = link2['attributes']
+        for a in self.constraint_attributes:
+            if a in attr1 and a in attr2 and attr1[a] != attr2[a]:
+                return False
+        return True
+
+    def links_match(self, start, dest):
+        if start['link_type'] == dest['link_type']:
+            return False  # obviously we cannot make an implicit link of this
         if start['source_id'] == dest['target_id']:
             return False  # avoid cyclic links
+        if not self.constraints_match(start, dest):
+            return False
         return start['target_id'] == dest['source_id']
 
     def add_matching_links(self, link, pass_no):
@@ -45,6 +67,16 @@ class FindImplicitLinks(FindLinks):
             self.links.append({'pass': pass_no, 'link': implicit})
         return len(matches)
 
+    def get_link_constraint_attributes(self, link1, link2) -> dict:
+        attributes = {}
+        for a in self.constraint_attributes:
+            # constraints_match() verified the attribute values don't conflict
+            if a in link1.get('attributes', {}):
+                attributes[a] = link1['attributes'][a]
+            elif a in link2.get('attributes', {}):
+                attributes[a] = link2['attributes'][a]
+        return attributes
+
     def add_implicit_link(self, link1, link2):
         link_type_from = link1['link_type'].split('-')[0]
         link_type_to = link2['link_type'].split('-')[1]
@@ -56,7 +88,7 @@ class FindImplicitLinks(FindLinks):
         link_weight = 0  # TBD
         host = 'host'
         switch = None
-        extra_attributes = {}
+        extra_attributes = self.get_link_constraint_attributes(link1, link2)
         self.log.debug('adding implicit link: link type: {}, from: {}, to: {}'
                        .format(link_type,
                                link1['source_id'],
