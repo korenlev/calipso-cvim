@@ -135,5 +135,14 @@
         "vnic-vservice"
     ], 
     "name" : "network"
+},
+{ 
+    "name" : "instance", 
+    "use_implicit_links" : true, 
+    "link_types" : [
+        "instance-network"
+    ], 
+    "environment" : "implicit-links-ex", 
+    "focal_point_type" : "instance"
 }
 ]
