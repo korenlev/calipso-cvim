@@ -100,13 +100,15 @@ Template.CliqueType.events({
     let focalPointType = instance.$('.sm-input-focal-point-type')[0].value;
     let linkTypes = R.path(['link_types'], instance.state.get('model'));
     let name = instance.$('.sm-input-name')[0].value;
+    let useImplicitLinks = instance.$('.sm-input-use-implicit-links')[0].checked;
 
     submitItem(instance,
       _id,
       env, 
       focalPointType, 
       linkTypes,
-      name
+      name,
+      useImplicitLinks
     );
   }
 });
@@ -279,7 +281,8 @@ function submitItem(
   env, 
   focal_point_type, 
   link_types, 
-  name 
+  name,
+  use_implicit_links
 ) {
 
   let action = instance.state.get('action');
@@ -295,7 +298,8 @@ function submitItem(
       environment: env,
       focal_point_type: focal_point_type,
       link_types: link_types,
-      name: name
+      name: name,
+      use_implicit_links: use_implicit_links
     }, processActionResult.bind(null, instance));
     break;
 
@@ -305,7 +309,8 @@ function submitItem(
       environment: env,
       focal_point_type: focal_point_type,
       link_types: link_types,
-      name: name
+      name: name,
+      use_implicit_links: use_implicit_links
     }, processActionResult.bind(null, instance));
     break;
 

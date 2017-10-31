@@ -21,7 +21,8 @@ class CliqueTypes(ResponderBase):
         "focal_point_type": True,
         "link_types": True,
         "environment": True,
-        "name": True
+        "name": True,
+        "use_implicit_links": True
     }
     RESERVED_NAMES = ["ANY"]
 
@@ -76,7 +77,8 @@ class CliqueTypes(ResponderBase):
                                        mandatory=True,
                                        validate=DataValidate.LIST,
                                        requirement=link_types),
-            'name': self.require(str, mandatory=True)
+            'name': self.require(str, mandatory=True),
+            'use_implicit_links': self.require(bool)
         }
 
         self.validate_query_data(clique_type, clique_type_requirements)
