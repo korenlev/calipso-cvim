@@ -23,7 +23,7 @@ NON_INT_PAGESIZE = 2.4
 INT_PAGESIZE = 2
 
 WRONG_LINK_TYPE = "instance-host"
-CORRECT_LINK_TYPE= "instance-vnic"
+CORRECT_LINK_TYPE = "instance-vnic"
 
 WRONG_LINK_STATE = "wrong"
 CORRECT_LINK_STATE = "up"
@@ -155,6 +155,10 @@ CONSTANTS_BY_NAMES = {
         "Mirantis",
         "RDO"
     ],
+    "distribution_versions": [
+        "8.0",
+        "9.0"
+    ],
     "environment_operational_status": [
         "stopped",
         "running",
@@ -168,14 +172,32 @@ CONSTANTS_BY_NAMES = {
     ],
     "environment_monitoring_types": [
        "Sensu"
-    ]
+    ],
+    "scans_statuses": [
+        "draft",
+        "pending",
+        "running",
+        "completed",
+        "completed_with_errors",
+        "failed",
+        "aborted"
+    ],
+    "configuration_targets": [
+         "AMQP",
+         "CLI",
+         "ACI",
+         "mysql",
+         "OpenStack",
+         "Monitoring"
+        ]
 }
 
 # path info
 RESPONDER_BASE_PATH = "api.responders.responder_base.ResponderBase"
 RESPONDER_BASE_GET_OBJECTS_LIST = RESPONDER_BASE_PATH + ".get_objects_list"
 RESPONDER_BASE_GET_OBJECT_BY_ID = RESPONDER_BASE_PATH + ".get_object_by_id"
-RESPONDER_BASE_CHECK_ENVIRONMENT_NAME = RESPONDER_BASE_PATH + ".check_environment_name"
+RESPONDER_BASE_CHECK_ENVIRONMENT_NAME = \
+    RESPONDER_BASE_PATH + ".check_environment_name"
 RESPONDER_BASE_READ = RESPONDER_BASE_PATH + ".read"
 RESPONDER_BASE_WRITE = RESPONDER_BASE_PATH + ".write"
 RESPONDER_BASE_AGGREGATE = RESPONDER_BASE_PATH + ".aggregate"
