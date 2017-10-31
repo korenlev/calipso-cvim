@@ -78,6 +78,15 @@
           <div class="cl-field-desc">Name</div>
         </div>
 
+        <div class="sm-field-group-use-implicit-links cl-field-group">
+          <label class="cl-field-label">Use implicit links?</label>
+          <input name="use-implicit-links"
+            {{ getAttrDisabled }}
+            checked={{ getModelField 'use_implicit_links' }}
+            class="sm-input-use-implicit-links cl-input"
+            type="checkbox"/>
+        </div>
+
         {{#if isUpdateableAction }}
         <button type="submit" 
           class="js-submit-button mdl-button mdl-js-button mdl-button--raised 

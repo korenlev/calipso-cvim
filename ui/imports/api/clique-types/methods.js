@@ -21,12 +21,14 @@ export const insert = new ValidatedMethod({
       'link_types',
       'link_types.$',
       'name',
+      'use_implicit_links'
     ]).validator({ clean: true, filter: false }),
   run({
     environment,
     focal_point_type,
     link_types,
     name,
+    use_implicit_links
   }) {
     if (! Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.DEFAULT_GROUP)) {
       throw new Meteor.Error('unauthorized for adding clique type');
@@ -39,6 +41,7 @@ export const insert = new ValidatedMethod({
       focal_point_type,
       link_types,
       name,
+      use_implicit_links
     });
 
     CliqueTypes.insert(cliqueType);
@@ -76,6 +79,7 @@ export const update = new ValidatedMethod({
       'link_types',
       'link_types.$',
       'name',
+      'use_implicit_links'
     ]).validator({ clean: true, filter: false }),
   run({
     _id,
@@ -83,6 +87,7 @@ export const update = new ValidatedMethod({
     focal_point_type,
     link_types,
     name,
+    use_implicit_links
   }) {
     if (! Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.DEFAULT_GROUP)) {
       throw new Meteor.Error('unauthorized for updating clique type');
@@ -95,12 +100,14 @@ export const update = new ValidatedMethod({
       'environment',
       'focal_point_type',
       'link_types',
-      'name', ], 
+      'name',
+      'use_implicit_links'],
     cliqueType), {
       environment,
       focal_point_type,
       link_types,
       name,
+      use_implicit_links
     });
 
     CliqueTypes.update({ _id: _id }, { $set: cliqueType });
