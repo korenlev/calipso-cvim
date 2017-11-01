@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import copy
+
 from discover.link_finders.find_links import FindLinks
 
 
@@ -106,8 +108,7 @@ class FindImplicitLinks(FindLinks):
         pass_no = 1
         while True:
             match_count = 0
-            last_pass_links = self.links if pass_no == 1 \
-                else [l for l in self.links if l['pass'] == pass_no-1]
+            last_pass_links = [l for l in self.links if l['pass'] == pass_no-1]
             for l in last_pass_links:
                 match_count += self.add_matching_links(l['link'], pass_no)
             self.log.info('Transitive closure pass #{}: '
