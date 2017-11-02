@@ -73,6 +73,14 @@ class TestFindImplicitLinks(TestFetch):
         self.assertEqual(getter(LINK_TYPE_4_NET1, LINK_TYPE_6_NET1),
                          LINK_TYPE_4_NET1.get('attributes'))
 
+    def test_get_attr(self):
+        getter = self.fetcher.get_attr
+        self.assertIsNone(getter('host', {}, {}))
+        self.assertIsNone(getter('host', {'host': 'v1'}, {'host': 'v2'}))
+        self.assertEqual(getter('host', {'host': 'v1'}, {}), 'v1')
+        self.assertEqual(getter('host', {}, {'host': 'v2'}), 'v2')
+        self.assertEqual(getter('host', {'host': 'v1'}, {'host': 'v1'}), 'v1')
+
     def test_add_implicit_link(self):
         original_write_link = self.inv.write_link
         self.inv.write_link = lambda x: x

@@ -7,8 +7,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import copy
-
 from discover.link_finders.find_links import FindLinks
 
 
@@ -79,6 +77,16 @@ class FindImplicitLinks(FindLinks):
                 attributes[a] = link2['attributes'][a]
         return attributes
 
+    @staticmethod
+    def get_attr(attr, link1, link2):
+        if attr not in link1 and attr not in link2:
+            return None
+        if attr not in link1:
+            return link2[attr]
+        if attr not in link2 or link1[attr] == link2[attr]:
+            return link1[attr]
+        return None
+
     def add_implicit_link(self, link1, link2):
         link_type_from = link1['link_type'].split('-')[0]
         link_type_to = link2['link_type'].split('-')[1]
@@ -88,8 +96,8 @@ class FindImplicitLinks(FindLinks):
             if link1['state'] == 'down' or link2['state'] == 'down' \
             else 'up'
         link_weight = 0  # TBD
-        host = 'host'
-        switch = None
+        host = self.get_attr('host', link1, link2)
+        switch = self.get_attr('switch', link1, link2)
         extra_attributes = self.get_link_constraint_attributes(link1, link2)
         self.log.debug('adding implicit link: link type: {}, from: {}, to: {}'
                        .format(link_type,
