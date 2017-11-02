@@ -39,7 +39,7 @@ class TestFindImplicitLinks(TestFetch):
         original_find = InventoryMgr.find
         InventoryMgr.find = MagicMock(return_value=CLIQUE_CONSTRAINTS)
         constraint_types = self.fetcher.get_constraint_attributes()
-        self.assertEqual(constraint_types, CONSTRAINTS)
+        self.assertEqual(sorted(constraint_types), sorted(CONSTRAINTS))
         InventoryMgr.find = original_find
 
     def test_constraints_match(self):
