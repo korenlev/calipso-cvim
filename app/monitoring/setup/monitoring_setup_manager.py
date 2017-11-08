@@ -17,6 +17,7 @@ from monitoring.setup.monitoring_pnic import MonitoringPnic
 from monitoring.setup.monitoring_otep import MonitoringOtep
 from monitoring.setup.monitoring_vedge import MonitoringVedge
 from monitoring.setup.monitoring_vnic import MonitoringVnic
+from monitoring.setup.monitoring_vconnector import MonitoringVconnector
 from monitoring.setup.monitoring_vservice import MonitoringVservice
 
 
@@ -32,6 +33,7 @@ class MonitoringSetupManager(MonitoringHandler):
             "vedge": MonitoringVedge(env),
             "host_pnic": MonitoringPnic(env),
             "vnic": MonitoringVnic(env),
+            "vconnector": MonitoringVconnector(env),
             "vservice": MonitoringVservice(env),
             "vnic-vconnector": MonitoringLinkVnicVconnector(env)}
 
