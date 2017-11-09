@@ -125,7 +125,7 @@ class Monitor:
         return handler
 
     def get_handler(self, check_type, obj_type):
-        basic_handling_types = ['vedge', 'vservice']
+        basic_handling_types = ['vedge', 'vservice', 'vconnector']
         if obj_type not in basic_handling_types:
             return self.get_handler_by_type(check_type, obj_type)
         from monitoring.handlers.basic_check_handler \
