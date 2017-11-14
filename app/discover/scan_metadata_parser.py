@@ -49,20 +49,25 @@ class ScanMetadataParser(MetadataParser):
             self.add_error('missing or empty fetcher in scanner {} type #{}'
                            .format(scanner_name, str(type_index)))
         elif isinstance(fetcher, str):
+            error_str = None
             try:
-                module_name = ClassResolver.get_module_file_by_class_name(fetcher)
+                get_module = ClassResolver.get_module_file_by_class_name
+                module_name = get_module(fetcher)
                 fetcher_package = module_name.split("_")[0]
                 if package:
                     fetcher_package = ".".join((package, fetcher_package))
-                instance = ClassResolver.get_instance_of_class(package_name=fetcher_package,
-                                                               module_name=module_name,
-                                                               class_name=fetcher)
-            except ValueError:
+                get_instance = ClassResolver.get_instance_of_class
+                instance = get_instance(package_name=fetcher_package,
+                                        module_name=module_name,
+                                        class_name=fetcher)
+            except ValueError as e:
                 instance = None
+                error_str = str(e)
             if not instance:
                 self.add_error('failed to find fetcher class {} in scanner {}'
-                               ' type #{}'
-                               .format(fetcher, scanner_name, type_index))
+                               ' type #{} ({})'
+                               .format(fetcher, scanner_name, type_index,
+                                       error_str))
             scan_type[self.FETCHER] = instance
         elif isinstance(fetcher, dict):
             is_folder = fetcher.get('folder', False)
@@ -81,7 +86,6 @@ class ScanMetadataParser(MetadataParser):
 
     def validate_children_scanner(self, scanner_name: str, type_index: int,
                                   scanners: dict, scan_type: dict):
-        scanner = scanners[scanner_name]
         if 'children_scanner' in scan_type:
             children_scanner = scan_type.get('children_scanner')
             if not isinstance(children_scanner, str):
