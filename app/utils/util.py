@@ -47,7 +47,6 @@ class ClassResolver:
         class_name = ''.join(name_parts)
         return class_name
 
-
     @staticmethod
     def get_fully_qualified_class(class_name: str = None,
                                   package_name: str = "discover",
@@ -74,7 +73,8 @@ class ClassResolver:
             class_name = ClassResolver.get_class_name_by_module(module_name)
         if class_name in ClassResolver.instances:
             return 'instance', ClassResolver.instances[class_name]
-        clazz = ClassResolver.get_fully_qualified_class(class_name, package_name,
+        clazz = ClassResolver.get_fully_qualified_class(class_name,
+                                                        package_name,
                                                         module_name)
         return 'class', clazz
 
