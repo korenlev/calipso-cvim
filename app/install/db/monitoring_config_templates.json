@@ -322,7 +322,7 @@
         "checks" : {
             "{objtype}_{objid}" : {
                 "interval" : 15,
-                "command" : "check_vconnector_ovs.py {object_name}",
+                "command" : "check_vconnector_ovs.py {name}",
                 "standalone" : true,
                 "type": "metric",
                 "subscribers" : [
