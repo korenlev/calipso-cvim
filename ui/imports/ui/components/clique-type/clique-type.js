@@ -98,6 +98,10 @@ Template.CliqueType.events({
     let _id = instance.state.get('id');
     let env = instance.$('.sm-input-env')[0].value;
     let focalPointType = instance.$('.sm-input-focal-point-type')[0].value;
+    let distribution = instance.$('.sm-input-distribution')[0].value;
+    let distributionVersion = instance.$('.sm-input-distribution-version')[0].value;
+    let mechanismDrivers = instance.$('.sm-input-mechanism-drivers')[0].value;
+    let typeDrivers = instance.$('.sm-input-type-drivers')[0].value;
     let linkTypes = R.path(['link_types'], instance.state.get('model'));
     let name = instance.$('.sm-input-name')[0].value;
     let useImplicitLinks = instance.$('.sm-input-use-implicit-links')[0].checked;
@@ -105,7 +109,11 @@ Template.CliqueType.events({
     submitItem(instance,
       _id,
       env, 
-      focalPointType, 
+      focalPointType,
+      distribution,
+      distributionVersion,
+      mechanismDrivers,
+      typeDrivers,
       linkTypes,
       name,
       useImplicitLinks
@@ -279,7 +287,11 @@ function submitItem(
   instance, 
   id, 
   env, 
-  focal_point_type, 
+  focal_point_type,
+  distribution,
+  distribution_version,
+  mechanism_drivers,
+  type_drivers,
   link_types, 
   name,
   use_implicit_links
@@ -297,6 +309,10 @@ function submitItem(
     insert.call({
       environment: env,
       focal_point_type: focal_point_type,
+      distribution: distribution,
+      distribution_version: distribution_version,
+      mechanism_drivers: mechanism_drivers,
+      type_drivers: type_drivers,
       link_types: link_types,
       name: name,
       use_implicit_links: use_implicit_links
@@ -308,6 +324,10 @@ function submitItem(
       _id: id.id,
       environment: env,
       focal_point_type: focal_point_type,
+      distribution: distribution,
+      distribution_version: distribution_version,
+      mechanism_drivers: mechanism_drivers,
+      type_drivers: type_drivers,
       link_types: link_types,
       name: name,
       use_implicit_links: use_implicit_links

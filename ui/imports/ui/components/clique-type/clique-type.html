@@ -59,6 +59,50 @@
           <div class="cl-field-desc">Focal Point Type</div>
         </div>
 
+        <div class="sm-field-group-distribution cl-field-group">
+          <label class="cl-field-label">Distribution</label>
+          <input name="distribution"
+            {{ getAttrDisabled }}
+            value="{{ getModelField 'distribution' }}"
+            class="sm-input-distribution cl-input"
+            type="text"
+            placeholder="Distribution" />
+          <div class="cl-field-desc">Distribution</div>
+        </div>
+
+        <div class="sm-field-group-distribution-version cl-field-group">
+          <label class="cl-field-label">Distribution version</label>
+          <input name="distributionVersion"
+            {{ getAttrDisabled }}
+            value="{{ getModelField 'distribution_version' }}"
+            class="sm-input-distribution-version cl-input"
+            type="text"
+            placeholder="Distribution version" />
+          <div class="cl-field-desc">Distribution version</div>
+        </div>
+
+        <div class="sm-field-group-mechanism-drivers cl-field-group">
+          <label class="cl-field-label">Mechanism drivers</label>
+          <input name="mechanismDrivers"
+            {{ getAttrDisabled }}
+            value="{{ getModelField 'mechanism_drivers' }}"
+            class="sm-input-mechanism-drivers cl-input"
+            type="text"
+            placeholder="Mechanism drivers" />
+          <div class="cl-field-desc">Mechanism drivers</div>
+        </div>
+
+        <div class="sm-field-group-type-drivers cl-field-group">
+          <label class="cl-field-label">Type drivers</label>
+          <input name="typeDrivers"
+            {{ getAttrDisabled }}
+            value="{{ getModelField 'type_drivers' }}"
+            class="sm-input-type-drivers cl-input"
+            type="text"
+            placeholder="Type drivers" />
+          <div class="cl-field-desc">Type drivers</div>
+        </div>
+
         <div class="sm-field-group-link-types cl-field-group">
           <label class="cl-field-label">Link Types</label>
           {{#if (exists (getModelField 'link_types')) }}

@@ -22,6 +22,10 @@ class CliqueTypes(ResponderBase):
         "link_types": True,
         "environment": True,
         "name": True,
+        "distribution": True,
+        "distribution_version": True,
+        "mechanism_drivers": True,
+        "type_drivers": True,
         "use_implicit_links": True
     }
     RESERVED_NAMES = ["ANY"]
@@ -35,6 +39,10 @@ class CliqueTypes(ResponderBase):
         filters_requirements = {
             'env_name': self.require(str, mandatory=True),
             'id': self.require(ObjectId, convert_to_type=True),
+            'distribution': self.require(str),
+            'distribution_version': self.require(str),
+            'mechanism_drivers': self.require(str),
+            'type_drivers': self.require(str),
             'focal_point_type': self.require(str,
                                              validate=DataValidate.LIST,
                                              requirement=focal_point_types),
@@ -78,6 +86,10 @@ class CliqueTypes(ResponderBase):
                                        validate=DataValidate.LIST,
                                        requirement=link_types),
             'name': self.require(str, mandatory=True),
+            'distribution': self.require(str, mandatory=True),
+            'distribution_version': self.require(str, mandatory=True),
+            'mechanism_drivers': self.require(str, mandatory=True),
+            'type_drivers': self.require(str, mandatory=True),
             'use_implicit_links': self.require(bool)
         }
 
@@ -98,7 +110,9 @@ class CliqueTypes(ResponderBase):
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ['name', 'focal_point_type']
+        filters_keys = ['name', 'focal_point_type',
+                        'distribution', 'distribution_version',
+                        'mechanism_drivers', 'type_drivers']
         self.update_query_with_filters(filters, filters_keys, query)
         link_types = filters.get('link_type')
         if link_types:

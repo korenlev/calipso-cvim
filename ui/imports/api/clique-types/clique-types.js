@@ -66,6 +66,26 @@ let schema = {
   name: {
     type: String
   },
+
+  distribution: {
+    type: String
+  },
+
+  distribution_version: {
+    type: String
+  },
+
+  mechanism_drivers: {
+    type: String
+  },
+
+  type_drivers: {
+    type: String
+  },
+
+  use_implicit_links: {
+    type: Boolean
+  }
 };
 
 let simpleSchema = new SimpleSchema(schema);

@@ -18,6 +18,10 @@ export const insert = new ValidatedMethod({
     .pick([
       'environment',
       'focal_point_type',
+      'distribution',
+      'distribution_version',
+      'mechanism_drivers',
+      'type_drivers',
       'link_types',
       'link_types.$',
       'name',
@@ -26,6 +30,10 @@ export const insert = new ValidatedMethod({
   run({
     environment,
     focal_point_type,
+    distribution,
+    distribution_version,
+    mechanism_drivers,
+    type_drivers,
     link_types,
     name,
     use_implicit_links
@@ -39,6 +47,10 @@ export const insert = new ValidatedMethod({
     cliqueType = R.merge(cliqueType, {
       environment,
       focal_point_type,
+      distribution,
+      distribution_version,
+      mechanism_drivers,
+      type_drivers,
       link_types,
       name,
       use_implicit_links
@@ -76,6 +88,10 @@ export const update = new ValidatedMethod({
       '_id',
       'environment',
       'focal_point_type',
+      'distribution',
+      'distribution_version',
+      'mechanism_drivers',
+      'type_drivers',
       'link_types',
       'link_types.$',
       'name',
@@ -85,6 +101,10 @@ export const update = new ValidatedMethod({
     _id,
     environment,
     focal_point_type,
+    distribution,
+    distribution_version,
+    mechanism_drivers,
+    type_drivers,
     link_types,
     name,
     use_implicit_links
@@ -99,12 +119,20 @@ export const update = new ValidatedMethod({
     cliqueType = R.merge(R.pick([
       'environment',
       'focal_point_type',
+      'distribution',
+      'distribution_version',
+      'mechanism_drivers',
+      'type_drivers',
       'link_types',
       'name',
       'use_implicit_links'],
     cliqueType), {
       environment,
       focal_point_type,
+      distribution,
+      distribution_version,
+      mechanism_drivers,
+      type_drivers,
       link_types,
       name,
       use_implicit_links
