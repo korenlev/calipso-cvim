@@ -37,7 +37,6 @@ class Monitor:
         self.inv = InventoryMgr()
         self.inv.set_collections(self.args.inventory)
         self.configuration = Configuration()
-        self.configuration.use_env(self.args.env)
         self.input_text = None
         self.converter = SpecialCharConverter()
 
@@ -220,6 +219,9 @@ class Monitor:
             monitor.find_object_type_and_id(name)
         if 'environment' in check_client:
             self.args.env = check_client['environment']
+        else:
+            raise ValueError('Check client should contain environment name')
+        self.configuration.use_env(self.args.env)
 
         check_handler = self.get_handler(check_type, object_type)
         if check_handler:
