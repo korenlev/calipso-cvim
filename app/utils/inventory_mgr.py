@@ -354,10 +354,12 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if isinstance(env_config['mechanism_drivers'], list) \
             else env_config['mechanism_drivers']
 
+        env_distribution_version = env_config['distribution_version']
+        if isinstance(env_distribution_version, list):
+            env_distribution_version = env_distribution_version[0]
         full_env = {
             'environment.distribution': env_config['distribution'],
-            'environment.distribution_version':
-                env_config['distribution_version'][0],
+            'environment.distribution_version': env_distribution_version,
             'environment.type_drivers': env_config['type_drivers'],
             'environment.mechanism_drivers': mechanism_driver
         }
