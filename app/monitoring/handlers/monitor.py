@@ -196,7 +196,6 @@ class Monitor:
         timestamp = max(t1, t2)
         link['status_timestamp'] = datetime.datetime.strftime(timestamp,
                                                               time_format)
-        # XXX self.inv.update_document(collection='links', document=link)
         self.inv.set(link, self.inv.collections['links'])
 
     def check_link_interdependency(self, object_id: str, object_type: str):
