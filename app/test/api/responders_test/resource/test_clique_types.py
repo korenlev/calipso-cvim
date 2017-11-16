@@ -255,6 +255,18 @@ class TestCliqueTypes(TestBase):
                                    body=json.dumps(clique_types.CLIQUE_TYPE_WITHOUT_NAME),
                                    expected_code=base.BAD_REQUEST_CODE)
 
+    def test_post_clique_type_with_wrong_mechanism_drivers(self):
+        self.validate_post_request(clique_types.URL,
+                                   body=json.dumps(clique_types.
+                                                   CLIQUE_TYPE_WITH_WRONG_MECH_DRIVERS),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_clique_type_with_wrong_type_drivers(self):
+        self.validate_post_request(clique_types.URL,
+                                   body=json.dumps(clique_types.
+                                                   CLIQUE_TYPE_WITH_WRONG_TYPE_DRIVERS),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
     @patch(base.RESPONDER_BASE_CHECK_ENVIRONMENT_NAME)
     @patch(base.RESPONDER_BASE_WRITE)
     def test_post_clique_type(self, write, check_environment_name):
