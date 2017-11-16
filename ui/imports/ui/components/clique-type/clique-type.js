@@ -143,6 +143,16 @@ Template.CliqueType.helpers({
     )(Constants.findOne({ name: 'object_types_for_links' }));
   },
 
+  mechanismDriversList: function () {
+    return R.ifElse(R.isNil, R.always([]), R.prop('data')
+    )(Constants.findOne({ name: 'mechanism_drivers' }));
+  },
+
+  typeDriversList: function () {
+    return R.ifElse(R.isNil, R.always([]), R.prop('data')
+    )(Constants.findOne({ name: 'type_drivers' }));
+  },
+
   linkTypesList: function () {
     return LinkTypes.find({});
   },

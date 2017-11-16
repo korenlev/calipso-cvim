@@ -86,10 +86,10 @@ class CliqueTypes(ResponderBase):
                                        validate=DataValidate.LIST,
                                        requirement=link_types),
             'name': self.require(str, mandatory=True),
-            'distribution': self.require(str, mandatory=True),
-            'distribution_version': self.require(str, mandatory=True),
-            'mechanism_drivers': self.require(str, mandatory=True),
-            'type_drivers': self.require(str, mandatory=True),
+            'distribution': self.require(str),
+            'distribution_version': self.require(str),
+            'mechanism_drivers': self.require(str),
+            'type_drivers': self.require(str),
             'use_implicit_links': self.require(bool)
         }
 

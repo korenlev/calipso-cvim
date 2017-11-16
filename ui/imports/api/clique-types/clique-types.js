@@ -68,19 +68,45 @@ let schema = {
   },
 
   distribution: {
-    type: String
+    type: String,
+    defaultValue: "",
+    optional: true,
   },
 
   distribution_version: {
-    type: String
+    type: String,
+    defaultValue: "",
+    optional: true,
   },
 
   mechanism_drivers: {
-    type: String
+    type: String,
+    defaultValue: "",
+    optional: true,
+    custom: function () {
+      let that = this;
+      let values = Constants.findOne({ name: 'mechanism_drivers' }).data;
+
+      if (this.value !== this.definition.defaultValue
+          && R.isNil(R.find(R.propEq('value', that.value), values))) {
+        return 'notAllowed';
+      }
+    }
   },
 
   type_drivers: {
-    type: String
+    type: String,
+    defaultValue: "",
+    optional: true,
+    custom: function () {
+      let that = this;
+      let values = Constants.findOne({ name: 'type_drivers' }).data;
+
+      if (this.value !== this.definition.defaultValue
+          && R.isNil(R.find(R.propEq('value', that.value), values))) {
+        return 'notAllowed';
+      }
+    }
   },
 
   use_implicit_links: {

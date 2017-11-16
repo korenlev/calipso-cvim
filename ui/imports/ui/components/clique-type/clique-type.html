@@ -83,23 +83,29 @@
 
         <div class="sm-field-group-mechanism-drivers cl-field-group">
           <label class="cl-field-label">Mechanism drivers</label>
-          <input name="mechanismDrivers"
-            {{ getAttrDisabled }}
-            value="{{ getModelField 'mechanism_drivers' }}"
-            class="sm-input-mechanism-drivers cl-input"
-            type="text"
-            placeholder="Mechanism drivers" />
+          <select name="mechanismDrivers" class="sm-input-mechanism-drivers cl-input"
+            {{ getAttrDisabled }} >
+            <option selected></option>
+            {{#each mdType in mechanismDriversList }}
+            <option value="{{ mdType.value }}"
+              {{ getAttrSelected mdType.value (getModelField 'mechanism_drivers') }}
+              >{{ mdType.label }}</option>
+            {{/each }}
+          </select>
           <div class="cl-field-desc">Mechanism drivers</div>
         </div>
 
         <div class="sm-field-group-type-drivers cl-field-group">
           <label class="cl-field-label">Type drivers</label>
-          <input name="typeDrivers"
-            {{ getAttrDisabled }}
-            value="{{ getModelField 'type_drivers' }}"
-            class="sm-input-type-drivers cl-input"
-            type="text"
-            placeholder="Type drivers" />
+          <select name="typeDrivers" class="sm-input-type-drivers cl-input"
+            {{ getAttrDisabled }} >
+            <option selected></option>
+            {{#each tdType in typeDriversList }}
+            <option value="{{ tdType.value }}"
+              {{ getAttrSelected tdType.value (getModelField 'type_drivers') }}
+              >{{ tdType.label }}</option>
+            {{/each }}
+          </select>
           <div class="cl-field-desc">Type drivers</div>
         </div>
 
