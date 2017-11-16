@@ -30,25 +30,34 @@ class CliqueTypes(ResponderBase):
     }
     RESERVED_NAMES = ["ANY"]
 
+    def __init__(self):
+        super().__init__()
+        self.focal_point_types = self.get_constants_by_name("object_types")
+        self.link_types = self.get_constants_by_name("link_types")
+        self.mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
+        self.type_drivers = self.get_constants_by_name("type_drivers")
+
     def on_get(self, req, resp):
         self.log.debug("Getting clique types")
 
         filters = self.parse_query_params(req)
-        focal_point_types = self.get_constants_by_name("object_types")
-        link_types = self.get_constants_by_name("link_types")
         filters_requirements = {
             'env_name': self.require(str, mandatory=True),
             'id': self.require(ObjectId, convert_to_type=True),
             'distribution': self.require(str),
             'distribution_version': self.require(str),
-            'mechanism_drivers': self.require(str),
-            'type_drivers': self.require(str),
+            'mechanism_drivers': self.require(str,
+                                              validate=DataValidate.LIST,
+                                              requirement=self.mechanism_drivers),
+            'type_drivers': self.require(str,
+                                         validate=DataValidate.LIST,
+                                         requirement=self.type_drivers),
             'focal_point_type': self.require(str,
                                              validate=DataValidate.LIST,
-                                             requirement=focal_point_types),
+                                             requirement=self.focal_point_types),
             'link_type': self.require([list, str],
                                       validate=DataValidate.LIST,
-                                      requirement=link_types),
+                                      requirement=self.link_types),
             'name': self.require(str),
             'page': self.require(int, convert_to_type=True),
             'page_size': self.require(int, convert_to_type=True)
@@ -73,23 +82,26 @@ class CliqueTypes(ResponderBase):
         error, clique_type = self.get_content_from_request(req)
         if error:
             self.bad_request(error)
-        focal_point_types = self.get_constants_by_name("object_types")
-        link_types = self.get_constants_by_name("link_types")
+
         clique_type_requirements = {
             'environment': self.require(str, mandatory=True),
             'focal_point_type': self.require(str,
                                              mandatory=True,
                                              validate=DataValidate.LIST,
-                                             requirement=focal_point_types),
+                                             requirement=self.focal_point_types),
             'link_types': self.require(list,
                                        mandatory=True,
                                        validate=DataValidate.LIST,
-                                       requirement=link_types),
+                                       requirement=self.link_types),
             'name': self.require(str, mandatory=True),
             'distribution': self.require(str),
             'distribution_version': self.require(str),
-            'mechanism_drivers': self.require(str),
-            'type_drivers': self.require(str),
+            'mechanism_drivers': self.require(str,
+                                              validate=DataValidate.LIST,
+                                              requirement=self.mechanism_drivers),
+            'type_drivers': self.require(str,
+                                         validate=DataValidate.LIST,
+                                         requirement=self.type_drivers),
             'use_implicit_links': self.require(bool)
         }
 
