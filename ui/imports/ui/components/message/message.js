@@ -150,8 +150,7 @@ Template.Message.helpers({
   },
 
   sourceSystemsList: function () {
-    return R.ifElse(R.isNil, R.always([]), R.prop('data')
-    )(Constants.findOne({ name: 'message_source_systems' }));
+    return Constants.getByName('message_source_systems');
   },
 
   getAttrDisabled: function () {

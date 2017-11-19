@@ -70,15 +70,11 @@ Template.EnvMainInfo.helpers({
   createSelectArgs: createSelectArgs,
 
   distributionOptions: function () {
-    let item = Constants.findOne({ name: 'distributions' });
-    if (R.isNil(item)) { return []; }
-    return item.data;
+    return Constants.getByName('distributions');
   },
 
   distributionVersionOptions: function () {
-    let item = Constants.findOne({ name: 'distribution_versions' });
-    if (R.isNil(item)) { return []; }
-    return item.data;
+    return Constants.getByName('distribution_versions');
   },
 
   /* depracated 
@@ -90,15 +86,11 @@ Template.EnvMainInfo.helpers({
   */
  
   typeDriversOptions: function () {
-    let item = Constants.findOne({ name: 'type_drivers' });
-    if (R.isNil(item))  { return []; }
-    return item.data;
+    return Constants.getByName('type_drivers');
   },
  
   mechanismDriversOptions: function () {
-    let item = Constants.findOne({ name: 'mechanism_drivers' });
-    if (R.isNil(item))  { return []; }
-    return item.data;
+    return Constants.getByName('mechanism_drivers');
   },
  
   isFieldDisabled: function (fieldName, globalDisabled) {

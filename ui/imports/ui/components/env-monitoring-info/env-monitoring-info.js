@@ -58,21 +58,15 @@ Template.EnvMonitoringInfo.helpers({
   createSelectArgs: createSelectArgs,
 
   envTypeOptions: function () {
-    let item = Constants.findOne({ name: 'env_types' });
-    if (R.isNil(item)) { return []; }
-    return item.data;
+    return Constants.getByName('env_types');
   },
 
   monitoringTypeOptions: function () {
-    let item = Constants.findOne({ name: 'environment_monitoring_types' });
-    if (R.isNil(item)) { return []; }
-    return item.data;
+    return Constants.getByName('environment_monitoring_types');
   },
 
   provisionOptions: function () {
-    let item = Constants.findOne({ name: 'environment_provision_types' });
-    if (R.isNil(item)) { return []; }
-    return item.data;
+    return Constants.getByName('environment_provision_types');
   },
 });
 

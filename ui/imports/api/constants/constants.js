@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import * as R from 'ramda';
+import * as R from 'ramda';
 
 export const Constants = new Mongo.Collection('constants', { idGeneration: 'MONGO' });
 
@@ -20,3 +20,9 @@ let schema = {
 
 Constants.schema = schema;
 Constants.attachSchema(schema);
+
+Constants.getByName = function(name) {
+    return R.ifElse(R.isNil, R.always([]), R.prop('data'))(
+        Constants.findOne({ name: name })
+    );
+};

@@ -139,18 +139,15 @@ Template.CliqueType.helpers({
   },
 
   objectTypesList: function () {
-    return R.ifElse(R.isNil, R.always([]), R.prop('data')
-    )(Constants.findOne({ name: 'object_types_for_links' }));
+    return Constants.getByName('object_types_for_links');
   },
 
   mechanismDriversList: function () {
-    return R.ifElse(R.isNil, R.always([]), R.prop('data')
-    )(Constants.findOne({ name: 'mechanism_drivers' }));
+    return Constants.getByName('mechanism_drivers');
   },
 
   typeDriversList: function () {
-    return R.ifElse(R.isNil, R.always([]), R.prop('data')
-    )(Constants.findOne({ name: 'type_drivers' }));
+    return Constants.getByName('type_drivers');
   },
 
   linkTypesList: function () {
