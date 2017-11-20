@@ -47,8 +47,8 @@ class TestBase(TestCase):
         log_level = 'debug'
         self.app = App(log_level=log_level).get_app()
 
-    def validate_get_request(self, url, params={}, headers=None, mocks={},
-                             side_effects={},
+    def validate_get_request(self, url, params=None, headers=None, mocks=None,
+                             side_effects=None,
                              expected_code=base.SUCCESSFUL_CODE,
                              expected_response=None):
         self.validate_request("GET", url, params, headers, "",

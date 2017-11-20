@@ -197,7 +197,9 @@ class ResponderBase(DataValidate, DictNamingConverter):
                                ': no "value" key for data: ' + str(d))
         return consts
 
-    def read(self, collection, matches={}, projection=None, skip=0, limit=1000):
+    def read(self, collection, matches=None, projection=None, skip=0, limit=1000):
+        if matches is None:
+            matches = {}
         collection = self.get_collection_by_name(collection)
         skip *= limit
         query = collection.find(matches, projection).skip(skip).limit(limit)

@@ -42,7 +42,7 @@ class CliqueTypes(ResponderBase):
 
         filters = self.parse_query_params(req)
         filters_requirements = {
-            'env_name': self.require(str, mandatory=True),
+            'env_name': self.require(str),
             'id': self.require(ObjectId, convert_to_type=True),
             'distribution': self.require(str),
             'distribution_version': self.require(str),
@@ -64,6 +64,10 @@ class CliqueTypes(ResponderBase):
         }
 
         self.validate_query_data(filters, filters_requirements)
+        if 'distribution_version' in filters and 'distribution' not in filters:
+            self.bad_request("Distribution version without distribution "
+                             "is not allowed")
+
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
@@ -84,7 +88,7 @@ class CliqueTypes(ResponderBase):
             self.bad_request(error)
 
         clique_type_requirements = {
-            'environment': self.require(str, mandatory=True),
+            'environment': self.require(str),
             'focal_point_type': self.require(str,
                                              mandatory=True,
                                              validate=DataValidate.LIST,
@@ -106,18 +110,11 @@ class CliqueTypes(ResponderBase):
         }
 
         self.validate_query_data(clique_type, clique_type_requirements)
-
-        env_name = clique_type['environment']
-        if not self.check_environment_name(env_name):
-            self.bad_request("Unknown environment: {}".format(env_name))
-        elif env_name.upper() in self.RESERVED_NAMES:
-            self.bad_request("Environment name '{}' is reserved".format(env_name))
+        self.check_required_fields(clique_type)
 
         self.write(clique_type, self.COLLECTION)
         self.set_successful_response(resp,
-                                     {"message": "created a new clique_type "
-                                                 "for environment {0}"
-                                                 .format(env_name)},
+                                     {"message": "created a new clique_type"},
                                      "201")
 
     def build_query(self, filters):
@@ -126,6 +123,7 @@ class CliqueTypes(ResponderBase):
                         'distribution', 'distribution_version',
                         'mechanism_drivers', 'type_drivers']
         self.update_query_with_filters(filters, filters_keys, query)
+
         link_types = filters.get('link_type')
         if link_types:
             if type(link_types) != list:
@@ -135,5 +133,28 @@ class CliqueTypes(ResponderBase):
         if _id:
             query[self.ID] = _id
 
-        query['environment'] = filters['env_name']
+        env_name = filters.get('env_name')
+        if env_name:
+            query['environment'] = filters['env_name']
         return query
+
+    def check_required_fields(self, clique_type):
+        env_name = clique_type.get('environment')
+        distribution = clique_type.get('distribution')
+        distribution_version = clique_type.get('distribution_version')
+        if env_name:
+            if not self.check_environment_name(env_name):
+                self.bad_request("Unknown environment: {}".format(env_name))
+            elif env_name.upper() in self.RESERVED_NAMES:
+                self.bad_request(
+                    "Environment name '{}' is reserved".format(env_name))
+        else:
+            if not ((distribution and distribution_version)
+                    or clique_type.get('mechanism_drivers')
+                    or clique_type.get('type_drivers')):
+                self.bad_request("Configuration should contain at least one of: "
+                                 "(distribution and distribution_version), "
+                                 "mechanism_drivers, type_drivers")
+        if distribution_version and not distribution:
+            self.bad_request("Distribution version without distribution "
+                             "is not allowed")

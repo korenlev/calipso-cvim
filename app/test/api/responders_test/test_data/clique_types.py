@@ -19,6 +19,8 @@ NONEXISTENT_ID = "58ca73ae3a8a836d10ff3b44"
 CORRECT_ID = base.CORRECT_OBJECT_ID
 SAMPLE_IDS = ['58ca73ae3a8a836d10ff3b80', '58ca73ae3a8a836d10ff3b81']
 
+RESERVED_ENV_NAME = 'ANY'
+
 WRONG_FOCAL_POINT_TYPE = base.WRONG_OBJECT_TYPE
 CORRECT_FOCAL_POINT_POINT_TYPE = base.CORRECT_OBJECT_TYPE
 
@@ -40,6 +42,13 @@ CLIQUE_TYPE = {
     "type_drivers": CORRECT_TYPE_DRIVER
 }
 
+TEST_CONFIGURATION = {
+    "distribution": "Mirantis",
+    "distribution_version": "7.0",
+    "mechanism_drivers": "VPP",
+    "type_drivers": "vlan"
+}
+
 
 def get_payload(update: dict = None, delete: list = None):
     payload = CLIQUE_TYPE.copy()
@@ -54,6 +63,16 @@ def get_payload(update: dict = None, delete: list = None):
 CLIQUE_TYPES_WITH_SPECIFIC_ID = [
     get_payload(update={'id': CORRECT_ID})
 ]
+
+CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION = [
+    get_payload(update={'id': _id,
+                        **TEST_CONFIGURATION})
+    for _id in SAMPLE_IDS
+]
+
+CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION_RESPONSE = {
+    "clique_types": CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION
+}
 
 CLIQUE_TYPES_WITH_SPECIFIC_FOCAL_POINT_TYPE = [
     get_payload(update={'id': _id,
@@ -85,7 +104,18 @@ CLIQUE_TYPES_RESPONSE = {
 
 NON_DICT_CLIQUE_TYPE = base.NON_DICT_OBJ
 
-CLIQUE_TYPE_WITHOUT_ENVIRONMENT = get_payload(delete=['environment'])
+CLIQUE_TYPE_WITH_RESERVED_NAME = get_payload(
+    update={'environment': RESERVED_ENV_NAME}
+)
+
+CLIQUE_TYPE_WITHOUT_ENV_NAME_AND_CONF = get_payload(
+    delete=['environment', 'distribution', 'distribution_version',
+            'mechanism_drivers', 'type_drivers']
+)
+
+CLIQUE_TYPE_WITH_INSUFFICIENT_CONF = get_payload(
+    delete=['distribution']
+)
 
 CLIQUE_TYPE_WITH_UNKNOWN_ENVIRONMENT = get_payload(
     update={'environment': base.UNKNOWN_ENV}
