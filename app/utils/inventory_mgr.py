@@ -354,10 +354,12 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if isinstance(env_config['mechanism_drivers'], list) \
             else env_config['mechanism_drivers']
 
+        env_distribution_version = env_config['distribution_version']
+        if isinstance(env_distribution_version, list):
+            env_distribution_version = env_distribution_version[0]
         full_env = {
             'environment.distribution': env_config['distribution'],
-            'environment.distribution_version':
-                {"$in": [env_config['distribution_version']]},
+            'environment.distribution_version': env_distribution_version,
             'environment.type_drivers': env_config['type_drivers'],
             'environment.mechanism_drivers': mechanism_driver
         }
@@ -396,8 +398,10 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                 self.log.error("failed to find master parent " +
                                master_parent_id)
                 return False
-            folder_id_path = "/".join((master_parent["id_path"], o["parent_id"]))
-            folder_name_path = "/".join((master_parent["name_path"], o["parent_text"]))
+            folder_id_path = "/".join((master_parent["id_path"],
+                                       o["parent_id"]))
+            folder_name_path = "/".join((master_parent["name_path"],
+                                         o["parent_text"]))
             folder = {
                 "environment": parent["environment"],
                 "parent_id": master_parent_id,

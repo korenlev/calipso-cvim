@@ -66,6 +66,10 @@ let schema = {
   name: {
     type: String
   },
+
+  use_implicit_links: {
+    type: Boolean
+  }
 };
 
 let simpleSchema = new SimpleSchema(schema);
