@@ -57,8 +57,9 @@ class ClassResolver:
         module_name = ".".join(module_parts)
         try:
             class_module = importlib.import_module(module_name)
-        except ImportError:
-            raise ValueError('could not import module {}'.format(module_name))
+        except ImportError as e:
+            raise ValueError('could not import module {}: {}'
+                             .format(module_name, str(e)))
 
         clazz = getattr(class_module, class_name)
         return clazz

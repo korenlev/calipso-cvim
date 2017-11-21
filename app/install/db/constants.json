@@ -727,6 +727,14 @@
         {
             "label" : "switch", 
             "value" : "switch"
+        },
+        {
+            "value" : "namespace",
+            "label" : "namespace"
+        },
+        {
+            "value" : "namespaces_folder",
+            "label" : "namespaces_folder"
         }
     ]
 },
