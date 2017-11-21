@@ -137,7 +137,7 @@
         }, 
         {
             "name" : "Monitoring", 
-            "api_port" : NumberInt(4567), 
+            "api_port" : 4567, 
             "ssh_port" : "20022", 
             "rabbitmq_pass" : "dummy_pwd", 
             "env_type" : "production", 
