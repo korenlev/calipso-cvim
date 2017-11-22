@@ -13,7 +13,6 @@ from api.responders.responder_base import ResponderBase
 from bson.objectid import ObjectId
 from datetime import datetime
 from utils.constants import EnvironmentFeatures
-from utils.inventory_mgr import InventoryMgr
 
 
 class EnvironmentConfigs(ResponderBase):
@@ -28,9 +27,8 @@ class EnvironmentConfigs(ResponderBase):
     }
     CONFIGURATIONS_NAMES = ["mysql", "OpenStack", "CLI", "AMQP",
                             "Monitoring", "NFV_provider", "ACI",
-                            "Kubernetes"]
-    OPTIONAL_CONFIGURATIONS_NAMES = ["OpenStack", "AMQP", "Monitoring",
-                                     "NFV_provider", "ACI", "Kubernetes"]
+                            "Kubernetes", "VMware", "Bare-metal"]
+    REQUIRED_CONFIGURATIONS_NAMES = ["mysql", "CLI"]
     DEFAULT_ENV_TYPE = "OpenStack"
 
     def __init__(self):
@@ -370,7 +368,7 @@ class EnvironmentConfigs(ResponderBase):
                     return validation
                 configurations_of_names[name] = configs[0]
             elif require_mandatory:
-                if name not in self.OPTIONAL_CONFIGURATIONS_NAMES:
+                if name in self.REQUIRED_CONFIGURATIONS_NAMES:
                     validation["passed"] = False
                     validation['error_message'] = "configuration for {0} " \
                                                   "is mandatory".format(name)
