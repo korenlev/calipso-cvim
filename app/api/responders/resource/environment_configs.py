@@ -28,7 +28,10 @@ class EnvironmentConfigs(ResponderBase):
     CONFIGURATIONS_NAMES = ["mysql", "OpenStack", "CLI", "AMQP",
                             "Monitoring", "NFV_provider", "ACI",
                             "Kubernetes", "VMware", "Bare-metal"]
-    REQUIRED_CONFIGURATIONS_NAMES = ["mysql", "CLI"]
+    REQUIRED_CONFIGURATIONS_NAMES = {
+        "OpenStack": ["OpenStack", "mysql", "CLI"],
+        "Kubernetes": ["Kubernetes", "CLI"],
+    }
     DEFAULT_ENV_TYPE = "OpenStack"
 
     def __init__(self):
@@ -367,20 +370,19 @@ class EnvironmentConfigs(ResponderBase):
                                                   "configuration for {0}".format(name)
                     return validation
                 configurations_of_names[name] = configs[0]
-            elif require_mandatory:
-                if name in self.REQUIRED_CONFIGURATIONS_NAMES:
-                    validation["passed"] = False
-                    validation['error_message'] = "configuration for {0} " \
-                                                  "is mandatory".format(name)
-                    return validation
 
         if require_mandatory:
-            if environment_type not in configurations_of_names:
+            required_list = (
+                self.REQUIRED_CONFIGURATIONS_NAMES.get(environment_type, [])
+            )
+            if any(required_conf not in configurations_of_names
+                   for required_conf
+                   in required_list):
                 validation["passed"] = False
-                validation['error_message'] = ("configuration for {} "
-                                               "is mandatory for "
+                validation['error_message'] = ("configurations for ({})"
+                                               "are mandatory for "
                                                "this environment type"
-                                               .format(environment_type))
+                                               .format(", ".join(required_list)))
 
         for name, config in configurations_of_names.items():
             error_message = self.validate_configuration(name, config)

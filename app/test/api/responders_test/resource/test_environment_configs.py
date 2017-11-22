@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 
+from api.responders.resource.environment_configs import EnvironmentConfigs
 from test.api.responders_test.test_data import base
 from test.api.responders_test.test_data.base import CONSTANTS_BY_NAMES
 from test.api.test_base import TestBase
@@ -386,7 +387,7 @@ class TestEnvironmentConfigs(TestBase):
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_environment_config_with_duplicate_configurations(self):
-        test_data = environment_configs.ENV_CONFIG
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
         test_data["configuration"].append({
             "name": "OpenStack",
             "host": "10.56.20.240",
@@ -400,7 +401,7 @@ class TestEnvironmentConfigs(TestBase):
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_environment_config_with_unnamed_configuration(self):
-        test_data = environment_configs.ENV_CONFIG
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
         test_data["configuration"].append({
             "host": "10.56.20.240",
             "admin_token": "wLWefGuD0uYJ7tqkeEScdnNp",
@@ -413,7 +414,7 @@ class TestEnvironmentConfigs(TestBase):
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_environment_config_with_unknown_configuration(self):
-        test_data = environment_configs.ENV_CONFIG
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
         test_data["configuration"].append({
             "name": "Unknown configuration",
             "host": "10.56.20.240",
@@ -427,41 +428,23 @@ class TestEnvironmentConfigs(TestBase):
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_environment_config_without_required_configurations(self):
-        test_data = self.get_updated_data(environment_configs.ENV_CONFIG,
-                                          updates={
-                                              "configuration": [{
-                                                  "host": "10.56.20.239",
-                                                  "name": "mysql",
-                                                  "pwd": "G1VKEbcqKZXoPthrtNma2D9Y",
-                                                  "port": "3307",
-                                                  "user": "root"
-                                              }]
-                                          })
-        self.validate_post_request(environment_configs.URL,
-                                   body=json.dumps(test_data),
-                                   expected_code=base.BAD_REQUEST_CODE)
-
-    def test_post_environment_config_without_required_type_specific_conf(self):
-        test_data = self.get_updated_data(environment_configs.ENV_CONFIG,
-                                          updates={
-                                              "configuration": [{
-                                                  "host": "10.56.20.239",
-                                                  "name": "mysql",
-                                                  "pwd": "G1VKEbcqKZXoPthrtNma2D9Y",
-                                                  "port": "3307",
-                                                  "user": "root"
-                                              }, {
-                                                  "host": "10.56.20.239",
-                                                  "key": "/etc/calipso/keys/Mirantis-Liberty-id_rsa",
-                                                  "name": "CLI",
-                                                  "user": "root"
-                                              }]
-                                          })
         for env_type in CONSTANTS_BY_NAMES["environment_types"]:
-            test_data['environment_type'] = env_type
-            self.validate_post_request(environment_configs.URL,
-                                       body=json.dumps(test_data),
-                                       expected_code=base.BAD_REQUEST_CODE)
+            required_conf_list = (
+                EnvironmentConfigs.REQUIRED_CONFIGURATIONS_NAMES.get(env_type,
+                                                                     [])
+            )
+            if required_conf_list:
+                test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
+                test_data['environment_type'] = env_type
+                test_data['configuration'] = [
+                    c
+                    for c in test_data['configuration']
+                    if c['name'] != required_conf_list[0]
+                ]
+
+                self.validate_post_request(environment_configs.URL,
+                                           body=json.dumps(test_data),
+                                           expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_environment_config_with_incomplete_configuration(self):
         test_data = self.get_updated_data(environment_configs.ENV_CONFIG,
