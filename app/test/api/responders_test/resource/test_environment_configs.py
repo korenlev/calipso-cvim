@@ -389,26 +389,15 @@ class TestEnvironmentConfigs(TestBase):
     def test_post_environment_config_with_duplicate_configurations(self):
         test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
         test_data["configuration"].append({
-            "name": "OpenStack",
-            "host": "10.56.20.240",
-            "admin_token": "wLWefGuD0uYJ7tqkeEScdnNp",
-            "port": "5000",
-            "user": "admin",
-            "pwd": "admin"
+            "name": "OpenStack"
         })
         self.validate_post_request(environment_configs.URL,
                                    body=json.dumps(test_data),
                                    expected_code=base.BAD_REQUEST_CODE)
 
-    def test_post_environment_config_with_unnamed_configuration(self):
+    def test_post_environment_config_with_empty_configuration(self):
         test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
-        test_data["configuration"].append({
-            "host": "10.56.20.240",
-            "admin_token": "wLWefGuD0uYJ7tqkeEScdnNp",
-            "port": "5000",
-            "user": "admin",
-            "pwd": "admin"
-        })
+        test_data["configuration"].append({})
         self.validate_post_request(environment_configs.URL,
                                    body=json.dumps(test_data),
                                    expected_code=base.BAD_REQUEST_CODE)
@@ -417,11 +406,6 @@ class TestEnvironmentConfigs(TestBase):
         test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
         test_data["configuration"].append({
             "name": "Unknown configuration",
-            "host": "10.56.20.240",
-            "admin_token": "wLWefGuD0uYJ7tqkeEScdnNp",
-            "port": "5000",
-            "user": "admin",
-            "pwd": "admin"
         })
         self.validate_post_request(environment_configs.URL,
                                    body=json.dumps(test_data),
