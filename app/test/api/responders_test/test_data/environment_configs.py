@@ -225,5 +225,6 @@ ENV_CONFIG = {
     "scanned": True,
     "type": "environment",
     "type_drivers": "vxlan",
-    "user": "WS7j8oTbWPf3LbNne"
+    "user": "WS7j8oTbWPf3LbNne",
+    "environment_type": "OpenStack"
 }

@@ -183,13 +183,20 @@ CONSTANTS_BY_NAMES = {
         "aborted"
     ],
     "configuration_targets": [
-         "AMQP",
-         "CLI",
-         "ACI",
-         "mysql",
-         "OpenStack",
-         "Monitoring"
-        ]
+        "AMQP",
+        "CLI",
+        "ACI",
+        "mysql",
+        "OpenStack",
+        "Monitoring",
+        "Kubernetes"
+    ],
+    "environment_types": [
+        "OpenStack",
+        "Kubernetes",
+        "VMware",
+        "Bare-metal"
+    ]
 }
 
 # path info
