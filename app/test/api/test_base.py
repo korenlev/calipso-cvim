@@ -34,8 +34,10 @@ class TestBase(TestCase):
             self.original_auth_method = AuthenticationMiddleware.process_request
             AuthenticationMiddleware.process_request = mock_auth_method
 
-        ResponderBase.get_constants_by_name = MagicMock(side_effect=
-                                                        lambda name: base.CONSTANTS_BY_NAMES[name])
+        ResponderBase.get_constants_by_name = MagicMock(
+            side_effect=lambda name: base.CONSTANTS_BY_NAMES[name]
+        )
+
         # mock mongo access
         MongoAccess.mongo_connect = MagicMock()
         MongoAccess.db = MagicMock()

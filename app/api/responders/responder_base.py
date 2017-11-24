@@ -71,7 +71,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def validate_query_data(self, data, data_requirements,
                             additional_key_reg=None,
-                            can_be_empty_keys=[]):
+                            can_be_empty_keys=None):
         error_message = self.validate_data(data, data_requirements,
                                            additional_key_reg,
                                            can_be_empty_keys)
