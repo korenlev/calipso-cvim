@@ -93,7 +93,7 @@ class MonitoringHost(MonitoringHandler):
 
     def install_sensu_on_host(self, host_id):
         auto_install = self.env_monitoring_config \
-            .get('install_sensu_client', False)
+            .get('install_monitoring_client', False)
         if auto_install:
             installer = SensuClientInstaller(self.env, host_id)
             installer.install()

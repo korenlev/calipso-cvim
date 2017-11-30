@@ -38,7 +38,7 @@
             "env_type" : "production", 
             "provision" : "None", 
             "name" : "Monitoring",
-            "install_sensu_client": false,
+            "install_monitoring_client": false,
             "ssh_port" : "20022", 
             "rabbitmq_pass" : "dummy_pwd", 
             "ssh_password" : "dummy_pwd", 
@@ -138,7 +138,7 @@
         }, 
         {
             "name" : "Monitoring",
-            "install_sensu_client": false,
+            "install_monitoring_client": false,
             "api_port" : 4567,
             "ssh_port" : "20022", 
             "rabbitmq_pass" : "dummy_pwd", 
