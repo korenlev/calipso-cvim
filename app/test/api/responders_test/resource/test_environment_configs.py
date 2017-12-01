@@ -9,7 +9,9 @@
 ###############################################################################
 import json
 
+from api.responders.resource.environment_configs import EnvironmentConfigs
 from test.api.responders_test.test_data import base
+from test.api.responders_test.test_data.base import CONSTANTS_BY_NAMES
 from test.api.test_base import TestBase
 from test.api.responders_test.test_data import environment_configs
 from utils.constants import EnvironmentFeatures
@@ -379,6 +381,70 @@ class TestEnvironmentConfigs(TestBase):
         test_data = self.get_updated_data(environment_configs.ENV_CONFIG,
                                           updates={
                                              "type_drivers": [environment_configs.WRONG_TYPE_DRIVER]
+                                          })
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(test_data),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_environment_config_with_duplicate_configurations(self):
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
+        test_data["configuration"].append({
+            "name": "OpenStack"
+        })
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(test_data),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_environment_config_with_empty_configuration(self):
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
+        test_data["configuration"].append({})
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(test_data),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_environment_config_with_unknown_configuration(self):
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
+        test_data["configuration"].append({
+            "name": "Unknown configuration",
+        })
+        self.validate_post_request(environment_configs.URL,
+                                   body=json.dumps(test_data),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_environment_config_without_required_configurations(self):
+        for env_type in CONSTANTS_BY_NAMES["environment_types"]:
+            required_conf_list = (
+                EnvironmentConfigs.REQUIRED_CONFIGURATIONS_NAMES.get(env_type,
+                                                                     [])
+            )
+            if required_conf_list:
+                test_data = self.get_updated_data(environment_configs.ENV_CONFIG)
+                test_data['environment_type'] = env_type
+                test_data['configuration'] = [
+                    c
+                    for c in test_data['configuration']
+                    if c['name'] != required_conf_list[0]
+                ]
+
+                self.validate_post_request(environment_configs.URL,
+                                           body=json.dumps(test_data),
+                                           expected_code=base.BAD_REQUEST_CODE)
+
+    def test_post_environment_config_with_incomplete_configuration(self):
+        test_data = self.get_updated_data(environment_configs.ENV_CONFIG,
+                                          updates={
+                                              "configuration": [{
+                                                  "host": "10.56.20.239",
+                                                  "name": "mysql",
+                                                  "user": "root"
+                                              }, {
+                                                  "name": "OpenStack",
+                                                  "host": "10.56.20.239",
+                                              }, {
+                                                  "host": "10.56.20.239",
+                                                  "name": "CLI",
+                                                  "user": "root"
+                                              }]
                                           })
         self.validate_post_request(environment_configs.URL,
                                    body=json.dumps(test_data),

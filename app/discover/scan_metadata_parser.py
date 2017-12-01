@@ -56,19 +56,21 @@ class ScanMetadataParser(MetadataParser):
                 fetcher_package = module_name.split("_")[0]
                 if package:
                     fetcher_package = ".".join((package, fetcher_package))
-                get_instance = ClassResolver.get_instance_of_class
-                instance = get_instance(package_name=fetcher_package,
-                                        module_name=module_name,
-                                        class_name=fetcher)
+                # get the fetcher qualified class but not a class instance
+                # instances will be created just-in-time (before fetching):
+                # this avoids init of access classes not needed in some envs
+                get_class = ClassResolver.get_fully_qualified_class
+                class_qualified = get_class(fetcher, fetcher_package,
+                                            module_name)
             except ValueError as e:
-                instance = None
+                class_qualified = None
                 error_str = str(e)
-            if not instance:
+            if not class_qualified:
                 self.add_error('failed to find fetcher class {} in scanner {}'
                                ' type #{} ({})'
                                .format(fetcher, scanner_name, type_index,
                                        error_str))
-            scan_type[self.FETCHER] = instance
+            scan_type[self.FETCHER] = class_qualified
         elif isinstance(fetcher, dict):
             is_folder = fetcher.get('folder', False)
             if not is_folder:

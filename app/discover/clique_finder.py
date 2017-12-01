@@ -149,6 +149,7 @@ class CliqueFinder(Fetcher):
         # after adding the links to the clique, create/update the clique
         if not clique["links"]:
             return None
+        clique["clique_type"] = clique_type["_id"]
         focal_point_obj = self.inventory.find({"_id": clique["focal_point"]})
         if not focal_point_obj:
             return None

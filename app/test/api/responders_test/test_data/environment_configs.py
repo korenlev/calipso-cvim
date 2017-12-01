@@ -201,6 +201,7 @@ ENV_CONFIG = {
             "provision": "None",
             "env_type": "development",
             "name": "Monitoring",
+            "install_monitoring_client": True,
             "api_port": "4567",
             "rabbitmq_port": "5671",
             "rabbitmq_pass": "sensuaccess",
@@ -225,5 +226,6 @@ ENV_CONFIG = {
     "scanned": True,
     "type": "environment",
     "type_drivers": "vxlan",
-    "user": "WS7j8oTbWPf3LbNne"
+    "user": "WS7j8oTbWPf3LbNne",
+    "environment_type": "OpenStack"
 }
