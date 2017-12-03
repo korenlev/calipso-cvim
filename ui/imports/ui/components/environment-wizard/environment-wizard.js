@@ -34,6 +34,7 @@ import '/imports/ui/components/env-master-host-credentials-info/env-master-host-
 import '/imports/ui/components/env-aci-info/env-aci-info';
 import '/imports/ui/components/env-amqp-credentials-info/env-amqp-credentials-info';
 import '/imports/ui/components/env-monitoring-info/env-monitoring-info';
+import '/imports/ui/components/env-kube-info/env-kube-info';
 
 import {
   insert,
@@ -181,8 +182,10 @@ Template.EnvironmentWizard.helpers({
     );
     let isListeningDisabled = disabled || !isListeningSupportedRes;
 
+    let osTabDisabled = environmentModel.environment_type !== "OpenStack";
     let amqpTabDisabled = !(environmentModel.listen && isListeningSupportedRes);
     let monitoringTabDisabled = !(environmentModel.enable_monitoring && isMonSupportedRes);
+    let kubeTabDisabled = environmentModel.environment_type !== "Kubernetes";
     let isAciTabDisabled = !(environmentModel.aci_enabled);
 
     return [{
@@ -196,6 +199,7 @@ Template.EnvironmentWizard.helpers({
         disabled: disabled,
         isListeningDisabled: isListeningDisabled,
         isMonitoringDisabled: isMonitoringDisabled,
+        isKubeDisabled: kubeTabDisabled,
         setModel: function (newModel) {
           Session.set('isDirty', true);
 
@@ -228,11 +232,11 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'OS API Endpoint',
       localLink: 'endpoint-panel',
-      disabled: false,
+      disabled: osTabDisabled,
       templateName: 'EnvOsApiEndpointInfo',
       templateData: {
         model: getGroupInArray('OpenStack', environmentModel.configuration),
-        disabled: disabled,
+        disabled: osTabDisabled,
         setModel: function (newSubModel) {
           Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
@@ -248,11 +252,11 @@ Template.EnvironmentWizard.helpers({
     }, {
       label: 'OS DB Credentials',
       localLink: 'db-credentials',
-      disabled: false,
+      disabled: osTabDisabled,
       templateName: 'EnvOpenStackDbCredentialsInfo',
       templateData: {
         model: getGroupInArray('mysql', environmentModel.configuration),
-        disabled: disabled,
+        disabled: osTabDisabled,
         setModel: function (newSubModel) {
           Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
@@ -292,7 +296,7 @@ Template.EnvironmentWizard.helpers({
       templateName: 'EnvAmqpCredentialsInfo',
       templateData: {
         model: getGroupInArray('AMQP', environmentModel.configuration),
-        disabled: disabled,
+        disabled: amqpTabDisabled,
         setModel: function (newSubModel) {
           Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
@@ -357,6 +361,27 @@ Template.EnvironmentWizard.helpers({
           Session.set('isDirty', true);
           let model = instance.state.get('environmentModel');
           let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
+          instance.state.set('environmentModel', newModel);
+        },
+        onNextRequested: activateNextTab.bind(null, 'kubeInfo'),
+        action: action,
+        onTestConnection: function () {
+          testConnection(instance);
+        },
+      }
+    }, {
+      label: 'Kubernetes',
+      localLink: 'kubeInfo',
+      disabled: kubeTabDisabled,
+      templateName: 'EnvKubeInfo',
+      templateData: {
+        model: getGroupInArray('Kubernetes', environmentModel.configuration),
+        disabled: kubeTabDisabled,
+        disabledMessage: "Kubernetes tab is enabled only for environments of type 'Kubernetes'",
+        setModel: function (newSubModel) {
+          Session.set('isDirty', true);
+          let model = instance.state.get('environmentModel');
+          let newModel = setConfigurationGroup('Kubernetes', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
         action: action,
@@ -489,7 +514,7 @@ function processInsertTestConnnectionResult(instance, error, itemId) {
   instance.state.set('isSuccess', true);
   instance.state.set('isMessage', true);  
 
-  instance.state.set('message', 'Connection send to be tested');
+  instance.state.set('message', 'Connection sent to be tested');
 }
 
 function getGroupInArray(groupName, array) {
@@ -531,6 +556,7 @@ function doSubmit(instance) {
       distribution: environment.distribution,
       distribution_version: environment.distribution_version,
       name: environment.name,
+      environment_type: environment.environment_type,
       type_drivers: environment.type_drivers,
       mechanism_drivers: environment.mechanism_drivers,
       listen: environment.listen,
@@ -543,6 +569,7 @@ function doSubmit(instance) {
     update.call({
       _id: environment._id,
       configuration: environment.configuration,
+      environment_type: environment.environment_type,
       //distribution: environment.distribution,
       //name: environment.name,
       type_drivers: environment.type_drivers,

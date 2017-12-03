@@ -15,6 +15,7 @@ import { OpenStackSchema } from './configuration-groups/open-stack-configuration
 import { MonitoringSchema } from './configuration-groups/monitoring-configuration';
 import { CLISchema } from './configuration-groups/cli-configuration';
 import { AMQPSchema } from './configuration-groups/amqp-configuration';
+import { KubeSchema } from './configuration-groups/kubernetes-configuration';
 //import { NfvProviderSchema } from './configuration-groups/nfv-provider-configuration';
 import { AciSchema } from './configuration-groups/aci-configuration';
 import {
@@ -25,11 +26,11 @@ import {
 export const Environments = new Mongo.Collection(
   'environments_config', { idGeneration: 'MONGO' });
 
-export const requiredConfGroups = [
-  'mysql',
-  'OpenStack',
-  'CLI',
-];
+export const envSpecificConfGroups = ['OpenStack', 'Kubernetes', 'mysql', 'CLI'];
+export const requiredConfGroups = {
+    'OpenStack': ['OpenStack', 'mysql', 'CLI'],
+    'Kubernetes': ['Kubernetes', 'CLI']
+};
 
 export const optionalConfGroups = [
   // 'NFV_provider',
@@ -50,6 +51,21 @@ let simpleSchema = new SimpleSchema({
       ]
     }
   },
+  environment_type: {
+    type: String,
+    defaultValue: 'OpenStack',
+    custom: function () {
+        let that = this;
+        let env_types = Constants.findOne({ name: 'environment_types' });
+
+        if (R.isNil(env_types.data)) { return 'notAllowed'; }
+        let types = env_types.data;
+
+        if (R.isNil(R.find(R.propEq('value', that.value), types))) {
+            return 'notAllowed';
+        }
+    },
+  },
   configuration: {
     type: [Object],
     blackbox: true,
@@ -57,17 +73,19 @@ let simpleSchema = new SimpleSchema({
       console.log('start - autovalue - environment - configuration');
       //console.log(this);
       let that = this;
+      let dbNode = getDbNode(that);
+      let environmentType = extractValue('environment_type', that, dbNode);
+      let requiredGroups = requiredConfGroups[environmentType];
 
       if (that.isSet) {
         let confGroups = that.value;
 
-        let { 
+        let {
           isMonitoringSupportedRes, 
           isListeningSupportedRes,
           enable_monitoring, 
           listen 
         } = extractCalcEnvSupportedRelatedValues(that);
-        let dbNode = getDbNode(that);
         let aci_enabled = extractValue('aci_enabled', that, dbNode);
 
         if (enable_monitoring && isMonitoringSupportedRes) {
@@ -97,6 +115,19 @@ let simpleSchema = new SimpleSchema({
           confGroups = R.reject(R.propEq('name', 'ACI'), confGroups);
         }
 
+        for (let i = 0; i < envSpecificConfGroups.length; i++) {
+          let group = envSpecificConfGroups[i];
+          if (requiredGroups.includes(group)) {
+            if (!R.find(R.propEq('name', group), confGroups)) {
+              confGroups = R.append(createNewConfGroup(group), confGroups);
+            }
+          }
+          else {
+              console.log('env - configurations - autovalue -', environmentType, ', ', group, ' not requested');
+              confGroups = R.reject(R.propEq('name', group), confGroups);
+          }
+        }
+
         confGroups = cleanOptionalGroups(confGroups, optionalConfGroups);
         console.log('env - configurations - autovalue - after clean optional groups');
 
@@ -114,7 +145,7 @@ let simpleSchema = new SimpleSchema({
         let newValue = R.map((confName) => {
           let schema = getSchemaForGroupName(confName);
           return schema.clean({});
-        }, requiredConfGroups);
+        }, requiredGroups);
         console.log('end - autovalue - environment - configurations');
         console.log(newValue);
         return newValue;
@@ -135,7 +166,10 @@ let simpleSchema = new SimpleSchema({
         listen 
       } = extractCalcEnvSupportedRelatedValues(that);
 
-      let requiredConfGroupsTemp = R.clone(requiredConfGroups);
+      let dbNode = getDbNode(that);
+      let environmentType = extractValue('environment_type', that, dbNode);
+      let requiredGroups = requiredConfGroups[environmentType];
+      let requiredConfGroupsTemp = R.clone(requiredGroups);
       if (enable_monitoring && isMonitoringSupportedRes) {
         requiredConfGroupsTemp = R.append('Monitoring', requiredConfGroupsTemp);
       }
@@ -355,6 +389,8 @@ export function getSchemaForGroupName(groupName) {
     return AciSchema;
   case 'Monitoring':
     return MonitoringSchema;
+  case 'Kubernetes':
+    return KubeSchema;
   default:
     throw 'group name is not recognized. group: ' + groupName;
   }
