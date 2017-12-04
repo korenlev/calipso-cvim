@@ -349,18 +349,18 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         if not env_config:
             return False
 
-        # Workaround for mechanism_drivers field type
-        mechanism_driver = env_config['mechanism_drivers'][0] \
-            if isinstance(env_config['mechanism_drivers'], list) \
-            else env_config['mechanism_drivers']
-
-        env_distribution_version = env_config['distribution_version']
+        # Workarounds for mechanism_drivers and distribution_version field types
+        mechanism_driver = env_config.get('mechanism_drivers')
+        if isinstance(mechanism_driver, list):
+            mechanism_driver = mechanism_driver[0]
+        env_distribution_version = env_config.get('distribution_version')
         if isinstance(env_distribution_version, list):
             env_distribution_version = env_distribution_version[0]
+
         full_env = {
-            'environment.distribution': env_config['distribution'],
+            'environment.distribution': env_config.get('distribution'),
             'environment.distribution_version': env_distribution_version,
-            'environment.type_drivers': env_config['type_drivers'],
+            'environment.type_drivers': env_config.get('type_drivers'),
             'environment.mechanism_drivers': mechanism_driver
         }
         return self.is_feature_supported_in_env(full_env, feature)
