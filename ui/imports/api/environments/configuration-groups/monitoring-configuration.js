@@ -97,6 +97,11 @@ export const MonitoringSchema = new SimpleSchema({
     },
   },
 
+  install_monitoring_client: {
+    type: Boolean,
+    defaultValue: false,
+  },
+
   ssh_port: {
     type: String,
     defaultValue: '20022',
