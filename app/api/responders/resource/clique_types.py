@@ -110,7 +110,9 @@ class CliqueTypes(ResponderBase):
         }
 
         self.validate_query_data(clique_type, clique_type_requirements)
-        self.check_required_fields(clique_type)
+        self.validate_required_fields(clique_type)
+        self.validate_focal_point_type(clique_type)
+        self.validate_duplicate_configuration(clique_type)
 
         self.write(clique_type, self.COLLECTION)
         self.set_successful_response(resp,
@@ -138,23 +140,67 @@ class CliqueTypes(ResponderBase):
             query['environment'] = filters['env_name']
         return query
 
-    def check_required_fields(self, clique_type):
+    def validate_required_fields(self, clique_type):
         env_name = clique_type.get('environment')
         distribution = clique_type.get('distribution')
         distribution_version = clique_type.get('distribution_version')
+        if distribution_version and not distribution:
+            self.bad_request("Distribution version without distribution "
+                             "is not allowed")
+
+        configuration_specified = ((distribution and distribution_version)
+                                   or clique_type.get('mechanism_drivers')
+                                   or clique_type.get('type_drivers'))
         if env_name:
+            if configuration_specified:
+                self.bad_request("Either environment or configuration "
+                                 "should be specified (not both).")
+
             if not self.check_environment_name(env_name):
                 self.bad_request("Unknown environment: {}".format(env_name))
             elif env_name.upper() in self.RESERVED_NAMES:
                 self.bad_request(
                     "Environment name '{}' is reserved".format(env_name))
+        elif not configuration_specified:
+            self.bad_request("Configuration should contain at least one of: "
+                             "(distribution and distribution_version), "
+                             "mechanism_drivers, type_drivers")
+
+    def validate_focal_point_type(self, clique_type):
+        focal_point_type = clique_type['focal_point_type']
+        environment = clique_type.get('environment')
+        if environment:
+            env_match = self.inv.find_one(
+                search={"environment": environment,
+                        "focal_point_type": focal_point_type},
+                collection="clique_types"
+            )
+            if env_match:
+                self.bad_request("Clique type with focal point {} "
+                                 "is already registered for environment {}"
+                                 .format(focal_point_type, environment))
         else:
-            if not ((distribution and distribution_version)
-                    or clique_type.get('mechanism_drivers')
-                    or clique_type.get('type_drivers')):
-                self.bad_request("Configuration should contain at least one of: "
-                                 "(distribution and distribution_version), "
-                                 "mechanism_drivers, type_drivers")
-        if distribution_version and not distribution:
-            self.bad_request("Distribution version without distribution "
-                             "is not allowed")
+            pass
+
+    def validate_duplicate_configuration(self, clique_type):
+        if clique_type.get('environment'):
+            return
+
+        search = {'focal_point_type': clique_type['focal_point_type']}
+        for field in ['distribution', 'mechanism_drivers', 'type_drivers']:
+            value = clique_type.get(field)
+            if value:
+                search[field] = value
+                if field == 'distribution':
+                    dv = clique_type.get('distribution_version')
+                    if dv:
+                        search['distribution_version'] = dv
+                # Got a match with higher score, no need to look further
+                break
+
+        env_match = self.inv.find_one(search=search,
+                                      collection="clique_types")
+        if env_match:
+            self.bad_request("Clique type with configuration '{}' "
+                             "is already registered"
+                             .format(search))

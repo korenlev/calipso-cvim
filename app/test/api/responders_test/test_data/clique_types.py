@@ -35,18 +35,14 @@ CLIQUE_TYPE = {
         "instance-vnic",
         "vnic-vconnector"
     ],
-    "focal_point_type": "instance",
+    "focal_point_type": "instance"
+}
+
+TEST_CONFIGURATION = {
     "distribution": CORRECT_DISTRIBUTION,
     "distribution_version": CORRECT_DIST_VER,
     "mechanism_drivers": CORRECT_MECHANISM_DRIVER,
     "type_drivers": CORRECT_TYPE_DRIVER
-}
-
-TEST_CONFIGURATION = {
-    "distribution": "Mirantis",
-    "distribution_version": "7.0",
-    "mechanism_drivers": "VPP",
-    "type_drivers": "vlan"
 }
 
 
@@ -66,7 +62,8 @@ CLIQUE_TYPES_WITH_SPECIFIC_ID = [
 
 CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION = [
     get_payload(update={'id': _id,
-                        **TEST_CONFIGURATION})
+                        **TEST_CONFIGURATION},
+                delete=['environment'])
     for _id in SAMPLE_IDS
 ]
 
@@ -109,12 +106,15 @@ CLIQUE_TYPE_WITH_RESERVED_NAME = get_payload(
 )
 
 CLIQUE_TYPE_WITHOUT_ENV_NAME_AND_CONF = get_payload(
-    delete=['environment', 'distribution', 'distribution_version',
-            'mechanism_drivers', 'type_drivers']
+    delete=['environment']
+)
+
+CLIQUE_TYPE_WITH_BOTH_ENV_AND_CONF = get_payload(
+    update=TEST_CONFIGURATION
 )
 
 CLIQUE_TYPE_WITH_INSUFFICIENT_CONF = get_payload(
-    delete=['distribution']
+    update={'distribution_version': CORRECT_DIST_VER}
 )
 
 CLIQUE_TYPE_WITH_UNKNOWN_ENVIRONMENT = get_payload(

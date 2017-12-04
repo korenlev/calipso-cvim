@@ -251,6 +251,14 @@ class TestCliqueTypes(TestBase):
             expected_code=base.BAD_REQUEST_CODE
         )
 
+    def test_post_clique_type_with_both_env_name_and_configuration(self):
+        self.validate_post_request(
+            clique_types.URL,
+            body=json.dumps(
+                clique_types.CLIQUE_TYPE_WITH_BOTH_ENV_AND_CONF),
+            expected_code=base.BAD_REQUEST_CODE
+        )
+
     @patch(base.RESPONDER_BASE_CHECK_ENVIRONMENT_NAME)
     def test_post_clique_type_with_insufficient_configuration(self, check_env_name):
         self.validate_post_request(
