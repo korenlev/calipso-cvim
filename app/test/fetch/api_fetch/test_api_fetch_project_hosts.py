@@ -140,6 +140,15 @@ class TestApiFetchProjectHosts(TestFetch):
         result = self.fetcher.get(PROJECT_NAME)
         self.assertEqual(result, [], "Can't get [] when the token is invalid")
 
+    def test_fetch_host_os_details(self):
+        original_method = self.fetcher.run
+        self.fetcher.run = MagicMock(return_value=OS_DETAILS_INPUT)
+        doc = {'host': 'host1'}
+        self.fetcher.fetch_host_os_details(doc)
+        self.assertEqual(doc.get('OS', {}), OS_DETAILS)
+        self.fetcher.run = original_method
+
+
     def tearDown(self):
         super().tearDown()
         ApiFetchProjectHosts.v2_auth_pwd = self._v2_auth_pwd

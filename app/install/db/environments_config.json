@@ -37,7 +37,8 @@
             "server_name" : "sensu_server", 
             "env_type" : "production", 
             "provision" : "None", 
-            "name" : "Monitoring", 
+            "name" : "Monitoring",
+            "install_monitoring_client": false,
             "ssh_port" : "20022", 
             "rabbitmq_pass" : "dummy_pwd", 
             "ssh_password" : "dummy_pwd", 
@@ -136,8 +137,9 @@
             "host" : "10.0.0.1"
         }, 
         {
-            "name" : "Monitoring", 
-            "api_port" : 4567, 
+            "name" : "Monitoring",
+            "install_monitoring_client": false,
+            "api_port" : 4567,
             "ssh_port" : "20022", 
             "rabbitmq_pass" : "dummy_pwd", 
             "env_type" : "production", 
