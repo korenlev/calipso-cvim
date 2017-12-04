@@ -162,9 +162,8 @@ class CliqueTypes(ResponderBase):
                 self.bad_request(
                     "Environment name '{}' is reserved".format(env_name))
         elif not configuration_specified:
-            self.bad_request("Configuration should contain at least one of: "
-                             "(distribution and distribution_version), "
-                             "mechanism_drivers, type_drivers")
+            self.bad_request("Either environment or configuration "
+                             "should be specified.")
 
     def validate_focal_point_type(self, clique_type):
         focal_point_type = clique_type['focal_point_type']
