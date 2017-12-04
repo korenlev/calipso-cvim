@@ -34,9 +34,9 @@
 
         <div class="sm-field-group-env cl-field-group">
           <label class="cl-field-label">Environment</label>
-          <select name="env" class="sm-input-env cl-input" 
-            {{ getAttrDisabled }} >
-            <option value="" selected disabled hidden></option>
+          <select id="env-select" name="env" class="sm-input-env cl-input"
+            {{ getEnvDisabled (getModelField 'environment') }} >
+            <option value="" selected></option>
             {{#each env in envsList }}
             <option value="{{ env.name }}"
               {{ getAttrSelected env.name (getModelField 'environment') }}
@@ -62,9 +62,9 @@
         <div class="sm-field-group-distribution cl-field-group">
           <label class="cl-field-label">Distribution</label>
           <input name="distribution"
-            {{ getAttrDisabled }}
+            {{ getConfDisabled (getModelField 'environment') }}
             value="{{ getModelField 'distribution' }}"
-            class="sm-input-distribution cl-input"
+            class="sm-input-distribution cl-input conf-input"
             type="text"
             placeholder="Distribution" />
           <div class="cl-field-desc">Distribution</div>
@@ -73,9 +73,9 @@
         <div class="sm-field-group-distribution-version cl-field-group">
           <label class="cl-field-label">Distribution version</label>
           <input name="distributionVersion"
-            {{ getAttrDisabled }}
+            {{ getConfDisabled (getModelField 'environment') }}
             value="{{ getModelField 'distribution_version' }}"
-            class="sm-input-distribution-version cl-input"
+            class="sm-input-distribution-version cl-input conf-input"
             type="text"
             placeholder="Distribution version" />
           <div class="cl-field-desc">Distribution version</div>
@@ -83,8 +83,8 @@
 
         <div class="sm-field-group-mechanism-drivers cl-field-group">
           <label class="cl-field-label">Mechanism drivers</label>
-          <select name="mechanismDrivers" class="sm-input-mechanism-drivers cl-input"
-            {{ getAttrDisabled }} >
+          <select name="mechanismDrivers" class="sm-input-mechanism-drivers cl-input conf-input"
+            {{ getConfDisabled (getModelField 'environment') }} >
             <option selected></option>
             {{#each mdType in mechanismDriversList }}
             <option value="{{ mdType.value }}"
@@ -97,8 +97,8 @@
 
         <div class="sm-field-group-type-drivers cl-field-group">
           <label class="cl-field-label">Type drivers</label>
-          <select name="typeDrivers" class="sm-input-type-drivers cl-input"
-            {{ getAttrDisabled }} >
+          <select name="typeDrivers" class="sm-input-type-drivers cl-input conf-input"
+            {{ getConfDisabled (getModelField 'environment') }} >
             <option selected></option>
             {{#each tdType in typeDriversList }}
             <option value="{{ tdType.value }}"
@@ -112,7 +112,7 @@
         <div class="sm-field-group-link-types cl-field-group">
           <label class="cl-field-label">Link Types</label>
           {{#if (exists (getModelField 'link_types')) }}
-          {{>SelectableOrderedInput (argsLinkTypesInput linkTypesList (getModelField 'link_types')) }}
+          {{>SelectableOrderedInput (argsLinkTypesInput linkTypesList (getModelField 'link_types'))}}
           {{/if }}
           <div class="cl-field-desc">Link Types</div>
         </div>

@@ -16,7 +16,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 //import { Constants } from '/imports/api/constants/constants';
-import { CliqueTypes } from '/imports/api/clique-types/clique-types';
+import { CliqueTypes, isEmpty } from '/imports/api/clique-types/clique-types';
 import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';
 import { LinkTypes } from '/imports/api/link-types/link-types';
@@ -92,16 +92,40 @@ Template.CliqueType.rendered = function() {
  */
 
 Template.CliqueType.events({
+  'change #env-select': function (event, instance) {
+    let inputs = instance.$('.conf-input');
+    if (!event.target.value) {
+      inputs.removeProp("disabled");
+    }
+    else {
+      inputs.prop("disabled", true);
+    }
+  },
+  'keyup .conf-input, change .conf-input': function (event, instance) {
+    let non_empty_fields = $('.conf-input').filter(function(i, elem) {
+      return !isEmpty(elem.value);
+    });
+
+    let env_select = instance.$('#env-select');
+    if (non_empty_fields.length === 0) {
+        env_select.removeProp("disabled");
+    }
+    else {
+        env_select.prop("disabled", true);
+        $(env_select).find("option:selected").prop("selected", false);
+    }
+  },
   'submit .sm-item-form': function(event, instance) {
     event.preventDefault(); 
 
     let _id = instance.state.get('id');
     let env = instance.$('.sm-input-env')[0].value;
-    let focalPointType = instance.$('.sm-input-focal-point-type')[0].value;
+    let isEnvEmpty = isEmpty(env);
     let distribution = instance.$('.sm-input-distribution')[0].value;
     let distributionVersion = instance.$('.sm-input-distribution-version')[0].value;
     let mechanismDrivers = instance.$('.sm-input-mechanism-drivers')[0].value;
     let typeDrivers = instance.$('.sm-input-type-drivers')[0].value;
+    let focalPointType = instance.$('.sm-input-focal-point-type')[0].value;
     let linkTypes = R.path(['link_types'], instance.state.get('model'));
     let name = instance.$('.sm-input-name')[0].value;
     let useImplicitLinks = instance.$('.sm-input-use-implicit-links')[0].checked;
@@ -110,10 +134,10 @@ Template.CliqueType.events({
       _id,
       env, 
       focalPointType,
-      distribution,
-      distributionVersion,
-      mechanismDrivers,
-      typeDrivers,
+      isEnvEmpty ? distribution : undefined,
+      isEnvEmpty ? distributionVersion : undefined,
+      isEnvEmpty ? mechanismDrivers : undefined,
+      isEnvEmpty ? typeDrivers : undefined,
       linkTypes,
       name,
       useImplicitLinks
@@ -124,6 +148,12 @@ Template.CliqueType.events({
 /*  
  * Helpers
  */
+
+function isFieldDisabled() {
+  let instance = Template.instance();
+  let action = instance.state.get('action');
+  return R.contains(action, ['view', 'remove']);
+}
 
 Template.CliqueType.helpers({    
   isUpdateableAction() {
@@ -159,15 +189,21 @@ Template.CliqueType.helpers({
   },
 
   getAttrDisabled: function () {
-    let instance = Template.instance();
-    let result = {};
-    let action = instance.state.get('action');
+    return {'disabled': isFieldDisabled()};
+  },
 
-    if (R.contains(action, ['view', 'remove'])) {
-      result = R.assoc('disabled', true, result);
+  getConfDisabled: function (env_name) {
+    return {'disabled': isFieldDisabled() || !isEmpty(env_name)};
+  },
+
+  getEnvDisabled: function (env_name) {
+    if (isFieldDisabled()) {
+      return {'disabled': true};
     }
-
-    return result;
+    let model = Template.instance().state.get('model');
+    let conf_empty = (R.all(isEmpty)([model.distribution, model.distribution_version,
+                                      model.mechanism_drivers, model.type_drivers]));
+    return {'disabled': !conf_empty};
   },
 
   getModel: function () {
@@ -274,6 +310,7 @@ function initUpdateView(instance, query) {
 
   subscribeToOptionsData(instance);
   instance.subscribe('constants');
+  instance.subscribe('clique_types?env*');
   instance.subscribe('clique_types?_id', reqId.id);
 
   CliqueTypes.find({ _id: reqId.id }).forEach((model) => {

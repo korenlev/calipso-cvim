@@ -114,7 +114,7 @@ export const update = new ValidatedMethod({
     }
 
     let cliqueType = CliqueTypes.findOne({ _id: _id });
-    console.log('clique type for remove: ', cliqueType);
+    console.log('clique type for update: ', cliqueType);
 
     cliqueType = R.merge(R.pick([
       'environment',
