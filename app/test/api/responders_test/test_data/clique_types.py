@@ -61,10 +61,9 @@ CLIQUE_TYPES_WITH_SPECIFIC_ID = [
 ]
 
 CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION = [
-    get_payload(update={'id': _id,
+    get_payload(update={'id': SAMPLE_IDS[0],
                         **TEST_CONFIGURATION},
                 delete=['environment'])
-    for _id in SAMPLE_IDS
 ]
 
 CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION_RESPONSE = {

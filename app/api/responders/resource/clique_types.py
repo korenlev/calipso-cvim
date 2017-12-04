@@ -170,9 +170,9 @@ class CliqueTypes(ResponderBase):
         focal_point_type = clique_type['focal_point_type']
         environment = clique_type.get('environment')
         if environment:
-            env_match = self.inv.find_one(
-                search={"environment": environment,
-                        "focal_point_type": focal_point_type},
+            env_match = self.read(
+                matches={"environment": environment,
+                         "focal_point_type": focal_point_type},
                 collection="clique_types"
             )
             if env_match:
@@ -198,8 +198,8 @@ class CliqueTypes(ResponderBase):
                 # Got a match with higher score, no need to look further
                 break
 
-        env_match = self.inv.find_one(search=search,
-                                      collection="clique_types")
+        env_match = self.read(matches=search,
+                              collection="clique_types")
         if env_match:
             self.bad_request("Clique type with configuration '{}' "
                              "is already registered"

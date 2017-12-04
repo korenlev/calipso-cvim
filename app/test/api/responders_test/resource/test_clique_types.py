@@ -270,6 +270,18 @@ class TestCliqueTypes(TestBase):
             expected_code=base.BAD_REQUEST_CODE
         )
 
+    @patch(base.RESPONDER_BASE_READ)
+    def test_post_clique_type_with_duplicate_configuration(self, read):
+        data = clique_types.CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION[0]
+        resp = clique_types.CLIQUE_TYPES_WITH_SPECIFIC_CONFIGURATION_RESPONSE
+        test_data = self.get_updated_data(data, deleted_keys=['id'])
+        self.validate_post_request(clique_types.URL,
+                                   body=json.dumps(test_data),
+                                   mocks={
+                                       read: resp,
+                                   },
+                                   expected_code=base.BAD_REQUEST_CODE)
+
     @patch(base.RESPONDER_BASE_CHECK_ENVIRONMENT_NAME)
     def test_post_clique_type_with_unknown_env_name(self, check_environment_name):
         self.validate_post_request(clique_types.URL,
@@ -290,6 +302,17 @@ class TestCliqueTypes(TestBase):
         self.validate_post_request(clique_types.URL,
                                    body=json.dumps(clique_types.
                                                    CLIQUE_TYPE_WITH_WRONG_FOCAL_POINT_TYPE),
+                                   expected_code=base.BAD_REQUEST_CODE)
+
+    @patch(base.RESPONDER_BASE_READ)
+    def test_post_clique_type_with_duplicate_focal_point_type(self, read):
+        test_data = self.get_updated_data(clique_types.CLIQUE_TYPE,
+                                          updates={'name': 'test-name'})
+        self.validate_post_request(clique_types.URL,
+                                   body=json.dumps(test_data),
+                                   mocks={
+                                       read: [clique_types.CLIQUE_TYPE],
+                                   },
                                    expected_code=base.BAD_REQUEST_CODE)
 
     def test_post_clique_type_without_link_types(self):
