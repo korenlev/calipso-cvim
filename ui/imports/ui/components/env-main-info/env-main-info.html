@@ -34,7 +34,7 @@
       <div class="form-group">
         <label for="inputEnvName" 
           class="col-sm-2 control-label"
-          >Enviroment name</label>
+          >Environment name</label>
 
         <div class="col-sm-3">
           {{> InputModel(createInputArgs
@@ -46,9 +46,29 @@
           }}
         </div>
         <div class="col-sm-4">
-          <p>Enter name of your encironment, it could be anything you want</p>
+          <p>Enter name of your environment</p>
         </div>
       </div>
+
+      <div class="form-group">
+        <label for=""
+               class="col-sm-2 control-label"
+        >Environment type</label>
+
+        <div class="col-sm-3">
+            {{> SelectModel(createSelectArgs
+            values=model.environment_type
+            key="environment_type"
+            disabled=(isFieldDisabled 'environment_type' disabled)
+            options=environmentTypeOptions
+            showNullOption=false)
+            }}
+        </div>
+        <div class="col-sm-4">
+            <p>Enter type of your environment</p>
+        </div>
+      </div>
+      <br/><br/>
 
       <div class="form-group">
         <label for="" 
@@ -85,7 +105,7 @@
         </div>
 
         <div class="col-sm-4">
-          <p>Enter type of the distribution</p>
+          <p>Enter distribution version</p>
         </div>
       </div>
 
@@ -197,7 +217,7 @@
           }}
         </div>
         <div class="col-sm-4">
-          <p>Enter name of your encironment, it could be anything you want</p>
+          <p>Operational state</p>
         </div>
       </div>
 

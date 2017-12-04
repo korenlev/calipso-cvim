@@ -29,7 +29,8 @@ export const insert = new ValidatedMethod({
       'configuration.$', 
       'distribution', 
       'distribution_version', 
-      'name', 
+      'name',
+      'environment_type',
       'type_drivers',
       'mechanism_drivers',
       'mechanism_drivers.$',
@@ -43,6 +44,7 @@ export const insert = new ValidatedMethod({
     distribution,
     distribution_version,
     name,
+    environment_type,
     type_drivers,
     mechanism_drivers,
     listen,
@@ -68,6 +70,7 @@ export const insert = new ValidatedMethod({
       distribution,
       distribution_version,
       name,
+      environment_type,
       type_drivers,
       mechanism_drivers,
       listen,
@@ -84,6 +87,7 @@ export const update = new ValidatedMethod({
   name: 'environments.update',
   validate: Environments.simpleSchema().pick([
     '_id',
+    'environment_type',
     'configuration', 
     'configuration.$', 
     //'distribution', 
@@ -97,6 +101,7 @@ export const update = new ValidatedMethod({
   ]).validator({ clean: true, filter: false }),
   run({
     _id,
+    environment_type,
     configuration,
     //distribution,
     //name,
@@ -117,6 +122,7 @@ export const update = new ValidatedMethod({
     Environments.update(_id, {
       $set: {
         configuration: configuration,
+        environment_type,
         //distribution: distribution,
         //name: name,
         type_drivers,

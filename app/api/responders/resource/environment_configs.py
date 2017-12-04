@@ -113,6 +113,7 @@ class EnvironmentConfigs(ResponderBase):
             },
             "Monitoring": {
                 "name": self.require(str, mandatory=True),
+                "install_monitoring_client": self.require(bool),
                 "config_folder": self.require(str,
                                               mandatory=True,
                                               validate=DataValidate.REGEX,

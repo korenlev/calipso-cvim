@@ -43,6 +43,11 @@ Template.EnvMonitoringInfo.rendered = function() {
  */
 
 Template.EnvMonitoringInfo.events({
+  'click .sm-next-button': function () {
+    let instance = Template.instance();
+    instance.data.onNextRequested();
+  },
+
   'click .js-test-connection' : function (e, instance) {
     instance.data.onTestConnection();
   },

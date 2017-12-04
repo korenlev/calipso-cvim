@@ -7,7 +7,7 @@
 // http://www.apache.org/licenses/LICENSE-2.0                                           /
 /////////////////////////////////////////////////////////////////////////////////////////
 /*
- * Template Component: EnvAcinfo 
+ * Template Component: EnvAciInfo
  */
     
 //import { Meteor } from 'meteor/meteor'; 

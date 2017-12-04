@@ -201,6 +201,7 @@ ENV_CONFIG = {
             "provision": "None",
             "env_type": "development",
             "name": "Monitoring",
+            "install_monitoring_client": True,
             "api_port": "4567",
             "rabbitmq_port": "5671",
             "rabbitmq_pass": "sensuaccess",
