@@ -70,9 +70,7 @@ Template.EnvMainInfo.helpers({
   createSelectArgs: createSelectArgs,
 
   environmentTypeOptions: function () {
-      let item = Constants.findOne({ name: 'environment_types' });
-      if (R.isNil(item)) { return []; }
-      return item.data;
+    return Constants.getByName('environment_types');
   },
 
   distributionOptions: function () {
