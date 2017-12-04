@@ -122,7 +122,6 @@ let schema = {
 };
 
 let simpleSchema = new SimpleSchema(schema);
-simpleSchema.messages({'insufficientData': 'Environment or configuration should be specified'});
 
 // Document validators workaround
 function callValidators(context) {
