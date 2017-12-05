@@ -22,6 +22,10 @@
         <th>Environment</th>
         <th>Focal Point Type</th>
         <th>Link Types</th>
+        <th>Distribution</th>
+        <th>Distribution version</th>
+        <th>Mechanism drivers</th>
+        <th>Type drivers</th>
         <th>Use implicit links?</th>
         <th>Actions</th>
       </tr> </thead>
@@ -32,6 +36,10 @@
         <td>{{ cliqueType.environment }}</td>
         <td>{{ cliqueType.focal_point_type }}</td>
         <td>{{ cliqueType.link_types }}</td>
+        <td>{{ cliqueType.distribution }}</td>
+        <td>{{ cliqueType.distribution_version }}</td>
+        <td>{{ cliqueType.mechanism_drivers }}</td>
+        <td>{{ cliqueType.type_drivers }}</td>
         <td>{{ cliqueType.use_implicit_links }}</td>
         <td>
           <div class="sm-action-bar">
@@ -54,5 +62,7 @@
       {{/each }}
     </tbody>
   </table>
+  <p><i>A clique type with reserved environment name "ANY" will be used
+      if no clique type with specific environment name is matched</i></p>
 </div>
 </template>

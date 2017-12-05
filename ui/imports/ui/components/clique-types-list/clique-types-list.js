@@ -16,6 +16,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { CliqueTypes } from '/imports/api/clique-types/clique-types';
 import { Roles } from 'meteor/alanning:roles';
+import * as R from 'ramda';
         
 import './clique-types-list.html';     
     
@@ -71,7 +72,11 @@ Template.CliqueTypesList.helpers({
 
     //var env = instance.state.get('env');
     //return Scans.find({ environment: env });
-    return CliqueTypes.find({}); 
+    let cliqueTypes = CliqueTypes.find({}).fetch();
+    let [anyTypes, specificTypes] = R.partition((ct) => {
+      return R.prop('environment', ct) === "ANY"
+    }, cliqueTypes);
+    return R.concat(specificTypes, anyTypes);
   },
 
   isAuthManageCliqueTypes: function () {

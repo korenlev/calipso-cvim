@@ -224,9 +224,7 @@ Template.ScanningRequest.helpers({
   },
 
   calcCommandSelectOptions(commandOption) {
-    let item = Constants.findOne({ name: R.path(['info', 'options'], commandOption) });
-    if (R.isNil(item)) { return []; }
-    return item.data;
+    return Constants.getByName(R.path(['info', 'options'], commandOption));
   },
 
   pageHeader() {
