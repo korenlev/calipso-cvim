@@ -146,9 +146,9 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliAccess):
 
     @staticmethod
     def add_host_type(doc, host_type, zone):
-        if type not in doc["host_type"]:
+        if host_type not in doc["host_type"]:
             doc["host_type"].append(host_type)
-            if type == 'Compute':
+            if host_type == 'Compute':
                 doc['zone'] = zone
                 doc['parent_id'] = zone
 
