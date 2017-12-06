@@ -92,8 +92,11 @@ class DbAccess(Fetcher):
             DbAccess.conn = None
         self.conf = self.config.get("mysql")
         cnf = self.conf
+        pwd = cnf.get('pwd', '')
+        if not pwd:
+            raise ScanError('db_access: attribute pwd is missing')
         self.db_connect(cnf.get('host', ''), cnf.get('port', ''),
-                        cnf.get('user', ''), cnf.get('pwd', ''),
+                        cnf.get('user', ''), pwd,
                         cnf.get('schema', 'nova'))
 
     @with_cursor
