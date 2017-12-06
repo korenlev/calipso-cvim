@@ -9,5 +9,6 @@
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 SimpleSchema.messages({
-  'alreadyExists': 'item already exists'
+  'alreadyExists': 'item already exists',
+  'insufficientData': 'Environment or configuration should be specified'
 });

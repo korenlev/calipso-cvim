@@ -131,8 +131,7 @@ Template.LinkType.helpers({
   */
 
   objectTypesList: function () {
-    return R.ifElse(R.isNil, R.always([]), R.prop('data')
-      )(Constants.findOne({ name: 'object_types_for_links' }));
+    return Constants.getByName('object_types_for_links');
   },
 
   getAttrDisabled: function () {
