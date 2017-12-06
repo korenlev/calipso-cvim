@@ -219,7 +219,7 @@ ENV_CONFIG = {
     "last_scanned": "2017-03-16T11:14:54Z",
     "listen": True,
     "mechanism_drivers": [
-        "ovs"
+        "OVS"
     ],
     "name": "Mirantis-Liberty",
     "operational": "running",
