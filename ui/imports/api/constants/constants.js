@@ -26,3 +26,12 @@ Constants.getByName = function(name) {
         Constants.findOne({ name: name })
     );
 };
+
+Constants.validateValue = function(name, context) {
+    let values = Constants.findOne({ name: name }).data;
+
+    if (context.value !== context.definition.defaultValue
+        && R.isNil(R.find(R.propEq('value', context.value), values))) {
+        return 'notAllowed';
+    }
+};

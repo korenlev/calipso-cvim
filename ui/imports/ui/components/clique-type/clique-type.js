@@ -101,7 +101,7 @@ Template.CliqueType.events({
       inputs.prop("disabled", true);
     }
   },
-  'keyup .conf-input, change .conf-input': function (event, instance) {
+  'change .conf-input': function (event, instance) {
     let non_empty_fields = $('.conf-input').filter(function(i, elem) {
       return !isEmpty(elem.value);
     });
@@ -170,6 +170,14 @@ Template.CliqueType.helpers({
 
   objectTypesList: function () {
     return Constants.getByName('object_types_for_links');
+  },
+
+  distributionsList: function () {
+      return Constants.getByName('distributions');
+  },
+
+  distributionVersionsList: function () {
+      return Constants.getByName('distribution_versions');
   },
 
   mechanismDriversList: function () {
