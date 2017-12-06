@@ -62,8 +62,9 @@ class DbAccess(Fetcher):
                                               raise_on_warnings=True)
             DbAccess.conn.ping(True)  # auto-reconnect if necessary
         except Exception as e:
-            self.log.critical("failed to connect to MySQL DB: {}"
-                              .format(str(e)))
+            msg = "failed to connect to MySQL DB: {}".format(str(e))
+            self.log.critical(msg)
+            raise ScanError(msg)
             return
         DbAccess.query_count_per_con = 0
 
