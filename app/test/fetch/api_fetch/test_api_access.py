@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import copy
+import requests
 from unittest.mock import MagicMock, Mock
 
 from discover.fetchers.api.api_access import ApiAccess
