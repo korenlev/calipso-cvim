@@ -76,43 +76,37 @@ let schema = {
 
   distribution: {
     type: String,
-    defaultValue: "",
+    defaultValue: null,
     optional: true,
+    custom: function () {
+        return Constants.validateValue('distributions', this);
+    }
   },
 
   distribution_version: {
     type: String,
-    defaultValue: "",
+    defaultValue: null,
     optional: true,
+    custom: function () {
+        return Constants.validateValue('distribution_versions', this);
+    }
   },
 
   mechanism_drivers: {
     type: String,
-    defaultValue: "",
+    defaultValue: null,
     optional: true,
     custom: function () {
-      let that = this;
-      let values = Constants.findOne({ name: 'mechanism_drivers' }).data;
-
-      if (this.value !== this.definition.defaultValue
-          && R.isNil(R.find(R.propEq('value', that.value), values))) {
-        return 'notAllowed';
-      }
+      return Constants.validateValue('mechanism_drivers', this);
     }
   },
 
   type_drivers: {
     type: String,
-    defaultValue: "",
+    defaultValue: null,
     optional: true,
     custom: function () {
-      let that = this;
-      let values = Constants.findOne({ name: 'type_drivers' }).data;
-
-      if (this.value !== this.definition.defaultValue
-          && R.isNil(R.find(R.propEq('value', that.value), values))) {
-        return 'notAllowed';
-      }
+      return Constants.validateValue('type_drivers', this);
     }
   },
 

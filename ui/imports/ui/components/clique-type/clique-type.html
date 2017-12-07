@@ -61,23 +61,29 @@
 
         <div class="sm-field-group-distribution cl-field-group">
           <label class="cl-field-label">Distribution</label>
-          <input name="distribution"
-            {{ getConfDisabled (getModelField 'environment') }}
-            value="{{ getModelField 'distribution' }}"
-            class="sm-input-distribution cl-input conf-input"
-            type="text"
-            placeholder="Distribution" />
+          <select name="distribution" class="sm-input-distribution cl-input conf-input"
+            {{ getConfDisabled (getModelField 'environment') }} >
+            <option selected></option>
+            {{#each dType in distributionsList }}
+                <option value="{{ dType.value }}"
+                    {{ getAttrSelected dType.value (getModelField 'distribution') }}
+                >{{ dType.label }}</option>
+            {{/each }}
+          </select>
           <div class="cl-field-desc">Distribution</div>
         </div>
 
         <div class="sm-field-group-distribution-version cl-field-group">
           <label class="cl-field-label">Distribution version</label>
-          <input name="distributionVersion"
-            {{ getConfDisabled (getModelField 'environment') }}
-            value="{{ getModelField 'distribution_version' }}"
-            class="sm-input-distribution-version cl-input conf-input"
-            type="text"
-            placeholder="Distribution version" />
+          <select name="distributionVersion" class="sm-input-distribution-version cl-input conf-input"
+            {{ getConfDisabled (getModelField 'environment') }} >
+            <option selected></option>
+            {{#each dvType in distributionVersionsList }}
+                <option value="{{ dvType.value }}"
+                    {{ getAttrSelected dvType.value (getModelField 'distribution_version') }}
+                >{{ dvType.label }}</option>
+            {{/each }}
+          </select>
           <div class="cl-field-desc">Distribution version</div>
         </div>
 
