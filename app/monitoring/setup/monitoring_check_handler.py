@@ -8,7 +8,6 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from monitoring.setup.monitoring_handler import MonitoringHandler
-from utils.inventory_mgr import InventoryMgr
 from utils.special_char_converter import SpecialCharConverter
 
 
@@ -53,3 +52,14 @@ class MonitoringCheckHandler(MonitoringHandler, SpecialCharConverter):
             }
         content = client_file_content
         self.write_config_file(client_file, sub_dir, host, content)
+
+    def get_check_from_db(self, o, postfix=''):
+        client_config = self.get_config_from_db(o. get('host', ''),
+                                                'client.json')
+        if not client_config:
+            return {}
+        checks = client_config.get('config', {}).get('checks', {})
+        objid = self.encode_special_characters(o.get('id', ''))
+        object_check_id = '{}_{}{}'.format(o.get('type'), objid, postfix)
+        check = checks.get(object_check_id, {})
+        return check
