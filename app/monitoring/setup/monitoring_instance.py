@@ -35,7 +35,10 @@ class MonitoringInstance(MonitoringSimpleObject):
         if not service:
             return
         check = self.get_check_from_db(instance)
-        services_and_vnics = check.get('services_and_vnics', '')
+        services_and_vnics = check.get('command', '')
+        if services_and_vnics:
+            services_and_vnics = \
+                services_and_vnics[services_and_vnics.index('.py')+4:]
         services_and_vnics_list = \
             services_and_vnics.split(';') if services_and_vnics \
             else []
