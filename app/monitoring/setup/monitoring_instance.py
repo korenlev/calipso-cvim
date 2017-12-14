@@ -50,6 +50,7 @@ class MonitoringInstance(MonitoringSimpleObject):
         values = {
             'objtype': 'instance',
             'objid': self.encode_special_characters(instance['id']),
+            'host': service['host'],
             'services_and_vnics': ';'.join(services_and_vnics_list)
         }
         self.create_monitoring_for_object(instance, values)
