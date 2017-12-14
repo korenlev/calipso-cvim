@@ -39,7 +39,7 @@ class DbAccess(Fetcher):
     query_count_per_con = 0
 
     # connection timeout set to 5 seconds
-    TIMEOUT = 10
+    TIMEOUT = 20
 
     def __init__(self, mysql_config=None):
         super().__init__()
