@@ -63,7 +63,8 @@ def check_vnic_tuple(vnic_and_service: str):
                 check_rc = 1 if flags == 'I' else 0
             else:
                 check_rc = 2
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        check_output = str(e)
         check_rc = 2
     return check_rc, check_output
 
