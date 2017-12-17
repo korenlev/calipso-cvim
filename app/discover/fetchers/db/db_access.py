@@ -39,13 +39,16 @@ class DbAccess(Fetcher):
     query_count_per_con = 0
 
     # connection timeout set to 5 seconds
-    TIMEOUT = 20
+    TIMEOUT = 5
 
     def __init__(self, mysql_config=None):
         super().__init__()
         self.config = {'mysql': mysql_config} if mysql_config \
             else Configuration()
         self.conf = self.config.get("mysql")
+        self.connect_timeout = int(self.conf['connect_timeout']) \
+            if 'connect_timeout' in self.conf \
+            else self.TIMEOUT
         self.connect_to_db()
         self.neutron_db = self.get_neutron_db_name()
 
@@ -54,12 +57,13 @@ class DbAccess(Fetcher):
             return
         try:
             connector = mysql.connector
-            DbAccess.conn = connector.connect(host=_host, port=_port,
-                                              connection_timeout=self.TIMEOUT,
-                                              user=_user,
-                                              password=_pwd,
-                                              database=_database,
-                                              raise_on_warnings=True)
+            conn = connector.connect(host=_host, port=_port,
+                                     connection_timeout=self.connect_timeout,
+                                     user=_user,
+                                     password=_pwd,
+                                     database=_database,
+                                     raise_on_warnings=True)
+            DbAccess.conn = conn
             DbAccess.conn.ping(True)  # auto-reconnect if necessary
         except Exception as e:
             msg = "failed to connect to MySQL DB: {}".format(str(e))
