@@ -42,13 +42,15 @@ class KubeFetchNodes(KubeAccess):
         for attr in attrs:
             try:
                 doc[attr] = getattr(metadata, attr)
-                doc['id'] = doc['uid']
-                doc['kube_type'] = 'node'
             except AttributeError:
                 pass
+        doc['id'] = doc['uid']
+        doc['host_type'] = ['Kube-node']
 
     @staticmethod
     def get_node_data(doc: dict, spec: V1NodeSpec):
+        if 'node-role.kubernetes.io/master' in doc['labels']:
+            doc['host_type'].append('Kube-master')
         attrs = ['pod_cidr', 'provider_id', 'taints', 'unschedulable']
         for attr in attrs:
             try:
