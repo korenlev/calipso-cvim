@@ -16,7 +16,9 @@ import dockerpycreds
 # note : not used, useful for docker api security if used
 import time
 import json
-
+import socket
+local_hostname = socket.gethostname()
+print("running against host:", local_hostname, "\n")
 
 C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
 H_MONGO_CONFIG = "/home/calipso/calipso_mongo_access.conf"
@@ -329,9 +331,9 @@ def container_stop(container_name):
 parser = argparse.ArgumentParser()
 parser.add_argument("--hostname",
                     help="Hostname or IP address of the server "
-                         "(default=172.17.0.1)",
+                         "(default=local hostname)",
                     type=str,
-                    default="172.17.0.1",
+                    default=local_hostname,
                     required=False)
 parser.add_argument("--webport",
                     help="Port for the Calipso WebUI "
