@@ -50,6 +50,18 @@
         "environment_condition": {"environment_type": "OpenStack"}
       },
       {
+        "type": "hosts_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "hosts",
+          "parent_type": "environment"
+        },
+        "children_scanner": "ScanNodesRoot",
+        "environment_condition": {
+          "environment_type": "Kubernetes"
+        }
+      },
+      {
         "type": "namespaces_folder",
         "fetcher": {
           "folder": true,
@@ -390,6 +402,13 @@
       {
         "type": "vservice",
         "fetcher": "CliFetchHostVservices"
+      }
+    ],
+    "ScanNodesRoot": [
+      {
+        "type": "host",
+        "fetcher": "KubeFetchNodes",
+        "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
     "ScanNamespacesRoot": [

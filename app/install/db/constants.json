@@ -754,6 +754,18 @@
             "value" : "switch"
         },
         {
+            "value" : "cluster",
+            "label" : "cluster"
+        },
+        {
+            "value" : "clusters_folder",
+            "label" : "clusters_folder"
+        },
+        {
+            "value" : "hosts_folder",
+            "label" : "hosts_folder"
+        },
+        {
             "value" : "namespace",
             "label" : "namespace"
         },
