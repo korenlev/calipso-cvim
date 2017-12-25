@@ -408,6 +408,14 @@
       {
         "type": "host",
         "fetcher": "KubeFetchNodes",
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "children_scanner": "ScanPodsRoot"
+      }
+    ],
+    "ScanPodsRoot": [
+      {
+        "type": "pod",
+        "fetcher": "KubeFetchPods",
         "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],

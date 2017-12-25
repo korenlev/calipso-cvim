@@ -766,12 +766,16 @@
             "label" : "hosts_folder"
         },
         {
-            "value" : "namespace",
-            "label" : "namespace"
-        },
-        {
             "value" : "namespaces_folder",
             "label" : "namespaces_folder"
+        },
+        {
+            "value" : "pod",
+            "label" : "pod"
+        },
+        {
+            "value" : "pods_folder",
+            "label" : "pods_folder"
         }
     ]
 },

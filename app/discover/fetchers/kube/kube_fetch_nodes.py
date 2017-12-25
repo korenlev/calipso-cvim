@@ -28,6 +28,7 @@ class KubeFetchNodes(KubeAccess):
         doc = {'type': 'node'}
         try:
             self.get_node_metadata(doc, node.metadata)
+            doc['host'] = doc.get('name', '')
         except AttributeError:
             pass
         try:
