@@ -20,9 +20,10 @@ class KubeFetchPods(KubeAccess):
         self.inv = InventoryMgr()
 
     def get(self, parent_id) -> list:
-        node = self.inv.get_by_id(self.get_env(), parent_id)
+        node_id = parent_id.replace('-pods', '')
+        node = self.inv.get_by_id(self.get_env(), node_id)
         if not node:
-            self.log.error('failed to find node with id={}'.format(parent_id))
+            self.log.error('failed to find node with id={}'.format(node_id))
             return []
         pod_filter = 'spec.nodeName={}'.format(node['name'])
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
@@ -67,8 +68,6 @@ class KubeFetchPods(KubeAccess):
 
     @staticmethod
     def get_pod_data(doc: dict, spec: V1PodSpec):
-        if 'pod-role.kubernetes.io/master' in doc['labels']:
-            doc['host_type'].append('Kube-master')
         for attr in KubeFetchPods.ATTRBUTES_TO_FETCH:
             try:
                 val = getattr(spec, attr)

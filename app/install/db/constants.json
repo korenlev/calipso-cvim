@@ -776,6 +776,14 @@
         {
             "value" : "pods_folder",
             "label" : "pods_folder"
+        },
+        {
+            "value" : "containers_folder",
+            "label" : "containers_folder"
+        },
+        {
+            "value" : "container",
+            "label" : "container"
         }
     ]
 },

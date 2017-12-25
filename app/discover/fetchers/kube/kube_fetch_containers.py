@@ -20,36 +20,37 @@ class KubeFetchContainers(KubeAccess):
         self.inv = InventoryMgr()
 
     def get(self, parent_id) -> list:
-        pod_filter = 'metadata.uid={}'.format(parent_id)
+        pod_id = parent_id.replace('-containers', '')
+        pod_obj = self.inv.get_by_id(self.get_env(), pod_id)
+        if not pod_obj:
+            self.log.error('inventory has no pod with uid={}'.format(pod_id))
+            return []
+        host = pod_obj['host']
+        pod_filter = 'spec.nodeName={}'.format(host)
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
         ret = []
         if not pods or len(pods.items) == 0:
-            self.log.error('failed to find pod with uid={}'.format(parent_id))
+            self.log.error('failed to find pod with nodeName={}'.format(host))
             return []
-        if len(pods.items) > 1:
-            self.log.error('found multiple matches for pod with uid={}'
-                           .format(parent_id))
+        pod = next(pod for pod in pods.items if pod.metadata.uid == pod_id)
+        if not pod:
+            self.log.error('failed to find pod with uid={}'.format(pod_id))
             return []
-        pod_obj = self.inv.get_by_id(self.get_env(), parent_id)
-        if not pod_obj:
-            self.log.error('inventory has no pod with uid={}'.format(parent_id))
-            return []
-        pod = pods.items[0]
         for container in pod.spec.containers:
             doc = {'type': 'container'}
             self.get_container_data(doc, container)
             doc['host'] = pod_obj['host']
+            doc['id'] = '{}-{}'.format(pod_id, doc['name'])
             ret.append(doc)
         return ret
 
     @staticmethod
     def get_container_data(doc: dict, container: V1Container):
-        if 'container-role.kubernetes.io/master' in doc['labels']:
-            doc['host_type'].append('Kube-master')
         for k in [k for k in dir(container) if not k.startswith('_')]:
             try:
                 val = getattr(container, k)
-                KubeAccess.del_attribute_map(val)
-                doc[k] = val
+                if val is not None:
+                    KubeAccess.del_attribute_map(val)
+                    doc[k] = val
             except AttributeError:
                 pass
