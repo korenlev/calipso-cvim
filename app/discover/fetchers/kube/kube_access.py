@@ -26,3 +26,12 @@ class KubeAccess(ApiAccessBase):
         conf.verify_ssl = False
         self.api = CoreV1Api()
 
+    @staticmethod
+    def del_attribute_map(o):
+        if isinstance(o, list):
+            for item in o:
+                KubeAccess.del_attribute_map(item)
+            return
+        for attr in ['attribute_map', 'swagger_types']:
+            if hasattr(o, attr):
+                delattr(o, attr)

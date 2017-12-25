@@ -33,16 +33,6 @@ class KubeFetchPods(KubeAccess):
             ret.append(doc)
         return ret
 
-    @staticmethod
-    def del_attribute_map(o):
-        if isinstance(o, list):
-            for item in o:
-                KubeFetchPods.del_attribute_map(item)
-            return
-        for attr in ['attribute_map', 'swagger_types']:
-            if hasattr(o, attr):
-                delattr(o, attr)
-
     def get_pod_details(self, pod: V1Pod):
         doc = {'type': 'pod'}
         try:
@@ -82,7 +72,7 @@ class KubeFetchPods(KubeAccess):
         for attr in KubeFetchPods.ATTRBUTES_TO_FETCH:
             try:
                 val = getattr(spec, attr)
-                KubeFetchPods.del_attribute_map(val)
+                KubeAccess.del_attribute_map(val)
                 doc[attr] = val
             except AttributeError:
                 pass
