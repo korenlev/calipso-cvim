@@ -98,8 +98,8 @@
             "value" : "Arista"
         }, 
         {
-            "label" : "Nexus", 
-            "value" : "Nexus"
+            "label" : "Flannel", 
+            "value" : "Flannel"
         }
     ], 
     "name" : "mechanism_drivers"
