@@ -6,6 +6,20 @@
     "endPointA" : "instance", 
     "description" : "instance-vnic"
 },
+{
+    "endPointB" : "vnic",
+    "type" : "container-vnic",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "container",
+    "description" : "container-vnic"
+},
+{
+    "endPointB" : "container",
+    "type" : "vnic-container",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "vnic",
+    "description" : "vnic-container"
+},
 { 
     "endPointB" : "instance", 
     "type" : "vnic-instance", 

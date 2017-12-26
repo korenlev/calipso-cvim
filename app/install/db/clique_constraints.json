@@ -5,6 +5,12 @@
         "network"
     ]
 },
+{
+    "focal_point_type" : "container",
+    "constraints" : [
+        "network"
+    ]
+},
 { 
     "focal_point_type" : "vservice", 
     "constraints" : [

@@ -12,6 +12,19 @@
       "monitoring" : true
     }
   },
+  {
+    "environment" : {
+      "distribution" : "Kubernetes",
+      "distribution_version" : ["1.9"],
+      "mechanism_drivers" : "Flannel",
+      "type_drivers" : "vxlan"
+    },
+    "features" : {
+      "listening" : false,
+      "scanning" : true,
+      "monitoring" : false
+    }
+  },
   { 
     "environment" : {
         "distribution_version" : [

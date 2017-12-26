@@ -1,7 +1,7 @@
 [
 { 
     "operational" : "stopped", 
-    "listen" : true, 
+    "listen" : false, 
     "configuration" : [
         {
             "name" : "OpenStack", 
@@ -91,50 +91,28 @@
         ]
     }, 
     "type_drivers" : "vxlan", 
-    "distribution_version" : "8.0", 
-    "enable_monitoring" : true, 
-    "operational" : "stopped", 
+    "distribution_version" : "1.9", 
+    "enable_monitoring" : false, 
+    "operational" : "running", 
     "mechanism_drivers" : [
-        "OVS"
+        "Flannel"
     ], 
     "type" : "environment", 
-    "distribution" : "Mirantis", 
-    "listen" : true, 
+    "distribution" : "Kubernetes", 
+    "listen" : false, 
     "configuration" : [
         {
-            "user" : "adminuser", 
-            "name" : "OpenStack", 
-            "pwd" : "dummy_pwd", 
-            "host" : "10.0.0.1", 
-            "admin_token" : "dummy_token", 
-            "port" : "5000"
-        }, 
-        {
-            "host" : "10.56.20.78", 
+            "host" : "10.56.20.77", 
             "name" : "Kubernetes", 
             "user" : "koren", 
             "token" : "baba-token-xyz", 
             "port" : "6443"
         }, 
         {
-            "user" : "mysqluser", 
-            "name" : "mysql", 
-            "pwd" : "dummy_pwd", 
-            "port" : "3307", 
-            "host" : "10.0.0.1"
-        }, 
-        {
             "user" : "sshuser", 
             "name" : "CLI", 
             "pwd" : "dummy_pwd", 
-            "host" : "10.0.0.1"
-        }, 
-        {
-            "user" : "rabbitmquser", 
-            "name" : "AMQP", 
-            "pwd" : "dummy_pwd", 
-            "port" : "5673", 
-            "host" : "10.0.0.1"
+            "host" : "10.56.20.77"
         }, 
         {
             "name" : "Monitoring",
