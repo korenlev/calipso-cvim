@@ -48,9 +48,19 @@ class KubeFetchContainers(KubeAccess):
     def get_container_data(doc: dict, container: V1Container):
         for k in [k for k in dir(container) if not k.startswith('_')]:
             try:
+                # TBD a lot of attributes from V1Container fail the saving to DB
+                if k in ['to_dict', 'to_str', 'attribute_map', 'swagger_types',
+                         'resources',
+                         'liveness_probe',
+                         'readiness_probe',
+                         'security_context']:
+                    continue
                 val = getattr(container, k)
+                if isinstance(val, classmethod):
+                    continue
+                if isinstance(val, staticmethod):
+                    continue
                 if val is not None:
-                    KubeAccess.del_attribute_map(val)
                     doc[k] = val
             except AttributeError:
                 pass
