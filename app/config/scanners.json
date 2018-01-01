@@ -50,6 +50,18 @@
         "environment_condition": {"environment_type": "OpenStack"}
       },
       {
+        "type": "hosts_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "hosts",
+          "parent_type": "environment"
+        },
+        "children_scanner": "ScanNodesRoot",
+        "environment_condition": {
+          "environment_type": "Kubernetes"
+        }
+      },
+      {
         "type": "namespaces_folder",
         "fetcher": {
           "folder": true,
@@ -390,6 +402,53 @@
       {
         "type": "vservice",
         "fetcher": "CliFetchHostVservices"
+      }
+    ],
+    "ScanNodesRoot": [
+      {
+        "type": "host",
+        "fetcher": "KubeFetchNodes",
+        "children_scanner": "ScanNode",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      }
+    ],
+    "ScanNode": [
+      {
+        "type": "pods_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "pods",
+          "parent_type": "host"
+        },
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "children_scanner": "ScanPodsRoot"
+      }
+    ],
+    "ScanPodsRoot": [
+      {
+        "type": "pod",
+        "fetcher": "KubeFetchPods",
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "children_scanner": "ScanPod"
+      }
+    ],
+    "ScanPod": [
+      {
+        "type": "containers_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "containers",
+          "parent_type": "pod"
+        },
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "children_scanner": "ScanContainersRoot"
+      }
+    ],
+    "ScanContainersRoot": [
+      {
+        "type": "container",
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "fetcher": "KubeFetchContainers"
       }
     ],
     "ScanNamespacesRoot": [
