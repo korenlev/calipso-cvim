@@ -39,6 +39,16 @@ class KubeFetchContainers(KubeAccess):
         for container in pod.spec.containers:
             doc = {'type': 'container'}
             self.get_container_data(doc, container)
+            container_statuses = pod_obj['status']['container_statuses']
+            container_status = next(s for s in container_statuses
+                                    if s['name'] == doc['name'])
+            if container_status:
+                doc['container_id'] = container_status['container_id']
+                doc['container_status'] = container_status
+            else:
+                self.log.error('failed to find container_statused record '
+                               'for container {} in pod {}'
+                               .format(doc['name'], pod['name']))
             doc['host'] = pod_obj['host']
             doc['id'] = '{}-{}'.format(pod_id, doc['name'])
             ret.append(doc)
