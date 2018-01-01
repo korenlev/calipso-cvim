@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec
+from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec, V1PodStatus
 
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.inventory_mgr import InventoryMgr
@@ -44,6 +44,10 @@ class KubeFetchPods(KubeAccess):
             self.get_pod_data(doc, pod.spec)
         except AttributeError:
             pass
+        try:
+            self.get_pod_status(doc, pod.status)
+        except AttributeError:
+            pass
         return doc
 
     @staticmethod
@@ -75,3 +79,27 @@ class KubeFetchPods(KubeAccess):
                 doc[attr] = val
             except AttributeError:
                 pass
+
+    @staticmethod
+    def get_pod_status(doc: dict, pod_status: V1PodStatus):
+        status_data = {}
+        for k in dir(pod_status):
+            if k.startswith('_'):
+                continue
+            if k not in [
+                'conditions',
+                'container_statuses',
+                'host_ip',
+                'init_container_statuses',
+                'message', 'phase',
+                'pod_ip', 'qos_class', 'reason', 'start_time']:
+                continue
+            try:
+                val = getattr(pod_status, k)
+                if val is None:
+                    continue
+                status_data[k] = val
+            except AttributeError:
+                pass
+        if status_data:
+            doc['status'] = status_data
