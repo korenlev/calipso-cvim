@@ -43,7 +43,10 @@ class KubeFetchContainers(KubeAccess):
             container_status = next(s for s in container_statuses
                                     if s['name'] == doc['name'])
             if container_status:
-                doc['container_id'] = container_status['container_id']
+                id = container_status['container_id']
+                id_parts = id.split('://')
+                doc['container_type'] = id_parts[0]
+                doc['container_id'] = id_parts[1]
                 doc['container_status'] = container_status
             else:
                 self.log.error('failed to find container_statused record '
