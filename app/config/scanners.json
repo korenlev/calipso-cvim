@@ -418,7 +418,7 @@
         "fetcher": {
           "folder": true,
           "types_name": "pods",
-          "parent_type": "node"
+          "parent_type": "host"
         },
         "environment_condition": {"environment_type": "Kubernetes"},
         "children_scanner": "ScanPodsRoot"
