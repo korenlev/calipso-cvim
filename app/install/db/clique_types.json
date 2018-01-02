@@ -32,6 +32,24 @@
     "use_implicit_links" : false
 },
 { 
+    "environment" : "ANY-K8S", 
+    "focal_point_type" : "network", 
+    "link_types" : [
+        "network-host_pnic", 
+        "host_pnic-otep", 
+        "otep-vedge", 
+        "vedge-vconnector", 
+        "vconnector-vnic", 
+        "vnic-container"
+    ], 
+    "distribution" : "Kubernetes", 
+    "distribution_version" : "1.9", 
+    "mechanism_drivers" : "Flannel", 
+    "type_drivers" : "vxlan", 
+    "name" : "k8s-network", 
+    "use_implicit_links" : false
+},
+{ 
     "environment" : "ANY", 
     "focal_point_type" : "vservice", 
     "link_types" : [
