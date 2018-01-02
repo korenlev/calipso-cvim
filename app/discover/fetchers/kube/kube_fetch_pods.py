@@ -30,7 +30,14 @@ class KubeFetchPods(KubeAccess):
         ret = []
         for pod in pods.items:
             doc = self.get_pod_details(pod)
-            doc['host'] = node['name']
+            host_id = node['name']
+            doc.update({
+                'type': 'pod',
+                'host': host_id,
+                'master_parent_type': 'host',
+                'master_parent_id': host_id,
+                'parent_type': 'pods_folder',
+                'parent_id': '{}-pods'.format(host_id)})
             ret.append(doc)
         return ret
 
@@ -87,12 +94,12 @@ class KubeFetchPods(KubeAccess):
             if k.startswith('_'):
                 continue
             if k not in [
-                'conditions',
-                'container_statuses',
-                'host_ip',
-                'init_container_statuses',
-                'message', 'phase',
-                'pod_ip', 'qos_class', 'reason', 'start_time']:
+                    'conditions',
+                    'container_statuses',
+                    'host_ip',
+                    'init_container_statuses',
+                    'message', 'phase',
+                    'pod_ip', 'qos_class', 'reason', 'start_time']:
                 continue
             try:
                 val = getattr(pod_status, k)
