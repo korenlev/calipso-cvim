@@ -333,8 +333,8 @@ def container_stop(container_name):
 # parser for getting optional command arguments:
 parser = argparse.ArgumentParser()
 parser.add_argument("--hostname",
-                    help="Hostname or IP address of the server "
-                         "(default=local hostname)",
+                    help="FQDN (ex:mysrv.cisco.com) or IP address of the Server"
+                         "(default=docker0 interface ip address)",
                     type=str,
                     default=local_hostname,
                     required=False)
