@@ -22,14 +22,12 @@ class KubeFetchVedges(Fetcher):
         }
         vedges = self.inv.find_items(search_condition)
         for o in vedges:
-            o.update({
-                'type': 'vedge',
-                'host': host_id,
-                'master_parent_type': 'host',
-                'master_parent_id': host_id,
-                'parent_type': 'vedges_folder',
-                'parent_id': '{}-vedges'.format(host_id),
-                "parent_text": "vEdges"
-            })
+            o['host'] = host_id
+            self.set_folder_parent(o,
+                                   object_type='vedge',
+                                   master_parent_type='host',
+                                   master_parent_id=host_id,
+                                   parent_objects_name='vedges',
+                                   parent_text='vEdges')
             ret.append(o)
         return ret
