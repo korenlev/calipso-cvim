@@ -17,8 +17,11 @@ import dockerpycreds
 import time
 import json
 import socket
-local_hostname = socket.gethostname()
-print("running against host:", local_hostname, "\n")
+# by default, we want to use the docker0 interface ip address for inter-contatiner communications,
+# if hostname argument will not be provided as argument for the calipso-installer
+import os
+dockerip = os.popen('ifconfig docker0 | grep "inet" | cut -d: -f10 | cut -d" " -f10')
+local_hostname = dockerip.read().replace("\n", "")
 
 C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
 H_MONGO_CONFIG = "/home/calipso/calipso_mongo_access.conf"
@@ -330,8 +333,8 @@ def container_stop(container_name):
 # parser for getting optional command arguments:
 parser = argparse.ArgumentParser()
 parser.add_argument("--hostname",
-                    help="Hostname or IP address of the server "
-                         "(default=local hostname)",
+                    help="FQDN (ex:mysrv.cisco.com) or IP address of the Server"
+                         "(default=docker0 interface ip address)",
                     type=str,
                     default=local_hostname,
                     required=False)
@@ -403,6 +406,8 @@ parser.add_argument("--copy",
                     required=False)
 args = parser.parse_args()
 
+print("\nrunning installer against host:", args.hostname, "\n")
+
 if args.command == "start-all":
     container = "all"
     action = "start"
@@ -425,6 +430,7 @@ while container != "all" and container not in container_names:
                       .format(", ".join(container_names)))
     if container == "q":
         exit()
+
 
 # starting the containers per arguments:
 if action == "start":

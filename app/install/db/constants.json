@@ -770,6 +770,10 @@
             "label" : "namespaces_folder"
         },
         {
+            "value" : "namespace", 
+            "label" : "namespace"
+        },
+        {
             "value" : "pod",
             "label" : "pod"
         },
