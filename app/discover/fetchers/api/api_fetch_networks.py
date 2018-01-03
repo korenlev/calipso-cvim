@@ -34,7 +34,7 @@ class ApiFetchNetworks(ApiAccess):
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)
-        if not "networks" in response:
+        if "networks" not in response:
             return []
         networks = response["networks"]
         req_url = endpoint + "/v2.0/subnets"
@@ -59,8 +59,9 @@ class ApiFetchNetworks(ApiAccess):
             self.set_folder_parent(doc, object_type='network',
                                    master_parent_id=project_id,
                                    master_parent_type='project')
-            # set the 'network' attribute for network objects to the name of network,
-            # to allow setting constraint on network when creating network clique
+            # set the 'network' attribute for network objects to the name of
+            # network, to allow setting constraint on network when creating
+            # network clique
             doc['network'] = doc["id"]
             # get the project name
             project = self.inv.get_by_id(self.get_env(), project_id)
