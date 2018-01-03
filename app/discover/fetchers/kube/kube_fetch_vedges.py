@@ -23,6 +23,7 @@ class KubeFetchVedges(Fetcher):
         vedges = self.inv.find_items(search_condition)
         for o in vedges:
             o['host'] = host_id
+            o['agent_type'] = 'Flannel agent'
             self.set_folder_parent(o,
                                    object_type='vedge',
                                    master_parent_type='host',
