@@ -19,18 +19,24 @@ class KubeFetchPods(KubeAccess):
         super().__init__(config)
         self.inv = InventoryMgr()
 
-    def get(self, parent_id) -> list:
-        node_id = parent_id.replace('-pods', '')
-        node = self.inv.get_by_id(self.get_env(), node_id)
-        if not node:
-            self.log.error('failed to find node with id={}'.format(node_id))
+    def get(self, host_id) -> list:
+        host = self.inv.get_by_id(self.get_env(), host_id)
+        if not host:
+            self.log.error('failed to find node with id={}'.format(host_id))
             return []
-        pod_filter = 'spec.nodeName={}'.format(node['name'])
+        host_name = host['name']
+        pod_filter = 'spec.nodeName={}'.format(host_name)
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
         ret = []
         for pod in pods.items:
             doc = self.get_pod_details(pod)
-            doc['host'] = node['name']
+            doc.update({
+                'type': 'pod',
+                'host': host_name,
+                'master_parent_type': 'host',
+                'master_parent_id': host_id,
+                'parent_type': 'pods_folder',
+                'parent_id': '{}-pods'.format(host_id)})
             ret.append(doc)
         return ret
 
@@ -52,10 +58,13 @@ class KubeFetchPods(KubeAccess):
 
     @staticmethod
     def get_pod_metadata(doc: dict, metadata: V1ObjectMeta):
-        attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels']
+        attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels',
+                 'owner_references']
         for attr in attrs:
             try:
-                doc[attr] = getattr(metadata, attr)
+                val = getattr(metadata, attr)
+                if val is not None:
+                    doc[attr] = val
             except AttributeError:
                 pass
         doc['id'] = doc['uid']
@@ -87,12 +96,12 @@ class KubeFetchPods(KubeAccess):
             if k.startswith('_'):
                 continue
             if k not in [
-                'conditions',
-                'container_statuses',
-                'host_ip',
-                'init_container_statuses',
-                'message', 'phase',
-                'pod_ip', 'qos_class', 'reason', 'start_time']:
+                    'conditions',
+                    'container_statuses',
+                    'host_ip',
+                    'init_container_statuses',
+                    'message', 'phase',
+                    'pod_ip', 'qos_class', 'reason', 'start_time']:
                 continue
             try:
                 val = getattr(pod_status, k)

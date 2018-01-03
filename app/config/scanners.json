@@ -414,22 +414,15 @@
     ],
     "ScanNode": [
       {
-        "type": "pods_folder",
-        "fetcher": {
-          "folder": true,
-          "types_name": "pods",
-          "parent_type": "host"
-        },
-        "environment_condition": {"environment_type": "Kubernetes"},
-        "children_scanner": "ScanPodsRoot"
-      }
-    ],
-    "ScanPodsRoot": [
-      {
         "type": "pod",
         "fetcher": "KubeFetchPods",
         "environment_condition": {"environment_type": "Kubernetes"},
         "children_scanner": "ScanPod"
+      },
+      {
+        "type": "vedge",
+        "fetcher": "KubeFetchVedges",
+        "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
     "ScanPod": [
@@ -449,6 +442,13 @@
         "type": "container",
         "environment_condition": {"environment_type": "Kubernetes"},
         "fetcher": "KubeFetchContainers"
+      }
+    ],
+    "ScanKubeVedgesRoot": [
+      {
+        "type": "vedge",
+        "fetcher": "KubeFetchVedges",
+        "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
     "ScanNamespacesRoot": [

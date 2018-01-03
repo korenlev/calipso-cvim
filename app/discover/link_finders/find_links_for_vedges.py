@@ -22,7 +22,7 @@ class FindLinksForVedges(FindLinks):
             "type": "vedge"
         })
         for vedge in vedges:
-            ports = vedge["ports"]
+            ports = vedge.get("ports", {})
             for p in ports.values():
                 self.add_link_for_vedge(vedge, p)
 

@@ -25,7 +25,7 @@ class KubeFetchNodes(KubeAccess):
         return ret
 
     def get_node_details(self, node: V1Node):
-        doc = {'type': 'node'}
+        doc = {'type': 'host'}
         try:
             self.get_node_metadata(doc, node.metadata)
             doc['host'] = doc.get('name', '')
