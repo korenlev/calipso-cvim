@@ -19,21 +19,20 @@ class KubeFetchPods(KubeAccess):
         super().__init__(config)
         self.inv = InventoryMgr()
 
-    def get(self, parent_id) -> list:
-        node_id = parent_id.replace('-pods', '')
-        node = self.inv.get_by_id(self.get_env(), node_id)
-        if not node:
-            self.log.error('failed to find node with id={}'.format(node_id))
+    def get(self, host_id) -> list:
+        host = self.inv.get_by_id(self.get_env(), host_id)
+        if not host:
+            self.log.error('failed to find node with id={}'.format(host_id))
             return []
-        pod_filter = 'spec.nodeName={}'.format(node['name'])
+        host_name = host['name']
+        pod_filter = 'spec.nodeName={}'.format(host_name)
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
         ret = []
         for pod in pods.items:
             doc = self.get_pod_details(pod)
-            host_id = node['name']
             doc.update({
                 'type': 'pod',
-                'host': host_id,
+                'host': host_name,
                 'master_parent_type': 'host',
                 'master_parent_id': host_id,
                 'parent_type': 'pods_folder',
