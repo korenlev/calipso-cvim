@@ -33,3 +33,41 @@ class Fetcher:
 
     def get(self, object_id):
         return None
+
+    def set_folder_parent(self,
+                          o: dict,
+                          object_type: str =None,
+                          master_parent_type: str =None,
+                          master_parent_id: str =None,
+                          parent_objects_name=None,
+                          parent_type: str =None,
+                          parent_id: str =None,
+                          parent_text: str =None):
+        if object_type:
+            o['type'] = object_type
+            if not parent_objects_name:
+                parent_objects_name = '{}s'.format(object_type)
+        if not master_parent_type:
+            self.log.error('set_folder_parent: must specify: '
+                           'master_parent_type, master_parent_id, '
+                           'parent_type', 'parent_id')
+            return
+        if not parent_objects_name and not parent_type:
+            self.log.error('set_folder_parent: must specify: '
+                           'either parent_objects_name (e.g. "vedges") '
+                           'or parent_type and parent_id')
+            return
+        if parent_objects_name and not parent_type:
+            parent_type = '{}_folder'.format(parent_objects_name)
+        if parent_objects_name and not parent_id:
+            parent_id = '{}-{}'.format(master_parent_id, parent_objects_name)
+        o.update({
+            'master_parent_type': master_parent_type,
+            'master_parent_id': master_parent_id,
+            'parent_type': parent_type,
+            'parent_id': parent_id
+        })
+        if parent_text:
+            o['parent_text'] = parent_text
+        elif parent_objects_name:
+            o['parent_text'] = parent_objects_name.capitalize()
