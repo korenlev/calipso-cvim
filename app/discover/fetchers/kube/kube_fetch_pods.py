@@ -58,10 +58,13 @@ class KubeFetchPods(KubeAccess):
 
     @staticmethod
     def get_pod_metadata(doc: dict, metadata: V1ObjectMeta):
-        attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels']
+        attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels',
+                 'owner_references']
         for attr in attrs:
             try:
-                doc[attr] = getattr(metadata, attr)
+                val = getattr(metadata, attr)
+                if val is not None:
+                    doc[attr] = val
             except AttributeError:
                 pass
         doc['id'] = doc['uid']
