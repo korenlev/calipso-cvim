@@ -26,14 +26,16 @@ class KubeFetchOteps(Fetcher):
         annotations = host.get('annotations', {})
         ip_address = annotations.get(self.PUBLIC_IP_KEY, '')
         overlay_type = annotations.get(self.BACKEND_TYPE, '')
-        backend_data = json.loads(annotations.get(self.BACKEND_DATA, {}))
+        backend_data = annotations.get(self.BACKEND_DATA, {})
+        if isinstance(backend_data, str):
+            backend_data = json.loads(backend_data)
         otep_mac = backend_data.get(self.OTEP_MAC_ATTR, '')
         doc = {
             'id': '{}-otep'.format(host_id),
             'name': '{}-otep'.format(host['name']),
             'host': host['name'],
             'parent_type': 'vedge',
-            'parent_id': '{}-vedge'.format(host_id),
+            'parent_id': vedge_id,
             'ip_address': ip_address,
             'overlay_type': overlay_type,
             'overlay_mac_address': otep_mac,
