@@ -422,7 +422,8 @@
       {
         "type": "vedge",
         "fetcher": "KubeFetchVedges",
-        "environment_condition": {"environment_type": "Kubernetes"}
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "children_scanner": "ScanVedge"
       }
     ],
     "ScanPod": [
@@ -457,6 +458,14 @@
         "fetcher": "KubeFetchNamespaces",
         "environment_condition": {"environment_type": "Kubernetes"}
       }
+    ],
+    "ScanVedge": [
+      {
+        "type": "otep",
+        "fetcher": "KubeFetchOteps",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      }
+
     ]
   }
 }
