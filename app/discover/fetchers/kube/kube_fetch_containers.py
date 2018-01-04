@@ -45,8 +45,7 @@ class KubeFetchContainers(KubeAccess):
             if container_status:
                 container_id = container_status['container_id']
                 if container_id is None:
-                    container_name = container_status['name']
-                    doc['container_type'] = container_name
+                    doc['container_type'] = container_status['name']
                     doc['container_id'] = container_status['image']
                 else:
                     id_parts = container_id.split('://')
