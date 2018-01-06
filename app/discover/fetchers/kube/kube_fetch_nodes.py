@@ -45,7 +45,7 @@ class KubeFetchNodes(KubeAccess):
                 doc[attr] = getattr(metadata, attr)
             except AttributeError:
                 pass
-        doc['id'] = doc['uid']
+        doc['id'] = doc['name']
         doc['host_type'] = ['Kube-node']
 
     @staticmethod
