@@ -92,7 +92,7 @@ class Scanner(Fetcher):
             else basic_cond
         if not env_cond:
             env_cond = basic_cond
-        if 'environment_type' not in env_cond:
+        if 'environment_type' not in env_cond.keys():
             env_cond.update(basic_cond)
         if not isinstance(env_cond, dict):
             self.log.warn('illegal environment_condition given '
@@ -109,9 +109,19 @@ class Scanner(Fetcher):
                     return False
                 if not isinstance(required_val, list):
                     required_val = [required_val]
-                return bool(set(required_val) & set(conf["mechanism_drivers"]))
-            elif attr not in conf or conf[attr] != required_val:
+                value_ok = bool(set(required_val) &
+                                set(conf["mechanism_drivers"]))
+                if not value_ok:
+                    return False
+            elif attr not in conf:
                 return False
+            else:
+                if isinstance(required_val, list):
+                    if conf[attr] not in required_val:
+                        return False
+                else:
+                    if conf[attr] != required_val:
+                        return False
         # no check failed
         return True
 
