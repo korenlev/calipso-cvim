@@ -17,7 +17,7 @@ from utils.logging.console_logger import ConsoleLogger
 from utils.ssh_conn import SshConn
 
 
-class CliAccess(BinaryConverter, Fetcher):
+class CliAccess(Fetcher, BinaryConverter):
     connections = {}
     ssh_cmd = "ssh -q -o StrictHostKeyChecking=no "
     call_count_per_con = {}
@@ -71,8 +71,9 @@ class CliAccess(BinaryConverter, Fetcher):
         self.cached_commands[cmd_path] = {"timestamp": curr_time, "result": ret}
         return ret
 
-    def run_fetch_lines(self, cmd, ssh_to_host="", enable_cache=True):
-        out = self.run(cmd, ssh_to_host, enable_cache)
+    def run_fetch_lines(self, cmd, ssh_to_host="", enable_cache=True,
+                        use_sudo=True):
+        out = self.run(cmd, ssh_to_host, enable_cache, use_sudo=use_sudo)
         if not out:
             return []
         # first try to split lines by whitespace
