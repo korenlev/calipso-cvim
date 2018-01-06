@@ -239,9 +239,11 @@
       {
         "type": "host_pnic",
         "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"],
           "mechanism_drivers": [
             "OVS",
-            "LXB"
+            "LXB",
+            "Flannel"
           ]
         },
         "fetcher": "CliFetchHostPnics",
@@ -250,6 +252,9 @@
       {
         "type": "host_pnic",
         "fetcher": "CliFetchBondHostPnics",
+        "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"]
+        },
         "children_scanner": "ScanHostPnic"
       }
     ],
@@ -257,12 +262,18 @@
       {
         "type": "switch_pnic",
         "fetcher": "AciFetchSwitchPnic",
+        "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"]
+        },
         "children_scanner": "ScanSpines"
       }
     ],
     "ScanSpines": [
       {
         "type": "switch_pnic",
+        "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"]
+        },
         "fetcher": "AciFetchLeafToSpinePnics"
       }
     ],
@@ -424,6 +435,24 @@
         "fetcher": "KubeFetchVedges",
         "environment_condition": {"environment_type": "Kubernetes"},
         "children_scanner": "ScanVedge"
+      },
+      {
+        "type": "pnics_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "host_pnics",
+          "parent_type": "host",
+          "text": "host_pNICs"
+        },
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": [
+            "OVS",
+            "LXB",
+            "Flannel"
+          ]
+        },
+        "children_scanner": "ScanPnicsRoot"
       }
     ],
     "ScanPod": [
