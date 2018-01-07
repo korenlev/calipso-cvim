@@ -240,12 +240,15 @@ class CliAccess(Fetcher, BinaryConverter):
             if 'name' not in o and 'default' in regexp_tuple:
                 o[name] = regexp_tuple['default']
 
-    @staticmethod
-    def find_matching_regexps(o, line, regexps):
+    def find_matching_regexps(self, o, line, regexps):
         for regexp_tuple in regexps:
             name = regexp_tuple['name']
             regex = regexp_tuple['re']
             regex = re.compile(regex)
             matches = regex.search(line)
             if matches and name not in o:
-                o[name] = matches.group(1)
+                try:
+                    o[name] = matches.group(1)
+                except IndexError as e:
+                    self.log.error('failed to find group 1 in match, {}'
+                                   .format(str(regexp_tuple)))
