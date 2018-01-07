@@ -471,7 +471,8 @@
       {
         "type": "container",
         "environment_condition": {"environment_type": "Kubernetes"},
-        "fetcher": "KubeFetchContainers"
+        "fetcher": "KubeFetchContainers",
+        "children_scanner": "ScanContainerVnics"
       }
     ],
     "ScanKubeVedgesRoot": [
@@ -492,6 +493,14 @@
       {
         "type": "otep",
         "fetcher": "KubeFetchOteps",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      }
+
+    ],
+    "ScanContainerVnics": [
+      {
+        "type": "vnic",
+        "fetcher": "CliFetchKubeContainerVnics",
         "environment_condition": {"environment_type": "Kubernetes"}
       }
 
