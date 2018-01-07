@@ -24,8 +24,7 @@ class CliFetchKubeContainerVnics(CliAccess):
         host = container['host']
         if not host:
             return []
-        lines = self.run_fetch_lines("ip link show | grep -A1 veth", host,
-                                     use_sudo=False)
+        lines = self.run_fetch_lines("ip link show | grep -A1 veth", host)
         interface_lines = []
         ret = []
         for l in lines:

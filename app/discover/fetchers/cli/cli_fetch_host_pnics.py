@@ -42,7 +42,7 @@ class CliFetchHostPnics(CliAccess):
         accepted_host_types = ['Network', 'Compute', 'Kube-node']
         if not [t for t in accepted_host_types if t in host_types]:
             return []
-        interface_lines = self.run_fetch_lines(cmd, host_id, use_sudo=False)
+        interface_lines = self.run_fetch_lines(cmd, host_id)
         interfaces = []
         for line in interface_lines:
             interface_name = line[line.rindex('/')+1:]
@@ -56,7 +56,7 @@ class CliFetchHostPnics(CliAccess):
 
     def find_interface_details(self, host_id, interface_name):
         cmd = "ip address show {}".format(interface_name)
-        lines = self.run_fetch_lines(cmd, host_id, use_sudo=False)
+        lines = self.run_fetch_lines(cmd, host_id)
         interface = None
         status_up = None
         for line in [l for l in lines if l != '']:
@@ -102,7 +102,7 @@ class CliFetchHostPnics(CliAccess):
             pos = interface["local_name"].index("@")
             ethtool_ifname = ethtool_ifname[pos + 1:]
         cmd = "ethtool " + ethtool_ifname
-        lines = self.run_fetch_lines(cmd, interface["host"], use_sudo=False)
+        lines = self.run_fetch_lines(cmd, interface["host"])
         attr = None
         for line in lines[1:]:
             matches = self.ethtool_attr.match(line)
