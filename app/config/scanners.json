@@ -437,6 +437,11 @@
         "children_scanner": "ScanVedge"
       },
       {
+        "type": "network",
+        "fetcher": "CliFetchKubeNetworks",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      },
+      {
         "type": "pnics_folder",
         "fetcher": {
           "folder": true,
