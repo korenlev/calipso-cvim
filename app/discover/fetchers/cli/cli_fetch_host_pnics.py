@@ -39,7 +39,7 @@ class CliFetchHostPnics(CliAccess):
                            ", host: " + str(host))
             return []
         host_types = host["host_type"]
-        accepted_host_types = ['Network', 'Compute', 'Kube-node']
+        accepted_host_types = ['Network', 'Compute']
         if not [t for t in accepted_host_types if t in host_types]:
             return []
         interface_lines = self.run_fetch_lines(cmd, host_id)

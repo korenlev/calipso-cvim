@@ -46,7 +46,7 @@ class KubeFetchNodes(KubeAccess):
             except AttributeError:
                 pass
         doc['id'] = doc['name']
-        doc['host_type'] = ['Kube-node']
+        doc['host_type'] = ['Network', 'Compute']
 
     @staticmethod
     def get_node_data(doc: dict, spec: V1NodeSpec):
