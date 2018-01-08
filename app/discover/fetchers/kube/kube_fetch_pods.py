@@ -30,13 +30,11 @@ class KubeFetchPods(KubeAccess):
         ret = []
         for pod in pods.items:
             doc = self.get_pod_details(pod)
-            doc.update({
-                'type': 'pod',
-                'host': host_name,
-                'master_parent_type': 'host',
-                'master_parent_id': host_id,
-                'parent_type': 'pods_folder',
-                'parent_id': '{}-pods'.format(host_id)})
+            self.set_folder_parent(doc, object_type='pod',
+                                   master_parent_type='host',
+                                   master_parent_id=host_id)
+            doc['type'] = 'pod'
+            doc['host'] = host_name
             ret.append(doc)
         return ret
 
