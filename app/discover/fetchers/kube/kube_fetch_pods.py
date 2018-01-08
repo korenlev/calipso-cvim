@@ -59,7 +59,7 @@ class KubeFetchPods(KubeAccess):
     @staticmethod
     def get_pod_metadata(doc: dict, metadata: V1ObjectMeta):
         attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels',
-                 'owner_references']
+                 'owner_references', 'namespace']
         for attr in attrs:
             try:
                 val = getattr(metadata, attr)

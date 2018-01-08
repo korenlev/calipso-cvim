@@ -37,7 +37,7 @@ class KubeFetchContainers(KubeAccess):
             self.log.error('failed to find pod with uid={}'.format(pod_id))
             return []
         for container in pod.spec.containers:
-            doc = {'type': 'container'}
+            doc = {'type': 'container', 'namespace': pod.metadata.namespace}
             self.get_container_data(doc, container)
             container_statuses = pod_obj['status']['container_statuses']
             container_status = next(s for s in container_statuses
