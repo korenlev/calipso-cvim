@@ -26,13 +26,13 @@ class CliFetchKubeNetworks(CliAccess):
             return []
         lines = self.run_fetch_lines('docker network ls', host_id)
         ret = []
-        HEADERS = [
+        headers = [
             'NETWORK ID',
             'NAME',
             'DRIVER',
             'SCOPE'
         ]
-        networks = self.parse_cmd_result_with_whitespace(lines, HEADERS, True)
+        networks = self.parse_cmd_result_with_whitespace(lines, headers, True)
         for network in networks:
             ret.append(self.get_network(host, network))
         return ret
@@ -41,7 +41,7 @@ class CliFetchKubeNetworks(CliAccess):
         network = {
             'host': host['host'],
             'id': network_data['NETWORK ID'],
-            'name': network_data['NAME'],
+            'name': '{}-{}'.format(host['host'], network_data['NAME']),
             'driver': network_data['DRIVER'],
             'scope': network_data['SCOPE']
         }
@@ -59,6 +59,7 @@ class CliFetchKubeNetworks(CliAccess):
         except JSONDecodeError as e:
             self.log.error('error reading network data for {}: {}'
                            .format(network['id'], str(e)))
+            return
         network_data = network_data[0]
         network_data.pop('Id')
         network_data.pop('Name')
