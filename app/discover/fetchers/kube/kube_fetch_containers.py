@@ -14,6 +14,7 @@ from kubernetes.client.models import V1Container
 from discover.fetchers.cli.cli_access import CliAccess
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.inventory_mgr import InventoryMgr
+from utils.ssh_connection import SshError
 
 
 class KubeFetchContainers(KubeAccess, CliAccess):
@@ -48,7 +49,9 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         self.get_container_data(doc, container)
         self.fetch_container_status_data(doc, pod, pod_obj)
         self.get_container_config(doc, pod_obj)
+        self.get_interface_link(doc, pod_obj)
         doc['host'] = pod_obj['host']
+        doc['ip_address'] = pod_obj.get('status', {}).get('pod_ip', '')
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
         return doc
 
@@ -119,3 +122,18 @@ class KubeFetchContainers(KubeAccess, CliAccess):
                            .format(cmd, str(e)))
             return
         doc['sandbox'] = data[0]
+
+    def get_interface_link(self, doc, pod_obj):
+        if doc['namespace'] == 'cattle-system':
+            doc['iflink'] = 'none (rancher)'
+            return
+        if doc['name'] == 'kubernetes-dashboard':
+            doc['iflink'] = 'none (dashboard)'
+            return
+        cmd = 'docker exec {} cat /sys/class/net/eth0/iflink' \
+            .format(doc['container_id'])
+        try:
+            output = self.run(cmd, pod_obj['host'])
+            doc['iflink'] = output.strip()
+        except SshError as e:
+            doc['iflink'] = 'none ({})'.format(str(e))
