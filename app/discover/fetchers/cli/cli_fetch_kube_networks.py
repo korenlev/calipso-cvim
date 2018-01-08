@@ -61,6 +61,7 @@ class CliFetchKubeNetworks(CliAccess):
                            .format(network['id'], str(e)))
             return
         network_data = network_data[0]
-        network_data.pop('Id')
+        # use the longer ID version for the network ID
+        network['id'] = network_data.pop('Id')
         network_data.pop('Name')
         network.update(network_data)
