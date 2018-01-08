@@ -390,7 +390,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         parent_name_path = parent.get("name_path", "/{}".format(environment))
 
         if 'master_parent_type' in o:
-            self.create_parent_folder(o, parent)
+            if not self.create_parent_folder(o, parent):
+                return False
 
         if o.get("text"):
             o["name"] = o["text"]
@@ -434,7 +435,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                 self.monitoring_setup_manager.create_setup(o)
         return True
 
-    def create_parent_folder(self, o, parent):
+    def create_parent_folder(self, o, parent) -> bool:
         # case of dynamic folder added by need
         master_parent_type = o["master_parent_type"]
         master_parent_id = o["master_parent_id"]
@@ -442,7 +443,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         if not master_parent:
             self.log.error("failed to find master parent " +
                            master_parent_id)
-            return
+            return False
         folder_id_path = "/".join((master_parent["id_path"],
                                    o["parent_id"]))
         folder_name_path = "/".join((master_parent["name_path"],
@@ -464,3 +465,4 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         o.pop("master_parent_type", True)
         o.pop("master_parent_id", True)
         self.set(folder)
+        return True
