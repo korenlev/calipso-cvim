@@ -38,10 +38,12 @@ class CliFetchKubeNetworks(CliAccess):
         return ret
 
     def get_network(self, host, network_data) -> dict:
+        name = '{}-{}'.format(host['host'], network_data['NAME'])
         network = {
             'host': host['host'],
-            'id': network_data['NETWORK ID'],
-            'name': '{}-{}'.format(host['host'], network_data['NAME']),
+            'id': name,
+            'name': name,
+            'local_name': network_data['NAME'],
             'driver': network_data['DRIVER'],
             'scope': network_data['SCOPE']
         }
@@ -52,7 +54,7 @@ class CliFetchKubeNetworks(CliAccess):
         return network
 
     def get_network_data(self, network):
-        cmd = 'docker network inspect {}'.format(network['id'])
+        cmd = 'docker network inspect {}'.format(network['local_name'])
         output = self.run(cmd, network['host'])
         try:
             network_data = json.loads(output)
@@ -61,7 +63,8 @@ class CliFetchKubeNetworks(CliAccess):
                            .format(network['id'], str(e)))
             return
         network_data = network_data[0]
-        # use the longer ID version for the network ID
-        network['id'] = network_data.pop('Id')
+        # until we find why long network ID is shared between hosts, we'll call
+        # it 'network_id' and use the name as the ID for the networks
+        network_data['network_id'] = network_data.pop('Id')
         network_data.pop('Name')
         network.update(network_data)
