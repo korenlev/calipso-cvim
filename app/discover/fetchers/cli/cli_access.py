@@ -237,7 +237,7 @@ class CliAccess(Fetcher, BinaryConverter):
             self.find_matching_regexps(o, line, regexps)
         for regexp_tuple in regexps:
             name = regexp_tuple['name']
-            if 'name' not in o and 'default' in regexp_tuple:
+            if name not in o and 'default' in regexp_tuple:
                 o[name] = regexp_tuple['default']
 
     def find_matching_regexps(self, o, line, regexps):
