@@ -7,13 +7,16 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import json
+from json import JSONDecodeError
 from kubernetes.client.models import V1Container
 
+from discover.fetchers.cli.cli_access import CliAccess
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.inventory_mgr import InventoryMgr
 
 
-class KubeFetchContainers(KubeAccess):
+class KubeFetchContainers(KubeAccess, CliAccess):
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -37,29 +40,36 @@ class KubeFetchContainers(KubeAccess):
             self.log.error('failed to find pod with uid={}'.format(pod_id))
             return []
         for container in pod.spec.containers:
-            doc = {'type': 'container', 'namespace': pod.metadata.namespace}
-            self.get_container_data(doc, container)
-            container_statuses = pod_obj['status']['container_statuses']
-            container_status = next(s for s in container_statuses
-                                    if s['name'] == doc['name'])
-            if container_status:
-                container_id = container_status['container_id']
-                if container_id is None:
-                    doc['container_type'] = container_status['name']
-                    doc['container_id'] = container_status['image']
-                else:
-                    id_parts = container_id.split('://')
-                    doc['container_type'] = id_parts[0]
-                    doc['container_id'] = id_parts[1]
-                doc['container_status'] = container_status
-            else:
-                self.log.error('failed to find container_statused record '
-                               'for container {} in pod {}'
-                               .format(doc['name'], pod['name']))
-            doc['host'] = pod_obj['host']
-            doc['id'] = '{}-{}'.format(pod_id, doc['name'])
-            ret.append(doc)
+            ret.append(self.get_container(container, pod, pod_obj))
         return ret
+
+    def get_container(self, container, pod, pod_obj):
+        doc = {'type': 'container', 'namespace': pod.metadata.namespace}
+        self.get_container_data(doc, container)
+        self.fetch_container_status_data(doc, pod, pod_obj)
+        self.get_container_config(doc, pod_obj)
+        doc['host'] = pod_obj['host']
+        doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
+        return doc
+
+    def fetch_container_status_data(self, doc, pod, pod_obj):
+        container_statuses = pod_obj['status']['container_statuses']
+        container_status = next(s for s in container_statuses
+                                if s['name'] == doc['name'])
+        if not container_status:
+            self.log.error('failed to find container_status record '
+                           'for container {} in pod {}'
+                           .format(doc['name'], pod['name']))
+            return
+        container_id = container_status['container_id']
+        if container_id is None:
+            doc['container_type'] = container_status['name']
+            doc['container_id'] = container_status['image']
+        else:
+            id_parts = container_id.split('://')
+            doc['container_type'] = id_parts[0]
+            doc['container_id'] = id_parts[1]
+        doc['container_status'] = container_status
 
     @staticmethod
     def get_container_data(doc: dict, container: V1Container):
@@ -81,3 +91,31 @@ class KubeFetchContainers(KubeAccess):
                     doc[k] = val
             except AttributeError:
                 pass
+
+    def get_container_config(self, doc, pod_obj):
+        cmd = 'docker inspect {}'.format(doc['container_id'])
+        output = self.run(cmd, pod_obj['host'])
+        try:
+            data = json.loads(output)
+        except JSONDecodeError as e:
+            self.log.error('error reading output of cmd: {}, {}'
+                           .format(cmd, str(e)))
+            return
+        data = data[0]
+        if 'Config' in data:
+            doc['config'] = data['Config']
+            self.get_container_sandbox(doc, pod_obj)
+
+    SANDBOX_ID_ATTR = 'io.kubernetes.sandbox.id'
+
+    def get_container_sandbox(self, doc, pod_obj):
+        sandbox_id = doc['config'].get('Labels').get(self.SANDBOX_ID_ATTR)
+        cmd = 'docker inspect {}'.format(sandbox_id)
+        output = self.run(cmd, pod_obj['host'])
+        try:
+            data = json.loads(output)
+        except JSONDecodeError as e:
+            self.log.error('error reading output of cmd: {}, {}'
+                           .format(cmd, str(e)))
+            return
+        doc['sandbox'] = data[0]
