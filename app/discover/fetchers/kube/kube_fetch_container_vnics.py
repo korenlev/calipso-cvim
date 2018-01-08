@@ -11,7 +11,7 @@ from discover.fetchers.cli.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 
-class CliFetchKubeContainerVnics(CliAccess):
+class KubeFetchContainerVnics(CliAccess):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
@@ -21,36 +21,26 @@ class CliFetchKubeContainerVnics(CliAccess):
         if not container:
             self.log.error('Failed to find container with ID: {}', container_id)
             return []
-        host = container['host']
+        host = self.inv.get_by_id(self.get_env(), container['host'])
         if not host:
             return []
-        lines = self.run_fetch_lines("ip link show | grep -A1 veth", host)
-        interface_lines = []
+        interfaces = [i for i in host['interfaces'].values()
+                      if i['id'].startswith('veth')]
         ret = []
-        for l in lines:
-            interface_lines.append(l)
-            if len(interface_lines) == 2:
-                ret.append(self.process_interface(container, interface_lines))
-                interface_lines = []
+        for interface in interfaces:
+            ret.append(self.process_interface(container, interface))
         return ret
 
-    def process_interface(self, container, interface_lines) -> dict:
+    def process_interface(self, container, interface_details) -> dict:
         interface = {
             'vnic_type': 'container_vnic',
-            'host': container['host'],
-            'lines': interface_lines
+            'host': container['host']
         }
+        interface.update(interface_details)
         self.set_folder_parent(interface, 'vnic',
                                master_parent_type='container',
                                master_parent_id=container['id'],
                                parent_id='{}-vnics'.format(container['id']),
                                parent_type='vnics_folder',
                                parent_text='vNICs')
-        regexps = [
-            {'name': 'id', 're': '^[0-9]+:\s([^:]+):\s'},
-            {'name': 'state', 're': ',(UP),', 'default': 'DOWN'},
-            {'name': 'mac_address', 're': '.*\slink/ether\s(\S+)\s'},
-            {'name': 'mtu', 're': '.*\smtu\s(\S+)\s'},
-        ]
-        self.get_object_data(interface, interface_lines, regexps)
         return interface

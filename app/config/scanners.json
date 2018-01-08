@@ -505,7 +505,7 @@
     "ScanContainerVnics": [
       {
         "type": "vnic",
-        "fetcher": "CliFetchKubeContainerVnics",
+        "fetcher": "KubeFetchContainerVnics",
         "environment_condition": {"environment_type": "Kubernetes"}
       }
 
