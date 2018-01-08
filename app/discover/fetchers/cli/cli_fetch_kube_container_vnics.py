@@ -11,7 +11,7 @@ from discover.fetchers.cli.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 
-class KubeFetchContainerVnics(CliAccess):
+class CliFetchKubeContainerVnics(CliAccess):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
@@ -24,11 +24,26 @@ class KubeFetchContainerVnics(CliAccess):
         host = self.inv.get_by_id(self.get_env(), container['host'])
         if not host:
             return []
+        index = self.get_interface_index(container)
+        if index is None:
+            return []
         interfaces = [i for i in host['interfaces'].values()
-                      if i['id'].startswith('veth')]
+                      if i['index'] == str(index)]
+        if not container:
+            self.log.error('Failed to find interface index {} '
+                           'for container with ID: {}', index, container_id)
+            return []
         ret = []
         for interface in interfaces:
             ret.append(self.process_interface(container, interface))
+        return ret
+
+    @staticmethod
+    def get_interface_index(container) -> int:
+        try:
+            ret = int(container.get('iflink'))
+        except (TypeError, ValueError):
+            ret = None
         return ret
 
     def process_interface(self, container, interface_details) -> dict:
