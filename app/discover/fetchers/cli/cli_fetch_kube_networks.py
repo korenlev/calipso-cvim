@@ -34,28 +34,33 @@ class CliFetchKubeNetworks(CliAccess):
         ]
         networks = self.parse_cmd_result_with_whitespace(lines, headers, True)
         for network in networks:
-            ret.append(self.get_network(host, network))
+            new_network = self.get_network(host, network)
+            if new_network:
+                ret.append(new_network)
         return ret
 
     def get_network(self, host, network_data) -> dict:
-        name = '{}-{}'.format(host['host'], network_data['NAME'])
+        host_id = host['host']
         network = {
-            'host': host['host'],
-            'id': name,
-            'name': name,
-            'local_name': network_data['NAME'],
+            'hosts': [host_id],
+            'name': network_data['NAME'],
             'driver': network_data['DRIVER'],
             'scope': network_data['SCOPE']
         }
+        self.get_network_data(network, host_id)
+        network_id = network['id']
+        existing_network = self.inv.get_by_id(self.get_env(), network_id)
+        if existing_network:
+            self.add_host_to_network(existing_network, host_id)
+            return {}
         self.set_folder_parent(network, 'network',
-                               master_parent_type='host',
-                               master_parent_id=host['id'])
-        self.get_network_data(network)
+                               master_parent_type='environment',
+                               master_parent_id=self.get_env())
         return network
 
-    def get_network_data(self, network):
-        cmd = 'docker network inspect {}'.format(network['local_name'])
-        output = self.run(cmd, network['host'])
+    def get_network_data(self, network, host_id):
+        cmd = 'docker network inspect {}'.format(network['name'])
+        output = self.run(cmd, host_id)
         try:
             network_data = json.loads(output)
         except JSONDecodeError as e:
@@ -65,6 +70,16 @@ class CliFetchKubeNetworks(CliAccess):
         network_data = network_data[0]
         # until we find why long network ID is shared between hosts, we'll call
         # it 'network_id' and use the name as the ID for the networks
-        network_data['network_id'] = network_data.pop('Id')
+        network_data['id'] = network_data.pop('Id')
         network_data.pop('Name')
+        network_data.pop('Driver')
+        network_data.pop('Scope')
         network.update(network_data)
+
+    def add_host_to_network(self, existing_network, host_id):
+        hosts_list = existing_network['hosts']
+        if host_id in hosts_list:
+            return
+        hosts_list.append(host_id)
+        existing_network['hosts'] = hosts_list
+        self.inv.set(existing_network)
