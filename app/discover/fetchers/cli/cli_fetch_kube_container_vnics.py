@@ -51,6 +51,8 @@ class CliFetchKubeContainerVnics(CliAccess):
             'vnic_type': 'container_vnic',
             'host': container['host']
         }
+        if 'network' in container:
+            interface['network_name'] = container['network']
         interface.update(interface_details)
         self.set_folder_parent(interface, 'vnic',
                                master_parent_type='container',
