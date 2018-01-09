@@ -122,6 +122,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
                            .format(cmd, str(e)))
             return
         doc['sandbox'] = data[0]
+        self.find_network(doc)
 
     def get_interface_link(self, doc, pod_obj):
         if doc['namespace'] == 'cattle-system':
@@ -137,3 +138,15 @@ class KubeFetchContainers(KubeAccess, CliAccess):
             doc['iflink'] = output.strip()
         except SshError as e:
             doc['iflink'] = 'none ({})'.format(str(e))
+
+    # find network matching the one sandbox, and keep its name
+    def find_network(self, doc):
+        networks = doc['sandbox']['NetworkSettings']['Networks']
+        network = next(iter(networks.values()))
+        network_id = network['NetworkID']
+        network_obj = self.inv.find_one({
+            'environment': self.get_env(),
+            'network_id': network_id})
+        if not network_obj:
+            return
+        doc['network'] = network_obj['name']
