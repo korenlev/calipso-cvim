@@ -327,7 +327,8 @@
       {
         "type": "vconnector",
         "environment_condition": {
-          "mechanism_drivers": "OVS"
+          "environment_type": ["OpenStack", "Kubernetes"],
+          "mechanism_drivers": ["OVS", "Flannel"]
         },
         "fetcher": "CliFetchVconnectorsOvs"
       },
@@ -458,6 +459,17 @@
           ]
         },
         "children_scanner": "ScanPnicsRoot"
+      },
+      {
+        "type": "vconnectors_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "vconnectors",
+          "parent_type": "host",
+          "text": "vConnectors"
+        },
+        "environment_condition": {"environment_type": "Kubernetes"},
+        "children_scanner": "ScanVconnectorsRoot"
       }
     ],
     "ScanPod": [
