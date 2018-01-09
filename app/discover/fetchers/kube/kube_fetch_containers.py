@@ -144,9 +144,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         networks = doc['sandbox']['NetworkSettings']['Networks']
         network = next(iter(networks.values()))
         network_id = network['NetworkID']
-        network_obj = self.inv.find_one({
-            'environment': self.get_env(),
-            'network_id': network_id})
+        network_obj = self.inv.get_by_id(self.get_env(), network_id)
         if not network_obj:
             return
-        doc['network'] = network_obj['name']
+        doc['network'] = network_id
