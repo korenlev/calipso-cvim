@@ -31,7 +31,7 @@ class KubeFetchVnics(CliAccess):
     def process_interface(self, host_id, interface_details) -> dict:
         interface = dict(vnic_type='container_vnic', host=host_id,
                          containers=[])
-        interface['id'] = interface_details.pop('id')
+        interface['id'] = '{}-{}'.format(host_id, interface_details.pop('id'))
         interface.update(interface_details)
         self.set_folder_parent(interface, 'vnic',
                                master_parent_type='host',
