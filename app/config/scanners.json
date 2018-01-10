@@ -470,6 +470,11 @@
         },
         "environment_condition": {"environment_type": "Kubernetes"},
         "children_scanner": "ScanVconnectorsRoot"
+      },
+      {
+        "type": "vnic",
+        "fetcher": "KubeFetchVnics",
+        "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
     "ScanPod": [
@@ -488,8 +493,7 @@
       {
         "type": "container",
         "environment_condition": {"environment_type": "Kubernetes"},
-        "fetcher": "KubeFetchContainers",
-        "children_scanner": "ScanContainerVnics"
+        "fetcher": "KubeFetchContainers"
       }
     ],
     "ScanKubeVedgesRoot": [
@@ -512,15 +516,6 @@
         "fetcher": "KubeFetchOteps",
         "environment_condition": {"environment_type": "Kubernetes"}
       }
-
-    ],
-    "ScanContainerVnics": [
-      {
-        "type": "vnic",
-        "fetcher": "CliFetchKubeContainerVnics",
-        "environment_condition": {"environment_type": "Kubernetes"}
-      }
-
     ]
   }
 }
