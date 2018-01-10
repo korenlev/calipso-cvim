@@ -136,6 +136,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         try:
             output = self.run(cmd, pod_obj['host'])
             doc['vnic_index'] = output.strip()
+            self.add_container_to_vnic(doc, pod_obj['host'])
         except SshError:
             doc['vnic_index'] = ''
 
@@ -148,3 +149,15 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         if not network_obj:
             return
         doc['network'] = network_id
+
+    def add_container_to_vnic(self, doc, host_id):
+        vnic = self.inv.find_one({
+            'environment': self.get_env(),
+            'type': 'vnic',
+            'host': host_id,
+            'index': doc['vnic_index']
+        })
+        if not vnic:
+            return
+        vnic['containers'].append(doc['container_id'])
+        self.inv.set(vnic)
