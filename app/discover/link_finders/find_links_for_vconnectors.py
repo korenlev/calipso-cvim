@@ -7,24 +7,34 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from discover.configuration import Configuration
 from discover.link_finders.find_links import FindLinks
 
 
 class FindLinksForVconnectors(FindLinks):
     def __init__(self):
         super().__init__()
+        self.configuration = Configuration()
+        env_config = self.configuration.get_env_config()
+        self.environment_type = env_config.get('environment_type')
 
     def add_links(self):
+        if self.environment_type == 'Openstack':
+            self.log.info('adding links of type: vnic-vconnector, '
+                          'vconnector-host_pnic')
+        if self.environment_type == 'Kubernetes':
+            self.log.info('adding links of type: vconnector-vedge')
         vconnectors = self.inv.find_items({
-            "environment": self.get_env(),
-            "type": "vconnector"
+            'environment': self.get_env(),
+            'type': 'vconnector'
         })
-        self.log.info("adding links of type: vnic-vconnector, "
-                      "vconnector-host_pnic")
         for vconnector in vconnectors:
-            for interface in vconnector["interfaces_names"]:
-                self.add_vnic_vconnector_link(vconnector, interface)
-                self.add_vconnector_pnic_link(vconnector, interface)
+            if self.environment_type == 'Openstack':
+                for interface in vconnector["interfaces_names"]:
+                    self.add_vnic_vconnector_link(vconnector, interface)
+                    self.add_vconnector_pnic_link(vconnector, interface)
+            elif self.environment_type == 'Kubernetes':
+                self.add_vconnector_vedge_link(vconnector)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
         mechanism_drivers = self.configuration.environment['mechanism_drivers']
@@ -85,6 +95,32 @@ class FindLinksForVconnectors(FindLinks):
         link_type = "vconnector-host_pnic"
         link_name = pnic["name"]
         state = "up"  # TBD
+        link_weight = 0  # TBD
+        self.create_link(self.get_env(),
+                         source, source_id,
+                         target, target_id,
+                         link_type, link_name, state, link_weight,
+                         host=host)
+
+    def add_vconnector_vedge_link(self, vconnector):
+        host = vconnector['host']
+        prefix = '{}-cni'.format(host)
+        if not vconnector['id'].startswith(prefix):
+            return
+        vedge = self.inv.find_one({
+            'environment': self.get_env(),
+            'type': 'vedge',
+            'host': host
+        })
+        if not vedge:
+            return
+        source = vconnector['_id']
+        source_id = vconnector['id']
+        target = vedge['_id']
+        target_id = vedge['id']
+        link_type = 'vconnector-vedge'
+        link_name = vedge['name']
+        state = 'up'  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
                          source, source_id,
