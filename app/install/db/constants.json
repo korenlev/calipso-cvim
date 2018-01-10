@@ -299,6 +299,10 @@
         {
             "value" : "switch-switch_pnic", 
             "label" : "switch-switch_pnic"
+        },
+        {
+            "value": "container-vnic",
+            "label": "container-vnic"
         }
     ]
 },
