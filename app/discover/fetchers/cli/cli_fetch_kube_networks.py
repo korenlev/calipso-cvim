@@ -43,7 +43,8 @@ class CliFetchKubeNetworks(CliAccess):
         host_id = host['host']
         network = {
             'hosts': [host_id],
-            'name': network_data['NAME'],
+            'local_name': network_data['NAME'],
+            'name': '{}-{}'.format(host_id, network_data['NAME']),
             'driver': network_data['DRIVER'],
             'scope': network_data['SCOPE']
         }
@@ -59,7 +60,7 @@ class CliFetchKubeNetworks(CliAccess):
         return network
 
     def get_network_data(self, network, host_id):
-        cmd = 'docker network inspect {}'.format(network['name'])
+        cmd = 'docker network inspect {}'.format(network['local_name'])
         output = self.run(cmd, host_id)
         try:
             network_data = json.loads(output)
@@ -82,4 +83,14 @@ class CliFetchKubeNetworks(CliAccess):
             return
         hosts_list.append(host_id)
         existing_network['hosts'] = hosts_list
+        old_name =  existing_network['name']
+        new_name = existing_network['local_name']
+        if new_name == old_name:
+            return
+        old_name_path = existing_network['name_path']
+        old_name_part = '/Networks/{}'.format(old_name)
+        new_name_part = '/Networks/{}'.format(new_name)
+        existing_network['name'] = new_name
+        existing_network['name_path'] = old_name_path.replace(old_name_part,
+                                                              new_name_part)
         self.inv.set(existing_network)

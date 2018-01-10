@@ -439,12 +439,15 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         # case of dynamic folder added by need
         master_parent_type = o["master_parent_type"]
         master_parent_id = o["master_parent_id"]
-        master_parent = self.get_by_id(o['environment'], master_parent_id)
+        env_path = '/{}'.format(parent['environment'])
+        master_parent = {'id_path': env_path, 'name_path': env_path} \
+            if master_parent_type == 'environment' \
+            else self.get_by_id(o['environment'], master_parent_id)
         if not master_parent:
             self.log.error("failed to find master parent " +
                            master_parent_id)
             return False
-        folder_id_path = "/".join((master_parent["id_path"],
+        folder_id_path = "/".join((master_parent['id_path'],
                                    o["parent_id"]))
         folder_name_path = "/".join((master_parent["name_path"],
                                      o["parent_text"]))
