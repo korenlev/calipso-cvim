@@ -28,8 +28,9 @@ class FindLinksForVconnectors(FindLinks):
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
         mechanism_drivers = self.configuration.environment['mechanism_drivers']
-        is_ovs = mechanism_drivers and mechanism_drivers[0] == 'OVS'
-        if is_ovs:
+        ovs_or_flannel = mechanism_drivers and ('OVS' in mechanism_drivers or
+                                                'Flannel' in mechanism_drivers)
+        if ovs_or_flannel:
             # interface ID for OVS
             vnic_id = "{}-{}".format(vconnector["host"], interface_name)
             vnic = self.inv.get_by_id(self.get_env(), vnic_id)
