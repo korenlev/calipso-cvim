@@ -78,7 +78,7 @@ class KubeFetchNodes(KubeAccess, CliAccess):
         interface = {'lines': interface_lines}
         regexps = [
             {'name': 'index', 're': '^([0-9]+):\s'},
-            {'name': 'id', 're': '^[0-9]+:\s([^:]+):\s'},
+            {'name': 'id', 're': '^[0-9]+:\s([^@:]+)'},
             {'name': 'state', 're': '^.*,(UP),', 'default': 'DOWN'},
             {'name': 'mac_address', 're': '.*\slink/ether\s(\S+)\s'},
             {'name': 'mtu', 're': '.*\smtu\s(\S+)\s'},
