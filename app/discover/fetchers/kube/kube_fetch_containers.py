@@ -126,18 +126,18 @@ class KubeFetchContainers(KubeAccess, CliAccess):
 
     def get_interface_link(self, doc, pod_obj):
         if doc['namespace'] == 'cattle-system':
-            doc['iflink'] = 'none (rancher)'
+            doc['vnic_index'] = ''
             return
         if doc['name'] == 'kubernetes-dashboard':
-            doc['iflink'] = 'none (dashboard)'
+            doc['vnic_index'] = ''
             return
         cmd = 'docker exec {} cat /sys/class/net/eth0/iflink' \
             .format(doc['container_id'])
         try:
             output = self.run(cmd, pod_obj['host'])
-            doc['iflink'] = output.strip()
-        except SshError as e:
-            doc['iflink'] = 'none ({})'.format(str(e))
+            doc['vnic_index'] = output.strip()
+        except SshError:
+            doc['vnic_index'] = ''
 
     # find network matching the one sandbox, and keep its name
     def find_network(self, doc):
