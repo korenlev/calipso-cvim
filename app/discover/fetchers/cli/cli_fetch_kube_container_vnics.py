@@ -51,6 +51,10 @@ class CliFetchKubeContainerVnics(CliAccess):
             'vnic_type': 'container_vnic',
             'host': container['host']
         }
+        interface['local_id'] = interface_details['id']
+        interface_details['local_id'] = interface_details.pop('id')
+        interface['id'] = '{}-{}'.format(container['container_id'],
+                                         interface['local_id'])
         if 'network' in container:
             interface['network'] = container['network']
         interface.update(interface_details)
