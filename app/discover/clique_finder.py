@@ -151,8 +151,9 @@ class CliqueFinder(Fetcher):
             clique["constraints"][c] = val
         allow_implicit = clique_type.get('use_implicit_links', False)
         for link_type in clique_type["link_types"]:
-            self.check_link_type(clique, link_type, nodes_of_type,
-                                 allow_implicit=allow_implicit)
+            if not self.check_link_type(clique, link_type, nodes_of_type,
+                                        allow_implicit=allow_implicit):
+                break
 
         # after adding the links to the clique, create/update the clique
         if not clique["links"]:
@@ -205,7 +206,7 @@ class CliqueFinder(Fetcher):
         return CliqueFinder.link_type_reversed.get(link_type)
 
     def check_link_type(self, clique, link_type, nodes_of_type,
-                        allow_implicit=False):
+                        allow_implicit=False) -> bool:
         # check if it's backwards
         link_type_reversed = self.get_link_type_reversed(link_type)
         # handle case of links like T<-->T
@@ -221,15 +222,16 @@ class CliqueFinder(Fetcher):
             matches = self.links.find_one(link_search_condition)
             use_reversed = True if matches else False
         if self_linked or not use_reversed:
-            self.check_link_type_forward(clique, link_type, nodes_of_type,
-                                         allow_implicit=allow_implicit)
+            return self.check_link_type_forward(clique, link_type,
+                                                nodes_of_type,
+                                                allow_implicit=allow_implicit)
         if self_linked or use_reversed:
-            self.check_link_type_back(clique, link_type, nodes_of_type,
-                                      allow_implicit=allow_implicit)
+            return self.check_link_type_back(clique, link_type, nodes_of_type,
+                                             allow_implicit=allow_implicit)
 
     def check_link_type_for_direction(self, clique, link_type, nodes_of_type,
                                       is_reversed=False,
-                                      allow_implicit=False):
+                                      allow_implicit=False) -> bool:
         if is_reversed:
             link_type = self.get_link_type_reversed(link_type)
         from_type = link_type[:link_type.index("-")]
@@ -238,7 +240,7 @@ class CliqueFinder(Fetcher):
         other_side = 'target' if not is_reversed else 'source'
         match_type = to_type if is_reversed else from_type
         if match_type not in nodes_of_type.keys():
-            return
+            return False
         other_side_type = to_type if not is_reversed else from_type
         nodes_to_add = set()
         for match_point in nodes_of_type[match_type]:
@@ -253,6 +255,7 @@ class CliqueFinder(Fetcher):
             nodes_of_type[other_side_type] = set()
         nodes_of_type[other_side_type] = \
             nodes_of_type[other_side_type] | nodes_to_add
+        return len(nodes_to_add) > 0
 
     def find_matches_for_point(self, match_point, clique, link_type,
                                side_to_match, other_side,
@@ -279,13 +282,15 @@ class CliqueFinder(Fetcher):
         return nodes_to_add
 
     def check_link_type_forward(self, clique, link_type, nodes_of_type,
-                                allow_implicit=False):
-        self.check_link_type_for_direction(clique, link_type, nodes_of_type,
-                                           is_reversed=False,
-                                           allow_implicit=allow_implicit)
+                                allow_implicit=False) -> bool:
+        return self.check_link_type_for_direction(clique, link_type,
+                                                  nodes_of_type,
+                                                  is_reversed=False,
+                                                  allow_implicit=allow_implicit)
 
     def check_link_type_back(self, clique, link_type, nodes_of_type,
-                             allow_implicit=False):
-        self.check_link_type_for_direction(clique, link_type, nodes_of_type,
-                                           is_reversed=True,
-                                           allow_implicit=allow_implicit)
+                             allow_implicit=False) -> bool:
+        return self.check_link_type_for_direction(clique, link_type,
+                                                  nodes_of_type,
+                                                  is_reversed=True,
+                                                  allow_implicit=allow_implicit)

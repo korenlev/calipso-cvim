@@ -47,9 +47,9 @@ class FindLinksForContainers(FindLinks):
         link_weight = 0  # TBD
         attributes = dict(container_vnic=vnic['object_name'])
         if 'network' in container:
-            network = self.inv.get_by_id(self.get_env(), container['network'])
-            if network:
-                attributes['network'] = network['object_name']
+            vnic['network'] = container['network']
+            self.inv.set(vnic)
+            attributes['network'] = container['network']
         self.create_link(self.get_env(),
                          source, source_id, target, target_id,
                          link_type, link_name, state, link_weight,

@@ -9,6 +9,7 @@
 ###############################################################################
 import re
 
+from discover.configuration import Configuration
 from discover.link_finders.find_links import FindLinks
 from utils.util import decode_aci_dn
 
@@ -16,6 +17,8 @@ from utils.util import decode_aci_dn
 class FindLinksForPnics(FindLinks):
     def __init__(self):
         super().__init__()
+        self.configuration = Configuration()
+        self.environment_type = self.configuration.get_env_type()
 
     def add_links(self):
         self.log.info("adding links of type: pnic-network, "
@@ -36,10 +39,16 @@ class FindLinksForPnics(FindLinks):
         })
         for pnic in pnics:
             self.add_switch_to_pnic_link(pnic)
-            if pnic["role"] == "uplink":
+            if pnic.get('role', '') == 'uplink':
                 self.add_switch_pnic_to_switch_pnic_link(pnic)
 
     def add_pnic_network_links(self, pnic):
+        if self.environment_type == self.ENV_TYPE_OPENSTACK:
+            self.add_openstack_pnic_network_links(pnic)
+        if self.environment_type == self.ENV_TYPE_KUBERNETES:
+            self.add_kubernetes_pnic_network_links(pnic)
+
+    def add_openstack_pnic_network_links(self, pnic):
         host = pnic["host"]
         if self.configuration.get_env_config()['type_drivers'] == "vlan":
             # take this pnic only if we can find matching vedge-pnic links
@@ -84,6 +93,33 @@ class FindLinksForPnics(FindLinks):
                              link_type, link_name, state, link_weight,
                              host=host,
                              extra_attributes=attributes)
+
+    def add_kubernetes_pnic_network_links(self, pnic):
+        networks = self.inv.find_items({
+            'environment': self.get_env(),
+            'type': 'network'
+        })
+        for network in networks:
+            self.add_kubernetes_pnic_network_link(pnic, network)
+
+    def add_kubernetes_pnic_network_link(self, pnic, network):
+        host = pnic['host']
+        source = pnic['_id']
+        source_id = pnic['id']
+        target = network['_id']
+        target_id = network['id']
+        link_type = 'host_pnic-network'
+        link_name = '{}-{}'.format(pnic['object_name'], network['object_name'])
+        state = 'up'  # TBD
+        link_weight = 0  # TBD
+        attributes = {'network': network['id']}
+        if 'port_id' in pnic:
+            attributes['source_label'] = 'port-' + pnic['port_id']
+        self.create_link(self.get_env(),
+                         source, source_id, target, target_id,
+                         link_type, link_name, state, link_weight,
+                         host=host,
+                         extra_attributes=attributes)
 
     def add_host_pnic_to_switch_pnic_link(self, host_pnic):
         switch_pnic = self.inv.find_items({
