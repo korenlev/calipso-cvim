@@ -18,8 +18,7 @@ class FindLinksForPnics(FindLinks):
     def __init__(self):
         super().__init__()
         self.configuration = Configuration()
-        env_config = self.configuration.get_env_config()
-        self.environment_type = env_config.get('environment_type')
+        self.environment_type = self.configuration.get_env_type()
 
     def add_links(self):
         self.log.info("adding links of type: pnic-network, "

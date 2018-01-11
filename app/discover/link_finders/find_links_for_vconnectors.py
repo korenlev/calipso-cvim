@@ -15,8 +15,7 @@ class FindLinksForVconnectors(FindLinks):
     def __init__(self):
         super().__init__()
         self.configuration = Configuration()
-        env_config = self.configuration.get_env_config()
-        self.environment_type = env_config.get('environment_type')
+        self.environment_type = self.configuration.get_env_type()
 
     def add_links(self):
         if self.environment_type == self.ENV_TYPE_OPENSTACK:
