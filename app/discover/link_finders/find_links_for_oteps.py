@@ -79,7 +79,7 @@ class FindLinksForOteps(FindLinks):
         target = pnic["_id"]
         target_id = pnic["id"]
         link_type = "otep-host_pnic"
-        link_name = otep["host"] + "pnic" + pnic["name"]
+        link_name = '{}-pnic-{}'.format(otep["host"], pnic["name"])
         state = "up"  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
