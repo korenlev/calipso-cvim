@@ -20,7 +20,7 @@ import socket
 # by default, we want to use the docker0 interface ip address for inter-contatiner communications,
 # if hostname argument will not be provided as argument for the calipso-installer
 import os
-dockerip = os.popen('ifconfig docker0 | grep "inet" | cut -d: -f10 | cut -d" " -f10')
+dockerip = os.popen('ip addr show docker0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'')
 local_hostname = dockerip.read().replace("\n", "")
 
 C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
