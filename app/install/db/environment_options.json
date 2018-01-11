@@ -1,0 +1,150 @@
+[
+{  
+    "distributions" : [
+        "RDO", 
+        "Devstack", 
+        "Canonical"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "VPP", 
+        "LXB", 
+        "Arista"
+    ], 
+    "distribution_versions" : [
+        "Mitaka", 
+        "Liberty", 
+        "Newton", 
+        "Ocata", 
+        "Juno", 
+        "Kilo", 
+        "Icehouse"
+    ], 
+    "type_drivers" : [
+        "local", 
+        "vlan", 
+        "vxlan", 
+        "gre", 
+        "flat"
+    ]
+},
+{
+    "distributions" : [
+        "Mirantis"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "VPP", 
+        "LXB", 
+        "Arista"
+    ], 
+    "distribution_versions" : [
+        "6.0", 
+        "7.0", 
+        "8.0", 
+        "9.0", 
+        "9.1", 
+        "10.0"
+    ], 
+    "type_drivers" : [
+        "local", 
+        "vlan", 
+        "vxlan", 
+        "gre", 
+        "flat"
+    ]
+},
+{ 
+    "distributions" : [
+        "Stratoscale"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "LXB"
+    ], 
+    "distribution_versions" : [
+        "2.1.6"
+    ], 
+    "type_drivers" : [
+        "vlan", 
+        "vxlan"
+    ]
+},
+{
+    "distributions" : [
+        "Packstack"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "LXB"
+    ], 
+    "distribution_versions" : [
+        "7.0.0-0.10.dev1682"
+    ], 
+    "type_drivers" : [
+        "local", 
+        "vlan", 
+        "vxlan", 
+        "gre", 
+        "flat"
+    ]
+},
+{
+    "distributions" : [
+        "Apex"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "LXB", 
+        "VPP"
+    ], 
+    "distribution_versions" : [
+        "Euphrates"
+    ], 
+    "type_drivers" : [
+        "vlan", 
+        "vxlan", 
+        "gre"
+    ]
+},
+{
+    "distributions" : [
+        "Mercury"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "LXB", 
+        "VPP"
+    ], 
+    "distribution_versions" : [
+        "10239", 
+        "10307", 
+        "10918", 
+        "11190"
+    ], 
+    "type_drivers" : [
+        "vlan", 
+        "vxlan", 
+        "gre"
+    ]
+},
+{
+    "distributions" : [
+        "Kubernetes"
+    ], 
+    "mechanism_drivers" : [
+        "OVS", 
+        "LXB", 
+        "VPP", 
+        "Flannel"
+    ], 
+    "distribution_versions" : [
+        "1.9"
+    ], 
+    "type_drivers" : [
+        "vlan", 
+        "vxlan", 
+        "gre"
+    ]
+}
+]
