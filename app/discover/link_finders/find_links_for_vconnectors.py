@@ -19,21 +19,21 @@ class FindLinksForVconnectors(FindLinks):
         self.environment_type = env_config.get('environment_type')
 
     def add_links(self):
-        if self.environment_type == 'Openstack':
+        if self.environment_type == self.ENV_TYPE_OPENSTACK:
             self.log.info('adding links of type: vnic-vconnector, '
                           'vconnector-host_pnic')
-        if self.environment_type == 'Kubernetes':
+        if self.environment_type == self.ENV_TYPE_KUBERNETES:
             self.log.info('adding links of type: vconnector-vedge')
         vconnectors = self.inv.find_items({
             'environment': self.get_env(),
             'type': 'vconnector'
         })
         for vconnector in vconnectors:
-            if self.environment_type == 'Openstack':
-                for interface in vconnector["interfaces_names"]:
-                    self.add_vnic_vconnector_link(vconnector, interface)
+            for interface in vconnector["interfaces_names"]:
+                self.add_vnic_vconnector_link(vconnector, interface)
+                if self.environment_type == self.ENV_TYPE_OPENSTACK:
                     self.add_vconnector_pnic_link(vconnector, interface)
-            elif self.environment_type == 'Kubernetes':
+            if self.environment_type == self.ENV_TYPE_KUBERNETES:
                 self.add_vconnector_vedge_link(vconnector)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
@@ -55,6 +55,9 @@ class FindLinksForVconnectors(FindLinks):
                                          get_single=True)
         if not vnic:
             return
+        if 'network' in vnic:
+            vconnector['network'] = vnic['network']
+            self.inv.set(vconnector)
         host = vnic["host"]
         source = vnic["_id"]
         source_id = vnic["id"]
