@@ -49,7 +49,7 @@ class CliqueFinder(Fetcher):
         self.log.info("finished scanning for cliques")
 
     # Calculate priority score for clique type per environment and configuration
-    def _get_priority_score(self, clique_type):
+    def get_priority_score(self, clique_type):
         # environment-specific clique type takes precedence
         env = clique_type.get('environment')
         # ECT - Clique Type with Environment name
@@ -63,24 +63,29 @@ class CliqueFinder(Fetcher):
                 return 0
         # NECT - Clique Type without Environment name
         else:
-            if self.env_config['distribution'] == clique_type.get('distribution'):
-                if self.env_config['distribution_version'] \
-                        == clique_type.get('distribution_version'):
-                    return 5
+            env_type = clique_type.get('environment_type')
+            # TODO: remove backward compatibility ('if not env_type' check)
+            if not env_type or env_type == self.env_config.get('environment_type'):
+                if self.env_config['distribution'] == clique_type.get('distribution'):
+                    if self.env_config['distribution_version'] \
+                            == clique_type.get('distribution_version'):
+                        return 5
+                    else:
+                        return 4
+                if clique_type.get('mechanism_drivers') \
+                        in self.env_config['mechanism_drivers']:
+                    return 3
+                if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
+                    return 2
                 else:
-                    return 4
-            if clique_type.get('mechanism_drivers') \
-                    in self.env_config['mechanism_drivers']:
-                return 3
-            if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
-                return 2
+                    return 0
             else:
                 return 0
 
     # Get clique type with max priority
     # for given focal point type
     def _get_clique_type(self, clique_types):
-        scored_clique_types = [{'score': self._get_priority_score(clique_type),
+        scored_clique_types = [{'score': self.get_priority_score(clique_type),
                                 'clique_type': clique_type}
                                for clique_type in clique_types]
         max_score = max(scored_clique_types, key=lambda t: t['score'])
