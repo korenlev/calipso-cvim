@@ -36,7 +36,8 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         if not pods or len(pods.items) == 0:
             self.log.error('failed to find pod with nodeName={}'.format(host))
             return []
-        pod = next(pod for pod in pods.items if pod.metadata.uid == pod_id)
+        pod = next((pod for pod in pods.items if pod.metadata.uid == pod_id),
+                   None)
         if not pod:
             self.log.error('failed to find pod with uid={}'.format(pod_id))
             return []
@@ -76,7 +77,9 @@ class KubeFetchContainers(KubeAccess, CliAccess):
 
     @staticmethod
     def get_container_data(doc: dict, container: V1Container):
-        for k in [k for k in dir(container) if not k.startswith('_')]:
+        for k in dir(container):
+            if k.startswith('_'):
+                continue
             try:
                 # TBD a lot of attributes from V1Container fail the saving to DB
                 if k in ['to_dict', 'to_str', 'attribute_map', 'swagger_types',
@@ -143,7 +146,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
     # find network matching the one sandbox, and keep its name
     def find_network(self, doc):
         networks = doc['sandbox']['NetworkSettings']['Networks']
-        network = next(iter(networks.values()))
+        network = networks[0]
         network_id = network['NetworkID']
         network_obj = self.inv.get_by_id(self.get_env(), network_id)
         if not network_obj:
