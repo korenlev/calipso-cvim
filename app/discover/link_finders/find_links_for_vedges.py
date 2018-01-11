@@ -7,12 +7,16 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from discover.configuration import Configuration
 from discover.link_finders.find_links import FindLinks
 
 
 class FindLinksForVedges(FindLinks):
     def __init__(self):
         super().__init__()
+        self.configuration = Configuration()
+        env_config = self.configuration.get_env_config()
+        self.environment_type = env_config.get('environment_type')
 
     def add_links(self):
         self.log.info("adding link types: " +
@@ -22,9 +26,12 @@ class FindLinksForVedges(FindLinks):
             "type": "vedge"
         })
         for vedge in vedges:
-            ports = vedge.get("ports", {})
-            for p in ports.values():
-                self.add_link_for_vedge(vedge, p)
+            if self.environment_type == 'OpenStack':
+                ports = vedge.get("ports", {})
+                for p in ports.values():
+                    self.add_link_for_vedge(vedge, p)
+            elif self.environment_type == 'Kubernetes':
+                self.add_link_for_kubernetes_vedge(vedge)
 
     def add_link_for_vedge(self, vedge, port):
         vnic = self.inv.get_by_id(self.get_env(),
@@ -124,3 +131,27 @@ class FindLinksForVedges(FindLinks):
                          source, source_id, target, target_id,
                          link_type, link_name, state, link_weight,
                          host=vedge["host"])
+
+    def add_link_for_kubernetes_vedge(self, vedge):
+        host_ip = vedge.get('status', {}).get('host_ip', '')
+        otep = self.inv.find_one({
+            'environment': self.get_env(),
+            'type': 'otep',
+            'ip_address': host_ip
+        })
+        if not otep:
+            return
+
+        source = vedge['_id']
+        source_id = vedge['id']
+        target = otep['_id']
+        target_id = otep['id']
+        link_type = 'vedge-otep'
+        link_name = '{}-{}'.format(vedge['object_name'],
+                                   otep['overlay_mac_address'])
+        state = 'up'  # TBD
+        link_weight = 0  # TBD
+        self.create_link(self.get_env(),
+                         source, source_id, target, target_id,
+                         link_type, link_name, state, link_weight,
+                         host=vedge['host'])
