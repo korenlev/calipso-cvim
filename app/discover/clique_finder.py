@@ -51,23 +51,31 @@ class CliqueFinder(Fetcher):
     # Calculate priority score for clique type per environment and configuration
     def _get_priority_score(self, clique_type):
         # environment-specific clique type takes precedence
-        if self.env == clique_type['environment']:
-            return 16
-        if (self.env_config['distribution'] == clique_type.get('distribution')
-            and
-            self.env_config['distribution_version'] ==
-                clique_type.get('distribution_version')):
-            return 8
-        if clique_type.get('mechanism_drivers') \
-                in self.env_config['mechanism_drivers']:
-            return 4
-        if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
-            return 2
-        if clique_type.get('environment', '') == 'ANY':
-            # environment=ANY serves as fallback option, but it's not mandatory
-            return 1
+        env = clique_type.get('environment')
+        # ECT - Clique Type with Environment name
+        if env:
+            if self.env == env:
+                return 6
+            elif env == 'ANY':
+                # environment=ANY serves as fallback option
+                return 1
+            else:
+                return 0
+        # NECT - Clique Type without Environment name
         else:
-            return 0
+            if self.env_config['distribution'] == clique_type.get('distribution'):
+                if self.env_config['distribution_version'] \
+                        == clique_type.get('distribution_version'):
+                    return 5
+                else:
+                    return 4
+            if clique_type.get('mechanism_drivers') \
+                    in self.env_config['mechanism_drivers']:
+                return 3
+            if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
+                return 2
+            else:
+                return 0
 
     # Get clique type with max priority
     # for given focal point type
