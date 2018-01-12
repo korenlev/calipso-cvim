@@ -27,9 +27,6 @@ from utils.ssh_connection import SshError
 
 class Scanner(Fetcher):
 
-    ENV_TYPE_OPENSTACK = 'OpenStack'
-    ENV_TYPE_KUBERNETES = 'Kubernetes'
-
     config = None
     environment = None
     env = None

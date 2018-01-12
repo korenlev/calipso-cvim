@@ -72,6 +72,9 @@ class CliFetchKubeNetworks(CliAccess):
         # until we find why long network ID is shared between hosts, we'll call
         # it 'network_id' and use the name as the ID for the networks
         network_data['id'] = network_data.pop('Id')
+        # add 'network' attribute to network itself to allow putting
+        # a constraint on cliques with network as focal point
+        network_data['network'] = network_data['id']
         network_data.pop('Name')
         network_data.pop('Driver')
         network_data.pop('Scope')

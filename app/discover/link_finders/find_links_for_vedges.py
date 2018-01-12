@@ -15,8 +15,7 @@ class FindLinksForVedges(FindLinks):
     def __init__(self):
         super().__init__()
         self.configuration = Configuration()
-        env_config = self.configuration.get_env_config()
-        self.environment_type = env_config.get('environment_type')
+        self.environment_type = self.configuration.get_env_type()
 
     def add_links(self):
         self.log.info("adding link types: " +
@@ -26,11 +25,11 @@ class FindLinksForVedges(FindLinks):
             "type": "vedge"
         })
         for vedge in vedges:
-            if self.environment_type == 'OpenStack':
+            if self.environment_type == self.ENV_TYPE_OPENSTACK:
                 ports = vedge.get("ports", {})
                 for p in ports.values():
                     self.add_link_for_vedge(vedge, p)
-            elif self.environment_type == 'Kubernetes':
+            elif self.environment_type == self.ENV_TYPE_KUBERNETES:
                 self.add_link_for_kubernetes_vedge(vedge)
 
     def add_link_for_vedge(self, vedge, port):

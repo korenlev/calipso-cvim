@@ -13,6 +13,9 @@ from utils.logging.full_logger import FullLogger
 
 class Fetcher:
 
+    ENV_TYPE_KUBERNETES = 'Kubernetes'
+    ENV_TYPE_OPENSTACK = 'OpenStack'
+
     def __init__(self):
         super().__init__()
         self.env = None
