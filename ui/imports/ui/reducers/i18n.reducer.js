@@ -32,7 +32,13 @@ const defaultState = {
         },
         instancesNum: {
           header: 'Number of instances'
-        }
+        },
+        containersNum: {
+            header: 'Number of containers'
+        },
+        podsNum: {
+            header: 'Number of pods'
+        },
       },
       listInfoBoxes: {
         regions: {

@@ -30,7 +30,7 @@
 
   <div class="sm-items-segment mainContentData flex-box">
 
-  {{#each briefInfo in (getBriefInfoList) }}
+  {{#each briefInfo in (getBriefInfoList (getState 'envType')) }}
     {{> DataCubic (argsBriefInfo briefInfo) }}
   {{/each }}
 
