@@ -343,7 +343,8 @@
     "order" : "1", 
     "condition" : {
         "mechanism_drivers" : [
-            "OVS"
+            "OVS",
+            "Flannel"
         ]
     }, 
     "config" : {
