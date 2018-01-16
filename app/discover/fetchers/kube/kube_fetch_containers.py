@@ -146,7 +146,15 @@ class KubeFetchContainers(KubeAccess, CliAccess):
     # find network matching the one sandbox, and keep its name
     def find_network(self, doc):
         networks = doc['sandbox']['NetworkSettings']['Networks']
-        network = networks[0]
+        if not networks:
+            return
+        network = None
+        if isinstance(networks, dict):
+            network_names = list(networks.keys())
+            network = network_names[0]
+            network = networks[network]
+        else:
+            network = networks[0]
         network_id = network['NetworkID']
         network_obj = self.inv.get_by_id(self.get_env(), network_id)
         if not network_obj:
