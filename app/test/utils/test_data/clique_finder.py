@@ -29,18 +29,6 @@ CLIQUE_TYPES = [
         'score': 5
     },
     {
-        'name': 'distribution match',
-        'clique_type': {
-            'environment_type': 'OpenStack',
-            'distribution': 'Mirantis',
-            'distribution_version': '8.0',
-            'mechanism_drivers': 'VPP',
-            'type_drivers': 'vlan',
-            'link_types': []
-        },
-        'score': 4
-    },
-    {
         'name': 'mechanism drivers match',
         'clique_type': {
             'environment_type': 'OpenStack',

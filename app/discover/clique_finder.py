@@ -52,6 +52,7 @@ class CliqueFinder(Fetcher):
     def get_priority_score(self, clique_type):
         # environment-specific clique type takes precedence
         env = clique_type.get('environment')
+        config = self.env_config
         # ECT - Clique Type with Environment name
         if env:
             if self.env == env:
@@ -65,17 +66,13 @@ class CliqueFinder(Fetcher):
         else:
             env_type = clique_type.get('environment_type')
             # TODO: remove backward compatibility ('if not env_type' check)
-            if not env_type or env_type == self.env_config.get('environment_type'):
-                if self.env_config['distribution'] == clique_type.get('distribution'):
-                    if self.env_config['distribution_version'] \
-                            == clique_type.get('distribution_version'):
-                        return 5
-                    else:
-                        return 4
-                if clique_type.get('mechanism_drivers') \
-                        in self.env_config['mechanism_drivers']:
+            if not env_type or env_type == config.get('environment_type'):
+                if config['distribution'] == clique_type.get('distribution') \
+                   and config['distribution_version'] == clique_type.get('distribution_version'):
+                    return 5
+                if clique_type.get('mechanism_drivers') in config['mechanism_drivers']:
                     return 3
-                if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
+                if config['type_drivers'] == clique_type.get('type_drivers'):
                     return 2
                 else:
                     return 0
