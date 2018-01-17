@@ -74,6 +74,15 @@ let schema = {
     type: String
   },
 
+  environment_type: {
+    type: String,
+    defaultValue: null,
+    optional: true,
+    custom: function () {
+        return Constants.validateValue('environment_types', this);
+    }
+  },
+
   distribution: {
     type: String,
     defaultValue: null,
@@ -137,6 +146,9 @@ function callValidators(context) {
 function focalPointValidator(that) {
   // Validate focal point uniqueness
   console.log("Validator: focal point uniqueness");
+  if (isEmpty(that.field('environment').value)) {
+    return;
+  }
 
   let existing = CliqueTypes.findOne({
     environment: that.field('environment').value,
@@ -178,10 +190,9 @@ function requiredFieldsValidator(that) {
   // Validate all required fields
   console.log("Validator: required fields");
 
-  let populated = R.filter((f) => !isEmpty(that.field(f).value))
-                           (['environment', 'distribution', 'mechanism_drivers', 'type_drivers']);
-
-  if (populated.length === 0) {
+  if ((isEmpty(that.field('environment').value)
+       && isEmpty(that.field('environment_type').value))
+      || isEmpty(that.field('focal_point_type').value)) {
     console.warn("Insufficient data");
     return 'insufficientData'
   }
@@ -196,8 +207,8 @@ function duplicateConfigurationValidator(that) {
   }
 
   let fields = ['distribution', 'mechanism_drivers', 'type_drivers'];
-  let search = {};
   for (let i = 0; i < fields.length; ++i) {
+      let search = {'environment_type': that.field('environment_type').value};
       let field = fields[i];
       let value = that.field(field).value;
       if (!isEmpty(value)) {
@@ -208,17 +219,15 @@ function duplicateConfigurationValidator(that) {
                   search['distribution_version'] = dv;
               }
           }
-          break;
+          let existing = CliqueTypes.findOne(search);
+          if (R.allPass([
+                  R.pipe(R.isNil, R.not),
+                  R.pipe(R.propEq('_id', that.docId), R.not)
+              ])(existing)) {
+              console.warn("Duplicate clique type");
+              return 'alreadyExists';
+          }
       }
-  }
-
-  let existing = CliqueTypes.findOne(search);
-  if (R.allPass([
-          R.pipe(R.isNil, R.not),
-          R.pipe(R.propEq('_id', that.docId), R.not)
-      ])(existing)) {
-      console.warn("Duplicate clique type");
-      return 'alreadyExists';
   }
 }
 

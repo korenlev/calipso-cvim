@@ -121,6 +121,7 @@ Template.CliqueType.events({
     let _id = instance.state.get('id');
     let env = instance.$('.sm-input-env')[0].value;
     let isEnvEmpty = isEmpty(env);
+    let environmentType = instance.$('.sm-input-environment-type')[0].value;
     let distribution = instance.$('.sm-input-distribution')[0].value;
     let distributionVersion = instance.$('.sm-input-distribution-version')[0].value;
     let mechanismDrivers = instance.$('.sm-input-mechanism-drivers')[0].value;
@@ -134,6 +135,7 @@ Template.CliqueType.events({
       _id,
       env, 
       focalPointType,
+      environmentType,
       isEnvEmpty ? distribution : undefined,
       isEnvEmpty ? distributionVersion : undefined,
       isEnvEmpty ? mechanismDrivers : undefined,
@@ -172,12 +174,16 @@ Template.CliqueType.helpers({
     return Constants.getByName('object_types_for_links');
   },
 
+  environmentTypesList: function () {
+    return Constants.getByName('environment_types');
+  },
+
   distributionsList: function () {
-      return Constants.getByName('distributions');
+    return Constants.getByName('distributions');
   },
 
   distributionVersionsList: function () {
-      return Constants.getByName('distribution_versions');
+    return Constants.getByName('distribution_versions');
   },
 
   mechanismDriversList: function () {
@@ -340,6 +346,7 @@ function submitItem(
   id, 
   env, 
   focal_point_type,
+  environment_type,
   distribution,
   distribution_version,
   mechanism_drivers,
@@ -361,6 +368,7 @@ function submitItem(
     insert.call({
       environment: env,
       focal_point_type: focal_point_type,
+      environment_type: environment_type,
       distribution: distribution,
       distribution_version: distribution_version,
       mechanism_drivers: mechanism_drivers,
@@ -376,6 +384,7 @@ function submitItem(
       _id: id.id,
       environment: env,
       focal_point_type: focal_point_type,
+      environment_type: environment_type,
       distribution: distribution,
       distribution_version: distribution_version,
       mechanism_drivers: mechanism_drivers,

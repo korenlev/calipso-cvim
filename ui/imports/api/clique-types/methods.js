@@ -18,6 +18,7 @@ export const insert = new ValidatedMethod({
     .pick([
       'environment',
       'focal_point_type',
+      'environment_type',
       'distribution',
       'distribution_version',
       'mechanism_drivers',
@@ -30,6 +31,7 @@ export const insert = new ValidatedMethod({
   run({
     environment,
     focal_point_type,
+    environment_type,
     distribution,
     distribution_version,
     mechanism_drivers,
@@ -47,6 +49,7 @@ export const insert = new ValidatedMethod({
     cliqueType = R.merge(cliqueType, {
       environment,
       focal_point_type,
+      environment_type,
       distribution,
       distribution_version,
       mechanism_drivers,
@@ -88,6 +91,7 @@ export const update = new ValidatedMethod({
       '_id',
       'environment',
       'focal_point_type',
+      'environment_type',
       'distribution',
       'distribution_version',
       'mechanism_drivers',
@@ -101,6 +105,7 @@ export const update = new ValidatedMethod({
     _id,
     environment,
     focal_point_type,
+    environment_type,
     distribution,
     distribution_version,
     mechanism_drivers,
@@ -119,6 +124,7 @@ export const update = new ValidatedMethod({
     cliqueType = R.merge(R.pick([
       'environment',
       'focal_point_type',
+      'environment_type',
       'distribution',
       'distribution_version',
       'mechanism_drivers',
@@ -129,6 +135,7 @@ export const update = new ValidatedMethod({
     cliqueType), {
       environment,
       focal_point_type,
+      environment_type,
       distribution,
       distribution_version,
       mechanism_drivers,
