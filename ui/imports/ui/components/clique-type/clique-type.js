@@ -135,7 +135,7 @@ Template.CliqueType.events({
       _id,
       env, 
       focalPointType,
-      environmentType,
+      isEnvEmpty ? environmentType: undefined,
       isEnvEmpty ? distribution : undefined,
       isEnvEmpty ? distributionVersion : undefined,
       isEnvEmpty ? mechanismDrivers : undefined,
