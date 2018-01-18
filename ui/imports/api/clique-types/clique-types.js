@@ -74,6 +74,15 @@ let schema = {
     type: String
   },
 
+  environment_type: {
+    type: String,
+    defaultValue: null,
+    optional: true,
+    custom: function () {
+        return Constants.validateValue('environment_types', this);
+    }
+  },
+
   distribution: {
     type: String,
     defaultValue: null,
@@ -137,6 +146,9 @@ function callValidators(context) {
 function focalPointValidator(that) {
   // Validate focal point uniqueness
   console.log("Validator: focal point uniqueness");
+  if (isEmpty(that.field('environment').value)) {
+    return;
+  }
 
   let existing = CliqueTypes.findOne({
     environment: that.field('environment').value,
@@ -178,13 +190,21 @@ function requiredFieldsValidator(that) {
   // Validate all required fields
   console.log("Validator: required fields");
 
-  let populated = R.filter((f) => !isEmpty(that.field(f).value))
-                           (['environment', 'distribution', 'mechanism_drivers', 'type_drivers']);
-
-  if (populated.length === 0) {
-    console.warn("Insufficient data");
-    return 'insufficientData'
+  if (isEmpty(that.field('environment').value)
+      && isEmpty(that.field('environment_type').value)) {
+    console.warn('insufficientCliqueTypeData');
+    return 'insufficientCliqueTypeData';
   }
+  if (isEmpty(that.field('focal_point_type').value)) {
+    console.warn('noFocalPoint');
+    return 'noFocalPoint';
+  }
+  if (!isEmpty(that.field('distribution_version').value)
+      && isEmpty(that.field('distribution').value)) {
+    console.warn('versionWithoutDistribution');
+    return 'versionWithoutDistribution';
+  }
+
 }
 
 function duplicateConfigurationValidator(that) {
@@ -196,7 +216,10 @@ function duplicateConfigurationValidator(that) {
   }
 
   let fields = ['distribution', 'mechanism_drivers', 'type_drivers'];
-  let search = {};
+  let search = {
+      'environment_type': that.field('environment_type').value,
+      'focal_point_type': that.field('focal_point_type').value
+  };
   for (let i = 0; i < fields.length; ++i) {
       let field = fields[i];
       let value = that.field(field).value;
@@ -204,22 +227,20 @@ function duplicateConfigurationValidator(that) {
           search[field] = value;
           if (field === 'distribution') {
               let dv = that.field('distribution_version').value;
-              if (!isEmpty(dv)) {
-                  search['distribution_version'] = dv;
-              }
+              search['distribution_version'] = !isEmpty(dv) ? dv : null;
           }
-          break;
+      }
+      else {
+          search[field] = null;
       }
   }
 
   let existing = CliqueTypes.findOne(search);
-  if (R.allPass([
-          R.pipe(R.isNil, R.not),
-          R.pipe(R.propEq('_id', that.docId), R.not)
-      ])(existing)) {
+  if (R.allPass([R.pipe(R.isNil, R.not),
+                 R.pipe(R.propEq('_id', that.docId), R.not)])(existing)) {
       console.warn("Duplicate clique type");
       return 'alreadyExists';
-  }
+    }
 }
 
 CliqueTypes.schema = simpleSchema;

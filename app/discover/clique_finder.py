@@ -52,35 +52,50 @@ class CliqueFinder(Fetcher):
     def get_priority_score(self, clique_type):
         # environment-specific clique type takes precedence
         env = clique_type.get('environment')
+        config = self.env_config
         # ECT - Clique Type with Environment name
         if env:
             if self.env == env:
-                return 6
-            elif env == 'ANY':
+                return 2**5
+            if env == 'ANY':
                 # environment=ANY serves as fallback option
-                return 1
-            else:
-                return 0
+                return 2**0
+            return 0
         # NECT - Clique Type without Environment name
         else:
             env_type = clique_type.get('environment_type')
             # TODO: remove backward compatibility ('if not env_type' check)
-            if not env_type or env_type == self.env_config.get('environment_type'):
-                if self.env_config['distribution'] == clique_type.get('distribution'):
-                    if self.env_config['distribution_version'] \
-                            == clique_type.get('distribution_version'):
-                        return 5
-                    else:
-                        return 4
-                if clique_type.get('mechanism_drivers') \
-                        in self.env_config['mechanism_drivers']:
-                    return 3
-                if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
-                    return 2
-                else:
-                    return 0
-            else:
+            if env_type and env_type != config.get('environment_type'):
                 return 0
+
+            score = 0
+
+            distribution = clique_type.get('distribution')
+            if distribution:
+                if config['distribution'] != distribution:
+                    return 0
+
+                score += 2**4
+
+                dv = clique_type.get('distribution_version')
+                if dv:
+                    if dv != config['distribution_version']:
+                        return 0
+                    score += 2**3
+
+            mechanism_drivers = clique_type.get('mechanism_drivers')
+            if mechanism_drivers:
+                if mechanism_drivers not in config['mechanism_drivers']:
+                    return 0
+                score += 2**2
+
+            type_drivers = clique_type.get('type_drivers')
+            if type_drivers:
+                if type_drivers != config['type_drivers']:
+                    return 0
+                score += 2**1
+
+            return score
 
     # Get clique type with max priority
     # for given focal point type

@@ -59,6 +59,20 @@
           <div class="cl-field-desc">Focal Point Type</div>
         </div>
 
+        <div class="sm-field-group-environment-type cl-field-group">
+          <label class="cl-field-label">Environment Type</label>
+          <select name="environmentType" class="sm-input-environment-type cl-input conf-input"
+            {{ getConfDisabled (getModelField 'environment') }} >
+            <option selected></option>
+            {{#each etType in environmentTypesList }}
+              <option value="{{ etType.value }}"
+                {{ getAttrSelected etType.value (getModelField 'environment_type') }}
+              >{{ etType.label }}</option>
+            {{/each }}
+          </select>
+          <div class="cl-field-desc">Environment Type</div>
+        </div>
+
         <div class="sm-field-group-distribution cl-field-group">
           <label class="cl-field-label">Distribution</label>
           <select name="distribution" class="sm-input-distribution cl-input conf-input"

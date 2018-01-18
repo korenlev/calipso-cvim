@@ -20,6 +20,7 @@
       <tr>
         <th>name</th>
         <th>Environment</th>
+        <th>Environment Type</th>
         <th>Focal Point Type</th>
         <th>Link Types</th>
         <th>Distribution</th>
@@ -34,6 +35,7 @@
       <tr>
         <td>{{ cliqueType.name }}</td>
         <td>{{ cliqueType.environment }}</td>
+        <td>{{ cliqueType.environment_type }}</td>
         <td>{{ cliqueType.focal_point_type }}</td>
         <td>{{ cliqueType.link_types }}</td>
         <td>{{ cliqueType.distribution }}</td>
@@ -47,7 +49,7 @@
                           query=(asHash id=(idToStr cliqueType._id) action='view') }}"
                 ><i class="cl-action-icon fa fa-eye" area-hidden="true"></i></a>
 
-            {{#if isAuthManageCliqueTypes }}
+            {{#if isManageable cliqueType }}
             <a href="{{pathFor route='clique-type' 
                           query=(asHash id=(idToStr cliqueType._id) action='update') }}"
                 ><i class="cl-action-icon fa fa-pencil" area-hidden="true"></i></a>
