@@ -75,13 +75,13 @@ class CliqueFinder(Fetcher):
                 if config['distribution'] != distribution:
                     return 0
 
-                score += 2**3
+                score += 2**4
 
                 dv = clique_type.get('distribution_version')
                 if dv:
                     if dv != config['distribution_version']:
                         return 0
-                    score += 2**4
+                    score += 2**3
 
             mechanism_drivers = clique_type.get('mechanism_drivers')
             if mechanism_drivers:
