@@ -51,7 +51,7 @@ CLIQUE_TYPES = [
         'clique_type': get_configuration(matches=['environment_type',
                                                   'distribution',
                                                   'distribution_version']),
-        'score': 2**4
+        'score': 2**4 + 2**3
     },
     {
         'name': 'distribution match',
@@ -86,7 +86,7 @@ CLIQUE_TYPES = [
                                                   'distribution_version',
                                                   'mechanism_drivers',
                                                   'type_drivers']),
-        'score': 2**4 + 2**2 + 2**1
+        'score': 2**4 + 2**3 + 2**2 + 2**1
     },
     {
         'name': 'Partial configuration match (drivers)',
