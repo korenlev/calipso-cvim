@@ -10,6 +10,7 @@
 import logging
 import logging.handlers
 
+from utils.origins import Origin
 from utils.logging.logger import Logger
 from utils.logging.mongo_logging_handler import MongoLoggingHandler
 
@@ -31,13 +32,28 @@ class FullLogger(Logger):
         if log_file:
             self.add_handler(logging.handlers.WatchedFileHandler(log_file))
 
+    def _get_message_handler(self):
+        defined_handlers = [h for h in self.log.handlers
+                            if isinstance(h, MongoLoggingHandler)]
+        return defined_handlers[0] if defined_handlers else None
+
     # Make sure we update MessageHandler with new env
     def set_env(self, env):
-        super().set_env(env)
+        self.env = env
 
-        defined_handler = [h for h in self.log.handlers
-                           if isinstance(h, MongoLoggingHandler)]
-        if defined_handler:
-            defined_handler[0].env = env
+        handler = self._get_message_handler()
+        if handler:
+            handler.env = env
         else:
             self.add_handler(MongoLoggingHandler(env, self.level))
+
+    def set_origin(self, origin: Origin):
+        self.origin = origin
+
+        handler = self._get_message_handler()
+        if handler:
+            handler.origin = origin
+        else:
+            self.add_handler(MongoLoggingHandler(env=self.env,
+                                                 level=self.level,
+                                                 origin=origin))

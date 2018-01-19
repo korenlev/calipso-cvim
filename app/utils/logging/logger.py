@@ -35,10 +35,8 @@ class Logger(ABC):
         self.log.propagate = False
         self.set_loglevel(level)
         self.env = None
+        self.origin = None
         self.level = level
-
-    def set_env(self, env):
-        self.env = env
 
     @staticmethod
     def check_level(level):
