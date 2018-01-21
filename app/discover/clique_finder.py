@@ -42,11 +42,11 @@ class CliqueFinder(Fetcher):
         return self.links.find({'target': db_id})
 
     def find_cliques(self):
-        self.log.info("scanning for cliques")
+        self.log.info("Scanning for cliques")
         clique_types = self.get_clique_types().values()
         for clique_type in clique_types:
             self.find_cliques_for_type(clique_type)
-        self.log.info("finished scanning for cliques")
+        self.log.info("Finished scanning for cliques")
 
     # Calculate priority score for clique type per environment and configuration
     def get_priority_score(self, clique_type):
@@ -105,8 +105,9 @@ class CliqueFinder(Fetcher):
                                for clique_type in clique_types]
         max_score = max(scored_clique_types, key=lambda t: t['score'])
         if max_score['score'] == 0:
-            self.log.warn('No matching clique types for focal point type: {}'
-                          .format(clique_types[0].get('focal_point_type')))
+            self.log.warn('No matching clique types '
+                          'for focal point type: {fp_type}'
+                          .format(fp_type=clique_types[0].get('focal_point_type')))
             return None
         return max_score.get('clique_type')
 

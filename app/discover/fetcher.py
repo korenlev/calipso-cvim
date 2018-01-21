@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from discover.configuration import Configuration
+from utils.origins import Origin
 from utils.logging.full_logger import FullLogger
 
 
@@ -21,6 +22,7 @@ class Fetcher:
         self.env = None
         self.log = FullLogger()
         self.configuration = None
+        self.origin = None
 
     @staticmethod
     def escape(string):
@@ -30,6 +32,12 @@ class Fetcher:
         self.env = env
         self.log.set_env(env)
         self.configuration = Configuration()
+
+    def setup(self, env, origin: Origin = None):
+        self.set_env(env)
+        if origin:
+            self.origin = origin
+            self.log.set_origin(origin)
 
     def get_env(self):
         return self.env
