@@ -30,7 +30,8 @@ class Fetcher:
 
     def set_env(self, env):
         self.env = env
-        self.log.set_env(env)
+        if isinstance(self.log, FullLogger):
+            self.log.set_env(env)
         self.configuration = Configuration()
 
     def setup(self, env, origin: Origin = None):
