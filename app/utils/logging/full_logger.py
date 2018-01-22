@@ -17,16 +17,19 @@ from utils.logging.mongo_logging_handler import MongoLoggingHandler
 
 class FullLogger(Logger):
 
-    def __init__(self, env: str = None, log_file: str = None,
-                 level: str = Logger.default_level):
+    def __init__(self, env: str = None, origin: Origin = None,
+                 log_file: str = None, level: str = Logger.default_level):
         super().__init__(logger_name="{}-Full".format(self.PROJECT_NAME),
                          level=level)
+        self.env = env
+        self.origin = origin
 
         # Console handler
         self.add_handler(logging.StreamHandler())
 
         # Message handler
-        self.add_handler(MongoLoggingHandler(env, self.level))
+        self.add_handler(MongoLoggingHandler(env=env, origin=origin,
+                                             level=self.level))
 
         # File handler
         if log_file:
@@ -57,3 +60,12 @@ class FullLogger(Logger):
             self.add_handler(MongoLoggingHandler(env=self.env,
                                                  level=self.level,
                                                  origin=origin))
+
+    def setup(self, **kwargs):
+        env = kwargs.get('env')
+        if env and self.env != env:
+            self.set_env(env)
+
+        origin = kwargs.get('origin')
+        if origin and self.origin != origin:
+            self.set_origin(origin)
