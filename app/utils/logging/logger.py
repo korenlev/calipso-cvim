@@ -34,9 +34,12 @@ class Logger(ABC):
                             level=level)
         self.log.propagate = False
         self.set_loglevel(level)
-        self.env = None
-        self.origin = None
         self.level = level
+
+    # Subclasses should override this method
+    # to perform runtime changes to handlers, etc.
+    def setup(self, **kwargs):
+        pass
 
     @staticmethod
     def check_level(level):
