@@ -307,6 +307,10 @@
         {
             "value": "container-vnic",
             "label": "container-vnic"
+        },
+        {
+            "value": "vnic-container",
+            "label": "vnic-container"
         }
     ]
 },
@@ -378,6 +382,10 @@
         {
             "label" : "instance", 
             "value" : "instance"
+        },
+        {
+            "label" : "container",
+            "value" : "container"
         }, 
         {
             "label" : "vservice", 
@@ -603,6 +611,10 @@
         {
             "label" : "vnic", 
             "value" : "vnic"
+        },
+        {
+            "label" : "container",
+            "value" : "container"
         }, 
         {
             "label" : "vconnector", 
