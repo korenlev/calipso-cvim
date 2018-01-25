@@ -44,32 +44,32 @@ CLIQUE_TYPES = [
     {
         'name': 'environment match',
         'clique_type': get_configuration(matches=['environment']),
-        'score': 2**5
+        'score': 2**6
     },
     {
         'name': 'distribution and version match',
         'clique_type': get_configuration(matches=['environment_type',
                                                   'distribution',
                                                   'distribution_version']),
-        'score': 2**4 + 2**3
+        'score': 2**5 + 2**4
     },
     {
         'name': 'distribution match',
         'clique_type': get_configuration(matches=['environment_type',
                                                   'distribution']),
-        'score': 2**4
+        'score': 2**5
     },
     {
         'name': 'mechanism drivers match',
         'clique_type': get_configuration(matches=['environment_type',
                                                   'mechanism_drivers']),
-        'score': 2**2
+        'score': 2**3
     },
     {
         'name': 'type drivers match',
         'clique_type': get_configuration(matches=['environment_type',
                                                   'type_drivers']),
-        'score': 2**1
+        'score': 2**2
     },
     {
         'name': 'ANY fallback',
@@ -86,14 +86,14 @@ CLIQUE_TYPES = [
                                                   'distribution_version',
                                                   'mechanism_drivers',
                                                   'type_drivers']),
-        'score': 2**4 + 2**3 + 2**2 + 2**1
+        'score': 2**5 + 2**4 + 2**3 + 2**2
     },
     {
         'name': 'Partial configuration match (drivers)',
         'clique_type': get_configuration(matches=['environment_type',
                                                   'mechanism_drivers',
                                                   'type_drivers']),
-        'score': 2**2 + 2**1
+        'score': 2**3 + 2**2
     },
     {
         'name': 'No environment name match',
