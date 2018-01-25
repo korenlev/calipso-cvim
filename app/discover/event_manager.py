@@ -15,6 +15,7 @@ from multiprocessing import Process, Manager as SharedManager
 import os
 
 from discover.events.listeners.default_listener import DefaultListener
+from discover.events.listeners.kubernetes_listener import KubernetesListener
 from discover.events.listeners.listener_base import ListenerBase
 from discover.manager import Manager
 from utils.constants import OperationalStatus, EnvironmentFeatures
@@ -40,19 +41,10 @@ class EventManager(Manager):
     }
 
     LISTENERS = {
-        'Mirantis': {
-            '6.0': DefaultListener,
-            '7.0': DefaultListener,
-            '8.0': DefaultListener,
-            '9.0': DefaultListener
-        },
-        'RDO': {
-            'Mitaka': DefaultListener,
-            'Liberty': DefaultListener,
-        },
-        'Apex': {
-            'Euphrates': DefaultListener,
-        },
+        'ANY': DefaultListener,
+        'Kubernetes': {
+            'ANY': KubernetesListener
+        }
     }
 
     def __init__(self):
@@ -112,9 +104,15 @@ class EventManager(Manager):
 
     def get_listener(self, env: str):
         env_config = self.inv.get_env_config(env)
-        return (self.LISTENERS.get(env_config.get('distribution'), {})
-                              .get(env_config.get('distribution_version'),
-                                                  DefaultListener))
+        versions = self.LISTENERS.get(env_config.get('distribution'))
+        if versions:
+            if isinstance(versions, dict):
+                return versions.get(env_config.get('distribution_version'),
+                                    versions.get('ANY', DefaultListener))
+            else:
+                return versions
+
+        return self.LISTENERS.get('ANY', DefaultListener)
 
     def listen_to_events(self, listener: ListenerBase, env_name: str, process_vars: dict):
         listener.listen({

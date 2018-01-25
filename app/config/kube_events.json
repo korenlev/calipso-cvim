@@ -1,0 +1,8 @@
+{
+  "handlers_package": "discover.events.kube",
+  "event_handlers": {
+    "pod.added": "KubePodAdd",
+    "pod.modified": "KubePodUpdate",
+    "pod.deleted": "KubePodDelete"
+  }
+}
