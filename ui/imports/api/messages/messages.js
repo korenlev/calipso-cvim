@@ -75,9 +75,13 @@ let schema = {
     type: String
   },
 
-  scan_id: {
-    type: Date
-  }
+  origin_type: {
+    type: String
+  },
+
+  origin_id: {
+    type: String
+  },
 };
 
 let simpleSchema = new SimpleSchema(schema);
