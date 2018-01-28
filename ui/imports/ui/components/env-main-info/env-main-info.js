@@ -117,13 +117,7 @@ Template.EnvMainInfo.events({
 });
 
 function isDisabledByField(fieldName, actionName) {
-  if (R.contains(fieldName, ['name', 'distribution']) && actionName !== 'insert') {
-    return true;
-  }
-
-  if (R.contains(fieldName, ['name', 'distribution_version']) && actionName !== 'insert') {
-    return true;
-  }
-  
-  return false;
+  return (R.contains(fieldName, ['name', 'environment_type',
+                                'distribution', 'distribution_version'])
+                     && actionName !== 'insert');
 }
