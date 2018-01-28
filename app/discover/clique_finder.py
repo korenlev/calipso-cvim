@@ -56,7 +56,7 @@ class CliqueFinder(Fetcher):
         # ECT - Clique Type with Environment name
         if env:
             if self.env == env:
-                return 2**5
+                return 2**6
             if env == 'ANY':
                 # environment=ANY serves as fallback option
                 return 2**0
@@ -75,27 +75,29 @@ class CliqueFinder(Fetcher):
                 if config['distribution'] != distribution:
                     return 0
 
-                score += 2**4
+                score += 2**5
 
                 dv = clique_type.get('distribution_version')
                 if dv:
                     if dv != config['distribution_version']:
                         return 0
-                    score += 2**3
+                    score += 2**4
 
             mechanism_drivers = clique_type.get('mechanism_drivers')
             if mechanism_drivers:
                 if mechanism_drivers not in config['mechanism_drivers']:
                     return 0
-                score += 2**2
+                score += 2**3
 
             type_drivers = clique_type.get('type_drivers')
             if type_drivers:
                 if type_drivers != config['type_drivers']:
                     return 0
-                score += 2**1
+                score += 2**2
 
-            return score
+            # If no configuration is specified, this clique type
+            # is a fallback for its environment type
+            return max(score, 2**1)
 
     # Get clique type with max priority
     # for given focal point type
