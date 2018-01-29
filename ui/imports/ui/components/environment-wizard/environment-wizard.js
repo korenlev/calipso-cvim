@@ -138,11 +138,15 @@ Template.EnvironmentWizard.onDestroyed(function () {
  * Helpers
  */
 
+export const environmentSpecificTabs = {
+  'OpenStack': ['OpenStack', 'AMQP'],
+  'Kubernetes': ['Kubernetes']
+};
+
 Template.EnvironmentWizard.helpers({
   model: function () {
     let instance = Template.instance();
-    let environmentModel = instance.state.get('environmentModel');
-    return environmentModel;
+    return instance.state.get('environmentModel');
   },
 
   tabs: function () {
@@ -151,8 +155,12 @@ Template.EnvironmentWizard.helpers({
     let environmentModel = instance.state.get('environmentModel');
     let action = instance.state.get('action');
     let disabled = instance.state.get('disabled');
-    let activateNextTab = function (nextTabId) {
-      instance.$('#link-' + nextTabId).tab('show');
+    let activateNextTab = function (tabId) {
+      let nextTab = instance.$('#link-' + tabId).closest('li').next();
+      if (nextTab.length === 0) {
+        nextTab = instance.$(".tab-list").find('li').first();
+      }
+      nextTab.find('.sm-tab-link').tab('show');
     };
 
     if (R.isNil(environmentModel)) {
@@ -182,11 +190,18 @@ Template.EnvironmentWizard.helpers({
     );
     let isListeningDisabled = disabled || !isListeningSupportedRes;
 
-    let osTabDisabled = environmentModel.environment_type !== "OpenStack";
-    let amqpTabDisabled = !(environmentModel.listen && isListeningSupportedRes);
     let monitoringTabDisabled = !(environmentModel.enable_monitoring && isMonSupportedRes);
-    let kubeTabDisabled = environmentModel.environment_type !== "Kubernetes";
     let isAciTabDisabled = !(environmentModel.aci_enabled);
+
+    let envType = environmentModel.environment_type;
+    let envSpecificTabs = environmentSpecificTabs[(envType in environmentSpecificTabs)
+                                                  ? envType
+                                                  : "OpenStack"];
+    let osTabDisabled = !(envSpecificTabs.includes("OpenStack"));
+    let amqpTabDisabled = !(envSpecificTabs.includes("AMQP")
+                            && environmentModel.listen
+                            && isListeningSupportedRes);
+    let kubeTabDisabled = !(envSpecificTabs.includes("Kubernetes"));
 
     return [{
       label: 'Main Info',
@@ -226,7 +241,7 @@ Template.EnvironmentWizard.helpers({
 
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'endpoint-panel'),
+        onNextRequested: activateNextTab.bind(null, 'maininfo'),
         action: action,
       }
     }, {
@@ -243,7 +258,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('OpenStack', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'db-credentials'),
+        onNextRequested: activateNextTab.bind(null, 'endpoint-panel'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
@@ -263,7 +278,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('mysql', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'master-host'),
+        onNextRequested: activateNextTab.bind(null, 'db-credentials'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
@@ -283,7 +298,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('CLI', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'amqp'),
+        onNextRequested: activateNextTab.bind(null, 'master-host'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
@@ -303,7 +318,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('AMQP', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'aci'),
+        onNextRequested: activateNextTab.bind(null, 'amqp'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
@@ -342,7 +357,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('ACI', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
+        onNextRequested: activateNextTab.bind(null, 'aci'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
@@ -363,7 +378,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('Monitoring', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
-        onNextRequested: activateNextTab.bind(null, 'kubeInfo'),
+        onNextRequested: activateNextTab.bind(null, 'monitoringInfo'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
@@ -384,6 +399,7 @@ Template.EnvironmentWizard.helpers({
           let newModel = setConfigurationGroup('Kubernetes', newSubModel, model);
           instance.state.set('environmentModel', newModel);
         },
+        onNextRequested: activateNextTab.bind(null, 'kubeInfo'),
         action: action,
         onTestConnection: function () {
           testConnection(instance);
