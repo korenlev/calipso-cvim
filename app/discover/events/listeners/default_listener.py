@@ -80,7 +80,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
     def get_consumers(self, consumer, channel):
         return [consumer(queues=self.event_queues,
                          accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_event])]
 
     # Determines if message should be processed by a handler
     # and extracts message body if yes.
@@ -93,7 +93,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         else:
             return False, None
 
-    def process_task(self, body, message):
+    def process_event(self, body, message):
         received_timestamp = datetime.datetime.now()
         processable, event_data = self._extract_event_data(body)
         # If env listener can't process the message

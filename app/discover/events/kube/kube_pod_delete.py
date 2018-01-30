@@ -1,11 +1,10 @@
-from discover.events.kube.kube_event_base import KubeEventBase
+from discover.events.kube.kube_event_delete_base import KubeEventDeleteBase
 
 
-class KubePodDelete(KubeEventBase):
+class KubePodDelete(KubeEventDeleteBase):
 
     def handle(self, env, values):
         super().handle(env, values)
-        print("Event: Pod delete. "
-              "Namespace: {ns}. "
-              "Pod name: {pn}".format(ns=self.metadata.namespace,
-                                      pn=self.metadata.name))
+        return self.delete_handler(env=env,
+                                   object_id=self.object_id,
+                                   object_type="pod")

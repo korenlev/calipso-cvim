@@ -1,5 +1,7 @@
 import argparse
+import datetime
 import socket
+from typing import Callable, List
 
 import os
 
@@ -9,8 +11,10 @@ from kubernetes.watch import Watch
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
-from discover.events.kube.kube_metadata_parser import parse_metadata_file
+from discover.events.kube.kube_metadata_parser import parse_metadata_file, \
+    KubeMetadataParser
 from discover.events.listeners.listener_base import ListenerBase
+from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
@@ -35,8 +39,6 @@ class KubernetesListener(ListenerBase):
         "inventory": "inventory",
         "loglevel": "INFO",
         "environments_collection": "environments_config",
-        "retry_limit": 10,
-        "consume_all": False
     }
 
     def __init__(self, config, event_handler,
@@ -63,10 +65,34 @@ class KubernetesListener(ListenerBase):
         conf.verify_ssl = False
         self.api = CoreV1Api()
 
+    def process_event(self, event):
+        received_timestamp = datetime.datetime.now()
+
+        event_type = ".".join(
+            (event['object'].kind, event['type'])
+        ).lower()
+        result = self.handle_event(event_type=event_type, notification=event)
+
+        finished_timestamp = datetime.datetime.now()
+        self.save_message(message_body=event,
+                          result=result,
+                          started=received_timestamp,
+                          finished=finished_timestamp)
+
+        if result.result is True:
+            self.log.info("Event '{event_type}' for object '{object_id}' "
+                          "was handled successfully."
+                          .format(event_type=event_type,
+                                  object_id=result.related_object))
+        else:
+            self.log.error("Event handling '{event_type}' "
+                           "for object '{object_id}' failed.\n"
+                           "Message: {message}"
+                           .format(event_type=event_type,
+                                   object_id=result.related_object,
+                                   message=result.message))
+
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
-        # self.log.info("Got notification.\n"
-        #               "Event_type: {}\n"
-        #               "Notification:\n{}".format(event_type, notification))
         try:
             result = self.handler.handle(event_name=event_type,
                                          notification=notification)
@@ -74,6 +100,27 @@ class KubernetesListener(ListenerBase):
         except Exception as e:
             self.log.exception(e)
             return EventResult(result=False, retry=False)
+
+    def save_message(self, message_body: dict, result: EventResult,
+                     started: datetime, finished: datetime):
+        try:
+            message = Message(
+                msg_id=None,  # TODO: generate?
+                env=self.environment,
+                source=self.SOURCE_SYSTEM,
+                object_id=result.related_object,
+                display_context=result.display_context,
+                level="info" if result.result is True else "error",
+                msg={},  # TODO: filter and dump select fields
+                received_ts=started,
+                finished_ts=finished
+            )
+            self.inv.collections['messages'].insert_one(message.get())
+            return True
+        except Exception as e:
+            self.inv.log.error("Failed to save message")
+            self.inv.log.exception(e)
+            return False
 
     @staticmethod
     def listen(args: dict = None):
@@ -104,7 +151,8 @@ class KubernetesListener(ListenerBase):
         )
 
         # import common metadata
-        import_metadata(event_handler, common_metadata_file)
+        metadata_parser = import_metadata(event_handler=event_handler,
+                                          metadata_file_path=common_metadata_file)
 
         # import custom metadata if supplied
         if args["metadata_file"]:
@@ -114,22 +162,24 @@ class KubernetesListener(ListenerBase):
         listener = KubernetesListener(config=kube_config,
                                       event_handler=event_handler)
 
-        watch = Watch()
-        while True:
-            try:
-                for event in watch.stream(listener.api.list_pod_for_all_namespaces):
-                    event_type = ".".join(
-                        (event['object'].kind, event['type'])
-                    ).lower()
+        metadata_parser.load_endpoints(api=listener.api)
 
-                    listener.handle_event(event_type=event_type,
-                                          notification=event)
-            except socket.timeout:
-                logger.info("Reconnecting to Kubernetes")
+        watch = Watch()
+        streams = [
+            watch.stream(endpoint)
+            for endpoint
+            in metadata_parser.endpoints
+        ]
+        while not watch._stop:
+            try:
+                for stream in streams:
+                    event = next(stream, None)
+                    if event:
+                        listener.process_event(event)
+
             except Exception as e:
                 logger.exception(e)
                 watch.stop()
-                break
         logger.info("Watch stopped")
 
 
@@ -169,10 +219,11 @@ def get_args():
 # Imports metadata from file,
 # updates event handler with new handlers
 def import_metadata(event_handler: EventHandler,
-                    metadata_file_path: str) -> None:
-    handlers_package, event_handlers = parse_metadata_file(metadata_file_path)
-    event_handler.discover_handlers(handlers_package, event_handlers)
-
+                    metadata_file_path: str) -> KubeMetadataParser:
+    metadata_parser = parse_metadata_file(metadata_file_path)
+    event_handler.discover_handlers(metadata_parser.handlers_package,
+                                    metadata_parser.event_handlers)
+    return metadata_parser
 
 if __name__ == '__main__':
     KubernetesListener.listen()
