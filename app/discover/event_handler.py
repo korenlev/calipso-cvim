@@ -41,5 +41,6 @@ class EventHandler:
         if event_name not in self.handlers:
             self.log.info("No handler is able to process event of type '{}'"
                           .format(event_name))
+            return EventResult(result=False, retry=False)
         return self.handlers[event_name].handle(self.env, notification)
 
