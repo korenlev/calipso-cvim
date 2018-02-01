@@ -38,18 +38,19 @@ class KubeFetchPods(KubeAccess):
             ret.append(doc)
         return ret
 
-    def get_pod_details(self, pod: V1Pod):
+    @classmethod
+    def get_pod_details(cls, pod: V1Pod):
         doc = {'type': 'pod'}
         try:
-            self.get_pod_metadata(doc, pod.metadata)
+            cls.get_pod_metadata(doc, pod.metadata)
         except AttributeError:
             pass
         try:
-            self.get_pod_data(doc, pod.spec)
+            cls.get_pod_data(doc, pod.spec)
         except AttributeError:
             pass
         try:
-            self.get_pod_status(doc, pod.status)
+            cls.get_pod_status(doc, pod.status)
         except AttributeError:
             pass
         return doc

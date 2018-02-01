@@ -17,12 +17,19 @@
     </div>
 
     <a class="sm-scan-button cl-action-button btn btn-app"
-       ><i class="fa fa-search-plus" aria-hidden="true"></i></a>
+        title="Scan this environment">
+        <i class="fa fa-search-plus" aria-hidden="true"></i>
+    </a>
 
-    <a class="sm-edit-button cl-action-button btn btn-app {{#if notAllowEdit}}cl-action-disabled{{/if}}"
-       ><i class="fa fa-fw fa-edit"></i></a>
+    <a class="sm-edit-button cl-action-button btn btn-app
+              {{#if notAllowEdit}}cl-action-disabled{{/if}}"
+        title="Edit this environment">
+        <i class="fa fa-fw fa-edit"></i>
+    </a>
 
-    <a class="sm-delete-button cl-action-button btn btn-app {{#if notAllowEdit}}cl-action-disabled{{/if}}"
+    <a class="sm-delete-button cl-action-button btn btn-app
+              {{#if notAllowEdit}}cl-action-disabled{{/if}}"
+        title="Delete this environment"
       href="#" >
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     </a>

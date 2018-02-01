@@ -20,6 +20,7 @@ import '/imports/ui/components/select-model/select-model';
 import { createInputArgs } from '/imports/ui/lib/input-model';
 import { createSelectArgs } from '/imports/ui/lib/select-model';
 import { Constants } from '/imports/api/constants/constants';
+import { EnvironmentOptions } from '/imports/api/environment_options/environment_options';
 
 import './env-main-info.html';
 
@@ -40,6 +41,7 @@ Template.EnvMainInfo.onCreated(function () {
     instance.state.set('action', action);
 
     instance.subscribe('constants');
+    instance.subscribe('environment_options');
   });
 
 });
@@ -77,8 +79,8 @@ Template.EnvMainInfo.helpers({
     return Constants.getByName('distributions');
   },
 
-  distributionVersionOptions: function () {
-    return Constants.getByName('distribution_versions');
+  distributionVersionOptions: function (distribution) {
+    return EnvironmentOptions.getByDistribution(distribution, 'distribution_versions');
   },
 
   /* depracated 
@@ -89,12 +91,12 @@ Template.EnvMainInfo.helpers({
   },
   */
  
-  typeDriversOptions: function () {
-    return Constants.getByName('type_drivers');
+  typeDriversOptions: function (distribution) {
+    return EnvironmentOptions.getByDistribution(distribution, 'type_drivers');
   },
  
-  mechanismDriversOptions: function () {
-    return Constants.getByName('mechanism_drivers');
+  mechanismDriversOptions: function (distribution) {
+      return EnvironmentOptions.getByDistribution(distribution, 'mechanism_drivers');
   },
  
   isFieldDisabled: function (fieldName, globalDisabled) {
@@ -117,13 +119,7 @@ Template.EnvMainInfo.events({
 });
 
 function isDisabledByField(fieldName, actionName) {
-  if (R.contains(fieldName, ['name', 'distribution']) && actionName !== 'insert') {
-    return true;
-  }
-
-  if (R.contains(fieldName, ['name', 'distribution_version']) && actionName !== 'insert') {
-    return true;
-  }
-  
-  return false;
+  return (R.contains(fieldName, ['name', 'environment_type',
+                                'distribution', 'distribution_version'])
+                     && actionName !== 'insert');
 }
