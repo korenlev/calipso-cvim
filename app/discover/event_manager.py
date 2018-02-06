@@ -116,15 +116,15 @@ class EventManager(Manager):
 
     def listen_to_events(self, listener: ListenerBase, env_name: str,
                                process_vars: dict, **kwargs):
-        listener.listen({
+        kwargs.update({
             'env': env_name,
             'mongo_config': self.args.mongo_config,
             'inventory': self.args.inventory,
             'loglevel': self.args.loglevel,
             'environments_collection': self.args.collection,
-            'process_vars': process_vars,
-            **kwargs
+            'process_vars': process_vars
         })
+        listener.listen(kwargs)
 
     def _get_alive_processes(self):
         return [p for p in self.processes
