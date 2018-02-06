@@ -15,10 +15,6 @@ from utils.inventory_mgr import InventoryMgr
 
 class KubeFetchPods(KubeAccess):
 
-    def __init__(self, config=None):
-        super().__init__(config)
-        self.inv = InventoryMgr()
-
     def get(self, host_id) -> list:
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
@@ -36,6 +32,12 @@ class KubeFetchPods(KubeAccess):
             doc['type'] = 'pod'
             doc['host'] = host_name
             ret.append(doc)
+
+        self.update_resource_version(
+            method='list_pod_for_all_namespaces',
+            resource_version=pods.metadata.resource_version
+        )
+
         return ret
 
     @classmethod

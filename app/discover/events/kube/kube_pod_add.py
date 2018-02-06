@@ -10,7 +10,11 @@ class KubePodAdd(KubeEventBase):
 
         pod = self.inv.get_by_id(environment=env, item_id=self.object_id)
         if pod:
-            return KubePodUpdate().handle(env=env, values=values)
+            return EventResult(result=False,
+                               retry=False,
+                               related_object=self.object_id,
+                               display_context=self.object_id,
+                               message='Pod already exists')
 
         self.inv.set(self.prepare_pod_doc())
         return EventResult(result=True,

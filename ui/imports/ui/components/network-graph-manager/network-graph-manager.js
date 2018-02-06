@@ -383,7 +383,7 @@ function genGraphNode(node) {
     name: node._id._str,
   };
 
-  let groupMarkers = ['host', 'switch'];
+  let groupMarkers = ['pod', 'host', 'switch'];
   let groupKey = R.find((key) => {
     if (R.isNil(R.path([key], node))) { return false; }
     return true;

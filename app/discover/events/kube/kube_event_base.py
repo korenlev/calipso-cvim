@@ -31,8 +31,8 @@ class KubeEventBase(EventBase):
         if not pod:
             pod = self.object
 
-        host_id = pod.spec.node_name  # TODO: is this correct?
-        host_name = pod.spec.node_name  # TODO: is this correct?
+        host_id = pod.spec.node_name
+        host_name = pod.spec.node_name
 
         doc = KubeFetchPods.get_pod_details(pod)
         self.set_folder_parent(doc, object_type='pod',

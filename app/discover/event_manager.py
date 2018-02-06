@@ -114,14 +114,16 @@ class EventManager(Manager):
 
         return self.LISTENERS.get('ANY', DefaultListener)
 
-    def listen_to_events(self, listener: ListenerBase, env_name: str, process_vars: dict):
+    def listen_to_events(self, listener: ListenerBase, env_name: str,
+                               process_vars: dict, **kwargs):
         listener.listen({
             'env': env_name,
             'mongo_config': self.args.mongo_config,
             'inventory': self.args.inventory,
             'loglevel': self.args.loglevel,
             'environments_collection': self.args.collection,
-            'process_vars': process_vars
+            'process_vars': process_vars,
+            **kwargs
         })
 
     def _get_alive_processes(self):
@@ -236,8 +238,10 @@ class EventManager(Manager):
 
                     # A dict that is shared between event manager and newly created env listener
                     process_vars = SharedManager().dict()
+                    env_config = self.inv.get_env_config(env=env_name)
                     p = Process(target=self.listen_to_events,
                                 args=(listener, env_name, process_vars,),
+                                kwargs=env_config.get('listener_kwargs', {}),
                                 name=env_name)
                     self.processes.append({"process": p, "name": env_name, "vars": process_vars})
                     self.log.info("Starting event listener '{0}'".format(env_name))
