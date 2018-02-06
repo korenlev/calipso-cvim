@@ -328,6 +328,38 @@
         {
             "value": "vnic-container",
             "label": "vnic-container"
+        },
+        {
+            "value": "container-vedge",
+            "label": "container-vedge"
+        },
+        {
+            "value": "vedge-container",
+            "label": "vedge-container"
+        },
+        {
+            "value" : "vservice-pod", 
+            "label" : "vservice-pod"
+        }, 
+        {
+            "value" : "pod-vservice", 
+            "label" : "pod-vservice"
+        },
+        {
+            "value" : "pod-container", 
+            "label" : "pod-container"
+        }, 
+        {
+            "value" : "container-pod", 
+            "label" : "container-pod"
+        },
+        {
+            "value" : "container-network", 
+            "label" : "container-network"
+        }, 
+        {
+            "value" : "network-container", 
+            "label" : "network-container"
         }
     ]
 },
@@ -403,6 +435,10 @@
         {
             "label" : "container",
             "value" : "container"
+        },
+        {
+            "label" : "pod",
+            "value" : "pod"
         }, 
         {
             "label" : "vservice", 
@@ -632,6 +668,10 @@
         {
             "label" : "container",
             "value" : "container"
+        },
+        {
+            "label" : "pod",
+            "value" : "pod"
         }, 
         {
             "label" : "vconnector", 

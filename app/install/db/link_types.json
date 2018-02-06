@@ -201,5 +201,61 @@
     "user_id" : "WS7j8oTbWPf3LbNne",
     "endPointA" : "switch_pnic",
     "description" : "switch_pnic-switch"
+},
+{
+    "endPointB" : "container",
+    "type" : "vedge-container",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "vedge",
+    "description" : "vedge-container"
+},
+{
+    "endPointB" : "vedge",
+    "type" : "container-vedge",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "container",
+    "description" : "container-vedge"
+},
+{
+    "endPointB" : "pod",
+    "type" : "vservice-pod",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "vservice",
+    "description" : "vservice-pod"
+},
+{
+    "endPointB" : "vservice",
+    "type" : "pod-vservice",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "pod",
+    "description" : "pod-vservice"
+},
+{
+    "endPointB" : "container",
+    "type" : "pod-container",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "pod",
+    "description" : "pod-container"
+},
+{
+    "endPointB" : "pod",
+    "type" : "container-pod",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "container",
+    "description" : "container-pod"
+},
+{
+    "endPointB" : "network",
+    "type" : "container-network",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "container",
+    "description" : "container-network"
+},
+{
+    "endPointB" : "container",
+    "type" : "network-container",
+    "user_id" : "WS7j8oTbWPf3LbNne",
+    "endPointA" : "network",
+    "description" : "network-container"
 }
 ]
