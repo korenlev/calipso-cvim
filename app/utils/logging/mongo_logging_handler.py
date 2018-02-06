@@ -52,8 +52,16 @@ class MongoLoggingHandler(logging.Handler):
                           msg=Logger.formatter.format(record), ts=now,
                           level=record.levelname)
         if self.origin:
-            message.extra['origin_id'] = self.origin.origin_id
-            message.extra['origin_type'] = self.origin.origin_type.value
+            message.extra['origin_id'] = (
+                str(self.origin.origin_id)
+                if self.origin.origin_id
+                else None
+            )
+            message.extra['origin_type'] = (
+                self.origin.origin_type.value
+                if self.origin.origin_type
+                else None
+            )
             for extra_field in self.origin.extra:
                 message.extra[extra_field] = getattr(self.origin, extra_field)
 

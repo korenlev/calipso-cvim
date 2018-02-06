@@ -19,6 +19,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { CliqueTypes, isEmpty } from '/imports/api/clique-types/clique-types';
 import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';
+import { EnvironmentOptions } from '/imports/api/environment_options/environment_options';
 import { LinkTypes } from '/imports/api/link-types/link-types';
 import { insert, update, remove } from '/imports/api/clique-types/methods';
 import { parseReqId } from '/imports/lib/utilities';
@@ -101,6 +102,20 @@ Template.CliqueType.events({
       inputs.prop("disabled", true);
     }
   },
+  'change #distribution-input': function (event, instance) {
+    // Update the model with new selected distribution
+    let distribution = instance.$('.sm-input-distribution')[0].value;
+    let newModel = instance.state.get('model');
+    newModel = R.dissoc('type_drivers',
+               R.dissoc('mechanism_drivers',
+               R.dissoc('distribution_version',
+               R.assoc('distribution', distribution, newModel))));
+    instance.state.set('model', newModel);
+
+    instance.$('.env-options-input')
+            .find("option:selected")
+            .prop("selected", false);
+  },
   'change .conf-input': function (event, instance) {
     let non_empty_fields = $('.conf-input').filter(function(i, elem) {
       return !isEmpty(elem.value);
@@ -182,16 +197,16 @@ Template.CliqueType.helpers({
     return Constants.getByName('distributions');
   },
 
-  distributionVersionsList: function () {
-    return Constants.getByName('distribution_versions');
+  distributionVersionsList: function (distribution) {
+    return EnvironmentOptions.getByDistribution(distribution, 'distribution_versions');
   },
 
-  mechanismDriversList: function () {
-    return Constants.getByName('mechanism_drivers');
+  mechanismDriversList: function (distribution) {
+    return EnvironmentOptions.getByDistribution(distribution, 'mechanism_drivers');
   },
 
-  typeDriversList: function () {
-    return Constants.getByName('type_drivers');
+  typeDriversList: function (distribution) {
+    return EnvironmentOptions.getByDistribution(distribution, 'type_drivers');
   },
 
   linkTypesList: function () {
@@ -294,7 +309,6 @@ function initInsertView(instance, query) {
   }));
 
   subscribeToOptionsData(instance);
-  instance.subscribe('constants');
   //instance.subscribe('link_types?env', query.env);
 }
 
@@ -306,7 +320,6 @@ function initViewView(instance, query) {
   instance.state.set('id', reqId);
 
   subscribeToOptionsData(instance);
-  instance.subscribe('constants');
   instance.subscribe('clique_types?_id', reqId.id);
 
   CliqueTypes.find({ _id: reqId.id }).forEach((model) => {
@@ -323,7 +336,6 @@ function initUpdateView(instance, query) {
   instance.state.set('id', reqId);
 
   subscribeToOptionsData(instance);
-  instance.subscribe('constants');
   instance.subscribe('clique_types?env*');
   instance.subscribe('clique_types?_id', reqId.id);
 
@@ -337,6 +349,9 @@ function initRemoveView(instance, query) {
 }
 
 function subscribeToOptionsData(instance) {
+  instance.subscribe('constants');
+  instance.subscribe('environment_options');
+  instance.subscribe('environment_options?distributions*');
   instance.subscribe('environments_config');
   instance.subscribe('link_types');
 }

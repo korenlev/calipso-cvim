@@ -229,6 +229,7 @@ let simpleSchema = new SimpleSchema({
   },
   distribution_version: {
     type: String,
+    defaultValue: '',
     custom: function () {
       let that = this;
       let constsDist = Constants.findOne({ name: 'distribution_versions' });
@@ -248,10 +249,21 @@ let simpleSchema = new SimpleSchema({
     type: String,
     defaultValue: 'MyEnvironmentName',
     min: 6,
+    custom: function () {
+      let that = this;
+
+      let existing = Environments.findOne({
+          'name': that.value
+      });
+
+      if (!R.isNil(existing) && existing._id !== that.field('_id').value) {
+        return "alreadyExists";
+      }
+    }
   },
   type_drivers: {
     type: String,
-    defaultValue: 'gre',
+    defaultValue: '',
     custom: function () {
       let that = this;
       let TypeDriversRec = Constants.findOne({ name: 'type_drivers' });
@@ -267,7 +279,7 @@ let simpleSchema = new SimpleSchema({
 
   mechanism_drivers: {
     type: [String],
-    defaultValue: ['OVS'],
+    defaultValue: [],
     minCount: 1,
     custom: function () {
       let that = this;
