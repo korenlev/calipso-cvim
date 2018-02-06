@@ -145,6 +145,23 @@
 { 
     "data" : [
         {
+            "value" : "0", 
+            "label" : "OK"
+        }, 
+        {
+            "value" : "1", 
+            "label" : "Warning"
+        }, 
+        {
+            "value" : "2", 
+            "label" : "Error"
+        }
+    ], 
+    "name" : "monitoring_check_statuses"
+},
+{ 
+    "data" : [
+        {
             "label" : "up", 
             "value" : "up"
         }, 
