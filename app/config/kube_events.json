@@ -1,11 +1,13 @@
 {
   "handlers_package": "discover.events.kube",
   "endpoints": [
-    "list_pod_for_all_namespaces"
+    "list_pod_for_all_namespaces",
+    "list_service_for_all_namespaces"
   ],
   "event_handlers": {
     "pod.added": "KubePodAdd",
     "pod.modified": "KubePodUpdate",
-    "pod.deleted": "KubePodDelete"
+    "pod.deleted": "KubePodDelete",
+    "status.error": "KubeErrorHandler"
   }
 }

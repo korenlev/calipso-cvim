@@ -1,3 +1,12 @@
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 from kubernetes.client import V1Pod
 
 from discover.events.event_base import EventBase
@@ -31,8 +40,8 @@ class KubeEventBase(EventBase):
         if not pod:
             pod = self.object
 
-        host_id = pod.spec.node_name  # TODO: is this correct?
-        host_name = pod.spec.node_name  # TODO: is this correct?
+        host_id = pod.spec.node_name
+        host_name = pod.spec.node_name
 
         doc = KubeFetchPods.get_pod_details(pod)
         self.set_folder_parent(doc, object_type='pod',
