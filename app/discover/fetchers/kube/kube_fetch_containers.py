@@ -52,7 +52,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         self.get_container_config(doc, pod_obj)
         self.get_interface_link(doc, pod_obj)
         doc['host'] = pod_obj['host']
-        doc['pod'] = pod_obj['id']
+        doc['pod'] = pod_obj['object_name']
         doc['ip_address'] = pod_obj.get('status', {}).get('pod_ip', '')
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
         return doc
