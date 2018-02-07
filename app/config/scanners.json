@@ -72,6 +72,16 @@
         "environment_condition": {
           "environment_type": "Kubernetes"
         }
+      },
+      {
+        "type": "vservices_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "vservices",
+          "parent_type": "environment"
+        },
+        "children_scanner": "ScanServicesRoot",
+        "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
     "ScanHostNetworkAgentsRoot": [
@@ -507,6 +517,13 @@
       {
         "type": "namespace",
         "fetcher": "KubeFetchNamespaces",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      }
+    ],
+    "ScanServicesRoot": [
+      {
+        "type": "vservice",
+        "fetcher": "KubeFetchVservices",
         "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
