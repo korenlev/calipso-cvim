@@ -40,6 +40,7 @@ class KubeFetchVservices(KubeAccess):
         except AttributeError:
             pass
         doc['id'] = doc['uid']
+        doc['service_type'] = 'proxy'
         KubeAccess.del_attribute_map(doc)
         return doc
 
