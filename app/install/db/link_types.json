@@ -21,6 +21,48 @@
     "user_id" : "WS7j8oTbWPf3LbNne"
 },
 {
+    "type" : "network-container",
+    "description" : "network-container",
+    "endPointA" : "network",
+    "endPointB" : "container",
+    "user_id" : "WS7j8oTbWPf3LbNne"
+},
+{
+    "type" : "container-network",
+    "description" : "container-network",
+    "endPointA" : "container",
+    "endPointB" : "network",
+    "user_id" : "WS7j8oTbWPf3LbNne"
+},
+{
+    "type" : "pod-container",
+    "description" : "pod-container",
+    "endPointA" : "pod",
+    "endPointB" : "container",
+    "user_id" : "WS7j8oTbWPf3LbNne"
+},
+{
+    "type" : "container-pod",
+    "description" : "container-pod",
+    "endPointA" : "container",
+    "endPointB" : "pod",
+    "user_id" : "WS7j8oTbWPf3LbNne"
+},
+{
+    "type" : "pod-vservice",
+    "description" : "pod-vservice",
+    "endPointA" : "pod",
+    "endPointB" : "vservice",
+    "user_id" : "WS7j8oTbWPf3LbNne"
+},
+{
+    "type" : "vservice-pod",
+    "description" : "vservice-pod",
+    "endPointA" : "vservice",
+    "endPointB" : "pod",
+    "user_id" : "WS7j8oTbWPf3LbNne"
+},
+{
     "type" : "vnic-instance",
     "description" : "vnic-instance",
     "endPointA" : "vnic",
