@@ -60,7 +60,9 @@ class KubernetesListener(ListenerBase):
     def __init__(self, config, event_handler,
                  environment: str = DEFAULTS["env"],
                  inventory_collection: str = DEFAULTS["inventory"],
-                 connection_pool_size: int = 10):
+                 connection_pool_size: int = 10,
+                 request_timeout: int = 1,
+                 polling_inverval: int = 1):
         super().__init__()
         self.environment = environment
         self.handler = event_handler
@@ -82,6 +84,12 @@ class KubernetesListener(ListenerBase):
         conf.verify_ssl = False
         conf.connection_pool_maxsize = connection_pool_size
         self.api = CoreV1Api()
+
+        self.watch = Watch()
+        self.endpoints = {}
+        self.resource_versions = {}
+        self.request_timeout = request_timeout
+        self.polling_interval = polling_inverval
 
     def process_event(self, event):
         received_timestamp = datetime.datetime.now()
@@ -153,6 +161,89 @@ class KubernetesListener(ListenerBase):
             self.inv.log.exception(e)
             return False
 
+    def run(self):
+        if not self.endpoints:
+            self.log.error("No Watch API endpoints defined. "
+                           "Stopping listener")
+            return
+
+        streams = {}
+        for name, endpoint in self.endpoints.items():
+            rv = self.resource_versions.get(name, 0)
+            stream = self.watch.stream(endpoint,
+                                       resource_version=rv,
+                                       _request_timeout=self.request_timeout)
+            streams[name] = {
+                'endpoint': endpoint,
+                'watch': self.watch,
+                'stream': stream,
+                'resource_version': rv,
+                'last_event': {}
+            }
+
+        while True:
+            try:
+                events_handled = False
+
+                for name, stream in streams.items():
+                    try:
+                        event = next(stream['stream'], None)
+                    except ReadTimeoutError:
+                        stream['stream'] = \
+                            self.watch.stream(stream['endpoint'],
+                                              resource_version=stream['resource_version'],
+                                              _request_timeout=self.request_timeout)
+                        continue
+
+                    if event:
+                        events_handled = True
+                        rv = event['object'].metadata.resource_version
+
+                        # Repeating events workaround
+                        event_identity = {
+                            'type': event['type'],
+                            'resource_version': rv
+                        }
+                        if event_identity == stream['last_event']:
+                            continue
+                        stream['last_event'] = event_identity
+
+                        # TODO: research two events having the same rv
+                        try:
+                            if not rv:
+                                raise ResourceGoneError
+
+                            rv = int(rv)
+                            stream['resource_version'] = rv
+
+                            update_resource_version(inv=self.inv,
+                                                    env=self.environment,
+                                                    method=name,
+                                                    resource_version=rv)
+
+                            self.process_event(event)
+                            # TODO: stop ignoring handling errors?
+                        except ResourceGoneError:
+                            # TODO: perform a rescan?
+                            # TODO: Fetch and set resource version from rescan?
+                            env_config = self.inv.get_env_config(self.environment)
+                            rv = (
+                                env_config.get('listener_kwargs', {})
+                                          .get('resource_versions', {})
+                                          .get(name, stream['resource_version'])
+                            )
+                            stream['stream'] = \
+                                self.watch.stream(stream['endpoint'],
+                                                  resource_version=rv,
+                                                  _request_timeout=self.request_timeout)
+                            continue
+                if not events_handled:
+                    sleep(self.polling_interval)
+            except Exception as e:
+                self.log.exception(e)
+                break
+        self.log.info("Watch stopped")
+
     @staticmethod
     def listen(args: dict = None):
         args = setup_args(args, KubernetesListener.DEFAULTS, get_args)
@@ -193,83 +284,18 @@ class KubernetesListener(ListenerBase):
         connection_pool_size = len(metadata_parser.endpoints.keys())
         listener = KubernetesListener(config=kube_config,
                                       event_handler=event_handler,
-                                      connection_pool_size=connection_pool_size)
+                                      environment=env_name,
+                                      inventory_collection=inventory_collection,
+                                      connection_pool_size=connection_pool_size,
+                                      request_timeout=args['request_timeout'],
+                                      polling_inverval=args['polling_interval'])
+        listener.endpoints = metadata_parser.load_endpoints(api=listener.api)
+        listener.resource_versions = args['resource_versions']
 
-        metadata_parser.load_endpoints(api=listener.api)
-
-        watch = Watch()
-        streams = {}
-        for name, endpoint in metadata_parser.endpoints.items():
-            rv = args['resource_versions'].get(name, 0)
-            stream = watch.stream(endpoint,
-                                  resource_version=rv,
-                                  _request_timeout=args['request_timeout'])
-            streams[name] = {
-                'endpoint': endpoint,
-                'watch': watch,
-                'stream': stream,
-                'resource_version': rv
-            }
-
-        while True:
-            try:
-                events_handled = False
-                for name, stream in streams.items():
-                    try:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter('ignore')
-                            event = next(streams[name]['stream'], None)
-                    except ReadTimeoutError:
-                        stream['stream'] = \
-                            watch.stream(stream['endpoint'],
-                                         resource_version=stream['resource_version'],
-                                         _request_timeout=args['request_timeout'])
-                        continue
-
-                    if event:
-                        events_handled = True
-                        rv = event['object'].metadata.resource_version
-                        # TODO: research two events having the same rv
-                        # if not rv or int(rv) < int(stream['resource_version']):
-                        #     logger.info("Received old resource version: {rv}. "
-                        #                 "Event: {kind}.{type}"
-                        #                 .format(rv=rv,
-                        #                         type=event['type'],
-                        #                         kind=event['object'].kind))
-                        #     continue
-                        try:
-                            if not rv:
-                                raise ResourceGoneError
-
-                            rv = int(rv)
-                            stream['resource_version'] = rv
-                            update_resource_version(inv=inv,
-                                                    env=env_name,
-                                                    method=name,
-                                                    resource_version=rv)
-
-                            listener.process_event(event)
-                            # TODO: stop ignoring handling errors?
-                        except ResourceGoneError:
-                            # TODO: perform a rescan?
-                            # TODO: Fetch and set resource version from rescan?
-                            env_config = conf.get_env_config()
-                            rv = (
-                                env_config.get('listener_kwargs', {})
-                                          .get('resource_versions', {})
-                                          .get(name, stream['resource_version'])
-                            )
-                            stream['stream'] = \
-                                watch.stream(stream['endpoint'],
-                                             resource_version=rv,
-                                             _request_timeout=args['request_timeout'])
-                            continue
-                if not events_handled:
-                    sleep(args['polling_interval'])
-            except Exception as e:
-                logger.exception(e)
-                break
-        logger.info("Watch stopped")
+        # Suppress mongo and https warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            listener.run()
 
 
 def get_args():

@@ -61,6 +61,7 @@ class KubeMetadataParser(MetadataParser):
     def load_endpoints(self, api):
         for endpoint in self.endpoints:
             self.endpoints[endpoint] = getattr(api, endpoint)
+        return self.endpoints
 
 def parse_metadata_file(file_path: str):
     parser = KubeMetadataParser()
