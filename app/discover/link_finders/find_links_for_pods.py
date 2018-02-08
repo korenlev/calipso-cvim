@@ -16,6 +16,8 @@ class FindLinksForPods(FindLinks):
 
     def add_links(self):
         self.find_service_pod_links()
+        self.find_pod_container_links()
+        self.find_container_network_links()
 
     def find_service_pod_links(self):
         services = self.inv.find_items({
@@ -45,6 +47,76 @@ class FindLinksForPods(FindLinks):
         target_id = pod['id']
         link_type = 'vservice-pod'
         link_name = '{}-{}'.format(service['object_name'], pod['object_name'])
+        state = 'up'  # TBD
+        link_weight = 0  # TBD
+        self.create_link(self.get_env(),
+                         source, source_id, target, target_id,
+                         link_type, link_name, state, link_weight,
+                         host=host)
+
+    def find_pod_container_links(self):
+        pods = self.inv.find_items({
+            'environment': self.get_env(),
+            'type': 'pod'
+        })
+        self.log.info('adding links of type: pod-container')
+        for pod in pods:
+            self.find_pod_containers(pod)
+
+    def find_pod_containers(self, pod):
+        if 'containers' not in pod or not pod['containers']:
+            return
+        for container in pod['containers']:
+            container_obj = self.inv.find_one({
+                'environment': self.get_env(),
+                'type': 'container',
+                'name': container['name']
+            })
+            if container_obj:
+                self.add_pod_container_link(pod, container_obj)
+            else:
+                self.log.error('unable to find container {} from pod {}'
+                               .format(container['name'], pod['object_name']))
+
+    def add_pod_container_link(self, pod, container):
+        host = pod['host']
+        source = pod['_id']
+        source_id = pod['id']
+        target = container['_id']
+        target_id = container['id']
+        link_type = 'pod-container'
+        link_name = '{}-{}'.format(pod['object_name'], container['name'])
+        state = 'up'  # TBD
+        link_weight = 0  # TBD
+        self.create_link(self.get_env(),
+                         source, source_id, target, target_id,
+                         link_type, link_name, state, link_weight,
+                         host=host)
+
+    def find_container_network_links(self):
+        containers = self.inv.find_items({
+            'environment': self.get_env(),
+            'type': 'pod'
+        })
+        self.log.info('adding links of type: container-network')
+        for container in containers:
+            if container.get('network', ''):
+                network = self.inv.get_by_id(self.get_env(),
+                                             container['network'])
+                if not network:
+                    self.log.error('unable to find network {} in container {}'
+                                   .format(container['network'],
+                                           container['name']))
+                self.add_container_network_link(container, network)
+
+    def add_container_network_link(self, container, network):
+        host = container['host']
+        source = container['_id']
+        source_id = container['id']
+        target = network['_id']
+        target_id = network['id']
+        link_type = 'container-network'
+        link_name = '{}-{}'.format(container['name'], network['name'])
         state = 'up'  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
