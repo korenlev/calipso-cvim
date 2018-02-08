@@ -127,6 +127,6 @@ class KubeFetchPods(KubeAccess):
             return
         if 'pods' not in service:
             service['pods'] = []
-        service['pods'].append(pod['name'])
+        service['pods'].append({'name': pod['name'], 'id': pod['id']})
         self.inv.set(service)
 
