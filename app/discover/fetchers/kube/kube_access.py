@@ -10,12 +10,15 @@
 from kubernetes.client import Configuration as KubConf, CoreV1Api
 
 from utils.api_access_base import ApiAccessBase
+from utils.inventory_mgr import InventoryMgr
+from utils.kube_utils import update_resource_version
 
 
 class KubeAccess(ApiAccessBase):
 
     def __init__(self, config=None):
         super().__init__('Kubernetes', config)
+        self.inv = InventoryMgr()
         self.base_url = 'https://{}:{}'.format(self.host, self.port)
         self.bearer_token = self.api_config.get('token', '')
         conf = KubConf()
@@ -35,3 +38,10 @@ class KubeAccess(ApiAccessBase):
         for attr in ['attribute_map', 'swagger_types']:
             if hasattr(o, attr):
                 delattr(o, attr)
+
+    def update_resource_version(self, method: str,
+                                resource_version):
+        update_resource_version(inv=self.inv,
+                                env=self.env,
+                                method=method,
+                                resource_version=resource_version)

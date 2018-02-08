@@ -11,3 +11,7 @@
 
 class ScanArgumentsError(ValueError):
     pass
+
+
+class ResourceGoneError(ValueError):
+    pass

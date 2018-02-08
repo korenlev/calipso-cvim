@@ -1,12 +1,23 @@
+###############################################################################
+# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
+# and others                                                                  #
+#                                                                             #
+# All rights reserved. This program and the accompanying materials            #
+# are made available under the terms of the Apache License, Version 2.0       #
+# which accompanies this distribution, and is available at                    #
+# http://www.apache.org/licenses/LICENSE-2.0                                  #
+###############################################################################
 import argparse
 import datetime
-import socket
-from typing import Callable, List
+import uuid
+from time import sleep
 
 import os
+import warnings
 
 from kubernetes.client import Configuration as KubeConf, CoreV1Api
 from kubernetes.watch import Watch
+from urllib3.exceptions import ReadTimeoutError
 
 from discover.configuration import Configuration
 from discover.event_handler import EventHandler
@@ -17,7 +28,9 @@ from discover.events.listeners.listener_base import ListenerBase
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.constants import EnvironmentFeatures
+from utils.exceptions import ResourceGoneError
 from utils.inventory_mgr import InventoryMgr
+from utils.kube_utils import update_resource_version
 from utils.logging.full_logger import FullLogger
 from utils.logging.logger import Logger
 from utils.mongo_access import MongoAccess
@@ -39,11 +52,17 @@ class KubernetesListener(ListenerBase):
         "inventory": "inventory",
         "loglevel": "INFO",
         "environments_collection": "environments_config",
+        "resource_versions": {},
+        "request_timeout": 1,
+        "polling_interval": 1
     }
 
     def __init__(self, config, event_handler,
                  environment: str = DEFAULTS["env"],
-                 inventory_collection: str = DEFAULTS["inventory"]):
+                 inventory_collection: str = DEFAULTS["inventory"],
+                 connection_pool_size: int = 10,
+                 request_timeout: int = 1,
+                 polling_inverval: int = 1):
         super().__init__()
         self.environment = environment
         self.handler = event_handler
@@ -63,7 +82,14 @@ class KubernetesListener(ListenerBase):
         conf.api_key_prefix['authorization'] = 'Bearer'
         conf.api_key['authorization'] = self.bearer_token
         conf.verify_ssl = False
+        conf.connection_pool_maxsize = connection_pool_size
         self.api = CoreV1Api()
+
+        self.watch = Watch()
+        self.endpoints = {}
+        self.resource_versions = {}
+        self.request_timeout = request_timeout
+        self.polling_interval = polling_inverval
 
     def process_event(self, event):
         received_timestamp = datetime.datetime.now()
@@ -101,17 +127,30 @@ class KubernetesListener(ListenerBase):
             self.log.exception(e)
             return EventResult(result=False, retry=False)
 
+    @staticmethod
+    def _prepare_message_body(message_body):
+        obj = message_body['object']
+        return {
+            'event_type': message_body['type'],
+            'kind': obj.kind,
+            'object_id': obj.metadata.uid,
+            'object_name': obj.metadata.name,
+            'namespace': obj.metadata.namespace,
+            'creation_timestamp': obj.metadata.creation_timestamp,
+            'resource_version': obj.metadata.resource_version
+        }
+
     def save_message(self, message_body: dict, result: EventResult,
                      started: datetime, finished: datetime):
         try:
             message = Message(
-                msg_id=None,  # TODO: generate?
+                msg_id=str(uuid.uuid1()),
                 env=self.environment,
                 source=self.SOURCE_SYSTEM,
                 object_id=result.related_object,
                 display_context=result.display_context,
                 level="info" if result.result is True else "error",
-                msg={},  # TODO: filter and dump select fields
+                msg=self._prepare_message_body(message_body),
                 received_ts=started,
                 finished_ts=finished
             )
@@ -121,6 +160,89 @@ class KubernetesListener(ListenerBase):
             self.inv.log.error("Failed to save message")
             self.inv.log.exception(e)
             return False
+
+    def run(self):
+        if not self.endpoints:
+            self.log.error("No Watch API endpoints defined. "
+                           "Stopping listener")
+            return
+
+        streams = {}
+        for name, endpoint in self.endpoints.items():
+            rv = self.resource_versions.get(name, 0)
+            stream = self.watch.stream(endpoint,
+                                       resource_version=rv,
+                                       _request_timeout=self.request_timeout)
+            streams[name] = {
+                'endpoint': endpoint,
+                'watch': self.watch,
+                'stream': stream,
+                'resource_version': rv,
+                'last_event': {}
+            }
+
+        while True:
+            try:
+                events_handled = False
+
+                for name, stream in streams.items():
+                    try:
+                        event = next(stream['stream'], None)
+                    except ReadTimeoutError:
+                        stream['stream'] = \
+                            self.watch.stream(stream['endpoint'],
+                                              resource_version=stream['resource_version'],
+                                              _request_timeout=self.request_timeout)
+                        continue
+
+                    if event:
+                        events_handled = True
+                        rv = event['object'].metadata.resource_version
+
+                        # Repeating events workaround
+                        event_identity = {
+                            'type': event['type'],
+                            'resource_version': rv
+                        }
+                        if event_identity == stream['last_event']:
+                            continue
+                        stream['last_event'] = event_identity
+
+                        # TODO: research two events having the same rv
+                        try:
+                            if not rv:
+                                raise ResourceGoneError
+
+                            rv = int(rv)
+                            stream['resource_version'] = rv
+
+                            update_resource_version(inv=self.inv,
+                                                    env=self.environment,
+                                                    method=name,
+                                                    resource_version=rv)
+
+                            self.process_event(event)
+                            # TODO: stop ignoring handling errors?
+                        except ResourceGoneError:
+                            # TODO: perform a rescan?
+                            # TODO: Fetch and set resource version from rescan?
+                            env_config = self.inv.get_env_config(self.environment)
+                            rv = (
+                                env_config.get('listener_kwargs', {})
+                                          .get('resource_versions', {})
+                                          .get(name, stream['resource_version'])
+                            )
+                            stream['stream'] = \
+                                self.watch.stream(stream['endpoint'],
+                                                  resource_version=rv,
+                                                  _request_timeout=self.request_timeout)
+                            continue
+                if not events_handled:
+                    sleep(self.polling_interval)
+            except Exception as e:
+                self.log.exception(e)
+                break
+        self.log.info("Watch stopped")
 
     @staticmethod
     def listen(args: dict = None):
@@ -159,28 +281,21 @@ class KubernetesListener(ListenerBase):
             import_metadata(event_handler, args["metadata_file"])
 
         kube_config = conf.get('Kubernetes')
+        connection_pool_size = len(metadata_parser.endpoints.keys())
         listener = KubernetesListener(config=kube_config,
-                                      event_handler=event_handler)
+                                      event_handler=event_handler,
+                                      environment=env_name,
+                                      inventory_collection=inventory_collection,
+                                      connection_pool_size=connection_pool_size,
+                                      request_timeout=args['request_timeout'],
+                                      polling_inverval=args['polling_interval'])
+        listener.endpoints = metadata_parser.load_endpoints(api=listener.api)
+        listener.resource_versions = args['resource_versions']
 
-        metadata_parser.load_endpoints(api=listener.api)
-
-        watch = Watch()
-        streams = [
-            watch.stream(endpoint)
-            for endpoint
-            in metadata_parser.endpoints
-        ]
-        while not watch._stop:
-            try:
-                for stream in streams:
-                    event = next(stream, None)
-                    if event:
-                        listener.process_event(event)
-
-            except Exception as e:
-                logger.exception(e)
-                watch.stop()
-        logger.info("Watch stopped")
+        # Suppress mongo and https warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            listener.run()
 
 
 def get_args():
@@ -208,6 +323,14 @@ def get_args():
                         help="Name of inventory collection \n"" +"
                              "(default: '{}')"
                         .format(KubernetesListener.DEFAULTS["inventory"]))
+    parser.add_argument("-t", "--request_timeout", nargs="?", type=int,
+                        default=KubernetesListener.DEFAULTS["request_timeout"],
+                        help="Watch API request timeout \n(default: {})"
+                        .format(KubernetesListener.DEFAULTS["request_timeout"]))
+    parser.add_argument("-i", "--polling_interval", nargs="?", type=int,
+                        default=KubernetesListener.DEFAULTS["polling_interval"],
+                        help="Watch API streams polling interval \n(default: {})"
+                        .format(KubernetesListener.DEFAULTS["polling_interval"]))
     parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                         default=KubernetesListener.DEFAULTS["loglevel"],
                         help="Logging level \n(default: '{}')"
