@@ -9,6 +9,7 @@
     "FindLinksForVserviceVnics",
     "FindLinksForPnics",
     "FindLinksForContainers",
+    "FindLinksForPods",
     "FindImplicitLinks"
   ]
 }
