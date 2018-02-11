@@ -46,7 +46,7 @@ class FindLinksForPods(FindLinks):
         target = pod['_id']
         target_id = pod['id']
         link_type = 'vservice-pod'
-        link_name = '{}-{}'.format(service['object_name'], pod['object_name'])
+        link_name = '{}-pod'.format(service['object_name'])
         state = 'up'  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
@@ -85,7 +85,7 @@ class FindLinksForPods(FindLinks):
         target = container['_id']
         target_id = container['id']
         link_type = 'pod-container'
-        link_name = '{}-{}'.format(pod['object_name'], container['name'])
+        link_name = '{}-container'.format(pod['object_name'])
         state = 'up'  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
@@ -116,7 +116,7 @@ class FindLinksForPods(FindLinks):
         target = network['_id']
         target_id = network['id']
         link_type = 'container-network'
-        link_name = '{}-{}'.format(container['name'], network['name'])
+        link_name = '{}-network'.format(container['name'])
         state = 'up'  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
