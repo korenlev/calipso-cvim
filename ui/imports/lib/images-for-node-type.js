@@ -69,6 +69,9 @@ export let imagesForNodeType = {
   'container': {
     default: 'container-black.png'
   },
+  'pod': {
+    default: 'pod-black.png'
+  }
 };
 
 export let defaultNodeTypeImage = {
