@@ -17,6 +17,12 @@ class KubeFetchNamespaces(KubeAccess):
 
     def get(self, object_id):
         namespaces = self.api.list_namespace()
+
+        self.update_resource_version(
+            method='list_namespace',
+            resource_version=namespaces.metadata.resource_version
+        )
+
         return [self.get_namespace(i) for i in namespaces.items]
 
     @staticmethod
