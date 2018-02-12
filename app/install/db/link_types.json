@@ -297,7 +297,7 @@
     "type" : "network-container",
     "user_id" : "WS7j8oTbWPf3LbNne",
     "endPointA" : "network",
-    "description" : "network-container"
+    "description" : "network-container",
     "endPointB" : "switch",
     "user_id" : "WS7j8oTbWPf3LbNne"
 }
