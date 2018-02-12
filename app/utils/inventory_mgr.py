@@ -163,9 +163,14 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                              "type=" + item_type + ", id=" + item_id)
         return matches[0]
 
-    # item must contain properties 'environment', 'type' and 'id'
+    # inventory item must contain properties 'environment', 'type' and 'id'
     def set(self, item, collection=None):
-        col = collection
+        col = (
+            self.collections[collection]
+            if isinstance(collection, str)
+            else collection
+        )
+
         mongo_id = None
         projects = None
         if "_id" in item:

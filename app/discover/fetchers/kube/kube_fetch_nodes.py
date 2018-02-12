@@ -23,6 +23,12 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         ret = []
         for node in nodes.items:
             ret.append(self.get_node_details(node))
+
+        self.update_resource_version(
+            method='list_node',
+            resource_version=nodes.metadata.resource_version
+        )
+
         return ret
 
     def get_node_details(self, node: V1Node):

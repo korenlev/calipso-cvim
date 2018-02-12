@@ -22,7 +22,7 @@ class KubeMetadataParser(MetadataParser):
         super().__init__()
         self.handlers_package = None
         self.event_handlers = []
-        self.endpoints = []
+        self.endpoints = {}
 
     def get_required_fields(self) -> list:
         return self.REQUIRED_EXPORTS
@@ -50,7 +50,7 @@ class KubeMetadataParser(MetadataParser):
         # Convert variables to EventHandler-friendly format
         self.handlers_package = metadata[self.HANDLERS_PACKAGE]
         self.event_handlers = metadata[self.EVENT_HANDLERS]
-        self.endpoints = metadata[self.ENDPOINTS]
+        self.endpoints = {endpoint: None for endpoint in metadata.get(self.ENDPOINTS)}
 
     def parse_metadata_file(self, file_path: str) -> dict:
         metadata = super().parse_metadata_file(file_path)
@@ -59,11 +59,9 @@ class KubeMetadataParser(MetadataParser):
         return metadata
 
     def load_endpoints(self, api):
-        self.endpoints = [
-            getattr(api, endpoint)
-            for endpoint
-            in self.endpoints
-        ]
+        for endpoint in self.endpoints:
+            self.endpoints[endpoint] = getattr(api, endpoint)
+        return self.endpoints
 
 def parse_metadata_file(file_path: str):
     parser = KubeMetadataParser()

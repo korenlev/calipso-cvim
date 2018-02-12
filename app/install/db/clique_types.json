@@ -27,7 +27,7 @@
     "name" : "vservice"
 },
 {
-    "environment" : "config_based_example",
+    "environment" : "",
     "focal_point_type" : "vservice",
     "link_types" : [
         "vservice-vnic",
@@ -166,7 +166,8 @@
     "focal_point_type" : "container",
     "environment_type" : "Kubernetes",	
     "link_types" : [
-        "container-vnic", 
+        "container-vnic",
+        "container-vedge", 
         "vnic-vconnector", 
         "vconnector-vedge", 
         "vedge-otep",
@@ -189,7 +190,8 @@
         "network-host_pnic", 
         "host_pnic-otep", 
         "otep-vedge",
-        "vedge-vconnector", 
+        "vedge-container",
+        "vedge-vconnector",
         "vconnector-vnic", 
         "vnic-container"
     ],
@@ -199,5 +201,21 @@
     "type_drivers" : "vxlan", 
     "name" : "k8s-network",
     "use_implicit_links" : false
+},
+{
+    "environment" : "",
+    "focal_point_type" : "vservice",
+    "environment_type" : "Kubernetes",
+    "link_types" : [
+        "vservice-pod",
+        "pod-container",
+        "container-network"
+    ],
+    "distribution" : "Kubernetes",
+    "distribution_version" : "1.9",
+    "mechanism_drivers" : "Flannel",
+    "type_drivers" : "vxlan",
+    "name" : "k8s-network",
+    "use_implicit_links" : true
 }
 ]

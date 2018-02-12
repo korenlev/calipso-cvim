@@ -15,10 +15,6 @@ from utils.inventory_mgr import InventoryMgr
 
 class KubeFetchPods(KubeAccess):
 
-    def __init__(self, config=None):
-        super().__init__(config)
-        self.inv = InventoryMgr()
-
     def get(self, host_id) -> list:
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
@@ -33,9 +29,16 @@ class KubeFetchPods(KubeAccess):
             self.set_folder_parent(doc, object_type='pod',
                                    master_parent_type='host',
                                    master_parent_id=host_id)
+            self.add_pod_to_proxy_service(doc)
             doc['type'] = 'pod'
             doc['host'] = host_name
             ret.append(doc)
+
+        self.update_resource_version(
+            method='list_pod_for_all_namespaces',
+            resource_version=pods.metadata.resource_version
+        )
+
         return ret
 
     @classmethod
@@ -111,3 +114,21 @@ class KubeFetchPods(KubeAccess):
                 pass
         if status_data:
             doc['status'] = status_data
+
+    def add_pod_to_proxy_service(self, pod):
+        app_name = pod.get('labels', {}).get('k8s-app')
+        if not app_name:
+            return
+        cond = {
+            'environment': self.get_env(),
+            'type': 'vservice',
+            'name': app_name
+        }
+        service = self.inv.find_one(cond)
+        if not service:
+            return
+        if 'pods' not in service:
+            service['pods'] = []
+        service['pods'].append({'name': pod['name'], 'id': pod['id']})
+        self.inv.set(service)
+
