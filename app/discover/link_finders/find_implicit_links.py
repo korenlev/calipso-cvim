@@ -62,10 +62,13 @@ class FindImplicitLinks(FindLinks):
         matches = [l for l in self.links
                    if l['pass'] == 0  # take only original links
                    and self.links_match(link, l['link'])]
+        added = 0
         for l in matches:
             implicit = self.add_implicit_link(link, l['link'])
-            self.links.append({'pass': pass_no, 'link': implicit})
-        return len(matches)
+            if implicit:
+                self.links.append({'pass': pass_no, 'link': implicit})
+                added += 1
+        return added
 
     def get_link_constraint_attributes(self, link1, link2) -> dict:
         attributes = {}
@@ -91,6 +94,15 @@ class FindImplicitLinks(FindLinks):
         link_type_from = link1['link_type'].split('-')[0]
         link_type_to = link2['link_type'].split('-')[1]
         link_type = '{}-{}'.format(link_type_from, link_type_to)
+        source_id = link1['source_id']
+        target_id = link2['target_id']
+        existing_link = self.get_existing_link(link_type=link_type,
+                                               source_id=source_id,
+                                               target_id=target_id)
+        if existing_link:
+            self.log.debug('skipped implicit link: link already exists: '
+                           '{}, {}-{}'.format(link_type, source_id, target_id))
+            return None
         link_name = ''
         state = 'down' \
             if link1['state'] == 'down' or link2['state'] == 'down' \
@@ -100,9 +112,7 @@ class FindImplicitLinks(FindLinks):
         switch = self.get_attr('switch', link1, link2)
         extra_attributes = self.get_link_constraint_attributes(link1, link2)
         self.log.debug('adding implicit link: link type: {}, from: {}, to: {}'
-                       .format(link_type,
-                               link1['source_id'],
-                               link2['target_id']))
+                       .format(link_type, source_id, target_id))
         implicit = self.create_link(self.get_env(),
                                     link1['source'], link1['source_id'],
                                     link2['target'], link2['target_id'],
@@ -126,3 +136,14 @@ class FindImplicitLinks(FindLinks):
                 break
             pass_no += 1
         self.log.info('done adding implicit links')
+
+    def get_existing_link(self, link_type: str=None,
+                          source_id: str=None,
+                          target_id: str=None) -> dict:
+        existing_link = self.inv.find_one({
+            'environment': self.get_env(),
+            'link_type': link_type,
+            'source_id': source_id,
+            'target_id': target_id},
+            collection='links')
+        return existing_link

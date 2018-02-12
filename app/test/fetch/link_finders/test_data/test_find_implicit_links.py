@@ -124,7 +124,7 @@ LINK_TYPE_7_NET1 = {
     'attributes': {'network': 'netID1'}
 }
 
-LINK_FULL_A2B = {
+LINK_FULL_A2B_EXPLICIT = {
     'environment': ENV,
     'link_type': 'instance-vnic',
     'source': 'instance1_dbid',
@@ -139,7 +139,7 @@ LINK_FULL_A2B = {
     'link_weight': 0,
     'attributes': {'network': 'netID1'}
 }
-LINK_FULL_B2C = {
+LINK_FULL_B2C_EXPLICIT = {
     'environment': ENV,
     'link_type': 'vnic-vconnector',
     'source': 'vnic1_dbid',
@@ -154,7 +154,7 @@ LINK_FULL_B2C = {
     'link_weight': 0,
     'attributes': {'network': 'netID1'}
 }
-LINK_FULL_C2D = {
+LINK_FULL_C2D_EXPLICIT = {
     'environment': ENV,
     'link_type': 'vconnector-vedge',
     'source': 'vconnector1_dbid',
@@ -169,11 +169,26 @@ LINK_FULL_C2D = {
     'link_weight': 0,
     'attributes': {'network': 'netID1'}
 }
-LINK_FULL_D2E = {
+LINK_FULL_D2E_EXPLICIT = {
     'environment': ENV,
     'link_type': 'vedge-otep',
     'source': 'vedge1_dbid',
     'source_id': 'vedge1',
+    'target': 'otep1_dbid',
+    'target_id': 'otep1',
+    'host': 'host1',
+    'link_name': '',
+    'state': 'up',
+    'source_label': '',
+    'target_label': '',
+    'link_weight': 0,
+    'attributes': {'network': 'netID1'}
+}
+LINK_FULL_C2E_EXPLICIT = {
+    'environment': ENV,
+    'link_type': 'vconnector-otep',
+    'source': 'vconnector1_dbid',
+    'source_id': 'vconnector1',
     'target': 'otep1_dbid',
     'target_id': 'otep1',
     'host': 'host1',
@@ -208,22 +223,6 @@ LINK_FULL_B2D = {
     'source_id': 'vnic1',
     'target': 'vedge1_dbid',
     'target_id': 'vedge1',
-    'host': 'host1',
-    'link_name': '',
-    'state': 'up',
-    'source_label': '',
-    'target_label': '',
-    'link_weight': 0,
-    'attributes': {'network': 'netID1'}
-}
-LINK_FULL_C2E = {
-    'environment': ENV,
-    'implicit': True,
-    'link_type': 'vconnector-otep',
-    'source': 'vconnector1_dbid',
-    'source_id': 'vconnector1',
-    'target': 'otep1_dbid',
-    'target_id': 'otep1',
     'host': 'host1',
     'link_name': '',
     'state': 'up',
@@ -281,23 +280,18 @@ LINK_FULL_A2E = {
     'attributes': {'network': 'netID1'}
 }
 BASE_LINKS = [
-    {'pass': 0, 'link': LINK_FULL_A2B},
-    {'pass': 0, 'link': LINK_FULL_B2C},
-    {'pass': 0, 'link': LINK_FULL_C2D},
-    {'pass': 0, 'link': LINK_FULL_D2E},
+    {'pass': 0, 'link': LINK_FULL_A2B_EXPLICIT},
+    {'pass': 0, 'link': LINK_FULL_B2C_EXPLICIT},
+    {'pass': 0, 'link': LINK_FULL_C2D_EXPLICIT},
+    {'pass': 0, 'link': LINK_FULL_D2E_EXPLICIT},
+    # this one tests that existing explicit links are not overwritten if
+    # they are also achievable implicitly
+    {'pass': 0, 'link': LINK_FULL_C2E_EXPLICIT},
 ]
 IMPLICIT_LINKS = [
-    [
-        {'pass': 1, 'link': LINK_FULL_A2C},
-        {'pass': 1, 'link': LINK_FULL_B2D},
-        {'pass': 1, 'link': LINK_FULL_C2E},
-    ],
-    [
-        {'pass': 2, 'link': LINK_FULL_A2D},
-        {'pass': 2, 'link': LINK_FULL_B2E},
-    ],
-    [
-        {'pass': 3, 'link': LINK_FULL_A2E},
-    ],
-    []
+    {'pass': 1, 'link': LINK_FULL_A2C},
+    {'pass': 1, 'link': LINK_FULL_B2D},
+    {'pass': 1, 'link': LINK_FULL_B2E},
+    {'pass': 2, 'link': LINK_FULL_A2D},
+    {'pass': 2, 'link': LINK_FULL_A2E},
 ]
