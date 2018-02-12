@@ -96,7 +96,7 @@ class FindLinksForPods(FindLinks):
     def find_container_network_links(self):
         containers = self.inv.find_items({
             'environment': self.get_env(),
-            'type': 'pod'
+            'type': 'container'
         })
         self.log.info('adding links of type: container-network')
         for container in containers:
