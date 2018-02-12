@@ -216,6 +216,6 @@
     "mechanism_drivers" : "Flannel",
     "type_drivers" : "vxlan",
     "name" : "k8s-network",
-    "use_implicit_links" : false
+    "use_implicit_links" : true
 }
 ]
