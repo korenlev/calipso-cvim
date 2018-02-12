@@ -25,6 +25,16 @@
     ]
 },
 { 
+    "type" : "pod", 
+    "attributes" : [
+        "object_name", 
+        "host", 
+        "namespace", 
+        "labels", 
+        "host_ip"
+    ]
+},
+{ 
     "attributes" : [
         "object_name", 
         "connector_type", 
@@ -44,7 +54,11 @@
         "type",
         "status_text",
         "status",
-        "status_timestamp"
+        "status_timestamp",
+        "cluster_ip",
+        "ports",
+        "labels",
+        "swagger_types"
     ], 
     "type" : "vservice"
 },
