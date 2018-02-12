@@ -14,8 +14,7 @@ def update_resource_version(inv: InventoryMgr,
                             env: str,
                             method: str,
                             resource_version):
-    env_config = inv.find_one(collection='environments_config',
-                              search={'name': env})
+    env_config = inv.get_env_config(env)
 
     listener_kwargs = env_config.get('listener_kwargs', {})
     resource_versions = listener_kwargs.get('resource_versions', {})
