@@ -35,9 +35,14 @@ class KubeAccess(ApiAccessBase):
             for item in o:
                 KubeAccess.del_attribute_map(item)
             return
-        for attr in ['attribute_map', 'swagger_types']:
-            if hasattr(o, attr):
-                delattr(o, attr)
+        elif isinstance(o, dict):
+            for attr in ['attribute_map', 'swagger_types']:
+                if attr in o:
+                    o.pop(attr)
+        else:
+            for attr in ['attribute_map', 'swagger_types']:
+                if hasattr(o, attr):
+                    delattr(o, attr)
 
     def update_resource_version(self, method: str,
                                 resource_version):
