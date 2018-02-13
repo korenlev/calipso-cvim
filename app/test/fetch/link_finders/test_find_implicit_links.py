@@ -87,8 +87,11 @@ class TestFindImplicitLinks(TestFetch):
         original_objectid = bson.ObjectId
         bson.ObjectId = lambda x: x
         add_func = self.fetcher.add_implicit_link
+        original_get_existing_link = self.fetcher.get_existing_link
+        self.fetcher.get_existing_link = self.mock_get_existing_link
         self.assertEqual(add_func(LINK_TYPE_4_NET1, LINK_TYPE_6_NET1),
                          LINK_TYPE_7_NET1)
+        self.fetcher.get_existing_link = original_get_existing_link
         bson.ObjectId = original_objectid
         self.inv.write_link = original_write_link
 
