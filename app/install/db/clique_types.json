@@ -166,8 +166,8 @@
     "focal_point_type" : "container",
     "environment_type" : "Kubernetes",	
     "link_types" : [
+        "container-vedge",
         "container-vnic",
-        "container-vedge", 
         "vnic-vconnector", 
         "vconnector-vedge", 
         "vedge-otep",
