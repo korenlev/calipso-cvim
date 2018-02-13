@@ -22,6 +22,7 @@ class FindLinksForContainers(FindLinks):
         self.log.info('adding links of type: container-vnic')
         for container in containers:
             self.find_matching_vnic(container)
+            self.find_matching_vedge(container)
 
     def find_matching_vnic(self, container):
         if 'vnic_index' not in container or not container['vnic_index']:
@@ -49,6 +50,37 @@ class FindLinksForContainers(FindLinks):
         if 'network' in container:
             vnic['network'] = container['network']
             self.inv.set(vnic)
+            attributes['network'] = container['network']
+        self.create_link(self.get_env(),
+                         source, source_id, target, target_id,
+                         link_type, link_name, state, link_weight,
+                         host=host,
+                         extra_attributes=attributes)
+
+    def find_matching_vedge(self, container):
+        if container['name'] != 'kube-proxy':
+            return
+        vedge = self.inv.find_one({
+            'environment': self.get_env(),
+            'type': 'vedge',
+            'host': container['host']
+        })
+        if not vedge:
+            return
+        pass
+
+    def add_container_vedge_link(self, container, vedge):
+        host = container['host']
+        source = container['_id']
+        source_id = container['id']
+        target = vedge['_id']
+        target_id = vedge['id']
+        link_type = 'container-vedge'
+        link_name = vedge['mac_address']
+        state = 'up'  # TBD
+        link_weight = 0  # TBD
+        attributes = dict()
+        if 'network' in container:
             attributes['network'] = container['network']
         self.create_link(self.get_env(),
                          source, source_id, target, target_id,
