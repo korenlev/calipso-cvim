@@ -58,7 +58,7 @@ class FindLinksForContainers(FindLinks):
                          extra_attributes=attributes)
 
     def find_matching_vedge(self, container):
-        if container['name'] != 'kube-proxy':
+        if container.get('container_app', '') != 'kube-proxy':
             return
         vedge = self.inv.find_one({
             'environment': self.get_env(),
@@ -67,7 +67,7 @@ class FindLinksForContainers(FindLinks):
         })
         if not vedge:
             return
-        pass
+        self.add_container_vedge_link(container, vedge)
 
     def add_container_vedge_link(self, container, vedge):
         host = container['host']
@@ -76,7 +76,9 @@ class FindLinksForContainers(FindLinks):
         target = vedge['_id']
         target_id = vedge['id']
         link_type = 'container-vedge'
-        link_name = vedge['mac_address']
+        link_name = '{}-{}-{}'.format(container['object_name'],
+                                      vedge['node_name'],
+                                      vedge['labels']['app'])
         state = 'up'  # TBD
         link_weight = 0  # TBD
         attributes = dict()
