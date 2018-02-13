@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 from json import JSONDecodeError
+
 from kubernetes.client.models import V1Container
 
 from discover.fetchers.cli.cli_access import CliAccess
@@ -177,7 +178,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
     def get_proxy_container_info(self, container):
         if container['name'] != 'kube-proxy':
             return
-        container['container_type'] = 'kube-proxy'
+        container['container_app'] = 'kube-proxy'
         self.get_proxy_container_config(container)
         self.get_proxy_nat_tables(container)
 
