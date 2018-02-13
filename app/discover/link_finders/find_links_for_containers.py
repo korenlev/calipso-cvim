@@ -37,25 +37,15 @@ class FindLinksForContainers(FindLinks):
             self.add_container_vnic_link(container, vnic)
 
     def add_container_vnic_link(self, container, vnic):
-        host = vnic['host']
-        source = container['_id']
-        source_id = container['id']
-        target = vnic['_id']
-        target_id = vnic['id']
-        link_type = 'container-vnic'
+        # link_type: 'container-vnic'
         link_name = vnic['mac_address']
-        state = 'up'  # TBD
-        link_weight = 0  # TBD
         attributes = dict(container_vnic=vnic['object_name'])
         if 'network' in container:
             vnic['network'] = container['network']
             self.inv.set(vnic)
             attributes['network'] = container['network']
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host,
-                         extra_attributes=attributes)
+        self.link_items(container, vnic, link_name=link_name,
+                        extra_attributes=attributes)
 
     def find_matching_vedge(self, container):
         if container.get('container_app', '') != 'kube-proxy':
@@ -70,22 +60,14 @@ class FindLinksForContainers(FindLinks):
         self.add_container_vedge_link(container, vedge)
 
     def add_container_vedge_link(self, container, vedge):
-        host = container['host']
-        source = container['_id']
-        source_id = container['id']
-        target = vedge['_id']
-        target_id = vedge['id']
-        link_type = 'container-vedge'
+        # link_type: 'container-vedge'
         link_name = '{}-{}-{}'.format(container['object_name'],
                                       vedge['node_name'],
                                       vedge['labels']['app'])
-        state = 'up'  # TBD
-        link_weight = 0  # TBD
-        attributes = dict()
         if 'network' in container:
-            attributes['network'] = container['network']
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host,
-                         extra_attributes=attributes)
+            attributes = dict(network=container['network'])
+        else:
+            attributes = None
+        self.link_items(source=container, target=vedge,
+                        link_name=link_name,
+                        extra_attributes=attributes)

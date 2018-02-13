@@ -49,6 +49,7 @@ class FindLinksForPnics(FindLinks):
             self.add_kubernetes_pnic_network_links(pnic)
 
     def add_openstack_pnic_network_links(self, pnic):
+        # link_type: "host_pnic-network"
         host = pnic["host"]
         if self.configuration.get_env_config()['type_drivers'] == "vlan":
             # take this pnic only if we can find matching vedge-pnic links
@@ -75,24 +76,15 @@ class FindLinksForPnics(FindLinks):
             network = self.inv.get_by_id(self.get_env(), network_id)
             if not network:
                 return
-            source = pnic["_id"]
-            source_id = pnic["id"]
-            target = network["_id"]
-            target_id = network["id"]
-            link_type = "host_pnic-network"
             link_name = "Segment-" + str(network["provider:segmentation_id"]) \
                 if "provider:segmentation_id" in network \
                 else "Segment-None"
             state = "up" if pnic["Link detected"] == "yes" else "down"
-            link_weight = 0  # TBD
-            attributes = {"network": target_id}
+            attributes = {"network": network['id']}
             if "port_id" in pnic:
                 attributes['source_label'] = "port-" + pnic["port_id"]
-            self.create_link(self.get_env(),
-                             source, source_id, target, target_id,
-                             link_type, link_name, state, link_weight,
-                             host=host,
-                             extra_attributes=attributes)
+            self.link_items(pnic, network, link_name=link_name, state=state,
+                            extra_attributes=attributes)
 
     def add_kubernetes_pnic_network_links(self, pnic):
         networks = self.inv.find_items({
@@ -103,25 +95,16 @@ class FindLinksForPnics(FindLinks):
             self.add_kubernetes_pnic_network_link(pnic, network)
 
     def add_kubernetes_pnic_network_link(self, pnic, network):
-        host = pnic['host']
-        source = pnic['_id']
-        source_id = pnic['id']
-        target = network['_id']
-        target_id = network['id']
-        link_type = 'host_pnic-network'
+        # link_type: 'host_pnic-network'
         link_name = '{}-{}'.format(pnic['object_name'], network['object_name'])
-        state = 'up'  # TBD
-        link_weight = 0  # TBD
         attributes = {'network': network['id']}
         if 'port_id' in pnic:
             attributes['source_label'] = 'port-' + pnic['port_id']
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host,
-                         extra_attributes=attributes)
+        self.link_items(pnic, network, link_name=link_name,
+                        extra_attributes=attributes)
 
     def add_host_pnic_to_switch_pnic_link(self, host_pnic):
+        # link_type: "host_pnic-switch_pnic"
         switch_pnic = self.inv.find_items({
             "environment": self.get_env(),
             "type": "switch_pnic",
@@ -129,52 +112,28 @@ class FindLinksForPnics(FindLinks):
             get_single=True)
         if not switch_pnic:
             return
-        source = host_pnic["_id"]
-        source_id = host_pnic["id"]
-        target = switch_pnic["_id"]
-        target_id = switch_pnic["id"]
-        link_type = "host_pnic-switch_pnic"
         link_name = "{}-{}".format(host_pnic['host'],
                                    switch_pnic['parent_id'])
         state = "up" if host_pnic["Link detected"] == "yes" else "down"
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host_pnic['host'])
+        self.link_items(host_pnic, switch_pnic, host=host_pnic['host'],
+                        state=state, link_name=link_name)
 
     def add_switch_pnic_to_switch_pnic_link(self, leaf_pnic):
+        # link_type: "switch_pnic-switch_pnic"
         spine_pnic = self.inv.get_by_id(self.get_env(),
                                         leaf_pnic['connected_to'])
         if not spine_pnic:
             return
-        source = leaf_pnic["_id"]
-        source_id = leaf_pnic["id"]
-        target = spine_pnic["_id"]
-        target_id = spine_pnic["id"]
-        link_type = "switch_pnic-switch_pnic"
-        if_id_matches = re.search("(eth.*)$", source_id)
+        if_id_matches = re.search("(eth.*)$", leaf_pnic['id'])
         link_name = decode_aci_dn(if_id_matches.group(1))
-        state = "up"  # TBD
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         switch=leaf_pnic['switch'])
+        self.link_items(leaf_pnic, spine_pnic, link_name=link_name)
 
     def add_switch_to_pnic_link(self, pnic):
+        # link_type: switch-host_pnic, switch-switch_pnic
         switch = self.inv.get_by_id(self.get_env(), pnic['parent_id'])
         if not switch:
             return
-        source = switch["_id"]
-        source_id = switch["id"]
-        target = pnic["_id"]
-        target_id = pnic["id"]
         link_type = "switch-{}".format(pnic['type'])
         link_name = "{}={}".format(switch["object_name"], pnic["object_name"])
-        state = "up"  # TBD
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         switch=switch['id'])
+        self.link_items(switch, pnic, link_type=link_type, link_name=link_name,
+                        switch=switch['id'])
