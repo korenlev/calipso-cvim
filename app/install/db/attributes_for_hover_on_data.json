@@ -17,7 +17,10 @@
     "attributes" : [
         "name", 
         "name_path", 
-        "ip_address", 
+        "ip_address",
+        "nat_tables", 
+        "kube_proxy_config",
+        "vservices",  
         "container_type", 
         "ports", 
         "namespace", 
@@ -29,7 +32,8 @@
     "attributes" : [
         "object_name", 
         "host", 
-        "namespace", 
+        "namespace",
+        "vservices", 
         "labels", 
         "host_ip"
     ]
@@ -52,6 +56,7 @@
         "host", 
         "service_type", 
         "type",
+        "kube-proxy",
         "status_text",
         "status",
         "status_timestamp",
