@@ -10,7 +10,6 @@
 from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec, V1PodStatus
 
 from discover.fetchers.kube.kube_access import KubeAccess
-from utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchPods(KubeAccess):
@@ -136,4 +135,8 @@ class KubeFetchPods(KubeAccess):
             service['pods'] = []
         service['pods'].append({'name': pod['name'], 'id': pod['id']})
         self.inv.set(service)
+        if 'vservices' not in pod:
+            pod['vservices'] = []
+        pod['vservices'].append(dict(id=service['id'],
+                                     name=service['object_name']))
 
