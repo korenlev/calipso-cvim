@@ -22,7 +22,8 @@
         "kube_proxy_config",
         "vservices",  
         "container_type", 
-        "ports", 
+        "ports",
+        "pod", 
         "namespace", 
         "container_status"
     ]
