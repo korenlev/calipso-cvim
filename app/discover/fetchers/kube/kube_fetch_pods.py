@@ -131,17 +131,17 @@ class KubeFetchPods(KubeAccess):
         service = self.inv.find_one(cond)
         if not service:
             return
+
         if 'pods' not in service:
             service['pods'] = []
-
         service_pod = {'name': pod['name'], 'id': pod['id']}
-        if service_pod in service['pods']:
-            return
+        if service_pod not in service['pods']:
+            service['pods'].append(service_pod)
+            self.inv.set(service)
 
-        service['pods'].append(service_pod)
-        self.inv.set(service)
         if 'vservices' not in pod:
             pod['vservices'] = []
-        pod['vservices'].append(dict(id=service['id'],
-                                     name=service['object_name']))
+        pod_vservice = {'id': service['id'], 'name': service['object_name']}
+        if pod_vservice not in pod['vservices']:
+            pod['vservices'].append(pod_vservice)
 
