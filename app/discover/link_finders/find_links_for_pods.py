@@ -17,7 +17,6 @@ class FindLinksForPods(FindLinks):
     def add_links(self):
         self.find_service_pod_links()
         self.find_pod_container_links()
-        self.find_container_network_links()
 
     def find_service_pod_links(self):
         services = self.inv.find_items({
@@ -68,20 +67,3 @@ class FindLinksForPods(FindLinks):
             else:
                 self.log.error('unable to find container {} from pod {}'
                                .format(container['name'], pod['object_name']))
-
-    def find_container_network_links(self):
-        containers = self.inv.find_items({
-            'environment': self.get_env(),
-            'type': 'container'
-        })
-        self.log.info('adding links of type: container-network')
-        for container in containers:
-            if container.get('network', ''):
-                network = self.inv.get_by_id(self.get_env(),
-                                             container['network'])
-                if not network:
-                    self.log.error('unable to find network {} in container {}'
-                                   .format(container['network'],
-                                           container['name']))
-                # link_type: 'container-network'
-                self.add_items_link(container, network)
