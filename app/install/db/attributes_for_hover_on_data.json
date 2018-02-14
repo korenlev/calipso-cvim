@@ -18,6 +18,7 @@
         "name", 
         "name_path", 
         "ip_address",
+        "host",
         "nat_tables", 
         "kube_proxy_config",
         "vservices",  
@@ -35,8 +36,7 @@
         "host", 
         "namespace",
         "vservices", 
-        "labels", 
-        "host_ip"
+        "status" 
     ]
 },
 { 
