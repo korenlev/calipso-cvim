@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 from json import JSONDecodeError
+
 from kubernetes.client.models import V1Container
 
 from discover.fetchers.cli.cli_access import CliAccess
@@ -49,12 +50,13 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         doc = {'type': 'container', 'namespace': pod.metadata.namespace}
         self.get_container_data(doc, container)
         self.fetch_container_status_data(doc, pod, pod_obj)
-        self.get_container_config(doc, pod_obj)
-        self.get_interface_link(doc, pod_obj)
         doc['host'] = pod_obj['host']
         doc['pod'] = pod_obj['object_name']
         doc['ip_address'] = pod_obj.get('status', {}).get('pod_ip', '')
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
+        self.get_container_config(doc, pod_obj)
+        self.get_interface_link(doc, pod_obj)
+        self.get_proxy_container_info(doc)
         return doc
 
     def fetch_container_status_data(self, doc, pod, pod_obj):
@@ -149,7 +151,6 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         networks = doc['sandbox']['NetworkSettings']['Networks']
         if not networks:
             return
-        network = None
         if isinstance(networks, dict):
             network_names = list(networks.keys())
             network = network_names[0]
@@ -173,3 +174,35 @@ class KubeFetchContainers(KubeAccess, CliAccess):
             return
         vnic['containers'].append(doc['container_id'])
         self.inv.set(vnic)
+
+    def get_proxy_container_info(self, container):
+        if container['name'] != 'kube-proxy':
+            return
+        container['container_app'] = 'kube-proxy'
+        self.get_proxy_container_config(container)
+        self.get_proxy_nat_tables(container)
+
+    def get_proxy_container_config(self, container):
+        command = container.get('command')
+        if not command or not isinstance(command, list) or len(command) < 2:
+            self.log.error('unable to find kube-proxy command file '
+                           'for container {}'.format(container['id']))
+            return
+        conf_line = command[1]
+        if not isinstance(conf_line, str) \
+                or not conf_line.startswith('--config='):
+            self.log.error('unable to find kube-proxy command config file '
+                           'for container {}'.format(container['id']))
+            return
+        conf_file = conf_line[len('--config='):]
+        cmd = 'docker exec {} cat  {}'.format(container['container_id'],
+                                              conf_file)
+        conf_file_contents = self.run(cmd=cmd, ssh_to_host=container['host'])
+        container['kube_proxy_config'] = conf_file_contents
+
+    def get_proxy_nat_tables(self, container):
+        cmd = 'docker exec {} iptables -t nat -n -L' \
+            .format(container['container_id'])
+        nat_tables = self.run(cmd=cmd, ssh_to_host=container['host'])
+        container['nat_tables'] = nat_tables
+

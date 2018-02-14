@@ -10,7 +10,6 @@
 from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec, V1PodStatus
 
 from discover.fetchers.kube.kube_access import KubeAccess
-from utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchPods(KubeAccess):
@@ -116,13 +115,18 @@ class KubeFetchPods(KubeAccess):
             doc['status'] = status_data
 
     def add_pod_to_proxy_service(self, pod):
-        app_name = pod.get('labels', {}).get('k8s-app')
+        labels = pod.get('labels', {})
+        app_field = 'k8s-app'
+        app_name = labels.get(app_field, '')
+        if not app_name:
+            app_name = labels.get('app')
+            app_field = 'app'
         if not app_name:
             return
         cond = {
             'environment': self.get_env(),
             'type': 'vservice',
-            'name': app_name
+            'selector.{}'.format(app_field): app_name
         }
         service = self.inv.find_one(cond)
         if not service:
@@ -131,4 +135,8 @@ class KubeFetchPods(KubeAccess):
             service['pods'] = []
         service['pods'].append({'name': pod['name'], 'id': pod['id']})
         self.inv.set(service)
+        if 'vservices' not in pod:
+            pod['vservices'] = []
+        pod['vservices'].append(dict(id=service['id'],
+                                     name=service['object_name']))
 
