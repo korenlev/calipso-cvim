@@ -25,6 +25,7 @@ class FindLinksForInstanceVnics(FindLinks):
             self.add_link_for_vnic(v)
 
     def add_link_for_vnic(self, v):
+        # link_type: "instance-vnic"
         instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
         if "network_info" not in instance:
             self.log.warn("add_link_for_vnic: " +
@@ -35,11 +36,6 @@ class FindLinksForInstanceVnics(FindLinks):
         host_types = host["host_type"]
         if "Network" not in host_types and "Compute" not in host_types:
             return []
-        source = instance["_id"]
-        source_id = instance["id"]
-        target = v["_id"]
-        target_id = v["id"]
-        link_type = "instance-vnic"
         # find related network
         network_name = None
         network_id = None
@@ -52,11 +48,7 @@ class FindLinksForInstanceVnics(FindLinks):
                 if self.inv.monitoring_setup_manager:
                     self.inv.monitoring_setup_manager.create_setup(instance)
                 break
-        state = "up"  # TBD
-        link_weight = 0  # TBD
         attributes = {} if not network_id else {'network': network_id}
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, network_name, state, link_weight,
-                         host=host["name"],
-                         extra_attributes=attributes)
+        self.link_items(instance, v, link_name=network_name,
+                        host=host["name"],
+                        extra_attributes=attributes)
