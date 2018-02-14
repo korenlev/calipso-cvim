@@ -70,6 +70,7 @@ class FindLinksForPods(FindLinks):
             container_obj = self.inv.find_one({
                 'environment': self.get_env(),
                 'type': 'container',
+                'host': pod['host'],
                 'name': container['name']
             })
             if container_obj:
