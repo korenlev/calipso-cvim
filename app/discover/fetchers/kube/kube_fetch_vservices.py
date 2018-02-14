@@ -40,6 +40,7 @@ class KubeFetchVservices(KubeAccess):
         except AttributeError:
             pass
         doc['id'] = doc['uid']
+        doc['local_service_id'] = doc['name']
         doc['service_type'] = 'proxy'
         KubeAccess.del_attribute_map(doc)
         return doc
@@ -75,7 +76,7 @@ class KubeFetchVservices(KubeAccess):
 
     STATUS_ATTRIBUTES_TO_FETCH = ['load_balancer']
 
-    load_balancer_attr = 'load_balancer'
+    LOAD_BALANCER_ATTR = 'load_balancer'
 
     @staticmethod
     def get_service_status(doc: dict, service_status: V1ServiceStatus):

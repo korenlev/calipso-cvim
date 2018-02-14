@@ -27,12 +27,13 @@ class MonitoringCheckHandler(MonitoringHandler, SpecialCharConverter):
         type_str = values['check_type'] if 'check_type' in values else \
             (o['type'] if 'type' in o else 'link_' + o['link_type'])
         file_type = 'client_check_' + type_str + '.json'
-        host = values['host'] if 'host' in values else o['host']
-        sub_dir = '/host/' + host
         content = self.prepare_config_file(
             file_type,
             {'side': 'client', 'type': file_type})
         # need to put this content inside client.json file
+        host = values['host'] if 'host' in values \
+            else o['host'] if 'host' in 'o' else ''
+        sub_dir = '/host/' + host
         client_file = 'client.json'
         client_file_content = self.get_config_from_db(host, client_file)
         # merge checks attribute from current content into client.json
