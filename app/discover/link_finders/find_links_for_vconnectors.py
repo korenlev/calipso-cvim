@@ -36,6 +36,7 @@ class FindLinksForVconnectors(FindLinks):
                 self.add_vconnector_vedge_link(vconnector)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
+        # link_type: "vnic-vconnector"
         mechanism_drivers = self.configuration.environment['mechanism_drivers']
         ovs_or_flannel = mechanism_drivers and ('OVS' in mechanism_drivers or
                                                 'Flannel' in mechanism_drivers)
@@ -57,31 +58,20 @@ class FindLinksForVconnectors(FindLinks):
         if 'network' in vnic:
             vconnector['network'] = vnic['network']
             self.inv.set(vconnector)
-        host = vnic["host"]
-        source = vnic["_id"]
-        source_id = vnic["id"]
-        target = vconnector["_id"]
-        target_id = vconnector["id"]
-        link_type = "vnic-vconnector"
         link_name = vnic["mac_address"]
-        state = "up"  # TBD
-        link_weight = 0  # TBD
         attributes = {}
         if 'network' in vnic:
             attributes = {'network': vnic['network']}
             vconnector['network'] = vnic['network']
             self.inv.set(vconnector)
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host,
-                         extra_attributes=attributes)
+        self.link_items(vnic, vconnector, link_name=link_name,
+                        extra_attributes=attributes)
 
     def add_vconnector_pnic_link(self, vconnector, interface):
+        # link_type: "vconnector-host_pnic"
         ifname = interface['name'] if isinstance(interface, dict) else interface
         if "." in ifname:
             ifname = ifname[:ifname.index(".")]
-        host = vconnector["host"]
         pnic = self.inv.find_items({
             "environment": self.get_env(),
             "type": "host_pnic",
@@ -90,21 +80,10 @@ class FindLinksForVconnectors(FindLinks):
         }, get_single=True)
         if not pnic:
             return
-        source = vconnector["_id"]
-        source_id = vconnector["id"]
-        target = pnic["_id"]
-        target_id = pnic["id"]
-        link_type = "vconnector-host_pnic"
-        link_name = pnic["name"]
-        state = "up"  # TBD
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id,
-                         target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host)
+        self.link_items(vconnector, pnic, link_name=pnic["name"])
 
     def add_vconnector_vedge_link(self, vconnector):
+        # link_type: 'vconnector-vedge'
         host = vconnector['host']
         prefix = '{}-cni'.format(host)
         if not vconnector['id'].startswith(prefix):
@@ -116,16 +95,4 @@ class FindLinksForVconnectors(FindLinks):
         })
         if not vedge:
             return
-        source = vconnector['_id']
-        source_id = vconnector['id']
-        target = vedge['_id']
-        target_id = vedge['id']
-        link_type = 'vconnector-vedge'
-        link_name = vedge['name']
-        state = 'up'  # TBD
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id,
-                         target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=host)
+        self.link_items(vconnector, vedge, link_name=vedge['name'])
