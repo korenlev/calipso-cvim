@@ -30,17 +30,13 @@ class FindLinksForVserviceVnics(FindLinks):
             self.add_link_for_vnic(v)
 
     def add_link_for_vnic(self, v):
+        # link_type: "vservice-vnic"
         host = self.inv.get_by_id(self.get_env(), v["host"])
         if "Network" not in host["host_type"]:
             return
         vservice_id = v["parent_id"]
         vservice_id = vservice_id[:vservice_id.rindex('-')]
         vservice = self.inv.get_by_id(self.get_env(), vservice_id)
-        source = vservice["_id"]
-        source_id = vservice_id
-        target = v["_id"]
-        target_id = v["id"]
-        link_type = "vservice-vnic"
         extra_attributes = None
         if "network" in v:
             network = self.inv.get_by_id(self.get_env(), v["network"])
@@ -49,11 +45,5 @@ class FindLinksForVserviceVnics(FindLinks):
         else:
             link_name = "{}-{}".format(vservice["object_name"],
                                        v["object_name"])
-        state = "up"  # TBD
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id,
-                         target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=v["host"],
-                         extra_attributes=extra_attributes)
+        self.link_items(vservice, v, link_name=link_name, host=v["host"],
+                        extra_attributes=extra_attributes)
