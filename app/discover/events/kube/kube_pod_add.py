@@ -24,7 +24,7 @@ class KubePodAdd(KubeEventBase):
                                display_context=self.object_id,
                                message='Pod already exists')
 
-        self.inv.set(self.prepare_pod_doc())
+        self.save_pod_doc()
         return EventResult(result=True,
                            related_object=self.object_id,
                            display_context=self.object_id)

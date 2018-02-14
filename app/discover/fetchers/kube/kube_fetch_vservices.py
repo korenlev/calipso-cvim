@@ -22,6 +22,12 @@ class KubeFetchVservices(KubeAccess):
 
     def get(self, object_id) -> list:
         services = self.api.list_service_for_all_namespaces()
+
+        self.update_resource_version(
+            method='list_service_for_all_namespaces',
+            resource_version=services.metadata.resource_version
+        )
+
         return [self.get_service_details(s) for s in services.items]
 
     @classmethod

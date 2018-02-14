@@ -70,7 +70,7 @@ class KubeFetchPods(KubeAccess):
                 pass
         doc['id'] = doc['uid']
 
-    ATTRBUTES_TO_FETCH = [
+    ATTRIBUTES_TO_FETCH = [
         'containers',
         'node_name',
         'scheduler_name',
@@ -82,7 +82,7 @@ class KubeFetchPods(KubeAccess):
 
     @staticmethod
     def get_pod_data(doc: dict, spec: V1PodSpec):
-        for attr in KubeFetchPods.ATTRBUTES_TO_FETCH:
+        for attr in KubeFetchPods.ATTRIBUTES_TO_FETCH:
             try:
                 val = getattr(spec, attr)
                 KubeAccess.del_attribute_map(val)
@@ -133,7 +133,12 @@ class KubeFetchPods(KubeAccess):
             return
         if 'pods' not in service:
             service['pods'] = []
-        service['pods'].append({'name': pod['name'], 'id': pod['id']})
+
+        service_pod = {'name': pod['name'], 'id': pod['id']}
+        if service_pod in service['pods']:
+            return
+
+        service['pods'].append(service_pod)
         self.inv.set(service)
         if 'vservices' not in pod:
             pod['vservices'] = []
