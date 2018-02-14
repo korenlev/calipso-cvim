@@ -52,6 +52,7 @@ class FindLinksForPods(FindLinks):
         for pod in pods:
             self.find_pod_containers(pod)
 
+
     def find_pod_containers(self, pod):
         if 'containers' not in pod or not pod['containers']:
             return
@@ -59,8 +60,7 @@ class FindLinksForPods(FindLinks):
             container_obj = self.inv.find_one({
                 'environment': self.get_env(),
                 'type': 'container',
-                'host': pod['host'],
-                'name': container['name']
+                'pod.id': pod['id'],
             })
             if container_obj:
                 # link_type: 'pod-container'
