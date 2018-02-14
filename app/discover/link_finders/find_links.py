@@ -49,12 +49,13 @@ class FindLinks(Fetcher):
         host = source.get('host', target.get('host')) \
             if host is None \
             else host
-        link_type = link_type if link_type \
-            else '{}-{}'.format(source['type'], target['type'])
+        if not link_type:
+            link_type = '{}-{}'.format(source['type'], target['type'])
         if not link_name:
             link_name = '{}-{}'.format(source['object_name'],
                                        target['object_name'])
-        state = 'up' if not state else state  # TBD
+        if not state:
+            state = 'up'  # TBD
         link_weight = 0  # TBD
         self.create_link(self.get_env(),
                          source['_id'], source['id'],

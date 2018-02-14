@@ -42,6 +42,7 @@ class FindLinksForPods(FindLinks):
 
     def add_items_link(self, source, target):
         link_name = '{}-{}'.format(source['object_name'], target['type'])
+        self.link_items(source=source, target=target, link_name=link_name)
 
     def find_pod_container_links(self):
         pods = self.inv.find_items({
