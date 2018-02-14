@@ -133,7 +133,4 @@ class FindLinksForPnics(FindLinks):
         switch = self.inv.get_by_id(self.get_env(), pnic['parent_id'])
         if not switch:
             return
-        link_type = "switch-{}".format(pnic['type'])
-        link_name = "{}={}".format(switch["object_name"], pnic["object_name"])
-        self.link_items(switch, pnic, link_type=link_type, link_name=link_name,
-                        switch=switch['id'])
+        self.link_items(switch, pnic, switch=switch['id'])

@@ -9,9 +9,11 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 import * as cola from 'webcola';
 import { imagesForNodeType, defaultNodeTypeImage } from '/imports/lib/images-for-node-type';
+import { idToStr } from '/imports/lib/utilities';
 import * as _ from 'lodash';
         
-import './network-graph.html';     
+import './network-graph.html';
+import {Environments} from "../../../api/environments/environments";
     
 /*  
  * Lifecycles
@@ -322,6 +324,17 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       }
       onNodeClick(d._osmeta.nodeId, d._osmeta.type, d._osmeta.environment, 
         d3.event.pageX, d3.event.pageY);
+    })
+    .on('dblclick', function(d) {
+      let meta = R.defaultTo({}, R.path(['_osmeta'], d));
+      let type = R.defaultTo('', R.path(['type'], meta));
+      if (type === "network") {
+        let env = Environments.findOne({name: R.prop('environment', meta)});
+        Router.go('environment',
+            { _id: idToStr(R.prop('_id', env)) },
+            { query: { selectedNodeId: idToStr(R.prop('nodeId', meta)) }}
+        );
+      }
     })
   ;
 

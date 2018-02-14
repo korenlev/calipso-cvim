@@ -51,7 +51,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         self.get_container_data(doc, container)
         self.fetch_container_status_data(doc, pod, pod_obj)
         doc['host'] = pod_obj['host']
-        doc['pod'] = pod_obj['object_name']
+        doc['pod'] = dict(id=pod_obj['id'], name=pod_obj['object_name'])
         doc['ip_address'] = pod_obj.get('status', {}).get('pod_ip', '')
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
         self.get_container_config(doc, pod_obj)

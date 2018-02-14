@@ -17,7 +17,6 @@ class FindLinksForPods(FindLinks):
     def add_links(self):
         self.find_service_pod_links()
         self.find_pod_container_links()
-        self.find_container_network_links()
 
     def find_service_pod_links(self):
         services = self.inv.find_items({
@@ -42,6 +41,7 @@ class FindLinksForPods(FindLinks):
 
     def add_items_link(self, source, target):
         link_name = '{}-{}'.format(source['object_name'], target['type'])
+        self.link_items(source=source, target=target, link_name=link_name)
 
     def find_pod_container_links(self):
         pods = self.inv.find_items({
@@ -52,6 +52,7 @@ class FindLinksForPods(FindLinks):
         for pod in pods:
             self.find_pod_containers(pod)
 
+
     def find_pod_containers(self, pod):
         if 'containers' not in pod or not pod['containers']:
             return
@@ -59,7 +60,7 @@ class FindLinksForPods(FindLinks):
             container_obj = self.inv.find_one({
                 'environment': self.get_env(),
                 'type': 'container',
-                'name': container['name']
+                'pod.id': pod['id'],
             })
             if container_obj:
                 # link_type: 'pod-container'
@@ -67,20 +68,3 @@ class FindLinksForPods(FindLinks):
             else:
                 self.log.error('unable to find container {} from pod {}'
                                .format(container['name'], pod['object_name']))
-
-    def find_container_network_links(self):
-        containers = self.inv.find_items({
-            'environment': self.get_env(),
-            'type': 'container'
-        })
-        self.log.info('adding links of type: container-network')
-        for container in containers:
-            if container.get('network', ''):
-                network = self.inv.get_by_id(self.get_env(),
-                                             container['network'])
-                if not network:
-                    self.log.error('unable to find network {} in container {}'
-                                   .format(container['network'],
-                                           container['name']))
-                # link_type: 'container-network'
-                self.add_items_link(container, network)

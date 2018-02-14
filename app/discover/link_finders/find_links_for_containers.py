@@ -19,10 +19,11 @@ class FindLinksForContainers(FindLinks):
             'environment': self.get_env(),
             'type': 'container'
         })
-        self.log.info('adding links of type: container-vnic')
+        self.log.info('adding links of type: container-vnic, container-network')
         for container in containers:
             self.find_matching_vnic(container)
             self.find_matching_vedge(container)
+            self.find_container_network_links(container)
 
     def find_matching_vnic(self, container):
         if 'vnic_index' not in container or not container['vnic_index']:
@@ -71,3 +72,17 @@ class FindLinksForContainers(FindLinks):
         self.link_items(source=container, target=vedge,
                         link_name=link_name,
                         extra_attributes=attributes)
+
+    def find_container_network_links(self, container):
+        # link_type = 'container-network'
+        if container.get('network', ''):
+            network = self.inv.get_by_id(self.get_env(),
+                                         container['network'])
+            if not network:
+                self.log.error('unable to find network {} in container {}'
+                               .format(container['network'],
+                                       container['name']))
+            link_name = '{}-{}'.format(container['object_name'],
+                                       network['type'])
+            self.link_items(source=container, target=network,
+                            link_name=link_name)
