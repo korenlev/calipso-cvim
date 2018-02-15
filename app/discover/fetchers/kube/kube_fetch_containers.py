@@ -241,6 +241,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         matches = [p for p in vservice_obj[self.PROXY_ATTR]
                    if p['id'] == container['id']]
         if not matches:
-            proxy_data = dict(id=container['id'], name=container['name'])
+            proxy_data = dict(id=container['id'], name=container['name'],
+                              host=container['host'])
             vservice_obj[self.PROXY_ATTR].append(proxy_data)
             self.inv.set(vservice_obj)
