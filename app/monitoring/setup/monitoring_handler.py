@@ -185,6 +185,12 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         apply environment definitions to the config,
         e.g. replace {server_ip} with the IP or host name for the server
         """
+
+        # in some environments this might happen,
+        # e.g. Kubernetes vServices are not host-specific
+        if not host:
+            return
+
         # save the config to DB first, and while doing that
         # merge it with any existing config on same host
         content = self.merge_config(host, file_name, content)
