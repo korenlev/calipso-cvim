@@ -7,24 +7,13 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.events.event_base import EventResult
-from discover.events.kube.kube_event_base import KubeEventBase
+from discover.events.kube.kube_event_delete_base import KubeEventDeleteBase
 
 
-class KubePodUpdate(KubeEventBase):
+class KubeServiceDelete(KubeEventDeleteBase):
 
     def handle(self, env, values):
         super().handle(env, values)
-
-        pod = self.inv.get_by_id(environment=env, item_id=self.object_id)
-        if not pod:
-            return EventResult(result=False,
-                               retry=True,  # TODO: doesn't work atm
-                               related_object=self.object_id,
-                               display_context=self.object_id,
-                               message='Pod doesn\'t exist')
-
-        self.save_pod_doc()
-        return EventResult(result=True,
-                           related_object=self.object_id,
-                           display_context=self.object_id)
+        return self.delete_handler(env=env,
+                                   object_id=self.object_id,
+                                   object_type="vservice")

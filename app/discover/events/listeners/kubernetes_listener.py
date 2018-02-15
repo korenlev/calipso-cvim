@@ -117,6 +117,7 @@ class KubernetesListener(ListenerBase):
                            .format(event_type=event_type,
                                    object_id=result.related_object,
                                    message=result.message))
+        return result
 
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
         try:
@@ -213,16 +214,16 @@ class KubernetesListener(ListenerBase):
                             if not rv:
                                 raise ResourceGoneError
 
-                            rv = int(rv)
-                            stream['resource_version'] = rv
+                            result = self.process_event(event)
+                            if result.result is True:
+                                rv = int(rv)
+                                stream['resource_version'] = rv
 
-                            update_resource_version(inv=self.inv,
-                                                    env=self.environment,
-                                                    method=name,
-                                                    resource_version=rv)
+                                update_resource_version(inv=self.inv,
+                                                        env=self.environment,
+                                                        method=name,
+                                                        resource_version=rv)
 
-                            self.process_event(event)
-                            # TODO: stop ignoring handling errors?
                         except ResourceGoneError:
                             # TODO: perform a rescan?
                             # TODO: Fetch and set resource version from rescan?
