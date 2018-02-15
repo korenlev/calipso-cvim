@@ -7,10 +7,11 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from kubernetes.client import V1Pod
+from kubernetes.client import V1Pod, V1Service
 
 from discover.events.event_base import EventBase
 from discover.fetchers.kube.kube_fetch_pods import KubeFetchPods
+from discover.fetchers.kube.kube_fetch_vservices import KubeFetchVservices
 
 
 class KubeEventBase(EventBase):
@@ -36,25 +37,37 @@ class KubeEventBase(EventBase):
                                obj_name=self.metadata.name,
                                uid=self.object_id))
 
-    def prepare_pod_doc(self, pod: V1Pod = None):
+    def save_pod_doc(self, pod: V1Pod = None):
         if not pod:
             pod = self.object
 
-        host_id = pod.spec.node_name
-        host_name = pod.spec.node_name
+        pods_fetcher = KubeFetchPods()
+        pods_fetcher.set_env(self.env)
+        pods_fetcher.host = {
+            'id': pod.spec.node_name,
+            'name': pod.spec.node_name
+        }
 
-        doc = KubeFetchPods.get_pod_details(pod)
-        self.set_folder_parent(doc, object_type='pod',
-                               master_parent_type='host',
-                               master_parent_id=host_id)
-        doc['type'] = 'pod'
+        doc = pods_fetcher.get_pod_document(pod)
         doc['environment'] = self.env
-        doc['host'] = host_name
-        doc['name_path'] = "/".join(("", host_name,
-                                     "Hosts", host_name,
-                                     "Pods", doc['name']))
-        doc['id_path'] = "/".join(("", host_id,
-                                   "{}-hosts".format(host_id), host_id,
-                                   "{}-pods".format(host_id), doc['name']))
-        doc['show_in_tree'] = True
-        return doc
+        parent = self.inv.get_by_id(environment=self.env,
+                                    item_id=doc['parent_id'])
+
+        self.inv.save_inventory_object(o=doc,
+                                       parent=parent,
+                                       environment=self.env)
+
+    def save_vservice_doc(self, service: V1Service = None):
+        if not service:
+            service = self.object
+
+        doc = {}
+        self.set_folder_parent(doc, object_type='vservice',
+                               master_parent_type='environment',
+                               master_parent_id=self.env)
+        doc.update(KubeFetchVservices.get_service_details(service))
+
+        self.inv.save_inventory_object(o=doc,
+                                       parent={'environment': self.env,
+                                               'id': self.env},
+                                       environment=self.env)
