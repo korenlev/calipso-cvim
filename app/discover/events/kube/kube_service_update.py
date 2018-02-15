@@ -21,7 +21,7 @@ class KubeServiceUpdate(KubeEventBase):
                                retry=False,
                                related_object=self.object_id,
                                display_context=self.object_id,
-                               message='VService doesn\'t exists')
+                               message='vService doesn\'t exist')
 
         self.save_vservice_doc()
         return EventResult(result=True,

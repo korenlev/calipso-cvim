@@ -41,21 +41,15 @@ class KubeEventBase(EventBase):
         if not pod:
             pod = self.object
 
-        host_id = pod.spec.node_name
-        host_name = pod.spec.node_name
-
         pods_fetcher = KubeFetchPods()
         pods_fetcher.set_env(self.env)
+        pods_fetcher.host = {
+            'id': pod.spec.node_name,
+            'name': pod.spec.node_name
+        }
 
-        doc = pods_fetcher.get_pod_details(pod)
-        self.set_folder_parent(doc, object_type='pod',
-                               master_parent_type='host',
-                               master_parent_id=host_id)
-        pods_fetcher.add_pod_to_proxy_service(doc)
-
-        doc['type'] = 'pod'
+        doc = pods_fetcher.get_pod_document(pod)
         doc['environment'] = self.env
-        doc['host'] = host_name
         parent = self.inv.get_by_id(environment=self.env,
                                     item_id=doc['parent_id'])
 
@@ -72,7 +66,6 @@ class KubeEventBase(EventBase):
                                master_parent_type='environment',
                                master_parent_id=self.env)
         doc.update(KubeFetchVservices.get_service_details(service))
-        doc['type'] = 'vservice'  # TODO: fix this in fetcher
 
         self.inv.save_inventory_object(o=doc,
                                        parent={'environment': self.env,

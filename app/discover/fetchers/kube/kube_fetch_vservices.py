@@ -32,7 +32,7 @@ class KubeFetchVservices(KubeAccess):
 
     @classmethod
     def get_service_details(cls, service: V1Service):
-        doc = {'type': 'vservice'}
+        doc = {}
         try:
             cls.get_service_metadata(doc, service.metadata)
         except AttributeError:
@@ -46,6 +46,7 @@ class KubeFetchVservices(KubeAccess):
         except AttributeError:
             pass
         doc['id'] = doc['uid']
+        doc['type'] = 'vservice'
         doc['local_service_id'] = doc['name']
         doc['service_type'] = 'proxy'
         KubeAccess.del_attribute_map(doc)

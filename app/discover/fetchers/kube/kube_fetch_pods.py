@@ -14,35 +14,40 @@ from discover.fetchers.kube.kube_access import KubeAccess
 
 class KubeFetchPods(KubeAccess):
 
+    def __init__(self, config=None):
+        super().__init__(config)
+        self.host = None
+
     def get(self, host_id) -> list:
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host:
+        self.host = self.inv.get_by_id(self.get_env(), host_id)
+        if not self.host:
             self.log.error('failed to find node with id={}'.format(host_id))
             return []
-        host_name = host['name']
+
+        host_name = self.host['name']
         pod_filter = 'spec.nodeName={}'.format(host_name)
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
-        ret = []
-        for pod in pods.items:
-            doc = self.get_pod_details(pod)
-            self.set_folder_parent(doc, object_type='pod',
-                                   master_parent_type='host',
-                                   master_parent_id=host_id)
-            self.add_pod_to_proxy_service(doc)
-            doc['type'] = 'pod'
-            doc['host'] = host_name
-            ret.append(doc)
 
         self.update_resource_version(
             method='list_pod_for_all_namespaces',
             resource_version=pods.metadata.resource_version
         )
 
-        return ret
+        return [self.get_pod_document(pod) for pod in pods.items]
+
+    def get_pod_document(self, pod: V1Pod):
+        doc = self.get_pod_details(pod)
+        self.set_folder_parent(doc, object_type='pod',
+                               master_parent_type='host',
+                               master_parent_id=self.host['id'])
+        self.add_pod_to_proxy_service(doc)
+        doc['type'] = 'pod'
+        doc['host'] = self.host['name']
+        return doc
 
     @classmethod
     def get_pod_details(cls, pod: V1Pod):
-        doc = {'type': 'pod'}
+        doc = {}
         try:
             cls.get_pod_metadata(doc, pod.metadata)
         except AttributeError:
