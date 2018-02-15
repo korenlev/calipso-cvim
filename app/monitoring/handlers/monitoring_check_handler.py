@@ -87,18 +87,19 @@ class MonitoringCheckHandler(SpecialCharConverter):
         doc['status_timestamp'] = strftime(self.TIME_FORMAT, timestamp)
         if 'link_type' in doc:
             self.inv.write_link(doc)
-        else:
+        elif 'type' in doc:
             self.inv.set(doc)
 
     @staticmethod
     def check_ts(check_result):
         return gmtime(check_result['executed'])
 
-    def keep_result(self, doc, check_result):
+    def keep_result(self, doc, check_result, add_message=True):
         status = check_result['status']
         ts = self.check_ts(check_result)
         self.set_doc_status(doc, status, check_result['output'], ts)
-        self.keep_message(doc, check_result)
+        if add_message:
+            self.keep_message(doc, check_result)
 
     def keep_message(self, doc, check_result, error_level=None):
         is_link = 'link_type' in doc
