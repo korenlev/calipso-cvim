@@ -32,7 +32,7 @@ class MonitoringCheckHandler(MonitoringHandler, SpecialCharConverter):
             {'side': 'client', 'type': file_type})
         # need to put this content inside client.json file
         host = values['host'] if 'host' in values \
-            else o['host'] if 'host' in 'o' else ''
+            else o['host'] if 'host' in o else ''
         sub_dir = '/host/' + host
         client_file = 'client.json'
         client_file_content = self.get_config_from_db(host, client_file)
