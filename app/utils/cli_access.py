@@ -10,14 +10,14 @@
 import re
 import time
 
-from discover.fetcher import Fetcher
 from utils.binary_converter import BinaryConverter
+from utils.configuration import Configuration
 from utils.cli_dist_translator import CliDistTranslator
 from utils.logging.console_logger import ConsoleLogger
 from utils.ssh_conn import SshConn
 
 
-class CliAccess(Fetcher, BinaryConverter):
+class CliAccess(BinaryConverter):
     connections = {}
     ssh_cmd = "ssh -q -o StrictHostKeyChecking=no "
     call_count_per_con = {}
@@ -27,6 +27,7 @@ class CliAccess(Fetcher, BinaryConverter):
 
     def __init__(self):
         super().__init__()
+        self.configuration = Configuration()
         self.log = ConsoleLogger()
 
     @staticmethod
@@ -249,6 +250,6 @@ class CliAccess(Fetcher, BinaryConverter):
             if matches and name not in o:
                 try:
                     o[name] = matches.group(1)
-                except IndexError as e:
+                except IndexError:
                     self.log.error('failed to find group 1 in match, {}'
                                    .format(str(regexp_tuple)))

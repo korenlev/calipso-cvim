@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.fetchers.cli.cli_access import CliAccess
+from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 

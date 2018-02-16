@@ -16,12 +16,12 @@ import queue
 import traceback
 
 from discover.clique_finder import CliqueFinder
-from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.link_finders.find_links_metadata_parser import \
     FindLinksMetadataParser
 from discover.scan_error import ScanError
 from discover.scan_metadata_parser import ScanMetadataParser
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 

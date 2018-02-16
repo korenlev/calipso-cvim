@@ -9,7 +9,7 @@
 ###############################################################################
 from collections import deque
 
-from discover.fetchers.cli.cli_access import CliAccess
+from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 

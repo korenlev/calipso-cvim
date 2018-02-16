@@ -9,8 +9,8 @@
 ###############################################################################
 import re
 
-from discover.configuration import Configuration
 from discover.link_finders.find_links import FindLinks
+from utils.configuration import Configuration
 from utils.util import decode_aci_dn
 
 

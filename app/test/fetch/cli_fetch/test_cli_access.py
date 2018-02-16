@@ -9,8 +9,8 @@
 ###############################################################################
 import time
 
-from discover.fetchers.cli.cli_access import CliAccess
-from discover.configuration import Configuration
+from utils.cli_access import CliAccess
+from utils.configuration import Configuration
 from test.fetch.api_fetch.test_data.configurations import CONFIGURATIONS
 from test.fetch.cli_fetch.test_data.cli_access import *
 from test.fetch.test_fetch import TestFetch

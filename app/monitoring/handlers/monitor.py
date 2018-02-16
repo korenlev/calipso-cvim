@@ -16,8 +16,8 @@ import datetime
 import json
 import sys
 
-from discover.configuration import Configuration
 from monitoring.handlers.monitoring_check_handler import MonitoringCheckHandler
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 from utils.special_char_converter import SpecialCharConverter

@@ -10,12 +10,12 @@
 import unittest
 from unittest.mock import MagicMock
 
-from discover.configuration import Configuration
 from discover.fetchers.db.db_access import DbAccess
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from test.scan.config.test_config \
-    import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+    import ENV_CONFIG, COLLECTION_CONFIG
 from test.scan.test_data.configurations import CONFIGURATIONS
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 from utils.logging.full_logger import FullLogger

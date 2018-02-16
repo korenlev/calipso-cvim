@@ -9,7 +9,7 @@
 ###############################################################################
 import re
 
-from discover.fetchers.cli.cli_access import CliAccess
+from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 NAME_RE = '^[a-zA-Z]*GigabitEthernet'

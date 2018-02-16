@@ -7,11 +7,10 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import json
 
 from discover.fetchers.api.api_access import ApiAccess
 from discover.fetchers.db.db_access import DbAccess
-from discover.fetchers.cli.cli_access import CliAccess
+from utils.cli_access import CliAccess
 from utils.ssh_connection import SshError
 
 

@@ -7,8 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.configuration import Configuration
 from discover.link_finders.find_links import FindLinks
+from utils.configuration import Configuration
 
 
 class FindLinksForVconnectors(FindLinks):
