@@ -77,6 +77,8 @@ class MonitoringSetupManager(MonitoringHandler):
         if self.provision == self.provision_levels['none']:
             self.log.debug('Monitoring config setup skipped')
             return
+        if not o.get('host', ''):
+            return  # can't put monitoring on host unless host is defined
         type_attribute = 'type' if 'type' in o else 'link_type'
         type_value = o[type_attribute]
         object_handler = self.object_handlers.get(type_value)
