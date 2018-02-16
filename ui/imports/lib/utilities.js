@@ -52,3 +52,11 @@ function calcColor(level) {
 }
 
 export let calcColorMem = R.memoize(calcColor);
+
+export function getPodGroupColor(pod) {
+    let colors = ['purple', 'blue', 'darkgreen', 'darkblue', 'salmon',
+                  'dodgerblue', 'cadetblue', 'coral', 'burlywood', 'aqua'];
+    let hash = pod.split("").reduce(((acc, c) => acc + c.charCodeAt(0)), 0);
+    let index = hash % colors.length;
+    return colors[index];
+}

@@ -67,7 +67,10 @@ export let imagesForNodeType = {
     default: 'ic_zoom_out_map_black_24dp_2x.png'
   },
   'container': {
-    default: 'container-black.png'
+    default: 'container-white.png',
+    ok: 'container-green.png',
+    warning: 'container-orange.png',
+    error: 'container-red.png',
   },
   'pod': {
     default: 'pod-black.png'

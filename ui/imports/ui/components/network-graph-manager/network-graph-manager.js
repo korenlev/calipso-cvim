@@ -377,6 +377,7 @@ function genGraphNode(node) {
       nodeId: node._id,
       status: node.status,
       environment: node.environment,
+      pod: node.pod  // TODO: make more generic
     },
     width: 60,
     height: 40,
