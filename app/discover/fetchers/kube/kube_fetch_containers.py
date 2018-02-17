@@ -12,13 +12,13 @@ from json import JSONDecodeError
 
 from kubernetes.client.models import V1Container
 
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.kube.kube_access import KubeAccess
-from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
 
-class KubeFetchContainers(KubeAccess, CliAccess):
+class KubeFetchContainers(KubeAccess, CliFetcher):
 
     PROXY_ATTR = 'kube-proxy'
 

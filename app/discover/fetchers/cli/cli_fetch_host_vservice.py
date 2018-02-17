@@ -9,13 +9,13 @@
 ###############################################################################
 import re
 
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.db.db_access import DbAccess
 from discover.network_agents_list import NetworkAgentsList
-from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
 
 
-class CliFetchHostVservice(CliAccess, DbAccess):
+class CliFetchHostVservice(CliFetcher, DbAccess):
     def __init__(self):
         super(CliFetchHostVservice, self).__init__()
         # match only DHCP agent and router (L3 agent)

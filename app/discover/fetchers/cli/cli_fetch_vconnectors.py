@@ -9,7 +9,7 @@
 ###############################################################################
 from abc import abstractmethod, ABCMeta
 
-from utils.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 from utils.singleton import Singleton
 
@@ -18,7 +18,7 @@ class ABCSingleton(ABCMeta, Singleton):
     pass
 
 
-class CliFetchVconnectors(CliAccess, metaclass=ABCSingleton):
+class CliFetchVconnectors(CliFetcher, metaclass=ABCSingleton):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
@@ -34,7 +34,7 @@ class CliFetchVconnectors(CliAccess, metaclass=ABCSingleton):
             self.log.error("CliFetchVconnectors: host not found: " + host_id)
             return []
         if "host_type" not in host:
-            self.log.error("host does not have host_type: " + host_id + \
+            self.log.error("host does not have host_type: " + host_id +
                            ", host: " + str(host))
             return []
         return self.get_vconnectors(host)

@@ -9,11 +9,11 @@
 ###############################################################################
 import re
 
-from utils.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 
 
-class CliFetchHostPnics(CliAccess):
+class CliFetchHostPnics(CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

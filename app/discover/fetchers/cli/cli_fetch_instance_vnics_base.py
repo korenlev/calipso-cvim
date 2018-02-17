@@ -9,11 +9,11 @@
 ###############################################################################
 import xmltodict
 
-from utils.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 
 
-class CliFetchInstanceVnicsBase(CliAccess):
+class CliFetchInstanceVnicsBase(CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

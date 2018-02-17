@@ -9,11 +9,11 @@
 ###############################################################################
 from collections import deque
 
-from utils.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 
 
-class CliFetchBondHostPnics(CliAccess):
+class CliFetchBondHostPnics(CliFetcher):
     BOND_DIR = '/proc/net/bonding/'
     SLAVE_INTERFACE_HEADER = 'Slave Interface: '
 
