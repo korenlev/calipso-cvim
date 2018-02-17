@@ -9,6 +9,7 @@
 ###############################################################################
 import re
 import time
+from pipes import quote
 
 from utils.binary_converter import BinaryConverter
 from utils.configuration import Configuration
@@ -105,10 +106,10 @@ class CliAccess(BinaryConverter):
         if self.configuration.environment["distribution"] == "Mercury":
             use_sudo = False
         if use_sudo and not cmd.strip().startswith("sudo "):
-            cmd = "sudo " + cmd
+            cmd = "sudo {}".format(cmd)
         if not on_gateway and ssh_to_host \
                 and not ssh_conn.is_gateway_host(ssh_to_host):
-            cmd = self.ssh_cmd + ssh_to_host + " " + cmd
+            cmd = self.ssh_cmd + ssh_to_host + " " + quote(cmd)
         return cmd
 
     def adapt_cmd_to_dist(self, cmd):
