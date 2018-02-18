@@ -41,7 +41,7 @@ class TestFetch(unittest.TestCase):
         self.requests.get.return_value = self.response
         self.requests.post.return_value = self.response
         
-        self.ssh_patcher = patch("discover.fetchers.cli.cli_access.SshConn")
+        self.ssh_patcher = patch("utils.cli_access.SshConn")
         self.ssh_conn = self.ssh_patcher.start().return_value
 
     def configure_environment(self):
