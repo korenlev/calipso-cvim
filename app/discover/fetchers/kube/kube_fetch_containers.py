@@ -12,13 +12,15 @@ from json import JSONDecodeError
 
 from kubernetes.client.models import V1Container
 
-from discover.fetchers.cli.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
 
-class KubeFetchContainers(KubeAccess, CliAccess):
+class KubeFetchContainers(KubeAccess, CliFetcher):
+
+    PROXY_ATTR = 'kube-proxy'
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -56,7 +58,7 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
         self.get_container_config(doc, pod_obj)
         self.get_interface_link(doc, pod_obj)
-        self.get_proxy_container_info(doc)
+        self.get_proxy_container_info(doc, pod_obj)
         return doc
 
     def fetch_container_status_data(self, doc, pod, pod_obj):
@@ -175,24 +177,28 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         vnic['containers'].append(doc['container_id'])
         self.inv.set(vnic)
 
-    def get_proxy_container_info(self, container):
-        if container['name'] != 'kube-proxy':
+    def get_proxy_container_info(self, container, pod):
+        if container['name'] != self.PROXY_ATTR:
             return
-        container['container_app'] = 'kube-proxy'
+        container['container_app'] = self.PROXY_ATTR
         self.get_proxy_container_config(container)
         self.get_proxy_nat_tables(container)
+        container['vservices'] = self.get_proxy_container_vservices(pod)
+        self.add_proxy_container_to_vservices(container)
 
     def get_proxy_container_config(self, container):
         command = container.get('command')
         if not command or not isinstance(command, list) or len(command) < 2:
-            self.log.error('unable to find kube-proxy command file '
-                           'for container {}'.format(container['id']))
+            self.log.error('unable to find {} command file '
+                           'for container {}'
+                           .format(self.PROXY_ATTR, container['id']))
             return
         conf_line = command[1]
         if not isinstance(conf_line, str) \
                 or not conf_line.startswith('--config='):
-            self.log.error('unable to find kube-proxy command config file '
-                           'for container {}'.format(container['id']))
+            self.log.error('unable to find {} command config file '
+                           'for container {}'
+                           .format(self.PROXY_ATTR, container['id']))
             return
         conf_file = conf_line[len('--config='):]
         cmd = 'docker exec {} cat  {}'.format(container['container_id'],
@@ -206,3 +212,36 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         nat_tables = self.run(cmd=cmd, ssh_to_host=container['host'])
         container['nat_tables'] = nat_tables
 
+    def get_proxy_container_vservices(self, pod: dict) -> list:
+        pods = self.inv.find_items({
+            'environment': self.get_env(),
+            'type': 'pod',
+            'host': pod['host'],
+            'vservices': {'$exists': 1}
+        })
+        vservices = []
+        for pod in pods:
+            vservices.extend(pod['vservices'])
+        return vservices
+
+    def add_proxy_container_to_vservices(self, container: dict):
+        for vservice in list(container.get('vservices', [])):
+            self.add_proxy_container_to_vservice(container, vservice)
+
+    def add_proxy_container_to_vservice(self, container: dict, vservice: dict):
+        vservice_obj = self.inv.get_by_id(self.get_env(), vservice['id'])
+        if not vservice_obj:
+            self.log.error('failed to find vservice object with id {} '
+                           'in container {} (id: {})'
+                           .format(vservice['id'],
+                                   container['object_name'],
+                                   container['id']))
+        if self.PROXY_ATTR not in vservice_obj:
+            vservice_obj[self.PROXY_ATTR] = []
+        matches = [p for p in vservice_obj[self.PROXY_ATTR]
+                   if p['id'] == container['id']]
+        if not matches:
+            proxy_data = dict(id=container['id'], name=container['name'],
+                              host=container['host'])
+            vservice_obj[self.PROXY_ATTR].append(proxy_data)
+            self.inv.set(vservice_obj)

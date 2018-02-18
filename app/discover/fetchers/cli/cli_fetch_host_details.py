@@ -7,15 +7,12 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import json
 
-from discover.fetchers.api.api_access import ApiAccess
-from discover.fetchers.db.db_access import DbAccess
-from discover.fetchers.cli.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.ssh_connection import SshError
 
 
-class CliFetchHostDetails(CliAccess):
+class CliFetchHostDetails(CliFetcher):
 
     def fetch_host_os_details(self, doc):
         cmd = 'cat /etc/os-release && echo "ARCHITECURE=`arch`"'

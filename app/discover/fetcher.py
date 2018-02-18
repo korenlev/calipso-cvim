@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.configuration import Configuration
+from utils.configuration import Configuration
 from utils.origins import Origin
 from utils.logging.full_logger import FullLogger
 

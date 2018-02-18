@@ -9,13 +9,13 @@
 ###############################################################################
 import unittest
 
-from discover.configuration import Configuration
 from discover.fetchers.db.db_access import DbAccess
 from test.fetch.api_fetch.test_data.api_access import CORRECT_AUTH_CONTENT
-from test.fetch.config.test_config import MONGODB_CONFIG, ENV_CONFIG, COLLECTION_CONFIG
+from test.fetch.config.test_config import ENV_CONFIG, COLLECTION_CONFIG
 from test.fetch.api_fetch.test_data.regions import REGIONS
 from test.fetch.api_fetch.test_data.configurations import CONFIGURATIONS
 from unittest.mock import MagicMock, patch, Mock
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.mongo_access import MongoAccess
 from utils.ssh_connection import SshConnection
@@ -41,7 +41,7 @@ class TestFetch(unittest.TestCase):
         self.requests.get.return_value = self.response
         self.requests.post.return_value = self.response
         
-        self.ssh_patcher = patch("discover.fetchers.cli.cli_access.SshConn")
+        self.ssh_patcher = patch("utils.cli_access.SshConn")
         self.ssh_conn = self.ssh_patcher.start().return_value
 
     def configure_environment(self):

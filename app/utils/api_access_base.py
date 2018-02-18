@@ -9,8 +9,8 @@
 ###############################################################################
 import requests
 
-from discover.configuration import Configuration
 from discover.fetcher import Fetcher
+from utils.configuration import Configuration
 
 
 class ApiAccessBase(Fetcher):

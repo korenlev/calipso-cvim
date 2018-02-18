@@ -9,21 +9,21 @@
 ###############################################################################
 # handle specific setup of monitoring
 
-import os
 import json
 import subprocess
 from socket import *
 
 import copy
+import os
 import pymongo
 import shutil
 import stat
 import tempfile
 from boltons.iterutils import remap
 
-from discover.configuration import Configuration
-from discover.fetchers.cli.cli_access import CliAccess
 from utils.binary_converter import BinaryConverter
+from utils.cli_access import CliAccess
+from utils.configuration import Configuration
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
@@ -185,6 +185,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         apply environment definitions to the config,
         e.g. replace {server_ip} with the IP or host name for the server
         """
+
         # save the config to DB first, and while doing that
         # merge it with any existing config on same host
         content = self.merge_config(host, file_name, content)

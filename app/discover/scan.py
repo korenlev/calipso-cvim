@@ -16,11 +16,11 @@
 import argparse
 import sys
 
-from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.scan_error import ScanError
 from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.configuration import Configuration
 from utils.constants import EnvironmentFeatures
 from utils.origins import ScanOrigin, ScanOrigins
 from utils.mongo_access import MongoAccess

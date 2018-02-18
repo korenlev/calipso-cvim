@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from discover.link_finders.find_links import FindLinks
+from discover.fetchers.kube.kube_fetch_containers import KubeFetchContainers
 
 
 class FindLinksForContainers(FindLinks):
@@ -49,7 +50,7 @@ class FindLinksForContainers(FindLinks):
                         extra_attributes=attributes)
 
     def find_matching_vedge(self, container):
-        if container.get('container_app', '') != 'kube-proxy':
+        if container.get('container_app', '') != KubeFetchContainers.PROXY_ATTR:
             return
         vedge = self.inv.find_one({
             'environment': self.get_env(),

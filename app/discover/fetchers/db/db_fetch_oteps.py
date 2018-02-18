@@ -9,13 +9,13 @@
 ###############################################################################
 import re
 
-from discover.fetchers.cli.cli_access import CliAccess
 from discover.fetchers.db.db_access import DbAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 from utils.singleton import Singleton
 
 
-class DbFetchOteps(DbAccess, CliAccess, metaclass=Singleton):
+class DbFetchOteps(DbAccess, CliFetcher, metaclass=Singleton):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

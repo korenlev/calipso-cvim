@@ -7,12 +7,11 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import json
 
 import requests
 
-from discover.configuration import Configuration
 from discover.fetcher import Fetcher
+from utils.configuration import Configuration
 
 
 def aci_config_required(default=None):
