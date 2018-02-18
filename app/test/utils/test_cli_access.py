@@ -12,8 +12,8 @@ import time
 from utils.cli_access import CliAccess
 from utils.configuration import Configuration
 from test.fetch.api_fetch.test_data.configurations import CONFIGURATIONS
-from test.fetch.cli_fetch.test_data.cli_access import *
 from test.fetch.test_fetch import TestFetch
+from test.utils.test_data.cli_access import *
 from unittest.mock import MagicMock
 
 
@@ -148,16 +148,18 @@ class TestCliAccess(TestFetch):
 
     def test_merge_ws_spillover_lines(self):
         fixed_lines = self.cli_access.merge_ws_spillover_lines(LINES_FOR_FIX)
-        self.assertEqual(fixed_lines, FIXED_LINES, "Can't merge the " +
-                                                   "ws-separated spillover lines")
+        self.assertEqual(fixed_lines,
+                         FIXED_LINES,
+                         "Can't merge the ws-separated spillover lines")
 
     def test_parse_line_with_ws(self):
         parse_line = self.cli_access.parse_line_with_ws(LINE_FOR_PARSE, HEADERS)
-        self.assertEqual(parse_line, PARSED_LINE, "Can't parse the line with ws")
+        self.assertEqual(parse_line,
+                         PARSED_LINE,
+                         "Can't parse the line with ws")
 
     def test_parse_cmd_result_with_whitespace(self):
-        result = self.cli_access.parse_cmd_result_with_whitespace(FIXED_LINES,
-                                                                  HEADERS,
-                                                                  remove_first=False)
+        func = self.cli_access.parse_cmd_result_with_whitespace
+        result = func(FIXED_LINES, HEADERS, remove_first=False)
         self.assertEqual(result, PARSED_CMD_RESULT,
                          "Can't parse the cmd result with whitespace")

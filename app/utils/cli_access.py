@@ -48,12 +48,14 @@ class CliAccess(BinaryConverter):
                                          ssh_to_host)
         out = ''
         for c in commands:
-            out += self.run_single_command(c, ssh_conn, ssh_to_host,
+            ret = self.run_single_command(c, ssh_conn, ssh_to_host,
                                            enable_cache=enable_cache)
+            out += ret if ret is not None else ''
         return out
 
-    def run_single_command(self, cmd, ssh_conn, ssh_to_host="",
-                           enable_cache=True):
+    def run_single_command(self, cmd: str=None, ssh_conn=None,
+                           ssh_to_host: str="",
+                           enable_cache=True) -> str:
         curr_time = time.time()
         cmd_path = ssh_to_host + ',' + cmd
         if enable_cache and cmd_path in self.cached_commands:
