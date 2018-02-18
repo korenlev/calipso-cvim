@@ -301,7 +301,8 @@ class ScanController(Fetcher):
         if monitoring:
             self.inv.monitoring_setup_manager = \
                 MonitoringSetupManager(env_name)
-            self.inv.monitoring_setup_manager.server_setup()
+            if run_all or inventory_only:
+                self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
         try:
