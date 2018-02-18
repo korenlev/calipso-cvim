@@ -182,6 +182,9 @@ class CliqueFinder(Fetcher):
         if not clique["links"]:
             return None
         clique["clique_type"] = clique_type["_id"]
+        clique['nodes'] = []
+        for type_nodes in nodes_of_type.values():
+            clique['nodes'].extend([ObjectId(node) for node in type_nodes])
         focal_point_obj = self.inventory.find({"_id": clique["focal_point"]})
         if not focal_point_obj:
             return None
@@ -199,9 +202,6 @@ class CliqueFinder(Fetcher):
             {"_id": clique["focal_point"]},
             {'$set': focal_point_obj},
             upsert=True)
-        clique['nodes'] = []
-        for type_nodes in nodes_of_type.values():
-            clique['nodes'] += type_nodes
         return clique_document
 
     @staticmethod
