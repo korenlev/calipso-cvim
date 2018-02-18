@@ -199,6 +199,9 @@ class CliqueFinder(Fetcher):
             {"_id": clique["focal_point"]},
             {'$set': focal_point_obj},
             upsert=True)
+        clique['nodes'] = []
+        for type_nodes in nodes_of_type.values():
+            clique['nodes'] += type_nodes
         return clique_document
 
     @staticmethod
