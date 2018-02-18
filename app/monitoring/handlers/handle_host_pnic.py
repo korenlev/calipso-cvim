@@ -9,8 +9,11 @@
 ###############################################################################
 # handle monitoring event for pNIC objects
 
+from bson import ObjectId
+
 from discover.fetcher import Fetcher
-from monitoring.handlers.monitoring_check_handler import MonitoringCheckHandler
+from monitoring.handlers.monitoring_check_handler \
+    import MonitoringCheckHandler, ERROR_LEVEL
 from utils.special_char_converter import SpecialCharConverter
 
 
@@ -32,7 +35,8 @@ class HandleHostPnic(MonitoringCheckHandler):
         self.propagate_error_state(doc, check_result)
         return check_result['status']
 
-    def get_pnic_object_id(self, obj_id: str) -> str:
+    @staticmethod
+    def get_pnic_object_id(obj_id: str) -> str:
         object_id = obj_id[:obj_id.index('-')]
         mac = obj_id[obj_id.index('-')+1:]
         converter = SpecialCharConverter()
@@ -46,40 +50,44 @@ class HandleHostPnic(MonitoringCheckHandler):
     #   - set status_text for these object to the status_text from the pnic
     # - when pnic status changes back from error: TBD
     #
-    # dependent objects are objects that are part of a clique with a link
-    # that includes that pNic as either source or target.
+    # dependent objects are all objects that are part of a clique that has
+    # a link that includes that pNic as either source or target.
     def propagate_error_state(self, pnic: dict, check_result: dict):
         if not self.is_kubernetes:
             return
-        pnic_id = pnic['id']
-        # find links in this environment that have the pNic as their source
-        # or their target
-        condition = {'$and':
-            [
-                {'environment': self.env},
-                {'$or':
-                     [
-                         {'source_id': pnic_id},
-                         {'target_id': pnic_id}
-                     ]
-                }
-            ]
-        }
-        related_links = self.inv.find_items(condition, collection='links')
+        # find cliques where the pNIC appears in the list of nodes
+        related_cliques = self.inv.find_items({'environment': self.env,
+                                               'nodes': ObjectId(pnic['_id'])},
+                                              projection=['nodes'],
+                                              collection='cliques')
         dependents = []
-        for link in related_links:
-            other_obj_id = pnic['target_id'] if link['source_id'] == pnic_id \
-                else pnic['source_id']
-            if other_obj_id not in dependents:
-                dependents.append(other_obj_id)
+        for clique in related_cliques:
+            dependents.extend(clique['nodes'])
         if not dependents:
             return
 
-        fields_to_set = dict('status')
+        is_error = check_result['status'] != 0
+        fields_to_set = {}
         self.keep_result(fields_to_set, check_result, add_message=False)
-        self.inv.inventory_collection.update({
-            'environment': self.env,
-            'id': {'$in': dependents}},
-            {'$set': fields_to_set},
+        fields_to_set['status_value'] = 1
+        fields_to_set['status_text'] = \
+            ERROR_LEVEL[fields_to_set['status_value']]
+        fields_to_set['root_cause'] = dict(id=pnic['id'], name=pnic['name'],
+                                           type=pnic['type'],
+                                           status_text=pnic['status_text'])
+        if is_error:
+            # set status fields
+            action = {'$set': fields_to_set}
+        else:
+            fields_to_remove = {k: '' for k in fields_to_set.keys()}
+            # clear status fields from dependents
+            action = {'$unset': fields_to_remove}
+        self.inv.inventory_collection.update(
+            {
+                'environment': self.env,
+                '_id': {'$in': dependents},
+                'id': {'$ne': pnic['id']}
+            },
+            action,
             multi=True,
         )
