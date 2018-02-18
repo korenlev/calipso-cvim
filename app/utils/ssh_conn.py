@@ -9,7 +9,7 @@
 ###############################################################################
 import os
 
-from discover.configuration import Configuration
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshConnection
 

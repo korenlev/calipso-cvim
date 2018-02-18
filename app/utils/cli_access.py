@@ -9,15 +9,16 @@
 ###############################################################################
 import re
 import time
+from pipes import quote
 
-from discover.fetcher import Fetcher
 from utils.binary_converter import BinaryConverter
+from utils.configuration import Configuration
 from utils.cli_dist_translator import CliDistTranslator
 from utils.logging.console_logger import ConsoleLogger
 from utils.ssh_conn import SshConn
 
 
-class CliAccess(Fetcher, BinaryConverter):
+class CliAccess(BinaryConverter):
     connections = {}
     ssh_cmd = "ssh -q -o StrictHostKeyChecking=no "
     call_count_per_con = {}
@@ -27,6 +28,7 @@ class CliAccess(Fetcher, BinaryConverter):
 
     def __init__(self):
         super().__init__()
+        self.configuration = Configuration()
         self.log = ConsoleLogger()
 
     @staticmethod
@@ -46,12 +48,14 @@ class CliAccess(Fetcher, BinaryConverter):
                                          ssh_to_host)
         out = ''
         for c in commands:
-            out += self.run_single_command(c, ssh_conn, ssh_to_host,
+            ret = self.run_single_command(c, ssh_conn, ssh_to_host,
                                            enable_cache=enable_cache)
+            out += ret if ret is not None else ''
         return out
 
-    def run_single_command(self, cmd, ssh_conn, ssh_to_host="",
-                           enable_cache=True):
+    def run_single_command(self, cmd: str=None, ssh_conn=None,
+                           ssh_to_host: str="",
+                           enable_cache=True) -> str:
         curr_time = time.time()
         cmd_path = ssh_to_host + ',' + cmd
         if enable_cache and cmd_path in self.cached_commands:
@@ -104,10 +108,10 @@ class CliAccess(Fetcher, BinaryConverter):
         if self.configuration.environment["distribution"] == "Mercury":
             use_sudo = False
         if use_sudo and not cmd.strip().startswith("sudo "):
-            cmd = "sudo " + cmd
+            cmd = "sudo {}".format(cmd)
         if not on_gateway and ssh_to_host \
                 and not ssh_conn.is_gateway_host(ssh_to_host):
-            cmd = self.ssh_cmd + ssh_to_host + " " + cmd
+            cmd = self.ssh_cmd + ssh_to_host + " " + quote(cmd)
         return cmd
 
     def adapt_cmd_to_dist(self, cmd):
@@ -249,6 +253,6 @@ class CliAccess(Fetcher, BinaryConverter):
             if matches and name not in o:
                 try:
                     o[name] = matches.group(1)
-                except IndexError as e:
+                except IndexError:
                     self.log.error('failed to find group 1 in match, {}'
                                    .format(str(regexp_tuple)))

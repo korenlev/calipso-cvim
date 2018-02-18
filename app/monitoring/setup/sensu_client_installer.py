@@ -11,7 +11,9 @@ import os.path
 from pkg_resources import parse_version
 
 from monitoring.setup.monitoring_handler import MonitoringHandler
+from utils.cli_access import CliAccess
 from utils.inventory_mgr import InventoryMgr
+from utils.ssh_connection import SshError
 
 
 class SensuClientInstaller(MonitoringHandler):
@@ -33,8 +35,9 @@ class SensuClientInstaller(MonitoringHandler):
 
     def __init__(self, env: str, host_id: str):
         super().__init__(env)
-        self.cli_ssh = self.get_ssh(host_id)
+        self.cli_ssh = CliAccess()
         self.inv = InventoryMgr()
+        self.host_id = host_id
         self.host = self.inv.get_by_id(env, host_id)
         self.server = self.env_monitoring_config.get('server_ip')
         self.server_cli_ssh = self.get_ssh(self.server)
@@ -49,7 +52,7 @@ class SensuClientInstaller(MonitoringHandler):
             self.fetch_package(pkg_to_install)
             self.install_package(pkg_to_install)
             self.set_permissions()
-        except SystemError as e:
+        except (SystemError, SshError) as e:
             self.log.error('Sensu install on host {} failed: {}'
                            .format(self.host, str(e)))
             return
@@ -119,15 +122,19 @@ class SensuClientInstaller(MonitoringHandler):
             self.log.error('Sensu client auto-install only supported for: {}'
                            .format(', '.join(supported_os)))
             return ''
-        cmd = 'if [ -d {} ];  then head -1 {} | sed "s/sensu //"; fi' \
+        cmd = '[ -d {} ] && head -1 {} | sed "s/sensu //"' \
             .format(self.SENSU_DIR, self.SENSU_VERSION_FILE)
-        installed_version = self.cli_ssh.exec(cmd).strip()
+        installed_version = self.run_cmd(cmd, use_sudo=False)
         os_details = self.host['OS']
         available_pkg, pkg_path = self.find_available_package(os_details)
         available_version = self.find_available_version(available_pkg)
         if parse_version(available_version) <= parse_version(installed_version):
             return ''
         return pkg_path
+
+    def run_cmd(self, cmd, use_sudo=True) -> str:
+        ret = self.cli_ssh.run(cmd, ssh_to_host=self.host_id, use_sudo=use_sudo)
+        return ret.strip()
 
     def get_local_path(self, pkg_to_install: str):
         return os.path.join(self.SENSU_PKG_DIR_LOCAL,
@@ -138,21 +145,32 @@ class SensuClientInstaller(MonitoringHandler):
         self.get_file(self.server, pkg_to_install,
                       self.get_local_path(pkg_to_install))
         local_path = self.get_local_path(pkg_to_install)
-        self.copy_to_remote_host(self.host['host'],
+        self.copy_to_remote_host(self.host_id,
                                  local_path=local_path,
                                  remote_path=local_path)
+        if not self.is_gateway_host(self.host_id):
+            self.copy_from_gateway_to_host(self.host_id,
+                                           self.SENSU_PKG_DIR_LOCAL,
+                                           self.SENSU_PKG_DIR_LOCAL)
 
     def install_package(self, pkg_to_install):
         local_path = self.get_local_path(pkg_to_install)
         install_cmd = self.INSTALL_CMD[self.host['OS']['ID']]
-        self.cli_ssh.exec(install_cmd.format(local_path))
+        try:
+            self.run_cmd(install_cmd.format(local_path))
+        except SshError as e:
+            key_warn = 'warning: {}: Header V4 RSA/SHA1 Signature, key ID ' \
+                .format(local_path)
+            error_string = str(e)
+            if key_warn not in error_string:
+                raise e
 
     def set_permissions(self):
         cmd = self.PERMISSIONS_CMD[self.host['OS']['ID']]
         if cmd:
-            self.cli_ssh.exec(cmd)
+            self.run_cmd(cmd)
         # add to sudoers file
         sudoer_permission = 'sensu        ALL=(ALL)       NOPASSWD: ALL'
         sudoer_cmd = 'grep --silent -w sensu {} || echo "{}" >> {}'\
             .format(self.SUDOERS_FILE, sudoer_permission, self.SUDOERS_FILE)
-        self.cli_ssh.exec(sudoer_cmd)
+        self.run_cmd(sudoer_cmd, use_sudo=False)

@@ -14,8 +14,8 @@ from time import gmtime, strftime
 
 from bson import ObjectId
 
-from discover.configuration import Configuration
 from messages.message import Message
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
 from utils.special_char_converter import SpecialCharConverter

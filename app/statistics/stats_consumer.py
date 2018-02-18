@@ -15,7 +15,7 @@ import time
 
 from kafka import KafkaConsumer
 
-from discover.configuration import Configuration
+from utils.configuration import Configuration
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
 from utils.mongo_access import MongoAccess

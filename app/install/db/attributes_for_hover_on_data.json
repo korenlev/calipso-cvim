@@ -91,7 +91,8 @@
     "attributes" : [
         "object_name", 
         "host", 
-        "mac_address", 
+        "mac_address",
+        "IP Address", 
         "Speed", 
         "Link detected", 
         "type",

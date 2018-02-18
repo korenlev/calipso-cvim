@@ -9,9 +9,10 @@
 ###############################################################################
 COMPUTE_HOST_ID = "node-5.cisco.com"
 COMMAND = "virsh list"
-NON_GATEWAY_CACHED_COMMAND = COMPUTE_HOST_ID + "," + "ssh -q -o StrictHostKeyChecking=no " + \
-                             COMPUTE_HOST_ID + " sudo " + COMMAND
-GATEWAY_CACHED_COMMAND = COMPUTE_HOST_ID + "," + "sudo " + COMMAND
+NON_GATEWAY_CACHED_COMMAND = \
+    '{},ssh -q -o StrictHostKeyChecking=no {} \'sudo {}\'' \
+    .format(COMPUTE_HOST_ID, COMPUTE_HOST_ID, COMMAND)
+GATEWAY_CACHED_COMMAND = '{},sudo {}'.format(COMPUTE_HOST_ID, COMMAND)
 CACHED_COMMAND_RESULT = " Id  Name  State\n---\n 2 instance-00000003 running"
 RUN_RESULT = " Id  Name  State\n---\n 2 instance-00000002 running"
 FETCH_LINES_RESULT = [
@@ -29,7 +30,8 @@ LINES_FOR_FIX = [
 ]
 
 FIXED_LINES = [
-    "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952,p_ff798dba-0,v_public,v_vrouter_pub",
+    "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952,"
+    "p_ff798dba-0,v_public,v_vrouter_pub",
     "br-fw-admin\t\t8000.005056ace897\tno\t\teno16777728"
 ]
 
@@ -48,7 +50,8 @@ PARSED_CMD_RESULT = [
     }
 ]
 
-LINE_FOR_PARSE = "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952,p_ff798dba-0,v_public,v_vrouter_pub"
+LINE_FOR_PARSE = "br-ex\t\t8000.005056acc9a2\tno\t\teno33554952," \
+    "p_ff798dba-0,v_public,v_vrouter_pub"
 PARSED_LINE = {
     "bridge_id": "8000.005056acc9a2",
     "bridge_name": "br-ex",

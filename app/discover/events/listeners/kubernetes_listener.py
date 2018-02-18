@@ -19,7 +19,6 @@ from kubernetes.client import Configuration as KubeConf, CoreV1Api
 from kubernetes.watch import Watch
 from urllib3.exceptions import ReadTimeoutError
 
-from discover.configuration import Configuration
 from discover.event_handler import EventHandler
 from discover.events.event_base import EventResult
 from discover.events.kube.kube_metadata_parser import parse_metadata_file, \
@@ -27,6 +26,7 @@ from discover.events.kube.kube_metadata_parser import parse_metadata_file, \
 from discover.events.listeners.listener_base import ListenerBase
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.configuration import Configuration
 from utils.constants import EnvironmentFeatures
 from utils.exceptions import ResourceGoneError
 from utils.inventory_mgr import InventoryMgr
