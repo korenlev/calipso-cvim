@@ -14,7 +14,6 @@ import * as _ from 'lodash';
         
 import './network-graph.html';
 import {Environments} from "../../../api/environments/environments";
-import {getPodGroupColor} from "../../../lib/utilities";
     
 /*  
  * Lifecycles
@@ -300,16 +299,6 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
     .exit().remove();
   
   let imageLength = 36;
-
-  let svgRects = svgNodesEnter.append('circle')
-      .attr('x', -(Math.floor(imageLength / 2)))
-      .attr('y', -(Math.floor(imageLength / 2)))
-      .attr('r', imageLength / 2)
-      .attr('stroke', function(d) {
-        return (d._osmeta.type === 'container') ? getPodGroupColor(d._osmeta.pod.id) : 'none';
-      })
-      .attr('stroke-width', 5);
-
   let svgImages = svgNodesEnter.append('image')
     .attr('class', 'node-image')
     .attr('xlink:href', function(d) {
