@@ -87,7 +87,8 @@ class HandleHostPnic(MonitoringCheckHandler):
                 'environment': self.env,
                 '_id': {'$in': dependents},
                 # do not change state for other pNIC objects
-                'type': {'$ne': pnic['type']}
+                'type': {'$ne': pnic['type']},
+                'host': pnic['host']
             },
             action,
             multi=True,
