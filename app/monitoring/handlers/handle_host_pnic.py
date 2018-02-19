@@ -69,9 +69,9 @@ class HandleHostPnic(MonitoringCheckHandler):
         is_error = check_result['status'] != 0
         fields_to_set = {}
         self.keep_result(fields_to_set, check_result, add_message=False)
-        fields_to_set['status_value'] = 1
-        fields_to_set['status'] = \
-            ERROR_LEVEL[fields_to_set['status_value']]
+        status = 1
+        fields_to_set['status_value'] = status
+        fields_to_set['status'] = self.get_label_for_status(status)
         fields_to_set['root_cause'] = dict(id=pnic['id'], name=pnic['name'],
                                            type=pnic['type'],
                                            status_text=pnic['status_text'])
