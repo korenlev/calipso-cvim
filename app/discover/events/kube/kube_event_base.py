@@ -43,15 +43,15 @@ class KubeEventBase(EventBase):
 
         pods_fetcher = KubeFetchPods()
         pods_fetcher.set_env(self.env)
-        pods_fetcher.host = {
-            'id': pod.spec.node_name,
-            'name': pod.spec.node_name
-        }
+        host_id = pod.spec.node_name
+        if host_id:
+            pods_fetcher.host = self.inv.get_by_id(self.env, host_id)
 
         doc = pods_fetcher.get_pod_document(pod)
         doc['environment'] = self.env
+
         parent = self.inv.get_by_id(environment=self.env,
-                                    item_id=doc['parent_id'])
+                                    item_id=doc['parent_id']) if host_id else {}
 
         self.inv.save_inventory_object(o=doc,
                                        parent=parent,
