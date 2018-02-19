@@ -376,7 +376,7 @@ function genGraphNode(node) {
       type: node.type,
       nodeId: node._id,
       status: node.status,
-      environment: node.environment
+      environment: node.environment,
     },
     width: 60,
     height: 40,

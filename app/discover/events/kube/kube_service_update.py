@@ -15,7 +15,6 @@ class KubeServiceUpdate(KubeEventBase):
 
     def handle(self, env, values):
         super().handle(env, values)
-        print(values)
         service = self.inv.get_by_id(environment=env, item_id=self.object_id)
         if not service:
             return EventResult(result=False,

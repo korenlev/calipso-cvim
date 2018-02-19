@@ -52,4 +52,3 @@ function calcColor(level) {
 }
 
 export let calcColorMem = R.memoize(calcColor);
-
