@@ -37,12 +37,13 @@ class KubeFetchPods(KubeAccess):
 
     def get_pod_document(self, pod: V1Pod):
         doc = self.get_pod_details(pod)
-        self.set_folder_parent(doc, object_type='pod',
-                               master_parent_type='host',
-                               master_parent_id=self.host['id'])
+        if self.host:
+            self.set_folder_parent(doc, object_type='pod',
+                                   master_parent_type='host',
+                                   master_parent_id=self.host['id'])
+            doc['host'] = self.host['name']
         self.add_pod_to_proxy_service(doc)
         doc['type'] = 'pod'
-        doc['host'] = self.host['name']
         return doc
 
     @classmethod
