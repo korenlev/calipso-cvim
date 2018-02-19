@@ -8,7 +8,8 @@
         "data",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "vnic"
 },
@@ -28,7 +29,8 @@
         "namespace", 
         "status",
         "status_timestamp",
-        "status_text"
+        "status_text",
+        "root_cause"
     ]
 },
 { 
@@ -38,7 +40,8 @@
         "host", 
         "namespace",
         "vservices", 
-        "status" 
+        "status",
+        "root_cause" 
     ]
 },
 { 
@@ -49,7 +52,8 @@
         "interfaces",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "vconnector"
 },
@@ -63,6 +67,7 @@
         "status_text",
         "status",
         "status_timestamp",
+        "root_cause",
         "cluster_ip",
         "ports",
         "labels",
@@ -82,6 +87,7 @@
         "status", 
         "status_timestamp", 
         "status_text",
+        "root_cause",
         "qos_class",
         "labels",
         "dns_policy",
@@ -103,7 +109,8 @@
         "members",
         "status",
         "status_timestamp",
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "host_pnic"
 },
@@ -134,7 +141,8 @@
         "type",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "host"
 },
@@ -148,7 +156,8 @@
         "name_path",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "instance"
 },
@@ -160,7 +169,10 @@
         "type", 
         "ports",
         "overlay_mac_address", 
-        "udp_port"
+        "udp_port",
+        "status",
+        "status_text",
+        "root_cause"
     ], 
     "type" : "otep"
 },
@@ -177,7 +189,8 @@
         "link_type",
         "status",
         "status_timestamp",
-        "status_text"
+        "status_text",
+        "root_cause"
     ],
     "type" : "link"
 }
