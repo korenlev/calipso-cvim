@@ -70,7 +70,7 @@ class HandleHostPnic(MonitoringCheckHandler):
         fields_to_set = {}
         self.keep_result(fields_to_set, check_result, add_message=False)
         fields_to_set['status_value'] = 1
-        fields_to_set['status_text'] = \
+        fields_to_set['status'] = \
             ERROR_LEVEL[fields_to_set['status_value']]
         fields_to_set['root_cause'] = dict(id=pnic['id'], name=pnic['name'],
                                            type=pnic['type'],
@@ -86,7 +86,8 @@ class HandleHostPnic(MonitoringCheckHandler):
             {
                 'environment': self.env,
                 '_id': {'$in': dependents},
-                'id': {'$ne': pnic['id']}
+                # do not change state for other pNIC objects
+                'type': {'$ne': pnic['type']}
             },
             action,
             multi=True,
