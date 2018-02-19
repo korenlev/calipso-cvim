@@ -176,7 +176,7 @@ class CliqueFinder(Fetcher):
         for link_type in clique_type["link_types"]:
             if not self.check_link_type(clique, link_type, nodes_of_type,
                                         allow_implicit=allow_implicit):
-                break
+                self.log.debug('no matches for link type {}'.format(link_type))
 
         # after adding the links to the clique, create/update the clique
         if not clique["links"]:
