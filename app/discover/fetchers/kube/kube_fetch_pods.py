@@ -117,7 +117,7 @@ class KubeFetchPods(KubeAccess):
             except AttributeError:
                 pass
         if status_data:
-            doc['status'] = status_data
+            doc['pod_status'] = status_data
 
     def add_pod_to_proxy_service(self, pod):
         labels = pod.get('labels', {})
