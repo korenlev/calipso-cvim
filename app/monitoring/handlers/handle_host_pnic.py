@@ -12,8 +12,7 @@
 from bson import ObjectId
 
 from discover.fetcher import Fetcher
-from monitoring.handlers.monitoring_check_handler \
-    import MonitoringCheckHandler, ERROR_LEVEL
+from monitoring.handlers.monitoring_check_handler import MonitoringCheckHandler
 from utils.special_char_converter import SpecialCharConverter
 
 
@@ -69,6 +68,22 @@ class HandleHostPnic(MonitoringCheckHandler):
         is_error = check_result['status'] != 0
         fields_to_set = {}
         self.keep_result(fields_to_set, check_result, add_message=False)
+        action = self.set_action_on_db_object(is_error, fields_to_set, pnic)
+        self.inv.inventory_collection.update(
+            {
+                'environment': self.env,
+                '_id': {'$in': dependents},
+                # do not change state for other pNIC objects
+                'type': {'$ne': pnic['type']},
+                'host': pnic['host']
+            },
+            action,
+            multi=True,
+        )
+        for dependent in dependents:
+            self.propagate_container_state(dependent, action)
+
+    def set_action_on_db_object(self, is_error, fields_to_set, pnic) -> dict:
         status = 1
         fields_to_set['status_value'] = status
         fields_to_set['status'] = self.get_label_for_status(status)
@@ -82,14 +97,40 @@ class HandleHostPnic(MonitoringCheckHandler):
             fields_to_remove = {k: '' for k in fields_to_set.keys()}
             # clear status fields from dependents
             action = {'$unset': fields_to_remove}
-        self.inv.inventory_collection.update(
-            {
-                'environment': self.env,
-                '_id': {'$in': dependents},
-                # do not change state for other pNIC objects
-                'type': {'$ne': pnic['type']},
-                'host': pnic['host']
-            },
-            action,
-            multi=True,
-        )
+        return action
+
+    def propagate_container_state(self, db_id, action):
+        item = self.inv.find_one({
+            'environment': self.env,
+            '_id': db_id
+        })
+        if not item or item.get('type') != 'container':
+            return
+        # find related pod-container links
+        related_pod_container_links = self.inv.find_items({
+            'environment': self.env,
+            'link_type': 'pod-container',
+            'target_id': item['id']
+        })
+        for link in related_pod_container_links:
+            self.mark_pod_state(pod_id=link['source_id'], action=action)
+
+    def mark_pod_state(self, pod_id: str=None, action: dict=None):
+        pod = self.inv.get_by_id(self.env, pod_id)
+        if not pod:
+            self.log.error('failed to find pod with id {}'.format(pod_id))
+            return
+        self.inv.inventory_collection.update({'_id': pod['_id']}, action)
+        self.propagate_state_from_pod_to_service(pod_id, action)
+
+    def propagate_state_from_pod_to_service(self, pod_id: str=None,
+                                            action: dict=None):
+        # find related pod-vservice links
+        related_pod_vservice_links = self.inv.find_items({
+            'environment': self.env,
+            'link_type': 'pod-vservice',
+            'source_id': pod_id
+        })
+        for link in related_pod_vservice_links:
+            self.inv.inventory_collection.update({'_id': link['target']},
+                                                 action)
