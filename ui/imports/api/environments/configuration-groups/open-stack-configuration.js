@@ -13,7 +13,6 @@ export const OpenStackSchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'OpenStack'; } },
   host: { 
     type: String,
-    regEx: SimpleSchema.RegEx.IP,
     defaultValue: '10.0.0.1',
   },
   admin_token: { type: String },
