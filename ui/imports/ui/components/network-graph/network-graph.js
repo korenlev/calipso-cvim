@@ -317,15 +317,6 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       onNodeOut(d._osmeta.nodeId);
     })
     .on('click', function (d) {
-      let type = R.defaultTo('', R.path(['_osmeta', 'type'], d));
-      if (R.contains(type, ['view_group-host', 'view_group-switch'])) {
-        onGroupNodeClick(d._osmeta.nodeId);
-        return;
-      }
-      onNodeClick(d._osmeta.nodeId, d._osmeta.type, d._osmeta.environment, 
-        d3.event.pageX, d3.event.pageY);
-    })
-    .on('dblclick', function(d) {
       let meta = R.defaultTo({}, R.path(['_osmeta'], d));
       let type = R.defaultTo('', R.path(['type'], meta));
       if (type === "network") {
@@ -334,7 +325,14 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
             { _id: idToStr(R.prop('_id', env)) },
             { query: { selectedNodeId: idToStr(R.prop('nodeId', meta)) }}
         );
+        return;
       }
+      if (R.contains(type, ['view_group-host', 'view_group-switch'])) {
+        onGroupNodeClick(meta.nodeId);
+        return;
+      }
+      onNodeClick(meta.nodeId, meta.type, meta.environment,
+                  d3.event.pageX, d3.event.pageY);
     })
   ;
 
