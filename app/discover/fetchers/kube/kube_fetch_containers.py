@@ -54,7 +54,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         self.fetch_container_status_data(doc, pod, pod_obj)
         doc['host'] = pod_obj['host']
         doc['pod'] = dict(id=pod_obj['id'], name=pod_obj['object_name'])
-        doc['ip_address'] = pod_obj.get('status', {}).get('pod_ip', '')
+        doc['ip_address'] = pod_obj.get('pod_status', {}).get('pod_ip', '')
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
         self.get_container_config(doc, pod_obj)
         self.get_interface_link(doc, pod_obj)
@@ -62,7 +62,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         return doc
 
     def fetch_container_status_data(self, doc, pod, pod_obj):
-        container_statuses = pod_obj['status']['container_statuses']
+        container_statuses = pod_obj['pod_status']['container_statuses']
         container_status = next(s for s in container_statuses
                                 if s['name'] == doc['name'])
         if not container_status:

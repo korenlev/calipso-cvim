@@ -12,8 +12,7 @@
 from bson import ObjectId
 
 from discover.fetcher import Fetcher
-from monitoring.handlers.monitoring_check_handler \
-    import MonitoringCheckHandler, ERROR_LEVEL
+from monitoring.handlers.monitoring_check_handler import MonitoringCheckHandler
 from utils.special_char_converter import SpecialCharConverter
 
 
@@ -69,19 +68,7 @@ class HandleHostPnic(MonitoringCheckHandler):
         is_error = check_result['status'] != 0
         fields_to_set = {}
         self.keep_result(fields_to_set, check_result, add_message=False)
-        status = 1
-        fields_to_set['status_value'] = status
-        fields_to_set['status'] = self.get_label_for_status(status)
-        fields_to_set['root_cause'] = dict(id=pnic['id'], name=pnic['name'],
-                                           type=pnic['type'],
-                                           status_text=pnic['status_text'])
-        if is_error:
-            # set status fields
-            action = {'$set': fields_to_set}
-        else:
-            fields_to_remove = {k: '' for k in fields_to_set.keys()}
-            # clear status fields from dependents
-            action = {'$unset': fields_to_remove}
+        action = self.set_action_on_db_object(is_error, fields_to_set, pnic)
         self.inv.inventory_collection.update(
             {
                 'environment': self.env,
@@ -93,3 +80,63 @@ class HandleHostPnic(MonitoringCheckHandler):
             action,
             multi=True,
         )
+        for dependent in dependents:
+            self.propagate_container_state(dependent, pnic['host'], action)
+
+    def set_action_on_db_object(self, is_error, fields_to_set, pnic) -> dict:
+        status = 1
+        fields_to_set['status_value'] = status
+        fields_to_set['status'] = self.get_label_for_status(status)
+        fields_to_set['root_cause'] = dict(id=pnic['id'], name=pnic['name'],
+                                           type=pnic['type'],
+                                           host=pnic['host'],
+                                           status=pnic['status'],
+                                           status_text=pnic['status_text'])
+        if is_error:
+            # set status fields
+            action = {'$set': fields_to_set}
+        else:
+            fields_to_remove = {k: '' for k in fields_to_set.keys()}
+            # clear status fields from dependents
+            action = {'$unset': fields_to_remove}
+        return action
+
+    def propagate_container_state(self, db_id, host, action):
+        item = self.inv.find_one({
+            'environment': self.env,
+            '_id': db_id,
+            'host': host
+
+        })
+        if not item or item.get('type') != 'container':
+            return
+        # find related pod-container links
+        related_pod_container_links = self.inv.find_items({
+            'environment': self.env,
+            'link_type': 'pod-container',
+            'target_id': item['id']
+        }, collection='links')
+        for link in related_pod_container_links:
+            self.mark_pod_state(pod_id=link['source_id'], action=action)
+
+    def mark_pod_state(self, pod_id: str=None, action: dict=None):
+        pod = self.inv.get_by_id(self.env, pod_id)
+        if not pod:
+            self.log.error('failed to find pod with id {}'.format(pod_id))
+            return
+        self.inv.inventory_collection.update({'environment': self.env,
+                                              'id': pod['id']},
+                                             action)
+        self.propagate_state_from_pod_to_service(pod_id, action)
+
+    def propagate_state_from_pod_to_service(self, pod_id: str=None,
+                                            action: dict=None):
+        # find related vservice-pod links
+        related_vservice_pod_links = self.inv.find_items({
+            'environment': self.env,
+            'link_type': 'vservice-pod',
+            'target_id': pod_id
+        }, collection='links')
+        for link in related_vservice_pod_links:
+            self.inv.inventory_collection.update({'_id': link['source']},
+                                                 action)
