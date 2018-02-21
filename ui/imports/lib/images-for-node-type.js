@@ -73,7 +73,10 @@ export let imagesForNodeType = {
     error: 'container-red.png',
   },
   'pod': {
-    default: 'pod-black.png'
+    default: 'pod_black.png',
+    ok: 'pod_black-green.png',
+    warning: 'pod_black-orange.png',
+    error: 'pod_black-red.png',
   }
 };
 
