@@ -25,6 +25,7 @@ class ConnectionTestType(StringEnum):
     MYSQL = "mysql"
     OPENSTACK = "OpenStack"
     MONITORING = "Monitoring"
+    KUBERNETES = "Kubernetes"
 
 
 class ConnectionTestStatus(StringEnum):
