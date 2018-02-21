@@ -25,6 +25,7 @@ class CliqueFinder(Fetcher):
         self.links = self.inv.collections["links"]
         self.clique_types = self.inv.collections["clique_types"]
         self.clique_types_by_type = {}
+        self.clique_constraints_by_type = {}
         self.clique_constraints = self.inv.collections["clique_constraints"]
         self.cliques = self.inv.collections["cliques"]
 
@@ -128,11 +129,30 @@ class CliqueFinder(Fetcher):
                 self.clique_types_by_type[t] = selected
         return self.clique_types_by_type
 
+    def _fetch_constraints_for_type(self, focal_point_type: str) -> list:
+        if not self.clique_constraints_by_type:
+            docs = self.inv.find_items({}, collection='clique_constraints')
+            for doc in docs:
+                type = doc['focal_point_type']
+                if type not in self.clique_constraints_by_type:
+                    self.clique_constraints_by_type[type] = [doc]
+                else:
+                    self.clique_constraints_by_type[type].append(doc)
+        return self.clique_constraints_by_type.get(focal_point_type, [])
+
+    def get_clique_constraints(self, focal_point_type: str) -> list:
+        constraints_for_type = self._fetch_constraints_for_type(focal_point_type)
+        constraints = {}
+        for constraint_def in constraints_for_type:
+            if not constraint_def.get('environment'):
+                constraints = constraint_def
+            elif constraint_def['environment'] == self.env:
+                return constraint_def['constraints']
+        return constraints.get('constraints', [])
+
     def find_cliques_for_type(self, clique_type):
         focal_point_type = clique_type["focal_point_type"]
-        constraint = self.clique_constraints \
-            .find_one({"focal_point_type": focal_point_type})
-        constraints = [] if not constraint else constraint["constraints"]
+        constraints = self.get_clique_constraints(focal_point_type)
         object_type = clique_type["focal_point_type"]
         objects_for_focal_point_type = self.inventory.find({
             "environment": self.get_env(),

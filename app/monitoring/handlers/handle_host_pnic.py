@@ -24,14 +24,16 @@ class HandleHostPnic(MonitoringCheckHandler):
         self.env = self.env_config.get('name', '')
         self.is_kubernetes = self.env_config .get('environment_type', '') == \
             Fetcher.ENV_TYPE_KUBERNETES
+        self.check_result = None
 
     def handle(self, obj_id, check_result):
+        self.check_result = check_result
         object_id = self.get_pnic_object_id(obj_id)
         doc = self.doc_by_id(object_id)
         if not doc:
             return 1
         self.keep_result(doc, check_result)
-        self.propagate_error_state(doc, check_result)
+        self.propagate_error_state(doc)
         return check_result['status']
 
     @staticmethod
@@ -51,7 +53,7 @@ class HandleHostPnic(MonitoringCheckHandler):
     #
     # dependent objects are all objects that are part of a clique that has
     # a link that includes that pNic as either source or target.
-    def propagate_error_state(self, pnic: dict, check_result: dict):
+    def propagate_error_state(self, pnic: dict):
         if not self.is_kubernetes:
             return
         # find cliques where the pNIC appears in the list of nodes
@@ -65,9 +67,9 @@ class HandleHostPnic(MonitoringCheckHandler):
         if not dependents:
             return
 
-        is_error = check_result['status'] != 0
+        is_error = self.check_result['status'] != 0
         fields_to_set = {}
-        self.keep_result(fields_to_set, check_result, add_message=False)
+        self.keep_result(fields_to_set, self.check_result, add_message=False)
         action = self.set_action_on_db_object(is_error, fields_to_set, pnic)
         self.inv.inventory_collection.update(
             {
@@ -140,3 +142,9 @@ class HandleHostPnic(MonitoringCheckHandler):
         for link in related_vservice_pod_links:
             self.inv.inventory_collection.update({'_id': link['source']},
                                                  action)
+            vservice = self.inv.get_by_id(self.env, link['source_id'])
+            if vservice:
+                self.keep_message(vservice, self.check_result)
+            else:
+                self.log.error('failed to find service with ID {}'
+                               .format(link['source_id']))

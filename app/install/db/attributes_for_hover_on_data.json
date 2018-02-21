@@ -39,7 +39,8 @@
         "object_name", 
         "host", 
         "namespace",
-        "vservices", 
+        "vservices",
+        "pod_status", 
         "status",
         "root_cause" 
     ]
