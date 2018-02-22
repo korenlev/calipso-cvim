@@ -9,13 +9,13 @@
 ###############################################################################
 import re
 
-from discover.fetchers.cli.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 
 NAME_RE = '^[a-zA-Z]*GigabitEthernet'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
 
-class CliFetchHostPnicsVpp(CliAccess):
+class CliFetchHostPnicsVpp(CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

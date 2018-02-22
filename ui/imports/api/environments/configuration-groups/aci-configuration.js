@@ -15,7 +15,6 @@ export const AciSchema = new SimpleSchema({
   },
   host: { 
     type: String,
-    regEx: SimpleSchema.RegEx.IP,
     defaultValue: '10.0.0.1',
   },
   user: { 

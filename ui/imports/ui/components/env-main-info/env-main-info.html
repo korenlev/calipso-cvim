@@ -99,7 +99,8 @@
                 values=model.distribution_version
                 key="distribution_version"
                 disabled=(isFieldDisabled 'distribution_version' disabled)
-                options=distributionVersionOptions
+                options=(distributionVersionOptions model.distribution)
+                multi=false
                 showNullOption=true)
           }}
         </div>
@@ -118,10 +119,10 @@
           {{> SelectModel(createSelectArgs
                 values=model.type_drivers 
                 key="type_drivers"
-                options=typeDriversOptions
+                options=(typeDriversOptions model.distribution)
                 disabled=disabled
                 multi=false
-                showNullOption=false)
+                showNullOption=true)
           }}
         </div>
         <div class="col-sm-4">
@@ -138,9 +139,10 @@
           {{> SelectModel(createSelectArgs
                 values=model.mechanism_drivers 
                 key="mechanism_drivers"
-                options=mechanismDriversOptions
+                options=(mechanismDriversOptions model.distribution)
                 disabled=disabled
-                multi=true)
+                multi=true
+                showNullOption=false)
           }}
         </div>
         <div class="col-sm-4">

@@ -7,12 +7,12 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.fetchers.cli.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.db.db_access import DbAccess
 from utils.inventory_mgr import InventoryMgr
 
 
-class CliFetchOtepsLxb(CliAccess, DbAccess):
+class CliFetchOtepsLxb(CliFetcher, DbAccess):
 
     def __init__(self):
         super().__init__()

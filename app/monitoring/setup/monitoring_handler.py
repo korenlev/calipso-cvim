@@ -9,21 +9,21 @@
 ###############################################################################
 # handle specific setup of monitoring
 
-import os
 import json
 import subprocess
 from socket import *
 
 import copy
+import os
 import pymongo
 import shutil
 import stat
 import tempfile
 from boltons.iterutils import remap
 
-from discover.configuration import Configuration
-from discover.fetchers.cli.cli_access import CliAccess
 from utils.binary_converter import BinaryConverter
+from utils.cli_access import CliAccess
+from utils.configuration import Configuration
 from utils.deep_merge import remerge
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.full_logger import FullLogger
@@ -105,13 +105,25 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         if 'condition' not in doc:
             return True
         condition = doc['condition']
-        if 'mechanism_drivers' not in condition:
-            return True
-        required_mechanism_drivers = condition['mechanism_drivers']
-        if not isinstance(required_mechanism_drivers, list):
-            required_mechanism_drivers = [required_mechanism_drivers]
-        intersection = [val for val in required_mechanism_drivers
-                        if val in self.mechanism_drivers]
+        if not isinstance(condition, dict):
+            self.log.error('incorrect condition in monitoring ({}): '
+                           'condition must be a dict'
+                           .format(doc.get(doc.get('type'), '')))
+            return False
+        for key, required_value in condition.items():
+            if not self.check_env_config(key, required_value):
+                return False
+        return True
+
+    def check_env_config(self, config_name, required_config_value):
+        required_config_values = required_config_value \
+            if isinstance(required_config_value, list) \
+            else [required_config_value]
+        conf_values = self.configuration.environment.get(config_name, [])
+        conf_values = conf_values if isinstance(conf_values, list) \
+            else [conf_values]
+        intersection = [val for val in required_config_values
+                        if val in conf_values]
         return bool(intersection)
 
     def content_replace(self, content):
@@ -173,6 +185,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         apply environment definitions to the config,
         e.g. replace {server_ip} with the IP or host name for the server
         """
+
         # save the config to DB first, and while doing that
         # merge it with any existing config on same host
         content = self.merge_config(host, file_name, content)
@@ -435,6 +448,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                 if '/*' in local_dir else local_dir
             if local_dir_base.strip('/*') == remote_path.strip('/*'):
                 return  # same directory - nothing to do
+            self.make_remote_dir(host, remote_path)
             cmd = 'cp {} {}'.format(what_to_copy, remote_path)
             self.run(cmd, ssh=ssh)
             return

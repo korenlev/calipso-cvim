@@ -21,11 +21,13 @@ from functools import partial
 
 from discover.fetchers.api.api_access import ApiAccess
 from discover.fetchers.db.db_access import DbAccess
+from discover.fetchers.kube.kube_access import KubeAccess
 from discover.manager import Manager
 from utils.constants import ConnectionTestStatus, ConnectionTestType
 from utils.logging.file_logger import FileLogger
 from utils.mongo_access import MongoAccess
 from utils.ssh_connection import *
+
 
 def test_openstack(config, test_request):
     try:
@@ -97,13 +99,21 @@ def test_aci(config, test_request):
     pass
 
 
+def test_kubernetes(config, test_request):
+    kube_access = KubeAccess(config)
+    kube_access.api.list_namespace(watch=False)
+    ConnectionTest.report_success(test_request,
+                                  ConnectionTestType.KUBERNETES.value)
+
+
 TEST_HANDLERS = {
     ConnectionTestType.OPENSTACK.value: test_openstack,
     ConnectionTestType.MYSQL.value: test_mysql,
     ConnectionTestType.CLI.value: test_cli,
     ConnectionTestType.AMQP.value: test_amqp,
     ConnectionTestType.ACI.value: test_aci,
-    ConnectionTestType.MONITORING.value: test_monitoring
+    ConnectionTestType.MONITORING.value: test_monitoring,
+    ConnectionTestType.KUBERNETES.value: test_kubernetes
 }
 
 

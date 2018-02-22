@@ -10,12 +10,16 @@
 import os
 from abc import ABC, abstractmethod
 
+from discover.events.event_base import EventResult
 from utils.logging.console_logger import ConsoleLogger
 from utils.logging.file_logger import FileLogger
 from utils.logging.logger import Logger
 
 
 class ListenerBase(ABC):
+
+    SOURCE_SYSTEM = "Listener"
+    COMMON_METADATA_FILE = ""
 
     LOG_FILENAME = "listener_base.log"
     LOG_LEVEL = Logger.WARNING
@@ -25,6 +29,10 @@ class ListenerBase(ABC):
         self.log_file = os.path.join(FileLogger.LOG_DIRECTORY,
                                      self.LOG_FILENAME)
         self.log = ConsoleLogger(level=Logger.INFO)
+
+    @abstractmethod
+    def handle_event(self, event_type: str, notification: dict) -> EventResult:
+        pass
 
     @staticmethod
     @abstractmethod

@@ -166,7 +166,8 @@ def start_mongo(dbport, copy):
     copy_file("clique_types")
     copy_file("cliques")
     copy_file("constants")
-    copy_file("environments_config")
+    copy_file("environments_config"),
+    copy_file("environment_options"),
     copy_file("inventory")
     copy_file("link_types")
     copy_file("links")

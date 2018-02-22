@@ -13,8 +13,8 @@ and others
    See the License for the specific language governing permissions and
    limitations under the License.
 
-Calipso = OpenStack/VIM Network Discovery and Assurance
-==================================================
+Calipso = OpenStack,Kubernetes and other VIMs Network Discovery and Assurance
+=============================================================================
 ### About
 We are going to enhance the way Cloud Network Administrators(CNA) and Tenant Network Administrators(TNA) 
 Understands, Monitors and Troubleshoot highly distributed OpenStack and other virtual Environments.

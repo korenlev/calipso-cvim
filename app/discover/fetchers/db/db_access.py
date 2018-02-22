@@ -10,9 +10,9 @@
 import functools
 import mysql.connector
 
-from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.scan_error import ScanError
+from utils.configuration import Configuration
 from utils.string_utils import jsonify
 
 

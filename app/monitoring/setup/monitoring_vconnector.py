@@ -20,5 +20,5 @@ class MonitoringVconnector(MonitoringSimpleObject):
             else 'ovs'
         type_str = '{}_{}'.format(type, vpp_or_ovs)
         self.setup(type, o, values={'check_type': type_str,
-                                    'name': o['name']})
+                                    'name': o['bridge_name']})
 

@@ -8,6 +8,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import '../../api/constants/server/publications';
 
+import '../../api/environment_options/server/publications';
+
 import '../../api/environments/server/publications.js';
 import '../../api/environments/methods.js';
 

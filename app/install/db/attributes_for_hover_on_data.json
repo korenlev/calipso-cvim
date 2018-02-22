@@ -8,9 +8,42 @@
         "data",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "vnic"
+},
+{ 
+    "type" : "container", 
+    "attributes" : [
+        "name", 
+        "name_path", 
+        "ip_address",
+        "host",
+        "nat_tables", 
+        "kube_proxy_config",
+        "vservices",  
+        "container_type", 
+        "ports",
+        "pod", 
+        "namespace", 
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ]
+},
+{ 
+    "type" : "pod", 
+    "attributes" : [
+        "object_name", 
+        "host", 
+        "namespace",
+        "vservices",
+        "pod_status", 
+        "status",
+        "root_cause" 
+    ]
 },
 { 
     "attributes" : [
@@ -20,7 +53,8 @@
         "interfaces",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "vconnector"
 },
@@ -30,9 +64,15 @@
         "host", 
         "service_type", 
         "type",
+        "kube-proxy",
         "status_text",
         "status",
-        "status_timestamp"
+        "status_timestamp",
+        "root_cause",
+        "cluster_ip",
+        "ports",
+        "labels",
+        "swagger_types"
     ], 
     "type" : "vservice"
 },
@@ -47,7 +87,12 @@
         "type",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause",
+        "qos_class",
+        "labels",
+        "dns_policy",
+        "namespace"
     ], 
     "type" : "vedge"
 },
@@ -55,7 +100,8 @@
     "attributes" : [
         "object_name", 
         "host", 
-        "mac_address", 
+        "mac_address",
+        "IP Address", 
         "Speed", 
         "Link detected", 
         "type",
@@ -64,7 +110,8 @@
         "members",
         "status",
         "status_timestamp",
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "host_pnic"
 },
@@ -77,7 +124,13 @@
         "status",
         "port_security_enabled",
         "availability_zones",
-        "mtu"
+        "mtu",
+        "scope",       
+        "IPAM",               
+        "local_name",                       
+        "driver",                               
+        "Containers",                                       
+        "Options"
     ], 
     "type" : "network"
 },
@@ -89,7 +142,8 @@
         "type",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "host"
 },
@@ -103,7 +157,8 @@
         "name_path",
         "status", 
         "status_timestamp", 
-        "status_text"
+        "status_text",
+        "root_cause"
     ], 
     "type" : "instance"
 },
@@ -113,7 +168,12 @@
         "overlay_type", 
         "ip_address", 
         "type", 
-        "ports"
+        "ports",
+        "overlay_mac_address", 
+        "udp_port",
+        "status",
+        "status_text",
+        "root_cause"
     ], 
     "type" : "otep"
 },
@@ -130,7 +190,8 @@
         "link_type",
         "status",
         "status_timestamp",
-        "status_text"
+        "status_text",
+        "root_cause"
     ],
     "type" : "link"
 }

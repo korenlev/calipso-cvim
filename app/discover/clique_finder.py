@@ -25,6 +25,7 @@ class CliqueFinder(Fetcher):
         self.links = self.inv.collections["links"]
         self.clique_types = self.inv.collections["clique_types"]
         self.clique_types_by_type = {}
+        self.clique_constraints_by_type = {}
         self.clique_constraints = self.inv.collections["clique_constraints"]
         self.cliques = self.inv.collections["cliques"]
 
@@ -42,43 +43,74 @@ class CliqueFinder(Fetcher):
         return self.links.find({'target': db_id})
 
     def find_cliques(self):
-        self.log.info("scanning for cliques")
+        self.log.info("Scanning for cliques")
         clique_types = self.get_clique_types().values()
         for clique_type in clique_types:
             self.find_cliques_for_type(clique_type)
-        self.log.info("finished scanning for cliques")
+        self.log.info("Finished scanning for cliques")
 
     # Calculate priority score for clique type per environment and configuration
-    def _get_priority_score(self, clique_type):
+    def get_priority_score(self, clique_type):
         # environment-specific clique type takes precedence
-        if self.env == clique_type['environment']:
-            return 16
-        if (self.env_config['distribution'] == clique_type.get('distribution')
-            and
-            self.env_config['distribution_version'] ==
-                clique_type.get('distribution_version')):
-            return 8
-        if clique_type.get('mechanism_drivers') \
-                in self.env_config['mechanism_drivers']:
-            return 4
-        if self.env_config['type_drivers'] == clique_type.get('type_drivers'):
-            return 2
-        if clique_type.get('environment', '') == 'ANY':
-            # environment=ANY serves as fallback option, but it's not mandatory
-            return 1
-        else:
+        env = clique_type.get('environment')
+        config = self.env_config
+        # ECT - Clique Type with Environment name
+        if env:
+            if self.env == env:
+                return 2**6
+            if env == 'ANY':
+                # environment=ANY serves as fallback option
+                return 2**0
             return 0
+        # NECT - Clique Type without Environment name
+        else:
+            env_type = clique_type.get('environment_type')
+            # TODO: remove backward compatibility ('if not env_type' check)
+            if env_type and env_type != config.get('environment_type'):
+                return 0
+
+            score = 0
+
+            distribution = clique_type.get('distribution')
+            if distribution:
+                if config['distribution'] != distribution:
+                    return 0
+
+                score += 2**5
+
+                dv = clique_type.get('distribution_version')
+                if dv:
+                    if dv != config['distribution_version']:
+                        return 0
+                    score += 2**4
+
+            mechanism_drivers = clique_type.get('mechanism_drivers')
+            if mechanism_drivers:
+                if mechanism_drivers not in config['mechanism_drivers']:
+                    return 0
+                score += 2**3
+
+            type_drivers = clique_type.get('type_drivers')
+            if type_drivers:
+                if type_drivers != config['type_drivers']:
+                    return 0
+                score += 2**2
+
+            # If no configuration is specified, this clique type
+            # is a fallback for its environment type
+            return max(score, 2**1)
 
     # Get clique type with max priority
     # for given focal point type
     def _get_clique_type(self, clique_types):
-        scored_clique_types = [{'score': self._get_priority_score(clique_type),
+        scored_clique_types = [{'score': self.get_priority_score(clique_type),
                                 'clique_type': clique_type}
                                for clique_type in clique_types]
         max_score = max(scored_clique_types, key=lambda t: t['score'])
         if max_score['score'] == 0:
-            self.log.warn('No matching clique types for focal point type: {}'
-                          .format(clique_types[0].get('focal_point_type')))
+            self.log.warn('No matching clique types '
+                          'for focal point type: {fp_type}'
+                          .format(fp_type=clique_types[0].get('focal_point_type')))
             return None
         return max_score.get('clique_type')
 
@@ -97,11 +129,30 @@ class CliqueFinder(Fetcher):
                 self.clique_types_by_type[t] = selected
         return self.clique_types_by_type
 
+    def _fetch_constraints_for_type(self, focal_point_type: str) -> list:
+        if not self.clique_constraints_by_type:
+            docs = self.inv.find_items({}, collection='clique_constraints')
+            for doc in docs:
+                type = doc['focal_point_type']
+                if type not in self.clique_constraints_by_type:
+                    self.clique_constraints_by_type[type] = [doc]
+                else:
+                    self.clique_constraints_by_type[type].append(doc)
+        return self.clique_constraints_by_type.get(focal_point_type, [])
+
+    def get_clique_constraints(self, focal_point_type: str) -> list:
+        constraints_for_type = self._fetch_constraints_for_type(focal_point_type)
+        constraints = {}
+        for constraint_def in constraints_for_type:
+            if not constraint_def.get('environment'):
+                constraints = constraint_def
+            elif constraint_def['environment'] == self.env:
+                return constraint_def['constraints']
+        return constraints.get('constraints', [])
+
     def find_cliques_for_type(self, clique_type):
         focal_point_type = clique_type["focal_point_type"]
-        constraint = self.clique_constraints \
-            .find_one({"focal_point_type": focal_point_type})
-        constraints = [] if not constraint else constraint["constraints"]
+        constraints = self.get_clique_constraints(focal_point_type)
         object_type = clique_type["focal_point_type"]
         objects_for_focal_point_type = self.inventory.find({
             "environment": self.get_env(),
@@ -145,12 +196,15 @@ class CliqueFinder(Fetcher):
         for link_type in clique_type["link_types"]:
             if not self.check_link_type(clique, link_type, nodes_of_type,
                                         allow_implicit=allow_implicit):
-                break
+                self.log.debug('no matches for link type {}'.format(link_type))
 
         # after adding the links to the clique, create/update the clique
         if not clique["links"]:
             return None
         clique["clique_type"] = clique_type["_id"]
+        clique['nodes'] = []
+        for type_nodes in nodes_of_type.values():
+            clique['nodes'].extend([ObjectId(node) for node in type_nodes])
         focal_point_obj = self.inventory.find({"_id": clique["focal_point"]})
         if not focal_point_obj:
             return None

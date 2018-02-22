@@ -7,8 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.configuration import Configuration
 from discover.link_finders.find_links import FindLinks
+from utils.configuration import Configuration
 
 
 class FindLinksForVedges(FindLinks):
@@ -33,32 +33,24 @@ class FindLinksForVedges(FindLinks):
                 self.add_link_for_kubernetes_vedge(vedge)
 
     def add_link_for_vedge(self, vedge, port):
+        # link_type: "vnic-vedge"
         vnic = self.inv.get_by_id(self.get_env(),
                                   vedge['host'] + '-' + port["name"])
         if not vnic:
             self.find_matching_vconnector(vedge, port)
             self.find_matching_pnic(vedge, port)
             return
-        source = vnic["_id"]
-        source_id = vnic["id"]
-        target = vedge["_id"]
-        target_id = vedge["id"]
-        link_type = "vnic-vedge"
         link_name = vnic["name"] + "-" + vedge["name"]
         if "tag" in port:
             link_name += "-" + port["tag"]
-        state = "up"  # TBD
-        link_weight = 0  # TBD
         source_label = vnic["mac_address"]
         target_label = port["id"]
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=vedge["host"],
-                         extra_attributes={"source_label": source_label,
-                                           "target_label": target_label})
+        self.link_items(vnic, vedge, link_name=link_name,
+                        extra_attributes={"source_label": source_label,
+                                          "target_label": target_label})
 
     def find_matching_vconnector(self, vedge, port):
+        # link_type: "vconnector-vedge"
         if self.configuration.has_network_plugin('VPP'):
             vconnector_interface_name = port['name']
         else:
@@ -74,16 +66,9 @@ class FindLinksForVedges(FindLinks):
             get_single=True)
         if not vconnector:
             return
-        source = vconnector["_id"]
-        source_id = vconnector["id"]
-        target = vedge["_id"]
-        target_id = vedge["id"]
-        link_type = "vconnector-vedge"
         link_name = "port-" + port["id"]
         if "tag" in port:
             link_name += "-" + port["tag"]
-        state = "up"  # TBD
-        link_weight = 0  # TBD
         source_label = vconnector_interface_name
         target_label = port["name"]
         mac_address = "Unknown"
@@ -99,13 +84,11 @@ class FindLinksForVedges(FindLinks):
             break
         if 'network' in vconnector:
             attributes['network'] = vconnector['network']
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=vedge["host"],
-                         extra_attributes=attributes)
+        self.link_items(vconnector, vedge, link_name=link_name,
+                        extra_attributes=attributes)
 
     def find_matching_pnic(self, vedge, port):
+        # link_type: "vedge-host_pnic"
         pname = port["name"]
         if "pnic" in vedge:
             if pname != vedge["pnic"]:
@@ -118,20 +101,12 @@ class FindLinksForVedges(FindLinks):
         }, get_single=True)
         if not pnic:
             return
-        source = vedge["_id"]
-        source_id = vedge["id"]
-        target = pnic["_id"]
-        target_id = pnic["id"]
-        link_type = "vedge-host_pnic"
         link_name = "Port-" + port["id"]
         state = "up" if pnic["Link detected"] == "yes" else "down"
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=vedge["host"])
+        self.link_items(vedge, pnic, link_name=link_name, state=state)
 
     def add_link_for_kubernetes_vedge(self, vedge):
+        # link_type: 'vedge-otep'
         host_ip = vedge.get('status', {}).get('host_ip', '')
         otep = self.inv.find_one({
             'environment': self.get_env(),
@@ -140,17 +115,6 @@ class FindLinksForVedges(FindLinks):
         })
         if not otep:
             return
-
-        source = vedge['_id']
-        source_id = vedge['id']
-        target = otep['_id']
-        target_id = otep['id']
-        link_type = 'vedge-otep'
         link_name = '{}-{}'.format(vedge['object_name'],
                                    otep['overlay_mac_address'])
-        state = 'up'  # TBD
-        link_weight = 0  # TBD
-        self.create_link(self.get_env(),
-                         source, source_id, target, target_id,
-                         link_type, link_name, state, link_weight,
-                         host=vedge['host'])
+        self.link_items(vedge, otep, link_name=link_name)

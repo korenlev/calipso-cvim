@@ -10,5 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 SimpleSchema.messages({
   'alreadyExists': 'item already exists',
-  'insufficientData': 'Environment or configuration should be specified'
+  'insufficientCliqueTypeData': 'Environment or configuration should be specified',
+  'noFocalPoint': 'Focal point should be specified',
+  'versionWithoutDistribution': 'Distribution should be specified'
 });

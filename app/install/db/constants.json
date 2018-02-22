@@ -100,6 +100,10 @@
         {
             "label" : "Nexus", 
             "value" : "Nexus"
+        },
+        {
+            "label" : "Flannel",
+            "value" : "Flannel"
         }
     ], 
     "name" : "mechanism_drivers"
@@ -137,6 +141,23 @@
         }
     ], 
     "name" : "environment_monitoring_types"
+},
+{ 
+    "data" : [
+        {
+            "value" : "0", 
+            "label" : "OK"
+        }, 
+        {
+            "value" : "1", 
+            "label" : "Warning"
+        }, 
+        {
+            "value" : "2", 
+            "label" : "Error"
+        }
+    ], 
+    "name" : "monitoring_check_statuses"
 },
 { 
     "data" : [
@@ -303,6 +324,42 @@
         {
             "value": "container-vnic",
             "label": "container-vnic"
+        },
+        {
+            "value": "vnic-container",
+            "label": "vnic-container"
+        },
+        {
+            "value": "container-vedge",
+            "label": "container-vedge"
+        },
+        {
+            "value": "vedge-container",
+            "label": "vedge-container"
+        },
+        {
+            "value" : "vservice-pod", 
+            "label" : "vservice-pod"
+        }, 
+        {
+            "value" : "pod-vservice", 
+            "label" : "pod-vservice"
+        },
+        {
+            "value" : "pod-container", 
+            "label" : "pod-container"
+        }, 
+        {
+            "value" : "container-pod", 
+            "label" : "container-pod"
+        },
+        {
+            "value" : "container-network", 
+            "label" : "container-network"
+        }, 
+        {
+            "value" : "network-container", 
+            "label" : "network-container"
         }
     ]
 },
@@ -374,6 +431,14 @@
         {
             "label" : "instance", 
             "value" : "instance"
+        },
+        {
+            "label" : "container",
+            "value" : "container"
+        },
+        {
+            "label" : "pod",
+            "value" : "pod"
         }, 
         {
             "label" : "vservice", 
@@ -480,6 +545,10 @@
         {
             "value" : "Mercury", 
             "label" : "Mercury"
+        },
+        {
+            "value" : "Kubernetes",
+            "label" : "Kubernetes"
         }
     ]
 },
@@ -489,7 +558,11 @@
         {
             "value" : "6.0", 
             "label" : "6.0"
-        }, 
+        },
+        {
+            "value" : "1.9",
+            "label" : "1.9"
+        },
         {
             "value" : "7.0", 
             "label" : "7.0"
@@ -582,6 +655,10 @@
         {
             "value" : "Sensu", 
             "label" : "Sensu"
+        },
+        {
+            "label" : "Kubernetes", 
+            "value" : "Kubernetes"
         }
     ]
 },
@@ -591,6 +668,14 @@
         {
             "label" : "vnic", 
             "value" : "vnic"
+        },
+        {
+            "label" : "container",
+            "value" : "container"
+        },
+        {
+            "label" : "pod",
+            "value" : "pod"
         }, 
         {
             "label" : "vconnector", 

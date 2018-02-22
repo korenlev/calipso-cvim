@@ -37,6 +37,8 @@
                           <th>Source System</th>
                           <th>Timestamp</th>
                           <th>Related Object</th>
+                          <th>Origin type</th>
+                          <th>Origin ID</th>
                       </tr>
                       </thead>
                       <tbody class="sm-message-table-section">
@@ -55,6 +57,8 @@
                               {{> InventoryPropertiesDisplay (argsInvPropDisplay message.environment message.related_object) }}
                             {{/if }}
                           </td>
+                          <td>{{ message.origin_type }}</td>
+                          <td>{{ message.origin_id }}</td>
                         </tr>
                       {{/each}}
                       </tbody>

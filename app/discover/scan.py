@@ -16,12 +16,13 @@
 import argparse
 import sys
 
-from discover.configuration import Configuration
 from discover.fetcher import Fetcher
 from discover.scan_error import ScanError
 from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from utils.configuration import Configuration
 from utils.constants import EnvironmentFeatures
+from utils.origins import ScanOrigin, ScanOrigins
 from utils.mongo_access import MongoAccess
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
@@ -112,6 +113,7 @@ class ScanPlan:
 
 class ScanController(Fetcher):
     DEFAULTS = {
+        "_id": None,
         "env": "",
         "mongo_config": "",
         "type": "",
@@ -126,7 +128,8 @@ class ScanController(Fetcher):
         "cliques_only": False,
         "monitoring_setup_only": False,
         "clear": False,
-        "clear_all": False
+        "clear_all": False,
+        "scheduled": False
     }
 
     def __init__(self):
@@ -274,9 +277,13 @@ class ScanController(Fetcher):
         self.conf.use_env(env_name)
 
         # generate ScanObject Class and instance.
+        origin = ScanOrigin(origin_id=args['_id'],
+                            origin_type=ScanOrigins.SCHEDULED
+                                        if args["scheduled"]
+                                        else ScanOrigins.MANUAL)
         scanner = Scanner()
         scanner.log.set_loglevel(args['loglevel'])
-        scanner.set_env(env_name)
+        scanner.setup(env=env_name, origin=origin)
         scanner.found_errors[env_name] = False
 
         # decide what scanning operations to do
@@ -294,7 +301,8 @@ class ScanController(Fetcher):
         if monitoring:
             self.inv.monitoring_setup_manager = \
                 MonitoringSetupManager(env_name)
-            self.inv.monitoring_setup_manager.server_setup()
+            if run_all or inventory_only:
+                self.inv.monitoring_setup_manager.server_setup()
 
         # do the actual scanning
         try:

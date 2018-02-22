@@ -9,15 +9,18 @@
 ###############################################################################
 import json
 from json import JSONDecodeError
+
 from kubernetes.client.models import V1Container
 
-from discover.fetchers.cli.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
 
-class KubeFetchContainers(KubeAccess, CliAccess):
+class KubeFetchContainers(KubeAccess, CliFetcher):
+
+    PROXY_ATTR = 'kube-proxy'
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -36,7 +39,8 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         if not pods or len(pods.items) == 0:
             self.log.error('failed to find pod with nodeName={}'.format(host))
             return []
-        pod = next(pod for pod in pods.items if pod.metadata.uid == pod_id)
+        pod = next((pod for pod in pods.items if pod.metadata.uid == pod_id),
+                   None)
         if not pod:
             self.log.error('failed to find pod with uid={}'.format(pod_id))
             return []
@@ -48,15 +52,17 @@ class KubeFetchContainers(KubeAccess, CliAccess):
         doc = {'type': 'container', 'namespace': pod.metadata.namespace}
         self.get_container_data(doc, container)
         self.fetch_container_status_data(doc, pod, pod_obj)
+        doc['host'] = pod_obj['host']
+        doc['pod'] = dict(id=pod_obj['id'], name=pod_obj['object_name'])
+        doc['ip_address'] = pod_obj.get('pod_status', {}).get('pod_ip', '')
+        doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
         self.get_container_config(doc, pod_obj)
         self.get_interface_link(doc, pod_obj)
-        doc['host'] = pod_obj['host']
-        doc['ip_address'] = pod_obj.get('status', {}).get('pod_ip', '')
-        doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
+        self.get_proxy_container_info(doc, pod_obj)
         return doc
 
     def fetch_container_status_data(self, doc, pod, pod_obj):
-        container_statuses = pod_obj['status']['container_statuses']
+        container_statuses = pod_obj['pod_status']['container_statuses']
         container_status = next(s for s in container_statuses
                                 if s['name'] == doc['name'])
         if not container_status:
@@ -76,7 +82,9 @@ class KubeFetchContainers(KubeAccess, CliAccess):
 
     @staticmethod
     def get_container_data(doc: dict, container: V1Container):
-        for k in [k for k in dir(container) if not k.startswith('_')]:
+        for k in dir(container):
+            if k.startswith('_'):
+                continue
             try:
                 # TBD a lot of attributes from V1Container fail the saving to DB
                 if k in ['to_dict', 'to_str', 'attribute_map', 'swagger_types',
@@ -143,7 +151,14 @@ class KubeFetchContainers(KubeAccess, CliAccess):
     # find network matching the one sandbox, and keep its name
     def find_network(self, doc):
         networks = doc['sandbox']['NetworkSettings']['Networks']
-        network = next(iter(networks.values()))
+        if not networks:
+            return
+        if isinstance(networks, dict):
+            network_names = list(networks.keys())
+            network = network_names[0]
+            network = networks[network]
+        else:
+            network = networks[0]
         network_id = network['NetworkID']
         network_obj = self.inv.get_by_id(self.get_env(), network_id)
         if not network_obj:
@@ -161,3 +176,72 @@ class KubeFetchContainers(KubeAccess, CliAccess):
             return
         vnic['containers'].append(doc['container_id'])
         self.inv.set(vnic)
+
+    def get_proxy_container_info(self, container, pod):
+        if container['name'] != self.PROXY_ATTR:
+            return
+        container['container_app'] = self.PROXY_ATTR
+        self.get_proxy_container_config(container)
+        self.get_proxy_nat_tables(container)
+        container['vservices'] = self.get_proxy_container_vservices(pod)
+        self.add_proxy_container_to_vservices(container)
+
+    def get_proxy_container_config(self, container):
+        command = container.get('command')
+        if not command or not isinstance(command, list) or len(command) < 2:
+            self.log.error('unable to find {} command file '
+                           'for container {}'
+                           .format(self.PROXY_ATTR, container['id']))
+            return
+        conf_line = command[1]
+        if not isinstance(conf_line, str) \
+                or not conf_line.startswith('--config='):
+            self.log.error('unable to find {} command config file '
+                           'for container {}'
+                           .format(self.PROXY_ATTR, container['id']))
+            return
+        conf_file = conf_line[len('--config='):]
+        cmd = 'docker exec {} cat  {}'.format(container['container_id'],
+                                              conf_file)
+        conf_file_contents = self.run(cmd=cmd, ssh_to_host=container['host'])
+        container['kube_proxy_config'] = conf_file_contents
+
+    def get_proxy_nat_tables(self, container):
+        cmd = 'docker exec {} iptables -t nat -n -L' \
+            .format(container['container_id'])
+        nat_tables = self.run(cmd=cmd, ssh_to_host=container['host'])
+        container['nat_tables'] = nat_tables
+
+    def get_proxy_container_vservices(self, pod: dict) -> list:
+        pods = self.inv.find_items({
+            'environment': self.get_env(),
+            'type': 'pod',
+            'host': pod['host'],
+            'vservices': {'$exists': 1}
+        })
+        vservices = []
+        for pod in pods:
+            vservices.extend(pod['vservices'])
+        return vservices
+
+    def add_proxy_container_to_vservices(self, container: dict):
+        for vservice in list(container.get('vservices', [])):
+            self.add_proxy_container_to_vservice(container, vservice)
+
+    def add_proxy_container_to_vservice(self, container: dict, vservice: dict):
+        vservice_obj = self.inv.get_by_id(self.get_env(), vservice['id'])
+        if not vservice_obj:
+            self.log.error('failed to find vservice object with id {} '
+                           'in container {} (id: {})'
+                           .format(vservice['id'],
+                                   container['object_name'],
+                                   container['id']))
+        if self.PROXY_ATTR not in vservice_obj:
+            vservice_obj[self.PROXY_ATTR] = []
+        matches = [p for p in vservice_obj[self.PROXY_ATTR]
+                   if p['id'] == container['id']]
+        if not matches:
+            proxy_data = dict(id=container['id'], name=container['name'],
+                              host=container['host'])
+            vservice_obj[self.PROXY_ATTR].append(proxy_data)
+            self.inv.set(vservice_obj)

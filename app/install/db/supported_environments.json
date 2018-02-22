@@ -20,9 +20,9 @@
       "type_drivers" : "vxlan"
     },
     "features" : {
-      "listening" : false,
+      "listening" : true,
       "scanning" : true,
-      "monitoring" : false
+      "monitoring" : true
     }
   },
   { 

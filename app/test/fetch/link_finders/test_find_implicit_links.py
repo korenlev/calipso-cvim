@@ -87,21 +87,34 @@ class TestFindImplicitLinks(TestFetch):
         original_objectid = bson.ObjectId
         bson.ObjectId = lambda x: x
         add_func = self.fetcher.add_implicit_link
+        original_get_existing_link = self.fetcher.get_existing_link
+        self.fetcher.get_existing_link = self.mock_get_existing_link
         self.assertEqual(add_func(LINK_TYPE_4_NET1, LINK_TYPE_6_NET1),
                          LINK_TYPE_7_NET1)
+        self.fetcher.get_existing_link = original_get_existing_link
         bson.ObjectId = original_objectid
         self.inv.write_link = original_write_link
 
+    @staticmethod
+    def mock_get_existing_link(link_type=None,
+                               source_id=None, target_id=None):
+        matches = [l for l in BASE_LINKS
+                   if l['link']['link_type'] == link_type
+                   and l['link']['source_id'] == source_id
+                   and l['link']['target_id'] == target_id]
+        return matches[0] if matches else None
+
     def test_get_transitive_closure(self):
-        self.fetcher.links = [
-            {'pass': 0, 'link': LINK_FULL_A2B},
-            {'pass': 0, 'link': LINK_FULL_B2C},
-            {'pass': 0, 'link': LINK_FULL_C2D},
-            {'pass': 0, 'link': LINK_FULL_D2E},
-        ]
+        self.fetcher.links = BASE_LINKS
+        original_get_existing_link = self.fetcher.get_existing_link
+        self.fetcher.get_existing_link = self.mock_get_existing_link
         self.fetcher.get_transitive_closure()
-        for pass_no in range(1, len(IMPLICIT_LINKS)):
-            implicit_links = [l for l in self.fetcher.links
-                              if l['pass'] == pass_no]
-            self.assertEqual(implicit_links, IMPLICIT_LINKS[pass_no-1],
+        self.fetcher.get_existing_link = original_get_existing_link
+        last_pass = max(l['pass'] for l in IMPLICIT_LINKS) + 1
+        for pass_no in range(1, last_pass):
+            actual_implicit_links = [l for l in self.fetcher.links
+                                     if l['pass'] == pass_no]
+            expected_implicit_links = [l for l in IMPLICIT_LINKS
+                                       if l['pass'] == pass_no]
+            self.assertEqual(actual_implicit_links, expected_implicit_links,
                              'incorrect links for pass #{}'.format(pass_no))

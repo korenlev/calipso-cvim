@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import os
+import tempfile
 
 from pymongo import MongoClient
 
@@ -15,6 +16,7 @@ from utils.config_file import ConfigFile
 from utils.dict_naming_converter import DictNamingConverter
 from utils.logging.console_logger import ConsoleLogger
 from utils.logging.file_logger import FileLogger
+from utils.logging.logger import Logger
 
 
 # Provides access to MongoDB using PyMongo library
@@ -32,32 +34,52 @@ class MongoAccess(DictNamingConverter):
 
     DB_NAME = 'calipso'
     LOG_FILENAME = 'mongo_access.log'
-    DEFAULT_LOG_FILE = os.path.join(os.path.abspath("."), LOG_FILENAME)
+    DEFAULT_LOG_DIR = os.path.join(os.path.abspath("."), LOG_FILENAME)
+    TMP_DIR = tempfile.gettempdir()
 
     def __init__(self):
         super().__init__()
-        log_dir = FileLogger.LOG_DIRECTORY \
-            if os.path.isdir(FileLogger.LOG_DIRECTORY) \
-            else os.path.abspath('.')
-        self.log_file = os.path.join(log_dir, MongoAccess.LOG_FILENAME)
-
-        try:
-            self.log = FileLogger(self.log_file)
-        except OSError as e:
-            ConsoleLogger().warning("Couldn't use file {} for logging. "
-                                    "Using default location: {}.\n"
-                                    "Error: {}"
-                                    .format(self.log_file,
-                                            self.DEFAULT_LOG_FILE,
-                                            e))
-
-            self.log_file = self.DEFAULT_LOG_FILE
-            self.log = FileLogger(self.log_file)
+        self.log = ConsoleLogger()
+        self.log = self.set_log()
 
         self.connect_params = {}
         self.mongo_connect(self.config_file)
 
-    def is_db_ready(self) -> bool:
+    def set_log(self) -> Logger:
+        dirs_to_try = [
+            FileLogger.LOG_DIRECTORY,
+            self.DEFAULT_LOG_DIR,
+            self.TMP_DIR
+        ]
+        for directory in dirs_to_try:
+            log = self.get_logger(directory)
+            if log:
+                return log
+
+        self.log.error('Unable to open log file {} in any of '
+                       'the following directories: {}'
+                       .format(self.LOG_FILENAME, ', '.join(dirs_to_try)))
+        self.log.error('will use console logger for MongoAccess logging')
+        return self.log
+
+    @staticmethod
+    def get_logger(directory):
+        if not os.path.isdir(directory):
+            ConsoleLogger().warning('Can\'t use inexistent directory {} '
+                                    'for logging'.format(directory))
+            return None
+        log_file = os.path.join(directory, MongoAccess.LOG_FILENAME)
+
+        try:
+            log = FileLogger(log_file)
+            return log
+        except OSError as e:
+            ConsoleLogger().warning("Couldn't use file {} for logging. "
+                                    "Error: {}".format(log_file, e))
+            return None
+
+    @staticmethod
+    def is_db_ready() -> bool:
         return MongoAccess.client is not None
 
     @staticmethod
@@ -132,12 +154,16 @@ class MongoAccess(DictNamingConverter):
     # so need to translate only "." --> "[dot]"
     @staticmethod
     def encode_mongo_keys(item):
-        return MongoAccess.change_dict_naming_convention(item, MongoAccess.encode_dots)
+        change_naming_func = MongoAccess.change_dict_naming_convention
+        return change_naming_func(item, MongoAccess.encode_dots)
 
     @staticmethod
     def decode_mongo_keys(item):
-        return MongoAccess.change_dict_naming_convention(item, MongoAccess.decode_dots)
+        change_naming_func = MongoAccess.change_dict_naming_convention
+        return change_naming_func(item, MongoAccess.decode_dots)
 
     @staticmethod
     def decode_object_id(item: dict):
-        return dict(item, **{"_id": str(item["_id"])}) if item and "_id" in item else item
+        return dict(item, **{"_id": str(item["_id"])}) \
+            if item and "_id" in item \
+            else item

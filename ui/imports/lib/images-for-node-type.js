@@ -66,6 +66,18 @@ export let imagesForNodeType = {
   'view_group-switch': {
     default: 'ic_zoom_out_map_black_24dp_2x.png'
   },
+  'container': {
+    default: 'container-white.png',
+    ok: 'container-green.png',
+    warning: 'container-orange.png',
+    error: 'container-red.png',
+  },
+  'pod': {
+    default: 'pod_black.png',
+    ok: 'pod_black-green.png',
+    warning: 'pod_black-orange.png',
+    error: 'pod_black-red.png',
+  }
 };
 
 export let defaultNodeTypeImage = {

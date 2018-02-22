@@ -36,28 +36,6 @@ import './environment-dashboard.html';
 import '/imports/ui/components/messages-info-box/messages-info-box';
 import '/imports/ui/components/messages-modal/messages-modal';
 
-let briefInfoList =  [{
-  header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
-  dataSource: 'infoInstancesCount',
-  icon: new Icon({ type: 'fa', name: 'desktop' }),
-}, {
-  header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
-  dataSource: 'infoVServicesCount',
-  icon: new Icon({ type: 'fa', name: 'object-group' }),
-}, {
-  header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
-  dataSource: 'infoHostsCount',
-  icon: new Icon({ type: 'fa', name: 'server' }),
-}, {
-  header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
-  dataSource: 'infoVConnectorsCount',
-  icon: new Icon({ type: 'fa', name: 'compress' }),
-}, {
-  header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
-  dataSource: 'infoLastScanning',
-  icon: new Icon({ type: 'fa', name: 'search' }),
-}];
-
 let listInfoBoxes = [{
   header: ['components', 'environment', 'listInfoBoxes', 'regions', 'header'],
   listName: 'regions',
@@ -107,6 +85,7 @@ Template.EnvironmentDashboard.onCreated(function() {
     instance.subscribe('environments?_id', _id);
     Environments.find({ _id: _id }).forEach((env) => {
       instance.state.set('envName', env.name);
+      instance.state.set('envType', env.environment_type);
       instance.state.set('infoLastScanning', env.last_scanned);
 
       let allowEdit = false;
@@ -120,12 +99,7 @@ Template.EnvironmentDashboard.onCreated(function() {
 
       instance.state.set('allowEdit', allowEdit );
 
-      instance.subscribe('inventory?env+type', env.name, 'instance');
-      instance.subscribe('inventory?env+type', env.name, 'vservice');
-      instance.subscribe('inventory?env+type', env.name, 'host');
-      instance.subscribe('inventory?env+type', env.name, 'vconnector');
-      instance.subscribe('inventory?env+type', env.name, 'project');
-      instance.subscribe('inventory?env+type', env.name, 'region');
+      subscribe(instance, env);
 
       /*
       instance.subscribe('messages/count?level&env', 'info', env.name);
@@ -133,35 +107,7 @@ Template.EnvironmentDashboard.onCreated(function() {
       instance.subscribe('messages/count?level&env', 'error', env.name);
       */
 
-      let vConnectorCounterName = 'inventory?env+type!counter?env=' +
-        env.name + '&type=' + 'vconnector';
-      let infoVConnectorsCount = Counts.get(vConnectorCounterName);
-      instance.state.set('infoVConnectorsCount', infoVConnectorsCount);
-
-      let hostsCounterName = 'inventory?env+type!counter?env=' +
-        env.name + '&type=' + 'host';
-      let infoHostsCount = Counts.get(hostsCounterName);
-      instance.state.set('infoHostsCount', infoHostsCount);
-
-      let vServicesCounterName = 'inventory?env+type!counter?env=' +
-        env.name + '&type=' + 'vservice';
-      let infoVServicesCount =  Counts.get(vServicesCounterName);
-      instance.state.set('infoVServicesCount', infoVServicesCount);
-
-      let instancesCounterName = 'inventory?env+type!counter?env=' +
-        env.name + '&type=' + 'instance';
-      let infoInstancesCount = Counts.get(instancesCounterName);
-      instance.state.set('infoInstancesCount', infoInstancesCount);
-
-      let projectsCounterName = 'inventory?env+type!counter?env=' +
-        env.name + '&type=' + 'project';
-      let projectsCount = Counts.get(projectsCounterName);
-      instance.state.set('projectsCount', projectsCount);
-
-      let regionsCounterName = 'inventory?env+type!counter?env=' +
-        env.name + '&type=' + 'region';
-      let regionsCount = Counts.get(regionsCounterName);
-      instance.state.set('regionsCount', regionsCount);
+      setDataSources(instance, env);
     });
 
   });
@@ -230,7 +176,46 @@ Template.EnvironmentDashboard.helpers({
     return listInfoBoxes;
   },
   
-  getBriefInfoList: function () {
+  getBriefInfoList: function (env_type) {
+    let briefInfoList =  [{
+        header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
+        dataSource: 'infoHostsCount',
+        icon: new Icon({ type: 'fa', name: 'server' }),
+    }, {
+        header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
+        dataSource: 'infoVConnectorsCount',
+        icon: new Icon({ type: 'fa', name: 'compress' }),
+    }, {
+        header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
+        dataSource: 'infoLastScanning',
+        icon: new Icon({ type: 'fa', name: 'search' }),
+    }];
+
+    if (R.isEmpty(env_type)
+        || R.isNil(env_type)
+        || env_type === 'OpenStack') {
+        briefInfoList.unshift({
+          header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
+          dataSource: 'infoInstancesCount',
+          icon: new Icon({ type: 'fa', name: 'desktop' }),
+        }, {
+          header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
+          dataSource: 'infoVServicesCount',
+          icon: new Icon({ type: 'fa', name: 'object-group' }),
+        });
+    }
+    else if (env_type === 'Kubernetes') {
+        briefInfoList.unshift({
+          header: ['components', 'environment', 'briefInfos', 'containersNum', 'header'],
+          dataSource: 'infoContainersCount',
+          icon: new Icon({ type: 'local', name: 'container.png' }),
+        }, {
+          header: ['components', 'environment', 'briefInfos', 'podsNum', 'header'],
+          dataSource: 'infoPodsCount',
+          icon: new Icon({ type: 'fa', name: 'empire', }),
+        });
+    }
+
     return briefInfoList;
   },
 
@@ -382,8 +367,54 @@ function getList(listName, envName) {
     });   
 
   default:
-    throw 'unknowned list type';
+    throw 'unknown list type';
   }
+}
+
+function subscribe(instance, env) {
+  let subscriptions = ['host', 'vconnector', 'project', 'region'];
+  if (R.isEmpty(env.environment_type)
+      || R.isNil(env.environment_type)
+      || env.environment_type === 'OpenStack') {
+    subscriptions.push('instance', 'vservice');
+  }
+  else if (env.environment_type === 'Kubernetes') {
+    subscriptions.push('container', 'pod');
+  }
+
+  for (let i = 0; i < subscriptions.length; i++) {
+      instance.subscribe('inventory?env+type', env.name, subscriptions[i]);
+  }
+}
+
+function setDataSources(instance, env) {
+    let dataSources = [
+        {object: 'vconnector', variableName: 'infoVConnectorsCount'},
+        {object: 'host', variableName: 'infoHostsCount'},
+        {object: 'project', variableName: 'projectsCount'},
+        {object: 'region', variableName: 'regionsCount'},
+    ];
+    if (R.isEmpty(env.environment_type)
+        || R.isNil(env.environment_type)
+        || env.environment_type === 'OpenStack') {
+      dataSources.push(
+        {object: 'instance', variableName: 'infoInstancesCount'},
+        {object: 'vservice', variableName: 'infoVServicesCount'}
+      );
+    }
+    else if (env.environment_type === 'Kubernetes') {
+      dataSources.push(
+        {object: 'container', variableName: 'infoContainersCount'},
+        {object: 'pod', variableName: 'infoPodsCount'}
+      );
+    }
+
+    for (let i = 0; i < dataSources.length; i++) {
+      let counterName =  'inventory?env+type!counter?env=' + env.name +
+                         '&type=' + dataSources[i].object;
+      let objectsCount = Counts.get(counterName);
+      instance.state.set(dataSources[i].variableName, objectsCount);
+    }
 }
 
 /*

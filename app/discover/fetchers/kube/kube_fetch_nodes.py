@@ -9,11 +9,11 @@
 ###############################################################################
 from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec
 
-from discover.fetchers.cli.cli_access import CliAccess
+from discover.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from discover.fetchers.kube.kube_access import KubeAccess
 
 
-class KubeFetchNodes(KubeAccess, CliAccess):
+class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -23,6 +23,12 @@ class KubeFetchNodes(KubeAccess, CliAccess):
         ret = []
         for node in nodes.items:
             ret.append(self.get_node_details(node))
+
+        self.update_resource_version(
+            method='list_node',
+            resource_version=nodes.metadata.resource_version
+        )
+
         return ret
 
     def get_node_details(self, node: V1Node):
@@ -37,6 +43,7 @@ class KubeFetchNodes(KubeAccess, CliAccess):
         except AttributeError:
             pass
         self.get_host_interfaces(doc)
+        self.fetch_host_os_details(doc)
         return doc
 
     @staticmethod

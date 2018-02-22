@@ -8,13 +8,18 @@
     flex-flow: row nowrap;
 
     .sm-icon-part
-      flex: 1
+      flex: 1;
+
+      .icon-image
+        max-height: 42px; // TODO: hotfix
+        max-width: 42px; // TODO: hotfix
 
     .sm-info-part
       flex: 2    
 
       display: flex;
-      flex-flow: column nowrap
+      flex-flow: column nowrap;
+      padding-left: 10px;  // TODO: hotfix
       
       .sm-data-info
         font-size: 12px;

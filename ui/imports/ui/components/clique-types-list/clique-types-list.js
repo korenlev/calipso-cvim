@@ -79,9 +79,10 @@ Template.CliqueTypesList.helpers({
     return R.concat(specificTypes, anyTypes);
   },
 
-  isAuthManageCliqueTypes: function () {
-    return Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.GLOBAL_GROUP); 
-  },
+  isManageable: function(cliqueType) {
+      return Roles.userIsInRole(Meteor.userId(), 'manage-clique-types', Roles.GLOBAL_GROUP)
+             && R.prop('environment', cliqueType) !== 'ANY';
+  }
 });
 
 

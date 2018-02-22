@@ -42,10 +42,14 @@
             data-sort-field="related_object_type"
               >Related Object Type<span><i class="{{ fieldSortClass 'related_object_type' }}"></i></span></a></th>
 					<th><a class="sm-table-header">Related Object</a></th>
+                    <th><a class="sm-table-header"
+            data-is-sortable="true"
+            data-sort-field="origin_type"
+              >Origin type<span><i class="{{ fieldSortClass 'origin_type' }}"></i></span></a></th>
 					<th><a class="sm-table-header" 
             data-is-sortable="true" 
-            data-sort-field="scan_id"
-              >Scan ID<span><i class="{{ fieldSortClass 'scan_id' }}"></i></span></a></th>
+            data-sort-field="origin_id"
+              >Origin ID<span><i class="{{ fieldSortClass 'origin_id' }}"></i></span></a></th>
 					<th><a class="sm-table-header">Actions</a></th>
 				</tr> </thead>
 			<tbody> 
@@ -68,12 +72,8 @@
               {{> InventoryPropertiesDisplay (argsInvPropDisplay message.environment message.related_object) }}
             {{/if }}
           </td>
-					<td>
-            <a class="cl-link sm-scan-id-link"
-               data-scan-id="{{ toIsoFormatStr message.scan_id }}"
-               >{{ message.scan_id }}
-            </a>
-          </td>
+                    <td>{{ message.origin_type }}</td>
+                    <td>{{ message.origin_id }}</td>
 					<td>
 						<div class="sm-action-bar">
 							<a href="{{pathFor route='message' 

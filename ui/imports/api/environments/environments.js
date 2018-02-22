@@ -81,8 +81,8 @@ let simpleSchema = new SimpleSchema({
         let confGroups = that.value;
 
         let {
-          isMonitoringSupportedRes, 
-          isListeningSupportedRes,
+          isMonitoringSupportedRes,
+          amqpConfigRequired,
           enable_monitoring, 
           listen 
         } = extractCalcEnvSupportedRelatedValues(that);
@@ -97,12 +97,12 @@ let simpleSchema = new SimpleSchema({
           confGroups = R.reject(R.propEq('name', 'Monitoring'), confGroups);
         }
 
-        if (listen && isListeningSupportedRes) {
+        if (listen && amqpConfigRequired) {
           if (! R.find(R.propEq('name', 'AMQP'), confGroups)) {
             confGroups = R.append(createNewConfGroup('AMQP'), confGroups);
           }
         } else {
-          console.log('env - configurations - autovalue - listening not supported');
+          console.log('env - configurations - autovalue - AMQP not requested');
           confGroups = R.reject(R.propEq('name', 'AMQP'), confGroups);
         }
 
@@ -123,7 +123,7 @@ let simpleSchema = new SimpleSchema({
             }
           }
           else {
-              console.log('env - configurations - autovalue -', environmentType, ', ', group, ' not requested');
+              console.log('env - configurations - autovalue -', group, ' not requested');
               confGroups = R.reject(R.propEq('name', group), confGroups);
           }
         }
@@ -160,8 +160,8 @@ let simpleSchema = new SimpleSchema({
       let subErrors = [];
 
       let { 
-        isMonitoringSupportedRes, 
-        isListeningSupportedRes,
+        isMonitoringSupportedRes,
+        amqpConfigRequired,
         enable_monitoring, 
         listen 
       } = extractCalcEnvSupportedRelatedValues(that);
@@ -173,7 +173,7 @@ let simpleSchema = new SimpleSchema({
       if (enable_monitoring && isMonitoringSupportedRes) {
         requiredConfGroupsTemp = R.append('Monitoring', requiredConfGroupsTemp);
       }
-      if (listen && isListeningSupportedRes) {
+      if (listen && amqpConfigRequired) {
         requiredConfGroupsTemp = R.append('AMQP', requiredConfGroupsTemp);
       }
 
@@ -229,6 +229,7 @@ let simpleSchema = new SimpleSchema({
   },
   distribution_version: {
     type: String,
+    defaultValue: '',
     custom: function () {
       let that = this;
       let constsDist = Constants.findOne({ name: 'distribution_versions' });
@@ -248,10 +249,21 @@ let simpleSchema = new SimpleSchema({
     type: String,
     defaultValue: 'MyEnvironmentName',
     min: 6,
+    custom: function () {
+      let that = this;
+
+      let existing = Environments.findOne({
+          'name': that.value
+      });
+
+      if (!R.isNil(existing) && existing._id !== that.field('_id').value) {
+        return "alreadyExists";
+      }
+    }
   },
   type_drivers: {
     type: String,
-    defaultValue: 'gre',
+    defaultValue: '',
     custom: function () {
       let that = this;
       let TypeDriversRec = Constants.findOne({ name: 'type_drivers' });
@@ -267,7 +279,7 @@ let simpleSchema = new SimpleSchema({
 
   mechanism_drivers: {
     type: [String],
-    defaultValue: ['OVS'],
+    defaultValue: [],
     minCount: 1,
     custom: function () {
       let that = this;
@@ -495,14 +507,17 @@ function extractCalcEnvSupportedRelatedValues(schemaHelper) {
   let mechDrivers = extractValue('mechanism_drivers', schemaHelper, dbNode);
   let enable_monitoring = extractValue('enable_monitoring', schemaHelper, dbNode);
   let listen = extractValue('listen', schemaHelper, dbNode);
+  let environmentType = extractValue('environment_type', schemaHelper, dbNode);
 
   let isMonitoringSupportedRes = isMonitoringSupported(dist, dist_version, typeDrivers, mechDrivers);
   let isListeningSupportedRes = isListeningSupported(dist, dist_version, typeDrivers, mechDrivers);
+  let amqpConfigRequired = isListeningSupportedRes && environmentType === 'OpenStack';
 
   return {
     enable_monitoring,
     listen,
     isMonitoringSupportedRes,
     isListeningSupportedRes,
+    amqpConfigRequired,
   };
 }
