@@ -43,6 +43,7 @@ class KubeFetchPods(KubeAccess):
                                    master_parent_id=self.host['id'])
             doc['host'] = self.host['name']
         self.add_pod_to_proxy_service(doc)
+        self.add_pod_ref_to_namespace(doc)
         doc['type'] = 'pod'
         return doc
 
@@ -151,3 +152,17 @@ class KubeFetchPods(KubeAccess):
         if pod_vservice not in pod['vservices']:
             pod['vservices'].append(pod_vservice)
 
+    def add_pod_ref_to_namespace(self, pod):
+        namespace = self.inv.find_one({
+            'environment': self.env,
+            'name': pod['namespace']
+        })
+        if not namespace:
+            self.log.error('unable to find namespace {} for pod {}'
+                           .format(pod['namespace'], pod['name']))
+            return
+        if 'pods' not in namespace:
+            namespace['pods'] = []
+        namespace['pods'].append(dict(id=pod['id'], name=pod['name'],
+                                      host=pod['host']))
+        self.inv.set(namespace)

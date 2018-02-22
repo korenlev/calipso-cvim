@@ -31,6 +31,8 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
 
         return ret
 
+    PUBLIC_IP_ATTR = 'flannel.alpha.coreos.com/public-ip'
+
     def get_node_details(self, node: V1Node):
         doc = {'type': 'host'}
         try:
@@ -42,6 +44,7 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
             self.get_node_data(doc, node.spec)
         except AttributeError:
             pass
+        doc['ip_address'] = doc['annotations'][self.PUBLIC_IP_ATTR]
         self.get_host_interfaces(doc)
         self.fetch_host_os_details(doc)
         return doc
