@@ -11,17 +11,30 @@ const defaultState = {
 };
 
 export function reducer(state = defaultState, action) {
-  let attrsStr;
+  let attrsStr = "";
   switch (action.type) {
   case actions.ACTIVATE_GRAPH_TOOLTIP_WINDOW:
-    attrsStr = JSON.stringify(action.payload.attributes, null, 4)
-      .toString()
-      .replace(/\,/g,'<BR>')
-      .replace(/\[/g,'')
-      .replace(/\]/g,'')
-      .replace(/\{/g,'')
-      .replace(/\}/g,'')
-      .replace(/"/g,'');
+    action.payload.attributes.forEach(function(attr) {
+        let text = JSON.stringify(attr, null, 2)
+                        // .toString()
+                        // .replace(/\,/g,'<BR>')
+                        .replace(/\{/g,'')
+                        .replace(/\}/g,'')
+                        .replace(/"/g,'')
+                        .replace(/\[dot\]/g, '.');
+
+        let cls = 'attr-' + Object.keys(attr)[0];
+        attrsStr += `<p class=${cls}>` + text + '</p>';
+    });
+    // TODO
+    // attrsStr = JSON.stringify(action.payload.attributes, null, 4)
+    //   .toString()
+    //   .replace(/\,/g,'<BR>')
+    //   .replace(/\[/g,'')
+    //   .replace(/\]/g,'')
+    //   .replace(/\{/g,'')
+    //   .replace(/\}/g,'')
+    //   .replace(/"/g,'');
 
     return R.merge(state, {
       label: action.payload.label,
