@@ -10,6 +10,7 @@
 from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec, V1PodStatus
 
 from discover.fetchers.kube.kube_access import KubeAccess
+from utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchPods(KubeAccess):
@@ -121,7 +122,8 @@ class KubeFetchPods(KubeAccess):
         if status_data:
             doc['pod_status'] = status_data
 
-    def add_pod_to_proxy_service(self, pod):
+    @staticmethod
+    def get_pod_proxy_service(inv_mgr: dict, pod: dict) -> dict:
         labels = pod.get('labels', {})
         app_field = 'k8s-app'
         app_name = labels.get(app_field, '')
@@ -129,13 +131,18 @@ class KubeFetchPods(KubeAccess):
             app_name = labels.get('app')
             app_field = 'app'
         if not app_name:
-            return
+            return {}
         cond = {
-            'environment': self.get_env(),
+            'environment': pod['environment'],
             'type': 'vservice',
             'selector.{}'.format(app_field): app_name
         }
-        service = self.inv.find_one(cond)
+        service = inv_mgr.find_one(cond)
+        if not service:
+            return {}
+
+    def add_pod_to_proxy_service(self, pod):
+        service = self.get_pod_proxy_service(self.inv, pod)
         if not service:
             return
 
@@ -152,11 +159,18 @@ class KubeFetchPods(KubeAccess):
         if pod_vservice not in pod['vservices']:
             pod['vservices'].append(pod_vservice)
 
-    def add_pod_ref_to_namespace(self, pod):
-        namespace = self.inv.find_one({
-            'environment': self.env,
+    @staticmethod
+    def get_pod_namespace(inv_mgr: InventoryMgr, pod: dict) -> dict:
+        namespace = inv_mgr.find_one({
+            'environment': pod['environment'],
             'name': pod['namespace']
         })
+        if not namespace:
+            return {}
+        return namespace
+
+    def add_pod_ref_to_namespace(self, pod):
+        namespace = self.get_pod_namespace(self.inv, pod)
         if not namespace:
             self.log.error('unable to find namespace {} for pod {}'
                            .format(pod['namespace'], pod['name']))
