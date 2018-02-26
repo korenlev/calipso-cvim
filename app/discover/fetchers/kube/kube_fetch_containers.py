@@ -144,7 +144,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         try:
             output = self.run(cmd, pod_obj['host'])
             doc['vnic_index'] = output.strip()
-            self.add_container_to_vnic(doc, pod_obj['host'])
+            self.add_container_to_vnic(doc, pod_obj)
         except SshError:
             doc['vnic_index'] = ''
 
@@ -165,17 +165,46 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             return
         doc['network'] = network_id
 
-    def add_container_to_vnic(self, doc, host_id):
+    def add_container_to_vnic(self, container, pod):
         vnic = self.inv.find_one({
             'environment': self.get_env(),
             'type': 'vnic',
-            'host': host_id,
-            'index': doc['vnic_index']
+            'host': pod['host'],
+            'index': container['vnic_index']
         })
         if not vnic:
             return
-        vnic['containers'].append(doc['container_id'])
+
+        # re-calc new ID and name path for vNIC and vNICs folder
+        self.set_vnic_path(vnic, pod, container)
+        self.set_folder_parent(vnic, object_type='vnic',
+                               master_parent_id=container['id'],
+                               master_parent_type='container')
+        vnic['containers'].append(container['container_id'])
         self.inv.set(vnic)
+
+    def set_vnic_path(self, vnic, pod, container):
+        # first set the folder to the container as parent
+        folder = self.inv.get_by_id(self.env, vnic['parent_id'])
+        if not folder:
+            return
+        folder['parent_id'] = container['id']
+        folder['parent_type'] = 'container'
+        folder['id_path'] = '/'.join([
+            pod['id_path'],
+            '{}-containers'.format(pod['id']),
+            container['id'],
+            '{}-vnics'.format(container['id'])
+        ])
+        folder['name_path'] = '/'.join([
+            pod['name_path'],
+            'Containers',
+            container['id'],
+            'vNICs'
+        ])
+        self.inv.set(folder)
+        vnic['id_path'] = '/'.join([folder['id_path'], vnic['id']])
+        vnic['name_path'] = '/'.join([folder['name_path'], vnic['name']])
 
     def get_proxy_container_info(self, container, pod):
         if container['name'] != self.PROXY_ATTR:
@@ -245,3 +274,4 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
                               host=container['host'])
             vservice_obj[self.PROXY_ATTR].append(proxy_data)
             self.inv.set(vservice_obj)
+
