@@ -43,9 +43,10 @@ class KubeFetchPods(KubeAccess):
                                    master_parent_type='host',
                                    master_parent_id=self.host['id'])
             doc['host'] = self.host['name']
+        doc['type'] = 'pod'
+        doc['environment'] = self.env
         self.add_pod_to_proxy_service(doc)
         self.add_pod_ref_to_namespace(doc)
-        doc['type'] = 'pod'
         return doc
 
     @classmethod
