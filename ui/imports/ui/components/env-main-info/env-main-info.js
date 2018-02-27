@@ -71,16 +71,27 @@ Template.EnvMainInfo.helpers({
 
   createSelectArgs: createSelectArgs,
 
+  getResetFields: function (field) {
+    switch (field) {
+      case "environment_type": {
+        return ["distribution", "distribution_version", "mechanism_drivers", "type_drivers"];
+      }
+      default: {
+        return [];
+      }
+    }
+  },
+
   environmentTypeOptions: function () {
     return Constants.getByName('environment_types');
   },
 
-  distributionOptions: function () {
-    return Constants.getByName('distributions');
+  distributionOptions: function (env_type) {
+      return EnvironmentOptions.getDistributionsByEnvType(env_type);
   },
 
   distributionVersionOptions: function (distribution) {
-    return EnvironmentOptions.getByDistribution(distribution, 'distribution_versions');
+    return EnvironmentOptions.getOptions(distribution, 'distribution_versions');
   },
 
   /* depracated 
@@ -92,11 +103,11 @@ Template.EnvMainInfo.helpers({
   */
  
   typeDriversOptions: function (distribution) {
-    return EnvironmentOptions.getByDistribution(distribution, 'type_drivers');
+    return EnvironmentOptions.getOptions(distribution, 'type_drivers');
   },
  
   mechanismDriversOptions: function (distribution) {
-      return EnvironmentOptions.getByDistribution(distribution, 'mechanism_drivers');
+      return EnvironmentOptions.getOptions(distribution, 'mechanism_drivers');
   },
  
   isFieldDisabled: function (fieldName, globalDisabled) {

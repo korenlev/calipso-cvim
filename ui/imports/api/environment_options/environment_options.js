@@ -9,12 +9,14 @@
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
+import { Constants } from '../constants/constants'
 
 export const EnvironmentOptions =
     new Mongo.Collection('environment_options', { idGeneration: 'MONGO' });
 
 let schema = {
     _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
+    environment_type: { type: String },
     distributions: { type: [String] },
     distribution_versions: { type: [String] },
     mechanism_drivers: { type: [String] },
@@ -24,8 +26,27 @@ let schema = {
 EnvironmentOptions.schema = schema;
 EnvironmentOptions.attachSchema(schema);
 
-EnvironmentOptions.getByDistribution = function(distribution, field) {
-    return R.ifElse(R.isNil, R.always([]), R.prop(field)) (
-        EnvironmentOptions.findOne({ distributions: distribution })
+EnvironmentOptions.getDistributionsByEnvType = function (env_type) {
+    return R.flatten(
+        R.reduce((acc, option) => {
+                return R.append(
+                    R.ifElse(R.isNil, R.always([]), R.prop('distributions'))(option),
+                    acc
+                )
+            },
+            [],
+            EnvironmentOptions.find({environment_type: env_type}).fetch()
+        )
     ).map(elem => ({'label': elem, 'value': elem}));
+};
+
+EnvironmentOptions.getOptions = function(distribution, field) {
+    if (distribution) {
+        return R.ifElse(R.isNil, R.always([]), R.prop(field)) (
+            EnvironmentOptions.findOne({ distributions: distribution })
+        ).map(elem => ({'label': elem, 'value': elem}));
+    }
+    else {
+        return Constants.getByName(field);
+    }
 };

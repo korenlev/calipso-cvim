@@ -102,6 +102,24 @@ Template.CliqueType.events({
       inputs.prop("disabled", true);
     }
   },
+  'change #environment-type-input': function(event, instance) {
+    // Update the model with new selected environment type
+    let envType = instance.$('.sm-input-environment-type')[0].value;
+    let newModel = instance.state.get('model');
+    newModel = R.dissoc('distribution',
+               R.dissoc('type_drivers',
+               R.dissoc('mechanism_drivers',
+               R.dissoc('distribution_version',
+               R.assoc('environment_type', envType, newModel)))));
+    instance.state.set('model', newModel);
+
+    instance.$('.env-options-input')
+          .find("option:selected")
+          .prop("selected", false);
+    instance.$('#distribution-input')
+          .find("option:selected")
+          .prop("selected", false);
+  },
   'change #distribution-input': function (event, instance) {
     // Update the model with new selected distribution
     let distribution = instance.$('.sm-input-distribution')[0].value;
@@ -193,20 +211,20 @@ Template.CliqueType.helpers({
     return Constants.getByName('environment_types');
   },
 
-  distributionsList: function () {
-    return Constants.getByName('distributions');
+  distributionsList: function (env_type) {
+    return EnvironmentOptions.getDistributionsByEnvType(env_type);
   },
 
   distributionVersionsList: function (distribution) {
-    return EnvironmentOptions.getByDistribution(distribution, 'distribution_versions');
+    return EnvironmentOptions.getOptions(distribution, 'distribution_versions');
   },
 
   mechanismDriversList: function (distribution) {
-    return EnvironmentOptions.getByDistribution(distribution, 'mechanism_drivers');
+    return EnvironmentOptions.getOptions(distribution, 'mechanism_drivers');
   },
 
   typeDriversList: function (distribution) {
-    return EnvironmentOptions.getByDistribution(distribution, 'type_drivers');
+    return EnvironmentOptions.getOptions(distribution, 'type_drivers');
   },
 
   linkTypesList: function () {
@@ -230,7 +248,8 @@ Template.CliqueType.helpers({
       return {'disabled': true};
     }
     let model = Template.instance().state.get('model');
-    let conf_empty = (R.all(isEmpty)([model.distribution, model.distribution_version,
+    let conf_empty = (R.all(isEmpty)([model.environment_type, model.distribution,
+                                      model.distribution_version,
                                       model.mechanism_drivers, model.type_drivers]));
     return {'disabled': !conf_empty};
   },
@@ -351,6 +370,7 @@ function initRemoveView(instance, query) {
 function subscribeToOptionsData(instance) {
   instance.subscribe('constants');
   instance.subscribe('environment_options');
+  instance.subscribe('environment_options?environment_type*');
   instance.subscribe('environment_options?distributions*');
   instance.subscribe('environments_config');
   instance.subscribe('link_types');
