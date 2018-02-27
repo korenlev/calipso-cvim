@@ -61,7 +61,8 @@
 
         <div class="sm-field-group-environment-type cl-field-group">
           <label class="cl-field-label">Environment Type</label>
-          <select name="environmentType" class="sm-input-environment-type cl-input conf-input"
+          <select id="environment-type-input"
+                  name="environmentType" class="sm-input-environment-type cl-input conf-input"
             {{ getConfDisabled (getModelField 'environment') }} >
             <option selected></option>
             {{#each etType in environmentTypesList }}
@@ -79,7 +80,7 @@
                   name="distribution" class="sm-input-distribution cl-input conf-input"
               {{ getConfDisabled (getModelField 'environment') }} >
               <option selected></option>
-              {{#each dType in distributionsList }}
+              {{#each dType in distributionsList (getModelField 'environment_type') }}
                   <option value="{{ dType.value }}"
                       {{ getAttrSelected dType.value (getModelField 'distribution') }}
                   >{{ dType.label }}</option>

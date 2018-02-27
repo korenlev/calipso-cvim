@@ -61,6 +61,7 @@
             key="environment_type"
             disabled=(isFieldDisabled 'environment_type' disabled)
             options=environmentTypeOptions
+            reset_fields=(getResetFields 'environment_type')
             showNullOption=false)
             }}
         </div>
@@ -80,8 +81,8 @@
                 values=model.distribution 
                 key="distribution"
                 disabled=(isFieldDisabled 'distribution' disabled)
-                options=distributionOptions
-                showNullOption=false)
+                options=(distributionOptions model.environment_type)
+                showNullOption=true)
           }}
         </div>
         <div class="col-sm-4">
