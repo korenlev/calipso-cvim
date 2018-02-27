@@ -10,6 +10,8 @@ import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import * as R from 'ramda';
 import { Constants } from '/imports/api/constants/constants';
+import { Environments } from '/imports/api/environments/environments';
+import {callApiValidators} from "../../lib/utilities";
 
 export const CliqueConstraints = new Mongo.Collection(
   'clique_constraints', { idGeneration: 'MONGO' });
@@ -29,6 +31,22 @@ let schema = {
     }
   },
 
+  environment: {
+    type: String,
+    defaultValue: "",
+    optional: true,
+    custom: function () {
+      let that = this;
+      if (that.value !== that.definition.defaultValue) {
+          let env = Environments.findOne({name: that.value});
+
+          if (R.isNil(env)) {
+              return 'notAllowed';
+          }
+      }
+    },
+  },
+
   constraints: {
     type: [String],
     minCount: 1,
@@ -39,10 +57,30 @@ let schema = {
       let findResult = R.intersection(that.value, R.pluck('value', objectTypes));
       if (findResult.length !== that.value.length) { return 'notAllowed'; }
 
-      return;
+      // Document validators workaround
+      return callApiValidators(that, [duplicateValidator]);
     },
   },
 };
 
 CliqueConstraints.schema = new SimpleSchema(schema);
 CliqueConstraints.attachSchema(CliqueConstraints.schema);
+
+function duplicateValidator(that) {
+    // Validate focal point uniqueness
+    console.log("Validator: duplicate constraint");
+    let env = (that.field('environment').value) ? that.field('environment').value : null;
+
+    let existing = CliqueConstraints.findOne({
+        environment: env,
+        focal_point_type: that.field('focal_point_type').value
+    });
+
+    if (R.allPass([
+            R.pipe(R.isNil, R.not),
+            R.pipe(R.propEq('_id', that.docId), R.not)
+        ])(existing)) {
+        console.warn("Duplicate constraint");
+        return 'alreadyExists';
+    }
+}

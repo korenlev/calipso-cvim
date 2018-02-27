@@ -19,6 +19,7 @@
     <thead>
       <tr>
         <th>Focal Point Type</th>
+        <th>Environment</th>
         <th>Constraints</th>
         <th>Actions</th>
       </tr> </thead>
@@ -26,6 +27,7 @@
       {{#each cliqueConstraint in cliqueConstraints }}
       <tr>
         <td>{{ cliqueConstraint.focal_point_type }}</td>
+        <td>{{ cliqueConstraint.environment }}</td>
         <td>{{ cliqueConstraint.constraints }}</td>
         <td>
           <div class="sm-action-bar">

@@ -12,6 +12,7 @@ import * as R from 'ramda';
 import { Constants } from '/imports/api/constants/constants';
 import { Environments } from '/imports/api/environments/environments';
 import { LinkTypes } from '/imports/api/link-types/link-types';
+import {callApiValidators} from "../../lib/utilities";
 
 export const CliqueTypes = new Mongo.Collection(
   'clique_types', { idGeneration: 'MONGO' });
@@ -34,7 +35,9 @@ let schema = {
       }
 
       // Document validators workaround
-      return callValidators(that);
+      let validators = [requiredFieldsValidator, focalPointValidator,
+                        nameValidator, duplicateConfigurationValidator];
+      return callApiValidators(that, validators);
     }
   },
 
@@ -125,23 +128,6 @@ let schema = {
 };
 
 let simpleSchema = new SimpleSchema(schema);
-
-// Document validators workaround
-function callValidators(context) {
-  if (R.isNil(context.docId)) {
-    context.docId = context.field('_id').value;
-  }
-
-  let validators = [requiredFieldsValidator, focalPointValidator,
-                    nameValidator, duplicateConfigurationValidator];
-
-  for (let i=0; i<validators.length; i++) {
-    let error = validators[i](context);
-    if (!R.isNil(error)) {
-      return error;
-    }
-  }
-}
 
 function focalPointValidator(that) {
   // Validate focal point uniqueness
