@@ -516,7 +516,7 @@
         "fetcher": {
           "folder": true,
           "types_name": "vservices",
-          "parent_type": "environment"
+          "parent_type": "namespace"
         },
         "children_scanner": "ScanServicesRoot",
         "environment_condition": {"environment_type": "Kubernetes"}
