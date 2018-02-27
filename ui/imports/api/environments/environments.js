@@ -385,6 +385,10 @@ SimpleSchema.messages({
 Environments.schema = simpleSchema;
 Environments.attachSchema(Environments.schema);
 
+Environments.findAllNames = function () {
+  return Environments.find({}).map((elem) => {return elem.name;});
+};
+
 export function getSchemaForGroupName(groupName) {
   switch (groupName) {
   case 'mysql':

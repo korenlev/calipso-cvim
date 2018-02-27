@@ -16,12 +16,13 @@ import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { CliqueConstraints } from '/imports/api/clique-constraints/clique-constraints';
-//import { Environments } from '/imports/api/environments/environments';
+import { Environments } from '/imports/api/environments/environments';
 import { Constants } from '/imports/api/constants/constants';
 import { insert, remove, update } from '/imports/api/clique-constraints/methods';
 import { parseReqId } from '/imports/lib/utilities';
         
-import './clique-constraint.html';     
+import './clique-constraint.html';
+import {toOptions} from "../../../lib/utilities";
     
 /*  
  * Lifecycles
@@ -91,15 +92,15 @@ Template.CliqueConstraint.events({
     event.preventDefault(); 
 
     let _id = instance.state.get('id');
-    //let env = instance.$('.sm-input-env')[0].value;
     let focalPointType = instance.$('.sm-input-focal-point-type')[0].value;
+    let env = instance.$('.sm-input-environment')[0].value;
     let constraints = R.map(R.prop('value'), 
       instance.$('.sm-input-constraints')[0].selectedOptions);
 
     submitItem(instance,
       _id,
-      //env, 
-      focalPointType, 
+      focalPointType,
+      env,
       constraints
     );
   }
@@ -126,11 +127,9 @@ Template.CliqueConstraint.helpers({
     return Constants.getByName('object_types_for_links');
   },
 
-  /*
-  envsList: function () {
-    return Environments.find({});
+  environmentsList: function () {
+    return toOptions(Environments.findAllNames());
   },
-  */
 
   getAttrDisabled: function () {
     let instance = Template.instance();
@@ -227,15 +226,16 @@ function initRemoveView(instance, query) {
 }
 
 function subscribeToOptionsData(instance) {
-//  instance.subscribe('environments_config');
   instance.subscribe('link_types');
   instance.subscribe('constants');
+  instance.subscribe('environments_config');
 }
 
 function submitItem(
   instance, 
   id, 
-  focal_point_type, 
+  focal_point_type,
+  env,
   constraints 
  ) {
 
@@ -250,6 +250,7 @@ function submitItem(
   case 'insert':
     insert.call({
       focal_point_type: focal_point_type,
+      environment: env,
       constraints: constraints,
     }, processActionResult.bind(null, instance));
     break;
@@ -258,6 +259,7 @@ function submitItem(
     update.call({
       _id: id.id,
       focal_point_type: focal_point_type,
+      environment: env,
       constraints: constraints,
     }, processActionResult.bind(null, instance));
     break;

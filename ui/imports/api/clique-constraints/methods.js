@@ -16,14 +16,15 @@ export const insert = new ValidatedMethod({
   name: 'clique_constraints.insert',
   validate: CliqueConstraints.simpleSchema()
     .pick([
-//      'environment',
       'focal_point_type',
+      'environment',
       'constraints',
       'constraints.$',
     ]).validator({ clean: true, filter: false }),
   run({
  //   environment,
     focal_point_type,
+    environment,
     constraints,
   }) {
     if (! Roles.userIsInRole(Meteor.userId(), 'manage-clique-constraints', Roles.GLOBAL_GROUP)) {
@@ -35,6 +36,7 @@ export const insert = new ValidatedMethod({
     cliqueConstraint = R.merge(cliqueConstraint, {
   //    environment,
       focal_point_type,
+      environment,
       constraints,
     });
 
@@ -68,12 +70,14 @@ export const update = new ValidatedMethod({
     .pick([
       '_id',
       'focal_point_type',
+      'environment',
       'constraints',
       'constraints.$',
     ]).validator({ clean: true, filter: false }),
   run({
     _id,
     focal_point_type,
+    environment,
     constraints,
   }) {
 
@@ -88,9 +92,11 @@ export const update = new ValidatedMethod({
     item = R.merge(
       R.pick([
         'focal_point_type',
+        'environment',
         'constraints',
       ], item), {
         focal_point_type,
+        environment,
         constraints,
       });
 

@@ -52,3 +52,19 @@ function calcColor(level) {
 }
 
 export let calcColorMem = R.memoize(calcColor);
+
+export function toOptions(options) {
+    return options.map(elem => ({'label': elem, 'value': elem}));
+}
+
+export function callApiValidators(context, validators) {
+    if (R.isNil(context.docId)) {
+        context.docId = context.field('_id').value;
+    }
+    for (let i=0; i<validators.length; i++) {
+        let error = validators[i](context);
+        if (!R.isNil(error)) {
+            return error;
+        }
+    }
+}

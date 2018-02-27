@@ -58,6 +58,20 @@
           <div class="cl-field-desc">Focal Point Type</div>
         </div>
 
+      <div class="sm-field-group-environment cl-field-group">
+        <label class="cl-field-label">Environment</label>
+        <select name="environment" class="sm-input-environment cl-input"
+          {{ getAttrDisabled }} >
+          <option value="" selected></option>
+          {{#each environment in environmentsList }}
+              <option value="{{ environment.value }}"
+                  {{ getAttrSelected environment.value (getModelField 'environment') }}
+              >{{ environment.label }}</option>
+          {{/each }}
+        </select>
+        <div class="cl-field-desc">Environment</div>
+      </div>
+
         <div class="sm-field-group-constraints cl-field-group">
           <label class="cl-field-label">Constraints</label>
           <select name="constraints" 
