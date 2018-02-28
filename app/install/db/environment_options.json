@@ -1,5 +1,6 @@
 [
-{  
+{
+    "environment_type" : "OpenStack",
     "distributions" : [
         "RDO", 
         "Devstack", 
@@ -29,6 +30,7 @@
     ]
 },
 {
+    "environment_type" : "OpenStack",
     "distributions" : [
         "Mirantis"
     ], 
@@ -54,7 +56,8 @@
         "flat"
     ]
 },
-{ 
+{
+    "environment_type" : "OpenStack",
     "distributions" : [
         "Stratoscale"
     ], 
@@ -71,6 +74,7 @@
     ]
 },
 {
+    "environment_type" : "OpenStack",
     "distributions" : [
         "Packstack"
     ], 
@@ -90,6 +94,7 @@
     ]
 },
 {
+    "environment_type" : "OpenStack",
     "distributions" : [
         "Apex"
     ], 
@@ -108,6 +113,7 @@
     ]
 },
 {
+    "environment_type" : "OpenStack",
     "distributions" : [
         "Mercury"
     ], 
@@ -129,6 +135,7 @@
     ]
 },
 {
+    "environment_type" : "Kubernetes",
     "distributions" : [
         "Kubernetes"
     ], 
