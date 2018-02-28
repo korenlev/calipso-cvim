@@ -11,6 +11,7 @@
 # This is a connection-test used for testing environment config targets #
 # can be used for functional testing as well as for environment testing sent from the UI or API #
 
+import requests
 import argparse
 import datetime
 from kombu import Connection
@@ -96,7 +97,31 @@ def test_monitoring(config, test_request):
 
 
 def test_aci(config, test_request):
-    pass
+    try:
+        url = "https://" + config["host"] + "/api/aaaLogin.json"
+        payload = {
+            "aaaUser": {
+                "attributes": {
+                    "name": config["user"],
+                    "pwd": config["pwd"]
+                }
+            }
+        }
+        response = requests.post(url, timeout=3, json=payload, verify=False)
+        response_json = response.json()
+        for items in response_json:
+            if 'imdata' in items:
+                imdata_response = response_json['imdata'][0]
+                if 'aaaLogin' in imdata_response:
+                    print(imdata_response['aaaLogin'])
+                    pass
+                elif 'error' in imdata_response:
+                    raise NameError(imdata_response['error'])
+                    print(imdata_response['error'])
+        ConnectionTest.report_success(test_request,
+                                      ConnectionTestType.ACI.value)
+    except ValueError:
+        pass
 
 
 def test_kubernetes(config, test_request):
