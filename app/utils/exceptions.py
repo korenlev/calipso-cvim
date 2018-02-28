@@ -17,11 +17,11 @@ class ResourceGoneError(ValueError):
     pass
 
 
-class HostAddressError(Exception):
-    def __init__(self):
-        super().__init__("Wrong host and/or port")
+class HostAddressError(ValueError):
+    def __init__(self, message=None):
+        super().__init__(message if message else "Wrong host and/or port")
 
 
-class CredentialsError(Exception):
-    def __init__(self):
-        super().__init__("Wrong credentials")
+class CredentialsError(ValueError):
+    def __init__(self, message=None):
+        super().__init__(message if message else "Wrong credentials")

@@ -13,6 +13,7 @@ import requests
 import time
 
 from utils.api_access_base import ApiAccessBase
+from utils.exceptions import CredentialsError
 from utils.string_utils import jsonify
 
 
@@ -44,7 +45,8 @@ class ApiAccess(ApiAccessBase):
 
         token = self.v2_auth_pwd(ApiAccess.admin_project)
         if not token:
-            raise ValueError("Authentication failed. Failed to obtain token")
+            raise CredentialsError("Authentication failed. "
+                                   "Failed to obtain token")
         else:
             self.subject_token = token
             self.initialized = True
@@ -60,6 +62,17 @@ class ApiAccess(ApiAccessBase):
             except ValueError:
                 return None
         return time_struct
+
+    @classmethod
+    def reset(cls):
+        cls.subject_token = None
+        cls.initialized = False
+        cls.regions = {}
+
+        cls.tokens = {}
+        cls.admin_endpoint = ""
+        cls.admin_project = None
+        cls.auth_response = {}
 
     # try to use existing token, if it did not expire
     def get_existing_token(self, project_id):

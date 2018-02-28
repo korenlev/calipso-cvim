@@ -34,13 +34,12 @@ from utils.ssh_connection import *
 
 def test_openstack(config, test_request):
     try:
-        api = ApiAccess(config)
+        ApiAccess.reset()
+        ApiAccess(config)
         ConnectionTest.report_success(test_request,
                                       ConnectionTestType.OPENSTACK.value)
-        if api:
-            pass
-    except ValueError:
-        pass
+    except requests.ConnectTimeout:
+        raise HostAddressError()
 
 
 def test_mysql(config, test_request):
