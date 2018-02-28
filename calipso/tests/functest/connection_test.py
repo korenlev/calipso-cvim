@@ -20,6 +20,7 @@ import pymongo
 from functools import partial
 
 
+from discover.fetchers.aci.aci_access import AciAccess
 from discover.fetchers.api.api_access import ApiAccess
 from discover.fetchers.db.db_access import DbAccess
 from discover.fetchers.kube.kube_access import KubeAccess
@@ -97,31 +98,9 @@ def test_monitoring(config, test_request):
 
 
 def test_aci(config, test_request):
-    try:
-        url = "https://" + config["host"] + "/api/aaaLogin.json"
-        payload = {
-            "aaaUser": {
-                "attributes": {
-                    "name": config["user"],
-                    "pwd": config["pwd"]
-                }
-            }
-        }
-        response = requests.post(url, timeout=3, json=payload, verify=False)
-        response_json = response.json()
-        for items in response_json:
-            if 'imdata' in items:
-                imdata_response = response_json['imdata'][0]
-                if 'aaaLogin' in imdata_response:
-                    print(imdata_response['aaaLogin'])
-                    pass
-                elif 'error' in imdata_response:
-                    raise NameError(imdata_response['error'])
-                    print(imdata_response['error'])
-        ConnectionTest.report_success(test_request,
-                                      ConnectionTestType.ACI.value)
-    except ValueError:
-        pass
+    aci_access = AciAccess(config)
+    aci_access.login()
+    ConnectionTest.report_success(test_request, ConnectionTestType.ACI.value)
 
 
 def test_kubernetes(config, test_request):

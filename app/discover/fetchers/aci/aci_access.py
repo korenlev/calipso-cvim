@@ -10,8 +10,7 @@
 
 import requests
 
-from discover.fetcher import Fetcher
-from utils.configuration import Configuration
+from utils.api_access_base import ApiAccessBase
 
 
 def aci_config_required(default=None):
@@ -24,21 +23,24 @@ def aci_config_required(default=None):
     return decorator
 
 
-class AciAccess(Fetcher):
+class AciAccess(ApiAccessBase):
 
     RESPONSE_FORMAT = "json"
     cookie_token = None
 
-    def __init__(self):
-        super().__init__()
-        self.configuration = Configuration()
-        self.aci_enabled = self.configuration.get_env_config() \
-            .get('aci_enabled', False)
-        self.aci_configuration = None
-        self.host = None
-        if self.aci_enabled:
-            self.aci_configuration = self.configuration.get("ACI")
-            self.host = self.aci_configuration["host"]
+    def __init__(self, config=None):
+        super().__init__("ACI", config=config)
+        self.connection_timeout = 10  # TODO: move to config?
+
+        self.aci_enabled = (
+            True
+            if config
+            else self.config.get_env_config().get('aci_enabled', False)
+        )
+
+        self.aci_configuration = (
+            self.config.get("ACI") if self.aci_enabled else None
+        )
 
     def get_base_url(self):
         return "https://{}/api".format(self.host)
@@ -130,7 +132,8 @@ class AciAccess(Fetcher):
             }
         }
 
-        response = requests.post(url, json=payload, verify=False)
+        response = requests.post(url, json=payload, verify=False,
+                                 timeout=self.connection_timeout)
         response.raise_for_status()
 
         AciAccess._set_token(response)

@@ -27,7 +27,7 @@ class ApiAccessBase(Fetcher):
             raise ValueError('ApiAccessBase: section "{}" missing in config'
                              .format(api_name))
         self.host = self.api_config.get('host', '')
-        self.port = self.api_config.get('port', '')
+        self.port = self.api_config.get('port', '80')
         if not (self.host and self.port):
             raise ValueError('Missing definition of host or port ' +
                              'for {} API access'
