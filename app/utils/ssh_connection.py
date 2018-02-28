@@ -12,10 +12,11 @@ import os
 import paramiko
 
 from utils.binary_converter import BinaryConverter
-from discover.scan_error import ScanError
+
 
 class SshError(Exception):
     pass
+
 
 class SshConnection(BinaryConverter):
     connections = {}
