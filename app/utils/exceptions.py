@@ -15,3 +15,13 @@ class ScanArgumentsError(ValueError):
 
 class ResourceGoneError(ValueError):
     pass
+
+
+class HostAddressError(Exception):
+    def __init__(self):
+        super().__init__("Wrong host and/or port")
+
+
+class CredentialsError(Exception):
+    def __init__(self):
+        super().__init__("Wrong credentials")

@@ -26,6 +26,7 @@ from discover.fetchers.db.db_access import DbAccess
 from discover.fetchers.kube.kube_access import KubeAccess
 from discover.manager import Manager
 from utils.constants import ConnectionTestStatus, ConnectionTestType
+from utils.exceptions import HostAddressError, CredentialsError
 from utils.logging.file_logger import FileLogger
 from utils.mongo_access import MongoAccess
 from utils.ssh_connection import *
@@ -99,7 +100,15 @@ def test_monitoring(config, test_request):
 
 def test_aci(config, test_request):
     aci_access = AciAccess(config)
-    aci_access.login()
+    try:
+        aci_access.login()
+    except requests.ConnectTimeout:
+        raise HostAddressError()
+    except requests.HTTPError as e:
+        if e.response.status_code == 401:
+            raise CredentialsError()
+        else:
+            raise e
     ConnectionTest.report_success(test_request, ConnectionTestType.ACI.value)
 
 
