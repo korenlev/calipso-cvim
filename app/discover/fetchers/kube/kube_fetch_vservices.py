@@ -21,10 +21,21 @@ class KubeFetchVservices(KubeAccess):
         self.inv = InventoryMgr()
 
     def get(self, object_id) -> list:
-        services = self.api.list_service_for_all_namespaces()
+        parent = self.inv.get_by_id(self.env, object_id)
+        if not parent:
+            self.log.error('unable to find parent of vService by id: {}'
+                           .format(object_id))
+            return []
+        namespace_id = parent['parent_id']
+        namespace = self.inv.get_by_id(self.env, namespace_id)
+        if not namespace:
+            self.log.error('unable to find namespace of vServices folder '
+                           'by id: {}'.format(namespace_id))
+            return []
+        services = self.api.list_namespaced_service(namespace['name'])
 
         self.update_resource_version(
-            method='list_service_for_all_namespaces',
+            method='list_namespaced_service',
             resource_version=services.metadata.resource_version
         )
 
