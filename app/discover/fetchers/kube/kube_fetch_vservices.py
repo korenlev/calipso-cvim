@@ -41,19 +41,18 @@ class KubeFetchVservices(KubeAccess):
 
         return [self.get_service_details(s) for s in services.items]
 
-    @classmethod
-    def get_service_details(cls, service: V1Service):
+    def get_service_details(self, service: V1Service):
         doc = {}
         try:
-            cls.get_service_metadata(doc, service.metadata)
+            self.get_service_metadata(doc, service.metadata)
         except AttributeError:
             pass
         try:
-            cls.get_service_data(doc, service.spec)
+            self.get_service_data(doc, service.spec)
         except AttributeError:
             pass
         try:
-            cls.get_service_status(doc, service.status)
+            self.get_service_status(doc, service.status)
         except AttributeError:
             pass
         doc['id'] = doc['uid']
@@ -61,6 +60,7 @@ class KubeFetchVservices(KubeAccess):
         doc['local_service_id'] = doc['name']
         doc['service_type'] = 'proxy'
         KubeAccess.del_attribute_map(doc)
+        doc['pods'] = self.get_service_pods(doc)
         return doc
 
     METADATA_ATTRIBUTES_TO_FETCH = [
@@ -103,3 +103,33 @@ class KubeFetchVservices(KubeAccess):
         if not load_balancer.get('ingress'):
             return
         doc['status'] = {KubeFetchVservices.LOAD_BALANCER_ATTR: load_balancer}
+
+    @classmethod
+    def get_app_field(cls, service: dict) -> str:
+        selector = service.get('selector', {})
+        app_fields = ['k8s-app', 'app']
+        for field in app_fields:
+            app_name = selector.get(field, '')
+            if app_name:
+                return field
+        return ''
+
+    def get_service_pods(self, service: dict) -> list:
+        app_field = self.get_app_field(service)
+        if not app_field:
+            return []
+        app_name = service.get('selector', {}).get(app_field, '')
+        cond = {
+            'environment': self.env,
+            'type': 'pod',
+            'labels.{}'.format(app_field): app_name
+        }
+        pods = []
+        for pod in self.inv.find_items(cond):
+            pods.append(dict(name=pod['name'], id=pod['id']))
+            if 'vservices' not in pod:
+                pod['vservices'] = []
+            pod['vservices'].append(dict(id=service['id'],
+                                         name=service['name']))
+            self.inv.set(pod)
+        return pods

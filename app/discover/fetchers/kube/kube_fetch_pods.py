@@ -45,7 +45,6 @@ class KubeFetchPods(KubeAccess):
             doc['host'] = self.host['name']
         doc['type'] = 'pod'
         doc['environment'] = self.env
-        self.add_pod_to_proxy_service(doc)
         self.add_pod_ref_to_namespace(doc)
         return doc
 
@@ -141,24 +140,6 @@ class KubeFetchPods(KubeAccess):
         service = inv_mgr.find_one(cond)
         if not service:
             return {}
-
-    def add_pod_to_proxy_service(self, pod):
-        service = self.get_pod_proxy_service(self.inv, pod)
-        if not service:
-            return
-
-        if 'pods' not in service:
-            service['pods'] = []
-        service_pod = {'name': pod['name'], 'id': pod['id']}
-        if service_pod not in service['pods']:
-            service['pods'].append(service_pod)
-            self.inv.set(service)
-
-        if 'vservices' not in pod:
-            pod['vservices'] = []
-        pod_vservice = {'id': service['id'], 'name': service['object_name']}
-        if pod_vservice not in pod['vservices']:
-            pod['vservices'].append(pod_vservice)
 
     @staticmethod
     def get_pod_namespace(inv_mgr: InventoryMgr, pod: dict) -> dict:
