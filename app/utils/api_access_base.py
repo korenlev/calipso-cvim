@@ -17,21 +17,28 @@ class ApiAccessBase(Fetcher):
 
     CONNECT_TIMEOUT = 5
 
-    def __init__(self, api_name=None, config=None):
+    def __init__(self, api_name=None, config=None, enabled=True):
         super().__init__()
-        if api_name is None:
-            raise ValueError('ApiAccessBase: api_name must be defined')
-        self.config = {api_name: config} if config else Configuration()
-        self.api_config = self.config.get(api_name)
-        if self.api_config is None:
-            raise ValueError('ApiAccessBase: section "{}" missing in config'
-                             .format(api_name))
-        self.host = self.api_config.get('host', '')
-        self.port = self.api_config.get('port', '80')
-        if not (self.host and self.port):
-            raise ValueError('Missing definition of host or port ' +
-                             'for {} API access'
-                             .format(api_name))
+
+        if enabled:
+            if api_name is None:
+                raise ValueError('ApiAccessBase: api_name must be defined')
+            self.config = {api_name: config} if config else Configuration()
+            self.api_config = self.config.get(api_name)
+            if self.api_config is None:
+                raise ValueError('ApiAccessBase: section "{}" missing in config'
+                                 .format(api_name))
+            self.host = self.api_config.get('host', '')
+            self.port = self.api_config.get('port', '80')
+            if not (self.host and self.port):
+                raise ValueError('Missing definition of host or port ' +
+                                 'for {} API access'
+                                 .format(api_name))
+        else:
+            self.config = None
+            self.api_config = None
+            self.host = None
+            self.port = None
 
     def get_rel_url(self, relative_url, headers):
         req_url = self.base_url + relative_url

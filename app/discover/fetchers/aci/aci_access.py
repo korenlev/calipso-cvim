@@ -11,6 +11,7 @@
 import requests
 
 from utils.api_access_base import ApiAccessBase
+from utils.configuration import Configuration
 
 
 def aci_config_required(default=None):
@@ -29,14 +30,13 @@ class AciAccess(ApiAccessBase):
     cookie_token = None
 
     def __init__(self, config=None):
-        super().__init__("ACI", config=config)
-        self.connection_timeout = 10  # TODO: move to config?
-
         self.aci_enabled = (
             True
             if config
-            else self.config.get_env_config().get('aci_enabled', False)
+            else Configuration().get_env_config().get('aci_enabled', False)
         )
+
+        super().__init__("ACI", config=config, enabled=self.aci_enabled)
 
         self.aci_configuration = (
             self.config.get("ACI") if self.aci_enabled else None
@@ -133,7 +133,7 @@ class AciAccess(ApiAccessBase):
         }
 
         response = requests.post(url, json=payload, verify=False,
-                                 timeout=self.connection_timeout)
+                                 timeout=self.CONNECT_TIMEOUT)
         response.raise_for_status()
 
         AciAccess._set_token(response)
