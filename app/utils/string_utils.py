@@ -57,3 +57,8 @@ def stringify_object_values_by_type(obj, object_type):
 def stringify_object_values_by_types(obj, object_types):
     for object_type in object_types:
         stringify_object_values_by_type(obj, object_type)
+
+
+# Form plural for folder names (only relevant cases)
+def get_plural(name):
+    return ('{}es' if name.lower() == 'switch' else '{}s').format(name)

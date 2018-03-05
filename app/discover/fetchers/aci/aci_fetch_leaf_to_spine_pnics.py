@@ -111,10 +111,12 @@ class AciFetchLeafToSpinePnics(AciAccess):
                     "aci_document": spine
                 }
                 # Region name is the same as region id
-                region_id = get_object_path_part(leaf_pnic["name_path"],
-                                                 "Regions")
-                region = self.inv.get_by_id(environment, region_id)
-                self.inv.save_inventory_object(o=spine_json, parent=region,
+                self.set_folder_parent(spine_json, object_type='switch',
+                                       master_parent_type='environment',
+                                       master_parent_id=self.env)
+                self.inv.save_inventory_object(o=spine_json,
+                                               parent={'environment': self.env,
+                                                       'id': self.env},
                                                environment=environment)
 
             # Add downlink and uplink pnics to results list,

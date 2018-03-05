@@ -104,10 +104,13 @@ class AciFetchSwitchPnic(AciAccess):
                 "switch": db_leaf_id,
                 "aci_document": leaf_data
             }
+            self.set_folder_parent(leaf_json, object_type='switch',
+                                   master_parent_type='environment',
+                                   master_parent_id=self.env)
             # Region name is the same as region id
-            region_id = get_object_path_part(pnic["name_path"], "Regions")
-            region = self.inv.get_by_id(environment, region_id)
-            self.inv.save_inventory_object(o=leaf_json, parent=region,
+            self.inv.save_inventory_object(o=leaf_json,
+                                           parent={'environment': self.env,
+                                                   'id': self.env},
                                            environment=environment)
 
         # Prepare pnic json for results list
