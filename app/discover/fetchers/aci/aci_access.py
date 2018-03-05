@@ -9,6 +9,7 @@
 ###############################################################################
 
 import requests
+import time
 
 from utils.api_access_base import ApiAccessBase
 from utils.configuration import Configuration
@@ -28,6 +29,7 @@ class AciAccess(ApiAccessBase):
 
     RESPONSE_FORMAT = "json"
     cookie_token = None
+    MAX_LOGIN_ATTEMPTS = 5
 
     def __init__(self, config=None):
         self.aci_enabled = (
@@ -41,6 +43,10 @@ class AciAccess(ApiAccessBase):
         self.aci_configuration = (
             self.config.get("ACI") if self.aci_enabled else None
         )
+
+    @staticmethod
+    def login_backoff(attempt):
+        return attempt + 1
 
     def get_base_url(self):
         return "https://{}/api".format(self.host)
@@ -134,6 +140,7 @@ class AciAccess(ApiAccessBase):
 
         response = requests.post(url, json=payload, verify=False,
                                  timeout=self.CONNECT_TIMEOUT)
+
         response.raise_for_status()
 
         AciAccess._set_token(response)
@@ -160,9 +167,21 @@ class AciAccess(ApiAccessBase):
 
         AciAccess._set_token(response)
 
+    def get_token(self, attempt=1):
+        try:
+            self.refresh_token()
+        except Exception as e:
+            # ACI sometimes returns HTTP 503 (Service Temporarily Unavailable)
+            # on excessively frequent client requests,
+            # so a reasonable backoff is required.
+            if attempt <= self.MAX_LOGIN_ATTEMPTS:
+                time.sleep(self.login_backoff(attempt))
+                return self.get_token(attempt=attempt+1)
+            raise e
+
     @aci_config_required(default={})
     def send_get(self, url, params, headers, cookies):
-        self.refresh_token()
+        self.get_token()
 
         cookies = self._insert_token_into_request(cookies)
 
