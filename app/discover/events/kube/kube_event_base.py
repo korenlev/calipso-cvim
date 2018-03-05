@@ -65,7 +65,10 @@ class KubeEventBase(EventBase):
         self.set_folder_parent(doc, object_type='vservice',
                                master_parent_type='environment',
                                master_parent_id=self.env)
-        doc.update(KubeFetchVservices.get_service_details(service))
+
+        fetcher = KubeFetchVservices()
+        fetcher.set_env(self.env)
+        doc.update(fetcher.get_service_details(service))
 
         self.inv.save_inventory_object(o=doc,
                                        parent={'environment': self.env,
