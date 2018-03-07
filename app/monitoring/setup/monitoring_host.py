@@ -8,8 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import copy
-import os
-from os.path import join, sep
+from os.path import join
 
 from monitoring.setup.monitoring_handler import MonitoringHandler
 from monitoring.setup.sensu_client_installer import SensuClientInstaller
@@ -38,21 +37,20 @@ class MonitoringHost(MonitoringHandler):
         server_ip = self.env_monitoring_config['server_ip']
         sub_dir = join('/host', host_id)
         config = copy.copy(self.env_monitoring_config)
-        env_name = self.configuration.env_name
-        client_name = env_name + '-' + o['id']
+        client_name = self.get_client_name(o['id'])
         client_ip = o['ip_address'] if 'ip_address' in o else o['id']
         self.replacements.update(config)
         self.replacements.update({
             'server_ip': server_ip,
             'client_name': client_name,
             'client_ip': client_ip,
-            'env_name': env_name
+            'env_name': self.configuration.env_name
         })
 
         # copy configuration files
         for file_name in sensu_host_files:
             content = self.prepare_config_file(file_name, {'side': 'client'})
-            self.get_ssl_files(host_id, file_name, content)
+            self.get_ssl_files(file_name, content)
             self.write_config_file(file_name, sub_dir, host_id, content)
 
         if self.provision < self.provision_levels['deploy']:
@@ -63,7 +61,7 @@ class MonitoringHost(MonitoringHandler):
         # mark this environment as prepared
         self.configuration.update_env({'monitoring_setup_done': True})
 
-    def get_ssl_files(self, host, file_type, content):
+    def get_ssl_files(self, file_type, content):
         if self.fetch_ssl_files:
             return  # already got names of SSL files
         if file_type != RABBITMQ_CONFIG_FILE:
