@@ -100,6 +100,10 @@ class AciFetchLeafToSpinePnics(AciAccess):
                 raise ValueError("Failed to fetch spine switch id "
                                  "from switch dn: {}".format(spine["dn"]))
 
+            # Add parent switch to db.
+            # A dedicated fetcher for the switch is not feasible
+            # because it is discovered through pnic-to-pnic links,
+            # but has to be set in db BEFORE the related pnic.
             aci_spine_id = spine_id_match.group(1)
             db_spine_id = "-".join(("switch", encode_aci_dn(aci_spine_id),
                                     spine["role"]))
@@ -111,10 +115,12 @@ class AciFetchLeafToSpinePnics(AciAccess):
                     "aci_document": spine
                 }
                 # Region name is the same as region id
-                region_id = get_object_path_part(leaf_pnic["name_path"],
-                                                 "Regions")
-                region = self.inv.get_by_id(environment, region_id)
-                self.inv.save_inventory_object(o=spine_json, parent=region,
+                self.set_folder_parent(spine_json, object_type='switch',
+                                       master_parent_type='environment',
+                                       master_parent_id=self.env)
+                self.inv.save_inventory_object(o=spine_json,
+                                               parent={'environment': self.env,
+                                                       'id': self.env},
                                                environment=environment)
 
             # Add downlink and uplink pnics to results list,
