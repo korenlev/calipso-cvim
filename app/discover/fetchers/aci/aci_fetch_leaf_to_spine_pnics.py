@@ -100,6 +100,10 @@ class AciFetchLeafToSpinePnics(AciAccess):
                 raise ValueError("Failed to fetch spine switch id "
                                  "from switch dn: {}".format(spine["dn"]))
 
+            # Add parent switch to db.
+            # A dedicated fetcher for the switch is not feasible
+            # because it is discovered through pnic-to-pnic links,
+            # but has to be set in db BEFORE the related pnic.
             aci_spine_id = spine_id_match.group(1)
             db_spine_id = "-".join(("switch", encode_aci_dn(aci_spine_id),
                                     spine["role"]))

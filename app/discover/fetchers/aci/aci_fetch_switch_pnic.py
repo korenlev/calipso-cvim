@@ -94,6 +94,10 @@ class AciFetchSwitchPnic(AciAccess):
                              .format(leaf_pnic["dn"]))
             return []
 
+        # Add parent switch to db.
+        # A dedicated fetcher for the switch is not feasible
+        # because it is discovered through pnic-to-pnic links,
+        # but has to be set in db BEFORE the related pnic.
         db_leaf_id = "-".join(("switch", encode_aci_dn(aci_leaf_id),
                                leaf_data["role"]))
         if not self.inv.get_by_id(environment, db_leaf_id):
