@@ -19,6 +19,7 @@ from discover.link_finders.find_links_for_instance_vnics import \
     FindLinksForInstanceVnics
 from discover.link_finders.find_links_for_vedges import FindLinksForVedges
 from discover.scanner import Scanner
+from utils.string_utils import plural
 
 
 class EventPortAdd(EventBase):
@@ -135,10 +136,14 @@ class EventPortAdd(EventBase):
         vnics_folder = {
             "environment": env,
             "id": "q{}-{}-vnics".format(object_type, object_id),
-            "id_path": "{}/{}-vservices/{}-vservices-{}s/q{}-{}/q{}-{}-vnics"
-                       .format(host['id_path'], host['id'], host['id'],
-                               object_type, object_type, object_id,
-                               object_type, object_id),
+            "id_path": "{host_id_path}/{host_id}-vservices/"
+                       "{host_id}-vservices-{obj_type_plural}/"
+                       "q{obj_type}-{obj_id}/q{obj_type}-{obj_id}-vnics"
+                       .format(host_id_path=host['id_path'],
+                               host_id=host['id'],
+                               obj_type=object_type,
+                               obj_type_plural=plural(object_type),
+                               obj_id=object_id),
             "last_scanned": datetime.datetime.utcnow(),
             "name": "q{}-{}-vnics".format(object_type, object_id),
             "name_path": "{}/Vservices/{}/{}/vNICs"
@@ -180,10 +185,14 @@ class EventPortAdd(EventBase):
                 if doc['mac_address'] == mac_address:
                     # add a specific vnic document.
                     doc["environment"] = env
-                    doc["id_path"] = "{}/{}-vservices/{}-vservices-{}s/{}/{}-vnics/{}"\
-                                     .format(host['id_path'], host['id'],
-                                             host['id'], object_type, namespace,
-                                             namespace, doc["id"])
+                    doc["id_path"] = "{host_id_path}/{host_id}-vservices/" \
+                                     "{host_id}-vservices-{obj_type_plural}/" \
+                                     "{namespace}/{namespace}-vnics/{doc_id}"\
+                                     .format(host_id_path=host['id_path'],
+                                             host_id=host['id'],
+                                             obj_type_plural=plural(object_type),
+                                             namespace=namespace,
+                                             doc_id=doc["id"])
                     doc["name_path"] = "{}/Vservices/{}/{}/vNICs/{}" \
                                        .format(host['name_path'],
                                                type_map[object_type][0],
@@ -201,10 +210,14 @@ class EventPortAdd(EventBase):
             for doc in vnic_documents:
                 # add all vnic documents.
                 doc["environment"] = env
-                doc["id_path"] = "{}/{}-vservices/{}-vservices-{}s/{}/{}-vnics/{}" \
-                                 .format(host['id_path'], host['id'],
-                                         host['id'], object_type,
-                                         namespace, namespace, doc["id"])
+                doc["id_path"] = "{host_id_path}/{host_id}-vservices/" \
+                                 "{host_id}-vservices-{obj_type_plural}/" \
+                                 "{namespace}/{namespace}-vnics/{doc_id}" \
+                                 .format(host_id_path=host['id_path'],
+                                         host_id=host['id'],
+                                         obj_type_plural=plural(object_type),
+                                         namespace=namespace,
+                                         doc_id=doc["id"])
                 doc["name_path"] = "{}/Vservices/{}/{}/vNICs/{}" \
                                    .format(host['name_path'],
                                            type_map[object_type][0],

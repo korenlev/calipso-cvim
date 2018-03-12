@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import inflect
 import json
 from datetime import datetime
 
@@ -59,6 +60,9 @@ def stringify_object_values_by_types(obj, object_types):
         stringify_object_values_by_type(obj, object_type)
 
 
-# Form plural for folder names (only relevant cases)
-def get_plural(name):
-    return ('{}es' if name.lower() == 'switch' else '{}s').format(name)
+# Inflection shorthand methods
+inflection = inflect.engine()
+
+
+def plural(name):
+    return inflection.plural(name)
