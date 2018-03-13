@@ -44,6 +44,10 @@ class AciAccess(ApiAccessBase):
             self.config.get("ACI") if self.aci_enabled else None
         )
 
+    @classmethod
+    def reset_token(cls):
+        cls.cookie_token = None
+
     @staticmethod
     def login_backoff(attempt):
         return attempt + 1

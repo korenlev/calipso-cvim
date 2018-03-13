@@ -23,8 +23,8 @@ from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
 # and are connected to the "leaf" switch
 class AciFetchLeafToSpinePnics(AciAccess):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config=None):
+        super().__init__(config=config)
         self.inv = InventoryMgr()
 
     def fetch_switches_by_role(self, role_name):
@@ -114,7 +114,6 @@ class AciFetchLeafToSpinePnics(AciAccess):
                     "switch": db_spine_id,
                     "aci_document": spine
                 }
-                # Region name is the same as region id
                 self.set_folder_parent(spine_json, object_type='switch',
                                        master_parent_type='environment',
                                        master_parent_id=self.env)
