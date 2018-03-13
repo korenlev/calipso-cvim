@@ -10,6 +10,7 @@
 from utils.configuration import Configuration
 from utils.origins import Origin
 from utils.logging.full_logger import FullLogger
+from utils.string_utils import plural
 
 
 class Fetcher:
@@ -57,7 +58,7 @@ class Fetcher:
         if object_type:
             o['type'] = object_type
             if not parent_objects_name:
-                parent_objects_name = '{}s'.format(object_type)
+                parent_objects_name = plural(object_type)
         if not master_parent_type:
             self.log.error('set_folder_parent: must specify: '
                            'master_parent_type, master_parent_id, '
