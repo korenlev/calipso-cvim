@@ -89,6 +89,11 @@ class MonitoringCheckHandler(SpecialCharConverter):
             self.inv.write_link(doc)
         elif 'type' in doc:
             self.inv.set(doc)
+            # for some reason, in some cases the set() does not take effect
+            # unless we fetch the same record again from the DB
+            doc_in_db = self.doc_by_db_id(doc.get('_id', ''))
+            if not doc_in_db:
+                self.log.error('set_doc_status: could not find doc in DB')
 
     @staticmethod
     def check_ts(check_result):
