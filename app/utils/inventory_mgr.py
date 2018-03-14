@@ -43,8 +43,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                               if use_default_name \
                               else self.get_coll_name(collection_type)
 
-            self.log.info("Using {} collection: {}"
-                          .format(collection_type, collection_name))
+            self.log.debug("Using {} collection: {}"
+                           .format(collection_type, collection_name))
 
             self.collections[collection_type] = MongoAccess.db[collection_name]
 
@@ -53,8 +53,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             if not collection_name:
                 collection_name = "inventory"
 
-            self.log.info("Using inventory collection: {}"
-                          .format(collection_name))
+            self.log.debug("Using inventory collection: {}"
+                           .format(collection_name))
 
             collection = MongoAccess.db[collection_name]
             self.collections["inventory"] = collection

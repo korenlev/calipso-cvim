@@ -26,7 +26,8 @@ class Configuration(metaclass=Singleton):
         self.log = FullLogger()
 
     def use_env(self, env_name):
-        self.log.info("Configuration taken from environment: {}".format(env_name))
+        self.log.debug("Configuration taken from environment: {}"
+                       .format(env_name))
         self.env_name = env_name
 
         envs = self.collection.find({"name": env_name})
