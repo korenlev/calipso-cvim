@@ -23,6 +23,8 @@ class HandleVconnector(MonitoringCheckHandler):
         object_id += '-' + mac_address
         doc = self.doc_by_id(object_id)
         if not doc:
+            self.log.error('unable to find vconnector for object_id={}'
+                           .format(object_id))
             return 1
         self.keep_result(doc, check_result)
         return check_result['status']

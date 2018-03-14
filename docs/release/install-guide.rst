@@ -109,6 +109,8 @@ Calipso.io Installation Guide 1
     **sudo pip3 install cryptography**
 
     **sudo pip3 install docker**
+	
+	**sudo pip3 install inflect (>0.2.5)**
 
 4. Git : https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 

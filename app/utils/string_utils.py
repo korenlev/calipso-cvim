@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import inflect
 import json
 from datetime import datetime
 
@@ -57,3 +58,11 @@ def stringify_object_values_by_type(obj, object_type):
 def stringify_object_values_by_types(obj, object_types):
     for object_type in object_types:
         stringify_object_values_by_type(obj, object_type)
+
+
+# Inflection shorthand methods
+inflection = inflect.engine()
+
+
+def plural(name):
+    return inflection.plural(name)

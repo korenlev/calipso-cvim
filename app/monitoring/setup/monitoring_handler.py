@@ -9,16 +9,17 @@
 ###############################################################################
 # handle specific setup of monitoring
 
-import json
-import subprocess
-from socket import *
-
 import copy
-import os
-import pymongo
+import json
+import os.path
 import shutil
 import stat
+import subprocess
 import tempfile
+from socket import *
+
+import pymongo
+import requests
 from boltons.iterutils import remap
 
 from utils.binary_converter import BinaryConverter
@@ -36,6 +37,10 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     PRODUCTION_CONFIG_DIR = '/etc/sensu/conf.d'
     APP_SCRIPTS_FOLDER = 'monitoring/checks'
     REMOTE_SCRIPTS_FOLDER = '/etc/sensu/plugins'
+
+    DEFAULT_API_PORT = 4567
+
+    CLIENT_SERVICE = 'sensu-client'
 
     provision_levels = {
         'none': 0,
@@ -84,7 +89,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
     def get_config_dir(self, sub_dir=''):
         config_folder = self.env_monitoring_config['config_folder'] + \
             (os.sep + sub_dir if sub_dir else '')
-        return self.make_directory(config_folder).rstrip(os.sep)
+        return self.make_directory(config_folder).rstrip(os.path.sep)
 
     def prepare_config_file(self, file_type, base_condition):
         condition = base_condition
@@ -283,6 +288,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                                           scripts_to_hosts):
         if self.provision < self.provision_levels['deploy']:
             self.log.info('Monitoring config not deployed to remote host')
+            return
         for file_type, changes in host_changes.items():
             host = changes['host']
             is_container = changes['is_container']
@@ -318,6 +324,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                     self.make_directory(self.PRODUCTION_CONFIG_DIR)
                     shutil.copy(changes['local_path'], file_path)
             else:
+                self.clear_sensu_client_history(host_id=host)
                 # write to remote host prepare dir - use sftp
                 if self.provision < self.provision_levels['deploy']:
                     continue
@@ -372,7 +379,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         except SshError:
             self.had_errors = True
 
-    def deploy_scripts_to_host(self, host_details):
+    def deploy_scripts_to_host(self, host_details: dict):
         try:
             host = host_details['host']
             is_server = host_details['is_server']
@@ -385,12 +392,13 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         except SshError:
             self.had_errors = True
 
-    def restart_service(self, host: str = None,
-                        service: str = 'sensu-client',
-                        is_server: bool = False,
-                        msg: str =None):
+    def do_service_command(self, host: str = None,
+                           service: str = CLIENT_SERVICE,
+                           command: str = 'restart',
+                           is_server: bool = False,
+                           msg: str = None):
         ssh = self.get_ssh(host)
-        cmd = 'sudo service {} restart'.format(service)
+        cmd = 'sudo service {} {}'.format(service, command)
         log_msg = msg if msg else 'deploying config to host {}'.format(host)
         self.log.info(log_msg)
         try:
@@ -399,8 +407,17 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
             else:
                 self.run(cmd, ssh_to_host=host, ssh=ssh)
         except SshError as e:
-            if 'Error: Redirecting to /bin/systemctl restart' not in str(e):
+            msg_to_search = 'Error: Redirecting to /bin/systemctl {}' \
+                .format(command)
+            if msg_to_search not in str(e):
                 self.had_errors = True
+
+    def restart_service(self, host: str = None,
+                        service: str = 'sensu-client',
+                        is_server: bool = False,
+                        msg: str = None):
+        self.do_service_command(host=host, service=service, command='restart',
+                                is_server=is_server, msg=msg)
 
     def deploy_config_to_target(self, host_details):
         try:
@@ -513,3 +530,49 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
         ftp_ssh = self.get_ssh(host, for_sftp=True)
         ftp_ssh.copy_file_from_remote(remote_path, local_path)
 
+    def get_client_name(self, host_id):
+        client_name = '{}-{}'.format(self.configuration.env_name, host_id)
+        return client_name
+
+    def get_client_details(self, host_id):
+        client_name = self.get_client_name(host_id)
+        api_port = self.env_monitoring_config.get('api_port',
+                                                  self.DEFAULT_API_PORT)
+        url = 'http://{}:{}/clients/{}' \
+            .format(self.local_host, str(int(api_port)), client_name)
+        response = requests.get(url=url)
+        return response
+
+    hosts_cleared = []
+
+    def clear_sensu_client_history(self, host_id):
+        if host_id in self.hosts_cleared:
+            return
+        self.hosts_cleared.append(host_id)
+        client_details = self.get_client_details(host_id)
+        if client_details.status_code == requests.codes.ok:
+            self.log.info('clearing checks history for client host {}'
+                          .format(host_id))
+            # stop client on remote hosts before de-register of client, so
+            # old check events from client will not cause it
+            # to auto-register immediately
+            self.stop_client(host_id=host_id)
+            # de-register the client so check history is reset
+            self.deregister_sensu_client(host_id=host_id)
+
+    def stop_client(self, host_id=None):
+        self.do_service_command(host=host_id, service=self.CLIENT_SERVICE,
+                                command='stop')
+
+    def deregister_sensu_client(self, host_id=None):
+        client_name = self.get_client_name(host_id)
+        api_port = self.env_monitoring_config.get('api_port',
+                                                  self.DEFAULT_API_PORT)
+        url = 'http://{}:{}/clients/{}'\
+            .format(self.local_host, str(int(api_port)), client_name)
+        response = requests.delete(url)
+        if response.status_code != requests.codes.ACCEPTED:
+            self.log.error('delete of existing Sensu client {}'
+                           'got the following response: code={}, text: {}'
+                           .format(client_name, response.status_code,
+                                   response.reason))

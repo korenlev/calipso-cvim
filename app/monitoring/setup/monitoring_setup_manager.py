@@ -14,11 +14,11 @@ from monitoring.setup.monitoring_host import MonitoringHost
 from monitoring.setup.monitoring_instance import MonitoringInstance
 from monitoring.setup.monitoring_link_vnic_vconnector \
     import MonitoringLinkVnicVconnector
-from monitoring.setup.monitoring_pnic import MonitoringPnic
 from monitoring.setup.monitoring_otep import MonitoringOtep
+from monitoring.setup.monitoring_pnic import MonitoringPnic
+from monitoring.setup.monitoring_vconnector import MonitoringVconnector
 from monitoring.setup.monitoring_vedge import MonitoringVedge
 from monitoring.setup.monitoring_vnic import MonitoringVnic
-from monitoring.setup.monitoring_vconnector import MonitoringVconnector
 from monitoring.setup.monitoring_vservice import MonitoringVservice
 
 
@@ -60,6 +60,8 @@ class MonitoringSetupManager(MonitoringHandler):
             content = self.prepare_config_file(file_name, {'side': 'server'})
             self.write_config_file(file_name, sub_dir, server_host, content,
                                    is_container=is_container, is_server=True)
+        # copy server setup to server
+        self.handle_pending_setup_changes()
         # restart sensu server and Uchiwa services
         # so it takes the new setup
         self.restart_service(host=server_host, service='sensu-server',

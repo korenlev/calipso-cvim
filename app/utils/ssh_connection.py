@@ -10,9 +10,10 @@
 import os
 
 import paramiko
+import paramiko.buffered_pipe
 
 from utils.binary_converter import BinaryConverter
-from discover.scan_error import ScanError
+
 
 class SshError(Exception):
     pass
@@ -134,6 +135,11 @@ class SshConnection(BinaryConverter):
                 self.log.error('Failed SSH connect to host {}, port={}'
                                .format(self.host, port))
                 self.ssh_client = None
+            except Exception as e:
+                msg = 'Error connecting to host {}, port={}: {}' \
+                    .format(self.host, port, str(e))
+                self.log.error(msg)
+                raise SshError(msg)
         self.call_count = 0
         return self.ssh_client is not None
 
@@ -143,10 +149,20 @@ class SshConnection(BinaryConverter):
         self.call_count += 1
         self.log.debug("call count: %s, running call:\n%s\n",
                        str(self.call_count), cmd)
-        stdin, stdout, stderr = \
-            self.ssh_client.exec_command(cmd, timeout=self.timeout)
+        try:
+            stdin, stdout, stderr = \
+                self.ssh_client.exec_command(cmd, timeout=self.timeout)
+        except (AttributeError, paramiko.buffered_pipe.PipeTimeout) as e:
+            msg = 'Error when executing command: {}, error: {}' \
+                .format(cmd, str(e))
+            self.log.error(msg)
+            raise SshError(msg)
         stdin.close()
-        err = self.binary2str(stderr.read())
+        try:
+            err = self.binary2str(stderr.read())
+        except paramiko.buffered_pipe.PipeTimeout as timeout_error:
+            raise SshError('Error when reading stderr: {}'
+                           .format(str(timeout_error)))
         if err:
             # ignore messages about loading plugin
             err_lines = [l for l in err.splitlines()
@@ -158,7 +174,11 @@ class SshConnection(BinaryConverter):
                 stderr.close()
                 stdout.close()
                 raise SshError(msg)
-        ret = self.binary2str(stdout.read())
+        try:
+            ret = self.binary2str(stdout.read())
+        except paramiko.buffered_pipe.PipeTimeout as timeout_error:
+            raise SshError('Error when reading stdout: {}'
+                           .format(str(timeout_error)))
         stderr.close()
         stdout.close()
         return ret
