@@ -22,8 +22,8 @@ from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
 # and is connected to Calipso host pnic.
 class AciFetchSwitchPnic(AciAccess):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config=None):
+        super().__init__(config=config)
         self.inv = InventoryMgr()
 
     def fetch_pnics_by_mac_address(self, mac_address):
@@ -111,7 +111,6 @@ class AciFetchSwitchPnic(AciAccess):
             self.set_folder_parent(leaf_json, object_type='switch',
                                    master_parent_type='environment',
                                    master_parent_id=self.env)
-            # Region name is the same as region id
             self.inv.save_inventory_object(o=leaf_json,
                                            parent={'environment': self.env,
                                                    'id': self.env},
