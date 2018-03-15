@@ -11,10 +11,16 @@
 # This is a connection-test used for testing environment config targets
 # it can be used for functional testing,
 # as well as for environment testing sent from the UI or API
+import socket
 
+import amqp
+import kubernetes
+import paramiko
 import requests
 import argparse
 import datetime
+
+import urllib3
 from kombu import Connection
 import time
 import pymongo
@@ -27,10 +33,10 @@ from discover.fetchers.db.db_access import DbAccess
 from discover.fetchers.kube.kube_access import KubeAccess
 from discover.manager import Manager
 from utils.constants import ConnectionTestStatus, ConnectionTestType
-from utils.exceptions import HostAddressError, CredentialsError
+from utils.exceptions import HostAddressError, CredentialsError, SshKeyError
 from utils.logging.file_logger import FileLogger
 from utils.mongo_access import MongoAccess
-from utils.ssh_connection import *
+from utils.ssh_connection import SshConnection
 
 
 def test_openstack(config, test_request):
@@ -44,7 +50,7 @@ def test_openstack(config, test_request):
 
 
 def test_mysql(config, test_request):
-    db_access = DbAccess(config)
+    db_access = DbAccess(config, force_connect=True)
     ConnectionTest.report_success(test_request, ConnectionTestType.MYSQL.value)
     if db_access:
         pass
@@ -57,7 +63,16 @@ def test_ssh_connect(config) -> bool:
                         _key=config.get('key'),
                         _port=int(config.get('port',
                                              SshConnection.DEFAULT_PORT)))
-    ret = ssh.connect()
+    try:
+        ret = ssh.connect()
+    except socket.timeout:
+        raise HostAddressError()
+    except paramiko.ssh_exception.SSHException:
+        raise SshKeyError()
+    # TODO: SshConnection class should raise an exception
+    if not ret:
+        raise CredentialsError()
+
     return ret
 
 
@@ -74,8 +89,14 @@ def test_amqp_connect(config):
                 pwd=config.get('pwd', ''),
                 host=config.get('host', ''),
                 port=int(config.get('port', 5671)))
+
     conn = Connection(connect_url)
-    conn.connect()
+    try:
+        conn.connect()
+    except socket.timeout:
+        raise HostAddressError()
+    except amqp.exceptions.AccessRefused:
+        raise CredentialsError()
 
 
 def test_amqp(config, test_request):
@@ -105,7 +126,7 @@ def test_aci(config, test_request):
     except requests.ConnectTimeout:
         raise HostAddressError()
     except requests.HTTPError as e:
-        if e.response.status_code == 401:
+        if e.response.status_code == requests.codes.UNAUTHORIZED:
             raise CredentialsError()
         else:
             raise e
@@ -114,7 +135,15 @@ def test_aci(config, test_request):
 
 def test_kubernetes(config, test_request):
     kube_access = KubeAccess(config)
-    kube_access.api.list_namespace(watch=False)
+    try:
+        kube_access.api.list_namespace(watch=False, _request_timeout=3)
+    except urllib3.exceptions.MaxRetryError:
+        raise HostAddressError()
+    except kubernetes.client.rest.ApiException as e:
+        if e.status == requests.codes.UNAUTHORIZED:
+            raise CredentialsError()
+        else:
+            raise e
     ConnectionTest.report_success(test_request,
                                   ConnectionTestType.KUBERNETES.value)
 

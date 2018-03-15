@@ -25,3 +25,8 @@ class HostAddressError(ValueError):
 class CredentialsError(ValueError):
     def __init__(self, message=None):
         super().__init__(message if message else "Wrong credentials")
+
+
+class SshKeyError(ValueError):
+    def __init__(self, message=None):
+        super().__init__(message if message else "Wrong SSH key")

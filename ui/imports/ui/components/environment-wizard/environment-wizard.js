@@ -102,9 +102,10 @@ Template.EnvironmentWizard.onCreated(function(){
 
       R.mapObjIndexed((success, groupName) => {
         if (success) {
-          toastr.success(`${groupName} connection is OK`, { timeOut: 5000 });
+          toastr.success(`${groupName} connection succeeded`, { timeOut: 5000 });
         } else {
-          toastr.error(`${groupName} connection is DOWN`, { timeOut: 5000 });
+          toastr.error(`${groupName} connection failed: ${connTest.errors[groupName]}`,
+                       { timeOut: 5000 });
         }
       }, connTest.test_results);
     });
