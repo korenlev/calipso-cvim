@@ -19,7 +19,7 @@ class MonitoringInstance(MonitoringSimpleObject):
     # and network for vNIC is set, so the first call will not do anything
     def create_setup(self, instance: dict):
         vnics = self.inv.find_items({
-            'environment': self.get_env(),
+            'environment': self.env,
             'type': 'vnic',
             'vnic_type': 'instance_vnic',
             'id_path': {'$regex': '^{}/'.format(instance['id_path'])}
@@ -56,7 +56,7 @@ class MonitoringInstance(MonitoringSimpleObject):
         self.create_monitoring_for_object(instance, values)
 
     def get_service_for_vnic(self, vnic: dict) -> dict:
-        services = self.inv.find_items({'environment': self.get_env(),
+        services = self.inv.find_items({'environment': self.env,
                                         'type': 'vservice',
                                         'network': vnic.get('network', '')})
         if not services:

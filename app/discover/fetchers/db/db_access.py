@@ -13,6 +13,7 @@ import mysql.connector
 from discover.fetcher import Fetcher
 from discover.scan_error import ScanError
 from utils.configuration import Configuration
+from utils.exceptions import HostAddressError, CredentialsError
 from utils.string_utils import jsonify
 
 
@@ -41,7 +42,7 @@ class DbAccess(Fetcher):
     # connection timeout set to 5 seconds
     TIMEOUT = 5
 
-    def __init__(self, mysql_config=None):
+    def __init__(self, mysql_config=None, force_connect=False):
         super().__init__()
         self.config = {'mysql': mysql_config} if mysql_config \
             else Configuration()
@@ -49,7 +50,7 @@ class DbAccess(Fetcher):
         self.connect_timeout = int(self.conf['connect_timeout']) \
             if 'connect_timeout' in self.conf \
             else self.TIMEOUT
-        self.connect_to_db()
+        self.connect_to_db(force=force_connect)
         self.neutron_db = self.get_neutron_db_name()
 
     def db_connect(self, _host, _port, _user, _pwd, _database):
@@ -68,8 +69,16 @@ class DbAccess(Fetcher):
         except Exception as e:
             msg = "failed to connect to MySQL DB: {}".format(str(e))
             self.log.critical(msg)
+
+            error_codes = mysql.connector.errorcode
+            if (isinstance(e, mysql.connector.InterfaceError)
+               and e.errno == error_codes.CR_CONN_HOST_ERROR):
+                raise HostAddressError()
+            if (isinstance(e, mysql.connector.ProgrammingError)
+               and e.errno == error_codes.ER_ACCESS_DENIED_ERROR):
+                raise CredentialsError()
+
             raise ScanError(msg)
-            return
         DbAccess.query_count_per_con = 0
 
     @with_cursor

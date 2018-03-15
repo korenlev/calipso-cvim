@@ -16,6 +16,8 @@ from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
 
 
+# The actual tests are run from tests/functest/connection_test.py
+# this not under app/
 class ConnectionTests(ResponderBase):
 
     COLLECTION = "connection_tests"

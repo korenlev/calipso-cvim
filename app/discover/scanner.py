@@ -10,7 +10,6 @@
 # base class for scanners
 
 import json
-
 import os
 import queue
 import traceback
@@ -22,6 +21,7 @@ from discover.link_finders.find_links_metadata_parser import \
 from discover.scan_error import ScanError
 from discover.scan_metadata_parser import ScanMetadataParser
 from utils.configuration import Configuration
+from utils.exceptions import CredentialsError, HostAddressError
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
@@ -73,7 +73,7 @@ class Scanner(Fetcher):
                                       "children": children})
         except ValueError:
             return False
-        except SshError:
+        except (SshError, CredentialsError, HostAddressError):
             # mark the error
             self.found_errors[self.get_env()] = True
         if limit_to_child_id and len(types_children) > 0:
@@ -160,7 +160,7 @@ class Scanner(Fetcher):
         # It depends on the Fetcher's config.
         try:
             db_results = fetcher.get(escaped_id)
-        except SshError:
+        except (SshError, CredentialsError, HostAddressError):
             self.found_errors[self.get_env()] = True
             return []
         except Exception as e:
