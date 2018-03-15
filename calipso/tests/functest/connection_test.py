@@ -8,8 +8,9 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 
-# This is a connection-test used for testing environment config targets #
-# can be used for functional testing as well as for environment testing sent from the UI or API #
+# This is a connection-test used for testing environment config targets
+# it can be used for functional testing,
+# as well as for environment testing sent from the UI or API
 
 import requests
 import argparse
