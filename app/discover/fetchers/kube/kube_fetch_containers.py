@@ -22,10 +22,6 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
 
     PROXY_ATTR = 'kube-proxy'
 
-    def __init__(self, config=None):
-        super().__init__(config)
-        self.inv = InventoryMgr()
-
     def get(self, parent_id) -> list:
         pod_id = parent_id.replace('-containers', '')
         pod_obj = self.inv.get_by_id(self.get_env(), pod_id)
