@@ -1,6 +1,7 @@
 import json
 
 from discover.fetcher import Fetcher
+from utils.constants import EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 
 
@@ -63,6 +64,11 @@ class KubeFetchOteps(Fetcher):
         other_ports[port_in_other['name']] = port_in_other
         other_otep['ports'] = other_ports
         self.inv.set(other_otep)
+        # repeat call to create_setup() as initial call
+        # did not include this port
+        if self.inv.is_feature_supported(self.env,
+                                         EnvironmentFeatures.MONITORING):
+            self.inv.monitoring_setup_manager.create_setup(other_otep)
 
     PORT_ID_PREFIX = 'vxlan-remote-'
 
