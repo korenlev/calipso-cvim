@@ -60,10 +60,11 @@
     "name" : "network"
 },
 {   
-    "focal_point_type" : "switch_pnic", 
+    "focal_point_type" : "switch", 
     "environment" : "ANY", 
     "link_types" : [
-        "switch_pnic-switch-pnic", 
+        "switch-switch_pnic",
+        "switch_pnic-switch_pnic", 
         "switch_pnic-host_pnic", 
         "host_pnic-vconnector", 
         "vconnector-otep", 
@@ -74,7 +75,7 @@
         "vnic-instance", 
         "vnic-vservice"
     ], 
-    "name" : "switch_pnic clique"
+    "name" : "switch clique for generic openstack with oteps"
 },
 { 
     "environment" : "Apex-Euphrates", 
@@ -217,5 +218,27 @@
     "type_drivers" : "vxlan",
     "name" : "k8s-network",
     "use_implicit_links" : true
+},
+{
+    "distribution" : "Kubernetes", 
+    "environment" : "", 
+    "focal_point_type" : "switch", 
+    "type_drivers" : "vxlan", 
+    "mechanism_drivers" : "Flannel", 
+    "link_types" : [
+        "switch-switch_pnic", 
+        "switch_pnic-switch_pnic", 
+        "switch_pnic-host_pnic", 
+        "host_pnic-otep", 
+        "otep-vedge", 
+        "vedge-container", 
+        "vedge-vconnector", 
+        "vconnector-vnic", 
+        "vnic-container"
+    ], 
+    "distribution_version" : "1.9", 
+    "name" : "generic k8s clique for physical switch", 
+    "environment_type" : "Kubernetes", 
+    "use_implicit_links" : false
 }
 ]
