@@ -20,6 +20,7 @@ class TestKubeFetchNodes(KubeTestBase):
         self.fetcher = KubeFetchNodes(KUBE_CONFIG)
 
     def test_get(self):
+        # TODO: add cli commands emulation
         response = self._get_response(payload=NODES_RESPONSE,
                                       response_type='V1NodeList')
         self.api.list_node = MagicMock(return_value=response)

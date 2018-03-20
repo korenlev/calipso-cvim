@@ -1,0 +1,23 @@
+PODS_LIST = [{
+    "_id": "5aafe39f89f6e7759a516a5f",
+    "environment": "kube-aci",
+    "id": "66745de5-1b33-11e8-9d88-00505699cf9e",
+    "type": "pod",
+    "parent_type": "pods_folder",
+    "labels": {
+        "controller-revision-hash": "1818740607",
+        "app": "flannel",
+        "pod-template-generation": "1",
+        "tier": "node"
+    },
+    "name_path": "/kube-aci/Hosts/kub2-aci/Pods/kube-flannel-ds-4bn8q",
+    "id_path": "/kube-aci/kube-aci-hosts/kub2-aci/kub2-aci-pods/66745de5-1b33-11e8-9d88-00505699cf9e",
+    "node_name": "kub2-aci",
+    "namespace": "kube-system",
+    "uid": "66745de5-1b33-11e8-9d88-00505699cf9e",
+    "name": "kube-flannel-ds-4bn8q",
+    "parent_text": "Pods",
+    "host": "kub2-aci",
+    "object_name": "kube-flannel-ds-4bn8q",
+    "parent_id": "kub2-aci-pods"
+}]

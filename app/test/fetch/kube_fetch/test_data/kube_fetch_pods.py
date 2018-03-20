@@ -1,19 +1,5 @@
 from test.fetch.kube_fetch.test_data.kube_access import BASE_RESPONSE
 
-HOST_DOC = {
-    "_id": "5aae890147d0b83dd2989dd7",
-    "environment": "kube-aci",
-    "id": "kub2-aci",
-    "name": "kub2-aci",
-    "name_path": "/kube-aci/Hosts/kub2-aci",
-    "host": "kub2-aci",
-    "uid": "6671a0b8-1b33-11e8-9d88-00505699cf9e",
-    "parent_type": "hosts_folder",
-    "parent_id": "kube-aci-hosts",
-    "object_name": "kub2-aci",
-    "id_path": "/kube-aci/kube-aci-hosts/kub2-aci"
-}
-
 NAMESPACE_DOC = {
     "_id": "5aae890147d0b83dd2989de3",
     "environment": "kube-aci",

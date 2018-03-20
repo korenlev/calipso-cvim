@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 from discover.fetchers.kube.kube_fetch_pods import KubeFetchPods
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
-from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG
-from test.fetch.kube_fetch.test_data.kube_fetch_pods import HOST_DOC, \
-    PODS_RESPONSE, NAMESPACE_DOC
+from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG, HOST_DOC
+from test.fetch.kube_fetch.test_data.kube_fetch_pods import PODS_RESPONSE, \
+    NAMESPACE_DOC
 
 
 class TestKubeFetchPods(KubeTestBase):
