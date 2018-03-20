@@ -123,25 +123,6 @@ class KubeFetchPods(KubeAccess):
             doc['pod_status'] = status_data
 
     @staticmethod
-    def get_pod_proxy_service(inv_mgr: dict, pod: dict) -> dict:
-        labels = pod.get('labels', {})
-        app_field = 'k8s-app'
-        app_name = labels.get(app_field, '')
-        if not app_name:
-            app_name = labels.get('app')
-            app_field = 'app'
-        if not app_name:
-            return {}
-        cond = {
-            'environment': pod['environment'],
-            'type': 'vservice',
-            'selector.{}'.format(app_field): app_name
-        }
-        service = inv_mgr.find_one(cond)
-        if not service:
-            return {}
-
-    @staticmethod
     def get_pod_namespace(inv_mgr: InventoryMgr, pod: dict) -> dict:
         namespace = inv_mgr.find_one({
             'environment': pod['environment'],

@@ -20,6 +20,24 @@ class KubePodDelete(KubeEventDeleteBase):
                                    object_id=self.object_id,
                                    object_type="pod")
 
+    def _get_pod_proxy_service(self, pod: dict) -> dict:
+        labels = pod.get('labels', {})
+        app_field = 'k8s-app'
+        app_name = labels.get(app_field, '')
+        if not app_name:
+            app_name = labels.get('app')
+            app_field = 'app'
+        if not app_name:
+            return {}
+        cond = {
+            'environment': pod['environment'],
+            'type': 'vservice',
+            'selector.{}'.format(app_field): app_name
+        }
+        service = self.inv.find_one(cond)
+        if not service:
+            return {}
+
     def delete_pod_references(self, object_id=None):
         pod = self.inv.get_by_id(self.env, object_id)
         if not pod:
@@ -28,7 +46,7 @@ class KubePodDelete(KubeEventDeleteBase):
         self.delete_pod_reference_from_namespace(pod)
 
     def delete_pod_reference_from_vservice(self, pod):
-        service = KubeFetchPods().get_pod_proxy_service(self.inv, pod)
+        service = self._get_pod_proxy_service(pod)
         if not service:
             self.log.error('unable to find service for pod {} (ID: {}'
                            .format(pod['object_name'], pod['id']))
