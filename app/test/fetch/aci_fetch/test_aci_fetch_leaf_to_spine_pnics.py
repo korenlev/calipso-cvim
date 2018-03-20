@@ -28,7 +28,8 @@ class TestAciFetchLeafToSpinePnics(AciTestBase):
 
         self.fetcher = AciFetchLeafToSpinePnics(config=ACI_CONFIG)
 
-    def _get_by_id(self, environment, item_id):
+    @staticmethod
+    def _get_by_id(environment, item_id):
         if item_id == HOSTLINK_PNIC['id']:
             return HOSTLINK_PNIC
         else:

@@ -7,10 +7,10 @@ KUBE_CONFIG = {
 }
 
 BASE_RESPONSE = {
-    "kind": None,  # Fill
+    "kind": None,  # Fill in fetcher test classes
     "apiVersion": "v1",
     "metadata": {
-        "selfLink": None,  # Fill
+        "selfLink": None,  # Fill in fetcher test classes
         "resourceVersion": "2017411"
     },
     "items": []
