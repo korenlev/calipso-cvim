@@ -1,13 +1,14 @@
 import json
-import unittest
 from unittest.mock import patch
 
 from kubernetes.client import ApiClient
 from kubernetes.client.rest import RESTResponse
 from urllib3 import HTTPResponse
 
+from test.fetch.logger_patcher import LoggerPatcher
 
-class KubeTestBase(unittest.TestCase):
+
+class KubeTestBase(LoggerPatcher):
 
     RESPONSES = {}
 

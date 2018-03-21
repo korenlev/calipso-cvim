@@ -4,9 +4,10 @@ from unittest.mock import patch
 from discover.fetchers.kube.kube_fetch_vedges import KubeFetchVedges
 from test.fetch.kube_fetch.test_data.kube_access import HOST_DOC
 from test.fetch.kube_fetch.test_data.kube_fetch_vedges import PODS_LIST
+from test.fetch.logger_patcher import LoggerPatcher
 
 
-class TestKubeFetchVedges(unittest.TestCase):
+class TestKubeFetchVedges(LoggerPatcher):
 
     def setUp(self):
         super().setUp()

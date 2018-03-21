@@ -1,12 +1,12 @@
-import unittest
 from unittest.mock import patch
 
 from discover.fetchers.kube.kube_fetch_oteps import KubeFetchOteps
 from test.fetch.kube_fetch.test_data.kube_fetch_oteps import HOST_DOC, \
     OTEPS_FOLDER_ID, OTEPS_LIST
+from test.fetch.logger_patcher import LoggerPatcher
 
 
-class TestKubeFetchOteps(unittest.TestCase):
+class TestKubeFetchOteps(LoggerPatcher):
 
     def setUp(self):
         super().setUp()

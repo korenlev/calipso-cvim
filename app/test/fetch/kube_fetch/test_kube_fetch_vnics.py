@@ -3,9 +3,10 @@ from unittest.mock import patch
 
 from discover.fetchers.kube.kube_fetch_vnics import KubeFetchVnics
 from test.fetch.kube_fetch.test_data.kube_fetch_vnics import HOST_DOC
+from test.fetch.logger_patcher import LoggerPatcher
 
 
-class TestKubeFetchVnics(unittest.TestCase):
+class TestKubeFetchVnics(LoggerPatcher):
 
     def setUp(self):
         super().setUp()
