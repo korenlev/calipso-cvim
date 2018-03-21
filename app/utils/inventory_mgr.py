@@ -122,7 +122,9 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             "id": {"$in": ids_list}
         })
 
-    def get_by_field(self, environment, item_type, field_name, field_value,
+    def get_by_field(self, environment: str, item_type: str,
+                     field_name: str=None,
+                     field_value=None,
                      get_single=False):
         if field_value:
             return self.find({"environment": environment,

@@ -268,12 +268,13 @@ class CliqueFinder(Fetcher):
             matches = self.links.find_one(link_search_condition)
             use_reversed = True if matches else False
         if self_linked or not use_reversed:
-            return self.check_link_type_forward(clique, link_type,
-                                                nodes_of_type,
-                                                allow_implicit=allow_implicit)
-        if self_linked or use_reversed:
-            return self.check_link_type_back(clique, link_type, nodes_of_type,
-                                             allow_implicit=allow_implicit)
+            found = self.check_link_type_forward(clique, link_type,
+                                                 nodes_of_type,
+                                                 allow_implicit=allow_implicit)
+        if self_linked and not found or use_reversed:
+            found = self.check_link_type_back(clique, link_type, nodes_of_type,
+                                              allow_implicit=allow_implicit)
+        return found
 
     def check_link_type_for_direction(self, clique, link_type, nodes_of_type,
                                       is_reversed=False,
