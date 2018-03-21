@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from test.fetch.kube_fetch.test_data.kube_access import BASE_RESPONSE
 
 VSERVICES_FOLDER_DOC = {
@@ -33,11 +35,11 @@ VSERVICE_PODS = [
     {'id': 'pod2', 'name': 'pod2'}
 ]
 
-EMPTY_RESPONSE = BASE_RESPONSE.copy()
+EMPTY_RESPONSE = deepcopy(BASE_RESPONSE)
 EMPTY_RESPONSE['kind'] = "ServiceList"
 EMPTY_RESPONSE['metadata']['selfLink'] = "/api/v1/namespaces/{}/services".format(NAMESPACE_DOC['name'])
 
-VSERVICES_RESPONSE = EMPTY_RESPONSE.copy()
+VSERVICES_RESPONSE = deepcopy(EMPTY_RESPONSE)
 VSERVICES_RESPONSE['items'] = [
     {
         "metadata": {

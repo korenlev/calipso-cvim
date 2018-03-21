@@ -1,10 +1,12 @@
+from copy import deepcopy
+
 from test.fetch.kube_fetch.test_data.kube_access import BASE_RESPONSE
 
-EMPTY_RESPONSE = BASE_RESPONSE.copy()
+EMPTY_RESPONSE = deepcopy(BASE_RESPONSE)
 EMPTY_RESPONSE['kind'] = "NamespaceList"
 EMPTY_RESPONSE['metadata']['selfLink'] = "/api/v1/namespaces"
 
-NAMESPACES_RESPONSE = EMPTY_RESPONSE.copy()
+NAMESPACES_RESPONSE = deepcopy(EMPTY_RESPONSE)
 NAMESPACES_RESPONSE['items'] = [
     {
         "metadata": {

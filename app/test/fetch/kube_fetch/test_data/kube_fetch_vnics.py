@@ -1,6 +1,8 @@
+from copy import deepcopy
+
 from test.fetch.kube_fetch.test_data.kube_access import HOST_DOC
 
-HOST_DOC = HOST_DOC.copy()
+HOST_DOC = deepcopy(HOST_DOC)
 HOST_DOC['interfaces'] = {
     "vethd8ade2d8": {
         "lines": [

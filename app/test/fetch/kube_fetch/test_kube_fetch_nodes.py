@@ -4,7 +4,7 @@ from discover.fetchers.kube.kube_fetch_nodes import KubeFetchNodes
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
 from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG
 from test.fetch.kube_fetch.test_data.kube_fetch_nodes import EMPTY_RESPONSE, \
-    NODES_RESPONSE
+    NODES_RESPONSE, CLI_LINES
 
 
 class TestKubeFetchNodes(KubeTestBase):
@@ -19,12 +19,16 @@ class TestKubeFetchNodes(KubeTestBase):
 
         self.fetcher = KubeFetchNodes(KUBE_CONFIG)
 
+    @staticmethod
+    def _run_lines(cmd, ssh_to_host="", enable_cache=True, use_sudo=True):
+        return CLI_LINES.get(ssh_to_host, [])
+
     def test_get(self):
-        # TODO: add cli commands emulation
         response = self._get_response(payload=NODES_RESPONSE,
                                       response_type='V1NodeList')
         self.api.list_node = MagicMock(return_value=response)
-        self.fetcher.run_fetch_lines = MagicMock(return_value=[])
+        self.fetcher.run_fetch_lines = MagicMock(side_effect=self._run_lines)
+
         nodes = self.fetcher.get(None)
         self.assertEqual(3, len(nodes))
 

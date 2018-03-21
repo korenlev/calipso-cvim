@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from discover.fetchers.kube.kube_fetch_oteps import KubeFetchOteps
 from test.fetch.kube_fetch.test_data.kube_fetch_oteps import HOST_DOC, \
-    OTEPS_FOLDER_ID
+    OTEPS_FOLDER_ID, OTEPS_LIST
 
 
 class TestKubeFetchOteps(unittest.TestCase):
@@ -21,6 +21,7 @@ class TestKubeFetchOteps(unittest.TestCase):
 
     def test_get(self):
         self.inv.get_by_id.return_value = HOST_DOC
+        self.inv.get_by_field.return_value = OTEPS_LIST
         oteps = self.fetcher.get(OTEPS_FOLDER_ID)
         self.assertEqual(1, len(oteps))
 

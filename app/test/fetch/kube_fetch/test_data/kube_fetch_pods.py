@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from test.fetch.kube_fetch.test_data.kube_access import BASE_RESPONSE
 
 NAMESPACE_DOC = {
@@ -26,11 +28,11 @@ NAMESPACE_DOC = {
     ]
 }
 
-EMPTY_RESPONSE = BASE_RESPONSE.copy()
+EMPTY_RESPONSE = deepcopy(BASE_RESPONSE)
 EMPTY_RESPONSE['kind'] = "PodList"
 EMPTY_RESPONSE['metadata']['selfLink'] = "/api/v1/pods"
 
-PODS_RESPONSE = EMPTY_RESPONSE.copy()
+PODS_RESPONSE = deepcopy(EMPTY_RESPONSE)
 PODS_RESPONSE['items'] = [
     {
         "metadata": {
