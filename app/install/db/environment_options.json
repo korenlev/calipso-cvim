@@ -1,6 +1,6 @@
 [
 {
-    "environment_type" : "OpenStack",   
+    "environment_type" : "OpenStack",
     "distributions" : [
         "RDO", 
         "Devstack", 
@@ -56,7 +56,7 @@
         "flat"
     ]
 },
-{ 
+{
     "environment_type" : "OpenStack",
     "distributions" : [
         "Stratoscale"

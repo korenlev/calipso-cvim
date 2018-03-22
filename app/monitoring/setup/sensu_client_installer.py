@@ -8,10 +8,12 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import os.path
+
 from pkg_resources import parse_version
 
 from monitoring.setup.monitoring_handler import MonitoringHandler
 from utils.cli_access import CliAccess
+from utils.exceptions import CredentialsError, HostAddressError
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
@@ -52,7 +54,7 @@ class SensuClientInstaller(MonitoringHandler):
             self.fetch_package(pkg_to_install)
             self.install_package(pkg_to_install)
             self.set_permissions()
-        except (SystemError, SshError) as e:
+        except (SystemError, SshError, CredentialsError, HostAddressError) as e:
             self.log.error('Sensu install on host {} failed: {}'
                            .format(self.host, str(e)))
             return
@@ -158,7 +160,7 @@ class SensuClientInstaller(MonitoringHandler):
         install_cmd = self.INSTALL_CMD[self.host['OS']['ID']]
         try:
             self.run_cmd(install_cmd.format(local_path))
-        except SshError as e:
+        except (SshError, CredentialsError, HostAddressError) as e:
             key_warn = 'warning: {}: Header V4 RSA/SHA1 Signature, key ID ' \
                 .format(local_path)
             error_string = str(e)

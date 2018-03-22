@@ -14,6 +14,7 @@ from kubernetes.client.models import V1Container
 
 from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.kube.kube_access import KubeAccess
+from utils.exceptions import CredentialsError, HostAddressError
 from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
@@ -145,7 +146,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             output = self.run(cmd, pod_obj['host'])
             doc['vnic_index'] = output.strip()
             self.add_container_to_vnic(doc, pod_obj)
-        except SshError:
+        except (SshError, CredentialsError, HostAddressError):
             doc['vnic_index'] = ''
 
     # find network matching the one sandbox, and keep its name
@@ -274,4 +275,3 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
                               host=container['host'])
             vservice_obj[self.PROXY_ATTR].append(proxy_data)
             self.inv.set(vservice_obj)
-

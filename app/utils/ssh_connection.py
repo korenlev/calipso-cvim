@@ -13,10 +13,12 @@ import paramiko
 import paramiko.buffered_pipe
 
 from utils.binary_converter import BinaryConverter
+from utils.exceptions import CredentialsError, HostAddressError
 
 
 class SshError(Exception):
     pass
+
 
 class SshConnection(BinaryConverter):
     connections = {}
@@ -113,32 +115,40 @@ class SshConnection(BinaryConverter):
                                                           self.for_sftp)
         SshConnection.connections[connection_key] = self
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if self.key:
-            k = paramiko.RSAKey.from_private_key_file(self.key)
-            self.ssh_client.connect(hostname=self.host,
-                                    username=self.user,
-                                    pkey=k,
-                                    port=self.port if self.port is not None
-                                    else self.DEFAULT_PORT,
-                                    password=self.pwd,
-                                    timeout=self.CONNECT_TIMEOUT)
-        else:
-            port = None
-            try:
-                port = self.port if self.port is not None else self.DEFAULT_PORT
+        port = self.port if self.port is not None else self.DEFAULT_PORT
+        try:
+            if self.key:
+                k = paramiko.RSAKey.from_private_key_file(self.key)
+                self.ssh_client.connect(hostname=self.host,
+                                        username=self.user,
+                                        pkey=k,
+                                        port=port,
+                                        password=self.pwd,
+                                        timeout=self.CONNECT_TIMEOUT)
+            else:
                 self.ssh_client.connect(self.host,
                                         username=self.user,
                                         password=self.pwd,
                                         port=port,
                                         timeout=self.CONNECT_TIMEOUT)
-            except paramiko.ssh_exception.AuthenticationException:
-                self.log.error('Failed SSH connect to host {}, port={}'
-                               .format(self.host, port))
-                self.ssh_client = None
-            except Exception as e:
-                msg = 'Error connecting to host {}, port={}: {}' \
-                    .format(self.host, port, str(e))
-                self.log.error(msg)
+        except paramiko.ssh_exception.AuthenticationException:
+            msg = 'Failed authentication on SSH connect ' \
+                  'to host {}, port={}' \
+                .format(self.host, port)
+            self.log.error(msg)
+            raise CredentialsError(msg)
+        except (paramiko.ssh_exception.SSHException, TimeoutError):
+            msg = 'Failed creating SSH connection to host {}, port={}' \
+                .format(self.host, port)
+            self.log.error(msg)
+            raise HostAddressError(msg)
+        except Exception as e:
+            msg = 'Error creating SSH connection to host {}, port={}: {}' \
+                .format(self.host, port, str(e))
+            self.log.error(msg)
+            if str(e) == 'timed out':
+                raise HostAddressError(msg)
+            else:
                 raise SshError(msg)
         self.call_count = 0
         return self.ssh_client is not None
@@ -183,7 +193,7 @@ class SshConnection(BinaryConverter):
         stdout.close()
         return ret
 
-    def copy_file(self, local_path, remote_path, mode=None):
+    def copy_file(self, local_path: str, remote_path: str, mode=None):
         if not self.connect():
             return
         if not self.ftp:
@@ -211,12 +221,13 @@ class SshConnection(BinaryConverter):
             self.log.error('SFTP copy_file failed to chmod file: ' +
                            'local: ' + local_path +
                            ', remote host: ' + self.host +
-                           ', port: ' + self.port +
+                           ', port: ' + str(self.port) +
                            ', error: ' + str(e))
             return str(e)
         self.log.info('SFTP copy_file success: '
-                      'host={},port={},{} -> {}'.format(
-            str(self.host), str(self.port), str(local_path), str(remote_path)))
+                      'host={},port={},{} -> {}'
+                      .format(self.host, str(self.port), local_path,
+                              remote_path))
         return ''
 
     def copy_file_from_remote(self, remote_path, local_path):
