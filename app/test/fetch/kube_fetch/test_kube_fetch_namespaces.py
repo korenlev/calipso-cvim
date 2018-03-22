@@ -4,7 +4,7 @@ from discover.fetchers.kube.kube_fetch_namespaces import KubeFetchNamespaces
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
 from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG
 from test.fetch.kube_fetch.test_data.kube_fetch_namespaces import \
-    NAMESPACES_RESPONSE, EMPTY_RESPONSE
+    NAMESPACES_RESPONSE, EMPTY_RESPONSE, EXPECTED_NAMESPACES
 
 
 class TestKubeFetchNamespaces(KubeTestBase):
@@ -19,6 +19,7 @@ class TestKubeFetchNamespaces(KubeTestBase):
         self.api.list_namespace = MagicMock(return_value=response)
         namespaces = self.fetcher.get(None)
         self.assertEqual(3, len(namespaces))
+        self.assertListsContain(EXPECTED_NAMESPACES, namespaces)
 
     def test_get_no_namespaces(self):
         response = self._get_response(payload=EMPTY_RESPONSE,

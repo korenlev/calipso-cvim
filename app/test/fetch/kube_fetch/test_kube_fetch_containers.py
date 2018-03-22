@@ -4,7 +4,8 @@ from discover.fetchers.kube.kube_fetch_containers import KubeFetchContainers
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
 from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG
 from test.fetch.kube_fetch.test_data.kube_fetch_containers import \
-    POD_DOCUMENT, CONTAINERS_FOLDER_ID, PODS_RESPONSE_NO_MATCH
+    POD_DOCUMENT, CONTAINERS_FOLDER_ID, PODS_RESPONSE_NO_MATCH, \
+    EXPECTED_CONTAINER_DOC
 from test.fetch.kube_fetch.test_data.kube_fetch_pods import PODS_RESPONSE, \
     EMPTY_RESPONSE
 
@@ -36,6 +37,7 @@ class TestKubeFetchContainers(KubeTestBase):
 
         containers = self.fetcher.get(CONTAINERS_FOLDER_ID)
         self.assertEqual(1, len(containers))
+        self.assertDictContains(EXPECTED_CONTAINER_DOC, containers[0])
 
     def test_get_no_db_pod(self):
         self.inv.get_by_id.return_value = None

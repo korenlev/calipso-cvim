@@ -126,3 +126,16 @@ CONTAINERS_FOLDER_ID = '{}-containers'.format(POD_DOCUMENT['id'])
 
 PODS_RESPONSE_NO_MATCH = deepcopy(PODS_RESPONSE)
 PODS_RESPONSE_NO_MATCH['items'][0]['metadata']['uid'] = "ee4d79c3-376b-456a-b474-fdfefd1796ee"
+
+_CONTAINER_STATUS = POD_DOCUMENT['pod_status']['container_statuses'][0]
+_CONTAINER_NAME = _CONTAINER_STATUS['name']
+_CONTAINER_ID = _CONTAINER_STATUS['container_id'].split("docker://")[-1]
+EXPECTED_CONTAINER_DOC = {
+    'id': "{}-{}".format(POD_DOCUMENT['id'], _CONTAINER_NAME),
+    'container_id': _CONTAINER_ID,
+    'type': "container",
+    'name': _CONTAINER_NAME,
+    'pod': {'id': POD_DOCUMENT['id'], 'name': POD_DOCUMENT['name']},
+    'namespace': POD_DOCUMENT['namespace'],
+    'host': POD_DOCUMENT['host'],
+}
