@@ -34,23 +34,6 @@ class KubeTestBase(LoggerPatcher):
                                                 response_type)
         return kube_response
 
-    @staticmethod
-    def get_dict_subset(expected, actual):
-        # TODO: deep check?
-        return {k: v for k, v in actual.items() if k in expected}
-
-    def assertDictContains(self, expected, actual):
-        self.assertDictEqual(expected, self.get_dict_subset(expected, actual))
-
-    def assertListsContain(self, expected, actual):
-        if not expected:
-            raise ValueError("Expected list is empty")
-
-        filtered_list = [self.get_dict_subset(expected[0], elem)
-                         for elem in
-                         actual]
-        self.assertListEqual(expected, filtered_list)
-
     def tearDown(self):
         self.kube_client_patcher.stop()
         self.inv_patcher.stop()

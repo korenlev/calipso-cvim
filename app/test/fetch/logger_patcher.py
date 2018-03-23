@@ -1,8 +1,9 @@
-import unittest
 from unittest.mock import patch
 
+from test.test_base import TestBase
 
-class LoggerPatcher(unittest.TestCase):
+
+class LoggerPatcher(TestBase):
 
     def setUp(self):
         super().setUp()
