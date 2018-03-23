@@ -115,3 +115,16 @@ PODS_RESPONSE['items'] = [
         }
     }
 ]
+
+_POD = PODS_RESPONSE['items'][0]
+_POD_METADATA = _POD['metadata']
+_POD_SPEC = _POD['spec']
+EXPECTED_POD = {
+    'id': _POD_METADATA['uid'],
+    'type': 'pod',
+    'name': _POD_METADATA['name'],
+    'namespace': _POD_METADATA['namespace'],
+    'host': _POD_SPEC['nodeName'],
+    'parent_id': '{}-pods'.format(_POD_SPEC['nodeName']),
+    'parent_type': 'pods_folder'
+}

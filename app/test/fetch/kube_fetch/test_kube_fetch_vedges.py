@@ -1,9 +1,11 @@
 import unittest
+from pprint import pprint
 from unittest.mock import patch
 
 from discover.fetchers.kube.kube_fetch_vedges import KubeFetchVedges
 from test.fetch.kube_fetch.test_data.kube_access import HOST_DOC
-from test.fetch.kube_fetch.test_data.kube_fetch_vedges import PODS_LIST
+from test.fetch.kube_fetch.test_data.kube_fetch_vedges import PODS_LIST, \
+    EXPECTED_VEDGE
 from test.fetch.logger_patcher import LoggerPatcher
 
 
@@ -25,6 +27,7 @@ class TestKubeFetchVedges(LoggerPatcher):
         self.inv.find_items.return_value = PODS_LIST
         vedges = self.fetcher.get(HOST_DOC['id'])
         self.assertEqual(1, len(vedges))
+        self.assertDictContains(EXPECTED_VEDGE, vedges[0])
 
     def test_get_no_host(self):
         self.inv.get_by_id.return_value = None

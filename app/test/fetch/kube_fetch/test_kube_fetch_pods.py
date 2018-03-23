@@ -1,10 +1,11 @@
+from pprint import pprint
 from unittest.mock import MagicMock
 
 from discover.fetchers.kube.kube_fetch_pods import KubeFetchPods
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
 from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG, HOST_DOC
 from test.fetch.kube_fetch.test_data.kube_fetch_pods import PODS_RESPONSE, \
-    NAMESPACE_DOC
+    NAMESPACE_DOC, EXPECTED_POD
 
 
 class TestKubeFetchPods(KubeTestBase):
@@ -22,6 +23,7 @@ class TestKubeFetchPods(KubeTestBase):
         self.api.list_pod_for_all_namespaces = MagicMock(return_value=response)
         pods = self.fetcher.get(HOST_DOC['id'])
         self.assertEqual(1, len(pods))
+        self.assertDictContains(EXPECTED_POD, pods[0])
 
     def test_get_no_host(self):
         self.inv.get_by_id.return_value = None

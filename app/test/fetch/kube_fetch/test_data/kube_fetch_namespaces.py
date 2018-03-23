@@ -49,7 +49,6 @@ NAMESPACES_RESPONSE['items'] = [
 EXPECTED_NAMESPACES = [
     {
         'id': ns['metadata']['uid'],
-        'uid': ns['metadata']['uid'],
         'self_link': ns['metadata']['selfLink']
     } for ns in NAMESPACES_RESPONSE['items']
 ]

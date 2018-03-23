@@ -12,7 +12,7 @@ HOST_DOC['annotations'] = {
     "flannel.alpha.coreos.com/kube-subnet-manager": "true"
 }
 
-OTEPS_FOLDER_ID = '{}-oteps'.format(HOST_DOC['id'])
+OTEPS_PARENT = '{}-vedge'.format(HOST_DOC['id'])
 
 OTEPS_LIST = [
     {
@@ -53,43 +53,6 @@ OTEPS_LIST = [
         "parent_id": "kub1-aci-vedge"
     },
     {
-        "_id": "5aafe3a189f6e7759a516b99",
-        "environment": "kube-aci",
-        "id": "kub2-aci-otep",
-        "type": "otep",
-        "name": "kub2-aci-otep",
-        "overlay_type": "vxlan",
-        "parent_type": "vedge",
-        "ip_address": "172.16.100.2",
-        "name_path": "/kube-aci/Hosts/kub2-aci/vEdges/kube-flannel-ds-4bn8q/kub2-aci-otep",
-        "host": "kub2-aci",
-        "ports": {
-            "vxlan-remote-kub1-aci": {
-                "remote_host": "kub1-aci",
-                "options": {
-                    "remote_ip": "172.16.100.1",
-                    "local_ip": "172.16.100.2"
-                },
-                "interface": "vxlan-remote-kub1-aci",
-                "name": "vxlan-remote-kub1-aci",
-                "type": "vxlan"
-            },
-            "vxlan-remote-kub3-aci": {
-                "remote_host": "kub3-aci",
-                "options": {
-                    "remote_ip": "172.16.100.3",
-                    "local_ip": "172.16.100.2"
-                },
-                "interface": "vxlan-remote-kub3-aci",
-                "name": "vxlan-remote-kub3-aci",
-                "type": "vxlan"
-            }
-        },
-        "id_path": "/kube-aci/kube-aci-hosts/kub2-aci/kub2-aci-vedges/kub2-aci-vedge/kub2-aci-otep",
-        "object_name": "kub2-aci-otep",
-        "parent_id": "kub2-aci-vedge"
-    },
-    {
         "_id": "5aafe3a389f6e7759a516bef",
         "environment": "kube-aci",
         "id": "kub3-aci-otep",
@@ -127,3 +90,11 @@ OTEPS_LIST = [
         "parent_id": "kub3-aci-vedge"
     }
 ]
+
+EXPECTED_OTEP = {
+    'id': '{}-otep'.format(HOST_DOC['id']),
+    'name': '{}-otep'.format(HOST_DOC['name']),
+    'host': HOST_DOC['id'],
+    'parent_id': OTEPS_PARENT,
+    'parent_type': 'vedge'
+}

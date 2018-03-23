@@ -1,3 +1,5 @@
+from test.fetch.kube_fetch.test_data.kube_access import HOST_DOC
+
 PODS_LIST = [{
     "_id": "5aafe39f89f6e7759a516a5f",
     "environment": "kube-aci",
@@ -21,3 +23,15 @@ PODS_LIST = [{
     "object_name": "kube-flannel-ds-4bn8q",
     "parent_id": "kub2-aci-pods"
 }]
+
+_POD = PODS_LIST[0]
+EXPECTED_VEDGE = {
+    'id': '{}-vedge'.format(HOST_DOC['id']),
+    'host': HOST_DOC['id'],
+    'environment': HOST_DOC['environment'],
+    'name': _POD['name'],
+    'namespace': _POD['namespace'],
+    'node_name': HOST_DOC['id'],
+    'parent_id': '{}-vedges'.format(HOST_DOC['id']),
+    'parent_type': 'vedges_folder'
+}

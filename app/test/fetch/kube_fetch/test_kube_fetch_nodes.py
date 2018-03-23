@@ -1,10 +1,11 @@
+from pprint import pprint
 from unittest.mock import MagicMock, patch
 
 from discover.fetchers.kube.kube_fetch_nodes import KubeFetchNodes
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
 from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG
 from test.fetch.kube_fetch.test_data.kube_fetch_nodes import EMPTY_RESPONSE, \
-    NODES_RESPONSE, CLI_LINES
+    NODES_RESPONSE, CLI_LINES, EXPECTED_NODES
 
 
 class TestKubeFetchNodes(KubeTestBase):
@@ -31,6 +32,7 @@ class TestKubeFetchNodes(KubeTestBase):
 
         nodes = self.fetcher.get(None)
         self.assertEqual(3, len(nodes))
+        self.assertListsContain(EXPECTED_NODES, nodes)
 
     def test_get_no_nodes(self):
         response = self._get_response(payload=EMPTY_RESPONSE,

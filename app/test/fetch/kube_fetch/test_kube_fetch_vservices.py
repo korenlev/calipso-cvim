@@ -1,11 +1,14 @@
+from pprint import pprint
 from unittest.mock import MagicMock
+
+from copy import deepcopy
 
 from discover.fetchers.kube.kube_fetch_vservices import KubeFetchVservices
 from test.fetch.kube_fetch.kube_test_base import KubeTestBase
 from test.fetch.kube_fetch.test_data.kube_access import KUBE_CONFIG
 from test.fetch.kube_fetch.test_data.kube_fetch_vservices import \
     VSERVICES_FOLDER_DOC, NAMESPACE_DOC, VSERVICES_RESPONSE, EMPTY_RESPONSE, \
-    VSERVICE_PODS
+    VSERVICE_PODS, EXPECTED_VSERVICES
 
 
 class TestKubeFetchVservices(KubeTestBase):
@@ -25,9 +28,9 @@ class TestKubeFetchVservices(KubeTestBase):
     @staticmethod
     def _find_items(cond):
         return (
-            VSERVICE_PODS
+            deepcopy(VSERVICE_PODS[0])
             if cond.get('labels.app', None) == 'cisco-web'
-            else []
+            else deepcopy(VSERVICE_PODS[1])
         )
 
     def test_get(self):
@@ -38,7 +41,7 @@ class TestKubeFetchVservices(KubeTestBase):
         self.api.list_namespaced_service = MagicMock(return_value=api_response)
         vservices = self.fetcher.get(VSERVICES_FOLDER_DOC['id'])
         self.assertEqual(2, len(vservices))
-        self.assertEqual(2, len(vservices[0]['pods']))
+        self.assertListsContain(EXPECTED_VSERVICES, vservices)
 
     def test_get_empty_response(self):
         self.inv.get_by_id.side_effect = self._get_by_id

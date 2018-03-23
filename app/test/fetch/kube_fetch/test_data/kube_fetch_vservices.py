@@ -31,8 +31,11 @@ NAMESPACE_DOC = {
 }
 
 VSERVICE_PODS = [
-    {'id': 'pod1', 'name': 'pod1'},
-    {'id': 'pod2', 'name': 'pod2'}
+    [
+        {'id': 'pod1', 'name': 'pod1'},
+        {'id': 'pod2', 'name': 'pod2'}
+    ],
+    []
 ]
 
 EMPTY_RESPONSE = deepcopy(BASE_RESPONSE)
@@ -96,4 +99,14 @@ VSERVICES_RESPONSE['items'] = [
             }
         }
     }
+]
+
+EXPECTED_VSERVICES = [
+    {
+        'id': vs['metadata']['uid'],
+        'type': 'vservice',
+        'name': vs['metadata']['name'],
+        'namespace': vs['metadata']['namespace'],
+        'pods': VSERVICE_PODS[i],
+    } for i, vs in enumerate(VSERVICES_RESPONSE['items'])
 ]
