@@ -13,3 +13,10 @@ export const pathRegEx = /^(\/){1}([^\/\0]+(\/)?)+$/;
 export const hostnameRegex= new RegExp('^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$');
 
 export const ipAddressRegex = new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}');
+
+export function getEmptyRegEx(regex) {
+    if (regex.source) {
+        regex = regex.source;
+    }
+    return new RegExp("^$|" + regex);
+}

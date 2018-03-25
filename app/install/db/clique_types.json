@@ -64,7 +64,9 @@
     "environment" : "ANY", 
     "link_types" : [
         "switch-switch_pnic",
-        "switch_pnic-switch_pnic", 
+        "switch_pnic-switch_pnic",
+        "switch_pnic-switch", 
+        "switch-switch_pnic", 
         "switch_pnic-host_pnic", 
         "host_pnic-vconnector", 
         "vconnector-otep", 
@@ -227,7 +229,9 @@
     "mechanism_drivers" : "Flannel", 
     "link_types" : [
         "switch-switch_pnic", 
-        "switch_pnic-switch_pnic", 
+        "switch_pnic-switch_pnic",
+        "switch_pnic-switch", 
+        "switch-switch_pnic", 
         "switch_pnic-host_pnic", 
         "host_pnic-otep", 
         "otep-vedge", 

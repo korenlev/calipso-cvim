@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import * as R from 'ramda';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { pathRegEx } from '/imports/lib/general-regex';
+import { pathRegEx, getEmptyRegEx } from '/imports/lib/general-regex';
 
 export const CLISchema = new SimpleSchema({
   name: { type: String, autoValue: function () { return 'CLI'; } },
@@ -18,7 +18,7 @@ export const CLISchema = new SimpleSchema({
   },
   key: { 
     type: String,
-    regEx: pathRegEx,
+    regEx: getEmptyRegEx(pathRegEx),
     optional: true
   },
   user: { 
