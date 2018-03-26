@@ -8,17 +8,16 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 
+import kubernetes.client as kube_client
 
 from utils.api_access_base import ApiAccessBase
 from utils.inventory_mgr import InventoryMgr
 from utils.kube_utils import update_resource_version
 
 
-
 class KubeAccess(ApiAccessBase):
 
     def __init__(self, config=None):
-        import kubernetes.client as kube_client
         # Reset api client to support multiple configurations
         kube_client.configuration.api_client = None
 

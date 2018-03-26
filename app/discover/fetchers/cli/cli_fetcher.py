@@ -12,6 +12,4 @@ from utils.cli_access import CliAccess
 
 
 class CliFetcher(Fetcher, CliAccess):
-
-    def __init__(self):
-        super().__init__()
+    pass

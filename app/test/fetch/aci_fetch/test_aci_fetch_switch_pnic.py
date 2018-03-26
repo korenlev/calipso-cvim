@@ -1,14 +1,17 @@
 from unittest.mock import patch, MagicMock
 
+from copy import deepcopy
+
 from discover.fetchers.aci.aci_fetch_switch_pnic import AciFetchSwitchPnic
 from test.fetch.aci_fetch.aci_test_base import AciTestBase
 from test.fetch.aci_fetch.test_data.aci_access import ACI_CONFIG, \
     LOGIN_RESPONSE, EMPTY_RESPONSE
 from test.fetch.aci_fetch.test_data.aci_fetch_switch_pnic import HOST_PNIC, \
     SWITCH_PNIC_RESPONSE, SWITCH_RESPONSE, FVCEP_RESPONSE
+from test.fetch.logger_patcher import LoggerPatcher
 
 
-class TestAciFetchSwitchPnic(AciTestBase):
+class TestAciFetchSwitchPnic(AciTestBase, LoggerPatcher):
 
     RESPONSES = {
         'aaaRefresh.json': LOGIN_RESPONSE,
@@ -57,7 +60,7 @@ class TestAciFetchSwitchPnic(AciTestBase):
         self.assertEqual(0, len(pnics))
 
     def test_get_no_switch_pnic(self):
-        old_responses = self.RESPONSES.copy()
+        old_responses = deepcopy(self.RESPONSES)
         self.RESPONSES['epmMacEp.json'] = EMPTY_RESPONSE
 
         self.requests.get.side_effect = self._requests_get
@@ -67,7 +70,7 @@ class TestAciFetchSwitchPnic(AciTestBase):
         self.assertEqual(0, len(pnics))
 
     def test_get_no_switch(self):
-        old_responses = self.RESPONSES.copy()
+        old_responses = deepcopy(self.RESPONSES)
         self.RESPONSES['sys.json'] = EMPTY_RESPONSE
 
         self.requests.get.side_effect = self._requests_get

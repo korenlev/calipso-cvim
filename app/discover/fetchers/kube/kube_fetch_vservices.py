@@ -11,14 +11,9 @@ from kubernetes.client.models \
     import V1Service, V1ObjectMeta, V1ServiceSpec, V1ServiceStatus
 
 from discover.fetchers.kube.kube_access import KubeAccess
-from utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchVservices(KubeAccess):
-
-    def __init__(self, config=None):
-        super().__init__(config)
-        self.inv = InventoryMgr()
 
     def get(self, object_id) -> list:
         parent = self.inv.get_by_id(self.env, object_id)

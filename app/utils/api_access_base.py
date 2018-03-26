@@ -20,29 +20,26 @@ class ApiAccessBase(Fetcher):
     def __init__(self, api_name=None, config=None, enabled=True):
         super().__init__()
 
-        if enabled:
-            if api_name is None:
-                raise ValueError('ApiAccessBase: api_name must be defined')
-            self.config = {api_name: config} if config else Configuration()
-            self.api_config = self.config.get(api_name)
-            if self.api_config is None:
-                raise ValueError('ApiAccessBase: section "{}" missing in config'
-                                 .format(api_name))
-            self.host = self.api_config.get('host', '')
-            self.port = self.api_config.get('port', '80')
-            if not (self.host and self.port):
-                raise ValueError('Missing definition of host or port ' +
-                                 'for {} API access'
-                                 .format(api_name))
-        else:
+        if not enabled:
             self.config = None
             self.api_config = None
             self.host = None
             self.port = None
+            return
 
-    def get_rel_url(self, relative_url, headers):
-        req_url = self.base_url + relative_url
-        return self.get_url(req_url, headers)
+        if api_name is None:
+            raise ValueError('ApiAccessBase: api_name must be defined')
+        self.config = {api_name: config} if config else Configuration()
+        self.api_config = self.config.get(api_name)
+        if self.api_config is None:
+            raise ValueError('ApiAccessBase: section "{}" missing in config'
+                             .format(api_name))
+        self.host = self.api_config.get('host', '')
+        self.port = self.api_config.get('port', '80')
+        if not (self.host and self.port):
+            raise ValueError('Missing definition of host or port ' +
+                             'for {} API access'
+                             .format(api_name))
 
     def get_url(self, req_url, headers):
         response = requests.get(req_url, headers=headers)
