@@ -45,7 +45,7 @@ def test_openstack(config, test_request):
         ApiAccess(config)
         ConnectionTest.report_success(test_request,
                                       ConnectionTestType.OPENSTACK.value)
-    except requests.ConnectTimeout:
+    except requests.ConnectionError:
         raise HostAddressError()
 
 
