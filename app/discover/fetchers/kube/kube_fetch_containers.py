@@ -8,7 +8,10 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import json
-from json import JSONDecodeError
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 from kubernetes.client.models import V1Container
 
@@ -22,10 +25,7 @@ from utils.ssh_connection import SshError
 class KubeFetchContainers(KubeAccess, CliFetcher):
 
     PROXY_ATTR = 'kube-proxy'
-
-    def __init__(self, config=None):
-        super().__init__(config)
-        self.inv = InventoryMgr()
+    SANDBOX_ID_ATTR = 'io.kubernetes.sandbox.id'
 
     def get(self, parent_id) -> list:
         pod_id = parent_id.replace('-containers', '')
@@ -52,7 +52,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
     def get_container(self, container, pod, pod_obj):
         doc = {'type': 'container', 'namespace': pod.metadata.namespace}
         self.get_container_data(doc, container)
-        self.fetch_container_status_data(doc, pod, pod_obj)
+        self.fetch_container_status_data(doc, pod_obj)
         doc['host'] = pod_obj['host']
         doc['pod'] = dict(id=pod_obj['id'], name=pod_obj['object_name'])
         doc['ip_address'] = pod_obj.get('pod_status', {}).get('pod_ip', '')
@@ -62,14 +62,14 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         self.get_proxy_container_info(doc, pod_obj)
         return doc
 
-    def fetch_container_status_data(self, doc, pod, pod_obj):
+    def fetch_container_status_data(self, doc, pod_obj):
         container_statuses = pod_obj['pod_status']['container_statuses']
         container_status = next(s for s in container_statuses
                                 if s['name'] == doc['name'])
         if not container_status:
             self.log.error('failed to find container_status record '
                            'for container {} in pod {}'
-                           .format(doc['name'], pod['name']))
+                           .format(doc['name'], pod_obj['name']))
             return
         container_id = container_status['container_id']
         if container_id is None:
@@ -113,12 +113,13 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             self.log.error('error reading output of cmd: {}, {}'
                            .format(cmd, str(e)))
             return
+        if not data:
+            return
+
         data = data[0]
         if 'Config' in data:
             doc['config'] = data['Config']
             self.get_container_sandbox(doc, pod_obj)
-
-    SANDBOX_ID_ATTR = 'io.kubernetes.sandbox.id'
 
     def get_container_sandbox(self, doc, pod_obj):
         sandbox_id = doc['config'].get('Labels').get(self.SANDBOX_ID_ATTR)
@@ -130,6 +131,9 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             self.log.error('error reading output of cmd: {}, {}'
                            .format(cmd, str(e)))
             return
+        if not data:
+            return
+
         doc['sandbox'] = data[0]
         self.find_network(doc)
 
@@ -166,25 +170,25 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             return
         doc['network'] = network_id
 
-    def add_container_to_vnic(self, container, pod):
+    def add_container_to_vnic(self, container, pod_obj):
         vnic = self.inv.find_one({
             'environment': self.get_env(),
             'type': 'vnic',
-            'host': pod['host'],
+            'host': pod_obj['host'],
             'index': container['vnic_index']
         })
         if not vnic:
             return
 
         # re-calc new ID and name path for vNIC and vNICs folder
-        self.set_vnic_path(vnic, pod, container)
+        self.set_vnic_path(vnic, pod_obj, container)
         self.set_folder_parent(vnic, object_type='vnic',
                                master_parent_id=container['id'],
                                master_parent_type='container')
         vnic['containers'].append(container['container_id'])
         self.inv.set(vnic)
 
-    def set_vnic_path(self, vnic, pod, container):
+    def set_vnic_path(self, vnic, pod_obj, container):
         # first set the folder to the container as parent
         folder = self.inv.get_by_id(self.env, vnic['parent_id'])
         if not folder:
@@ -192,13 +196,13 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         folder['parent_id'] = container['id']
         folder['parent_type'] = 'container'
         folder['id_path'] = '/'.join([
-            pod['id_path'],
-            '{}-containers'.format(pod['id']),
+            pod_obj['id_path'],
+            '{}-containers'.format(pod_obj['id']),
             container['id'],
             '{}-vnics'.format(container['id'])
         ])
         folder['name_path'] = '/'.join([
-            pod['name_path'],
+            pod_obj['name_path'],
             'Containers',
             container['id'],
             'vNICs'
@@ -207,13 +211,13 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         vnic['id_path'] = '/'.join([folder['id_path'], vnic['id']])
         vnic['name_path'] = '/'.join([folder['name_path'], vnic['name']])
 
-    def get_proxy_container_info(self, container, pod):
+    def get_proxy_container_info(self, container, pod_obj):
         if container['name'] != self.PROXY_ATTR:
             return
         container['container_app'] = self.PROXY_ATTR
         self.get_proxy_container_config(container)
         self.get_proxy_nat_tables(container)
-        container['vservices'] = self.get_proxy_container_vservices(pod)
+        container['vservices'] = self.get_proxy_container_vservices(pod_obj)
         self.add_proxy_container_to_vservices(container)
 
     def get_proxy_container_config(self, container):
@@ -242,11 +246,11 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         nat_tables = self.run(cmd=cmd, ssh_to_host=container['host'])
         container['nat_tables'] = nat_tables
 
-    def get_proxy_container_vservices(self, pod: dict) -> list:
+    def get_proxy_container_vservices(self, pod_obj: dict) -> list:
         pods = self.inv.find_items({
             'environment': self.get_env(),
             'type': 'pod',
-            'host': pod['host'],
+            'host': pod_obj['host'],
             'vservices': {'$exists': 1}
         })
         vservices = []

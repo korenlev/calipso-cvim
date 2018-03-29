@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+from copy import deepcopy
+
 from discover.fetchers.aci.aci_fetch_leaf_to_spine_pnics import \
     AciFetchLeafToSpinePnics
 from test.fetch.aci_fetch.aci_test_base import AciTestBase
@@ -28,7 +30,8 @@ class TestAciFetchLeafToSpinePnics(AciTestBase):
 
         self.fetcher = AciFetchLeafToSpinePnics(config=ACI_CONFIG)
 
-    def _get_by_id(self, environment, item_id):
+    @staticmethod
+    def _get_by_id(environment, item_id):
         if item_id == HOSTLINK_PNIC['id']:
             return HOSTLINK_PNIC
         else:
@@ -47,7 +50,7 @@ class TestAciFetchLeafToSpinePnics(AciTestBase):
 
         self.requests.get.side_effect = self._requests_get
 
-        old_responses = self.RESPONSES.copy()
+        old_responses = deepcopy(self.RESPONSES)
         self.RESPONSES['sys.json'] = EMPTY_RESPONSE
         pnics = self.fetcher.get(HOSTLINK_PNIC['id'])
         self.RESPONSES = old_responses
