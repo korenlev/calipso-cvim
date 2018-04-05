@@ -520,6 +520,31 @@
         },
         "children_scanner": "ScanServicesRoot",
         "environment_condition": {"environment_type": "Kubernetes"}
+      },
+      {
+        "type": "aggregates_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "aggregates",
+          "parent_type": "namespace"
+        },
+        "children_scanner": "ScanPodAggregatesRoot",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      }
+    ],
+    "ScanPodAggregatesRoot": [
+      {
+        "type": "aggregate",
+        "fetcher": "KubeFetchPodAggregates",
+        "children_scanner": "ScanPodAggregate",
+        "environment_condition": {"environment_type": "Kubernetes"}
+      }
+    ],
+    "ScanPodAggregate": [
+      {
+        "type": "pod_ref",
+        "fetcher": "KubeFetchAggregatePods",
+        "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
     "ScanServicesRoot": [

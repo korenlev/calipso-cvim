@@ -867,6 +867,10 @@
             "label" : "pod"
         },
         {
+            "value" : "pod_ref",
+            "label" : "pod_ref"
+        },
+        {
             "value" : "pods_folder",
             "label" : "pods_folder"
         },
