@@ -33,14 +33,15 @@ Template.accordionTreeNodeChildren.onCreated(function () {
     instance.subscribe('inventory.children',
       node.id, node.type, node.name, node.environment);
 
-    if (R.equals('host_ref', node.type)) {
+    if (R.endsWith('_ref', node.type)) {
+      let parentType = R.split('_ref', type)[0];
       instance.subscribe('inventory?name&env&type', 
-        node.name, node.environment, 'host');
+        node.name, node.environment, parentType);
 
       Inventory.find({ 
         name: node.name,
         environment: node.environment,
-        type: 'host'
+        type: parentType
       }).forEach((sibling) => {
         instance.state.set('siblingId', sibling.id);
       });
@@ -110,7 +111,7 @@ function getChildrenQuery(node, siblingId) {
     };
 
 
-  if (R.equals('host_ref', node.type)) {
+  if (R.endsWith('_ref', node.type)) {
     query = R.merge(query, {
       $or: R.append({
         parent_id: siblingId,

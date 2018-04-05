@@ -578,9 +578,10 @@ function createAttachedFns(instance) {
       store.dispatch(reportEnvScrollToNodePerformed(R.tail(nodePath)));
     },
 
-    onOpenLinkReq: (envName, nodeName) => {
+    onOpenLinkReq: (nodeType, envName, nodeName) => {
+      nodeType = R.split('_ref')(nodeType)[0];
       Meteor.apply('inventoryFindNode?type&env&name', [
-        'host', envName, nodeName
+        nodeType, envName, nodeName
       ], {
         wait: false
       }, function (err, res) {

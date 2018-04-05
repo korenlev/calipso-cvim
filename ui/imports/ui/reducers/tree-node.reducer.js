@@ -35,7 +35,7 @@ export function reducer(state = defaultState, action) {
       children: [],
       childDetected: false,
       needChildDetection: true,
-      linkDetected: R.propEq('type', 'host_ref', action.payload.nodeInfo), 
+      linkDetected: R.propSatisfies(R.endsWith('_ref'), 'type')(action.payload.nodeInfo),
       level: action.payload.level,
     });
 
