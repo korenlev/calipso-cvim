@@ -261,7 +261,7 @@ def start_scan():
                                 volumes=calipso_volume)
 
 
-def start_sensu(uchiwaport, sensuport, rabbitport, rabbitmport):
+def start_monitor(uchiwaport, sensuport, rabbitport, rabbitmport):
     name = "calipso-monitor"
     if container_started(name):
         return
@@ -489,7 +489,7 @@ if action == "start":
         start_test()
         time.sleep(1)
     if container == "calipso-monitor" or container == "all":
-        start_sensu(args.uchiwaport, args.sensuport, args.rabbitport, args.rabbitmport)
+        start_monitor(args.uchiwaport, args.sensuport, args.rabbitport, args.rabbitmport)
         time.sleep(1)
     if container == "calipso-ui" or container == "all":
         start_ui(args.hostname, args.dbuser, args.dbpassword, args.webport,
