@@ -27,6 +27,21 @@
   },
   { 
     "environment" : {
+        "type_drivers" : "vxlan", 
+        "distribution_version" : [
+            "1.9"
+        ], 
+        "distribution" : "Kubernetes", 
+        "mechanism_drivers" : "VPP"
+    }, 
+    "features" : {
+        "monitoring" : true, 
+        "listening" : true, 
+        "scanning" : true
+    }
+  },
+  { 
+    "environment" : {
         "distribution_version" : [
             "10307"
         ], 
