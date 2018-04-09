@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import os
+import socket
 
 import paramiko
 import paramiko.buffered_pipe
@@ -137,8 +138,9 @@ class SshConnection(BinaryConverter):
                 .format(self.host, port)
             self.log.error(msg)
             raise CredentialsError(msg)
-        except (paramiko.ssh_exception.SSHException, TimeoutError):
-            msg = 'Failed creating SSH connection to host {}, port={}' \
+        except (paramiko.ssh_exception.SSHException, TimeoutError,
+                paramiko.buffered_pipe.PipeTimeout):
+            msg = 'Timeout creating SSH connection to host {}, port={}' \
                 .format(self.host, port)
             self.log.error(msg)
             raise HostAddressError(msg)
@@ -162,7 +164,8 @@ class SshConnection(BinaryConverter):
         try:
             stdin, stdout, stderr = \
                 self.ssh_client.exec_command(cmd, timeout=self.timeout)
-        except (AttributeError, paramiko.buffered_pipe.PipeTimeout) as e:
+        except (AttributeError, paramiko.buffered_pipe.PipeTimeout,
+                socket.timeout) as e:
             msg = 'Error when executing command: {}, error: {}' \
                 .format(cmd, str(e))
             self.log.error(msg)
@@ -170,9 +173,12 @@ class SshConnection(BinaryConverter):
         stdin.close()
         try:
             err = self.binary2str(stderr.read())
-        except paramiko.buffered_pipe.PipeTimeout as timeout_error:
-            raise SshError('Error when reading stderr: {}'
-                           .format(str(timeout_error)))
+        except (paramiko.buffered_pipe.PipeTimeout, socket.timeout) \
+                as timeout_error:
+            msg = 'Timeout when reading stderr from host {}, cmd={}: {}'\
+                .format(self.host, cmd, str(timeout_error))
+            self.log.error(msg)
+            raise SshError(msg)
         if err:
             # ignore messages about loading plugin
             err_lines = [l for l in err.splitlines()
@@ -186,9 +192,12 @@ class SshConnection(BinaryConverter):
                 raise SshError(msg)
         try:
             ret = self.binary2str(stdout.read())
-        except paramiko.buffered_pipe.PipeTimeout as timeout_error:
-            raise SshError('Error when reading stdout: {}'
-                           .format(str(timeout_error)))
+        except (paramiko.buffered_pipe.PipeTimeout, socket.timeout) \
+                as timeout_error:
+            msg = 'Timeout when reading stdout from host {}, cmd={}: {}' \
+                .format(self.host, cmd, str(timeout_error))
+            self.log.error(msg)
+            raise SshError(msg)
         stderr.close()
         stdout.close()
         return ret
