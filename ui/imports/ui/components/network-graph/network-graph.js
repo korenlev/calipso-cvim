@@ -777,18 +777,30 @@ function calcNewLinksForRejectedTarget(rejectedLinks, nodes, prevLinks) {
   return newLinks;
 }
 
+function getCollapsedGroupsLinkName(link) {
+  let groupTypes = [R.path(['_osmeta', 'groupType'], link.source),
+                    R.path(['_osmeta', 'groupType'], link.target)];
+  if (R.contains('host', groupTypes)) {
+    return 'hosts link';
+  }
+  else if (R.equals(['switch', 'switch'], groupTypes)) {
+    return 'switches link';
+  }
+  return 'groups link';
+}
+
 function calcNewLinksForRejectedBoth(rejectedLinks, nodes, prevLinks) {
   let newLinks = R.reduce((acc, link) => {
-    let targetHost = R.path(['_osmeta', 'groupId'], link.target);
-    let sourceHost = R.path(['_osmeta', 'groupId'], link.source);
-    let groupSourceNodeId = `${sourceHost}-group-node`;
-    let groupTargetNodeId = `${targetHost}-group-node`;
+    let sourceGroup = R.path(['_osmeta', 'groupId'], link.source);
+    let targetGroup = R.path(['_osmeta', 'groupId'], link.target);
+    let groupSourceNodeId = `${sourceGroup}-group-node`;
+    let groupTargetNodeId = `${targetGroup}-group-node`;
 
-    if (targetHost === sourceHost) {
+    if (sourceGroup === targetGroup) {
       return acc; 
     }
 
-    let newLinkId = `${sourceHost}:${targetHost}:groups-link`;
+    let newLinkId = `${sourceGroup}:${targetGroup}:groups-link`;
     let existingNewLink = R.find(R.propEq('_osid', newLinkId), acc);
     if (existingNewLink) {
       return acc;
@@ -805,7 +817,7 @@ function calcNewLinksForRejectedBoth(rejectedLinks, nodes, prevLinks) {
     let newLink = {
       source: newSource,
       target: newTarget,
-      label: 'hosts link',
+      label: getCollapsedGroupsLinkName(link),
       _osid: newLinkId
     };
 

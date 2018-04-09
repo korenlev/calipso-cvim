@@ -22,6 +22,7 @@ import { calcColorMem } from '/imports/lib/utilities';
 import 'jquery.scrollto';
 
 import './tree-node.html';
+import {isReferenceType} from "../../../lib/utilities";
 
 /*
  * Lifecycles
@@ -264,8 +265,8 @@ Template.TreeNode.events({
 
     let data = Template.currentData();
 
-    if (R.pathEq(['type'], 'host_ref')(data.node)) {
-      data.onOpenLinkReq(data.node.environment, data.node.name); 
+    if (isReferenceType(R.path(['type'], data.node))) {
+      data.onOpenLinkReq(data.node.type, data.node.environment, data.node.name);
 
     } else {
       switch(data.openState) {
@@ -338,7 +339,7 @@ Template.TreeNode.helpers({
     let node = instance.state.get('node');
 
     if (R.isNil(node)) { return ''; }
-    if (R.propEq('type', 'host_ref', node)) {
+    if (isReferenceType(R.prop('type', node))) {
       return node.name;
     }
 
@@ -406,8 +407,8 @@ function createAttachedFns(instance) {
       );
     },
 
-    onOpenLinkReq: (envName, nodeName) => {
-      instance.data.onOpenLinkReq(envName, nodeName);
+    onOpenLinkReq: (nodeType, envName, nodeName) => {
+      instance.data.onOpenLinkReq(nodeType, envName, nodeName);
     },
 
     onResetNeedChildDetection: (reqPath) => {

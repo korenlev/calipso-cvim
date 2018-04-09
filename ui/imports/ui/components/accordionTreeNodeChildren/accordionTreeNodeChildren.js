@@ -18,6 +18,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { Inventory } from '/imports/api/inventories/inventories';
 
 import './accordionTreeNodeChildren.html';
+import {dereferenceType, isReferenceType} from "../../../lib/utilities";
 
 Template.accordionTreeNodeChildren.onCreated(function () {
   var instance = this;
@@ -33,14 +34,15 @@ Template.accordionTreeNodeChildren.onCreated(function () {
     instance.subscribe('inventory.children',
       node.id, node.type, node.name, node.environment);
 
-    if (R.equals('host_ref', node.type)) {
+    if (isReferenceType(node.type)) {
+      let parentType = dereferenceType(node.type);
       instance.subscribe('inventory?name&env&type', 
-        node.name, node.environment, 'host');
+        node.name, node.environment, parentType);
 
       Inventory.find({ 
         name: node.name,
         environment: node.environment,
-        type: 'host'
+        type: parentType
       }).forEach((sibling) => {
         instance.state.set('siblingId', sibling.id);
       });
@@ -110,7 +112,7 @@ function getChildrenQuery(node, siblingId) {
     };
 
 
-  if (R.equals('host_ref', node.type)) {
+  if (isReferenceType(node.type)) {
     query = R.merge(query, {
       $or: R.append({
         parent_id: siblingId,

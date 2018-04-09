@@ -68,3 +68,11 @@ export function callApiValidators(context, validators) {
         }
     }
 }
+
+export function isReferenceType(object_type) {
+    return R.endsWith("_ref", object_type);
+}
+
+export function dereferenceType(object_type) {
+    return R.split("_ref", object_type)[0];
+}
