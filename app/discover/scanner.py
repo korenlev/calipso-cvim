@@ -200,6 +200,9 @@ class Scanner(Fetcher):
         children = []
 
         for o in results:
+            if not isinstance(o, dict):
+                self.found_errors[self.get_env()] = True
+                continue
             saved = self.inv.save_inventory_object(o,
                                                    parent=parent,
                                                    environment=environment,

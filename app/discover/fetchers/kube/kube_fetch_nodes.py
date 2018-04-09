@@ -11,6 +11,7 @@ from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec
 
 from discover.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from discover.fetchers.kube.kube_access import KubeAccess
+from utils.ssh_connection import SshError
 
 
 class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
@@ -22,7 +23,10 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         nodes = self.api.list_node()
         ret = []
         for node in nodes.items:
-            ret.append(self.get_node_details(node))
+            try:
+                ret.append(self.get_node_details(node))
+            except SshError as e:
+                ret.append(e)
 
         self.update_resource_version(
             method='list_node',
