@@ -63,6 +63,7 @@ import '/imports/ui/components/general-node-dashboard/general-node-dashboard';
 import '/imports/ui/components/network-graph-manager/network-graph-manager';
 
 import './environment.html';
+import {dereferenceType} from "../../../lib/utilities";
 
 let maxOpenTreeNodeTrialCount = 3;
 
@@ -579,9 +580,8 @@ function createAttachedFns(instance) {
     },
 
     onOpenLinkReq: (nodeType, envName, nodeName) => {
-      nodeType = R.split('_ref')(nodeType)[0];
       Meteor.apply('inventoryFindNode?type&env&name', [
-        nodeType, envName, nodeName
+          dereferenceType(nodeType), envName, nodeName
       ], {
         wait: false
       }, function (err, res) {

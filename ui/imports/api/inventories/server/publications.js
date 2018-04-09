@@ -13,6 +13,7 @@ import * as R from 'ramda';
 
 import { Inventory } from '../inventories.js';
 import { regexEscape } from '/imports/lib/regex-utils';
+import {dereferenceType, isReferenceType} from "../../../lib/utilities";
 
 Meteor.publish('inventory', function () {
   console.log('server subscribtion to: inventory');
@@ -181,12 +182,11 @@ Meteor.publish('inventory.children', function (id, type, name, env) {
     ]
   };
 
-  if (R.endsWith('_ref', type)) {
-    let parentType = R.split('_ref', type)[0];
+  if (isReferenceType(type)) {
     let realParent = Inventory.findOne({ 
       name: name,
       environment: env,
-      type: parentType
+      type: dereferenceType(type)
     });
 
     query = R.merge(query, {
@@ -219,12 +219,11 @@ Meteor.publish('inventory.first-child', function (id, type, name, env) {
     ]
   };
 
-  if (R.endsWith('_ref', type)) {
-    let parentType = R.split('_ref', type)[0];
+  if (isReferenceType(type)) {
     let realParent = Inventory.findOne({ 
       name: name,
       environment: env,
-      type: parentType
+      type: dereferenceType(type)
     });
 
     query = R.merge(query, {

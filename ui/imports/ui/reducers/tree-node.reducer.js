@@ -2,6 +2,7 @@
 import * as R from 'ramda';
 
 import * as actions from '/imports/ui/actions/tree-node.actions';
+import {isReferenceType} from "../../lib/utilities";
 
 const defaultState = {
   _id: null,
@@ -35,7 +36,7 @@ export function reducer(state = defaultState, action) {
       children: [],
       childDetected: false,
       needChildDetection: true,
-      linkDetected: R.propSatisfies(R.endsWith('_ref'), 'type')(action.payload.nodeInfo),
+      linkDetected: isReferenceType(action.payload.nodeInfo.type),
       level: action.payload.level,
     });
 

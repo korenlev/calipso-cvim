@@ -22,6 +22,7 @@ import { calcColorMem } from '/imports/lib/utilities';
 import 'jquery.scrollto';
 
 import './tree-node.html';
+import {isReferenceType} from "../../../lib/utilities";
 
 /*
  * Lifecycles
@@ -264,7 +265,7 @@ Template.TreeNode.events({
 
     let data = Template.currentData();
 
-    if (R.pathSatisfies(R.endsWith('_ref'), ['type'])(data.node)) {
+    if (isReferenceType(R.path(['type'], data.node))) {
       data.onOpenLinkReq(data.node.type, data.node.environment, data.node.name);
 
     } else {
@@ -338,7 +339,7 @@ Template.TreeNode.helpers({
     let node = instance.state.get('node');
 
     if (R.isNil(node)) { return ''; }
-    if (R.propSatisfies(R.endsWith('_ref'), 'type')(node)) {
+    if (isReferenceType(R.prop('type', node))) {
       return node.name;
     }
 
