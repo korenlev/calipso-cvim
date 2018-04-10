@@ -7,7 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec
+from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec, \
+    V1NodeStatus
 
 from discover.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from discover.fetchers.kube.kube_access import KubeAccess
@@ -45,10 +46,10 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         except AttributeError:
             pass
         try:
-            self.get_node_data(doc, node.spec)
+            self.get_node_data_from_spec(doc, node.spec)
+            self.get_node_data_from_status(doc, node.status)
         except AttributeError:
             pass
-        doc['ip_address'] = doc['annotations'][self.PUBLIC_IP_ATTR]
         self.get_host_interfaces(doc)
         self.fetch_host_os_details(doc)
         return doc
@@ -65,7 +66,7 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         doc['host_type'] = ['Network', 'Compute']
 
     @staticmethod
-    def get_node_data(doc: dict, spec: V1NodeSpec):
+    def get_node_data_from_spec(doc: dict, spec: V1NodeSpec):
         if 'node-role.kubernetes.io/master' in doc['labels']:
             doc['host_type'].append('Kube-master')
         attrs = ['pod_cidr', 'provider_id', 'taints', 'unschedulable']
@@ -74,6 +75,35 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
                 doc[attr] = getattr(spec, attr)
             except AttributeError:
                 pass
+
+    @staticmethod
+    def class_to_dict(data_object, exclude: list=None) -> dict:
+        ret = dict()
+        if exclude is None:
+            exclude = []
+        exclude.extend(['attribute_map', 'swagger_types'])
+        attrs = [attr for attr in dir(data_object)
+                 if not attr.startswith('_')
+                 and attr not in exclude]
+        for attr in attrs:
+            try:
+                v = getattr(data_object, attr)
+                if not callable(v):
+                    ret[attr] = v
+            except AttributeError:
+                pass
+        return ret
+
+    @staticmethod
+    def get_node_data_from_status(doc: dict, status: V1NodeStatus):
+        doc.update(KubeFetchNodes.class_to_dict(status,
+                                                exclude=['daemon_endpoints']))
+        addresses = doc['addresses']
+        ip_address = next(addr.address for addr in addresses
+                          if addr.type == 'InternalIP')
+        doc['ip_address'] = ip_address
+        node_info = KubeFetchNodes.class_to_dict(doc['node_info'])
+        doc['node_info'] = node_info
 
     def get_host_interfaces(self, host):
         cmd = 'ip link show'
