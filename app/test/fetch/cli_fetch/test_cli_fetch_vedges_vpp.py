@@ -7,18 +7,18 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.fetchers.db.db_fetch_vedges_vpp import DbFetchVedgesVpp
+from discover.fetchers.cli.cli_fetch_vedges_vpp import CliFetchVedgesVpp
 from test.fetch.test_fetch import TestFetch
-from test.fetch.db_fetch.test_data.db_fetch_vedges_vpp import *
+from test.fetch.cli_fetch.test_data.cli_fetch_vedges_vpp import *
 from unittest.mock import MagicMock
 
 
-class TestDbFetchVedgesVpp(TestFetch):
+class TestCliFetchVedgesVpp(TestFetch):
 
     def setUp(self):
         super().setUp()
         self.configure_environment()
-        self.fetcher = DbFetchVedgesVpp()
+        self.fetcher = CliFetchVedgesVpp()
         self.fetcher.set_env(self.env)
 
     def check_get_results(self, version,
