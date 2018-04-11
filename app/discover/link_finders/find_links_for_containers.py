@@ -63,9 +63,10 @@ class FindLinksForContainers(FindLinks):
 
     def add_container_vedge_link(self, container, vedge):
         # link_type: 'container-vedge'
+        mechanism = self.configuration.environment['mechanism_drivers'][0]
         link_name = '{}-{}-{}'.format(container['object_name'],
-                                      vedge['node_name'],
-                                      vedge['labels']['app'])
+                                      vedge['parent_id'],
+                                      mechanism)
         if 'network' in container:
             attributes = dict(network=container['network'])
         else:
