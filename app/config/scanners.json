@@ -374,7 +374,7 @@
       },
       {
         "type": "vedge",
-        "fetcher": "DbFetchVedgesVpp",
+        "fetcher": "CliFetchVedgesVpp",
         "environment_condition": {
           "mechanism_drivers": "VPP"
         },
@@ -434,7 +434,19 @@
       {
         "type": "vedge",
         "fetcher": "KubeFetchVedges",
-        "environment_condition": {"environment_type": "Kubernetes"},
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": "Flannel"
+        },
+        "children_scanner": "ScanVedge"
+      },
+      {
+        "type": "vedge",
+        "fetcher": "CliFetchVedgesVpp",
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": "VPP"
+        },
         "children_scanner": "ScanVedge"
       },
       {
