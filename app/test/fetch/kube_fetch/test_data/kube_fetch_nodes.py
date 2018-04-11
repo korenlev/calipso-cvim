@@ -182,6 +182,6 @@ EXPECTED_NODES = [
         'id': node['metadata']['name'],
         'uid': node['metadata']['uid'],
         'host': node['metadata']['name'],
-        'ip_address': node['metadata']['annotations']['flannel.alpha.coreos.com/public-ip']
+        'ip_address': node['status']['addresses'][0]['address']
     } for node in NODES_RESPONSE['items']
 ]
