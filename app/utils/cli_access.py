@@ -107,6 +107,8 @@ class CliAccess(BinaryConverter):
                                  ssh_conn):
         if self.configuration.environment["distribution"] == "Mercury":
             use_sudo = False
+        if ssh_conn.user == 'root':
+            use_sudo = False
         if use_sudo and not cmd.strip().startswith("sudo "):
             cmd = "sudo {}".format(cmd)
         if not on_gateway and ssh_to_host \
