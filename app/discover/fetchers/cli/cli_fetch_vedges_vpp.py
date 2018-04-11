@@ -7,19 +7,18 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from discover.fetchers.db.db_access import DbAccess
 from discover.fetchers.cli.cli_fetcher import CliFetcher
 from utils.inventory_mgr import InventoryMgr
 from utils.singleton import Singleton
 
 
-class DbFetchVedgesVpp(DbAccess, CliFetcher, metaclass=Singleton):
+class CliFetchVedgesVpp(CliFetcher, metaclass=Singleton):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
 
-    def get(self, id):
-        host_id = id[:id.rindex('-')]
+    def get(self, parent_id):
+        host_id = parent_id.replace('-vedges', '')
         vedge = {
             'host': host_id,
             'id': host_id + '-VPP',
@@ -41,7 +40,8 @@ class DbFetchVedgesVpp(DbAccess, CliFetcher, metaclass=Singleton):
         vedge['ports'] = self.fetch_ports(interfaces)
         return [vedge]
 
-    def fetch_ports(self, interfaces):
+    @staticmethod
+    def fetch_ports(interfaces):
         ports = {}
         for i in interfaces:
             if not i or i.startswith(' '):
