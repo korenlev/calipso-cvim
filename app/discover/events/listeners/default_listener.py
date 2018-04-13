@@ -61,11 +61,10 @@ class DefaultListener(ListenerBase, ConsumerMixin):
                  inventory_collection: str = DEFAULTS["inventory"],
                  retry_limit: int = DEFAULTS["retry_limit"],
                  consume_all: bool = DEFAULTS["consume_all"]):
-        super().__init__()
+        super().__init__(environment=env_name)
 
         self.connection = connection
         self.retry_limit = retry_limit
-        self.env_name = env_name
         self.consume_all = consume_all
         self.handler = event_handler
         self.event_queues = event_queues
@@ -73,9 +72,9 @@ class DefaultListener(ListenerBase, ConsumerMixin):
 
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
-        if self.inv.is_feature_supported(self.env_name, EnvironmentFeatures.MONITORING):
+        if self.inv.is_feature_supported(self.environment, EnvironmentFeatures.MONITORING):
             self.inv.monitoring_setup_manager = \
-                MonitoringSetupManager(self.env_name)
+                MonitoringSetupManager(self.environment)
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=self.event_queues,
@@ -160,7 +159,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         try:
             message = Message(
                 msg_id=message_body.get('message_id'),
-                env=self.env_name,
+                env=self.environment,
                 source=self.SOURCE_SYSTEM,
                 object_id=result.related_object,
                 display_context=result.display_context,

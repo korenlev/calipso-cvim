@@ -1,8 +1,7 @@
 {
   "handlers_package": "discover.events.kube",
   "endpoints": [
-    "list_pod_for_all_namespaces",
-    "list_namespaced_service"
+    "list_pod_for_all_namespaces"
   ],
   "event_handlers": {
     "pod.added": "KubePodAdd",

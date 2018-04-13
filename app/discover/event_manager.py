@@ -21,6 +21,7 @@ from discover.manager import Manager
 from utils.constants import OperationalStatus, EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.file_logger import FileLogger
+from utils.logging.message_logger import MessageLogger
 from utils.mongo_access import MongoAccess
 
 
@@ -124,7 +125,12 @@ class EventManager(Manager):
             'environments_collection': self.args.collection,
             'process_vars': process_vars
         })
-        listener.listen(kwargs)
+        logger = MessageLogger(env=env_name, level=self.args.loglevel)
+        try:
+            listener.listen(kwargs)
+        except Exception as e:
+            logger.error(e)
+            raise
 
     def _get_alive_processes(self):
         return [p for p in self.processes

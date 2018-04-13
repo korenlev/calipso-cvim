@@ -63,8 +63,7 @@ class KubernetesListener(ListenerBase):
                  connection_pool_size: int = 10,
                  request_timeout: int = 1,
                  polling_inverval: int = 1):
-        super().__init__()
-        self.environment = environment
+        super().__init__(environment=environment)
         self.handler = event_handler
 
         self.inv = InventoryMgr()

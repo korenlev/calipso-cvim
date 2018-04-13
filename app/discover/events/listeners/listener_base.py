@@ -11,8 +11,8 @@ import os
 from abc import ABC, abstractmethod
 
 from discover.events.event_base import EventResult
-from utils.logging.console_logger import ConsoleLogger
 from utils.logging.file_logger import FileLogger
+from utils.logging.full_logger import FullLogger
 from utils.logging.logger import Logger
 
 
@@ -24,11 +24,12 @@ class ListenerBase(ABC):
     LOG_FILENAME = "listener_base.log"
     LOG_LEVEL = Logger.WARNING
 
-    def __init__(self):
+    def __init__(self, environment=None):
         super().__init__()
+        self.environment = environment
         self.log_file = os.path.join(FileLogger.LOG_DIRECTORY,
                                      self.LOG_FILENAME)
-        self.log = ConsoleLogger(level=Logger.INFO)
+        self.log = FullLogger(level=self.LOG_LEVEL, env=environment)
 
     @abstractmethod
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
