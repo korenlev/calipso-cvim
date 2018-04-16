@@ -10,6 +10,8 @@
 import re
 
 from discover.fetchers.cli.cli_fetcher import CliFetcher
+from discover.fetchers.cli.cli_fetch_interface_details \
+    import CliFetchInterfaceDetails
 from utils.inventory_mgr import InventoryMgr
 
 
@@ -26,6 +28,11 @@ class CliFetchHostPnics(CliFetcher):
             {'name': 'IPv6 Address', 're': '^\s*inet6 (\S+) .* global ',
              'description': 'IPv6 Address'}
         ]
+        self.details_fetcher = CliFetchInterfaceDetails()
+
+    def set_env(self, env):
+        super().set_env(env)
+        self.details_fetcher.set_env(env)
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex("-")]
@@ -57,63 +64,6 @@ class CliFetchHostPnics(CliFetcher):
     def find_interface_details(self, host_id, interface_name):
         cmd = "ip address show {}".format(interface_name)
         lines = self.run_fetch_lines(cmd, host_id)
-        interface = None
-        status_up = None
-        for line in [l for l in lines if l != '']:
-            tokens = None
-            if interface is None:
-                tokens = line.split()
-                line_remainder = line.split(":")[2].strip()
-                interface = {
-                    "host": host_id,
-                    "name": interface_name,
-                    "local_name": interface_name,
-                    "lines": []
-                }
-                self.handle_line(interface, line_remainder)
-                if '<UP,' in line:
-                    status_up = True
-            if status_up is None:
-                if tokens is None:
-                    tokens = line.split()
-                if 'BROADCAST' in tokens:
-                    status_up = 'UP' in tokens
-            if interface:
-                self.handle_line(interface, line)
-        self.set_interface_data(interface)
-        interface['state'] = 'UP' if status_up else 'DOWN'
-        if 'id' not in interface:
-            interface['id'] = interface_name + '-unknown_mac'
-        return interface
-
-    def handle_line(self, interface, line):
-        self.find_matching_regexps(interface, line, self.regexps)
-        if 'mac_address' in interface:
-            interface["id"] = interface["name"] + "-" + interface["mac_address"]
-        interface["lines"].append(line.strip())
-
-    def set_interface_data(self, interface):
-        if not interface:
-            return
-        interface["data"] = "\n".join(interface["lines"])
-        interface.pop("lines", None)
-        ethtool_ifname = interface["local_name"]
-        if "@" in interface["local_name"]:
-            pos = interface["local_name"].index("@")
-            ethtool_ifname = ethtool_ifname[pos + 1:]
-        cmd = "ethtool " + ethtool_ifname
-        lines = self.run_fetch_lines(cmd, interface["host"])
-        attr = None
-        for line in lines[1:]:
-            matches = self.ethtool_attr.match(line)
-            if matches:
-                # add this attribute to the interface
-                attr = matches.group(1)
-                value = matches.group(2)
-                interface[attr] = value.strip()
-            else:
-                # add more values to the current attribute as an array
-                if isinstance(interface[attr], str):
-                    interface[attr] = [interface[attr], line.strip()]
-                else:
-                    interface[attr].append(line.strip())
+        return self.details_fetcher.get_interface_details(host_id,
+                                                          interface_name,
+                                                          lines)

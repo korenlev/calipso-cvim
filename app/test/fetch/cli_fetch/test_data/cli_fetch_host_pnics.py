@@ -31,67 +31,6 @@ INTERFACE_LINES = [
 
 INTERFACE_NAMES = ["eno16777728", "eno33554952"]
 
-INTERFACE_NAME = INTERFACE_NAMES[0]
-IFCONFIG_CM_RESULT = [
-    "eno16777728 Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97  ",
-    "          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1",
-    "          RX packets:409056348 errors:0 dropped:0 overruns:0 frame:0",
-    "          TX packets:293898173 errors:0 dropped:0 overruns:0 carrier:0",
-    "          collisions:0 txqueuelen:1000 ",
-    "          RX bytes:103719003730 (103.7 GB)  TX bytes:165090993470 (165.0 GB)",
-    ""
-]
-
-INTERFACE_DETAILS = {
-    "host": "node-6.cisco.com",
-    "id": "eno16777728-unknown_mac",
-    "lines": [],
-    "local_name": "eno16777728",
-    "name": "eno16777728",
-    "state": "UP"
-}
-
-MAC_ADDRESS_LINE = "    link/ether 00:50:56:ac:e8:97 brd ff:ff:ff:ff:ff:ff"
-MAC_ADDRESS = "00:50:56:ac:e8:97"
-RAW_INTERFACE = {
-    "host": "node-6.cisco.com",
-    "lines": [],
-    "local_name": "eno16777728",
-    "name": "eno16777728"
-}
-
-INTERFACE_AFTER_LINE_HANDLE = {
-    "host": "node-6.cisco.com",
-    "lines": [MAC_ADDRESS_LINE.strip()],
-    "local_name": "eno16777728",
-    "name": "eno16777728",
-    "id": "eno16777728-" + MAC_ADDRESS,
-    "mac_address": MAC_ADDRESS
-}
-
-INTERFACE_FOR_SET = {
-    "host": "node-6.cisco.com",
-    "lines": [
-        "Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97",
-        "UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1"
-    ],
-    "local_name": "eno16777728",
-    "mac_address": "00:50:56:ac:e8:97"
-}
-
-INTERFACE_AFTER_SET = {
-    "host": "node-6.cisco.com",
-    "data": "Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97" +
-            "\nUP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1",
-    "local_name": "eno16777728",
-    "mac_address": "00:50:56:ac:e8:97",
-    "Supported ports": "[ TP ]",
-    "Supported link modes": ["10baseT/Half 10baseT/Full",
-                             "100baseT/Half 100baseT/Full",
-                             "1000baseT/Full"],
-    "Supported pause frame use": "No"
-}
-
 INTERFACE = {
         "Advertised auto-negotiation": "Yes",
         "Advertised link modes": [
@@ -131,18 +70,3 @@ INTERFACE = {
 }
 
 INTERFACES_GET_RESULTS = [INTERFACE]
-
-IPV6_ADDRESS_LINE = "    inet6 fe80::f816:3eff:fea1:eb73/64 " \
-                    "scope global mngtmpaddr dynamic"
-IPV6_ADDRESS = "fe80::f816:3eff:fea1:eb73/64"
-IPV4_ADDRESS_LINE = "    inet 172.16.13.2/24 brd 10.56.20.255 scope global eth0"
-IPV4_ADDRESS = "172.16.13.2"
-
-ETHTOOL_RESULT = [
-    "Settings for eno16777728:",
-    "\tSupported ports: [ TP ]",
-    "\tSupported link modes:   10baseT/Half 10baseT/Full ",
-    "\t                        100baseT/Half 100baseT/Full ",
-    "\t                        1000baseT/Full ",
-    "\tSupported pause frame use: No",
-]
