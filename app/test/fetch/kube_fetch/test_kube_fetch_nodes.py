@@ -1,4 +1,3 @@
-from pprint import pprint
 from unittest.mock import MagicMock, patch
 
 from discover.fetchers.kube.kube_fetch_nodes import KubeFetchNodes
@@ -22,17 +21,31 @@ class TestKubeFetchNodes(KubeTestBase):
 
     @staticmethod
     def _run_lines(cmd, ssh_to_host="", enable_cache=True, use_sudo=True):
+        if cmd:
+            pass
+        if enable_cache:
+            pass
+        if use_sudo:
+            pass
         return CLI_LINES.get(ssh_to_host, [])
 
     def test_get(self):
         response = self._get_response(payload=NODES_RESPONSE,
                                       response_type='V1NodeList')
         self.api.list_node = MagicMock(return_value=response)
+        original_run_fetch_lines = self.fetcher.run_fetch_lines
         self.fetcher.run_fetch_lines = MagicMock(side_effect=self._run_lines)
+        original_details_fetcher_set_interface_data = \
+            self.fetcher.details_fetcher.set_interface_data
+        self.fetcher.details_fetcher.set_interface_data = MagicMock()
 
         nodes = self.fetcher.get(None)
         self.assertEqual(3, len(nodes))
         self.assertListsContain(EXPECTED_NODES, nodes)
+
+        self.fetcher.run_fetch_lines = original_run_fetch_lines
+        self.fetcher.details_fetcher.set_interface_data = \
+            original_details_fetcher_set_interface_data
 
     def test_get_no_nodes(self):
         response = self._get_response(payload=EMPTY_RESPONSE,
