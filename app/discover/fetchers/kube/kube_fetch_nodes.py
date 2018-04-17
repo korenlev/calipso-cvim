@@ -7,10 +7,14 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import re
+
 from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec, \
     V1NodeStatus
 
 from discover.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
+from discover.fetchers.cli.cli_fetch_interface_details \
+    import CliFetchInterfaceDetails
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.ssh_connection import SshError
 
@@ -19,6 +23,11 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
 
     def __init__(self, config=None):
         super().__init__(config)
+        self.details_fetcher = CliFetchInterfaceDetails()
+
+    def set_env(self, env):
+        super().set_env(env)
+        self.details_fetcher.set_env(env)
 
     def get(self, object_id):
         nodes = self.api.list_node()
@@ -36,8 +45,6 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
 
         return ret
 
-    PUBLIC_IP_ATTR = 'flannel.alpha.coreos.com/public-ip'
-
     def get_node_details(self, node: V1Node):
         doc = {'type': 'host'}
         try:
@@ -50,7 +57,7 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
             self.get_node_data_from_status(doc, node.status)
         except AttributeError:
             pass
-        self.get_host_interfaces(doc)
+        doc['interfaces'] = self.get_host_interfaces(doc)
         self.fetch_host_os_details(doc)
         return doc
 
@@ -105,27 +112,32 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         node_info = KubeFetchNodes.class_to_dict(doc['node_info'])
         doc['node_info'] = node_info
 
-    def get_host_interfaces(self, host):
-        cmd = 'ip link show'
-        lines = self.run_fetch_lines(cmd, host['host'])
+    def get_host_interfaces(self, host: dict) -> dict:
+        cmd = 'ip address show'
+        id_re = r'^[0-9]+:\s([^@:]+)'
+        lines = self.run_fetch_lines(cmd, host['id'])
         interface_lines = []
+        interface_name = None
         interfaces = {}
         for line in lines:
-            interface_lines.append(line)
-            if len(interface_lines) == 2:
-                interface = self.get_host_interface(interface_lines)
+            # look for interfaces sections in the output of 'ip address show'
+            matches = re.match(id_re, line)
+            if not matches:
+                # add more lines to an already discovered interface
+                interface_lines.append(line)
+                continue
+            if interface_lines and interface_name != 'lo':
+                # handle previous section
+                interface = self.details_fetcher.\
+                    get_interface_details(host['id'], interface_name,
+                                          interface_lines)
                 interfaces[interface['id']] = interface
-                interface_lines = []
-        host['interfaces'] = interfaces
-
-    def get_host_interface(self, interface_lines):
-        interface = {'lines': interface_lines}
-        regexps = [
-            {'name': 'index', 're': '^([0-9]+):\s'},
-            {'name': 'id', 're': '^[0-9]+:\s([^@:]+)'},
-            {'name': 'state', 're': '^.*,(UP),', 'default': 'DOWN'},
-            {'name': 'mac_address', 're': '.*\slink/ether\s(\S+)\s'},
-            {'name': 'mtu', 're': '.*\smtu\s(\S+)\s'},
-        ]
-        self.get_object_data(interface, interface_lines, regexps)
-        return interface
+            interface_lines = []
+            interface_name = matches.group(1)
+            interface_lines.append(line)
+        # add last interface
+        interface = self.details_fetcher. \
+            get_interface_details(host['id'], interface_name,
+                                  interface_lines)
+        interfaces[interface['id']] = interface
+        return interfaces
