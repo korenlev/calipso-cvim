@@ -13,8 +13,8 @@ Meteor.methods({
   'messages/get?level&env&page&amountPerPage&sortField&sortDirection': function (
     level, env, page, amountPerPage, sortField, sortDirection) {
 
-    logMethodCall('messages/get?level&env&page&amountPerPage&sortField&sortDirection', 
-      {level, env, page, amountPerPage});
+    logMethodCall('messages/get?level&env&page&amountPerPage&sortField&sortDirection',
+      { level, env, page, amountPerPage });
 
     this.unblock();
 
@@ -23,10 +23,10 @@ Meteor.methods({
     let query = {};
     let sortParams = {};
 
-    query = R.ifElse(R.isNil, R.always(query),R.assoc('environment', R.__, query))(env);
-    query = R.ifElse(R.isNil, R.always(query),R.assoc('level', R.__, query))(level);
+    query = R.ifElse(R.isNil, R.always(query), R.assoc('environment', R.__, query))(env);
+    query = R.ifElse(R.isNil, R.always(query), R.assoc('level', R.__, query))(level);
 
-    sortParams = R.ifElse(R.isNil, R.always(sortParams), 
+    sortParams = R.ifElse(R.isNil, R.always(sortParams),
       R.assoc(R.__, sortDirection, sortParams))(sortField);
 
     console.log('sort params:', sortParams);
@@ -38,6 +38,20 @@ Meteor.methods({
     };
 
     return Messages.find(query, qParams).fetch();
+  },
+  'messages.clearEnvMessages?env'({ env }) {
+    let deletedRows = 0;
+    if (env === '') {
+      return null;
+    }
+    else if (env === 'All') {
+      deletedRows = Messages.remove({});
+    }
+    else {
+      deletedRows = Messages.remove({ environment: env });
+    }
+
+    return deletedRows;
   }
 });
 
