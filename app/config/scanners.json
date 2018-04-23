@@ -435,8 +435,7 @@
         "type": "vedge",
         "fetcher": "KubeFetchVedges",
         "environment_condition": {
-          "environment_type": "Kubernetes",
-          "mechanism_drivers": "Flannel"
+          "environment_type": "Kubernetes"
         },
         "children_scanner": "ScanVedge"
       },
@@ -569,8 +568,19 @@
     "ScanVedge": [
       {
         "type": "otep",
-        "fetcher": "KubeFetchOteps",
-        "environment_condition": {"environment_type": "Kubernetes"}
+        "fetcher": "KubeFetchOtepsFlannel",
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": "Flannel"
+        }
+      },
+      {
+        "type": "otep",
+        "fetcher": "KubeFetchOtepsVpp",
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": "VPP"
+        }
       }
     ]
   }

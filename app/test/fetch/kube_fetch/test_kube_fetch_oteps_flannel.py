@@ -1,24 +1,24 @@
-from pprint import pprint
 from unittest.mock import patch
 
-from discover.fetchers.kube.kube_fetch_oteps import KubeFetchOteps
-from test.fetch.kube_fetch.test_data.kube_fetch_oteps import HOST_DOC, \
-    OTEPS_PARENT, OTEPS_LIST, EXPECTED_OTEP
+from discover.fetchers.kube.kube_fetch_oteps_flannel \
+    import KubeFetchOtepsFlannel
+from test.fetch.kube_fetch.test_data.kube_fetch_oteps_flannel \
+    import HOST_DOC, OTEPS_PARENT, OTEPS_LIST, EXPECTED_OTEP
 from test.fetch.logger_patcher import LoggerPatcher
 
 
-class TestKubeFetchOteps(LoggerPatcher):
+class TestKubeFetchOtepsFlannel(LoggerPatcher):
 
     def setUp(self):
         super().setUp()
 
         self.inv_patcher = patch(
-            'discover.fetchers.kube.kube_fetch_oteps.InventoryMgr'
+            'discover.fetchers.kube.kube_fetch_oteps_flannel.InventoryMgr'
         )
         self.inv_class = self.inv_patcher.start()
         self.inv = self.inv_class.return_value
 
-        self.fetcher = KubeFetchOteps()
+        self.fetcher = KubeFetchOtepsFlannel()
 
     def test_get(self):
         self.inv.get_by_id.return_value = HOST_DOC

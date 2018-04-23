@@ -5,7 +5,7 @@ from utils.constants import EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 
 
-class KubeFetchOteps(Fetcher):
+class KubeFetchOtepsFlannel(Fetcher):
 
     def __init__(self):
         super().__init__()
@@ -74,12 +74,12 @@ class KubeFetchOteps(Fetcher):
 
     @staticmethod
     def get_port_id(remote_host_id: str) -> str:
-        return '{}{}'.format(KubeFetchOteps.PORT_ID_PREFIX, remote_host_id)
+        return '{}{}'.format(KubeFetchOtepsFlannel.PORT_ID_PREFIX, remote_host_id)
 
     @staticmethod
     def get_port(overlay_type: str, local_ip: str,
                  remote_ip: str, remote_host: str) -> dict:
-        port_id = KubeFetchOteps.get_port_id(remote_host)
+        port_id = KubeFetchOtepsFlannel.get_port_id(remote_host)
         return {
             'name': port_id,
             'type': overlay_type,
