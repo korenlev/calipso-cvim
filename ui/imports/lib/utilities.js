@@ -76,3 +76,7 @@ export function isReferenceType(object_type) {
 export function dereferenceType(object_type) {
     return R.split("_ref", object_type)[0];
 }
+
+export function isNullOrEmpty(objVal) {
+  return R.or(R.isNil(objVal), R.isEmpty(objVal));
+}
