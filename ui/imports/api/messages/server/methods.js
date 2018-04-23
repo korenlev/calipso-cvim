@@ -41,13 +41,10 @@ Meteor.methods({
   },
   'messages.clearEnvMessages?env'({ env }) {
     let deletedRows = 0;
-    if (env === '') {
-      return null;
-    }
-    else if (env === 'All') {
+    if (R.equals('All', env)) {
       deletedRows = Messages.remove({});
     }
-    else {
+    else if (R.and(!R.isNil(env), !R.isEmpty(env))) {
       deletedRows = Messages.remove({ environment: env });
     }
 

@@ -10,23 +10,15 @@
  * Template Component: MessagesDeleteModal 
  */
 import * as R from 'ramda';
-//import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Environments } from '/imports/api/environments/environments';
-
 import './messages-delete-modal.html';
-import { toOptions } from "../../../lib/utilities";
+import { toOptions, isNullOrEmpty } from "../../../lib/utilities";
 
 
 Template.MessagesDeleteModal.onCreated(function () {
-  // this.autorun(() => {
-  //   new SimpleSchema({
-  //     onDeleteMessagesReq: { type: Function },
-  //   }).validate(Template.currentData());
-  // });
-
   let instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
@@ -39,26 +31,23 @@ Template.MessagesDeleteModal.events({
   'click .sm-button-delete': function (_event, _instance) {
     let onDeleteReq = Template.currentData().onDeleteReq;
     let env = _instance.$('.sm-input-msgmodal')[0].value;
-    console.log(env);
 
-    if (R.or(R.isNil(env), R.isEmpty(env))) {
+    if (isNullOrEmpty(env)) {
       return;
     };
 
     Meteor.call('messages.clearEnvMessages?env', { env: env }, (err, res) => {
       if (!R.isNil(err)) {
         toastr.error('Clear Messages Failed.', { timeOut: 5000 });
-        console.log(err);
         return;
       }
 
-      console.log(res);
       if (R.and(!R.isNil(res), R.gt(res, 0))) {
-        toastr.success('Messages Cleared Successfully.', { timeOut: 5000 });
+        toastr.success(`${env} clearing messages was successful.`, { timeOut: 5000 });
         onDeleteReq();
       }
       else {
-        toastr.info('No Messages To Clear.', { timeOut: 5000 });
+        toastr.info(`No Messages To Clear.`, { timeOut: 5000 });
       }
 
       _instance.$('#messages-delete-modal').modal('hide');
