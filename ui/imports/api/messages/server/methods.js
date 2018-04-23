@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import * as R from 'ramda';
 import { Messages } from '/imports/api/messages/messages';
+import { isNullOrEmpty } from "../../../lib/utilities";
 
 Meteor.methods({
   'messages/get?level&env&page&amountPerPage&sortField&sortDirection': function (
@@ -44,7 +45,7 @@ Meteor.methods({
     if (R.equals('All', env)) {
       deletedRows = Messages.remove({});
     }
-    else if (R.and(!R.isNil(env), !R.isEmpty(env))) {
+    else if (!isNullOrEmpty(env)) {
       deletedRows = Messages.remove({ environment: env });
     }
 
