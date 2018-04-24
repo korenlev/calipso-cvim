@@ -9,7 +9,37 @@
 ###############################################################################
 from discover.fetcher import Fetcher
 from utils.cli_access import CliAccess
+from utils.exceptions import CredentialsError, HostAddressError
+from utils.ssh_connection import SshError
 
 
 class CliFetcher(Fetcher, CliAccess):
-    pass
+
+    def run_fetch_lines(self, cmd, ssh_to_host="", enable_cache=True,
+                        use_sudo=True) -> list:
+        try:
+            lines = super().run_fetch_lines(cmd,
+                                            ssh_to_host=ssh_to_host,
+                                            enable_cache=enable_cache,
+                                            use_sudo=use_sudo)
+        except (SshError, CredentialsError, HostAddressError) as e:
+            msg = 'error running command {} (host:{}): {}'\
+                .format(cmd, ssh_to_host, str(e))
+            self.log.error(msg)
+            raise SshError(msg)
+        return lines
+
+    def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False,
+            ssh=None, use_sudo=True) -> str:
+        try:
+            output = self.run(cmd, ssh_to_host,
+                              enable_cache=enable_cache,
+                              on_gateway=on_gateway,
+                              ssh=ssh,
+                              use_sudo=use_sudo)
+        except (SshError, CredentialsError, HostAddressError) as e:
+            msg = 'error running command {} (host:{}): {}' \
+                .format(cmd, ssh_to_host, str(e))
+            self.log.error(msg)
+            raise SshError(msg)
+        return output
