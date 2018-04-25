@@ -343,6 +343,7 @@
       {
         "type": "vconnector",
         "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"],
           "mechanism_drivers": "VPP"
         },
         "fetcher": "CliFetchVconnectorsVpp"
