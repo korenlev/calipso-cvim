@@ -32,11 +32,11 @@ class CliFetcher(Fetcher, CliAccess):
     def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False,
             ssh=None, use_sudo=True) -> str:
         try:
-            output = self.run(cmd, ssh_to_host,
-                              enable_cache=enable_cache,
-                              on_gateway=on_gateway,
-                              ssh=ssh,
-                              use_sudo=use_sudo)
+            output = super().run(cmd, ssh_to_host,
+                                 enable_cache=enable_cache,
+                                 on_gateway=on_gateway,
+                                 ssh=ssh,
+                                 use_sudo=use_sudo)
         except (SshError, CredentialsError, HostAddressError) as e:
             msg = 'error running command {} (host:{}): {}' \
                 .format(cmd, ssh_to_host, str(e))
