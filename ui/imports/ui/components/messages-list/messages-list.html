@@ -11,7 +11,12 @@
 <template name="MessagesList">
 <div class="os-messages-list cards white">
 	<div class="sm-table-section">
-		<h3>Messages</h3>
+		<div class="sm-pager-section">
+      <button type="button" class="js-clear-messages mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored toast">Clear Messages</button>
+    </div>
+    <div>
+      <h3>Messages</h3>
+    </div>
 		<table class="sm-messages-table table">
 			<thead>
 				<tr>
@@ -98,6 +103,6 @@
 	<div class="sm-pager-section">
 		{{> Pager (argsPager currentPage amountPerPage totalMessages) }}
 	</div>
-
+  {{> MessagesDeleteModal argsMsgDeleteModal}}
 </div>
 </template>
