@@ -9,20 +9,13 @@
 ###############################################################################
 
 from discover.fetchers.cli.cli_fetcher import CliFetcher
-from utils.exceptions import CredentialsError, HostAddressError
-from utils.ssh_connection import SshError
 
 
 class CliFetchHostDetails(CliFetcher):
 
     def fetch_host_os_details(self, doc):
         cmd = 'cat /etc/os-release && echo "ARCHITECURE=`arch`"'
-        try:
-            lines = self.run_fetch_lines(cmd, ssh_to_host=doc['host'])
-        except (SshError, CredentialsError, HostAddressError) as e:
-            msg = 'error running command {}: {}'.format(cmd, str(e))
-            self.log.error(msg)
-            raise SshError(msg)
+        lines = self.run_fetch_lines(cmd, ssh_to_host=doc['host'])
         os_attributes = {}
         attributes_to_fetch = {
             'NAME': 'name',

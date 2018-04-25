@@ -11,7 +11,7 @@ from discover.fetcher import Fetcher
 from utils.inventory_mgr import InventoryMgr
 
 
-class KubeFetchVnics(Fetcher):
+class KubeFetchVnicsFlannel(Fetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

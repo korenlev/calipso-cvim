@@ -1,14 +1,13 @@
-import unittest
-from pprint import pprint
 from unittest.mock import patch
 
-from discover.fetchers.kube.kube_fetch_vnics import KubeFetchVnics
-from test.fetch.kube_fetch.test_data.kube_fetch_vnics import HOST_DOC, \
+from discover.fetchers.kube.kube_fetch_vnics_flannel \
+    import KubeFetchVnicsFlannel
+from test.fetch.kube_fetch.test_data.kube_fetch_vnics_flannel import HOST_DOC, \
     EXPECTED_VNIC
 from test.fetch.logger_patcher import LoggerPatcher
 
 
-class TestKubeFetchVnics(LoggerPatcher):
+class TestKubeFetchVnicsVpp(LoggerPatcher):
 
     def setUp(self):
         super().setUp()
@@ -19,7 +18,7 @@ class TestKubeFetchVnics(LoggerPatcher):
         self.inv_class = self.inv_patcher.start()
         self.inv = self.inv_class.return_value
 
-        self.fetcher = KubeFetchVnics()
+        self.fetcher = KubeFetchVnicsFlannel()
 
     def test_get(self):
         self.inv.get_by_id.return_value = HOST_DOC
