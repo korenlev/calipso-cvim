@@ -18,7 +18,6 @@ from kubernetes.client.models import V1Container
 from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.exceptions import CredentialsError, HostAddressError
-from utils.inventory_mgr import InventoryMgr
 from utils.ssh_connection import SshError
 
 
@@ -171,12 +170,16 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         doc['network'] = network_id
 
     def add_container_to_vnic(self, container, pod_obj):
-        vnic = self.inv.find_one({
+        condition = {
             'environment': self.get_env(),
             'type': 'vnic',
             'host': pod_obj['host'],
-            'index': container['vnic_index']
-        })
+        }
+        if 'VPP' in self.configuration.environment['mechanism_drivers']:
+            condition['ip_address'] = container['ip_address']
+        else:
+            condition['index'] = container['vnic_index']
+        vnic = self.inv.find_one(condition)
         if not vnic:
             return
 
@@ -185,7 +188,8 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         self.set_folder_parent(vnic, object_type='vnic',
                                master_parent_id=container['id'],
                                master_parent_type='container')
-        vnic['containers'].append(container['container_id'])
+        vnic_containers = vnic.get('containers', [])
+        vnic['containers'] = vnic_containers.append(container['container_id'])
         self.inv.set(vnic)
 
     def set_vnic_path(self, vnic, pod_obj, container):
