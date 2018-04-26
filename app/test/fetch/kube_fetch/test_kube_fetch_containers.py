@@ -12,6 +12,10 @@ from test.fetch.kube_fetch.test_data.kube_fetch_pods import PODS_RESPONSE, \
 
 class TestKubeFetchContainers(KubeTestBase):
 
+    class DummyConfig(object):
+        def __init__(self, _environment):
+            self.environment = _environment
+
     def setUp(self):
         super().setUp()
 
@@ -21,14 +25,21 @@ class TestKubeFetchContainers(KubeTestBase):
         self.conf_class = self.conf_patcher.start()
 
         self.fetcher = KubeFetchContainers(KUBE_CONFIG)
+        self.fetcher.configuration = TestKubeFetchContainers.DummyConfig({
+            'environment_type': 'Kubernetes'
+        })
 
     @staticmethod
     def _get_by_id(environment, item_id):
+        if environment:
+            pass
         if item_id == POD_DOCUMENT['id']:
             return POD_DOCUMENT
         return None
 
-    def test_get(self):
+    def test_get_flannel(self):
+        self.fetcher.configuration.environment['mechanism_drivers'] = \
+            ['Flannel']
         self.inv.get_by_id.side_effect = self._get_by_id
         self.fetcher.run = MagicMock(return_value="[]")
         response = self._get_response(payload=PODS_RESPONSE,
