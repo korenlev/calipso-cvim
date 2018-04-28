@@ -10,20 +10,28 @@
 import re
 
 from discover.fetchers.cli.cli_fetcher import CliFetcher
+from discover.fetchers.cli.cli_fetch_interface_hardware_details_vpp \
+    import CliFetchInterfaceHardwareDetailsVpp
 from utils.inventory_mgr import InventoryMgr
 
 NAME_RE = '^[a-zA-Z]*GigabitEthernet'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
+
 
 class CliFetchHostPnicsVpp(CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
         self.name_re = re.compile(NAME_RE)
+        self.if_details_fetcher = CliFetchInterfaceHardwareDetailsVpp()
 
-    def get(self, id):
-        host_id = id[:id.rindex("-")]
-        host_id = id[:host_id.rindex("-")]
+    def set_env(self, env):
+        super().set_env(env)
+        self.if_details_fetcher.set_env(env)
+
+    def get(self, parent_id):
+        host_id = parent_id[:parent_id.rindex("-")]
+        host_id = parent_id[:host_id.rindex("-")]
         vedges = self.inv.find_items({
             "environment": self.get_env(),
             "type": "vedge",
@@ -40,17 +48,22 @@ class CliFetchHostPnicsVpp(CliFetcher):
                 pnic['id'] = host_id + "-pnic-" + pnic_name
                 pnic['type'] = 'host_pnic'
                 pnic['object_name'] = pnic_name
-                self.get_pnic_mac_address(pnic)
                 pnic['Link detected'] = 'yes' if pnic['state'] == 'up' else 'no'
                 ret.append(pnic)
+        self.if_details_fetcher.add_hardware_interfaces_details(host_id, ret)
+        self.add_pnic_ip_addresses(host_id, ret)
         return ret
 
-    def get_pnic_mac_address(self, pnic):
-        cmd = 'vppctl show hardware-interfaces {}'.format(pnic['object_name'])
-        output_lines = self.run_fetch_lines(cmd, ssh_to_host=pnic['host'])
-        if output_lines:
-            regexps = [{'name': 'mac_address', 're': MAC_FIELD_RE}]
-            for line in output_lines:
-                self.find_matching_regexps(pnic, line, regexps)
-                if 'mac_address' in pnic:
-                    break
+    def add_pnic_ip_addresses(self, host_id, pnics: list):
+        cmd = 'vppctl show int addr'
+        lines = self.run_fetch_lines(cmd, host_id)
+        for pnic in pnics:
+            self.add_pnic_ip_address(pnic, lines)
+
+    def add_pnic_ip_address(self, pnic, lines: list):
+        for pos in range(0, len(lines)-2):
+            line = lines[pos]
+            pnic_name = pnic['name']
+            if line.startswith('{} '.format(pnic_name)):
+                self.log.debug('found IP address for pnic {}'.format(pnic_name))
+                pnic['ip_address'] = lines[pos+1].strip()
