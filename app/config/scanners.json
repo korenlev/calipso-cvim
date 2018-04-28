@@ -359,6 +359,7 @@
           "text": "host_pNICs"
         },
         "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"],
           "mechanism_drivers": "VPP"
         },
         "children_scanner": "ScanVppPnicsRoot"
@@ -406,6 +407,7 @@
         "type": "host_pnic",
         "fetcher": "CliFetchHostPnicsVpp",
         "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"],
           "mechanism_drivers": "VPP"
         },
         "children_scanner": "ScanOteps"
@@ -593,7 +595,8 @@
         "environment_condition": {
           "environment_type": "Kubernetes",
           "mechanism_drivers": "VPP"
-        }
+        },
+        "children_scanner": "ScanVedgePnicsRoot"
       }
     ]
   }
