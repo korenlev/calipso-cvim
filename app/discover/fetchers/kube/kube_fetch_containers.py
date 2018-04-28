@@ -143,8 +143,11 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         if doc['name'] == 'kubernetes-dashboard':
             doc['vnic_index'] = ''
             return
-        cmd = 'docker exec {} cat /sys/class/net/eth0/iflink' \
-            .format(doc['container_id'])
+        interface_name = 'vpp1' \
+            if 'VPP' in self.configuration.environment['mechanism_drivers'] \
+            else 'eth0'
+        cmd = 'docker exec {} cat /sys/class/net/{}/iflink' \
+            .format(doc['container_id'], interface_name)
         try:
             output = self.run(cmd, pod_obj['host'])
             doc['vnic_index'] = output.strip()
