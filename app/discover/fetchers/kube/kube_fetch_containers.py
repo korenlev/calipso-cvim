@@ -187,36 +187,12 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             return
 
         # re-calc new ID and name path for vNIC and vNICs folder
-        self.set_vnic_path(vnic, pod_obj, container)
         self.set_folder_parent(vnic, object_type='vnic',
                                master_parent_id=container['id'],
                                master_parent_type='container')
         vnic_containers = vnic.get('containers', [])
         vnic['containers'] = vnic_containers.append(container['container_id'])
         self.inv.set(vnic)
-
-    def set_vnic_path(self, vnic, pod_obj, container):
-        # first set the folder to the container as parent
-        folder = self.inv.get_by_id(self.env, vnic['parent_id'])
-        if not folder:
-            return
-        folder['parent_id'] = container['id']
-        folder['parent_type'] = 'container'
-        folder['id_path'] = '/'.join([
-            pod_obj['id_path'],
-            '{}-containers'.format(pod_obj['id']),
-            container['id'],
-            '{}-vnics'.format(container['id'])
-        ])
-        folder['name_path'] = '/'.join([
-            pod_obj['name_path'],
-            'Containers',
-            container['id'],
-            'vNICs'
-        ])
-        self.inv.set(folder)
-        vnic['id_path'] = '/'.join([folder['id_path'], vnic['id']])
-        vnic['name_path'] = '/'.join([folder['name_path'], vnic['name']])
 
     def get_proxy_container_info(self, container, pod_obj):
         if container['name'] != self.PROXY_ATTR:
