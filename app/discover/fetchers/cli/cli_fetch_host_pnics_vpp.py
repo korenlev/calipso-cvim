@@ -49,6 +49,10 @@ class CliFetchHostPnicsVpp(CliFetcher):
                 pnic['type'] = 'host_pnic'
                 pnic['object_name'] = pnic_name
                 pnic['Link detected'] = 'yes' if pnic['state'] == 'up' else 'no'
+                self.set_folder_parent(pnic, object_type='pnic',
+                                       master_parent_type='host',
+                                       master_parent_id=host_id,
+                                       parent_text='pNICs')
                 ret.append(pnic)
         self.if_details_fetcher.add_hardware_interfaces_details(host_id, ret)
         self.add_pnic_ip_addresses(host_id, ret)
