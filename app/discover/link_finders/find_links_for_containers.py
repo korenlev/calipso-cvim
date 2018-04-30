@@ -27,14 +27,18 @@ class FindLinksForContainers(FindLinks):
             self.find_container_network_links(container)
 
     def find_matching_vnic(self, container):
-        if 'vnic_index' not in container or not container['vnic_index']:
-            return
-        vnic = self.inv.find_one({
+        vnic_cond = {
             'environment': self.get_env(),
             'type': 'vnic',
-            'host': container['host'],
-            'index': container['vnic_index']
-        })
+            'host': container['host']
+        }
+        if 'VPP' in self.configuration.environment.get('mechanism_drivers'):
+            vnic_cond['ip_address'] = container['ip_address']
+        else:
+            if 'vnic_index' not in container or not container['vnic_index']:
+                return
+            vnic_cond['index'] = container['vnic_index']
+        vnic = self.inv.find_one(vnic_cond)
         if vnic:
             self.add_container_vnic_link(container, vnic)
 
