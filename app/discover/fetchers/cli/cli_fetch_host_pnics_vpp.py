@@ -70,4 +70,8 @@ class CliFetchHostPnicsVpp(CliFetcher):
             pnic_name = pnic['name']
             if line.startswith('{} '.format(pnic_name)):
                 self.log.debug('found IP address for pnic {}'.format(pnic_name))
-                pnic['ip_address'] = lines[pos+1].strip()
+                ip_address = lines[pos+1].strip()
+                # remove netmask after '/'
+                if '/' in ip_address:
+                    ip_address = ip_address[:ip_address.index('/')]
+                pnic['IP Address'] = ip_address
