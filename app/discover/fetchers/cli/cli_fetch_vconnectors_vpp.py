@@ -16,15 +16,27 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
     def get_vconnectors(self, host):
         lines = self.run_fetch_lines("vppctl show mode", host['id'])
+        is_kubernetes = self.ENV_TYPE_KUBERNETES == \
+            self.configuration.environment.get('environment_type')
         vconnectors = {}
+        ret = []
         for l in lines:
-            if not l.startswith('l2 bridge'):
+            if not is_kubernetes and not l.startswith('l2 bridge'):
                 continue
-            line_parts = l.split(' ')
-            name = line_parts[2]
-            bd_id = line_parts[4]
+            line_parts = l.strip().split(' ')
+            name = line_parts[2 if len(line_parts) > 2 else 1]
+            bd_id = '' if is_kubernetes else line_parts[4]
             if bd_id in vconnectors:
                 vconnector = vconnectors[bd_id]
+            elif not bd_id:
+                vconnector = {
+                    'host': host['id'],
+                    'id': '{}-{}'.format(host['id'], name),
+                    'name': name,
+                    'interfaces': {},
+                    'interfaces_names': []
+                }
+                ret.append(vconnector)
             else:
                 vconnector = {
                     'host': host['id'],
@@ -35,11 +47,12 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
                     'interfaces_names': []
                 }
                 vconnectors[bd_id] = vconnector
+                ret.append(vconnector)
             interface = self.get_interface_details(host, name)
             if interface:
                 vconnector['interfaces'][name] = interface
                 vconnector['interfaces_names'].append(name)
-        return list(vconnectors.values())
+        return ret
 
     def get_interface_details(self, host, name):
         # find vconnector interfaces
