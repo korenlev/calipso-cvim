@@ -16,6 +16,7 @@ from discover.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from discover.fetchers.cli.cli_fetch_interface_details \
     import CliFetchInterfaceDetails
 from discover.fetchers.kube.kube_access import KubeAccess
+from discover.scan_error import ScanError
 from utils.ssh_connection import SshError
 
 
@@ -116,6 +117,8 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         cmd = 'ip address show'
         id_re = r'^[0-9]+:\s([^@:]+)'
         lines = self.run_fetch_lines(cmd, host['id'])
+        if not lines:
+            raise ScanError('No output returned by command: {}'.format(cmd))
         interface_lines = []
         interface_name = None
         interfaces = {}
