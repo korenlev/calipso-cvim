@@ -31,7 +31,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
             elif not bd_id:
                 vconnector = {
                     'host': host['id'],
-                    'id': '{}-{}'.format(host['id'], name),
+                    'id': '{}-vconnector-{}'.format(host['id'], name),
                     'name': name,
                     'interfaces': {},
                     'interfaces_names': []
@@ -40,7 +40,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
             else:
                 vconnector = {
                     'host': host['id'],
-                    'id': host['id'] + '-vconnector-' + bd_id,
+                    'id': '{}-vconnector-{}'.format(host['id'], bd_id),
                     'bd_id': bd_id,
                     'name': "bridge-domain-" + bd_id,
                     'interfaces': {},
