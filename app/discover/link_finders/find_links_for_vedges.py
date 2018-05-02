@@ -18,6 +18,9 @@ class FindLinksForVedges(FindLinks):
         self.environment_type = self.configuration.get_env_type()
         self.mechanism_drivers = \
             self.configuration.environment.get('mechanism_drivers', [])
+        self.is_kubernetes_vpp = \
+            self.environment_type == self.ENV_TYPE_KUBERNETES \
+            and 'VPP' in self.mechanism_drivers
 
     def add_links(self):
         self.log.info("adding link types: " +
@@ -26,12 +29,9 @@ class FindLinksForVedges(FindLinks):
             "environment": self.get_env(),
             "type": "vedge"
         })
-        is_kubernetes_vpp = \
-            self.environment_type == self.ENV_TYPE_KUBERNETES \
-            and 'VPP' in self.mechanism_drivers
         for vedge in vedges:
             if self.environment_type == self.ENV_TYPE_OPENSTACK \
-                    or is_kubernetes_vpp:
+                    or self.is_kubernetes_vpp:
                 ports = vedge.get("ports", {})
                 for p in ports.values():
                     self.add_link_for_vedge(vedge, p)
@@ -40,8 +40,9 @@ class FindLinksForVedges(FindLinks):
 
     def add_link_for_vedge(self, vedge, port):
         # link_type: "vnic-vedge"
-        vnic = self.inv.get_by_id(self.get_env(),
-                                  vedge['host'] + '-' + port["name"])
+        vnic = None if self.environment_type == self.ENV_TYPE_KUBERNETES \
+            else self.inv.get_by_id(self.get_env(),
+                                    vedge['host'] + '-' + port["name"])
         if not vnic:
             self.find_matching_vconnector(vedge, port)
             self.find_matching_pnic(vedge, port)
