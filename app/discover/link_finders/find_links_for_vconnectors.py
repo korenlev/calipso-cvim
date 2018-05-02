@@ -16,6 +16,8 @@ class FindLinksForVconnectors(FindLinks):
         super().__init__()
         self.configuration = Configuration()
         self.environment_type = self.configuration.get_env_type()
+        self.mechanism_drivers = self.configuration.get_env_config().\
+            get('mechanism_drivers', [])
 
     def add_links(self):
         if self.environment_type == self.ENV_TYPE_OPENSTACK:
@@ -32,14 +34,14 @@ class FindLinksForVconnectors(FindLinks):
                 self.add_vnic_vconnector_link(vconnector, interface)
                 if self.environment_type == self.ENV_TYPE_OPENSTACK:
                     self.add_vconnector_pnic_link(vconnector, interface)
-            if self.environment_type == self.ENV_TYPE_KUBERNETES:
+            if self.environment_type == self.ENV_TYPE_KUBERNETES \
+                    and 'Flannel' in self.mechanism_drivers:
                 self.add_vconnector_vedge_link(vconnector)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
         # link_type: "vnic-vconnector"
-        mechanism_drivers = self.configuration.environment['mechanism_drivers']
-        ovs_or_flannel = mechanism_drivers and ('OVS' in mechanism_drivers or
-                                                'Flannel' in mechanism_drivers)
+        mech_drivers = self.mechanism_drivers
+        ovs_or_flannel = 'OVS' in mech_drivers or 'Flannel' in mech_drivers
         if ovs_or_flannel:
             # interface ID for OVS
             vnic_id = "{}-{}".format(vconnector["host"], interface_name)
@@ -49,10 +51,12 @@ class FindLinksForVconnectors(FindLinks):
             interface = vconnector['interfaces'][interface_name]
             if not interface or 'mac_address' not in interface:
                 return
-            vnic_mac = interface['mac_address']
-            vnic = self.inv.get_by_field(self.get_env(), 'vnic',
-                                         'mac_address', vnic_mac,
-                                         get_single=True)
+            vconnector_if_mac = interface['mac_address']
+            vnic = self.inv.find_one({
+                'environment': self.get_env(),
+                'type': 'vnic',
+                'host': vconnector['host'],
+                'mac_address': vconnector_if_mac})
         if not vnic:
             return
         if 'network' in vnic:
