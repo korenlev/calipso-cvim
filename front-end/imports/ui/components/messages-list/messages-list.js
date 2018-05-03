@@ -9,27 +9,27 @@
 /*
  * Template Component: MessagesList 
  */
-    
+
 //import { Meteor } from 'meteor/meteor'; 
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { Counter } from 'meteor/natestrauser:publish-performant-counts';
 import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import { Messages } from '/imports/api/messages/messages';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
-        
+
 import '/imports/ui/components/pager/pager';
 import '/imports/ui/components/inventory-properties-display/inventory-properties-display';
 
-import './messages-list.html';     
-    
+import './messages-list.html';
+import '/imports/ui/components/messages-delete-modal/messages-delete-modal';
+
 /*  
  * Lifecycles
- */   
-  
-Template.MessagesList.onCreated(function() {
+ */
+
+Template.MessagesList.onCreated(function () {
   var instance = this;
 
   instance.state = new ReactiveDict();
@@ -44,7 +44,7 @@ Template.MessagesList.onCreated(function() {
 
   instance.autorun(function () {
     //let data = Template.currentData();
-    
+
     var controller = Iron.controller();
     var params = controller.getParams();
     var query = params.query;
@@ -53,18 +53,26 @@ Template.MessagesList.onCreated(function() {
     }).validate(query);
 
     instance.subscribe('environments_config');
+
     instance.subscribe('messages/count');
   });
 
   instance.autorun(function () {
-    let amountPerPage = instance.state.get('amountPerPage');
-    let page = instance.state.get('page');
-    let sortField = instance.state.get('sortField');
-    let sortDirection = instance.state.get('sortDirection');
 
-    Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
-      null, null, page, amountPerPage, sortField, sortDirection
-    ], {
+    showMessagesList(instance);
+  });
+});
+
+
+function showMessagesList(instance) {
+  let amountPerPage = instance.state.get('amountPerPage');
+  let page = instance.state.get('page');
+  let sortField = instance.state.get('sortField');
+  let sortDirection = instance.state.get('sortDirection');
+
+  Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
+    null, null, page, amountPerPage, sortField, sortDirection
+  ], {
       wait: false
     }, function (err, res) {
       if (err) {
@@ -74,9 +82,7 @@ Template.MessagesList.onCreated(function() {
 
       instance.state.set('messages', res);
     });
-  });
-});  
-
+}
 /*
 Template.MessagesList.rendered = function() {
 };  
@@ -98,27 +104,27 @@ Template.MessagesList.events({
       environment.name,
       nodeId,
     ], {
-      wait: false
-    }, function (err, resp) {
-      if (err) { 
-        console.error(R.toString(err));
-        return; 
-      }
+        wait: false
+      }, function (err, resp) {
+        if (err) {
+          console.error(R.toString(err));
+          return;
+        }
 
-      if (R.isNil(resp.node)) {
-        console.error('error finding node related to message', R.toString(nodeId));
-        return;
-      }
+        if (R.isNil(resp.node)) {
+          console.error('error finding node related to message', R.toString(nodeId));
+          return;
+        }
 
-      Router.go('environment', { 
-        _id: idToStr(environment._id) 
-      }, { 
-        query: {
-          selectedNodeId: idToStr(resp.node._id)
-        } 
+        Router.go('environment', {
+          _id: idToStr(environment._id)
+        }, {
+            query: {
+              selectedNodeId: idToStr(resp.node._id)
+            }
+          });
+
       });
-
-    });
 
   },
 
@@ -129,35 +135,35 @@ Template.MessagesList.events({
     Meteor.apply('scansFind?start-timestamp-before', [
       scanStartTimeStamp
     ], {
-      wait: false
-    }, function (err, resp) {
-      if (err) { 
-        console.error(R.toString(err));
-        return; 
-      }
+        wait: false
+      }, function (err, resp) {
+        if (err) {
+          console.error(R.toString(err));
+          return;
+        }
 
-      if (R.isNil(resp.scan)) {
-        console.error('error finding scan related to message', R.toString(scanStartTimeStamp));
-        return;
-      }
+        if (R.isNil(resp.scan)) {
+          console.error('error finding scan related to message', R.toString(scanStartTimeStamp));
+          return;
+        }
 
-      Router.go('scanning-request', { 
-        _id: idToStr(resp.scan._id)
-      }, { 
-        query: {
-          env: idToStr(resp.environment._id),
-          id: idToStr(resp.scan._id),
-          action: 'view'
-        } 
+        Router.go('scanning-request', {
+          _id: idToStr(resp.scan._id)
+        }, {
+            query: {
+              env: idToStr(resp.environment._id),
+              id: idToStr(resp.scan._id),
+              action: 'view'
+            }
+          });
+
       });
-
-    });
   },
 
   'click .sm-table-header': function (event, instance) {
     event.preventDefault();
     let isSortable = event.target.dataset.isSortable;
-    if (! isSortable ) { return; }
+    if (!isSortable) { return; }
 
     let sortField = event.target.dataset.sortField;
     let currentSortField = instance.state.get('sortField');
@@ -166,9 +172,9 @@ Template.MessagesList.events({
     if (sortField === currentSortField) {
       let sortDirection = null;
       if (currentSortDirection === null) {
-        sortDirection = -1; 
+        sortDirection = -1;
       } else if (currentSortDirection === -1) {
-        sortDirection = 1; 
+        sortDirection = 1;
       } else if (currentSortDirection === 1) {
         sortField = null;
         sortDirection = null;
@@ -185,13 +191,18 @@ Template.MessagesList.events({
       instance.state.set('sortDirection', -1);
     }
   },
+
+  'click .js-clear-messages': function (event, _instance) {
+    let $deleteModal = _instance.$('#messages-delete-modal');
+    $deleteModal.modal({ show: true });
+  }
 });
-   
+
 /*  
  * Helpers
  */
 
-Template.MessagesList.helpers({    
+Template.MessagesList.helpers({
   messages: function () {
     let instance = Template.instance();
     return instance.state.get('messages');
@@ -227,17 +238,17 @@ Template.MessagesList.helpers({
     return {
       disableNext: currentPage * amountPerPage > totalMessages,
       disablePrev: currentPage == 1,
-      totalPages: totalPages,      
+      totalPages: totalPages,
       currentPage: currentPage,
       onReqNext: function () {
         console.log('next');
         let page = (currentPage * amountPerPage > totalMessages) ? currentPage : currentPage + 1;
-        instance.state.set('page', page); 
+        instance.state.set('page', page);
       },
       onReqPrev: function () {
         console.log('prev');
         let page = (currentPage == 1) ? currentPage : currentPage - 1;
-        instance.state.set('page', page); 
+        instance.state.set('page', page);
       },
       onReqFirst: function () {
         console.log('req first');
@@ -250,9 +261,9 @@ Template.MessagesList.helpers({
       onReqPage: function (pageNumber) {
         console.log('req page');
         let page;
-        if (pageNumber <= 1) { 
-          page = 1; 
-        } else if (pageNumber > Math.ceil(totalMessages / amountPerPage)) { 
+        if (pageNumber <= 1) {
+          page = 1;
+        } else if (pageNumber > Math.ceil(totalMessages / amountPerPage)) {
           page = totalPages;
         } else {
           page = pageNumber;
@@ -275,7 +286,7 @@ Template.MessagesList.helpers({
       }
     }
 
-    return classes; 
+    return classes;
   },
 
   argsInvPropDisplay: function (env, nodeId) {
@@ -285,6 +296,15 @@ Template.MessagesList.helpers({
       displayFn: (node) => {
         if (R.isNil(node)) { return ''; }
         return `${node.object_name} - ${node.type}`;
+      }
+    };
+  },
+
+  argsMsgDeleteModal: function () {
+    let instance = Template.instance();
+    return {
+      onDeleteReq: function () {
+        showMessagesList(instance);
       }
     };
   },
