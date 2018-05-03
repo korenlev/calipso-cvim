@@ -13,7 +13,7 @@ HOST_PNIC = {
     "parent_id": "kub1-aci-host_pnics",
     "parent_type": "pnics_folder",
     "id_path": "/kube-aci/kube-aci-hosts/kub1-aci/kub1-aci-host_pnics/ens192-00:50:56:99:5d:70",
-    "name_path": "/kube-aci/Hosts/kub1-aci/host_pNICs/ens192",
+    "name_path": "/kube-aci/Hosts/kub1-aci/pNICs/ens192",
     "object_name": "ens192"
 }
 

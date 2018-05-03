@@ -116,7 +116,7 @@
           "folder": true,
           "types_name": "host_pnics",
           "parent_type": "host",
-          "text": "host_pNICs"
+          "text": "pNICs"
         },
         "environment_condition": {
           "mechanism_drivers": [
@@ -356,7 +356,7 @@
           "folder": true,
           "types_name": "host_pnics",
           "parent_type": "vedge",
-          "text": "host_pNICs"
+          "text": "pNICs"
         },
         "environment_condition": {
           "environment_type": ["OpenStack", "Kubernetes"],
@@ -463,7 +463,7 @@
           "folder": true,
           "types_name": "host_pnics",
           "parent_type": "host",
-          "text": "host_pNICs"
+          "text": "pNICs"
         },
         "environment_condition": {
           "environment_type": "Kubernetes",
