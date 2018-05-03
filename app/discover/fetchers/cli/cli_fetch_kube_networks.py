@@ -41,10 +41,11 @@ class CliFetchKubeNetworks(CliFetcher):
 
     def get_network(self, host, network_data) -> dict:
         host_id = host['host']
+        name = network_data['NAME']
         network = {
             'hosts': [host_id],
-            'local_name': network_data['NAME'],
-            'name': '{}-{}'.format(host_id, network_data['NAME']),
+            'local_name': name,
+            'name': name,
             'driver': network_data['DRIVER'],
             'scope': network_data['SCOPE']
         }
@@ -86,7 +87,7 @@ class CliFetchKubeNetworks(CliFetcher):
             return
         hosts_list.append(host_id)
         existing_network['hosts'] = hosts_list
-        old_name =  existing_network['name']
+        old_name = existing_network['name']
         new_name = existing_network['local_name']
         if new_name == old_name:
             return
