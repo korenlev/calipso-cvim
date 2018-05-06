@@ -13,46 +13,47 @@ from discover.fetchers.cli.cli_fetch_vconnectors import CliFetchVconnectors
 class CliFetchVconnectorsVpp(CliFetchVconnectors):
     def __init__(self):
         super().__init__()
+        self.vconnectors = None
+        self.interfaces = {}
+        self.interfaces_names = []
 
     def get_vconnectors(self, host):
+        self.vconnectors = {}
         lines = self.run_fetch_lines("vppctl show mode", host['id'])
         is_kubernetes = self.ENV_TYPE_KUBERNETES == \
             self.configuration.environment.get('environment_type')
-        vconnectors = {}
-        ret = []
+        self.interfaces = {}
+        self.interfaces_names = []
         for l in lines:
-            if not is_kubernetes and not l.startswith('l2 bridge'):
+            is_l2_bridge = l.startswith('l2 bridge')
+            if not is_kubernetes and not is_l2_bridge:
                 continue
             line_parts = l.strip().split(' ')
-            name = line_parts[2 if len(line_parts) > 2 else 1]
-            bd_id = '' if is_kubernetes else line_parts[4]
-            if bd_id in vconnectors:
-                vconnector = vconnectors[bd_id]
-            elif not bd_id:
-                vconnector = {
-                    'host': host['id'],
-                    'id': '{}-vconnector-{}'.format(host['id'], name),
-                    'name': name,
-                    'interfaces': {},
-                    'interfaces_names': []
-                }
-                ret.append(vconnector)
-            else:
-                vconnector = {
-                    'host': host['id'],
-                    'id': '{}-vconnector-{}'.format(host['id'], bd_id),
-                    'bd_id': bd_id,
-                    'name': "bridge-domain-" + bd_id,
-                    'interfaces': {},
-                    'interfaces_names': []
-                }
-                vconnectors[bd_id] = vconnector
-                ret.append(vconnector)
+            name = line_parts[2 if is_l2_bridge else 1]
+            bd_id = line_parts[4] if is_l2_bridge else ''
+            self.add_vconnector(host=host, bd_id=bd_id)
             interface = self.get_interface_details(host, name)
             if interface:
-                vconnector['interfaces'][name] = interface
-                vconnector['interfaces_names'].append(name)
-        return ret
+                self.interfaces[name] = interface
+                self.interfaces_names.append(name)
+        return list(self.vconnectors.values())
+
+    def add_vconnector(self, host: dict=None, bd_id: str=''):
+        if not bd_id or bd_id in self.vconnectors:
+            return
+        vconnector = dict(
+            host=host['id'],
+            id='{}-vconnector-{}'.format(host['id'], bd_id),
+            bd_id=bd_id,
+            name='bridge-domain-{}'.format(bd_id),
+            object_name='{}-VPP-bridge-domain-{}'.format(host['id'], bd_id),
+            interfaces=self.interfaces,
+            interfaces_names=self.interfaces_names
+        )
+        self.vconnectors[bd_id] = vconnector
+        vconnector['interfaces'] = self.interfaces
+        vconnector['interfaces_names'] = self.interfaces_names
+        return vconnector
 
     def get_interface_details(self, host, name):
         # find vconnector interfaces
