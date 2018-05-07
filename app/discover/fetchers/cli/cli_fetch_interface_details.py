@@ -37,6 +37,7 @@ class CliFetchInterfaceDetails(CliFetcher):
                 line_remainder = line.split(":")[2].strip()
                 interface = {
                     "host": host_id,
+                    "index": line[:line.index(":")],
                     "name": interface_name,
                     "local_name": interface_name,
                     "lines": []
