@@ -43,7 +43,7 @@ class CliFetchInterfaceDetails(CliFetcher):
                     "lines": []
                 }
                 self.handle_line(interface, line_remainder)
-                if '<UP,' in line:
+                if '<UP,' in line or ',UP,' in line:
                     status_up = True
             if status_up is None:
                 if tokens is None:
