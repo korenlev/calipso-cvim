@@ -9,26 +9,29 @@
 ###############################################################################
 HOST_ID = "node-6.cisco.com"
 
-INTERFACE_NAMES = ["eno16777728", "eno33554952"]
+INTERFACE_NAMES = ["ens32", "eno33554952"]
 
 INTERFACE_NAME = INTERFACE_NAMES[0]
 IFCONFIG_CM_RESULT = [
-    "eno16777728 Link encap:Ethernet  HWaddr 00:50:56:ac:e8:97  ",
-    "          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1",
-    "          RX packets:409056348 errors:0 dropped:0 overruns:0 frame:0",
-    "          TX packets:293898173 errors:0 dropped:0 overruns:0 carrier:0",
-    "          collisions:0 txqueuelen:1000 ",
-    "          RX bytes:103719003730 (103.7 GB)  "
-    "TX bytes:165090993470 (165.0 GB)",
-    ""
+    "2: ens32: <BROADCAST,MULTICAST,UP,LOWER_UP> "
+    "mtu 1500 qdisc pfifo_fast state UP qlen 1000",
+    "    link/ether 00:50:56:99:2a:07 brd ff:ff:ff:ff:ff:ff",
+    "    inet 10.56.20.211/24 brd 10.56.20.255 scope global ens32",
+    "       valid_lft forever preferred_lft forever",
+    "    inet6 2001:420:4482:24c1:250:56ff:fe99:2a07/64 "
+    "scope global noprefixroute dynamic",
+    "       valid_lft 2591969sec preferred_lft 604769sec",
+    "    inet6 fe80::250:56ff:fe99:2a07/64 scope link",
+    "       valid_lft forever preferred_lft forever"
 ]
 
 INTERFACE_DETAILS = {
     "host": "node-6.cisco.com",
-    "id": "eno16777728-unknown_mac",
+    "id": "ens32-unknown_mac",
+    "index": "2",
     "lines": [],
-    "local_name": "eno16777728",
-    "name": "eno16777728",
+    "local_name": "ens32",
+    "name": "ens32",
     "state": "UP"
 }
 
