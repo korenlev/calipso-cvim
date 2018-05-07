@@ -191,7 +191,8 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
                                master_parent_id=container['id'],
                                master_parent_type='container')
         vnic_containers = vnic.get('containers', [])
-        vnic['containers'] = vnic_containers.append(container['container_id'])
+        vnic['containers'] = vnic_containers.append(container['container_id']) \
+            if vnic_containers else [container['container_id']]
         self.inv.set(vnic)
 
     def get_proxy_container_info(self, container, pod_obj):
