@@ -46,7 +46,8 @@ class FindLinksForVconnectors(FindLinks):
             # interface ID for OVS
             vnic = self.inv.get_by_field(self.get_env(), 'vnic',
                                          field_name='name',
-                                         field_value=interface_name)
+                                         field_value=interface_name,
+                                         get_single=True)
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC
             interface = vconnector['interfaces'][interface_name]
