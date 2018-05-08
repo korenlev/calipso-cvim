@@ -44,8 +44,9 @@ class FindLinksForVconnectors(FindLinks):
         ovs_or_flannel = 'OVS' in mech_drivers or 'Flannel' in mech_drivers
         if ovs_or_flannel:
             # interface ID for OVS
-            vnic_id = "{}-{}".format(vconnector["host"], interface_name)
-            vnic = self.inv.get_by_id(self.get_env(), vnic_id)
+            vnic = self.inv.get_by_field(self.get_env(), 'vnic',
+                                         field_name='name',
+                                         field_value=interface_name)
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC
             interface = vconnector['interfaces'][interface_name]
