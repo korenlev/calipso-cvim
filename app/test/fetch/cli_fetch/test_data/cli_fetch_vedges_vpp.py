@@ -71,7 +71,13 @@ VEDGE_RESULTS = [
     {
         "host": "ubuntu0",
         "id": "ubuntu0-VPP",
+        "type": "vedge",
         "name": "VPP-ubuntu0",
+        "master_parent_type": "host",
+        "master_parent_id": "ubuntu0",
+        "parent_type": "vedges_folder",
+        "parent_id": "ubuntu0-vedges",
+        "parent_text": "vEdges",
         "agent_type": "VPP",
         "binary": "vpp v16.09-rc0~157-g203c632",
         "ports": PORTS
@@ -82,7 +88,13 @@ VEDGE_RESULTS_WITHOUT_BINARY = [
     {
         "host": "ubuntu0",
         "id": "ubuntu0-VPP",
+        "type": "vedge",
         "name": "VPP-ubuntu0",
+        "master_parent_type": "host",
+        "master_parent_id": "ubuntu0",
+        "parent_type": "vedges_folder",
+        "parent_id": "ubuntu0-vedges",
+        "parent_text": "vEdges",
         "agent_type": "VPP",
         "ports": PORTS
     }
