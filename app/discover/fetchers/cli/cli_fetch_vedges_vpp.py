@@ -38,6 +38,9 @@ class CliFetchVedgesVpp(CliFetcher, metaclass=Singleton):
             return []
         interfaces = self.run_fetch_lines('vppctl show int', host_id)
         vedge['ports'] = self.fetch_ports(interfaces)
+        self.set_folder_parent(vedge, 'vedge', parent_text='vEdges',
+                               master_parent_type='host',
+                               master_parent_id=host_id)
         return [vedge]
 
     @staticmethod
