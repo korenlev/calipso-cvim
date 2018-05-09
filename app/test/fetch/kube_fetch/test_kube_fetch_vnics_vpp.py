@@ -2,7 +2,7 @@ from unittest.mock import patch, MagicMock
 
 from discover.fetchers.kube.kube_fetch_vnics_vpp import KubeFetchVnicsVpp
 from test.fetch.kube_fetch.test_data.kube_fetch_vnics_vpp import HOST_DOC, \
-    EXPECTED_VNIC
+    EXPECTED_VNIC, run_fetch_lines_mock
 from test.fetch.logger_patcher import LoggerPatcher
 from utils.mongo_access import MongoAccess
 
@@ -24,11 +24,18 @@ class TestKubeFetchVnicsVpp(LoggerPatcher):
         self.fetcher = KubeFetchVnicsVpp()
 
     def test_get(self):
-        self.skipTest('TBD')
         self.inv.get_by_id.return_value = HOST_DOC
+        original_run_fetch_lines = self.fetcher.run_fetch_lines
+        if_details_fetcher_run_fetch_lines = \
+            self.fetcher.if_details_fetcher.run_fetch_lines
+        self.fetcher.run_fetch_lines = run_fetch_lines_mock
+        self.fetcher.if_details_fetcher.run_fetch_lines = run_fetch_lines_mock
         vnics = self.fetcher.get(HOST_DOC['id'])
         self.assertEqual(1, len(vnics))
         self.assertDictContains(EXPECTED_VNIC, vnics[0])
+        self.fetcher.run_fetch_lines = original_run_fetch_lines
+        self.fetcher.if_details_fetcher.run_fetch_lines = \
+            if_details_fetcher_run_fetch_lines
 
     def tearDown(self):
         MongoAccess.mongo_connect = self.old_mongo_connect
