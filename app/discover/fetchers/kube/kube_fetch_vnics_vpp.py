@@ -35,7 +35,7 @@ class KubeFetchVnicsVpp(CliFetcher):
                 break
             interface = self.process_interface(host_id, line)
             if interface:
-                ret.append(self.process_interface(host_id, line))
+                ret.append(interface)
         self.if_details_fetcher.add_hardware_interfaces_details(host_id, ret)
         return ret
 
