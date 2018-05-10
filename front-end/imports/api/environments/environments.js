@@ -317,9 +317,7 @@ let simpleSchema = new SimpleSchema({
 
   app_path: {
     type: String,
-    autoValue: function () {
-      return '/home/scan/calipso_prod/app';
-    }
+    defaultValue: '/home/scan/calipso_prod/app'
   },
 
   listen: {

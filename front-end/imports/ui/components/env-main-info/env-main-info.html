@@ -225,6 +225,24 @@
       </div>
 
       <div class="form-group">
+        <label for="apiHost" 
+          class="col-sm-2 control-label">App Path</label>
+    
+        <div class="col-sm-3">
+          {{> InputModel(createInputArgs
+                value=model.app_path 
+                key="app_path"
+                type="text"
+                placeholder="App Path")
+          }}
+        </div>
+    
+        <div class="col-sm-4">
+          <p>Enter PYTHON path on server running scan (defaults to /home/scan/calipso_prod/app)</p>
+        </div>
+      </div>
+
+      <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10 btn-mgt-5">
           <button type="button" 
             class="sm-next-button mdl-button mdl-js-button 

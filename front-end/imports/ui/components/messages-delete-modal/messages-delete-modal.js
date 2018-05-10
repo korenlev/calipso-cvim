@@ -43,7 +43,7 @@ Template.MessagesDeleteModal.events({
       }
 
       if (R.and(!R.isNil(res), R.gt(res, 0))) {
-        toastr.success(`${env} clearing messages was successful.`, { timeOut: 5000 });
+        toastr.success(`Clearing ${env} messages was successful.`, { timeOut: 5000 });
         onDeleteReq();
       }
       else {

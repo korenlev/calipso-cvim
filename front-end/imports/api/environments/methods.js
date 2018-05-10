@@ -37,6 +37,7 @@ export const insert = new ValidatedMethod({
       'listen',
       'enable_monitoring', 
       'aci_enabled',
+      'app_path',
     ]).validator({ clean: true, filter: false }), 
   //validate: null, 
   run({
@@ -50,6 +51,7 @@ export const insert = new ValidatedMethod({
     listen,
     enable_monitoring,
     aci_enabled,
+    app_path,
   }) {
     // todo: create clean object instance.
     let environment = Environments.schema.clean({
@@ -77,6 +79,7 @@ export const insert = new ValidatedMethod({
       enable_monitoring,
       auth,
       aci_enabled,
+      app_path,
     });
 
     Environments.insert(environment);
@@ -98,6 +101,7 @@ export const update = new ValidatedMethod({
     'listen',
     'enable_monitoring',
     'aci_enabled',
+    'app_path'
   ]).validator({ clean: true, filter: false }),
   run({
     _id,
@@ -110,6 +114,7 @@ export const update = new ValidatedMethod({
     listen,
     enable_monitoring,
     aci_enabled,
+    app_path,
   }) {
     let env = Environments.findOne({ _id: _id });
 
@@ -130,6 +135,7 @@ export const update = new ValidatedMethod({
         listen,
         enable_monitoring,
         aci_enabled,
+        app_path,
       },
     });
   }
