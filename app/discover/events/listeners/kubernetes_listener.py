@@ -27,7 +27,7 @@ from discover.events.listeners.listener_base import ListenerBase
 from messages.message import Message
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.configuration import Configuration
-from utils.constants import EnvironmentFeatures
+from utils.constants import EnvironmentFeatures, OperationalStatus
 from utils.exceptions import ResourceGoneError
 from utils.inventory_mgr import InventoryMgr
 from utils.kube_utils import update_resource_version
@@ -62,7 +62,8 @@ class KubernetesListener(ListenerBase):
                  inventory_collection: str = DEFAULTS["inventory"],
                  connection_pool_size: int = 10,
                  request_timeout: int = 1,
-                 polling_inverval: int = 1):
+                 polling_inverval: int = 1,
+                 process_vars: dict = None):
         super().__init__(environment=environment)
         self.handler = event_handler
 
@@ -89,6 +90,7 @@ class KubernetesListener(ListenerBase):
         self.resource_versions = {}
         self.request_timeout = request_timeout
         self.polling_interval = polling_inverval
+        self.process_vars = process_vars if process_vars is not None else {}
 
     def process_event(self, event):
         received_timestamp = datetime.datetime.now()
@@ -162,9 +164,11 @@ class KubernetesListener(ListenerBase):
             return False
 
     def run(self):
+        self.process_vars['operational'] = OperationalStatus.RUNNING
         if not self.endpoints:
             self.log.error("No Watch API endpoints defined. "
                            "Stopping listener")
+            self.process_vars['operational'] = OperationalStatus.ERROR
             return
 
         streams = {}
@@ -211,6 +215,7 @@ class KubernetesListener(ListenerBase):
                         # TODO: research two events having the same rv
                         try:
                             if not rv:
+                                self.process_vars['operational'] = OperationalStatus.ERROR
                                 raise ResourceGoneError
 
                             result = self.process_event(event)
@@ -241,18 +246,14 @@ class KubernetesListener(ListenerBase):
                     sleep(self.polling_interval)
             except Exception as e:
                 self.log.exception(e)
-                break
-        self.log.info("Watch stopped")
+                self.process_vars['operational'] = OperationalStatus.ERROR
+                return
 
     @staticmethod
     def listen(args: dict = None):
         args = setup_args(args, KubernetesListener.DEFAULTS, get_args)
         if 'process_vars' not in args:
             args['process_vars'] = {}
-
-        logger = FullLogger()
-        logger.set_loglevel(args["loglevel"])
-        logger.setup(env=args["env"])
 
         env_name = args['env']
         inventory_collection = args["inventory"]
@@ -288,7 +289,8 @@ class KubernetesListener(ListenerBase):
                                       inventory_collection=inventory_collection,
                                       connection_pool_size=connection_pool_size,
                                       request_timeout=args['request_timeout'],
-                                      polling_inverval=args['polling_interval'])
+                                      polling_inverval=args['polling_interval'],
+                                      process_vars=args['process_vars'])
         listener.endpoints = metadata_parser.load_endpoints(api=listener.api)
         listener.resource_versions = args['resource_versions']
 
