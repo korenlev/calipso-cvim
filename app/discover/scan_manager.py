@@ -20,8 +20,11 @@ from utils.constants import ScanStatus, EnvironmentFeatures
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.file_logger import FileLogger
+from utils.logging.full_logger import FullLogger
+from utils.logging.logger import Logger
 from utils.mongo_access import MongoAccess
 from discover.scan import ScanController
+from utils.origins import ScanOrigins, ScanOrigin
 
 
 class ScanManager(Manager):
@@ -238,8 +241,15 @@ class ScanManager(Manager):
             scan_request = results[0]
             env = scan_request.get('environment')
             scan_feature = EnvironmentFeatures.SCANNING
+            origin = ScanOrigin(origin_id=scan_request["_id"],
+                                origin_type=ScanOrigins.SCHEDULED
+                                            if scan_request.get("scheduled")
+                                            else ScanOrigins.MANUAL)
+            logger = FullLogger(name="scan-{}-logger".format(env),
+                                env=env, origin=origin,
+                                level=scan_request.get('loglevel', Logger.default_level))
             if not self.inv.is_feature_supported(env, scan_feature):
-                self.log.error("Scanning is not supported for env '{}'"
+                logger.error("Scanning is not supported for env '{}'"
                                .format(scan_request.get('environment')))
                 self._fail_scan(scan_request)
                 return
@@ -251,35 +261,37 @@ class ScanManager(Manager):
             # Prepare scan arguments and run the scan with them
             try:
                 scan_args = self._build_scan_args(scan_request)
+                scan_args['origin'] = origin
+                scan_args['logger'] = logger
 
-                self.log.info("Starting scan for '{}' environment"
+                logger.info("Starting scan for '{}' environment"
                               .format(scan_args.get('env')))
-                self.log.debug("Scan arguments: {}".format(scan_args))
+                logger.debug("Scan arguments: {}".format(scan_args))
                 result, message = ScanController().run(scan_args)
             except ScanArgumentsError as e:
-                self.log.error("Scan request '{id}' "
-                               "has invalid arguments. "
-                               "Errors:\n{errors}"
-                               .format(id=scan_request['_id'],
-                                       errors=e))
+                logger.error("Scan request '{id}' "
+                             "has invalid arguments. "
+                             "Errors:\n{errors}"
+                             .format(id=scan_request['_id'],
+                                     errors=e))
                 self._fail_scan(scan_request)
             except Exception as e:
-                self.log.exception(e)
-                self.log.error("Scan request '{}' has failed."
-                               .format(scan_request['_id']))
+                logger.exception(e)
+                logger.error("Scan request '{}' has failed."
+                             .format(scan_request['_id']))
                 self._fail_scan(scan_request)
             else:
                 # Check is scan returned success
                 if not result:
-                    self.log.error(message)
-                    self.log.error("Scan request '{}' has failed."
-                                   .format(scan_request['_id']))
+                    logger.error(message)
+                    logger.error("Scan request '{}' has failed."
+                                 .format(scan_request['_id']))
                     self._fail_scan(scan_request)
                     return
 
                 # update the status and timestamps.
-                self.log.info("Request '{}' has been scanned. ({})"
-                              .format(scan_request['_id'], message))
+                logger.info("Request '{}' has been scanned. ({})"
+                            .format(scan_request['_id'], message))
                 end_time = datetime.datetime.utcnow()
                 scan_request['end_timestamp'] = end_time
                 self._complete_scan(scan_request, message)
