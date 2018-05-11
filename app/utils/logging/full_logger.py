@@ -17,9 +17,9 @@ from utils.logging.mongo_logging_handler import MongoLoggingHandler
 
 class FullLogger(Logger):
 
-    def __init__(self, env: str = None, origin: Origin = None,
+    def __init__(self, name: str = None, env: str = None, origin: Origin = None,
                  log_file: str = None, level: str = Logger.default_level):
-        super().__init__(logger_name="{}-Full".format(self.PROJECT_NAME),
+        super().__init__(logger_name=name if name else "{}-Full".format(self.PROJECT_NAME),
                          level=level)
         self.env = env
         self.origin = origin
