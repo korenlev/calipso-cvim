@@ -10,7 +10,9 @@
 import argparse
 import signal
 import time
+from datetime import timedelta, datetime
 from multiprocessing import Process, Manager as SharedManager
+from typing import Iterable
 
 import os
 
@@ -21,8 +23,75 @@ from discover.manager import Manager
 from utils.constants import OperationalStatus, EnvironmentFeatures
 from utils.inventory_mgr import InventoryMgr
 from utils.logging.file_logger import FileLogger
+from utils.logging.full_logger import FullLogger
+from utils.logging.logger import Logger
 from utils.logging.message_logger import MessageLogger
 from utils.mongo_access import MongoAccess
+
+
+class ProcessMonitor:
+    RETRY_DELAY_LIMIT = 600  # Maximum backoff time between restarts
+    BASE_DELAY = 10
+
+    def __init__(self, process: Process, environment: str, logger: Logger,
+                 variables):
+        self.process = process
+        self.environment = environment
+        self.logger = logger
+        self.variables = variables
+        self.crash_count = 0
+        self.next_retry_time = None
+        self.is_on_backoff = False
+
+    @property
+    def operational(self):
+        try:
+            operational = self.variables.get('operational')
+        except:
+            self.logger.error(
+                "Event listener '{0}' is unreachable".format(self.environment)
+            )
+            return OperationalStatus.STOPPED
+
+        if operational:
+            return operational
+        if self.is_alive:
+            return OperationalStatus.RUNNING
+        if self.process.exitcode == 0:
+            return OperationalStatus.STOPPED
+
+        return OperationalStatus.ERROR
+
+    @property
+    def ready_to_start(self):
+        return not self.is_on_backoff
+
+    @property
+    def is_alive(self):
+        return self.process.is_alive()
+
+    def update_backoff(self):
+        if self.operational != OperationalStatus.ERROR:
+            self.is_on_backoff = False
+            self.crash_count = 0
+            return
+
+        if self.is_on_backoff and self.next_retry_time < datetime.now():
+            self.is_on_backoff = False
+            return
+
+        if not self.is_on_backoff:
+            self.is_on_backoff = True
+            self.crash_count += 1
+            retry_delay = int(min(self.crash_count * self.BASE_DELAY,
+                                  self.RETRY_DELAY_LIMIT))
+            self.next_retry_time = datetime.now() + timedelta(seconds=retry_delay)
+
+    def start(self):
+        return self.process.start()
+
+    def terminate(self):
+        return self.process.terminate()
 
 
 class EventManager(Manager):
@@ -54,7 +123,7 @@ class EventManager(Manager):
                          mongo_config_file=self.args.mongo_config)
         self.db_client = None
         self.interval = None
-        self.processes = []
+        self.processes = {}
 
     @staticmethod
     def get_args():
@@ -132,37 +201,28 @@ class EventManager(Manager):
             logger.error(e)
             raise
 
-    def _get_alive_processes(self):
-        return [p for p in self.processes
-                if p['process'].is_alive()]
+    def _get_alive_processes(self) -> dict:
+        return {env: p for env, p in self.processes.items() if p.is_alive}
 
     # Get all processes that should be terminated
-    def _get_stuck_processes(self, stopped_processes: list):
-        return [p for p in self._get_alive_processes()
-                if p.get("name") in map(lambda p: p.get("name"), stopped_processes)]
+    def _get_stuck_processes(self, stopped_processes: Iterable) -> dict:
+        return {env: p for env, p in self._get_alive_processes().items()
+                if p.environment in stopped_processes}
 
     # Give processes time to finish and kill them if they are stuck
-    def _kill_stuck_processes(self, process_list: list):
+    def _kill_stuck_processes(self, process_list: Iterable):
         if self._get_stuck_processes(process_list):
             time.sleep(self.SIGKILL_DELAY)
-        for process in self._get_stuck_processes(process_list):
-            self.log.info("Killing event listener '{0}'".format(process.get("name")))
+        for env, process in self._get_stuck_processes(process_list).items():
+            process.logger.info("Killing event listener '{0}'".format(env))
             os.kill(process.get("process").pid, signal.SIGKILL)
-
-    def _get_operational(self, process: dict) -> OperationalStatus:
-        try:
-            return process.get("vars", {})\
-                          .get("operational")
-        except:
-            self.log.error("Event listener '{0}' is unreachable".format(process.get("name")))
-            return OperationalStatus.STOPPED
 
     def _update_operational_status(self, status: OperationalStatus):
         self.collection.update_many(
-            {"name": {"$in": [process.get("name")
-                              for process
-                              in self.processes
-                              if self._get_operational(process) == status]}},
+            {"name": {"$in": [env
+                              for env, process
+                              in self.processes.items()
+                              if process.operational == status]}},
             {"$set": {"operational": status.value}}
         )
 
@@ -171,7 +231,7 @@ class EventManager(Manager):
         self._update_operational_status(OperationalStatus.ERROR)
         self._update_operational_status(OperationalStatus.STOPPED)
 
-    def cleanup_processes(self):
+    def stop_processes(self):
         # Query for envs that are no longer eligible for listening
         # (scanned == false and/or listen == false)
         dropped_envs = [env['name']
@@ -181,34 +241,55 @@ class EventManager(Manager):
                                                      {'listen': False}]},
                                      projection=['name'])]
 
-        live_processes = []
-        stopped_processes = []
+        stopped_processes = {}
         # Drop already terminated processes
         # and for all others perform filtering
-        for process in self._get_alive_processes():
-            # If env no longer qualifies for listening,
-            # stop the listener.
-            # Otherwise, keep the process
-            if process['name'] in dropped_envs:
-                self.log.info("Stopping event listener '{0}'".format(process.get("name")))
-                process['process'].terminate()
-                stopped_processes.append(process)
-            else:
-                live_processes.append(process)
+        for env, process in self._get_alive_processes().items():
+            # If env no longer qualifies for listening, stop the listener
+            if env in dropped_envs:
+                process.logger.info("Stopping event listener '{0}'".format(env))
+                process.terminate()
+                stopped_processes[env] = process
 
-        self._kill_stuck_processes(stopped_processes)
+        self._kill_stuck_processes(stopped_processes.keys())
 
         # Update all 'operational' statuses
         # for processes stopped on the previous step
         self.collection.update_many(
-            {"name": {"$in": [process.get("name")
-                              for process
-                              in stopped_processes]}},
+            {"name": {"$in": list(stopped_processes.keys())}},
             {"$set": {"operational": OperationalStatus.STOPPED.value}}
         )
 
-        # Keep the living processes
-        self.processes = live_processes
+    def filter_working_listeners(self, environments) -> Iterable:
+        return (
+            env
+            for env in environments
+            if env not in self._get_alive_processes()
+        )
+
+    # Failing listeners are restarted after a backoff, not immediately
+    def filter_failing_listeners(self, environments) -> Iterable:
+        remaining_environments = []
+        for env in environments:
+            process = self.processes.get(env)
+            if not process:
+                remaining_environments.append(env)
+                continue
+
+            process.update_backoff()
+            if process.ready_to_start:
+                remaining_environments.append(env)
+                continue
+
+        return remaining_environments
+
+    def get_environments_to_listen(self) -> Iterable:
+        environments = [
+            env['name']
+            for env in self.collection.find({'scanned': True, 'listen': True})
+        ]
+        environments = self.filter_failing_listeners(environments)
+        return self.filter_working_listeners(environments)
 
     def do_action(self):
         try:
@@ -217,27 +298,24 @@ class EventManager(Manager):
                 # so that we keep last statuses of env listeners before they were terminated
                 self.update_operational_statuses()
 
-                # Perform a cleanup that filters out all processes
-                # that are no longer eligible for listening
-                self.cleanup_processes()
+                # Stop processes that should no longer be listening
+                self.stop_processes()
 
-                envs = self.collection.find({'scanned': True, 'listen': True})
+                environments = self.get_environments_to_listen()
 
                 # Iterate over environments that don't have an event listener attached
-                for env in filter(lambda e: e['name'] not in
-                                  map(lambda process: process["name"], self.processes),
-                                  envs):
-                    env_name = env['name']
+                for env_name in environments:
+                    logger = FullLogger(env=env_name, level=self.args.loglevel)
 
                     if not self.inv.is_feature_supported(env_name, EnvironmentFeatures.LISTENING):
-                        self.log.error("Listening is not supported for env '{}'".format(env_name))
+                        logger.error("Listening is not supported for env '{}'".format(env_name))
                         self.collection.update({"name": env_name},
                                                {"$set": {"operational": OperationalStatus.ERROR.value}})
                         continue
 
                     listener = self.get_listener(env_name)
                     if not listener:
-                        self.log.error("No listener is defined for env '{}'".format(env_name))
+                        logger.error("No listener is defined for env '{}'".format(env_name))
                         self.collection.update({"name": env_name},
                                                {"$set": {"operational": OperationalStatus.ERROR.value}})
                         continue
@@ -246,12 +324,20 @@ class EventManager(Manager):
                     process_vars = SharedManager().dict()
                     env_config = self.inv.get_env_config(env=env_name)
                     p = Process(target=self.listen_to_events,
-                                args=(listener, env_name, process_vars,),
+                                args=(listener, env_name, process_vars),
                                 kwargs=env_config.get('listener_kwargs', {}),
                                 name=env_name)
-                    self.processes.append({"process": p, "name": env_name, "vars": process_vars})
-                    self.log.info("Starting event listener '{0}'".format(env_name))
-                    p.start()
+
+                    if env_name not in self.processes:
+                        self.processes[env_name] = ProcessMonitor(process=p,
+                                                                  environment=env_name,
+                                                                  logger=logger,
+                                                                  variables=process_vars)
+                    else:
+                        self.processes[env_name].process = p
+
+                    logger.info("Starting event listener '{0}'".format(env_name))
+                    self.processes[env_name].start()
 
                 # Make sure statuses are up-to-date before event manager goes to sleep
                 self.update_operational_statuses()
@@ -259,16 +345,16 @@ class EventManager(Manager):
         finally:
             # Fetch operational statuses before terminating listeners.
             # Shared variables won't be available after termination.
-            stopping_processes = [process.get("name")
-                                  for process
-                                  in self.processes
-                                  if self._get_operational(process) != OperationalStatus.ERROR]
+            stopping_processes = [env
+                                  for env, process
+                                  in self.processes.items()
+                                  if process.operational != OperationalStatus.ERROR]
             self._update_operational_status(OperationalStatus.ERROR)
 
             # Gracefully stop processes
-            for process in self._get_alive_processes():
-                self.log.info("Stopping event listener '{0}'".format(process.get("name")))
-                process.get("process").terminate()
+            for env, process in self._get_alive_processes().items():
+                process.logger.info("Stopping event listener '{0}'".format(env))
+                process.terminate()
 
             # Kill all remaining processes
             self._kill_stuck_processes(self.processes)
