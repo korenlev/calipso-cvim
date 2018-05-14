@@ -30,6 +30,7 @@ from utils.mongo_access import MongoAccess
 
 
 class ProcessMonitor:
+    MIN_RETRY_DELAY_LIMIT = 10
     RETRY_DELAY_LIMIT = 600  # Maximum backoff time between restarts
     BASE_DELAY = 10
 
@@ -39,10 +40,11 @@ class ProcessMonitor:
         self.environment = environment
         self.logger = logger
         self.variables = variables
-        self.crash_count = 0
-        self.next_retry_time = None
-        self.is_on_backoff = False
+        self.is_on_backoff = False  # Is listener crashing and suspended?
+        self.crash_count = 0  # How many times listener has crashed consecutively
+        self.next_retry_time = None  # Earliest time the listener can be restarted again
 
+    # Provides the most accurate operational status for the process
     @property
     def operational(self):
         try:
@@ -70,16 +72,22 @@ class ProcessMonitor:
     def is_alive(self):
         return self.process.is_alive()
 
+    # Listener health check and restart scheduler
     def update_backoff(self):
+        # Listener has recovered
         if self.operational != OperationalStatus.ERROR:
             self.is_on_backoff = False
             self.crash_count = 0
             return
 
+        # Listener has been suspended for the designated time
+        # and is ready to be restarted again
         if self.is_on_backoff and self.next_retry_time < datetime.now():
             self.is_on_backoff = False
             return
 
+        # Listener has crashed and should be suspended for some time
+        # before it is restarted again.
         if not self.is_on_backoff:
             self.is_on_backoff = True
             self.crash_count += 1
@@ -147,6 +155,19 @@ class EventManager(Manager):
                                  "(must be more than {} seconds. Default: {})"
                                  .format(EventManager.MIN_INTERVAL,
                                          EventManager.DEFAULTS["interval"]))
+        parser.add_argument("-B", "--base_delay", nargs="?", type=int,
+                            default=ProcessMonitor.RETRY_DELAY_LIMIT,
+                            help="Base delay between restarts "
+                                 "of a failing event listener "
+                                 "(must be more than {} seconds. Default: {})"
+                                 .format(1, ProcessMonitor.BASE_DELAY))
+        parser.add_argument("-D", "--max_delay", nargs="?", type=int,
+                            default=ProcessMonitor.RETRY_DELAY_LIMIT,
+                            help="Maximum delay between restarts "
+                                 "of a failing event listener "
+                                 "(must be more than {} seconds. Default: {})"
+                                 .format(ProcessMonitor.MIN_RETRY_DELAY_LIMIT,
+                                         ProcessMonitor.RETRY_DELAY_LIMIT))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=EventManager.DEFAULTS["loglevel"],
                             help="Logging level \n(default: '{}')"
@@ -164,6 +185,9 @@ class EventManager(Manager):
         self.inv.set_collections(self.args.inventory)
         self.collection = self.db_client.db[self.args.collection]
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
+        ProcessMonitor.BASE_DELAY = max(1, self.args.base_delay)
+        ProcessMonitor.RETRY_DELAY_LIMIT = max(ProcessMonitor.MIN_RETRY_DELAY_LIMIT,
+                                               self.args.max_delay)
         self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started EventManager with following configuration:\n"
@@ -255,10 +279,7 @@ class EventManager(Manager):
 
         # Update all 'operational' statuses
         # for processes stopped on the previous step
-        self.collection.update_many(
-            {"name": {"$in": list(stopped_processes.keys())}},
-            {"$set": {"operational": OperationalStatus.STOPPED.value}}
-        )
+        self._update_operational_status(OperationalStatus.STOPPED)
 
     def filter_working_listeners(self, environments) -> Iterable:
         return (
@@ -267,7 +288,7 @@ class EventManager(Manager):
             if env not in self._get_alive_processes()
         )
 
-    # Failing listeners are restarted after a backoff, not immediately
+    # Filter out the listeners that are consistently crashing on startup
     def filter_failing_listeners(self, environments) -> Iterable:
         remaining_environments = []
         for env in environments:
@@ -276,6 +297,7 @@ class EventManager(Manager):
                 remaining_environments.append(env)
                 continue
 
+            # Update current backoff state for the listener
             process.update_backoff()
             if process.ready_to_start:
                 remaining_environments.append(env)
