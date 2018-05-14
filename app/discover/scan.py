@@ -22,7 +22,7 @@ from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.configuration import Configuration
 from utils.constants import EnvironmentFeatures
-from utils.origins import ScanOrigin, ScanOrigins
+from utils.origins import ScanOrigins
 from utils.mongo_access import MongoAccess
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
@@ -129,7 +129,8 @@ class ScanController(Fetcher):
         "monitoring_setup_only": False,
         "clear": False,
         "clear_all": False,
-        "scheduled": False
+        "origin": ScanOrigins.MANUAL,
+        "logger": None
     }
 
     def __init__(self):
@@ -256,6 +257,8 @@ class ScanController(Fetcher):
         args = setup_args(args, self.DEFAULTS, self.get_args)
         # After this setup we assume args dictionary has all keys
         # defined in self.DEFAULTS
+        if args.get('logger'):
+            self.log = args['logger']
         self.log.set_loglevel(args['loglevel'])
 
         try:
@@ -277,13 +280,9 @@ class ScanController(Fetcher):
         self.conf.use_env(env_name)
 
         # generate ScanObject Class and instance.
-        origin = ScanOrigin(origin_id=args['_id'],
-                            origin_type=ScanOrigins.SCHEDULED
-                                        if args["scheduled"]
-                                        else ScanOrigins.MANUAL)
         scanner = Scanner()
         scanner.log.set_loglevel(args['loglevel'])
-        scanner.setup(env=env_name, origin=origin)
+        scanner.setup(env=env_name, origin=args['origin'])
         scanner.found_errors[env_name] = False
 
         # decide what scanning operations to do

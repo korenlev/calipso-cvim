@@ -29,7 +29,9 @@ class ListenerBase(ABC):
         self.environment = environment
         self.log_file = os.path.join(FileLogger.LOG_DIRECTORY,
                                      self.LOG_FILENAME)
-        self.log = FullLogger(level=self.LOG_LEVEL, env=environment)
+        logger_name = "{}-{}-logger".format(self.__class__.__name__, environment)
+        self.log = FullLogger(name=logger_name, level=self.LOG_LEVEL,
+                              env=environment)
 
     @abstractmethod
     def handle_event(self, event_type: str, notification: dict) -> EventResult:

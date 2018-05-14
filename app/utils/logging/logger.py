@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import logging
+
 from abc import ABC
 
 
@@ -30,6 +31,7 @@ class Logger(ABC):
         super().__init__()
         self.check_level(level)
         self.log = logging.getLogger(logger_name)
+        self.log.handlers.clear()
         logging.basicConfig(format=self.log_format,
                             level=level)
         self.log.propagate = False
