@@ -281,7 +281,7 @@ class EventManager(Manager):
         # for processes stopped on the previous step
         self._update_operational_status(OperationalStatus.STOPPED)
 
-    def filter_working_listeners(self, environments) -> Iterable:
+    def filter_out_working_listeners(self, environments) -> Iterable:
         return (
             env
             for env in environments
@@ -289,10 +289,11 @@ class EventManager(Manager):
         )
 
     # Filter out the listeners that are consistently crashing on startup
-    def filter_failing_listeners(self, environments) -> Iterable:
+    def filter_out_failing_listeners(self, environments) -> Iterable:
         remaining_environments = []
         for env in environments:
             process = self.processes.get(env)
+            # If the listener hasn't been set up yet, skip this filter
             if not process:
                 remaining_environments.append(env)
                 continue
@@ -308,10 +309,11 @@ class EventManager(Manager):
     def get_environments_to_listen(self) -> Iterable:
         environments = [
             env['name']
-            for env in self.collection.find({'scanned': True, 'listen': True})
+            for env
+            in self.collection.find({'scanned': True, 'listen': True})
         ]
-        environments = self.filter_failing_listeners(environments)
-        return self.filter_working_listeners(environments)
+        environments = self.filter_out_failing_listeners(environments)
+        return self.filter_out_working_listeners(environments)
 
     def do_action(self):
         try:
@@ -336,11 +338,6 @@ class EventManager(Manager):
                         continue
 
                     listener = self.get_listener(env_name)
-                    if not listener:
-                        logger.error("No listener is defined for env '{}'".format(env_name))
-                        self.collection.update({"name": env_name},
-                                               {"$set": {"operational": OperationalStatus.ERROR.value}})
-                        continue
 
                     # A dict that is shared between event manager and newly created env listener
                     process_vars = SharedManager().dict()
