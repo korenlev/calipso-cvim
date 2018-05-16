@@ -579,6 +579,7 @@ function doSubmit(instance) {
       listen: environment.listen,
       enable_monitoring: environment.enable_monitoring,
       aci_enabled: environment.aci_enabled,
+      app_path:environment.app_path,
     }, processActionResult.bind(null, instance));
     break;
 
@@ -594,6 +595,7 @@ function doSubmit(instance) {
       listen: environment.listen,
       enable_monitoring: environment.enable_monitoring,
       aci_enabled: environment.aci_enabled,
+      app_path:environment.app_path,
     }, processActionResult.bind(null, instance));
     break;
 
