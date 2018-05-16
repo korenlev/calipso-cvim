@@ -9,7 +9,7 @@
 /*
  * Template Component: TopNavbarMenu 
  */
-    
+
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 //import * as R from 'ramda';
@@ -24,20 +24,23 @@ import '/imports/ui/components/search-auto-complete-list/search-auto-complete-li
 import '/imports/ui/components/get-started/get-started';
 import '/imports/ui/components/env-form/env-form';
 import '/imports/ui/components/alarm-icons/alarm-icons';
+import '/imports/ui/components/settings-list/settings-list';
 
 import './top-navbar-menu.html';
 
 /*  
  * Lifecycles
- */   
+ */
+let instance = null;
 
 Template.TopNavbarMenu.onCreated(function () {
-  let instance = this;
+  instance = this;
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     isAutoCompleteOpen: false,
-    searchTerm: null
+    searchTerm: null,
+    openclosed: true,
   });
 
   const mainEnvIdSelector = (state) => (state.components.mainApp.selectedEnvironment._id);
@@ -55,9 +58,9 @@ Template.TopNavbarMenu.onDestroyed(function () {
 });
 
 Template.TopNavbarMenu.events = {
-  'keyup #search': function  (event) {
+  'keyup #search': function (event) {
     let instance = Template.instance();
-    let searchTerm =  instance.$(event.target).val();
+    let searchTerm = instance.$(event.target).val();
 
     instance.tempSearchTerm = searchTerm;
     instance.searchDebounced();
@@ -77,6 +80,24 @@ Template.TopNavbarMenu.events = {
   }
 };
 
+var loginButtonsSession = Accounts._loginButtonsSession;
+
+Template.loginButtons.events({
+  'click #login-name-link, click #login-sign-in-link': function () {
+    let isVisible = loginButtonsSession.get('dropdownVisible');
+    let isOpened = instance.state.get('openclosed');
+
+    if (isOpened === true) {
+      instance.state.set('openclosed', false);
+      loginButtonsSession.set('dropdownVisible', true);
+    }
+    else {
+      loginButtonsSession.closeDropdown();
+      instance.state.set('openclosed', true);
+    }
+  },
+});
+
 Template.TopNavbarMenu.helpers({
   envId: function () {
     let instance = Template.instance();
@@ -86,7 +107,7 @@ Template.TopNavbarMenu.helpers({
   searchTerm: function () {
     let instance = Template.instance();
     return instance.state.get('searchTerm');
-  }, 
+  },
 
   argsSearch: function (envId, searchTerm) {
     let instance = Template.instance();
@@ -98,17 +119,17 @@ Template.TopNavbarMenu.helpers({
       onResultSelected(node) {
         instance.state.set('isAutoCompleteOpen', false);
 
-        let searchInput = instance.$('input#search');  
+        let searchInput = instance.$('input#search');
         searchInput.val(node.name_path);
 
-        Router.go('environment', { _id: idToStr(node._envId) }, { 
+        Router.go('environment', { _id: idToStr(node._envId) }, {
           query: { selectedNodeId: idToStr(node._id) }
         });
       },
       onCloseReq() {
         instance.state.set('isAutoCompleteOpen', false);
 
-        let searchInput = instance.$('input#search');  
+        let searchInput = instance.$('input#search');
         searchInput.val(null);
       },
     };

@@ -1,22 +1,24 @@
 .os-alarm-icons
+  margin-right: 56px;
   display: flex;
   flex-flow: row;
   justify-content: flex-end; 
 
-  padding-top 50px
+  //padding-top 50px
   //background-color dk-gray1
-  background-color: brand-blue
-  border-bottom: solid 1px black;
+  // background-color: brand-blue
+  // border-bottom: solid 1px black;
 
-  .breadcrumb 
-    background-color dk-gray1
+  // .breadcrumb 
+  //   background-color dk-gray1
 
   .alarm-icons
-    padding-top 15px
-    padding-right 10px    
-    color #FFF
-    //text-align right
-
+    display: flex
+    
+    img
+      width: 25px;
+      height:25px;
+    
     .material-icons:hover
       cursor pointer
       color spark-grey
@@ -26,6 +28,34 @@
       display inline
       trans()
 
+      .alarm-icon-error
+        color: alarm-red;
+        margin-top: 2px;
+        margin-left: 6px;
+    
+      .alarm-icon-warning
+        color: alarm-orange;
+        margin-top: 2px;
+        margin-left: 6px;
+
+      .alarm-icon-info
+        color: alarm-yellow-green;
+        margin-top: 2px;
+        margin-left: 6px;
+
+    .alarm-container
+      display: flex;
+      cursor: pointer;
+
+    .alarm-container-error
+      margin-left: 34px;
+
+    .alarm-container-warning
+      margin-left: 34px;
+
+    .alarm-container-info
+      margin-left: 0px;
+      
     .dropdown-menu-right
       right 25px
 
@@ -50,36 +80,54 @@ p.navbar-brand.navbar-custom{
 }
 
 nav.navbar-inverse.navbar-custom 
-  background-color: brand-blue
+  height:100px;
+  margin: 0;
+  background-color: white;
+  border-bottom: 2px solid border-light-grey;
   color: #FFF;
   a
-    color: #FFF;
+    text-decoration: none;
+    color:text-light-grey;
     .login-close-text
       color: #555;
     #login-name-link:hover 
       color: rgb(63,81,181);
     &:hover 
-      color: rgb(63,81,181);
+      color: text-light-blue;
+      text-decoration: none;
       trans()
   a.droplist
-    color: brand-blue 
-    padding: 10px 0px 0px 10px
+    color: text-darker-grey; 
+    height: 30px;
+    font-size:14px;
+    padding-top:6px;
+    padding-left: 35px;
+    //height: 36px;
+  a.droplist:hover
+    background-color: bg-hover-light-grey;
+    color: text-darker-grey;
+    //padding: 10px 0px 0px 10px
+  a.droplist-new-env
+    background-color: brand-blue;
+    color:white;
+    height:48px;
+    font-size:16px;
+    padding-top:10px;
   
   .search
     position: relative;
-    color: white
+    color: text-light-grey
     input 
       height: 30px;
-      background: brand-blue
-      // text-indent: 25px;
-      padding-left: 20px;
+      background: white;
       border 0px
       border-bottom 2px solid spark-grey
       width 175px 
       &:hover, &:active, &:focus
-        border-bottom 2px solid white
+        outline: none;
+        border-bottom 2px solid text-light-grey
     ::-webkit-input-placeholder
-       color: white
+       color: text-light-grey
     .fa-search 
       position: absolute;
       top: 7px;
@@ -97,22 +145,55 @@ nav.navbar-inverse.navbar-custom
   background-color: #fff;
 }
 
+//container of buttons customized style
+#login-dropdown-list
+{
+  background-color: white;
+  left:-123px;
+  top:58px;
+  width: 180px;
+  border-radius: 0;
+  margin: 0;
+  border: 0;
+  padding:0;
+}
+
 /* Login form style */
 .sign-in #login-sign-in-link, #login-name-link, #login-name-link.login-link-text {
-  color: #FFF;
+  color: text-light-grey;
   text-decoration: none;
+  text-transform: capitalize;
+  padding: 0;
 }
 
 .login-button#login-buttons-open-change-password,
 .login-button#login-buttons-password,
 .login-button#login-buttons-logout {
-  background-color: brand-blue
-  border: brand-blue
+  background-color: white;
+  border: 0;
+  width: 180px;
+  margin: 0;
+  padding: 10px 0 0 0;
+  height:36px;
+  border-radius: 0;
+  color: text-darker-grey;
 }
 
 .login-button#login-buttons-open-change-password:hover,
 .login-button#login-buttons-password:hover,
 .login-button#login-buttons-logout:hover {
-  background-color: rgb(63,81,181);
-  border: rgb(63,81,181);
+  background-color: bg-hover-light-grey;
+  border: bg-hover-light-grey;
+  padding: 10px 0 0 0;
 }
+
+.login-close-text 
+{
+    display: none;
+}
+
+// .login-link-and-dropdown-list
+// {
+//   //text-light-blue
+//   background-color: red; 
+// }

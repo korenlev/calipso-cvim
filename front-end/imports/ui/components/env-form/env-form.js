@@ -82,7 +82,7 @@ Template.envForm.helpers({
 
     let envName = R.when(
       R.isNil, 
-      R.always('My Environments')
+      R.always('MY ENVIRONMENTS')
     )(R.path(['name'], selectedEnv));
 
     return envName;
