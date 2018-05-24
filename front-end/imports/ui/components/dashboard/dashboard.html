@@ -27,6 +27,7 @@
             <div class="item">
               {{> EnvironmentBox (argsEnvBox 
                     envItem.name
+                    envItem.distribution
                     (regoinsCount envItem.name) 
                     (regoins envItem.name)
                     (projectsCount envItem.name)
@@ -42,7 +43,7 @@
         </div> <!-- flex box for environment cards -->
         
         <!-- this flex box for alerts cards -->
-        <div class="sm-side-container" style="display: none">
+        <div class="sm-side-container" style="display: none;">
 
           <div class="sm-messages-section">
             {{#each messagesInfoBox in (getListMessagesInfoBox) }}

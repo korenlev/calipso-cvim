@@ -7,39 +7,46 @@
 // http://www.apache.org/licenses/LICENSE-2.0                                           /
 /////////////////////////////////////////////////////////////////////////////////////////
 /*
- * Template Component: MessagesInfoBox 
+ * Template Component: DataCube
  */
     
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
+import { ReactiveDict } from 'meteor/reactive-dict';
+import * as R from 'ramda';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import { ReactiveDict } from 'meteor/reactive-dict';
+import { Icon } from '/imports/lib/icon';
         
-import './messages-info-box.html';     
+import './data-cube.html';     
     
 /*  
  * Lifecycles
  */   
   
-Template.MessagesInfoBox.onCreated(function() {
+Template.DataCube.onCreated(function() {
   var instance = this;
 
-  instance.autorun(function () {
-    let data = Template.currentData();
-    //console.log(data);
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    theme: null
+  });
+
+  this.autorun(() => {
     new SimpleSchema({
-      title: { type: String },
-      count: { type: Number },
-      lastScanTimestamp: { type: String, optional: true },
-      icon: { type: String },
-      colorClass: { type: String },
-      onMoreDetailsReq: { type: Function },
-    }).validate(data);
+      header: { type: String },
+      dataInfo: { type: String },
+      icon: { type: Icon },
+      theme: { type: String, optional: true }
+    }).validate(Template.currentData());
+
+    let theme = Template.currentData().theme;
+    theme = R.isNil(theme) ? 'light' : theme; 
+    instance.state.set('theme', theme);
   });
 });  
 
 /*
-Template.MessagesInfoBox.rendered = function() {
+Template.DataCube.rendered = function() {
 };  
 */
 
@@ -47,20 +54,18 @@ Template.MessagesInfoBox.rendered = function() {
  * Events
  */
 
-Template.MessagesInfoBox.events({
-  'click .sm-more-details-btn': function (event, instance) {
-    event.preventDefault();
-
-    let data = instance.data;
-    data.onMoreDetailsReq();
-  }
+Template.DataCube.events({
 });
    
 /*  
  * Helpers
  */
 
-Template.MessagesInfoBox.helpers({    
+Template.DataCube.helpers({    
+  getTheme: function () {
+    let instance = Template.instance();
+    return instance.state.get('theme');
+  }
 });
 
 

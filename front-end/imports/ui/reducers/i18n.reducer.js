@@ -40,6 +40,39 @@ const defaultState = {
             header: 'Number of pods'
         },
       },
+      newBriefInfos: {
+        lastScanning: {
+          header: 'Last scanning'
+        },
+        vConnectorsNum: {
+          header: 'vConnectors'
+        },
+        hostsNum: {
+          header: 'Hosts'
+        },
+        vServicesNum: {
+          header: 'vServices'
+        },
+        instancesNum: {
+          header: 'Instances'
+        },
+        containersNum: {
+            header: 'Containers'
+        },
+        podsNum: {
+            header: 'Pods'
+        },
+      },
+      newListInfoBoxes: {
+        regions: {
+          header: 'Regions',
+          baseType: 'region'
+        },
+        projects: {
+          header: 'Projects',
+          baseType: 'project'
+        }
+      },
       listInfoBoxes: {
         regions: {
           header: 'Regions'
