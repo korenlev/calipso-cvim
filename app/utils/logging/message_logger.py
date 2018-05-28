@@ -11,15 +11,19 @@ import logging
 
 from utils.logging.logger import Logger
 from utils.logging.mongo_logging_handler import MongoLoggingHandler
+from utils.origins import Origin
 
 
 class MessageLogger(Logger):
 
-    def __init__(self, name: str = None, env: str = None, level: str = None):
+    def __init__(self, name: str = None, env: str = None,
+                 origin: Origin = None, level: str = None):
         super().__init__(logger_name=name if name else "{}-Message".format(self.PROJECT_NAME),
                          level=level)
         self.env = env
-        self.add_handler(MongoLoggingHandler(env, self.level))
+        self.origin = origin
+        self.add_handler(MongoLoggingHandler(env=env, origin=self.origin,
+                                             level=self.level))
 
     def set_env(self, env):
         self.env = env
