@@ -85,3 +85,30 @@ FVCEP_RESPONSE = {
         }
     ]
 }
+
+L1PHYSIF_RESPONSE = {
+    "totalCount": "1",
+    "imdata": [
+        {
+            "l1PhysIf": {
+                "attributes": {
+                    "adminSt": "up",
+                    "dn": "topology/pod-1/node-103/sys/phys-[eth1/33]",
+                    "id": "eth1/33",
+                    "layer": "Layer2",
+                    "medium": "broadcast",
+                    "modTs": "2018-03-19T17:27:32.981+03:00",
+                    "mode": "trunk",
+                    "portT": "leaf",
+                    "routerMac": "not-applicable",
+                    "spanMode": "not-a-span-dest",
+                    "speed": "1G",
+                    "status": "",
+                    "switchingSt": "enabled",
+                    "trunkLog": "default",
+                    "usage": "epg"
+                }
+            }
+        }
+    ]
+}

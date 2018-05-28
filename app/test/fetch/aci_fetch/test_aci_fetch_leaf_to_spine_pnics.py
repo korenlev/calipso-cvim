@@ -9,6 +9,8 @@ from test.fetch.aci_fetch.test_data.aci_access import ACI_CONFIG, \
     LOGIN_RESPONSE, EMPTY_RESPONSE
 from test.fetch.aci_fetch.test_data.aci_fetch_leaf_to_spine_pnics import \
     HOSTLINK_PNIC, SPINES_RESPONSE, ADJACENT_SPINES_RESPONSE
+from test.fetch.aci_fetch.test_data.aci_fetch_switch_pnic import \
+    L1PHYSIF_RESPONSE
 
 
 class TestAciFetchLeafToSpinePnics(AciTestBase):
@@ -17,6 +19,7 @@ class TestAciFetchLeafToSpinePnics(AciTestBase):
         'aaaRefresh.json': LOGIN_RESPONSE,
         'fabricNode.json': SPINES_RESPONSE,
         'sys.json': ADJACENT_SPINES_RESPONSE,
+        'phys-\[.*\].json': L1PHYSIF_RESPONSE
     }
 
     def setUp(self):

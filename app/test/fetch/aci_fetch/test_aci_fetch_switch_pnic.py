@@ -7,7 +7,7 @@ from test.fetch.aci_fetch.aci_test_base import AciTestBase
 from test.fetch.aci_fetch.test_data.aci_access import ACI_CONFIG, \
     LOGIN_RESPONSE, EMPTY_RESPONSE
 from test.fetch.aci_fetch.test_data.aci_fetch_switch_pnic import HOST_PNIC, \
-    SWITCH_PNIC_RESPONSE, SWITCH_RESPONSE, FVCEP_RESPONSE
+    SWITCH_PNIC_RESPONSE, SWITCH_RESPONSE, FVCEP_RESPONSE, L1PHYSIF_RESPONSE
 from test.fetch.logger_patcher import LoggerPatcher
 
 
@@ -17,7 +17,8 @@ class TestAciFetchSwitchPnic(AciTestBase, LoggerPatcher):
         'aaaRefresh.json': LOGIN_RESPONSE,
         'epmMacEp.json': SWITCH_PNIC_RESPONSE,
         'sys.json': SWITCH_RESPONSE,
-        'fvCEp.json': FVCEP_RESPONSE
+        'fvCEp.json': FVCEP_RESPONSE,
+        'phys-\[.*\].json': L1PHYSIF_RESPONSE
     }
 
     def setUp(self):
