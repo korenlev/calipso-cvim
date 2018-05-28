@@ -9,9 +9,10 @@
 ###############################################################################
 import re
 
-from discover.fetchers.aci.aci_access import AciAccess, aci_config_required
+from discover.fetchers.aci.aci_access import aci_config_required
+from discover.fetchers.aci.aci_base_fetch_switch import AciBaseFetchSwitch
 from utils.inventory_mgr import InventoryMgr
-from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
+from utils.util import encode_aci_dn
 
 
 # Fetches and adds to database:
@@ -20,7 +21,7 @@ from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
 # Returns:
 # 1. ACI Switch pnic that belongs to the ACI Switch (mentioned above)
 # and is connected to Calipso host pnic.
-class AciFetchSwitchPnic(AciAccess):
+class AciFetchSwitchPnic(AciBaseFetchSwitch):
 
     def __init__(self, config=None):
         super().__init__(config=config)
@@ -119,10 +120,13 @@ class AciFetchSwitchPnic(AciAccess):
         # Prepare pnic json for results list
         fvCEp = self.fetch_client_endpoints(mac_address)
 
+        aci_pnic_id = leaf_pnic["ifId"]
         db_pnic_id = "-".join([db_leaf_id,
-                               encode_aci_dn(leaf_pnic["ifId"]),
+                               encode_aci_dn(aci_pnic_id),
                                mac_address])
 
+        interface_data = self.fetch_pnic_interface(switch_id=aci_leaf_id,
+                                                   pnic_id=aci_pnic_id)
         pnic_json = {
             "id": db_pnic_id,
             "object_name": leaf_pnic["ifId"],
@@ -132,7 +136,8 @@ class AciFetchSwitchPnic(AciAccess):
             "parent_type": "switch",
             "mac_address": mac_address,
             "switch": db_leaf_id,
-            "aci_document": leaf_pnic,
+            "aci_switch_id": aci_leaf_id,
+            "aci_document": interface_data,
             "fvCEp": fvCEp
         }
         return [pnic_json]

@@ -9,9 +9,10 @@
 ###############################################################################
 import re
 
-from discover.fetchers.aci.aci_access import AciAccess, aci_config_required
+from discover.fetchers.aci.aci_access import aci_config_required
+from discover.fetchers.aci.aci_base_fetch_switch import AciBaseFetchSwitch
 from utils.inventory_mgr import InventoryMgr
-from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
+from utils.util import decode_aci_dn, encode_aci_dn
 
 
 # Fetches and adds to database:
@@ -21,7 +22,7 @@ from utils.util import decode_aci_dn, encode_aci_dn, get_object_path_part
 # 1. ACI Switch uplink pnics that belong to the "leaf" switch
 # 2. ACI Switch downlink pnics that belong to "spine" switches mentioned above
 # and are connected to the "leaf" switch
-class AciFetchLeafToSpinePnics(AciAccess):
+class AciFetchLeafToSpinePnics(AciBaseFetchSwitch):
 
     def __init__(self, config=None):
         super().__init__(config=config)
@@ -139,7 +140,9 @@ class AciFetchLeafToSpinePnics(AciAccess):
                 "switch": db_spine_id,
                 "parent_id": db_spine_id,
                 "parent_type": "switch",
-                "aci_document": {}  # TODO: what can we add here?
+                "aci_switch_id": aci_spine_id,
+                "aci_document": self.fetch_pnic_interface(switch_id=aci_spine_id,
+                                                          pnic_id=downlink_pnic_id)
             }
 
             uplink_pnic_json = {
@@ -151,7 +154,9 @@ class AciFetchLeafToSpinePnics(AciAccess):
                 "switch": leaf_switch_id,
                 "parent_id": leaf_switch_id,
                 "parent_type": "switch",
-                "aci_document": {}  # TODO: what can we add here?
+                "aci_switch_id": aci_leaf_id,
+                "aci_document": self.fetch_pnic_interface(switch_id=aci_leaf_id,
+                                                          pnic_id=uplink_pnic_id)
             }
 
             pnics.extend([downlink_pnic_json, uplink_pnic_json])
