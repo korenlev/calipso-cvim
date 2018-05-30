@@ -40,7 +40,7 @@ Template.TopNavbarMenu.onCreated(function () {
   instance.state.setDefault({
     isAutoCompleteOpen: false,
     searchTerm: null,
-    openclosed: true,
+    isOpen: true,
   });
 
   const mainEnvIdSelector = (state) => (state.components.mainApp.selectedEnvironment._id);
@@ -84,16 +84,15 @@ var loginButtonsSession = Accounts._loginButtonsSession;
 
 Template.loginButtons.events({
   'click #login-name-link, click #login-sign-in-link': function () {
-    let isVisible = loginButtonsSession.get('dropdownVisible');
-    let isOpened = instance.state.get('openclosed');
+    let isOpen = instance.state.get('isOpen');
 
-    if (isOpened === true) {
-      instance.state.set('openclosed', false);
+    if (isOpen === true) {
+      instance.state.set('isOpen', false);
       loginButtonsSession.set('dropdownVisible', true);
     }
     else {
       loginButtonsSession.closeDropdown();
-      instance.state.set('openclosed', true);
+      instance.state.set('isOpen', true);
     }
   },
 });
