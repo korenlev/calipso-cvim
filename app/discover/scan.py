@@ -22,7 +22,7 @@ from discover.scanner import Scanner
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from utils.configuration import Configuration
 from utils.constants import EnvironmentFeatures
-from utils.origins import ScanOrigins
+from utils.origins import ScanOrigins, ScanOrigin
 from utils.mongo_access import MongoAccess
 from utils.exceptions import ScanArgumentsError
 from utils.inventory_mgr import InventoryMgr
@@ -129,7 +129,7 @@ class ScanController(Fetcher):
         "monitoring_setup_only": False,
         "clear": False,
         "clear_all": False,
-        "origin": ScanOrigins.MANUAL,
+        "origin": ScanOrigin(origin_type=ScanOrigins.MANUAL),
         "logger": None
     }
 

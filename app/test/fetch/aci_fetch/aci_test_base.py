@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
+import re
 import requests
 
 import test.fetch.aci_fetch.test_data.aci_access as test_data
@@ -28,7 +29,7 @@ class AciTestBase(unittest.TestCase):
         response = MagicMock()
         return_value = next((resp
                              for endpoint, resp in self.RESPONSES.items()
-                             if endpoint in url),
+                             if re.match(".*{}.*".format(endpoint), url)),
                             None)
         response.json.return_value = return_value
         return response
