@@ -27,20 +27,20 @@ import '/imports/ui/components/alarm-icons/alarm-icons';
 import '/imports/ui/components/settings-list/settings-list';
 
 import './top-navbar-menu.html';
+import {getParentTemplateInstance} from "../../../lib/utilities";
 
 /*  
  * Lifecycles
  */
-let instance = null;
 
 Template.TopNavbarMenu.onCreated(function () {
-  instance = this;
+  let instance = this;
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     isAutoCompleteOpen: false,
     searchTerm: null,
-    isOpen: true,
+    loginButtonsOpen: false,
   });
 
   const mainEnvIdSelector = (state) => (state.components.mainApp.selectedEnvironment._id);
@@ -53,16 +53,11 @@ Template.TopNavbarMenu.onCreated(function () {
   }, 250);
 });
 
-Template.TopNavbarMenu.onDestroyed(function () {
-  //let instance = this;
-});
-
 Template.TopNavbarMenu.events = {
   'keyup #search': function (event) {
     let instance = Template.instance();
-    let searchTerm = instance.$(event.target).val();
 
-    instance.tempSearchTerm = searchTerm;
+    instance.tempSearchTerm = instance.$(event.target).val();
     instance.searchDebounced();
   },
 
@@ -80,19 +75,20 @@ Template.TopNavbarMenu.events = {
   }
 };
 
-var loginButtonsSession = Accounts._loginButtonsSession;
-
 Template.loginButtons.events({
   'click #login-name-link, click #login-sign-in-link': function () {
-    let isOpen = instance.state.get('isOpen');
+    let parentInstance = getParentTemplateInstance(Template.instance());
 
-    if (isOpen === true) {
-      instance.state.set('isOpen', false);
+    let loginButtonsSession = Accounts._loginButtonsSession;
+    let isOpen = parentInstance.state.get('loginButtonsOpen');
+
+    if (isOpen === false) {
+      parentInstance.state.set('loginButtonsOpen', true);
       loginButtonsSession.set('dropdownVisible', true);
     }
     else {
       loginButtonsSession.closeDropdown();
-      instance.state.set('isOpen', true);
+      parentInstance.state.set('loginButtonsOpen', false);
     }
   },
 });
