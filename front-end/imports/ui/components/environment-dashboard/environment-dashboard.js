@@ -9,7 +9,7 @@
 /*
  * Template Component: EnvironmentDashboard 
  */
-    
+
 //import { Meteor } from 'meteor/meteor'; 
 import * as R from 'ramda';
 import * as _ from 'lodash';
@@ -21,33 +21,38 @@ import { Icon } from '/imports/lib/icon';
 import { store } from '/imports/ui/store/store';
 import { Environments } from '/imports/api/environments/environments';
 import { Inventory } from '/imports/api/inventories/inventories';
-import { calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessagesInfoBox } 
+import { calcIconForMessageLevel, lastMessageTimestamp, calcColorClassForMessagesInfoBox }
   from '/imports/api/messages/messages';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Roles } from 'meteor/alanning:roles';
 //import { idToStr } from '/imports/lib/utilities';
 import { UserSettings } from '/imports/api/user-settings/user-settings';
 import { Counter } from 'meteor/natestrauser:publish-performant-counts';
-        
-import '/imports/ui/components/data-cubic/data-cubic';
+
+//import '/imports/ui/components/data-cubic/data-cubic';
+import '/imports/ui/components/data-cube/data-cube';
 import '/imports/ui/components/icon/icon';
 import '/imports/ui/components/list-info-box/list-info-box';
-import './environment-dashboard.html';     
+import './environment-dashboard.html';
 import '/imports/ui/components/messages-info-box/messages-info-box';
 import '/imports/ui/components/messages-modal/messages-modal';
+import '/imports/ui/components/alarm-icons/alarm-icons';
+import '/imports/ui/components/list-details-box/list-details-box';
 
 let listInfoBoxes = [{
-  header: ['components', 'environment', 'listInfoBoxes', 'regions', 'header'],
+  header: ['components', 'environment', 'newListInfoBoxes', 'regions', 'header'],
+  baseType: ['components', 'environment', 'newListInfoBoxes', 'regions', 'baseType'],
   listName: 'regions',
-  listItemFormat: { 
+  listItemFormat: {
     getLabelFn: (item) => { return item.name; },
     getValueFn: (item) => { return item._id._str; },
   },
   icon: { type: 'material', name: 'public' },
 }, {
-  header: ['components', 'environment', 'listInfoBoxes', 'projects', 'header'],
+  header: ['components', 'environment', 'newListInfoBoxes', 'projects', 'header'],
+  baseType: ['components', 'environment', 'newListInfoBoxes', 'projects', 'baseType'],
   listName: 'projects',
-  listItemFormat: { 
+  listItemFormat: {
     getLabelFn: (item) => { return item.name; },
     getValueFn: (item) => { return item._id._str; },
   },
@@ -56,9 +61,9 @@ let listInfoBoxes = [{
 
 /*  
  * Lifecycles
- */   
-  
-Template.EnvironmentDashboard.onCreated(function() {
+ */
+
+Template.EnvironmentDashboard.onCreated(function () {
   var instance = this;
 
   instance.state = new ReactiveDict();
@@ -86,6 +91,7 @@ Template.EnvironmentDashboard.onCreated(function() {
     Environments.find({ _id: _id }).forEach((env) => {
       instance.state.set('envName', env.name);
       instance.state.set('envType', env.environment_type);
+      instance.state.set('envDist', env.distribution);
       instance.state.set('infoLastScanning', env.last_scanned);
 
       let allowEdit = false;
@@ -97,7 +103,7 @@ Template.EnvironmentDashboard.onCreated(function() {
         allowEdit = true;
       }
 
-      instance.state.set('allowEdit', allowEdit );
+      instance.state.set('allowEdit', allowEdit);
 
       subscribe(instance, env);
 
@@ -114,8 +120,8 @@ Template.EnvironmentDashboard.onCreated(function() {
 
   instance.autorun(function () {
     instance.subscribe('user_settings?user');
-    UserSettings.find({user_id: Meteor.userId()}).forEach((userSettings) => {
-      instance.state.set('msgsViewBackDelta', userSettings.messages_view_backward_delta); 
+    UserSettings.find({ user_id: Meteor.userId() }).forEach((userSettings) => {
+      instance.state.set('msgsViewBackDelta', userSettings.messages_view_backward_delta);
     });
   });
 
@@ -127,7 +133,7 @@ Template.EnvironmentDashboard.onCreated(function() {
     instance.subscribe('messages/count?backDelta&level&env', msgsViewBackDelta, 'warning', env);
     instance.subscribe('messages/count?backDelta&level&env', msgsViewBackDelta, 'error', env);
   });
-});  
+});
 
 /*
 Template.EnvironmentDashboard.rendered = function() {
@@ -142,31 +148,31 @@ Template.EnvironmentDashboard.events({
   'click .sm-edit-button': function (event, instance) {
     let envName = instance.state.get('envName');
     let allowEdit = instance.state.get('allowEdit');
-    if (! allowEdit) { return; }
+    if (!allowEdit) { return; }
 
-    Router.go('/wizard/' + envName,{},{});
+    Router.go('/wizard/' + envName, {}, {});
   },
 
   'click .sm-scan-button': function (event, instance) {
     let envName = instance.state.get('envName');
 
-    Router.go('new-scanning',{},{ query: { env: envName } });
+    Router.go('new-scanning', {}, { query: { env: envName } });
   },
 
   'click .sm-delete-button': function (event, instance) {
     let allowEdit = instance.state.get('allowEdit');
-    if (! allowEdit) { return; }
+    if (!allowEdit) { return; }
 
     let $deleteModal = instance.$('#env-delete-modal');
     $deleteModal.modal({ show: true });
   }
 });
-   
+
 /*  
  * Helpers
  */
 
-Template.EnvironmentDashboard.helpers({    
+Template.EnvironmentDashboard.helpers({
   getState: function (key) {
     let instance = Template.instance();
     return instance.state.get(key);
@@ -175,42 +181,44 @@ Template.EnvironmentDashboard.helpers({
   getListInfoBoxes: function () {
     return listInfoBoxes;
   },
-  
+
   getBriefInfoList: function (env_type) {
-    let briefInfoList =  [{
-        header: ['components', 'environment', 'briefInfos', 'hostsNum', 'header'],
-        dataSource: 'infoHostsCount',
-        icon: new Icon({ type: 'fa', name: 'server' }),
+    let briefInfoList = [{
+      header: ['components', 'environment', 'newBriefInfos', 'hostsNum', 'header'],
+      dataSource: 'infoHostsCount',
+      icon: new Icon({ type: 'fa', name: 'server' }),
     }, {
-        header: ['components', 'environment', 'briefInfos', 'vConnectorsNum', 'header'],
-        dataSource: 'infoVConnectorsCount',
-        icon: new Icon({ type: 'fa', name: 'compress' }),
-    }, {
-        header: ['components', 'environment', 'briefInfos', 'lastScanning', 'header'],
-        dataSource: 'infoLastScanning',
-        icon: new Icon({ type: 'fa', name: 'search' }),
-    }];
+      header: ['components', 'environment', 'newBriefInfos', 'vConnectorsNum', 'header'],
+      dataSource: 'infoVConnectorsCount',
+      icon: new Icon({ type: 'fa', name: 'compress' }),
+    },
+      //{
+      //     header: ['components', 'environment', 'newBriefInfos', 'lastScanning', 'header'],
+      //     dataSource: 'infoLastScanning',
+      //     icon: new Icon({ type: 'fa', name: 'search' }),
+      // }
+    ];
 
     if (R.isEmpty(env_type)
-        || R.isNil(env_type)
-        || env_type === 'OpenStack') {
-        briefInfoList.unshift({
-          header: ['components', 'environment', 'briefInfos', 'instancesNum', 'header'],
-          dataSource: 'infoInstancesCount',
-          icon: new Icon({ type: 'fa', name: 'desktop' }),
-        }, {
-          header: ['components', 'environment', 'briefInfos', 'vServicesNum', 'header'],
+      || R.isNil(env_type)
+      || env_type === 'OpenStack') {
+      briefInfoList.unshift({
+        header: ['components', 'environment', 'newBriefInfos', 'instancesNum', 'header'],
+        dataSource: 'infoInstancesCount',
+        icon: new Icon({ type: 'fa', name: 'desktop' }),
+      }, {
+          header: ['components', 'environment', 'newBriefInfos', 'vServicesNum', 'header'],
           dataSource: 'infoVServicesCount',
           icon: new Icon({ type: 'fa', name: 'object-group' }),
         });
     }
     else if (env_type === 'Kubernetes') {
-        briefInfoList.unshift({
-          header: ['components', 'environment', 'briefInfos', 'containersNum', 'header'],
-          dataSource: 'infoContainersCount',
-          icon: new Icon({ type: 'local', name: 'container.png' }),
-        }, {
-          header: ['components', 'environment', 'briefInfos', 'podsNum', 'header'],
+      briefInfoList.unshift({
+        header: ['components', 'environment', 'newBriefInfos', 'containersNum', 'header'],
+        dataSource: 'infoContainersCount',
+        icon: new Icon({ type: 'local', name: 'container.png' }),
+      }, {
+          header: ['components', 'environment', 'newBriefInfos', 'podsNum', 'header'],
           dataSource: 'infoPodsCount',
           icon: new Icon({ type: 'fa', name: 'empire', }),
         });
@@ -219,38 +227,38 @@ Template.EnvironmentDashboard.helpers({
     return briefInfoList;
   },
 
-  infoMessagesCount: function(){
+  infoMessagesCount: function () {
     let instance = Template.instance();
     let envName = instance.state.get('envName');
     if (R.isNil(envName)) { return; }
 
     return Counts.get('messages?env+level!counter?env=' +
-     envName + '&level=' + 'info');
+      envName + '&level=' + 'info');
   },
 
-  warningsCount: function(){
+  warningsCount: function () {
     let instance = Template.instance();
     let envName = instance.state.get('envName');
     if (R.isNil(envName)) { return; }
 
     return Counts.get('messages?env+level!counter?env=' +
-     envName + '&level=' + 'warn');
+      envName + '&level=' + 'warn');
   },
 
-  errorsCount: function(){
+  errorsCount: function () {
     let instance = Template.instance();
     let envName = instance.state.get('envName');
     if (R.isNil(envName)) { return; }
 
     return Counts.get('messages?env+level!counter?env=' +
-       envName + '&level=' + 'error');
+      envName + '&level=' + 'error');
   },
 
   argsEnvDeleteModal: function () {
     let instance = Template.instance();
     return {
       onDeleteReq: function () {
-        instance.$('#env-delete-modal').modal('hide'); 
+        instance.$('#env-delete-modal').modal('hide');
         let _id = instance.state.get('_id');
         remove.call({ _id: _id }, function (error, _res) {
           if (R.isNil(error)) {
@@ -268,14 +276,19 @@ Template.EnvironmentDashboard.helpers({
 
   argsBriefInfo: function (briefInfo) {
     let instance = Template.instance();
-    return {
+
+    let info = R.when(R.isNil, R.always(0))(instance.state.get(briefInfo.dataSource));
+    let briefObj = {
       header: R.path(briefInfo.header, store.getState().api.i18n),
-      dataInfo: R.toString(instance.state.get(briefInfo.dataSource)),
+      dataInfo: R.toString(info),
       icon: new Icon(briefInfo.icon)
     };
+
+    return briefObj;
   },
 
   argsListInfoBox: function (listInfoBox) {
+
     let instance = Template.instance();
     let data = Template.currentData();
     let envName = instance.state.get('envName');
@@ -284,6 +297,7 @@ Template.EnvironmentDashboard.helpers({
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
+      baseType: R.path(listInfoBox.baseType, store.getState().api.i18n),
       list: getList(listInfoBox.listName, envName),
       icon: new Icon(listInfoBox.icon),
       listItemFormat: listInfoBox.listItemFormat,
@@ -297,7 +311,7 @@ Template.EnvironmentDashboard.helpers({
   notAllowEdit: function () {
     let instance = Template.instance();
     let allowEdit = instance.state.get('allowEdit');
-    return ! allowEdit;
+    return !allowEdit;
   },
 
   getListMessagesInfoBox: function () {
@@ -314,14 +328,14 @@ Template.EnvironmentDashboard.helpers({
     ];
   },
 
-  argsMessagesInfoBox: function(boxDef, env) {
+  argsMessagesInfoBox: function (boxDef, env) {
     let instance = Template.instance();
     let envName = instance.state.get('envName');
     let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
 
-    if (R.isNil(envName)) { 
-      return { 
-        title: '', count: 0, lastScanTimestamp: '', onMoreDetailsReq: function () {} 
+    if (R.isNil(envName)) {
+      return {
+        title: '', count: 0, lastScanTimestamp: '', onMoreDetailsReq: function () { }
       };
     }
 
@@ -341,41 +355,53 @@ Template.EnvironmentDashboard.helpers({
       icon: calcIconForMessageLevel(boxDef.level),
       colorClass: calcColorClassForMessagesInfoBox(boxDef.level),
       onMoreDetailsReq: function () {
-        $('#messagesModalGlobal').modal('show', { 
+        $('#messagesModalGlobal').modal('show', {
           dataset: {
             messageLevel: boxDef.level,
             envName: env,
-          } 
+          }
         });
       }
     };
   },
+
+  argsAlarmIcons: function () {
+    let instance = Template.instance();
+    let envName = instance.state.get('envName');
+
+    if (!R.isNil(envName)) {
+      return {
+        envName: envName
+      };
+    }
+  }
 }); // end: helpers
+
 
 function getList(listName, envName) {
   switch (listName) {
-  case 'regions':
-    return Inventory.find({ 
-      environment: envName,
-      type: 'region'
-    });   
+    case 'regions':
+      return Inventory.find({
+        environment: envName,
+        type: 'region'
+      });
 
-  case 'projects':
-    return Inventory.find({ 
-      environment: envName,
-      type: 'project'
-    });   
+    case 'projects':
+      return Inventory.find({
+        environment: envName,
+        type: 'project'
+      });
 
-  default:
-    throw 'unknown list type';
+    default:
+      throw 'unknown list type';
   }
 }
 
 function subscribe(instance, env) {
   let subscriptions = ['host', 'vconnector', 'project', 'region'];
   if (R.isEmpty(env.environment_type)
-      || R.isNil(env.environment_type)
-      || env.environment_type === 'OpenStack') {
+    || R.isNil(env.environment_type)
+    || env.environment_type === 'OpenStack') {
     subscriptions.push('instance', 'vservice');
   }
   else if (env.environment_type === 'Kubernetes') {
@@ -383,38 +409,38 @@ function subscribe(instance, env) {
   }
 
   for (let i = 0; i < subscriptions.length; i++) {
-      instance.subscribe('inventory?env+type', env.name, subscriptions[i]);
+    instance.subscribe('inventory?env+type', env.name, subscriptions[i]);
   }
 }
 
 function setDataSources(instance, env) {
-    let dataSources = [
-        {object: 'vconnector', variableName: 'infoVConnectorsCount'},
-        {object: 'host', variableName: 'infoHostsCount'},
-        {object: 'project', variableName: 'projectsCount'},
-        {object: 'region', variableName: 'regionsCount'},
-    ];
-    if (R.isEmpty(env.environment_type)
-        || R.isNil(env.environment_type)
-        || env.environment_type === 'OpenStack') {
-      dataSources.push(
-        {object: 'instance', variableName: 'infoInstancesCount'},
-        {object: 'vservice', variableName: 'infoVServicesCount'}
-      );
-    }
-    else if (env.environment_type === 'Kubernetes') {
-      dataSources.push(
-        {object: 'container', variableName: 'infoContainersCount'},
-        {object: 'pod', variableName: 'infoPodsCount'}
-      );
-    }
+  let dataSources = [
+    { object: 'vconnector', variableName: 'infoVConnectorsCount' },
+    { object: 'host', variableName: 'infoHostsCount' },
+    { object: 'project', variableName: 'projectsCount' },
+    { object: 'region', variableName: 'regionsCount' },
+  ];
+  if (R.isEmpty(env.environment_type)
+    || R.isNil(env.environment_type)
+    || env.environment_type === 'OpenStack') {
+    dataSources.push(
+      { object: 'instance', variableName: 'infoInstancesCount' },
+      { object: 'vservice', variableName: 'infoVServicesCount' }
+    );
+  }
+  else if (env.environment_type === 'Kubernetes') {
+    dataSources.push(
+      { object: 'container', variableName: 'infoContainersCount' },
+      { object: 'pod', variableName: 'infoPodsCount' }
+    );
+  }
 
-    for (let i = 0; i < dataSources.length; i++) {
-      let counterName =  'inventory?env+type!counter?env=' + env.name +
-                         '&type=' + dataSources[i].object;
-      let objectsCount = Counts.get(counterName);
-      instance.state.set(dataSources[i].variableName, objectsCount);
-    }
+  for (let i = 0; i < dataSources.length; i++) {
+    let counterName = 'inventory?env+type!counter?env=' + env.name +
+      '&type=' + dataSources[i].object;
+    let objectsCount = Counts.get(counterName);
+    instance.state.set(dataSources[i].variableName, objectsCount);
+  }
 }
 
 /*
