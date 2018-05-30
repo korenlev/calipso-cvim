@@ -9,7 +9,15 @@
 ########################################################################################
  -->
 <template name="main">
-  {{> TopNavbarMenu }}
-  {{> yield}}
-  {{> MessagesModal }}
+  <div>
+    <div class="header-main">
+      {{> TopNavbarMenu }}
+    </div>
+    <div>
+      {{> yield}}
+    </div>
+    <div>
+      {{> MessagesModal }}
+    </div>
+  </div>
 </template>

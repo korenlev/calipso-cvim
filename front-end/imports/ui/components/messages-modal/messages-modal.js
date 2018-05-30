@@ -53,7 +53,7 @@ Template.MessagesModal.onCreated(function() {
 
     if (R.isNil(envName)) {
       instance.subscribe('messages/count?level', messageLevel);
-    } else {
+    } else { 
       instance.subscribe('messages/count?level&env', messageLevel, envName);
     }
   });
@@ -63,7 +63,7 @@ Template.MessagesModal.onCreated(function() {
     let envName = instance.state.get('envName');
     let page = instance.state.get('page');
     let amountPerPage = instance.state.get('amountPerPage');
-
+    
     Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
       level, envName, page, amountPerPage, null, null
     ], {
@@ -91,6 +91,7 @@ Template.MessagesModal.rendered = function() {
 Template.MessagesModal.events({
   'show.bs.modal #messagesModalGlobal': function (event, instance) {
     let data = event.relatedTarget.dataset;
+    
     setParams(data.messageLevel, data.envName, instance);
   },
 

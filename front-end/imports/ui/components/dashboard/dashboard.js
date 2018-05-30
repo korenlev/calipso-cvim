@@ -248,6 +248,7 @@ Template.Dashboard.helpers({
 
   argsEnvBox: function (
     environmentName,
+    distribution,
     regionsCount,
     regions,
     projectsCount,
@@ -260,6 +261,7 @@ Template.Dashboard.helpers({
 
     return {
       environmentName: environmentName,
+      distribution: distribution,
       regionsCount: regionsCount,
       regions: regions,
       projectsCount,

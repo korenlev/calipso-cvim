@@ -26,6 +26,7 @@ Template.MessagesInfoBox.onCreated(function() {
 
   instance.autorun(function () {
     let data = Template.currentData();
+    //console.log(data);
     new SimpleSchema({
       title: { type: String },
       count: { type: Number },
@@ -34,7 +35,6 @@ Template.MessagesInfoBox.onCreated(function() {
       colorClass: { type: String },
       onMoreDetailsReq: { type: Function },
     }).validate(data);
-
   });
 });  
 

@@ -10,57 +10,49 @@
  -->
 <template name="EnvironmentDashboard">
 
-<div class="os-environment-dashboard mainContentData flex">
-  <div class="sm-env-header-line cards white title">
-    <div class="sm-env-header-name-cmp">
-      <h4>Enviroment name: {{ getState 'envName' }}</h4>
+  <div class="os-environment-dashboard mainContentData flex">
+    <div class="action-buttons">
+      <div class="sm-delete-button cl-action-button {{#if notAllowEdit}}cl-action-disabled{{/if}}" title="Delete this environment"
+        href="#">
+        Delete
+      </div>
+      <div class="sm-edit-button cl-action-button {{#if notAllowEdit}}cl-action-disabled{{/if}}" title="Edit this environment">
+        Edit
+      </div>
+      <div class="sm-scan-button cl-action-button" title="Scan this environment">
+        Scan
+      </div>
     </div>
 
-    <a class="sm-scan-button cl-action-button btn btn-app"
-        title="Scan this environment">
-        <i class="fa fa-search-plus" aria-hidden="true"></i>
-    </a>
-
-    <a class="sm-edit-button cl-action-button btn btn-app
-              {{#if notAllowEdit}}cl-action-disabled{{/if}}"
-        title="Edit this environment">
-        <i class="fa fa-fw fa-edit"></i>
-    </a>
-
-    <a class="sm-delete-button cl-action-button btn btn-app
-              {{#if notAllowEdit}}cl-action-disabled{{/if}}"
-        title="Delete this environment"
-      href="#" >
-      <i class="fa fa-trash-o" aria-hidden="true"></i>
-    </a>
-  </div>
-
-  <div class="sm-items-segment mainContentData flex-box">
-
-  {{#each briefInfo in (getBriefInfoList (getState 'envType')) }}
-    {{> DataCubic (argsBriefInfo briefInfo) }}
-  {{/each }}
-
-  </div>
-
-  <div class="sm-messages-section mainContentData">
-    {{#if (getState 'envName') }}
-      {{#each messagesInfoBox in (getListMessagesInfoBox) }}
-    <div class="sm-message-box">
-        {{> MessagesInfoBox (argsMessagesInfoBox messagesInfoBox (getState 'envName')) }}
+    <div class="content-details">
+      <div class="env-single-header justify-content-between">
+        <div style="display: flex;">
+          <div class="env-single-header-info">{{ getState 'envName' }}</div>
+          <div>
+            <div class="env-single-header-info-dist">{{ getState 'envDist' }}</div>
+            <div class="env-single-header-info-scan">Last Scanned: {{ getState 'infoLastScanning' }}</div>
+          </div>
+        </div>
+        <div class="env-single-header-alerts" style="display: block;">
+          {{> alarmIcons argsAlarmIcons (getState 'envName')}}
+        </div>
+      </div>
+      <div class="justify-content-between" style="display: flex">
+        <div class="sm-list-info-boxes mainContentData">
+          {{#each listInfoBox in (getListInfoBoxes) }} 
+            {{> ListDetailsBox (argsListInfoBox listInfoBox) }} 
+          {{/each }}
+        </div>
+        <div class="single-env-summary">
+          {{#each briefInfo in (getBriefInfoList (getState 'envType')) }} 
+            {{> DataCube (argsBriefInfo briefInfo) }} 
+          {{/each }}
+        </div>
+      </div>
     </div>
-      {{/each }}
-    {{/if}}
+
+    {{> EnvDeleteModal argsEnvDeleteModal }}
+
   </div>
-
-  <div class="sm-list-info-boxes mainContentData">
-  {{#each listInfoBox in (getListInfoBoxes) }}
-    {{> ListInfoBox (argsListInfoBox listInfoBox) }}
-  {{/each }}
-  </div>
-
-  {{> EnvDeleteModal argsEnvDeleteModal }}
-
-</div>
 
 </template>
