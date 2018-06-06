@@ -17,6 +17,12 @@
   {{else if isCalcTypeEmail}}
       <input type="email" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} email-control" placeholder="{{ calcPlaceholder }}"
             {{ calcAttrs }} {{ markIfDisabled }}>
+  {{else if isCalcTypePassword}}
+      <input type="password" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} password-control" placeholder="{{ calcPlaceholder }}"
+            {{ calcAttrs }} {{ markIfDisabled }}>
+  {{else if isCalcTypeNumber}}
+      <input type="number" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} number-control" placeholder="{{ calcPlaceholder }}"
+            {{ calcAttrs }} {{ markIfDisabled }}>
   {{else}}            
     <input type="{{ calcType }}" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} input-control" placeholder="{{ calcPlaceholder }}"
     {{ calcAttrs }} {{ markIfDisabled }}>

@@ -107,6 +107,16 @@ Template.InputModel.helpers({
     return instance.data.type === "email";
   },
 
+  isCalcTypePassword: function() {
+    let instance = Template.instance();
+    return instance.data.type === "password";
+  },
+
+  isCalcTypeNumber: function() {
+    let instance = Template.instance();
+    return instance.data.type === "number";
+  },
+
   calcPlaceholder: function () {
     let instance = Template.instance();
     if (R.isNil(instance.data.placeholder)) { return ''; }
