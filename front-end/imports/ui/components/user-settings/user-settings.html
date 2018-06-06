@@ -1,35 +1,35 @@
 <template name="UserSettings">
-<div class="os-user-settings cards white">
-  <h3>UserSettings</h3>
-  <form>
-    <div class="cl-field-group">
-      <label class="cl-field-label">Message view backward delta</label>
-      <div class="input-box">
-        <input name="msgsViewBackDelta" 
-          value="{{ getModelField 'messages_view_backward_delta' }}"     
-          class="sm-msgs-view-back-delta cl-input" 
-          type="number" 
-          placeholder="" />
-        <div class="input-hint">
-          {{ durationAsText (getModelField 'messages_view_backward_delta') }}
+  <div class="user-settings-box box-container">
+    <div class="box-header">User Settings</div>
+    
+    <div class="sm-form-container">
+      <form role="form" class="sm-item-form form-horizontal">
+        <div class="form-group">
+          <label class="col-sm-2 control-label box-label">Message view backward delta</label>
+          <div class="input-box">
+            <div class="col-sm-3">
+              <input name="msgsViewBackDelta" value="{{ getModelField 'messages_view_backward_delta' }}" class="sm-msgs-view-back-delta inputField form-control number-control"
+                type="number" placeholder="" />
+            </div>
+            <div class="input-hint">
+              {{ durationAsText (getModelField 'messages_view_backward_delta') }}
+            </div>
+          </div>
+          <div class="col-sm-3 form-label-description">Change the start duration of message display (miliseconds)</div>
         </div>
+        <div class="submit-req-btn">
+          <button type="button" class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
+                      mdl-js-ripple-effect mdl-button--colored">Save</button>
+        </div>
+      </form>
+
+      {{#if (getState 'message') }}
+      <div class="js-message-panel alert 
+              {{#if isActionError}}alert-danger{{/if}}
+              {{#if isActionSuccess}}alert-success{{/if}}" role="alert">
+        {{ getState 'message' }}
       </div>
-      <div class="cl-field-desc">Change the start duration of message display (miliseconds)</div>    
+      {{/if }}
     </div>
-    <button type="button" 
-      class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
-        mdl-js-ripple-effect mdl-button--colored"
-      >Save</button>
-  </form>
-
-  {{#if (getState 'message') }}
-  <div class="js-message-panel alert 
-      {{#if isActionError}}alert-danger{{/if}}
-      {{#if isActionSuccess}}alert-success{{/if}}" 
-      role="alert">
-    {{ getState 'message' }}
   </div>
-  {{/if }}
-
-</div>
 </template>
