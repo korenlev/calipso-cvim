@@ -102,6 +102,11 @@ Template.InputModel.helpers({
     return instance.data.type === "checkbox";
   },
 
+  isCalcTypeEmail: function() {
+    let instance = Template.instance();
+    return instance.data.type === "email";
+  },
+
   calcPlaceholder: function () {
     let instance = Template.instance();
     if (R.isNil(instance.data.placeholder)) { return ''; }

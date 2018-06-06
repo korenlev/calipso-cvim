@@ -14,7 +14,10 @@
         <input type="checkbox" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} input-control"
             {{ calcAttrs }} {{ markIfDisabled }} style="display: inline"><span class="checkmark"></span>
     </label>
-  {{else}}        
+  {{else if isCalcTypeEmail}}
+      <input type="email" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} email-control" placeholder="{{ calcPlaceholder }}"
+            {{ calcAttrs }} {{ markIfDisabled }}>
+  {{else}}            
     <input type="{{ calcType }}" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} input-control" placeholder="{{ calcPlaceholder }}"
     {{ calcAttrs }} {{ markIfDisabled }}>
   {{/if}}
