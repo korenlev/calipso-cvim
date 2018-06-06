@@ -20,6 +20,7 @@ Scans.schemaRelated = {
     label: 'Environment',
     description: 'Name of environment to scan',
     disabled: true,
+    placeholder: 'Enter Environment Name',
   },
   status: {
     label: 'Status',
@@ -27,10 +28,12 @@ Scans.schemaRelated = {
     subtype: 'select',
     options: 'scans_statuses',
     disabled: true,
+    placeholder: '',
   },
   object_id: {
     label: 'Scan specific object',
     description: 'Object ID',
+    placeholder: 'Enter Scan Object',
   },
   log_level: {
     label: 'Log level',

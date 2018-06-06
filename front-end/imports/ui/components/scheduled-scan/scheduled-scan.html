@@ -9,105 +9,106 @@
 ########################################################################################
  -->
 <template name="ScheduledScan">
-  <div class="os-scheduled-scan cards white">
-
+  <div class="scheduled-scan-box box-container">
     {{#if (getState 'isMessage') }}
     <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
-        {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
-        role="alert">
+        {{#if (getState 'isSuccess')}}alert-success{{/if}}" role="alert">
       {{ getState 'message' }}
     </div>
     {{/if }}
 
-    <h3>{{ getState 'pageHeader' }}</h3>
+    <div class="box-header">{{ getState 'pageHeader' }}</div>
     <div class="sm-form-container">
 
       <form role="form" class="sm-item-form form-horizontal">
-
-        <div class="sm-field-group-id cl-field-group">
-          <label class="cl-field-label">Id</label>
-          <input name="id" 
-            disabled="disabled"
-            value="{{ modelField '_id' }}"     
-            class="sm-input-id cl-input" type="text" placeholder="Id" />
+        <div class="sm-field-group-id form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Id</label>
+          <div class="col-sm-3">
+            <input name="id" disabled="disabled" value="{{ modelField '_id' }}" class="sm-input-id inputField form-control input-control"
+              type="text" placeholder="Id" />
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Scan ID
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Environment</label>
+          <div class="col-sm-3">
+            {{>MtSelect (argsSelect classStr="cl-input" options=envsAsOptions selectedValue=(modelField 'environment') onInput=onInputEnvFn
+            disabled=isGenDisabled ) }}
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Name of Environment to scan
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Scan specific object</label>
+          <div class="col-sm-3">
+            {{>MtInput (argsInput classStr="form-control input-control" placeholder="Object Id" inputValue=(modelField 'object_id') inputType="text"
+            onInput=onInputObjectIdFn disabled=isGenDisabled ) }}
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Specific Object ID
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Log level</label>
+          <div class="col-sm-3">
+            {{>MtSelect (argsSelect classStr="cl-input" options=logLevelsAsOptions selectedValue=(modelField 'log_level') onInput=onInputLogLevelFn
+            disabled=isGenDisabled ) }}
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Log Level
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Clear data</label>
+          <div class="col-sm-3" style="padding-top:8px;">
+            <label class="check-box-container" style="display: inline;">
+              {{>MtInput (argsInput classStr="inputField {{ calcClass }} input-control" inputValue=(modelField 'clear') inputType="checkbox"
+              onInput=onInputClearFn disabled=isGenDisabled ) }}
+              <span class="checkmark"></span>
+            </label>
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Check to clear data
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">What to scan</label>
+          <div class="col-sm-3">
+            {{>MtSelect (argsSelect classStr="cl-input" options=scanOnlyFieldOptions selectedValue=scanOnlyFieldsSelectedValue onInput=scanOnlyFieldInputFn
+            disabled=isGenDisabled ) }}
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Select Scan Type
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Frequency</label>
+          <div class="col-sm-3">
+            {{>MtSelect (argsSelect classStr="cl-input" options=freqsAsOptions selectedValue=(modelField 'freq') onInput=onInputFreqFn
+            disabled=isGenDisabled ) }}
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Select Scan Frequency
+          </div>
+        </div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Recurrence</label>
+          <div class="cl-info-data col-sm-3" style="margin-top: 6px;">{{ getRecurrenceText (getState 'model') }}</div>
         </div>
 
-        <div class="cl-field-group">
-          <label class="cl-field-label">Environment</label>
-          {{>MtSelect (argsSelect classStr="cl-input" 
-                        options=envsAsOptions
-                        selectedValue=(modelField 'environment') 
-                        onInput=onInputEnvFn
-                        disabled=isGenDisabled
-                        )
-                        }}
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">Scan specific object</label>
-          {{>MtInput (argsInput classStr="cl-input" 
-                        placeholder="Object Id" 
-                        inputValue=(modelField 'object_id') 
-                        inputType="text" onInput=onInputObjectIdFn
-                        disabled=isGenDisabled
-                        ) }}
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">Log level</label>
-          {{>MtSelect (argsSelect classStr="cl-input" 
-                        options=logLevelsAsOptions
-                        selectedValue=(modelField 'log_level') 
-                        onInput=onInputLogLevelFn
-                        disabled=isGenDisabled
-                        ) }}
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">Clear data</label>
-          {{>MtInput (argsInput classStr="cl-input" 
-                        inputValue=(modelField 'clear') 
-                        inputType="checkbox" 
-                        onInput=onInputClearFn
-                        disabled=isGenDisabled
-                        ) }}
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">What to scan</label>
-          {{>MtSelect (argsSelect classStr="cl-input" 
-                        options=scanOnlyFieldOptions
-                        selectedValue=scanOnlyFieldsSelectedValue
-                        onInput=scanOnlyFieldInputFn
-                        disabled=isGenDisabled
-                        ) }}
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">Frequency</label>
-          {{>MtSelect (argsSelect classStr="cl-input" 
-                        options=freqsAsOptions
-                        selectedValue=(modelField 'freq') 
-                        onInput=onInputFreqFn
-                        disabled=isGenDisabled
-                        ) }}
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">Recurrence</label>
-          <div class="cl-info-data">{{ getRecurrenceText (getState 'model') }}</div>
-        </div>
-
-        <div class="cl-field-group">
-          <label class="cl-field-label">Next run</label>
-          <div class="cl-info-data">{{ getNextRunText (getState 'model') }}</div>
+        <div class="form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Next run</label>
+          <div class="cl-info-data col-sm-3">{{ getNextRunText (getState 'model') }}</div>
         </div>
 
         {{#if isUpdateableAction }}
-        <button type="submit" 
-          class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
-            mdl-js-ripple-effect mdl-button--colored"
-          >{{ actionLabel }}</button>
+        <div class="submit-req-btn">
+          <button type="submit" class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
+            mdl-js-ripple-effect mdl-button--colored">{{ actionLabel }}</button>
+        </div>
         {{/if }}
 
       </form>

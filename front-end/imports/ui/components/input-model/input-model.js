@@ -21,7 +21,7 @@ import './input-model.html';
  * Lifecycles
  */
 
-Template.InputModel.onCreated(function() {
+Template.InputModel.onCreated(function () {
 });
 
 /*
@@ -39,12 +39,12 @@ Template.InputModel.events({
 
     let value;
     switch (event.target.type) {
-    case 'number':
-      value = event.target.valueAsNumber;
-      break;
-      
-    default:
-      value = event.target.value;
+      case 'number':
+        value = event.target.valueAsNumber;
+        break;
+
+      default:
+        value = event.target.value;
     }
 
     instance.data.setModel(value);
@@ -95,6 +95,11 @@ Template.InputModel.helpers({
     } else {
       return instance.data.classes;
     }
+  },
+
+  isCalcTypeCheckbox: function() {
+    let instance = Template.instance();
+    return instance.data.type === "checkbox";
   },
 
   calcPlaceholder: function () {

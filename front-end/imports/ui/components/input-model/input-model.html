@@ -9,13 +9,13 @@
 ########################################################################################
  -->
 <template name="InputModel">
-<input 
-  type="{{ calcType }}"
-  id="{{ calcId }}"
-  name="{{ calcName }}"
-  class="inputField {{ calcClass }}"
-  placeholder="{{ calcPlaceholder }}"
-  {{ calcAttrs }}
-  {{ markIfDisabled }}
-  >
+  {{#if isCalcTypeCheckbox}}
+    <label class="check-box-container">
+        <input type="checkbox" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} input-control"
+            {{ calcAttrs }} {{ markIfDisabled }} style="display: inline"><span class="checkmark"></span>
+    </label>
+  {{else}}        
+    <input type="{{ calcType }}" id="{{ calcId }}" name="{{ calcName }}" class="inputField {{ calcClass }} input-control" placeholder="{{ calcPlaceholder }}"
+    {{ calcAttrs }} {{ markIfDisabled }}>
+  {{/if}}
 </template>

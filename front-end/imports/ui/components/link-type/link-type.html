@@ -9,7 +9,7 @@
 ########################################################################################
  -->
 <template name="LinkType">
-  <div class="os-link-type cards white">
+  <div class="link-type-box box-container">
     {{#if notificationsExists}}
     <div class="sm-notification-panel alert alert-danger">
       {{#each note in notifications }}
@@ -18,67 +18,67 @@
     </div>
     {{/if}}
 
-    <h3>{{ getState 'pageHeader' }}</h3>
+    <div class="box-header">{{ getState 'pageHeader' }}</div>
     <div class="sm-form-container">
       <form role="form" class="sm-item-form form-horizontal">
 
-        <div class="sm-field-group-id cl-field-group">
-          <label class="cl-field-label">Id</label>
-          <input name="id" 
-            disabled="disabled"
-            value="{{ getModelField '_id' }}"     
-            class="sm-input-id cl-input" type="text" placeholder="Id" />
-          <div class="cl-field-id">Id</div>
+        <div class="sm-field-group-id form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Id</label>
+          <div class="col-sm-3">
+            <input name="id" disabled="disabled" value="{{ getModelField '_id' }}" 
+                class="sm-input-id inputField form-control input-control"
+                  type="text" placeholder="Id" />
+          </div>
+          <div class="col-sm-3 form-label-description">
+            Id
+          </div>
         </div>
 
-        <div class="sm-field-group-desc cl-field-group">
-          <label class="cl-field-label">Description</label>
-          <input name="desc" 
-            {{ getAttrDisabled }}
-            value="{{ getModelField 'description' }}"     
-            class="sm-input-desc cl-input" type="text" placeholder="Description" />
-          <div class="cl-field-desc">Description</div>
+        <div class="sm-field-group-desc form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Description</label>
+          <div class="col-sm-3">
+            <input name="desc" {{ getAttrDisabled }} value="{{ getModelField 'description' }}" class="sm-input-desc inputField form-control input-control"
+              type="text" placeholder="Description" />
+          </div>
+          <div class="col-sm-3 form-label-description">Description</div>
         </div>
 
-        <div class="sm-field-group-endpoint-a cl-field-group">
-          <label class="cl-field-label">Endpoint A - Object Type</label>
-          <select name="endPointA" class="sm-input-endpoint-a cl-input" 
-            {{ getAttrDisabled }} >
-            {{#each objectType in objectTypesList }}
-            <option value="{{ objectType.value }}"
-              {{ getAttrSelected objectType.value (getModelField 'endPointA') }}
-              >{{ objectType.label }}</option>
-            {{/each }}
-          </select>
-          <div class="cl-field-desc">Endpoint A</div>
+        <div class="sm-field-group-endpoint-a form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Endpoint A - Object Type</label>
+          <div class="col-sm-3">
+            <select name="endPointA" class="sm-input-endpoint-a inputField form-control select-control" {{ getAttrDisabled }}>
+              {{#each objectType in objectTypesList }}
+              <option value="{{ objectType.value }}" {{ getAttrSelected objectType.value (getModelField 'endPointA') }}>{{ objectType.label }}</option>
+              {{/each }}
+            </select>
+          </div>
+          <div class="col-sm-3 form-label-description">Endpoint A</div>
         </div>
 
-        <div class="sm-field-group-endpoint-b cl-field-group">
-          <label class="cl-field-label">Endpoint B - Object Type</label>
-          <select name="endPointB" class="sm-input-endpoint-b cl-input"
-            {{ getAttrDisabled }} >
-            {{#each objectType in objectTypesList }}
-            <option value="{{ objectType.value }}"
-              {{ getAttrSelected objectType.value (getModelField 'endPointB') }}
-              >{{ objectType.label }}</option>
-            {{/each }}
-          </select>
-          <div class="cl-field-desc">Endpoint B</div>
+        <div class="sm-field-group-endpoint-b form-group no-right-margin">
+          <label class="col-sm-2 control-label box-label">Endpoint B - Object Type</label>
+          <div class="col-sm-3">
+            <select name="endPointB" class="sm-input-endpoint-b inputField form-control select-control" {{ getAttrDisabled }}>
+              {{#each objectType in objectTypesList }}
+              <option value="{{ objectType.value }}" {{ getAttrSelected objectType.value (getModelField 'endPointB') }}>{{ objectType.label }}</option>
+              {{/each }}
+            </select>
+          </div>
+          <div class="col-sm-3 form-label-description">Endpoint B</div>
         </div>
 
         {{#if isUpdateableAction }}
-        <button type="submit" 
-          class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
-            mdl-js-ripple-effect mdl-button--colored"
-          >{{ actionLabel }}</button>
+        <div class="submit-req-btn">
+          <button type="submit" class="js-submit-button mdl-button mdl-js-button mdl-button--raised 
+            mdl-js-ripple-effect mdl-button--colored">{{ actionLabel }}</button>
+        </div>
         {{/if }}
 
       </form>
 
       {{#if (getState 'isMessage') }}
       <div class="js-message-panel alert {{#if (getState 'isError')}}alert-danger{{/if}}
-          {{#if (getState 'isSuccess')}}alert-success{{/if}}" 
-          role="alert">
+          {{#if (getState 'isSuccess')}}alert-success{{/if}}" role="alert">
         {{ getState 'message' }}
       </div>
       {{/if }}
