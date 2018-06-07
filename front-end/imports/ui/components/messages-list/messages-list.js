@@ -222,6 +222,18 @@ Template.MessagesList.helpers({
     return Counter.get(`messages/count`);
   },
 
+  infoMessages: function () {
+    return Counter.get(`messages/count?level=info`);
+  },
+
+  warningMessages: function () {
+    return Counter.get(`messages/count?level=warning`);
+  },
+
+  errorMessages: function () {
+    return Counter.get(`messages/count?level=error`);
+  },
+
   toIsoFormatStr: function (date) {
     if (R.isNil(date)) {
       return '';
