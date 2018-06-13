@@ -12,7 +12,7 @@ export function idToStr(orgId) {
   return R.ifElse(R.is(Mongo.ObjectID),
     function (id) { return id.toHexString() + ':' + 'objectid'; },
     R.identity
-  )(orgId); 
+  )(orgId);
 }
 
 export function parseReqId(pId) {
@@ -23,7 +23,7 @@ export function parseReqId(pId) {
       id: pId
     };
   } else {
-    return { 
+    return {
       type: 'objectid',
       id: new Mongo.ObjectID(idMatch[1])
     };
@@ -31,50 +31,53 @@ export function parseReqId(pId) {
 }
 
 function calcColor(level) {
-  let r = 11;
-  let g = 122;
-  let b = 209;
+  if (level === 1)
+    return "#FFFFFF";
+
+  let r = 255;
+  let g = 255;
+  let b = 255;
   //let a = 1;
-  let factor = level / 15;
+  let factor = level / 27;
   factor = factor < 0 ? 0 : 1 - factor;
 
   let nR = Math.floor(r * factor);
   let nG = Math.floor(g * factor);
   let nB = Math.floor(b * factor);
   //let nA = a;
-  let colorStr = R.reduce((acc, colorPart) => { 
-    let digits =  colorPart.toString(16); 
+  let colorStr = R.reduce((acc, colorPart) => {
+    let digits = colorPart.toString(16);
     if (colorPart < 16) { digits = '0' + digits; }
     return acc + digits;
-  }, '#', [nR, nG, nB]); 
-  
+  }, '#', [nR, nG, nB]);
+
   return colorStr;
 }
 
 export let calcColorMem = R.memoize(calcColor);
 
 export function toOptions(options) {
-    return options.map(elem => ({'label': elem, 'value': elem}));
+  return options.map(elem => ({ 'label': elem, 'value': elem }));
 }
 
 export function callApiValidators(context, validators) {
-    if (R.isNil(context.docId)) {
-        context.docId = context.field('_id').value;
+  if (R.isNil(context.docId)) {
+    context.docId = context.field('_id').value;
+  }
+  for (let i = 0; i < validators.length; i++) {
+    let error = validators[i](context);
+    if (!R.isNil(error)) {
+      return error;
     }
-    for (let i=0; i<validators.length; i++) {
-        let error = validators[i](context);
-        if (!R.isNil(error)) {
-            return error;
-        }
-    }
+  }
 }
 
 export function isReferenceType(object_type) {
-    return R.endsWith("_ref", object_type);
+  return R.endsWith("_ref", object_type);
 }
 
 export function dereferenceType(object_type) {
-    return R.split("_ref", object_type)[0];
+  return R.split("_ref", object_type)[0];
 }
 
 export function isNullOrEmpty(objVal) {
@@ -82,5 +85,5 @@ export function isNullOrEmpty(objVal) {
 }
 
 export function getParentTemplateInstance(instance) {
-    return instance.view.parentView.templateInstance();
+  return instance.view.parentView.templateInstance();
 }
