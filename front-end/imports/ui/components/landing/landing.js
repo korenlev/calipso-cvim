@@ -8,20 +8,26 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 import './landing.html';
 
-Template.landing.onCreated(function() {
+Template.landing.onCreated(function () {
+  let instance = this;
+
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    loginButtonsOpen: false,
+  });
 });
 
-Template.landing.rendered = function(){
-  
+Template.landing.rendered = function () {
+
   // init wow lib
   new WOW().init();
-  
+
   // smooth scrolling function
-  $(function() {
-    $('a[href*="#"]:not([href="#"])').click(function() {
-      if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+  $(function () {
+    $('a[href*="#"]:not([href="#"])').click(function () {
+      if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
         var target = $(this.hash);
-        target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+        target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
         if (target.length) {
           $('html, body').animate({
             scrollTop: target.offset().top
@@ -31,5 +37,5 @@ Template.landing.rendered = function(){
       }
     });
   });
-  
+
 };

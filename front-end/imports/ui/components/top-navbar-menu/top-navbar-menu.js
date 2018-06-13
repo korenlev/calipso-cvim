@@ -91,8 +91,17 @@ Template.body.events({
       return;
 
     //if user clicked on the following elements
-    if (R.contains(ev.target.id, ["login-name-link", "login-sign-in-link"]))
+    // need to find solution for this code - we want solution for that if user click 
+    // on location in the page body except from the area of the whole control, then the control will be closed
+    // so if user clicked on one of the control that has the following id's then the control won't be closed
+    if (R.contains(ev.target.id, ["login-name-link", "login-sign-in-link", "login-username",
+          "login-password", "login-username-label-and-input", "login-username-label", "login-password-label",
+          "login-password-label-and-input", "login-buttons-password", "signup-link", "login-dropdown-list", "login-password-again",
+          "login-password-again-label", "login-password-again-label-and-input", "login-buttons-open-change-password",
+          "login-old-password-label", "login-old-password-label-and-input", "login-old-password", 
+          "login-buttons-do-change-password","back-to-login-link"])) {
       return;
+    }
 
     let isOpen = parentInstance.state.get('loginButtonsOpen');
     if (isOpen === false) {
@@ -144,10 +153,6 @@ function closeLoginMenu() {
 
 Template.loginButtons.events({
   'click #login-name-link, click #login-sign-in-link': function () {
-
-    if (parentInstance == null || parentInstance.state == null) {
-      return;
-    }
 
     let isOpen = parentInstance.state.get('loginButtonsOpen');
 
