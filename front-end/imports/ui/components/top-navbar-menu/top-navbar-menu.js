@@ -10,6 +10,7 @@
  * Template Component: TopNavbarMenu 
  */
 
+import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 //import * as R from 'ramda';
@@ -27,7 +28,7 @@ import '/imports/ui/components/alarm-icons/alarm-icons';
 import '/imports/ui/components/settings-list/settings-list';
 
 import './top-navbar-menu.html';
-import {getParentTemplateInstance} from "../../../lib/utilities";
+import { getParentTemplateInstance } from "../../../lib/utilities";
 
 /*  
  * Lifecycles
@@ -75,20 +76,82 @@ Template.TopNavbarMenu.events = {
   }
 };
 
+let parentInstance = null;
+let loginButtonsSession = null;
+
+Template.loginButtons.onCreated(function () {
+  parentInstance = getParentTemplateInstance(Template.instance());
+  loginButtonsSession = Accounts._loginButtonsSession;
+});
+
+Template.body.events({
+  'click': function (ev, instance) {
+
+    if (parentInstance == null || parentInstance.state == null)
+      return;
+
+    //if user clicked on the following elements
+    if (R.contains(ev.target.id, ["login-name-link"]))
+      return;
+
+    let isOpen = parentInstance.state.get('loginButtonsOpen');
+    if (isOpen === false) {
+      if (ev.target.id === "login-main-container" || ev.target.id === "login-user-container") {
+        openLoginMenu();
+      }
+    }
+    else {
+      closeLoginMenu();
+    }
+  }
+});
+
+Template.settingsList.events({
+  'click': function (ev, instance) {
+
+    if (parentInstance == null || parentInstance.state == null)
+      return;
+
+    let isOpen = parentInstance.state.get('loginButtonsOpen');
+    if (isOpen === true) {
+      closeLoginMenu();
+    }
+  }
+});
+
+Template.envForm.events({
+  'click': function (ev, instance) {
+
+    if (parentInstance == null || parentInstance.state == null)
+      return;
+
+    let isOpen = parentInstance.state.get('loginButtonsOpen');
+    if (isOpen === true) {
+      closeLoginMenu();
+    }
+  }
+});
+
+function openLoginMenu() {
+  parentInstance.state.set('loginButtonsOpen', true);
+  loginButtonsSession.set('dropdownVisible', true);
+}
+
+function closeLoginMenu() {
+  loginButtonsSession.closeDropdown();
+  parentInstance.state.set('loginButtonsOpen', false);
+}
+
 Template.loginButtons.events({
   'click #login-name-link, click #login-sign-in-link': function () {
-    let parentInstance = getParentTemplateInstance(Template.instance());
 
-    let loginButtonsSession = Accounts._loginButtonsSession;
     let isOpen = parentInstance.state.get('loginButtonsOpen');
 
     if (isOpen === false) {
-      parentInstance.state.set('loginButtonsOpen', true);
-      loginButtonsSession.set('dropdownVisible', true);
+      openLoginMenu();
     }
     else {
-      loginButtonsSession.closeDropdown();
-      parentInstance.state.set('loginButtonsOpen', false);
+      closeLoginMenu();
     }
   },
 });
