@@ -51,7 +51,7 @@ Template.envForm.onCreated(function () {
  * Events
  */  
 
-Template.envForm.events = {
+Template.envForm.events({
   'click .os-env-form-dropdown-menu .sm-env-item': function (event, _instance) {
     event.preventDefault();
 
@@ -69,7 +69,7 @@ Template.envForm.events = {
       });
     }
   }
-};
+});
 
 /*
  * Helpers
