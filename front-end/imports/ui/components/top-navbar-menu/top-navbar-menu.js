@@ -91,7 +91,7 @@ Template.body.events({
       return;
 
     //if user clicked on the following elements
-    if (R.contains(ev.target.id, ["login-name-link"]))
+    if (R.contains(ev.target.id, ["login-name-link", "login-sign-in-link"]))
       return;
 
     let isOpen = parentInstance.state.get('loginButtonsOpen');
@@ -144,6 +144,10 @@ function closeLoginMenu() {
 
 Template.loginButtons.events({
   'click #login-name-link, click #login-sign-in-link': function () {
+
+    if (parentInstance == null || parentInstance.state == null) {
+      return;
+    }
 
     let isOpen = parentInstance.state.get('loginButtonsOpen');
 
