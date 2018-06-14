@@ -99,7 +99,7 @@ Template.body.events({
           "login-password-label-and-input", "login-buttons-password", "signup-link", "login-dropdown-list", "login-password-again",
           "login-password-again-label", "login-password-again-label-and-input", "login-buttons-open-change-password",
           "login-old-password-label", "login-old-password-label-and-input", "login-old-password", 
-          "login-buttons-do-change-password","back-to-login-link"])) {
+          "login-buttons-do-change-password","back-to-login-link",'login-link-and-dropdown-list', 'login-form-sign-in'])) {
       return;
     }
 
@@ -152,8 +152,7 @@ function closeLoginMenu() {
 }
 
 Template.loginButtons.events({
-  'click #login-name-link, click #login-sign-in-link': function () {
-
+  'click #login-sign-in-link': function (ev, _instance) {
     let isOpen = parentInstance.state.get('loginButtonsOpen');
 
     if (isOpen === false) {
@@ -161,6 +160,22 @@ Template.loginButtons.events({
     }
     else {
       closeLoginMenu();
+    }
+  },
+  'click #login-name-link': function (ev, _instance) {
+    let isOpen = parentInstance.state.get('loginButtonsOpen');
+
+    if (isOpen === false) {
+      openLoginMenu();
+    }
+    else {
+      closeLoginMenu();
+    }
+  },
+  'click #login-buttons-open-change-password': function (ev, _instance) {
+    if(loginButtonsSession.get('inChangePasswordFlow') == true){
+      let $loginDropDown = _instance.$('#login-dropdown-list');
+      $loginDropDown.addClass('change-password-dialog-wide');
     }
   },
 });
