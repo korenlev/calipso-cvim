@@ -39,7 +39,7 @@
       </div>
       <div class="justify-content-between" style="display: flex">
         <div class="sm-list-info-boxes mainContentData">
-          {{#each listInfoBox in (getListInfoBoxes) }} 
+          {{#each listInfoBox in (getListInfoBoxes (getState 'envType')) }}
             {{> ListDetailsBox (argsListInfoBox listInfoBox) }} 
           {{/each }}
         </div>

@@ -39,26 +39,6 @@ import '/imports/ui/components/messages-modal/messages-modal';
 import '/imports/ui/components/alarm-icons/alarm-icons';
 import '/imports/ui/components/list-details-box/list-details-box';
 
-let listInfoBoxes = [{
-  header: ['components', 'environment', 'newListInfoBoxes', 'regions', 'header'],
-  baseType: ['components', 'environment', 'newListInfoBoxes', 'regions', 'baseType'],
-  listName: 'regions',
-  listItemFormat: {
-    getLabelFn: (item) => { return item.name; },
-    getValueFn: (item) => { return item._id._str; },
-  },
-  icon: { type: 'material', name: 'public' },
-}, {
-  header: ['components', 'environment', 'newListInfoBoxes', 'projects', 'header'],
-  baseType: ['components', 'environment', 'newListInfoBoxes', 'projects', 'baseType'],
-  listName: 'projects',
-  listItemFormat: {
-    getLabelFn: (item) => { return item.name; },
-    getValueFn: (item) => { return item._id._str; },
-  },
-  icon: { type: 'material', name: 'folder' },
-}];
-
 /*  
  * Lifecycles
  */
@@ -172,14 +152,39 @@ Template.EnvironmentDashboard.events({
  * Helpers
  */
 
+function getInfoBox(listName, icon) {
+  return {
+      header: ['components', 'environment', 'newListInfoBoxes', listName, 'header'],
+      baseType: ['components', 'environment', 'newListInfoBoxes', listName, 'baseType'],
+      listName: listName,
+      listItemFormat: {
+          getLabelFn: (item) => { return item.name; },
+          getValueFn: (item) => { return item._id._str; },
+      },
+      icon: icon,
+  }
+}
+
 Template.EnvironmentDashboard.helpers({
   getState: function (key) {
     let instance = Template.instance();
     return instance.state.get(key);
   },
 
-  getListInfoBoxes: function () {
-    return listInfoBoxes;
+  getListInfoBoxes: function (env_type) {
+    if (env_type === 'OpenStack') {
+      return [
+        getInfoBox('regions', { type: 'material', name: 'public' }),
+        getInfoBox('projects', { type: 'material', name: 'folder' })
+      ]
+    }
+    else if (env_type === 'Kubernetes') {
+      return [
+        getInfoBox('networks', { type: 'material', name: 'public' }),
+        getInfoBox('hosts', { type: 'material', name: 'folder' })
+      ]
+    }
+    return [];
   },
 
   getBriefInfoList: function (env_type) {
@@ -378,23 +383,22 @@ Template.EnvironmentDashboard.helpers({
 }); // end: helpers
 
 
+let listTypes = {
+  'regions': 'region',
+  'projects': 'project',
+  'networks': 'network',
+  'hosts': 'host',
+};
+
 function getList(listName, envName) {
-  switch (listName) {
-    case 'regions':
-      return Inventory.find({
-        environment: envName,
-        type: 'region'
-      });
-
-    case 'projects':
-      return Inventory.find({
-        environment: envName,
-        type: 'project'
-      });
-
-    default:
-      throw 'unknown list type';
-  }
+    let type = listTypes[listName];
+    if (!type) {
+      throw new Error('Unknown list type');
+    }
+    return Inventory.find({
+      environment: envName,
+      type: type
+    });
 }
 
 function subscribe(instance, env) {

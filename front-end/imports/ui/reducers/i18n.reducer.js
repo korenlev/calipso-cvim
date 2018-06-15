@@ -71,6 +71,14 @@ const defaultState = {
         projects: {
           header: 'Projects',
           baseType: 'project'
+        },
+        networks: {
+          header: 'Networks',
+          baseType: 'network'
+        },
+        hosts: {
+          header: 'Hosts',
+          baseType: 'host'
         }
       },
       listInfoBoxes: {
@@ -79,6 +87,12 @@ const defaultState = {
         },
         projects: {
           header: 'Projects'
+        },
+        networks: {
+          header: 'Networks'
+        },
+        hosts: {
+          header: 'Hosts'
         }
       }
     },

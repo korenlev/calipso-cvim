@@ -25,18 +25,7 @@
         <div class="sm-environments">
           {{#each envItem in envList}}
             <div class="item">
-              {{> EnvironmentBox (argsEnvBox 
-                    envItem.name
-                    envItem.distribution
-                    (regoinsCount envItem.name) 
-                    (regoins envItem.name)
-                    (projectsCount envItem.name)
-                    (projects envItem.name)
-                    (instancesCount envItem.name)
-                    (vservicesCount envItem.name)
-                    (vconnectorsCount envItem.name)
-                    (hostsCount envItem.name)
-                    ) }}
+              {{> EnvironmentBox (envObjects envItem) }}
             </div>
           {{/each}} <!-- envItem in envList -->
 

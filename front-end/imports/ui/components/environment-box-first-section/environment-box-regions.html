@@ -1,0 +1,28 @@
+<template name="EnvironmentBoxRegions">
+    <div id="region-section" class="single-env-section">
+        <span class="region-title">Regions</span>
+        <div class="region-details">
+            <img src="/icons/icon-region-C.svg">
+            <div class="region-list">
+                <span class="regions-count">{{ regions.count }}</span>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="true">
+                        SELECT REGION
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        {{#each regionItem in regions }}
+                            <li>
+                                <a href="{{pathFor route='environment'
+                                                   data=(asHash _id=(idToStr envItem._id))
+                                                   query=(asHash
+                                                           selectedNodeId=(idToStr regionItem._id ) ) }}">{{ regionItem.object_name }}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

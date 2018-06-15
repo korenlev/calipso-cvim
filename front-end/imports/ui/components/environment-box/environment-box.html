@@ -16,59 +16,16 @@
         </div>
       </div>
       <div style="display: flex">
-        <div id="region-section" class="single-env-section">
-          <span class="region-title">Regions</span>
-          <div class="region-details">
-            <img src="/icons/icon-region-C.svg">
-            <div class="region-list">
-              <span class="regions-count">{{ regionsCount }}</span>
-              <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
-                  aria-expanded="true">
-                  SELECT REGION
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                  {{#each regionItem in regions }}
-                  <li>
-                    <a href="{{pathFor route='environment' 
-                                  data=(asHash _id=(idToStr envItem._id))
-                                  query=(asHash 
-                                    selectedNodeId=(idToStr regionItem._id ) ) }}">{{ regionItem.object_name }}</a>
-                  </li>
-                  {{/each}}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="project-section" class="single-env-section">
-          <span class="project-title">Projects</span>
-          <div class="project-details">
-            <img src="/icons/icon-project-C.svg">
-            <div class="project-list">
-              <span class="projects-count">{{ projectsCount }}</span>
-              <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
-                  aria-expanded="true">
-                  SELECT PROJECT
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                  {{#each projectItem in projects }}
-                  <li>
-                    <a href="{{pathFor route='environment' 
-                               data=(asHash _id=(idToStr envItem._id)) 
-                               query=(asHash selectedNodeId=(idToStr projectItem._id)) }}">{{ projectItem.object_name }}</a>
-                  </li>
-                  {{/each}}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        {{#if equals 'OpenStack' environmentType}}
+            {{> EnvironmentBoxRegions (assoc 'regions' regions) }}
+            {{> EnvironmentBoxProjects (assoc 'projects' projects) }}
+        {{else if equals 'Kubernetes' environmentType}}
+            {{> EnvironmentBoxNetworks (assoc 'networks' networks) }}
+            {{> EnvironmentBoxHosts (assoc 'hosts' hosts) }}
+        {{/if}}
       </div>
       <div class="env-summary">
+        {{#if equals 'OpenStack' environmentType}}
         <div class="env-summary-item-container">
           <div class="env-summary-item">
             <span class="env-summary-item-title">Instances</span>
@@ -77,14 +34,28 @@
         </div>
         <div class="env-summary-item-container">
           <div class="env-summary-item">
-            <span class="env-summary-item-title">vConnectors</span>
-            <div class="env-summary-item-counter">{{ vconnectorsCount }}</div>
-          </div>
-        </div>
-        <div class="env-summary-item-container">
-          <div class="env-summary-item">
             <span class="env-summary-item-title">vServices</span>
             <div class="env-summary-item-counter">{{ vservicesCount }}</div>
+          </div>
+        </div>
+        {{else if equals 'Kubernetes' environmentType}}
+        <div class="env-summary-item-container">
+            <div class="env-summary-item">
+                <span class="env-summary-item-title">Containers</span>
+                <div class="env-summary-item-counter">{{ containersCount }}</div>
+            </div>
+        </div>
+        <div class="env-summary-item-container">
+            <div class="env-summary-item">
+                <span class="env-summary-item-title">Pods</span>
+                <div class="env-summary-item-counter">{{ podsCount }}</div>
+            </div>
+        </div>
+        {{/if}}
+        <div class="env-summary-item-container">
+          <div class="env-summary-item">
+              <span class="env-summary-item-title">vConnectors</span>
+              <div class="env-summary-item-counter">{{ vconnectorsCount }}</div>
           </div>
         </div>
         <div class="env-summary-item-container">

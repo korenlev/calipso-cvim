@@ -1,11 +1,14 @@
 /*
  * Template Component: EnvironmentBox 
  */
-    
-//import { Meteor } from 'meteor/meteor'; 
+
 import { Template } from 'meteor/templating';
-//import { ReactiveDict } from 'meteor/reactive-dict';
-        
+
+import '/imports/ui/components/environment-box-first-section/environment-box-regions';
+import '/imports/ui/components/environment-box-first-section/environment-box-networks';
+import '/imports/ui/components/environment-box-first-section/environment-box-projects';
+import '/imports/ui/components/environment-box-first-section/environment-box-hosts';
+
 import './environment-box.html';     
     
 /*  
@@ -31,7 +34,20 @@ Template.EnvironmentBox.events({
  * Helpers
  */
 
-Template.EnvironmentBox.helpers({    
+Template.EnvironmentBox.helpers({
+    equals: function(item, value) {
+        return item === value;
+    },
+
+    assoc: function() {
+        let results = {};
+        for (let i = 0; i < arguments.length; i += 2) {
+            if (arguments[i + 1]) {
+                results[arguments[i]] = arguments[i + 1];
+            }
+        }
+        return results;
+    }
 }); // end: helpers
 
 
