@@ -188,7 +188,6 @@
       </div>
     </div>
   </section>
-
   <section class="background-blue">
     <div class="mdl-grid">
       <div class="mdl-cell mdl-cell--12-col text-align-center">
@@ -196,6 +195,316 @@
       </div>
     </div>
   </section>
-
 </div>
+<style>
+  #login-dropdown-list
+  {
+    background-color: white;
+    left:-50px;
+    top:30px;
+    width: 420px;
+    height: auto;
+    border-radius: 20px!important;
+    margin: 0;
+    border: 0;
+    padding:0;
+    padding-top:25px!important;
+  }
+
+  div#login-username-label-and-input {
+    display: flex;
+  }
+
+  label#login-username-label {
+    text-align: right!important;
+    color: #31343F;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 150px;
+    margin-right: 23px;
+  }
+
+  input#login-username,
+  input#login-username:focus {
+    width: 170px;
+    border: 0px!important;
+    border-bottom: 2px solid #E4E6EA!important;
+    border-radius: 0px!important;
+    background-color: transparent!important;
+    -webkit-box-shadow: none!important;
+    -moz-box-shadow: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+  }
+
+  div#login-password-label-and-input {
+    display: flex;
+    margin-top: 15px;
+  }
+
+  label#login-password-label {
+    text-align: right!important;
+    color: #31343F;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 150px;
+    margin-right: 23px;
+  }
+
+  input#login-password,
+  input#login-password:focus {
+    width: 170px;
+    border: 0px!important;
+    border-bottom: 2px solid #E4E6EA!important;
+    border-radius: 0px!important;
+    background-color: transparent!important;
+    -webkit-box-shadow: none!important;
+    -moz-box-shadow: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+  }
+
+  div#login-password-again-label-and-input {
+    display: flex;
+    margin-top: 15px;
+  }
+
+  label#login-password-again-label {
+    text-align: right!important;
+    color: #31343F;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 150px;
+    margin-right: 23px;
+  }
+
+  input#login-password-again,
+  input#login-password-again:focus {
+    width: 170px;
+    border: 0px!important;
+    border-bottom: 2px solid #E4E6EA!important;
+    border-radius: 0px!important;
+    background-color: transparent!important;
+    -webkit-box-shadow: none!important;
+    -moz-box-shadow: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+  }
+
+  #login-buttons-password
+  {
+    width: 154px!important;
+    height:36px!important;
+    border-radius: 20px!important;
+    background-color: white!important;
+    border: 1px solid #00AEF5!important;
+    color: #00AEF5!important;
+    padding-top: 8px!important;
+    margin-left: 175px!important;
+    margin-top:20px!important;
+  }
+
+  #login-buttons-password:hover {
+    background-color: #00AEF5!important;
+    border: 0!important;
+    padding-top: 9px!important;
+    color: white!important;
+  }
+
+  .additional-link
+  {
+    width: 154px!important;
+    height:36px!important;
+    border-radius: 20px!important;
+    background-color: white!important;
+    border: 1px solid #00AEF5!important;
+    color: #00AEF5!important;
+    padding-top: 8px!important;
+    top: -20px!important;
+    left: -91px!important;
+    position: relative!important;
+    text-decoration-line: none!important;
+    text-align: center!important;
+    margin-top:30px!important;
+  }
+
+  .additional-link:hover
+  {
+    background-color: #00AEF5!important;
+    border: 0!important;
+    padding-top: 9px!important;
+    color: white!important;
+  }
+
+  div.message.error-message {
+    text-align: left!important;
+    width: 350px!important;
+    position: absolute!important;
+    top: 0px!important;
+    left: 70px!important;
+  }
+
+ /*
+.change-password-dialog-wide
+{
+  margin:auto!important;
+  width:880px!important;
+  height: 244px!important;
+  left:-825px!important;
+  padding-top:45px!important;
+  padding-left:165px!important;
+}
+
+
+.sign-in #login-sign-in-link, #login-name-link, #login-name-link.login-link-text {
+  color: text-light-grey;
+  text-decoration: none;
+  text-transform: capitalize;
+  padding: 0;
+}
+
+.login-button#login-buttons-open-change-password,
+.login-button#login-buttons-password,
+.login-button#login-buttons-logout {
+  background-color: white;
+  border: 0;
+  width: 180px;
+  margin: 0;
+  padding: 10px 0 0 0;
+  height:36px;
+  border-radius: 0;
+  color: text-darker-grey;
+}
+
+.login-button#login-buttons-open-change-password:hover,
+.login-button#login-buttons-password:hover,
+.login-button#login-buttons-logout:hover {
+  background-color: bg-hover-light-grey;
+  border: bg-hover-light-grey;
+  padding: 10px 0 0 0;
+}
+
+.login-button#login-buttons-do-change-password
+{
+  width: 154px;
+  height:36px;
+  border-radius: 20px;
+  background-color: white;
+  border: 1px solid border-action-bottom;
+  color: border-action-bottom;
+  padding-top: 8px;
+}
+
+.login-close-text 
+{
+    display: none;
+}
+  div#login-old-password-label-and-input {
+    display: flex;
+  }
+
+  label#login-old-password-label {
+    float: right;
+    color: #31343F;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 175px;
+    margin-right: 23px;
+  }
+
+  input#login-old-password,
+  input#login-old-password:focus {
+    width: 245px;
+    border: 0px!important;
+    border-bottom: 2px solid #E4E6EA!important;
+    border-radius: 0px!important;
+    background-color: transparent!important;
+    -webkit-box-shadow: none!important;
+    -moz-box-shadow: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+  }
+
+  div#login-password-label-and-input {
+    display: flex;
+    margin-top: 15px;
+  }
+
+  label#login-password-label {
+    float: right;
+    color: #31343F;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 175px;
+    margin-right: 23px;
+  }
+
+  input#login-password,
+  input#login-password:focus {
+    width: 245px;
+    border: 0px!important;
+    border-bottom: 2px solid #E4E6EA!important;
+    border-radius: 0px!important;
+    background-color: transparent!important;
+    -webkit-box-shadow: none!important;
+    -moz-box-shadow: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+  }
+
+  div#login-password-again-label-and-input {
+    display: flex;
+    margin-top: 15px;
+  }
+
+  label#login-password-again-label {
+    float: right;
+    color: #31343F;
+    text-transform: uppercase;
+    font-size: 14px;
+    width: 175px;
+    margin-right: 23px;
+  }
+
+  input#login-password-again,
+  input#login-password-again:focus {
+    width: 245px;
+    border: 0px!important;
+    border-bottom: 2px solid #E4E6EA!important;
+    border-radius: 0px!important;
+    background-color: transparent!important;
+    -webkit-box-shadow: none!important;
+    -moz-box-shadow: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+  }
+
+  div#login-buttons-do-change-password {
+    margin-left: 200px;
+    margin-top: 15px;
+  }
+
+  .login-button#login-buttons-do-change-password:hover {
+    background-color: #00AEF5;
+    border: 0;
+    padding-top: 9px;
+    color: white
+  }
+
+  div.message.error-message {
+    float: left!important;
+    text-align: left!important;
+    width: 350px!important;
+    position: absolute!important;
+    margin-top: 57px!important;
+    margin-left: 200px!important;
+  }
+
+  div.message.info-message {
+    float: right!important;
+    width: 370px!important;
+    position: absolute!important;
+    font-size: 22px;
+  } */
+</style>
 </template>
