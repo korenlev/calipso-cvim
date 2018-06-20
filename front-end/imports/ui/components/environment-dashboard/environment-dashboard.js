@@ -181,7 +181,8 @@ Template.EnvironmentDashboard.helpers({
     else if (env_type === 'Kubernetes') {
       return [
         getInfoBox('networks', { type: 'material', name: 'public' }),
-        getInfoBox('hosts', { type: 'material', name: 'folder' })
+        getInfoBox('hosts', { type: 'material', name: 'folder' }),
+        getInfoBox('namespaces', { type: 'material', name: 'public' }),
       ]
     }
     return [];
@@ -293,7 +294,7 @@ Template.EnvironmentDashboard.helpers({
   },
 
   argsListInfoBox: function (listInfoBox) {
-
+    
     let instance = Template.instance();
     let data = Template.currentData();
     let envName = instance.state.get('envName');
@@ -388,6 +389,7 @@ let listTypes = {
   'projects': 'project',
   'networks': 'network',
   'hosts': 'host',
+  'namespaces': 'namespace',
 };
 
 function getList(listName, envName) {

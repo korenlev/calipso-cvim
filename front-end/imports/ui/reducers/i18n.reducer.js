@@ -79,6 +79,10 @@ const defaultState = {
         hosts: {
           header: 'Hosts',
           baseType: 'host'
+        },
+        namespaces: {
+          header: 'Namespaces',
+          baseType: 'namespace'
         }
       },
       listInfoBoxes: {
