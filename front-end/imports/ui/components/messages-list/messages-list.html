@@ -16,7 +16,7 @@
       </div>
       <div class="table-view-title">MESSAGES</div>
       <div class="messages-summary">
-        <div class="count-summary">
+        <div class="all-main-container">
           <div class="total-container">
             <div class="icon-content">
               <img src="/icons/icon-messages.svg">
@@ -171,9 +171,9 @@
         </tbody>
       </table>
     </div>
-
+    
     <div class="sm-pager-section">
-      {{> Pager (argsPager currentPage amountPerPage totalMessages) }}
+      {{> Pager (argsPager currentPage amountPerPage currentPagedMessages) }}
     </div>
     {{> MessagesDeleteModal argsMsgDeleteModal}}
   </div>

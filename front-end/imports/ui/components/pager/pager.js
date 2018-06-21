@@ -9,20 +9,20 @@
 /*
  * Template Component: Pager 
  */
-    
+
 //import { Meteor } from 'meteor/meteor'; 
 import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ReactiveDict } from 'meteor/reactive-dict';
-        
-import './pager.html';     
-    
+
+import './pager.html';
+
 /*  
  * Lifecycles
- */   
-  
-Template.Pager.onCreated(function() {
+ */
+
+Template.Pager.onCreated(function () {
   var instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
@@ -56,15 +56,15 @@ Template.Pager.onCreated(function() {
     let last = R.ifElse((x) => x > totalPages, R.always(totalPages + 1), R.identity)(
       first + numOfPagesInPager);
 
-    let pagesButtons = R.map((pageNumber) => { 
-      return { 
+    let pagesButtons = R.map((pageNumber) => {
+      return {
         label: R.toString(pageNumber), number: pageNumber
-      }; 
+      };
     }, R.range(first, last));
 
     instance.state.set('pagesButtons', pagesButtons);
   });
-});  
+});
 
 /*
 Template.Pager.rendered = function() {
@@ -77,39 +77,50 @@ Template.Pager.rendered = function() {
 
 Template.Pager.events({
   'click .sm-prev-button': function (_event, _instance) {
-    let data = Template.currentData(); 
-    data.onReqPrev();
-  }, 
+    if (_instance.state.get('totalPages') > 0) {
+      let data = Template.currentData();
+      data.onReqPrev();
+    }
+  },
 
   'click .sm-next-button': function (_event, _instance) {
-    let data = Template.currentData(); 
-    data.onReqNext();
-  }, 
+    if (_instance.state.get('totalPages') > 0) {
+      let data = Template.currentData();
+      console.log(data);
+      data.onReqNext();
+    }
+  },
 
   'click .sm-first-button': function (_event, _instance) {
-    let data = Template.currentData(); 
-    data.onReqFirst();
-  }, 
+    if (_instance.state.get('totalPages') > 0) {
+      let data = Template.currentData();
+      data.onReqFirst();
+    }
+  },
 
   'click .sm-last-button': function (_event, _instance) {
-    let data = Template.currentData(); 
-    data.onReqLast();
-  }, 
+    if (_instance.state.get('totalPages') > 0) {
+      let data = Template.currentData();
+      data.onReqLast();
+    }
+  },
 
   'click .sm-page-button': function (event, _instance) {
-    let data = Template.currentData();
-    let pageNumber = parseInt(event.target.dataset.pageNumber);
-    data.onReqPage(pageNumber);
+    if (_instance.state.get('totalPages') > 0) {
+      let data = Template.currentData();
+      let pageNumber = parseInt(event.target.dataset.pageNumber);
+      data.onReqPage(pageNumber);
+    }
   },
 
 
 });
-   
+
 /*  
  * Helpers
  */
 
-Template.Pager.helpers({    
+Template.Pager.helpers({
   pagesButtons: function () {
     let instance = Template.instance();
     return instance.state.get('pagesButtons');

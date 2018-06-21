@@ -40,6 +40,7 @@ Template.MessagesList.onCreated(function () {
     sortField: 'timestamp',
     sortDirection: -1,
     messsages: [],
+    msgLevel: null
   });
 
   instance.autorun(function () {
@@ -55,31 +56,38 @@ Template.MessagesList.onCreated(function () {
     instance.subscribe('environments_config');
 
     instance.subscribe('messages/count');
+    instance.subscribe('messages/count?level', 'info');
+    instance.subscribe('messages/count?level', 'warning');
+    instance.subscribe('messages/count?level', 'error');
   });
 
   instance.autorun(function () {
-
-    showMessagesList(instance);
+    showMessagesList(instance, 'total');
   });
 });
 
 
-function showMessagesList(instance) {
+function showMessagesList(instance, msgLevel) {
   let amountPerPage = instance.state.get('amountPerPage');
   let page = instance.state.get('page');
   let sortField = instance.state.get('sortField');
   let sortDirection = instance.state.get('sortDirection');
+  let level = null;
 
-  Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
-    null, null, page, amountPerPage, sortField, sortDirection
-  ], {
+  if (msgLevel === 'total')
+    level = null;
+  else
+    level = msgLevel;
+  instance.state.set('msgLevel', msgLevel);
+
+  Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [level, null, page, amountPerPage, sortField, sortDirection],
+    {
       wait: false
     }, function (err, res) {
       if (err) {
         console.error(R.toString(err));
         return;
       }
-
       instance.state.set('messages', res);
     });
 }
@@ -93,6 +101,19 @@ Template.MessagesList.rendered = function() {
  */
 
 Template.MessagesList.events({
+  'click .messages-all-container': function (event, _instance) {
+    showMessagesList(_instance, 'total');
+  },
+  'click .info-main-container': function (event, _instance) {
+    showMessagesList(_instance, 'info');
+  },
+  'click .warning-main-container': function (event, _instance) {
+    showMessagesList(_instance, 'warning');
+  },
+  'click .error-main-container': function (event, _instance) {
+    showMessagesList(_instance, 'error');
+  },
+
   'click .sm-display-context-link': function (event, _instance) {
     event.preventDefault();
     let envName = event.target.dataset.envName;
@@ -218,6 +239,18 @@ Template.MessagesList.helpers({
     return instance.state.get('amountPerPage');
   },
 
+  currentPagedMessages: function () {
+    let instance = Template.instance();
+    const lvl = instance.state.get('msgLevel');
+    if (lvl === 'info')
+      return Counter.get(`messages/count?level=info`);
+    if (lvl === 'warning')
+      return Counter.get(`messages/count?level=warning`);
+    if (lvl === 'error')
+      return Counter.get(`messages/count?level=error`);
+    return Counter.get(`messages/count`);
+  },
+
   totalMessages: function () {
     return Counter.get(`messages/count`);
   },
@@ -253,25 +286,20 @@ Template.MessagesList.helpers({
       totalPages: totalPages,
       currentPage: currentPage,
       onReqNext: function () {
-        console.log('next');
         let page = (currentPage * amountPerPage > totalMessages) ? currentPage : currentPage + 1;
         instance.state.set('page', page);
       },
       onReqPrev: function () {
-        console.log('prev');
         let page = (currentPage == 1) ? currentPage : currentPage - 1;
         instance.state.set('page', page);
       },
       onReqFirst: function () {
-        console.log('req first');
         instance.state.set('page', 1);
       },
       onReqLast: function () {
-        console.log('req last');
         instance.state.set('page', totalPages);
       },
       onReqPage: function (pageNumber) {
-        console.log('req page');
         let page;
         if (pageNumber <= 1) {
           page = 1;
@@ -316,7 +344,7 @@ Template.MessagesList.helpers({
     let instance = Template.instance();
     return {
       onDeleteReq: function () {
-        showMessagesList(instance);
+        showMessagesList(instance, 'total');
       }
     };
   },
