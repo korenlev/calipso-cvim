@@ -30,10 +30,10 @@ import { Inventory } from '/imports/api/inventories/inventories';
 
 import { store } from '/imports/ui/store/store';
 //import { setCurrentNode } from '/imports/ui/actions/navigation';
-import { 
+import {
   setEnvEnvId,
-  setEnvName, 
-  updateEnvTreeNode, 
+  setEnvName,
+  updateEnvTreeNode,
   startOpenEnvTreeNode,
   setEnvSelectedNodeInfo,
   setEnvAsLoaded,
@@ -46,11 +46,11 @@ import {
   reportEnvScrollToNodePerformed,
   resetEnvNeedChildDetection,
   setShowDashboard,
-//  setShowGraph,
+  //  setShowGraph,
 } from '/imports/ui/actions/environment-panel.actions';
 import { setMainAppSelectedEnvironment } from '/imports/ui/actions/main-app.actions';
 import { closeVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
-import { setEnvSelectedNode } 
+import { setEnvSelectedNode }
   from '/imports/ui/actions/environment-panel.actions';
 
 import '/imports/ui/components/accordion-nav-menu/accordion-nav-menu';
@@ -63,7 +63,7 @@ import '/imports/ui/components/general-node-dashboard/general-node-dashboard';
 import '/imports/ui/components/network-graph-manager/network-graph-manager';
 
 import './environment.html';
-import {dereferenceType} from "../../../lib/utilities";
+import { dereferenceType } from "../../../lib/utilities";
 
 let maxOpenTreeNodeTrialCount = 3;
 
@@ -108,16 +108,16 @@ Template.Environment.onCreated(function () {
   createAttachedFns(instance);
 
   const envIdSelector = (state) => (state.components.environmentPanel._id);
-  instance.rdxEnvId = factory(envIdSelector, store);  
+  instance.rdxEnvId = factory(envIdSelector, store);
 
   const mainNodeSelector = (state) => (state.components.environmentPanel.treeNode);
   instance.rdxMainNode = factory(mainNodeSelector, store);
 
-  const selectedNodeIdSelector = 
+  const selectedNodeIdSelector =
     (state) => (state.components.environmentPanel.selectedNode._id);
   instance.rdxSelectedNodeId = factory(selectedNodeIdSelector, store);
 
-  const selectedNodeTypeSelector = 
+  const selectedNodeTypeSelector =
     (state) => (state.components.environmentPanel.selectedNode.type);
   instance.rdxSelectedNodeType = factory(selectedNodeTypeSelector, store);
 
@@ -130,19 +130,19 @@ Template.Environment.onCreated(function () {
   const showTypeSelector = (state) => (state.components.environmentPanel.showType);
   instance.rdxShowType = factory(showTypeSelector, store);
 
-  const selectedNodeCliqueSelector = 
+  const selectedNodeCliqueSelector =
     (state) => (state.components.environmentPanel.selectedNode.clique);
   instance.rdxSelectedNodeClique = factory(selectedNodeCliqueSelector, store);
 
-  const selectedNodeIdPathSelector = 
+  const selectedNodeIdPathSelector =
     (state) => (state.components.environmentPanel.selectedNode.id_path);
   instance.rdxSelectedNodeIdPath = factory(selectedNodeIdPathSelector, store);
 
   const i18nSelector = (state) => (state.api.i18n);
   instance.rdxI18n = factory(i18nSelector, store);
 
-  instance.autorun((function(_this) {
-    return function(_computation) {
+  instance.autorun((function (_this) {
+    return function (_computation) {
       return _this.currentData.set(Template.currentData());
     };
   })(instance));
@@ -154,12 +154,12 @@ Template.Environment.onCreated(function () {
     let data = instance.currentData.get();
 
     if (R.equals(data, lastData)) { return; }
-    lastData = data;  
-    
+    lastData = data;
+
     new SimpleSchema({
-      _id: _idFieldDef, 
+      _id: _idFieldDef,
       selectedNodeId: R.assoc('optional', true, _idFieldDef),
-      refresh: { type: String, optional: true }, 
+      refresh: { type: String, optional: true },
     }).validate(data);
 
     store.dispatch(setEnvEnvId(data._id));
@@ -188,7 +188,7 @@ Template.Environment.onCreated(function () {
 
   // Autorun selected node
   instance.autorun(function () {
-    let selectedNodeId = instance.rdxSelectedNodeId.get(); 
+    let selectedNodeId = instance.rdxSelectedNodeId.get();
     //let selectedNodeType = instance.rdxSelectedNodeType.get();
 
     if (R.isNil(selectedNodeId)) { return; }
@@ -198,17 +198,17 @@ Template.Environment.onCreated(function () {
     Inventory.find({ _id: selectedNodeId }).forEach((selectedNode) => {
       store.dispatch(setEnvSelectedNodeInfo(selectedNode));
 
-      Meteor.apply('expandNodePath', 
-        [ selectedNode._id ], 
-        { wait: false }, 
+      Meteor.apply('expandNodePath',
+        [selectedNode._id],
+        { wait: false },
         function (err, res) {
-          if (err) { 
+          if (err) {
             console.error(err);
             return;
           }
 
           if (R.isNil(res)) { return; }
-          
+
           let idList = R.map(R.path(['_id', '_str']), res);
           openTreeNode([R.head(idList)], R.tail(idList), 0);
         });
@@ -225,7 +225,7 @@ Template.Environment.onCreated(function () {
 
     let vedgeInfoWindow = state.components.vedgeInfoWindow;
     instance.state.set('vedgeInfoWindow', vedgeInfoWindow);
-    
+
   });
 
   /*
@@ -280,7 +280,11 @@ Template.Environment.onDestroyed(function () {
   instance.rdxSelectedNodeIdPath.cancel();
 });
 
-Template.Environment.rendered = function(){
+Template.Environment.rendered = function () {
+  setMaxHeight();
+  $(window).resize(function (evt) {
+    setMaxHeight();
+  });
 };
 
 /*
@@ -293,7 +297,7 @@ Template.Environment.helpers({
     return instance.rdxIsLoaded.get();
   },
 
-  envName: function(){
+  envName: function () {
     let instance = Template.instance();
     return instance.rdxEnvName.get();
   },
@@ -337,7 +341,7 @@ Template.Environment.helpers({
       onResetNeedChildDetection: instance._fns.onResetNeedChildDetection,
       onToggleMenu: function () {
         instance.collapsedSideMenu = !instance.collapsedSideMenu;
-        instance.state.set('collapsedSideMenu', 
+        instance.state.set('collapsedSideMenu',
           instance.collapsedSideMenu);
       },
       showCollapsed: instance.state.get('collapsedSideMenu'),
@@ -348,14 +352,14 @@ Template.Environment.helpers({
     let instance = Template.instance();
     let graphTooltipWindow = instance.state.get('graphTooltipWindow');
 
-    return graphTooltipWindow; 
+    return graphTooltipWindow;
   },
 
   vedgeInfoWindow: function () {
     let instance = Template.instance();
     let vedgeInfoWindow = instance.state.get('vedgeInfoWindow');
 
-    return vedgeInfoWindow; 
+    return vedgeInfoWindow;
   },
 
   argsGraphTooltipWindow: function (graphTooltipWindow) {
@@ -403,7 +407,7 @@ Template.Environment.helpers({
   showVedgeInfoWindow: function () {
     let instance = Template.instance();
     let node = instance.state.get('vedgeInfoWindow').node;
-    return ! R.isNil(node);
+    return !R.isNil(node);
   },
 
   isSelectedNodeAGraph: function () {
@@ -419,51 +423,51 @@ Template.Environment.helpers({
     let dashTemplate = 'EnvironmentDashboard';
 
     switch (selectedNodeType) {
-    case 'project':
-      dashTemplate = 'ProjectDashboard';
-      break;
+      case 'project':
+        dashTemplate = 'ProjectDashboard';
+        break;
 
-    case 'region':
-      dashTemplate = 'RegionDashboard';
-      break;
+      case 'region':
+        dashTemplate = 'RegionDashboard';
+        break;
 
-    case 'aggregate':
-      dashTemplate = 'AggregateDashboard';
-      break;
+      case 'aggregate':
+        dashTemplate = 'AggregateDashboard';
+        break;
 
-    case 'host':
-      dashTemplate = 'HostDashboard';
-      break;
+      case 'host':
+        dashTemplate = 'HostDashboard';
+        break;
 
-    case 'availability_zone':
-      dashTemplate = 'ZoneDashboard';
-      break;
+      case 'availability_zone':
+        dashTemplate = 'ZoneDashboard';
+        break;
 
-    case 'environment':
-      dashTemplate = 'EnvironmentDashboard';
-      break;
+      case 'environment':
+        dashTemplate = 'EnvironmentDashboard';
+        break;
 
-    case 'vservice_routers_folder':
-    case 'vnics_folder':
-    case 'regions_folder':
-    case 'vedges_folder':
-    case 'network_agents_folder':
-    case 'network_services_folder':
-    case 'availability_zones_folder':
-    case 'pnics_folder':
-    case 'networks_folder':
-    case 'vconnectors_folder':
-    case 'projects_folder':
-    case 'aggregates_folder':
-    case 'vservices_folder':
-    case 'vservice_dhcps_folder':
-    case 'ports_folder':
-    case 'instances_folder':
-      dashTemplate = 'GeneralFolderNodeDashboard';
-      break;
+      case 'vservice_routers_folder':
+      case 'vnics_folder':
+      case 'regions_folder':
+      case 'vedges_folder':
+      case 'network_agents_folder':
+      case 'network_services_folder':
+      case 'availability_zones_folder':
+      case 'pnics_folder':
+      case 'networks_folder':
+      case 'vconnectors_folder':
+      case 'projects_folder':
+      case 'aggregates_folder':
+      case 'vservices_folder':
+      case 'vservice_dhcps_folder':
+      case 'ports_folder':
+      case 'instances_folder':
+        dashTemplate = 'GeneralFolderNodeDashboard';
+        break;
 
-    default:
-      dashTemplate = 'GeneralNodeDashboard';
+      default:
+        dashTemplate = 'GeneralNodeDashboard';
     }
 
     return dashTemplate;
@@ -512,6 +516,10 @@ Template.Environment.helpers({
 Template.Environment.events({
 });
 
+function setMaxHeight() {
+  $('.sm-site-sidenav').css("height", window.innerHeight - 100);
+}
+
 function openTreeNode(path, rest, trialCount) {
   if (trialCount > maxOpenTreeNodeTrialCount) {
     return;
@@ -521,22 +529,22 @@ function openTreeNode(path, rest, trialCount) {
     .treeNode;
 
   let node = getNodeInTree(path, tree);
-  if (R.isNil(node)) { 
+  if (R.isNil(node)) {
     setTimeout(() => {
       openTreeNode(path, rest, trialCount + 1);
     }, 800);
-    return; 
+    return;
   }
-  
+
   if (node.openState === 'closed') {
-    store.dispatch(startOpenEnvTreeNode(path)); 
+    store.dispatch(startOpenEnvTreeNode(path));
     setTimeout(() => {
       openTreeNode(path, rest, trialCount + 1);
     }, 200);
     return;
   }
 
-  if (R.length(rest) === 0) { return; } 
+  if (R.length(rest) === 0) { return; }
 
   let newPath = R.append(R.head(rest), path);
   let newRest = R.drop(1, rest);
@@ -548,12 +556,12 @@ function getNodeInTree(path, tree) {
 
   let first = R.head(path);
   let rest = R.tail(path);
-  let child = R.find(R.pathEq(['nodeInfo', '_id', '_str'], first), 
-    tree.children); 
+  let child = R.find(R.pathEq(['nodeInfo', '_id', '_str'], first),
+    tree.children);
 
   if (R.isNil(child)) { return null; }
- 
-  return getNodeInTree(rest, child);  
+
+  return getNodeInTree(rest, child);
 }
 
 function createAttachedFns(instance) {
@@ -581,17 +589,17 @@ function createAttachedFns(instance) {
 
     onOpenLinkReq: (nodeType, envName, nodeName) => {
       Meteor.apply('inventoryFindNode?type&env&name', [
-          dereferenceType(nodeType), envName, nodeName
+        dereferenceType(nodeType), envName, nodeName
       ], {
-        wait: false
-      }, function (err, res) {
-        if (err) { 
-          console.log('error in inventoryFindNode', err);
-          return;
-        }
-        
-        store.dispatch(setEnvSelectedNode(res.node._id, null));
-      });
+          wait: false
+        }, function (err, res) {
+          if (err) {
+            console.log('error in inventoryFindNode', err);
+            return;
+          }
+
+          store.dispatch(setEnvSelectedNode(res.node._id, null));
+        });
     },
 
     onResetNeedChildDetection: (nodePath) => {
