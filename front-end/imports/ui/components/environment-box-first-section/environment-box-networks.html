@@ -2,7 +2,7 @@
     <div id="region-section" class="single-env-section">
         <span class="region-title">Networks</span>
         <div class="region-details">
-            <img src="/icons/icon-network.svg">
+            <img src="/icons/icon-network-C.svg">
             <div class="region-list">
                 <span class="regions-count">{{ networks.count }}</span>
                 <div class="dropdown">
@@ -15,7 +15,7 @@
                         {{#each networkItem in networks }}
                             <li>
                                 <a href="{{pathFor route='environment'
-                                                   data=(asHash _id=(idToStr envItem._id))
+                                                   data=(asHash _id=(idToStr envId))
                                                    query=(asHash
                                                            selectedNodeId=(idToStr networkItem._id ) ) }}">{{ networkItem.object_name }}</a>
                             </li>

@@ -161,9 +161,7 @@ Template.Dashboard.helpers({
       return {
           ...specificFields,
           ...{
-              environmentName: envName,
-              environmentType: env.environment_type,
-              distribution: env.distribution,
+              env: env,
               hostsCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=host'),
               vconnectorsCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=vconnector')
           }

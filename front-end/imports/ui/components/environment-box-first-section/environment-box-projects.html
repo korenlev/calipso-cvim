@@ -15,8 +15,9 @@
                         {{#each projectItem in projects }}
                             <li>
                                 <a href="{{pathFor route='environment'
-                                                   data=(asHash _id=(idToStr envItem._id))
-                                                   query=(asHash selectedNodeId=(idToStr projectItem._id)) }}">{{ projectItem.object_name }}</a>
+                                                   data=(asHash _id=(idToStr envId))
+                                                   query=(asHash
+                                                           selectedNodeId=(idToStr projectItem._id)) }}">{{ projectItem.object_name }}</a>
                             </li>
                         {{/each}}
                     </ul>

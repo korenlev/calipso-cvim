@@ -2,7 +2,7 @@
   <div class="os-environment-box white">
     <div class="flex-box-3">
       <div class="env-name-container">
-        <div class="env-name">{{ environmentName }}
+        <div class="env-name">{{ env.name }}
         </div>
         <div class="env-more" style="display: none;">
           <img src="/icons/icon-more.svg">
@@ -12,20 +12,20 @@
         <span class="dist-title">Distribution</span>
         <div class="dist-details">
           <img src="/icons/icon-distribution.svg">
-          <span class="dist-name">{{ distribution }}</span>
+          <span class="dist-name">{{ env.distribution }}</span>
         </div>
       </div>
       <div style="display: flex">
-        {{#if equals 'OpenStack' environmentType}}
-            {{> EnvironmentBoxRegions (assoc 'regions' regions) }}
-            {{> EnvironmentBoxProjects (assoc 'projects' projects) }}
-        {{else if equals 'Kubernetes' environmentType}}
-            {{> EnvironmentBoxNetworks (assoc 'networks' networks) }}
-            {{> EnvironmentBoxHosts (assoc 'hosts' hosts) }}
+        {{#if equals 'OpenStack' env.environment_type}}
+            {{> EnvironmentBoxRegions (assoc 'regions' regions 'envId' env._id) }}
+            {{> EnvironmentBoxProjects (assoc 'projects' projects 'envId' env._id) }}
+        {{else if equals 'Kubernetes' env.environment_type 'envId' env._id}}
+            {{> EnvironmentBoxNetworks (assoc 'networks' networks 'envId' env._id) }}
+            {{> EnvironmentBoxHosts (assoc 'hosts' hosts 'envId' env._id) }}
         {{/if}}
       </div>
       <div class="env-summary">
-        {{#if equals 'OpenStack' environmentType}}
+        {{#if equals 'OpenStack' env.environment_type}}
         <div class="env-summary-item-container">
           <div class="env-summary-item">
             <span class="env-summary-item-title">Instances</span>
@@ -38,7 +38,7 @@
             <div class="env-summary-item-counter">{{ vservicesCount }}</div>
           </div>
         </div>
-        {{else if equals 'Kubernetes' environmentType}}
+        {{else if equals 'Kubernetes' env.environment_type}}
         <div class="env-summary-item-container">
             <div class="env-summary-item">
                 <span class="env-summary-item-title">Containers</span>

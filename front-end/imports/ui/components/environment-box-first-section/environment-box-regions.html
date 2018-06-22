@@ -15,7 +15,7 @@
                         {{#each regionItem in regions }}
                             <li>
                                 <a href="{{pathFor route='environment'
-                                                   data=(asHash _id=(idToStr envItem._id))
+                                                   data=(asHash _id=(idToStr envId))
                                                    query=(asHash
                                                            selectedNodeId=(idToStr regionItem._id ) ) }}">{{ regionItem.object_name }}</a>
                             </li>
