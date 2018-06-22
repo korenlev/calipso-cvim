@@ -62,6 +62,7 @@ Template.Dashboard.onCreated(function () {
         instance.subscribe('inventory?env+type', envItem.name, 'network');
         instance.subscribe('inventory?env+type', envItem.name, 'container');
         instance.subscribe('inventory?env+type', envItem.name, 'pod');
+        instance.subscribe('inventory?env+type', envItem.name, 'namespace');
       }
     });
 
@@ -143,16 +144,17 @@ Template.Dashboard.helpers({
       let specificFields = {};
       if (env.environment_type === 'OpenStack') {
         specificFields = {
-          projects: Inventory.find({environment: envName, type:'project'}),
-          regions: Inventory.find({environment: envName, type:'region'}),
+          projects: Inventory.find({environment: envName, type: 'project'}),
+          regions: Inventory.find({environment: envName, type: 'region'}),
           instancesCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=instance'),
           vservicesCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=vservice'),
         }
       }
       else if (env.environment_type === 'Kubernetes') {
         specificFields = {
-          networks: Inventory.find({environment: envName, type:'network'}),
-          hosts: Inventory.find({environment: envName, type:'host'}),
+          networks: Inventory.find({environment: envName, type: 'network'}),
+          hosts: Inventory.find({environment: envName, type: 'host'}),
+          namespaces: Inventory.find({environment: envName, type: 'namespace'}),
           containersCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=container'),
           podsCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=pod'),
         }

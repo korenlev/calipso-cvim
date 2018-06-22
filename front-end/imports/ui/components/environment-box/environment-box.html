@@ -22,6 +22,7 @@
         {{else if equals 'Kubernetes' env.environment_type 'envId' env._id}}
             {{> EnvironmentBoxNetworks (assoc 'networks' networks 'envId' env._id) }}
             {{> EnvironmentBoxHosts (assoc 'hosts' hosts 'envId' env._id) }}
+            {{> EnvironmentBoxNamespaces (assoc 'namespaces' namespaces 'envId' env._id) }}
         {{/if}}
       </div>
       <div class="env-summary">

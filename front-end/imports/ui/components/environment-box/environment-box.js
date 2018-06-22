@@ -8,6 +8,7 @@ import '/imports/ui/components/environment-box-first-section/environment-box-reg
 import '/imports/ui/components/environment-box-first-section/environment-box-networks';
 import '/imports/ui/components/environment-box-first-section/environment-box-projects';
 import '/imports/ui/components/environment-box-first-section/environment-box-hosts';
+import '/imports/ui/components/environment-box-first-section/environment-box-namespaces';
 
 import './environment-box.html';     
     
