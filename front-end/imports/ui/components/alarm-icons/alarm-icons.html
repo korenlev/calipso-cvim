@@ -15,20 +15,20 @@
 
       <div class="dropdown alarm-container alarm-container-error">
         <div class="dropdown-toggle alarm-icon-error" type="button" id="dropdownMenu1" data-toggle="modal"
-          data-target="#messagesModalGlobal" data-message-level="error" title="Error messages">{{ countOf (msgCounterName 'error') }}</div>
-        <img class="error-messages" data-toggle="modal" data-target="#messagesModalGlobal" data-message-level="error" src="/icons/icon-warning-major-c.svg">
+          data-target="#messagesModalGlobal" data-message-level="error" data-env-name="{{ envName }}" title="Error messages">{{ countOf (msgCounterName 'error') }}</div>
+        <img class="error-messages" data-toggle="modal" data-target="#messagesModalGlobal" data-env-name="{{ envName }}" data-message-level="error" src="/icons/icon-warning-major-c.svg">
       </div>
 
       <div class="dropdown alarm-container alarm-container-warning">
         <div class="dropdown-toggle alarm-icon-warning" type="button" id="dropdownMenu1" data-toggle="modal"
-          data-target="#messagesModalGlobal" data-message-level="warning" title="Warning messages">{{ countOf (msgCounterName 'warning') }}</div>
-        <img class="warning-messages" data-toggle="modal" data-target="#messagesModalGlobal" data-message-level="warning" src="/icons/icon-warning-minor-c.svg">
+          data-target="#messagesModalGlobal" data-message-level="warning" data-env-name="{{ envName }}" title="Warning messages">{{ countOf (msgCounterName 'warning') }}</div>
+        <img class="warning-messages" data-toggle="modal" data-target="#messagesModalGlobal" data-env-name="{{ envName }}" data-message-level="warning" src="/icons/icon-warning-minor-c.svg">
       </div>
 
       <div class="dropdown alarm-container alarm-container-info">
         <div class="dropdown-toggle alarm-icon-info" type="button" id="dropdownMenu1" data-toggle="modal"
-          data-target="#messagesModalGlobal" data-message-level="info" title="Info messages">{{ countOf (msgCounterName 'info') }}</div>
-        <img class="info-messages" data-toggle="modal" data-target="#messagesModalGlobal" data-message-level="info" src="/icons/icon-notification-c.svg">
+          data-target="#messagesModalGlobal" data-message-level="info" data-env-name="{{ envName }}" title="Info messages">{{ countOf (msgCounterName 'info') }}</div>
+        <img class="info-messages" data-toggle="modal" data-target="#messagesModalGlobal" data-env-name="{{ envName }}" data-message-level="info" src="/icons/icon-notification-c.svg">
       </div>
     </div>
 
