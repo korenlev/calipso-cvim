@@ -404,14 +404,14 @@ function getList(listName, envName) {
 }
 
 function subscribe(instance, env) {
-  let subscriptions = ['host', 'vconnector', 'project', 'region'];
+  let subscriptions = ['host', 'vconnector'];
   if (R.isEmpty(env.environment_type)
     || R.isNil(env.environment_type)
     || env.environment_type === 'OpenStack') {
-    subscriptions.push('instance', 'vservice');
+    subscriptions.push('instance', 'vservice', 'project', 'region');
   }
   else if (env.environment_type === 'Kubernetes') {
-    subscriptions.push('container', 'pod');
+    subscriptions.push('container', 'pod', 'network', 'namespace');
   }
 
   for (let i = 0; i < subscriptions.length; i++) {

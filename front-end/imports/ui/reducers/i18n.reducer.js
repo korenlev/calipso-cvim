@@ -194,6 +194,12 @@ const defaultState = {
         vServices: {
           header: 'Number of vServices'
         },
+        containers: {
+            header: 'Number of containers'
+        },
+        pods: {
+            header: 'Number of pods'
+        },
         vConnectors: {
           header: 'Number of vConnectors'
         },

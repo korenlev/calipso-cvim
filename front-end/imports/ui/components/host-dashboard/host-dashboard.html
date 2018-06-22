@@ -19,7 +19,7 @@
       </div>
 
       <div class="sm-info-boxes">
-        {{#each infoBox in infoBoxes }}
+        {{#each infoBox in infoBoxes env.environment_type }}
           {{> DataCubic (argsInfoBox infoBox) }}
         {{/each }}
       </div>

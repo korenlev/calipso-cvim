@@ -23,19 +23,10 @@ import { Icon } from '/imports/lib/icon';
 //import '/imports/ui/components/accordionNavMenu/accordionNavMenu';
 import '/imports/ui/components/data-cubic/data-cubic';
 
-import './host-dashboard.html';     
+import './host-dashboard.html';
+import {Environments} from "../../../api/environments/environments";
     
 let infoBoxes =  [{
-  header: ['components', 'hostDashboard', 'infoBoxes', 'instances', 'header'],
-  dataSource: 'instancesCount',
-  icon: { type: 'fa', name: 'desktop' },
-  theme: 'dark'
-}, {
-  header: ['components', 'hostDashboard', 'infoBoxes', 'vServices', 'header'],
-  dataSource: 'vServicesCount',
-  icon: { type: 'fa', name: 'object-group' },
-  theme: 'dark'
-}, {
   header: ['components', 'hostDashboard', 'infoBoxes', 'vConnectors', 'header'],
   dataSource: 'vConnectorsCount',
   icon: { type: 'fa', name: 'compress' },
@@ -72,8 +63,11 @@ Template.HostDashboard.onCreated(function() {
   instance.state = new ReactiveDict();
   instance.state.setDefault({
     id_path: null,
+    env: null,
     instancesCount: 0,
     vServicesCount: 0,
+    containersCount: 0,
+    podsCount: 0,
     vConnectors: 0,
     portsCount: 0, 
     networkAgentsCount: 0,
@@ -96,60 +90,76 @@ Template.HostDashboard.onCreated(function() {
     let _id = instance.state.get('_id');
 
     instance.subscribe('inventory?_id', _id);
-    Inventory.find({ _id: _id }).forEach((host) => {
-      instance.state.set('id_path', host.id_path);
+    let host = Inventory.findOne({_id: _id});
 
-      instance.subscribe('inventory?id_path', host.id_path);
+    instance.state.set('id_path', host.id_path);
+    let env = Environments.findOne({'name': host.environment});
+    instance.state.set('env', env);
+
+    let idPathExp = new RegExp(`^${regexEscape(host.id_path)}`);
+
+    instance.subscribe('inventory?id_path', host.id_path);
+    if (env.environment_type === 'OpenStack') {
       instance.subscribe('inventory?id_path_start&type', host.id_path, 'instance');
       instance.subscribe('inventory?id_path_start&type', host.id_path, 'vservice');
-      instance.subscribe('inventory?id_path_start&type', host.id_path, 'vconnector');
-      instance.subscribe('inventory?id_path_start&type', host.id_path, 'network_agent');
-      instance.subscribe('inventory?id_path_start&type', host.id_path, 'pnic');
-      instance.subscribe('inventory?id_path_start&type', host.id_path, 'vedge');
 
-      Inventory.find({ id_path: host.id_path }).forEach((host) => {
-        instance.subscribe('inventory?env&binding:host_id&type', 
-          host.environment, host.id, 'port');
-
-        instance.state.set('portsCount', Inventory.find({
-          environment: host.environment,
-          'binding:host_id': host.id,
-          type: 'port'
-        }).count());
-      });
-
-      let idPathExp = new RegExp(`^${regexEscape(host.id_path)}`);
-
-      instance.state.set('instancesCount', Inventory.find({ 
-        id_path: idPathExp,
-        type: 'instance'
+      instance.state.set('instancesCount', Inventory.find({
+          id_path: idPathExp,
+          type: 'instance'
       }).count());
-
-      instance.state.set('vServicesCount', Inventory.find({ 
-        id_path: idPathExp,
-        type: 'vservice'
+      instance.state.set('vServicesCount', Inventory.find({
+          id_path: idPathExp,
+          type: 'vservice'
       }).count());
+    }
+    else if (env.environment_type === 'Kubernetes') {
+      instance.subscribe('inventory?id_path_start&type', host.id_path, 'container');
+      instance.subscribe('inventory?id_path_start&type', host.id_path, 'pod');
 
-      instance.state.set('vConnectorsCount', Inventory.find({ 
-        id_path: idPathExp,
-        type: 'vconnector'
+      instance.state.set('containersCount', Inventory.find({
+          id_path: idPathExp,
+          type: 'container'
       }).count());
-
-      instance.state.set('networkHostsCount', Inventory.find({ 
-        id_path: idPathExp,
-        type: 'network_host'
+      instance.state.set('podsCount', Inventory.find({
+          id_path: idPathExp,
+          type: 'pod'
       }).count());
+    }
+    instance.subscribe('inventory?id_path_start&type', host.id_path, 'vconnector');
+    instance.subscribe('inventory?id_path_start&type', host.id_path, 'network_agent');
+    instance.subscribe('inventory?id_path_start&type', host.id_path, 'pnic');
+    instance.subscribe('inventory?id_path_start&type', host.id_path, 'vedge');
 
-      instance.state.set('pnicsCount', Inventory.find({ 
-        id_path: idPathExp,
-        type: 'pnic'
-      }).count());
+    Inventory.find({ id_path: host.id_path }).forEach((host) => {
+      instance.subscribe('inventory?env&binding:host_id&type',
+        host.environment, host.id, 'port');
 
-      instance.state.set('vEdgesCount', Inventory.find({ 
-        id_path: idPathExp,
-        type: 'vedge'
+      instance.state.set('portsCount', Inventory.find({
+        environment: host.environment,
+        'binding:host_id': host.id,
+        type: 'port'
       }).count());
     });
+
+    instance.state.set('vConnectorsCount', Inventory.find({
+      id_path: idPathExp,
+      type: 'vconnector'
+    }).count());
+
+    instance.state.set('networkHostsCount', Inventory.find({
+      id_path: idPathExp,
+      type: 'network_host'
+    }).count());
+
+    instance.state.set('pnicsCount', Inventory.find({
+      id_path: idPathExp,
+      type: 'pnic'
+    }).count());
+
+    instance.state.set('vEdgesCount', Inventory.find({
+      id_path: idPathExp,
+      type: 'vedge'
+    }).count());
 
   });
 });  
@@ -178,8 +188,39 @@ Template.HostDashboard.helpers({
     return Inventory.findOne({ id_path: host_id_path });
   },
 
-  infoBoxes: function () {
-    return infoBoxes;
+  env: function () {
+    return Template.instance().state.get('env');
+  },
+
+  infoBoxes: function (envType) {
+    let boxes = infoBoxes.slice(0);
+    if (envType === 'OpenStack') {
+      boxes.unshift({
+          header: ['components', 'hostDashboard', 'infoBoxes', 'instances', 'header'],
+          dataSource: 'instancesCount',
+          icon: { type: 'fa', name: 'desktop' },
+          theme: 'dark'
+      }, {
+          header: ['components', 'hostDashboard', 'infoBoxes', 'vServices', 'header'],
+          dataSource: 'vServicesCount',
+          icon: { type: 'fa', name: 'object-group' },
+          theme: 'dark'
+      }, )
+    }
+    else if (envType === 'Kubernetes') {
+        boxes.unshift({
+            header: ['components', 'hostDashboard', 'infoBoxes', 'containers', 'header'],
+            dataSource: 'containersCount',
+            icon: { type: 'fa', name: 'cube' },
+            theme: 'dark'
+        }, {
+            header: ['components', 'hostDashboard', 'infoBoxes', 'pods', 'header'],
+            dataSource: 'podsCount',
+            icon: { type: 'fa', name: 'database' },
+            theme: 'dark'
+        }, )
+    }
+    return boxes;
   },
 
   argsInfoBox: function (infoBox) {
