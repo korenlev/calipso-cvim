@@ -54,11 +54,6 @@ Template.MessagesList.onCreated(function () {
     }).validate(query);
 
     instance.subscribe('environments_config');
-
-    instance.subscribe('messages/count');
-    instance.subscribe('messages/count?level', 'info');
-    instance.subscribe('messages/count?level', 'warning');
-    instance.subscribe('messages/count?level', 'error');
   });
 
   instance.autorun(function () {
