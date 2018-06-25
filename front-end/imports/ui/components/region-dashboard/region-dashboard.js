@@ -51,6 +51,7 @@ let infoBoxes = [{
 
 let listInfoBoxes = [{
   header: ['components', 'regionDashboard', 'listInfoBoxes', 'availabilityZones', 'header'],
+  baseType: ['components', 'regionDashboard', 'listInfoBoxes', 'availabilityZones', 'baseType'],
   listName: 'availabilityZones',
   listItemFormat: { 
     getLabelFn: (item) => { return item.name; },
@@ -59,6 +60,7 @@ let listInfoBoxes = [{
   icon: { type: 'material', name: 'developer_board' },
 }, {
   header: ['components', 'regionDashboard', 'listInfoBoxes', 'aggregates', 'header'],
+  baseType: ['components', 'regionDashboard', 'listInfoBoxes', 'aggregates', 'baseType'],
   listName: 'aggregates',
   listItemFormat: { 
     getLabelFn: (item) => { return item.name; },
@@ -180,12 +182,14 @@ Template.RegionDashboard.helpers({
   },
 
   argsListInfoBox: function (listInfoBox) {
+    console.log(listInfoBox);
     let instance = Template.instance();
     let data = Template.currentData();
     let region_id_path = instance.state.get('id_path');
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
+      baseType: R.path(listInfoBox.baseType, store.getState().api.i18n),
       list: getList(listInfoBox.listName, region_id_path),
       //dataInfo: instance.state.get(infoBox.dataSource).toString(),
       icon: new Icon(listInfoBox.icon),

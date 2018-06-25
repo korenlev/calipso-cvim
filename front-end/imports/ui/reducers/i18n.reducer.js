@@ -114,24 +114,26 @@ const defaultState = {
     regionDashboard: {
       infoBoxes: {
         instances: {
-          header: 'Number of instances'
+          header: 'Instances',
         },
         vServices: {
-          header: 'Number of vServices'
+          header: 'vServices'
         },
         hosts: {
-          header: 'Number of hosts'
+          header: 'Hosts'
         },
         vConnectors: {
-          header: 'Number of vConnectors'
+          header: 'vConnectors'
         }
       },
       listInfoBoxes: {
         availabilityZones: {
-          header: 'Availability zones'
+          header: 'Availability zones',
+          baseType: 'zone'
         },
         aggregates: {
-          header: 'Aggregates'
+          header: 'Aggregates',
+          baseType: 'aggregate'
         }
       }
     },
