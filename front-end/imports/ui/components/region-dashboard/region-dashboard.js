@@ -182,7 +182,6 @@ Template.RegionDashboard.helpers({
   },
 
   argsListInfoBox: function (listInfoBox) {
-    console.log(listInfoBox);
     let instance = Template.instance();
     let data = Template.currentData();
     let region_id_path = instance.state.get('id_path');

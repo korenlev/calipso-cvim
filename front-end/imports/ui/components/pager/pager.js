@@ -86,7 +86,6 @@ Template.Pager.events({
   'click .sm-next-button': function (_event, _instance) {
     if (_instance.state.get('totalPages') > 0) {
       let data = Template.currentData();
-      console.log(data);
       data.onReqNext();
     }
   },
