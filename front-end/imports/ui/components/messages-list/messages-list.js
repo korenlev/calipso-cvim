@@ -43,9 +43,9 @@ Template.MessagesList.onCreated(function () {
     msgLevel: null
   });
 
-  instance.autorun(function () {
-    //let data = Template.currentData();
+  instance.state.set('msgLevel', 'total');
 
+  instance.autorun(function () {
     var controller = Iron.controller();
     var params = controller.getParams();
     var query = params.query;
@@ -62,10 +62,10 @@ Template.MessagesList.onCreated(function () {
   });
 
   instance.autorun(function () {
-    showMessagesList(instance, 'total');
+    let msgLvl = instance.state.get('msgLevel');
+    showMessagesList(instance, msgLvl);
   });
 });
-
 
 function showMessagesList(instance, msgLevel) {
   let amountPerPage = instance.state.get('amountPerPage');
@@ -102,15 +102,19 @@ Template.MessagesList.rendered = function() {
 
 Template.MessagesList.events({
   'click .messages-all-container': function (event, _instance) {
+    _instance.state.set('page', 1);
     showMessagesList(_instance, 'total');
   },
   'click .info-main-container': function (event, _instance) {
+    _instance.state.set('page', 1);
     showMessagesList(_instance, 'info');
   },
   'click .warning-main-container': function (event, _instance) {
+    _instance.state.set('page', 1);
     showMessagesList(_instance, 'warning');
   },
   'click .error-main-container': function (event, _instance) {
+    _instance.state.set('page', 1);
     showMessagesList(_instance, 'error');
   },
 
