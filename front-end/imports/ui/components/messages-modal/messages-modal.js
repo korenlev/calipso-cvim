@@ -251,7 +251,7 @@ function calcIconType(messageLevel) {
     case 'notify':
       return 'notifications';
     case 'info':
-      return 'notifications';
+      return 'info';
     case 'warning':
       return 'warning';
     case 'error':
