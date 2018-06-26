@@ -14,6 +14,7 @@ import * as _ from 'lodash';
         
 import './network-graph.html';
 import {Environments} from "../../../api/environments/environments";
+import {Inventory} from "../../../api/inventories/inventories";
     
 /*  
  * Lifecycles
@@ -55,6 +56,9 @@ Template.NetworkGraph.onCreated(function() {
     instance.onGroupOver = R.defaultTo(() => {}, data.onGroupOver);
     instance.onLinkOver = R.defaultTo(() => {}, data.onLinkOver);
   });
+
+  // TODO: TEMPORARY!!!
+  instance.subscribe('inventory?name&env&type', 'none', 'kube-cluster1', 'network');
 });  
 
 Template.NetworkGraph.rendered = function() {
@@ -319,6 +323,21 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
     .on('click', function (d) {
       let meta = R.defaultTo({}, R.path(['_osmeta'], d));
       let type = R.defaultTo('', R.path(['type'], meta));
+
+      // TODO: TEMPORARY!!!
+      let node = Inventory.findOne({'_id': meta.nodeId});
+      if (node && node.name === "Korlev-kub2") {
+
+        let toEnv = Environments.findOne({name: 'kube-cluster1'});
+        let toNode = Inventory.findOne({environment: 'kube-cluster1', type: 'network', name: 'none'});
+        Router.go('environment',
+            { _id: idToStr(R.prop('_id', toEnv)) },
+            { query: { selectedNodeId: idToStr(R.prop('_id', toNode)) }}
+        );
+        return;
+      }
+      // TODO: TEMPORARY!!!
+
       if (type === "network") {
         let env = Environments.findOne({name: R.prop('environment', meta)});
         Router.go('environment',
