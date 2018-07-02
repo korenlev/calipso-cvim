@@ -9,30 +9,29 @@
 ########################################################################################
  -->
 <template name="ProjectDashboard">
-
-  <div class="os-project-dashboard flex-box justify-content-between">
-    <div class="flex-box-3 main-layout-no-nav">
-      
-      <div class="flex">
-        <div class="flex-box-1 cards white title">
-          <h4>Project name: {{ project.name }}</h4>
+  <div class="os-project-dashboard">
+    <div class="main-layout-no-nav content-details">
+      <div class="main-cube-title">
+        <div>
+          Project name: {{ project.name }}
         </div>
       </div>
 
-      <div class="sm-info-boxes">
-        {{#each infoBox in infoBoxes }}
-          {{> DataCubic (genArgsInfoBox infoBox) }}
-        {{/each }}
-      </div>
-      
-      <div class="sm-list-info-boxes">
-        {{#each network in networks }}
-          <div class="sm-item">
+      <div style="display: flex;justify-content: space-between">
+        <div>
+          {{#each network in networks }}
+          <div>
             {{> NetworkInfoBox (argsNetworkInfoBox network) }}
           </div>
-        {{/each }}
+          {{/each }}
+        </div>
+
+        <div class="single-env-summary">
+          {{#each infoBox in infoBoxes }}
+            {{> DataCube (genArgsInfoBox infoBox) }} 
+          {{/each }}
+        </div>
       </div>
-      
     </div>
   </div>
 </template>

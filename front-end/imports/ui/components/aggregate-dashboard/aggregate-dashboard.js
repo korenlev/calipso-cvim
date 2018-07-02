@@ -55,6 +55,7 @@ let infoBoxes = [{
 
 let listInfoBoxes = [{
   header: ['components', 'aggregateDashboard', 'listInfoBoxes', 'hosts', 'header'],
+  baseType: ['components', 'aggregateDashboard', 'listInfoBoxes', 'hosts', 'baseType'],
   listName: 'hosts',
   listItemFormat: { label: 'name', value: 'id_path' },
   icon: { type: 'material', name: 'developer_board' },
@@ -183,6 +184,7 @@ Template.AggregateDashboard.helpers({
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
+      baseType: R.path(listInfoBox.baseType, store.getState().api.i18n),
       list: getList(listInfoBox.listName, aggregate_id_path),
       //dataInfo: instance.state.get(infoBox.dataSource).toString(),
       icon: new Icon(listInfoBox.icon),

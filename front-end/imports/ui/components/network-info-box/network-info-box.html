@@ -9,14 +9,36 @@
 ########################################################################################
  -->
 <template name="NetworkInfoBox">
-  <div class="cards-450 white flex-box-1">
-    <div class="flex-box ">
-      <div class="flex-box-1">
-        <i class="material-icons">device_hub</i>
+  <div class="network-details">
+    <div>
+      <div class="network-name" style="border-bottom: 1px solid #C4DFEB;padding-bottom: 10px;">
+        Network name: {{ network.name }}
       </div>
-      <div class="flex-box-2">
-        <h3>Network name:<br> {{ network.name }}</h3>
-      <table class="table table-striped">
+      <div style="display: flex;padding-top:10px; justify-content: space-between">
+        <div>
+          <span class="network-summary-item-title">Last Scanning:</span>
+          <div></div>
+        </div>
+        <div class="network-summary-item-container">
+          <div class="network-summary-item">
+            <span class="network-summary-item-title">Ports</span>
+            <div class="network-summary-item-counter">{{ portsCount }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+
+<!-- <template name="NetworkInfoBox">
+  <div class="content-details">
+    <div class="flex-box">
+      <div class="network-name" style="border-bottom: 1px solid #C4DFEB;padding-bottom: 10px;">
+          Network name: {{ network.name }}
+      </div>
+      <table class="table">
         <tbody>
           <tr>
             <th>Last Scanning</th>
@@ -32,7 +54,6 @@
           </tr>
         </tbody>
       </table>
-      </div>
     </div>
   </div>
-</template>
+</template> -->
