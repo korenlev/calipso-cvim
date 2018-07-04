@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import sys
+sys.path.append('/root/koren/Calipso/app')
 from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import ConnectionFailure
 from urllib.parse import quote_plus
@@ -21,17 +23,18 @@ import socket
 # if hostname argument will not be provided as argument for the calipso-installer
 import os
 import errno
-dockerip = os.popen('ip addr show docker0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'')
-local_hostname = dockerip.read().replace("\n", "")
+# dockerip = os.popen('ip addr show docker0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'')
+# local_hostname = dockerip.read().replace("\n", "")
+local_hostname = '10.23.221.139'
 
 C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
-H_MONGO_CONFIG = "/home/calipso/calipso_mongo_access.conf"
+H_MONGO_CONFIG = "/root/koren/calipso_mongo_access.conf"
 PYTHONPATH = "/home/scan/calipso_prod/app"
 C_LDAP_CONFIG = "/local_dir/ldap.conf"
-H_LDAP_CONFIG = "/home/calipso/ldap.conf"
-H_DIR="/home/calipso/"
+H_LDAP_CONFIG = "/root/koren/ldap.conf"
+H_DIR="/root/koren/"
 
-calipso_volume = {'/home/calipso': {'bind': '/local_dir', 'mode': 'rw'}}
+calipso_volume = {'/root/koren': {'bind': '/local_dir', 'mode': 'rw'}}
 RESTART_POLICY = {"Name": "always"}
 
 # environment variables definitions
