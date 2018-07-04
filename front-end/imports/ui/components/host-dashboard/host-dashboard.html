@@ -9,21 +9,18 @@
 ########################################################################################
  -->
 <template name="HostDashboard">
-  <div class="os-host-dashboard flex-box justify-content-between">
-    <div class="flex-box-3 main-layout-no-nav">
-      
-      <div class="flex">
-        <div class="flex-box-1 cards white title">
-          <h4>Host name: {{ host.name }}</h4>
+  <div class="os-host-dashboard">
+    <div class="main-layout-no-nav content-details">
+      <div class="main-cube-title">
+        <div>
+          Host name: {{ host.name }}
         </div>
       </div>
-
-      <div class="sm-info-boxes">
+      <div class="single-env-summary">
         {{#each infoBox in infoBoxes env.environment_type }}
-          {{> DataCubic (argsInfoBox infoBox) }}
+          {{> DataCube (argsInfoBox infoBox) }} 
         {{/each }}
       </div>
-
     </div>
   </div>
 </template>
