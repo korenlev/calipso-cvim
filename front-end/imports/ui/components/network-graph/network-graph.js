@@ -14,7 +14,8 @@ import * as _ from 'lodash';
         
 import './network-graph.html';
 import {Environments} from "../../../api/environments/environments";
-    
+import {Inventory} from "../../../api/inventories/inventories";
+
 /*  
  * Lifecycles
  */   
@@ -649,7 +650,8 @@ function calcGroupsAndRejectedGroups(originalGroups) {
 
 function calcClosedGroupsNodes(rejectedGroups, prevViewNodes) {
   return R.reduce((acc, group) => {
-    let nodeId = `${group._osid}-group-node`;
+    let groupNode = Inventory.findOne({_id: group._osid});
+    let nodeId = `${groupNode._id}-group-node`;
     let prevNode = R.find(R.propEq('_osid', nodeId), prevViewNodes);
     if (prevNode) {
       return R.append(prevNode, acc);
@@ -659,11 +661,11 @@ function calcClosedGroupsNodes(rejectedGroups, prevViewNodes) {
       _osid: nodeId,
       _osmeta: {
         type: `view_group-${group.type}`,
-        nodeId: group._osid,
+        nodeId: groupNode._id,
       },
       width: 60,
       height: 40,
-      name: group._osid
+      name: groupNode.id
     }, acc);
   }, [], rejectedGroups);
 }
