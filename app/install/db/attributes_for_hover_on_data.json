@@ -1,4 +1,10 @@
-[
+{
+"type" : "switch",
+"attributes" : [
+	"ip_address",
+	"aci_document"
+   ]
+},
 { 
     "attributes" : [
         "object_name", 
@@ -153,7 +159,8 @@
 },
 { 
     "attributes" : [
-        "object_name", 
+        "object_name",
+        "OS",	
         "host_type", 
         "services", 
         "type",
