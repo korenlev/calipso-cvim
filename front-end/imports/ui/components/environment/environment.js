@@ -400,7 +400,8 @@ Template.Environment.helpers({
     let idPath = instance.rdxSelectedNodeIdPath.get();
 
     return {
-      id_path: idPath
+      id_path: idPath,
+      environment: Environments.findOne({ _id: instance.data._id}).name
     };
   },
 

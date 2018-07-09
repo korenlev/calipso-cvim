@@ -23,7 +23,10 @@ import './network-graph-manager.html';
     
 /*  
  * Lifecycles
- */   
+ */
+
+// Supported object types for grouping
+let groupTypes = ['host', 'switch'];
   
 Template.NetworkGraphManager.onCreated(function() {
   let instance = this;
@@ -55,9 +58,11 @@ Template.NetworkGraphManager.onCreated(function() {
 
     new SimpleSchema({
       id_path: { type: String },
+      environment: { type: String },
     }).validate(data);
 
     instance.state.set('id_path', data.id_path);
+    instance.state.set('environment', data.environment);
   });
 
   instance.autorun(function () {
@@ -172,6 +177,9 @@ Template.NetworkGraphManager.onCreated(function() {
       return; 
     }
 
+    groupTypes.forEach(function (groupType) {
+        instance.subscribe('inventory?env+type', instance.data.environment, groupType);
+    });
     instance.simpleState.graphData = addNodesToGraph(graphNodes, instance.simpleState.graphData);
 
     let isReady = calcIsReady(instance.simpleState.graphData);
@@ -383,13 +391,12 @@ function genGraphNode(node) {
     name: node._id._str,
   };
 
-  let groupMarkers = ['host', 'switch'];
   let groupKey = R.find((key) => {
     if (R.isNil(R.path([key], node))) { return false; }
     return true;
-  })(groupMarkers);
+  })(groupTypes);
   if (groupKey) {
-    newNode = R.assocPath(['_osmeta', 'groupId'], node[groupKey], newNode);
+    newNode = R.assocPath(['_osmeta', 'groupName'], node[groupKey], newNode);
     newNode = R.assocPath(['_osmeta', 'groupType'], groupKey, newNode);
   }
 
@@ -442,11 +449,14 @@ function calcIsReady(graphData) {
 
 function calcGroups(nodes) {
   return R.reduce((accGroups, node) => {
-    let groupId = R.path(['_osmeta', 'groupId'], node);
-    if (R.isNil(groupId)) {
+    let groupName = R.path(['_osmeta', 'groupName'], node);
+    let groupObject = Inventory.findOne({type: node._osmeta.groupType, environment: node._osmeta.environment, name: groupName});
+    if (R.isNil(groupName) || R.isNil(groupObject)) {
       return accGroups;
     }
 
+    let groupId = groupObject._id;
+    node._osmeta.groupId = groupId;
     let groupIndex = R.findIndex(R.propEq('_osid', groupId), accGroups);
     let group = null;
     if (groupIndex < 0) {
@@ -454,7 +464,7 @@ function calcGroups(nodes) {
         _osid: groupId,
         leaves: [node],
         isExpanded: true,
-        name: groupId,
+        name: groupName,
         type: node._osmeta.groupType,
       };
       accGroups = R.append(group, accGroups);
