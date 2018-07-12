@@ -315,7 +315,7 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       onNodeOver(d._osmeta.nodeId, d3.event.pageX, d3.event.pageY);
     })
     .on('mouseout', function (d) {
-      onNodeOut(d._osmeta.nodeId);
+      // onNodeOut(d._osmeta.nodeId);
     })
     .on('click', function (d) {
       let meta = R.defaultTo({}, R.path(['_osmeta'], d));
