@@ -364,6 +364,7 @@ Template.Environment.helpers({
 
   argsGraphTooltipWindow: function (graphTooltipWindow) {
     return {
+      tooltipIcon: R.path(['tooltipIcon'], graphTooltipWindow),
       label: R.path(['label'], graphTooltipWindow),
       title: R.path(['title'], graphTooltipWindow),
       left: R.path(['left'], graphTooltipWindow),
@@ -401,7 +402,7 @@ Template.Environment.helpers({
 
     return {
       id_path: idPath,
-      environment: Environments.findOne({ _id: instance.data._id}).name
+      environment: Environments.findOne({ _id: instance.data._id }).name
     };
   },
 
