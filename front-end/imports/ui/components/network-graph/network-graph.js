@@ -318,7 +318,7 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       onNodeOver(d._osmeta.nodeId, d3.event.pageX, d3.event.pageY);
     })
     .on('mouseout', function (d) {
-      onNodeOut(d._osmeta.nodeId);
+      // onNodeOut(d._osmeta.nodeId);
     })
     .on('click', function (d) {
       let meta = R.defaultTo({}, R.path(['_osmeta'], d));
@@ -447,7 +447,7 @@ function renderView(force,
 
   zoom.on('zoom', zoomFn);
 
-  genSvgGroups(groupsEl, state.viewGraph.groups, drag, onRenderViewReq, onGroupOver);
+  genSvgGroups(groupsEl, state.viewGraph.groups, drag, onRenderViewReq, onGroupOver, onNodeOut);
 
   genSvgLinks(
     linksEl, state.viewGraph.links, 
@@ -577,7 +577,7 @@ function renderView(force,
   return state.viewGraph;
 }
 
-function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver) {
+function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver, onNodeOut) {
   let svgGroups = g.selectAll('.group')
     .data(groups, (d) => d._osid);
 
@@ -590,7 +590,9 @@ function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver) {
       .attr('data-group-id', (d) => d._osid)
       .call(drag)
       .on('mouseover', function (_d) {
-        onGroupOver();
+        onGroupOver(_d._osid, d3.event.pageX, d3.event.pageY);
+      }).on('mouseout', function (_d) {
+        onNodeOut(_d._osid);
       })
       .on('click', function (d) {
         console.log('click', d);

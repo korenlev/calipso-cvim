@@ -1,7 +1,7 @@
 /*
  * Template Component: NetworkGraphManager 
  */
-    
+
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
@@ -16,19 +16,19 @@ import { activateGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-wi
 import { closeGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
 import { activateVedgeInfoWindow } from '/imports/ui/actions/vedge-info-window.actions';
 import { EJSON } from 'meteor/ejson';
-        
+
 import '/imports/ui/components/network-graph/network-graph';
 
-import './network-graph-manager.html';     
-    
+import './network-graph-manager.html';
+
 /*  
  * Lifecycles
  */
 
 // Supported object types for grouping
 let groupTypes = ['host', 'switch'];
-  
-Template.NetworkGraphManager.onCreated(function() {
+
+Template.NetworkGraphManager.onCreated(function () {
   let instance = this;
 
   instance.state = new ReactiveDict();
@@ -85,15 +85,15 @@ Template.NetworkGraphManager.onCreated(function() {
 
   instance.autorun(function () {
     let inventories = instance.state.get('inventoriesToFind');
-    if (inventories.length <= 0) { 
-      return; 
+    if (inventories.length <= 0) {
+      return;
     }
 
     instance.subscribe('inventory?id_path', inventories[0]);
 
     // id_path: assumption - unique
     Inventory.find({ id_path: inventories[0] }).forEach((inventory) => {
-      if (! inventory.clique) {
+      if (!inventory.clique) {
         return;
       }
 
@@ -103,30 +103,30 @@ Template.NetworkGraphManager.onCreated(function() {
 
   instance.autorun(function () {
     let cliques = instance.state.get('cliquesToFind');
-    if (cliques.length <= 0) { 
-      return; 
+    if (cliques.length <= 0) {
+      return;
     }
 
     // focal point: assumption - unique per inventory node.
     let mainNodeIdStr = cliques[0]._str;
     instance.subscribe('cliques?focal_point', mainNodeIdStr);
 
-    Cliques.find({ focal_point: new Mongo.ObjectID(mainNodeIdStr) }).forEach( function (cliqueItem) {
+    Cliques.find({ focal_point: new Mongo.ObjectID(mainNodeIdStr) }).forEach(function (cliqueItem) {
       instance.state.set('linksToFind', cliqueItem.links);
     });
   });
 
   instance.autorun(function () {
     let linksToFind = instance.state.get('linksToFind');
-    if (linksToFind.length <= 0) { 
-      return; 
+    if (linksToFind.length <= 0) {
+      return;
     }
 
     // Find links for focal point.
     instance.subscribe('links?_id-in', linksToFind);
 
     instance.state.set('graphLinks', []);
-    Links.find({ _id: {$in: linksToFind} }).forEach(function(link) {
+    Links.find({ _id: { $in: linksToFind } }).forEach(function (link) {
       let graphLinks = EJSON.parse(instance.state.keys['graphLinks']);
       graphLinks = R.concat([link], graphLinks);
       instance.state.set('graphLinks', graphLinks);
@@ -136,8 +136,8 @@ Template.NetworkGraphManager.onCreated(function() {
 
   instance.autorun(function () {
     let graphLinks = instance.state.get('graphLinks');
-    if (graphLinks.length <= 0) { 
-      return; 
+    if (graphLinks.length <= 0) {
+      return;
     }
 
     instance.simpleState.graphData = addLinksToGraph(graphLinks, instance.simpleState.graphData);
@@ -146,8 +146,8 @@ Template.NetworkGraphManager.onCreated(function() {
     // Find nodes for link
     // todo: remove dubplicates.
     let nodesIds = R.chain(link => {
-      return [ link['source'], link['target'] ]; 
-    }, graphLinks); 
+      return [link['source'], link['target']];
+    }, graphLinks);
 
     let nodesToFind = EJSON.parse(instance.state.keys['nodesToFind']);
     nodesToFind = R.concat(nodesIds, nodesToFind);
@@ -156,8 +156,8 @@ Template.NetworkGraphManager.onCreated(function() {
 
   instance.autorun(function () {
     let nodesToFind = instance.state.get('nodesToFind');
-    if (nodesToFind.length <= 0) { 
-      return; 
+    if (nodesToFind.length <= 0) {
+      return;
     }
 
     instance.subscribe('inventory?_id-in', nodesToFind);
@@ -173,12 +173,12 @@ Template.NetworkGraphManager.onCreated(function() {
 
   instance.autorun(function () {
     let graphNodes = instance.state.get('graphNodes');
-    if (graphNodes.length <= 0) { 
-      return; 
+    if (graphNodes.length <= 0) {
+      return;
     }
 
     groupTypes.forEach(function (groupType) {
-        instance.subscribe('inventory?env+type', instance.data.environment, groupType);
+      instance.subscribe('inventory?env+type', instance.data.environment, groupType);
     });
     instance.simpleState.graphData = addNodesToGraph(graphNodes, instance.simpleState.graphData);
 
@@ -186,7 +186,7 @@ Template.NetworkGraphManager.onCreated(function() {
     instance.state.set('graphDataChanged', Date.now());
     instance.state.set('isReady', isReady);
   });
-});  
+});
 
 /*
 Template.NetworkGraphManager.rendered = function() {
@@ -199,12 +199,12 @@ Template.NetworkGraphManager.rendered = function() {
 
 Template.NetworkGraphManager.events({
 });
-   
+
 /*  
  * Helpers
  */
 
-Template.NetworkGraphManager.helpers({    
+Template.NetworkGraphManager.helpers({
   graphDataChanged: function () {
     let instance = Template.instance();
     return instance.state.get('graphDataChanged');
@@ -229,7 +229,7 @@ Template.NetworkGraphManager.helpers({
 
         instance.simpleState.itemOfInterest = nodeId;
 
-        Meteor.apply('inventoryFindNode?DataAndAttrs', [ nodeId ], 
+        Meteor.apply('inventoryFindNode?DataAndAttrs', [nodeId],
           { wait: false }, function (err, res) {
             if (err) {
               console.error(`error fetching attrs for node for showing: ${R.toString(err)}`);
@@ -241,25 +241,26 @@ Template.NetworkGraphManager.helpers({
           });
       },
       onNodeOut: function (_nodeId) {
-        //store.dispatch(closeGraphTooltipWindow());
+        store.dispatch(closeGraphTooltipWindow());
       },
       onNodeClick: function (nodeId, nodeType, env, x, y) {
-        if (nodeType === 'vedge') {
-          Meteor.apply('inventoryFindNode?_id', [ 
-            nodeId, 
-          ], { 
-            wait: false 
-          }, function (err, res) {
-            if (err) {
-              console.error(R.toString(err));
-              return;
-            }
 
-            if (_.lowerCase(R.path(['node', 'agent_type'], res)) === 'vpp') {
-              store.dispatch(activateVedgeInfoWindow(res.node, x, y));
-            }
-            return;
-          });
+        if (nodeType === 'vedge') {
+          Meteor.apply('inventoryFindNode?_id', [
+            nodeId,
+          ], {
+              wait: false
+            }, function (err, res) {
+              if (err) {
+                console.error(R.toString(err));
+                return;
+              }
+
+              if (_.lowerCase(R.path(['node', 'agent_type'], res)) === 'vpp') {
+                store.dispatch(activateVedgeInfoWindow(res.node, x, y));
+              }
+              return;
+            });
         }
       },
       onDragStart: function () {
@@ -269,9 +270,27 @@ Template.NetworkGraphManager.helpers({
       onDragEnd: function () {
         isDragging = false;
       },
-      onGroupOver: function () {
-        //instance.simpleState.itemOfInterest = null;
-        //store.dispatch(closeGraphTooltipWindow());
+      onGroupOver: function (groupId, x, y) {
+        if (isDragging) {
+          return;
+        }
+
+        if (instance.simpleState.itemOfInterest === groupId) {
+          instance.simpleState.itemOfInterest = null;
+          return;
+        }
+
+        instance.simpleState.itemOfInterest = groupId;
+
+        Meteor.apply('inventoryFindNode?DataAndAttrs', [groupId],
+          { wait: false }, function (err, res) {
+            if (err) {
+              console.error(`error fetching attrs for node for showing: ${R.toString(err)}`);
+              return;
+            }
+
+            store.dispatch(activateGraphTooltipWindow(res.nodeName, res.attributes, x + 30, y - 10));
+          });
       },
       onLinkOver: function (linkId, x, y) {
         if (isDragging) {
@@ -285,7 +304,7 @@ Template.NetworkGraphManager.helpers({
 
         instance.simpleState.itemOfInterest = linkId;
 
-        Meteor.apply('linksFind?DataAndAttrs', [ linkId ], 
+        Meteor.apply('linksFind?DataAndAttrs', [linkId],
           { wait: false }, function (err, res) {
             if (err) {
               console.error(`error fetching attrs for link for showing: ${R.toString(err)}`);
@@ -315,8 +334,8 @@ function generateGraphData() {
 
 function genGraphLink(link) {
   let newLink = {
-    sourceId: link.source, 
-    targetId: link.target, 
+    sourceId: link.source,
+    targetId: link.target,
     label: link.link_name,
     _osid: link._id,
     _osmeta: {
@@ -362,7 +381,7 @@ function addLinkToGraph(link, graphData) {
 function expandLinks(links, nodes) {
   return R.map((link) => {
     let newLink = link;
-    
+
     let nodeSource = R.find(R.propEq('_osid', newLink.sourceId), nodes);
     if (!R.isNil(nodeSource)) {
       newLink = R.assoc('source', nodeSource, newLink);
@@ -450,7 +469,7 @@ function calcIsReady(graphData) {
 function calcGroups(nodes) {
   return R.reduce((accGroups, node) => {
     let groupName = R.path(['_osmeta', 'groupName'], node);
-    let groupObject = Inventory.findOne({type: node._osmeta.groupType, environment: node._osmeta.environment, name: groupName});
+    let groupObject = Inventory.findOne({ type: node._osmeta.groupType, environment: node._osmeta.environment, name: groupName });
     if (R.isNil(groupName) || R.isNil(groupObject)) {
       return accGroups;
     }
@@ -460,7 +479,7 @@ function calcGroups(nodes) {
     let groupIndex = R.findIndex(R.propEq('_osid', groupId), accGroups);
     let group = null;
     if (groupIndex < 0) {
-      let group = { 
+      let group = {
         _osid: groupId,
         leaves: [node],
         isExpanded: true,
@@ -476,7 +495,7 @@ function calcGroups(nodes) {
       });
       accGroups = R.update(groupIndex, group, accGroups);
     }
-    
+
     node.parent = group;
     return accGroups;
   }, [], nodes);
