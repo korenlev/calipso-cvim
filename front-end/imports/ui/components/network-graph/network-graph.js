@@ -302,6 +302,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
   let bigImageWidth = 80; // for cloud
   let bigImageHeight = 80; // for cloud
 
+  let hostImageWidth = 50; // for cloud
+  let hostImageHeight = 70; // for cloud
+
   let mediumImageWidth = 50; // for container
   let mediumImageHeight = 40; // for container
 
@@ -318,6 +321,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       if (d._osmeta.type == "network") {
         return -(Math.floor(bigImageWidth / 2));
       }
+      if (d._osmeta.type == "view_group-host") {
+        return -(Math.floor(hostImageWidth / 2));
+      }
       else if (d._osmeta.type == "container") {
         return -(Math.floor(mediumImageWidth / 2));
       }
@@ -328,6 +334,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
     .attr('y', function (d) {
       if (d._osmeta.type == "network") {
         return -(Math.floor(bigImageHeight / 2));
+      }
+      if (d._osmeta.type == "view_group-host") {
+        return -(Math.floor(hostImageHeight / 2));
       }
       else if (d._osmeta.type == "container") {
         return -(Math.floor(mediumImageHeight / 2));
@@ -340,6 +349,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       if (d._osmeta.type == "network") {
         return bigImageWidth;
       }
+      if (d._osmeta.type == "view_group-host") {
+        return hostImageWidth;
+      }
       else if (d._osmeta.type == "container") {
         return mediumImageWidth;
       }
@@ -350,6 +362,9 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
     .attr('height', function (d) {
       if (d._osmeta.type == "network") {
         return bigImageHeight;
+      }
+      if (d._osmeta.type == "view_group-host") {
+        return hostImageHeight;
       }
       else if (d._osmeta.type == "container") {
         return mediumImageHeight;
@@ -578,11 +593,17 @@ function renderView(force,
     let bigImageInitialWidth = 80;
     let bigImageInitialHeight = 80;
 
+    let hostImageInitialWidth = 50;
+    let hostImageInitialHeight = 70;
+
     let mediumImageInitialWidth = 50;
     let mediumImageInitialHeight = 40;
 
     let bigImageWidth;
     let bigImageHeight;
+
+    let hostImageWidth;
+    let hostImageHeight;
 
     let mediumImageWidth;
     let mediumImageHeight;
@@ -596,6 +617,9 @@ function renderView(force,
       bigImageWidth = (bigImageInitialWidth / trn.k) * maxZoomAllowedForNodes;
       bigImageHeight = (bigImageInitialHeight / trn.k) * maxZoomAllowedForNodes;
 
+      hostImageWidth = (hostImageInitialWidth / trn.k) * maxZoomAllowedForNodes;
+      hostImageHeight = (hostImageInitialHeight / trn.k) * maxZoomAllowedForNodes;
+
       mediumImageWidth = (mediumImageInitialWidth / trn.k) * maxZoomAllowedForNodes;
       mediumImageHeight = (mediumImageInitialHeight / trn.k) * maxZoomAllowedForNodes;
 
@@ -603,6 +627,9 @@ function renderView(force,
     } else {
       bigImageWidth = bigImageInitialWidth;
       bigImageHeight = bigImageInitialHeight;
+
+      hostImageWidth = hostImageInitialWidth;
+      hostImageHeight = hostImageInitialHeight;
 
       mediumImageWidth = mediumImageInitialWidth;
       mediumImageHeight = mediumImageInitialHeight;
@@ -616,6 +643,9 @@ function renderView(force,
         if (d._osmeta.type == "network") {
           return -(Math.floor(bigImageWidth / 2));
         }
+        if (d._osmeta.type == "view_group-host") {
+          return -(Math.floor(hostImageWidth / 2));
+        }
         else if (d._osmeta.type == "container") {
           return -(Math.floor(mediumImageWidth / 2));
         }
@@ -626,6 +656,9 @@ function renderView(force,
       .attr('y', function (d) {
         if (d._osmeta.type == "network") {
           return -(Math.floor(bigImageHeight / 2));
+        }
+        if (d._osmeta.type == "view_group-host") {
+          return -(Math.floor(hostImageHeight / 2));
         }
         else if (d._osmeta.type == "container") {
           return -(Math.floor(mediumImageHeight / 2));
@@ -638,6 +671,9 @@ function renderView(force,
         if (d._osmeta.type == "network") {
           return bigImageWidth;
         }
+        if (d._osmeta.type == "view_group-host") {
+          return hostImageWidth;
+        }
         else if (d._osmeta.type == "container") {
           return mediumImageWidth;
         }
@@ -648,6 +684,9 @@ function renderView(force,
       .attr('height', function (d) {
         if (d._osmeta.type == "network") {
           return bigImageHeight;
+        }
+        if (d._osmeta.type == "view_group-host") {
+          return hostImageHeight;
         }
         else if (d._osmeta.type == "container") {
           return mediumImageHeight;
