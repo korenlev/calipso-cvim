@@ -299,15 +299,6 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
   svgNodes
     .exit().remove();
 
-  let bigImageWidth = 80; // for cloud
-  let bigImageHeight = 80; // for cloud
-
-  let hostImageWidth = 50; // for cloud
-  let hostImageHeight = 70; // for cloud
-
-  let mediumImageWidth = 50; // for container
-  let mediumImageHeight = 40; // for container
-
   let imageLength = 36;
   let svgImages = svgNodesEnter.append('image')
     .attr('class', 'node-image')
@@ -317,61 +308,16 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       return `/${calcImageForNodeType(d._osmeta.type, status)}`;
     })
     .attr('x', function (d) {
-      console.log("TYPEEEE:" + d._osmeta.type);
-      if (d._osmeta.type == "network") {
-        return -(Math.floor(bigImageWidth / 2));
-      }
-      if (d._osmeta.type == "view_group-host") {
-        return -(Math.floor(hostImageWidth / 2));
-      }
-      else if (d._osmeta.type == "container") {
-        return -(Math.floor(mediumImageWidth / 2));
-      }
-      else {
-        return -(Math.floor(imageLength / 2));
-      }
+      return -(Math.floor(imageLength / 2));
     })
     .attr('y', function (d) {
-      if (d._osmeta.type == "network") {
-        return -(Math.floor(bigImageHeight / 2));
-      }
-      if (d._osmeta.type == "view_group-host") {
-        return -(Math.floor(hostImageHeight / 2));
-      }
-      else if (d._osmeta.type == "container") {
-        return -(Math.floor(mediumImageHeight / 2));
-      }
-      else {
-        return -(Math.floor(imageLength / 2));
-      }
+      return -(Math.floor(imageLength / 2));
     })
     .attr('width', function (d) {
-      if (d._osmeta.type == "network") {
-        return bigImageWidth;
-      }
-      if (d._osmeta.type == "view_group-host") {
-        return hostImageWidth;
-      }
-      else if (d._osmeta.type == "container") {
-        return mediumImageWidth;
-      }
-      else {
-        return imageLength;
-      }
+      return imageLength;
     })
     .attr('height', function (d) {
-      if (d._osmeta.type == "network") {
-        return bigImageHeight;
-      }
-      if (d._osmeta.type == "view_group-host") {
-        return hostImageHeight;
-      }
-      else if (d._osmeta.type == "container") {
-        return mediumImageHeight;
-      }
-      else {
-        return imageLength;
-      }
+      return imageLength;
     })
     .on('mouseover', function (d) {
       onNodeOver(d._osmeta.nodeId, d3.event.pageX, d3.event.pageY);
@@ -588,112 +534,28 @@ function renderView(force,
     let trn = d3.event.transform;
 
     let maxZoomAllowedForNodes = 1.8;
-    // let bigImageInitialLength = 150;
-
-    let bigImageInitialWidth = 80;
-    let bigImageInitialHeight = 80;
-
-    let hostImageInitialWidth = 50;
-    let hostImageInitialHeight = 70;
-
-    let mediumImageInitialWidth = 50;
-    let mediumImageInitialHeight = 40;
-
-    let bigImageWidth;
-    let bigImageHeight;
-
-    let hostImageWidth;
-    let hostImageHeight;
-
-    let mediumImageWidth;
-    let mediumImageHeight;
-
     let imageInitialLength = 36;
     let imageLength;
 
     if (trn.k > maxZoomAllowedForNodes) {
-      // bigImageLength = (bigImageInitialLength / trn.k) * maxZoomAllowedForNodes;
-
-      bigImageWidth = (bigImageInitialWidth / trn.k) * maxZoomAllowedForNodes;
-      bigImageHeight = (bigImageInitialHeight / trn.k) * maxZoomAllowedForNodes;
-
-      hostImageWidth = (hostImageInitialWidth / trn.k) * maxZoomAllowedForNodes;
-      hostImageHeight = (hostImageInitialHeight / trn.k) * maxZoomAllowedForNodes;
-
-      mediumImageWidth = (mediumImageInitialWidth / trn.k) * maxZoomAllowedForNodes;
-      mediumImageHeight = (mediumImageInitialHeight / trn.k) * maxZoomAllowedForNodes;
-
       imageLength = (imageInitialLength / trn.k) * maxZoomAllowedForNodes;
     } else {
-      bigImageWidth = bigImageInitialWidth;
-      bigImageHeight = bigImageInitialHeight;
-
-      hostImageWidth = hostImageInitialWidth;
-      hostImageHeight = hostImageInitialHeight;
-
-      mediumImageWidth = mediumImageInitialWidth;
-      mediumImageHeight = mediumImageInitialHeight;
-
       imageLength = imageInitialLength;
     }
 
     let svgImages = mainEl.selectAll('.node-image');
     svgImages
       .attr('x', function (d) {
-        if (d._osmeta.type == "network") {
-          return -(Math.floor(bigImageWidth / 2));
-        }
-        if (d._osmeta.type == "view_group-host") {
-          return -(Math.floor(hostImageWidth / 2));
-        }
-        else if (d._osmeta.type == "container") {
-          return -(Math.floor(mediumImageWidth / 2));
-        }
-        else {
-          return -(Math.floor(imageLength / 2));
-        }
+        return -(Math.floor(imageLength / 2));
       })
       .attr('y', function (d) {
-        if (d._osmeta.type == "network") {
-          return -(Math.floor(bigImageHeight / 2));
-        }
-        if (d._osmeta.type == "view_group-host") {
-          return -(Math.floor(hostImageHeight / 2));
-        }
-        else if (d._osmeta.type == "container") {
-          return -(Math.floor(mediumImageHeight / 2));
-        }
-        else {
-          return -(Math.floor(imageLength / 2));
-        }
+        return -(Math.floor(imageLength / 2));
       })
       .attr('width', function (d) {
-        if (d._osmeta.type == "network") {
-          return bigImageWidth;
-        }
-        if (d._osmeta.type == "view_group-host") {
-          return hostImageWidth;
-        }
-        else if (d._osmeta.type == "container") {
-          return mediumImageWidth;
-        }
-        else {
-          return imageLength;
-        }
+        return imageLength;
       })
       .attr('height', function (d) {
-        if (d._osmeta.type == "network") {
-          return bigImageHeight;
-        }
-        if (d._osmeta.type == "view_group-host") {
-          return hostImageHeight;
-        }
-        else if (d._osmeta.type == "container") {
-          return mediumImageHeight;
-        }
-        else {
-          return imageLength;
-        }
+        return imageLength;
       });
 
     let labelsFontSize;
@@ -740,8 +602,7 @@ function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver, onNodeOut) 
     .attr('class', 'group-shape')
     .attr('rx', 8)
     .attr('ry', 8)
-    .style('fill', function (_d, _i) { return 'lightblue'; })
-    ;
+    .style('fill', function (_d, _i) { return 'lightblue'; });
 
   groupsContainers
     .append('text')

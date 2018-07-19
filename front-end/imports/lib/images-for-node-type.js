@@ -60,10 +60,16 @@ export let imagesForNodeType = {
     error: 'new_ic_keyboard_return_black_48dp_2x-red.svg',
   },
   'view_group-host': {
-    default: 'new_ic_standard_host.svg'
+    default: 'new_ic_standard_host.svg',
+    ok: 'new_ic_standard_host-green.svg',
+    warning: 'new_ic_standard_host-orange.svg',
+    error: 'new_ic_standard_host-red.svg',
   },
   'view_group-switch': {
-    default: 'ic_zoom_out_map_black_24dp_2x.png'
+    default: 'new_ic_zoom_out_map_black_24dp_2x.png',
+    ok: 'new_ic_zoom_out_map_black_24dp_2x-green.png',
+    warning: 'new_ic_zoom_out_map_black_24dp_2x-orange.png',
+    error: 'new_ic_zoom_out_map_black_24dp_2x-red.png',
   },
   'container': {
     default: 'new_container.svg',
@@ -80,9 +86,9 @@ export let imagesForNodeType = {
 };
 
 export let defaultNodeTypeImage = {
-  default: 'ic_lens_black_48dp_2x.png',
-  ok: 'ic_lens_black_48dp_2x-green.png',
-  warning: 'ic_lens_black_48dp_2x-orange.png',
-  error: 'ic_lens_black_48dp_2x-red.png',
+  default: 'new_ic_lens_black_48dp_2x.png',
+  ok: 'new_ic_lens_black_48dp_2x-green.png',
+  warning: 'new_ic_lens_black_48dp_2x-orange.png',
+  error: 'new_ic_lens_black_48dp_2x-red.png',
 };
 

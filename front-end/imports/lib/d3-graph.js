@@ -358,7 +358,7 @@ let d3Graph = {
       'vservice': 'new_ic_storage_black_48dp_2x.svg',
       'vnic': 'new_ic_settings_input_hdmi_black_48dp_2x.png',
       'otep':'new_ic_keyboard_return_black_48dp_2x.svg',
-      'default':'ic_lens_black_48dp_2x.png'
+      'default':'new_ic_lens_black_48dp_2x.png'
     };
 
     node.append('image')
