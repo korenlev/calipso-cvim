@@ -429,6 +429,10 @@
 {
     "side" : "client",
     "order" : "1",
+    "condition" : {
+        "environment_type": "OpenStack",
+        "mechanism_drivers" : ["OVS","LXB"]
+    },
     "config" : {
         "checks" : {
             "{objtype}_{objid}_vnics" : {
