@@ -1,9 +1,10 @@
+[
 {
-"type" : "switch",
-"attributes" : [
+    "attributes" : [
 	"ip_address",
 	"aci_document"
-   ]
+   ],
+   "type" : "switch"
 },
 { 
     "attributes" : [
