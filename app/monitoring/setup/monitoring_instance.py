@@ -18,6 +18,16 @@ class MonitoringInstance(MonitoringSimpleObject):
     # monitoring setup for instance can only be done after vNIC is found
     # and network for vNIC is set, so the first call will not do anything
     def create_setup(self, instance: dict):
+
+        self.setup(
+            'instance',
+            instance,
+            {
+                'check_type': 'instance_vm',
+                'instance_name': instance['local_name']
+            }
+        )
+
         vnics = self.inv.find_items({
             'environment': self.env,
             'type': 'vnic',
@@ -43,7 +53,7 @@ class MonitoringInstance(MonitoringSimpleObject):
             services_and_vnics.split(';') if services_and_vnics \
             else []
         service_and_vnic = '{},{}'.format(service.get('local_service_id', ''),
-                                          vnic.get('id'))
+                                          vnic.get('mac_address', "").lower())
         if service_and_vnic in services_and_vnics_list:
             return  # we already have this tuple define
         services_and_vnics_list.append(service_and_vnic)
@@ -51,6 +61,7 @@ class MonitoringInstance(MonitoringSimpleObject):
             'objtype': 'instance',
             'objid': self.encode_special_characters(instance['id']),
             'host': service['host'],
+            'check_type': 'instance_vnics',
             'services_and_vnics': ';'.join(services_and_vnics_list)
         }
         self.create_monitoring_for_object(instance, values)

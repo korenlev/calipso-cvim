@@ -431,7 +431,7 @@
     "order" : "1",
     "config" : {
         "checks" : {
-            "{objtype}_{objid}" : {
+            "{objtype}_{objid}_vnics" : {
                 "standalone" : true,
                 "interval" : 15,
                 "command" : "PYTHONPATH=/etc/sensu/plugins check_instance_communications.py {services_and_vnics}",
@@ -442,11 +442,36 @@
                 "type" : "metric",
                 "subscribers" : [
                     "base"
-                ]
+                ],
+                "subtype": "vnics"
             }
         }
     },
     "monitoring_system" : "sensu",
-    "type" : "client_check_instance.json"
+    "type" : "client_check_instance_vnics.json"
+},
+{
+    "side" : "client",
+    "order" : "1",
+    "config" : {
+        "checks" : {
+            "{objtype}_{objid}_vm" : {
+                "standalone" : true,
+                "interval" : 15,
+                "command" : "PYTHONPATH=/etc/sensu/plugins check_vm.py {instance_name}",
+                "handlers" : [
+                    "file",
+                    "osdna-monitor"
+                ],
+                "type" : "metric",
+                "subscribers" : [
+                    "base"
+                ],
+                "subtype": "vm"
+            }
+        }
+    },
+    "monitoring_system" : "sensu",
+    "type" : "client_check_instance_vm.json"
 }
 ]

@@ -86,7 +86,7 @@ class Monitor:
                    if check_name.startswith('link_' + t + '_')]
         return matches
 
-    def find_object_type_and_id(self, check_name: str):
+    def find_object_type_and_id(self, check_name: str, check_subtype: str = None):
         # if we have multiple matching host types, then take the longest
         # of these. For example, if matches are ['host', 'host_pnic'],
         # then take 'host_pnic'.
@@ -103,9 +103,11 @@ class Monitor:
             raise ValueError('Unable to match check name "{}" with {} type'
                              .format(check_name, check_type))
         obj_type = matching_types[0]
-        postfix_len = len('link_') if is_link_check else 0
+
+        prefix_len = len('link_') if is_link_check else 0
+        postfix_len = len(check_subtype) + 1 if check_subtype else 0
         obj_id = (obj_type + '_' if is_link_check else '') + \
-            check_name[len(obj_type)+1+postfix_len:]
+            check_name[len(obj_type)+1+prefix_len:len(check_name)-postfix_len]
         return check_type, obj_type, obj_id
 
     def read_input(self):
@@ -121,19 +123,21 @@ class Monitor:
             if not self.input_text:
                 raise ValueError("No input provided on stdin")
 
-    def get_handler_by_type(self, check_type, obj_type):
+    def get_handler_by_type(self, check_type, obj_type, check_subtype=None):
         module_name = 'handle_link' if check_type == 'link' \
                 else 'handle_' + obj_type
+        if check_subtype:
+            module_name += '_' + check_subtype
         package = 'monitoring.handlers'
         handler = ClassResolver.get_instance_single_arg(self.args,
                                                         module_name=module_name,
                                                         package_name=package)
         return handler
 
-    def get_handler(self, check_type, obj_type):
+    def get_handler(self, check_type, obj_type, check_subtype=None):
         basic_handling_types = ['instance', 'vedge', 'vservice']
-        if obj_type not in basic_handling_types:
-            return self.get_handler_by_type(check_type, obj_type)
+        if check_subtype or obj_type not in basic_handling_types:
+            return self.get_handler_by_type(check_type, obj_type, check_subtype)
         from monitoring.handlers.basic_check_handler \
             import BasicCheckHandler
         return BasicCheckHandler(self.args)
@@ -213,16 +217,17 @@ class Monitor:
         check_client = check_result_full['client']
         check_result = check_result_full['check']
         check_result['id'] = check_result_full['id']
+        check_subtype = check_result.get('subtype')
         name = check_result['name']
         check_type, object_type, object_id = \
-            monitor.find_object_type_and_id(name)
+            monitor.find_object_type_and_id(name, check_subtype)
         if 'environment' in check_client:
             self.args.env = check_client['environment']
         else:
             raise ValueError('Check client should contain environment name')
         self.configuration.use_env(self.args.env)
 
-        check_handler = self.get_handler(check_type, object_type)
+        check_handler = self.get_handler(check_type, object_type, check_subtype)
         if check_handler:
             check_handler.handle(object_id, check_result)
         self.check_link_interdependency(object_id, object_type)

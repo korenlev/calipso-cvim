@@ -37,7 +37,7 @@ def check_vnic_tuple(vnic_and_service):
     mac_address = tuple_parts[1]
     check_output = None
     try:
-        netns_cmd = 'ip netns exec {} arp -n'.format(local_service_id)
+        netns_cmd = 'sudo ip netns exec {} arp -n'.format(local_service_id)
         check_output = 'MAC={}, local_service_id={}\n'\
             .format(mac_address, local_service_id)
         netns_out = subprocess.check_output([netns_cmd],
@@ -79,7 +79,7 @@ output = ''
 vnics = str(sys.argv[1]).split(';')
 for vnic_tuple in vnics:
     tuple_ret, out = check_vnic_tuple(vnic_tuple)
-    rc = min(rc, tuple_ret)
+    rc = max(rc, tuple_ret)
     output += out
 print(output)
 exit(rc)
