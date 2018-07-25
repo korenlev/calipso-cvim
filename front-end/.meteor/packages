@@ -44,5 +44,5 @@ momentjs:moment
 tsega:bootstrap3-datetimepicker
 alanning:roles
 percolate:migrations
-npm-bcrypt
+npm-bcrypt@2.0.1
 natestrauser:publish-performant-counts
