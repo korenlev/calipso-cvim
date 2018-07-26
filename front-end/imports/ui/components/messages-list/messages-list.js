@@ -18,6 +18,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
+import { UserSettings } from '/imports/api/user-settings/user-settings';
 
 import '/imports/ui/components/pager/pager';
 import '/imports/ui/components/inventory-properties-display/inventory-properties-display';
@@ -34,6 +35,7 @@ Template.MessagesList.onCreated(function () {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
+    msgsViewBackDelta: 1,
     env: null,
     page: 1,
     amountPerPage: 10,
@@ -46,6 +48,11 @@ Template.MessagesList.onCreated(function () {
   instance.state.set('msgLevel', 'total');
 
   instance.autorun(function () {
+    instance.subscribe('user_settings?user');
+    UserSettings.find({ user_id: Meteor.userId() }).forEach((userSettings) => {
+      instance.state.set('msgsViewBackDelta', userSettings.messages_view_backward_delta);
+    });
+
     var controller = Iron.controller();
     var params = controller.getParams();
     var query = params.query;
@@ -74,8 +81,8 @@ function showMessagesList(instance, msgLevel) {
   else
     level = msgLevel;
   instance.state.set('msgLevel', msgLevel);
-
-  Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [level, null, page, amountPerPage, sortField, sortDirection],
+  let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+  Meteor.apply('messages/get?backDelta&level&env&page&amountPerPage&sortField&sortDirection', [msgsViewBackDelta, level, null, page, amountPerPage, sortField, sortDirection],
     {
       wait: false
     }, function (err, res) {
@@ -240,30 +247,43 @@ Template.MessagesList.helpers({
 
   currentPagedMessages: function () {
     let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
     const lvl = instance.state.get('msgLevel');
     if (lvl === 'info')
-      return Counter.get(`messages/count?level=info`);
+      return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=info`);
     if (lvl === 'warning')
-      return Counter.get(`messages/count?level=warning`);
+      return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=warning`);
     if (lvl === 'error')
-      return Counter.get(`messages/count?level=error`);
-    return Counter.get(`messages/count`);
+      return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=error`);
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}`);
   },
 
   totalMessages: function () {
-    return Counter.get(`messages/count`);
+    // let instance = Template.instance();
+    // let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    // return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}`);
+    let im = Template.MessagesList.__helpers.get('infoMessages').call();
+    let wm = Template.MessagesList.__helpers.get('warningMessages').call();
+    let em = Template.MessagesList.__helpers.get('errorMessages').call();
+    return im + wm + em;
   },
 
   infoMessages: function () {
-    return Counter.get(`messages/count?level=info`);
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=info`);
   },
 
   warningMessages: function () {
-    return Counter.get(`messages/count?level=warning`);
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=warning`);
   },
 
   errorMessages: function () {
-    return Counter.get(`messages/count?level=error`);
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=error`);
   },
 
   toIsoFormatStr: function (date) {

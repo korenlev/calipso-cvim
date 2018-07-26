@@ -40,6 +40,38 @@ Meteor.methods({
 
     return Messages.find(query, qParams).fetch();
   },
+  'messages/get?backDelta&level&env&page&amountPerPage&sortField&sortDirection': function (
+    backDelta, level, env, page, amountPerPage, sortField, sortDirection) {
+
+    logMethodCall('messages/get?backDelta&level&env&page&amountPerPage&sortField&sortDirection',
+      { backDelta, level, env, page, amountPerPage });
+
+    this.unblock();
+
+    let skip = (page - 1) * amountPerPage;
+
+    let begining = moment().subtract(backDelta);
+    let query = {
+      timestamp: { $gte: begining.toDate() }
+    };
+    let sortParams = {};
+
+    query = R.ifElse(R.isNil, R.always(query), R.assoc('environment', R.__, query))(env);
+    query = R.ifElse(R.isNil, R.always(query), R.assoc('level', R.__, query))(level);
+
+    sortParams = R.ifElse(R.isNil, R.always(sortParams),
+      R.assoc(R.__, sortDirection, sortParams))(sortField);
+
+    console.log('sort params:', sortParams);
+
+    let qParams = {
+      limit: amountPerPage,
+      skip: skip,
+      sort: sortParams,
+    };
+
+    return Messages.find(query, qParams).fetch();
+  },
   'messages.clearEnvMessages?env'({ env }) {
     let deletedRows = 0;
     if (R.equals('All', env)) {

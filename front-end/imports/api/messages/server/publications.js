@@ -66,14 +66,26 @@ Meteor.publish('messages?env+level', function (env, level) {
 });
 
 Meteor.publish('messages/count', function () {
-  const counterName = `messages/count`; 
+  const counterName = `messages/count`;
   console.log(`subscribe - counter: ${counterName}`);
 
-  return new Counter(counterName, Messages.find({ }));
+  return new Counter(counterName, Messages.find({}));
+});
+
+Meteor.publish('messages/count?backDelta', function (backDelta) {
+  const counterName = `messages/count?backDelta=${backDelta}`;
+  console.log(`subscribe - counter: ${counterName}`);
+
+  let begining = moment().subtract(backDelta);
+  let query = {
+    timestamp: { $gte: begining.toDate() }
+  };
+
+  return new Counter(counterName, Messages.find(query));
 });
 
 Meteor.publish('messages/count?env', function (env) {
-  const counterName = `messages/count?env`; 
+  const counterName = `messages/count?env`;
   console.log(`subscribe - counter: ${counterName}`);
 
   let query = {};
@@ -82,20 +94,20 @@ Meteor.publish('messages/count?env', function (env) {
 });
 
 Meteor.publish('messages/count?level', function (level) {
-  const counterName = `messages/count?level=${level}`; 
+  const counterName = `messages/count?level=${level}`;
   console.log(`subscribe - counter: ${counterName}`);
 
   return new Counter(counterName, Messages.find({ level: level }));
 });
 
 Meteor.publish('messages/count?backDelta&level', function (backDelta, level) {
-  const counterName = `messages/count?backDelta=${backDelta}&level=${level}`; 
+  const counterName = `messages/count?backDelta=${backDelta}&level=${level}`;
   console.log(`subscribe - counter: ${counterName}`);
 
   let begining = moment().subtract(backDelta);
-  let query = { 
+  let query = {
     level: level,
-    timestamp: { $gte: begining.toDate() } 
+    timestamp: { $gte: begining.toDate() }
   };
 
   console.log(`query: ${R.toString(query)}`);
@@ -104,14 +116,14 @@ Meteor.publish('messages/count?backDelta&level', function (backDelta, level) {
 });
 
 Meteor.publish('messages/count?backDelta&level&env', function (backDelta, level, env) {
-  const counterName = `messages/count?backDelta=${backDelta}&level=${level}&env=${env}`; 
+  const counterName = `messages/count?backDelta=${backDelta}&level=${level}&env=${env}`;
   console.log(`subscribe - counter: ${counterName}`);
 
   let begining = moment().subtract(backDelta);
-  let query = { 
+  let query = {
     level: level,
     environment: env,
-    timestamp: { $gte: begining.toDate() } 
+    timestamp: { $gte: begining.toDate() }
   };
 
   console.log(`query: ${R.toString(query)}`);
@@ -120,12 +132,12 @@ Meteor.publish('messages/count?backDelta&level&env', function (backDelta, level,
 });
 
 Meteor.publish('messages/count?level&env', function (level, env) {
-  const counterName = `messages/count?level=${level}&env=${env}`; 
+  const counterName = `messages/count?level=${level}&env=${env}`;
   console.log(`subscribe - counter: ${counterName}`);
 
   let query = { level: level };
   query = R.ifElse(R.isNil, R.always(query), R.assoc('environment', R.__, query))(env);
   console.log(`query: ${R.toString(query)}`);
 
-  return new Counter(counterName, Messages.find(query)); 
+  return new Counter(counterName, Messages.find(query));
 });
