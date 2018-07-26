@@ -105,7 +105,11 @@ class Monitor:
         obj_type = matching_types[0]
 
         prefix_len = len('link_') if is_link_check else 0
-        postfix_len = len(check_subtype) + 1 if check_subtype else 0
+        postfix_len = (
+            len(check_subtype) + 1
+            if check_subtype and check_name.endswith(check_subtype)
+            else 0
+        )
         obj_id = (obj_type + '_' if is_link_check else '') + \
             check_name[len(obj_type)+1+prefix_len:len(check_name)-postfix_len]
         return check_type, obj_type, obj_id

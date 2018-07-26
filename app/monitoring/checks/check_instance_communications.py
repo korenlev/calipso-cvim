@@ -25,7 +25,6 @@ import subprocess
 
 from binary_converter import binary2str
 
-
 arp_headers = ['Address', 'HWtype', 'HWaddress', 'Flags', 'Mask', 'Iface']
 arp_mac_pos = arp_headers.index('HWaddress')
 arp_flags_pos = arp_headers.index('Flags')

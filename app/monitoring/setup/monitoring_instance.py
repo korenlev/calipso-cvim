@@ -18,11 +18,10 @@ class MonitoringInstance(MonitoringSimpleObject):
     # monitoring setup for instance can only be done after vNIC is found
     # and network for vNIC is set, so the first call will not do anything
     def create_setup(self, instance: dict):
-
         self.setup(
-            'instance',
-            instance,
-            {
+            type='instance',
+            o=instance,
+            values={
                 'check_type': 'instance_vm',
                 'instance_name': instance['local_name']
             }
@@ -35,8 +34,25 @@ class MonitoringInstance(MonitoringSimpleObject):
             'id_path': {'$regex': '^{}/'.format(instance['id_path'])}
         })
         for vnic in vnics:
-            self.add_instance_communication_monitoring(instance, vnic)
+            self.add_instance_vnic_monitoring(vnic)
 
+    def add_instance_vnic_monitoring(self, vnic: dict):
+        service = self.get_service_for_vnic(vnic)
+        if not service:
+            return
+
+        self.setup(
+            type='vnic',
+            o=vnic,
+            values={
+                'host': service['host'],
+                'check_type': 'instance_vnic',
+                'service_id': service.get('local_service_id', ''),
+                'mac_address': vnic['mac_address']
+            }
+        )
+
+    # TEMPORARILY DEPRECATED
     # for instance we keep list of instance vNICs and services to use in call
     # to check_instance_communications.py
     # add this vNIC to the list with the corresponding
