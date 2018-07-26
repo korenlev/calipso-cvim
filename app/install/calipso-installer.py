@@ -290,7 +290,7 @@ def start_ui(host, dbuser, dbpassword, webport, dbport):
     root_url = "ROOT_URL=http://{}:{}".format(host, str(webport))
     mongo_url = "MONGO_URL=mongodb://{}:{}@{}:{}/calipso" \
         .format(dbuser, dbpassword, host, str(dbport))
-    ports = {'3000/tcp': webport}
+    ports = {'4000/tcp': webport}
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
