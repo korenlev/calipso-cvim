@@ -54,14 +54,17 @@ Template.alarmIcons.onCreated(function () {
     let envName = instance.state.get('envName');
 
     if (!R.isNil(envName)) {
-      instance.subscribe('messages/count?backDelta&level&env', msgsViewBackDelta, 'info', envName);
-      instance.subscribe('messages/count?backDelta&level&env', msgsViewBackDelta, 'warning', envName);
-      instance.subscribe('messages/count?backDelta&level&env', msgsViewBackDelta, 'error', envName);
+      console.log("CURRENT ENV:");
+      console.log(envName);
+      instance.subscribe('messages/count?level&env', 'info', envName);
+      instance.subscribe('messages/count?level&env', 'warning', envName);
+      instance.subscribe('messages/count?level&env', 'error', envName);
     }
     else {
-      instance.subscribe('messages/count?backDelta&level', msgsViewBackDelta, 'info');
-      instance.subscribe('messages/count?backDelta&level', msgsViewBackDelta, 'warning');
-      instance.subscribe('messages/count?backDelta&level', msgsViewBackDelta, 'error');
+      
+      instance.subscribe('messages/count?level', 'info');
+      instance.subscribe('messages/count?level', 'warning');
+      instance.subscribe('messages/count?level', 'error');
     }
   });
 });
@@ -90,7 +93,8 @@ Template.alarmIcons.helpers({
     let instance = Template.instance();
     let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
     let envName = instance.state.get('envName');
-    let counterName = `messages/count?backDelta=${msgsViewBackDelta}&level=${level}`;
+    let counterName = `messages/count?level=${level}`;
+    // let counterName = `messages/count?backDelta=${msgsViewBackDelta}&level=${level}`;
 
     if (!R.isNil(envName)) {
       counterName = R.concat(counterName, `&env=${envName}`);
