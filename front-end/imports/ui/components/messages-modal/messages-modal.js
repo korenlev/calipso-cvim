@@ -19,6 +19,8 @@ import * as R from 'ramda';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
 
+import { UserSettings } from '/imports/api/user-settings/user-settings';
+
 import '/imports/ui/components/pager/pager';
 
 import './messages-modal.html';
@@ -31,6 +33,7 @@ Template.MessagesModal.onCreated(function () {
   let instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
+    msgsViewBackDelta: 1,
     messageLevel: 'info',
     iconType: null,
     listHeader: null,
@@ -46,12 +49,20 @@ Template.MessagesModal.onCreated(function () {
     //let page = instance.state.get('page');
     let envName = instance.state.get('envName');
     let messageLevel = instance.state.get('messageLevel');
+
+    instance.subscribe('user_settings?user');
+    UserSettings.find({ user_id: Meteor.userId() }).forEach((userSettings) => {
+      instance.state.set('msgsViewBackDelta', userSettings.messages_view_backward_delta);
+    });
+
     /*
 
     instance.subscribe('messages?env&level&page&amount', envName, messageLevel, page, amountPerPage);
    
     */
+    let backDelta = instance.state.get('msgsViewBackDelta');
     instance.subscribe('messages/count');
+    instance.subscribe('messages/count?backDelta', backDelta);
     instance.subscribe('messages/count?level', 'info');
     instance.subscribe('messages/count?level', 'warning');
     instance.subscribe('messages/count?level', 'error');
