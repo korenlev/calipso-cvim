@@ -1,4 +1,11 @@
 [
+{
+    "attributes" : [
+	"ip_address",
+	"aci_document"
+   ],
+   "type" : "switch"
+},
 { 
     "attributes" : [
         "object_name", 
@@ -6,6 +13,10 @@
         "mac_address",
         "vnic_type",
         "data",
+	"source", 
+        "alias", 
+        "last_scanned", 
+        "instance_id", 
         "status", 
         "status_timestamp", 
         "status_text",
@@ -51,6 +62,9 @@
         "connector_type", 
         "type", 
         "interfaces",
+	"stp_enabled",
+	"connector_type", 
+	"last_scanned",
         "status", 
         "status_timestamp", 
         "status_text",
@@ -64,6 +78,7 @@
         "host", 
         "service_type", 
         "type",
+	"gw_port_id",
         "kube-proxy",
         "status_text",
         "status",
@@ -83,6 +98,8 @@
         "agent_type", 
         "binary",
         "started_at",
+	"configurations",
+	"ports",
         "heartbeat_timestamp",
         "type",
         "status", 
@@ -101,6 +118,9 @@
         "object_name", 
         "host", 
         "mac_address",
+	"state", 
+        "Supported link modes", 
+        "data",
         "IP Address", 
         "Speed", 
         "Link detected", 
@@ -124,6 +144,10 @@
         "status",
         "port_security_enabled",
         "availability_zones",
+	"port_security_enabled",
+	"ipv6_address_scope",
+	"shared",
+	"availability_zone_hints",
         "mtu",
         "scope",       
         "IPAM",               
@@ -136,7 +160,8 @@
 },
 { 
     "attributes" : [
-        "object_name", 
+        "object_name",
+        "OS",	
         "host_type", 
         "services", 
         "type",
@@ -150,10 +175,13 @@
 { 
     "attributes" : [
         "object_name",
-        "local_name", 
-        "host", 
+	"host", 
         "project", 
-        "type", 
+        "type",
+ 	"ip_address", 
+        "parent_id", 
+        "local_name", 
+        "network",  
         "name_path",
         "status", 
         "status_timestamp", 
@@ -188,6 +216,12 @@
 { 
     "attributes" : [
         "link_type",
+	"source_id", 
+        "target_id", 
+        "link_weight", 
+        "state", 
+        "link_name", 
+        "host",
         "status",
         "status_timestamp",
         "status_text",

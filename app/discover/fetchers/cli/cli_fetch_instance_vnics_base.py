@@ -26,20 +26,20 @@ class CliFetchInstanceVnicsBase(CliFetcher):
         host = self.inv.get_by_id(self.get_env(), instance["host"])
         if not host or "Compute" not in host["host_type"]:
             return []
-        lines = self.run_fetch_lines("virsh list", instance["host"])
+        lines = self.run_fetch_lines("virsh list --all", instance["host"])
         del lines[:2]  # remove header
-        virsh_ids = [l.split()[0] for l in lines if l > ""]
+        virsh_names = [l.split()[1] for l in lines if l > ""]  # need to use names instead of ids
         results = []
         # Note: there are 2 ids here of instances with local names, which are
         # not connected to the data we have thus far for the instance
         # therefore, we will decide whether the instance is the correct one
         # based on comparison of the uuid in the dumpxml output
-        for id in virsh_ids:
-            results.extend(self.get_vnics_from_dumpxml(id, instance))
+        for name in virsh_names:
+            results.extend(self.get_vnics_from_dumpxml(name, instance))
         return results
 
-    def get_vnics_from_dumpxml(self, id, instance):
-        xml_string = self.run("virsh dumpxml " + id, instance["host"])
+    def get_vnics_from_dumpxml(self, name, instance):
+        xml_string = self.run("virsh dumpxml " + name, instance["host"])
         if not xml_string.strip():
             return []
         response = xmltodict.parse(xml_string)

@@ -254,7 +254,7 @@
     "type" : "client_check_vnic.json"
 },
 { 
-    "side" : "client", 
+    "side" : "client",
     "config" : {
         "checks" : {
             "{objtype}_{objid}" : {
@@ -431,10 +431,10 @@
     "order" : "1",
     "config" : {
         "checks" : {
-            "{objtype}_{objid}" : {
+            "{objtype}_{objid}_vm" : {
                 "standalone" : true,
                 "interval" : 15,
-                "command" : "PYTHONPATH=/etc/sensu/plugins check_instance_communications.py {services_and_vnics}",
+                "command" : "PYTHONPATH=/etc/sensu/plugins check_vm.py {instance_name}",
                 "handlers" : [
                     "file",
                     "osdna-monitor"
@@ -442,11 +442,40 @@
                 "type" : "metric",
                 "subscribers" : [
                     "base"
+                ],
+                "subtype": "vm"
+            }
+        }
+    },
+    "monitoring_system" : "sensu",
+    "type" : "client_check_instance_vm.json"
+},
+{
+    "side" : "client",
+    "order" : "1",
+    "condition" : {
+        "environment_type": "OpenStack",
+        "mechanism_drivers" : ["OVS","LXB"]
+    },
+    "config" : {
+        "checks" : {
+            "{vnictype}_{objid}" : {
+                "interval" : 15,
+                "command" : "PYTHONPATH=/etc/sensu/plugins check_instance_vnic.py {service_id} {mac_address}",
+                "standalone" : true,
+                "type": "metric",
+                "subscribers" : [
+                    "base"
+                ],
+                "handlers" : [
+                    "file",
+                    "osdna-monitor"
                 ]
             }
         }
     },
     "monitoring_system" : "sensu",
-    "type" : "client_check_instance.json"
+    "type" : "client_check_instance_vnic.json",
+    "subtype": "vnic"
 }
 ]
