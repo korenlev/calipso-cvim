@@ -5,4 +5,4 @@ set -e
 IMAGE_NAME=${1:-"korenlev/calipso"}
 HTTP_PROXY=${2:-"http://10.56.20.16:8080"}
 printf "\n[-] Building the new meteor app $IMAGE_NAME:ui from your local sorce...\n\n"
-sudo docker build --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY -f ./Dockerfile -t $IMAGE_NAME:ui .
+sudo docker build --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg https_proxy=$HTTP_PROXY -f ./Dockerfile -t $IMAGE_NAME:ui .
