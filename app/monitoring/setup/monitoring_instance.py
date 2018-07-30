@@ -18,6 +18,15 @@ class MonitoringInstance(MonitoringSimpleObject):
     # monitoring setup for instance can only be done after vNIC is found
     # and network for vNIC is set, so the first call will not do anything
     def create_setup(self, instance: dict):
+        self.setup(
+            type='instance',
+            o=instance,
+            values={
+                'check_type': 'instance_vm',
+                'instance_name': instance['local_name']
+            }
+        )
+
         vnics = self.inv.find_items({
             'environment': self.env,
             'type': 'vnic',
@@ -25,8 +34,25 @@ class MonitoringInstance(MonitoringSimpleObject):
             'id_path': {'$regex': '^{}/'.format(instance['id_path'])}
         })
         for vnic in vnics:
-            self.add_instance_communication_monitoring(instance, vnic)
+            self.add_instance_vnic_monitoring(vnic)
 
+    def add_instance_vnic_monitoring(self, vnic: dict):
+        service = self.get_service_for_vnic(vnic)
+        if not service:
+            return
+
+        self.setup(
+            type='vnic',
+            o=vnic,
+            values={
+                'host': service['host'],
+                'check_type': 'instance_vnic',
+                'service_id': service.get('local_service_id', ''),
+                'mac_address': vnic['mac_address']
+            }
+        )
+
+    # TEMPORARILY DEPRECATED
     # for instance we keep list of instance vNICs and services to use in call
     # to check_instance_communications.py
     # add this vNIC to the list with the corresponding
@@ -43,7 +69,7 @@ class MonitoringInstance(MonitoringSimpleObject):
             services_and_vnics.split(';') if services_and_vnics \
             else []
         service_and_vnic = '{},{}'.format(service.get('local_service_id', ''),
-                                          vnic.get('id'))
+                                          vnic.get('mac_address', "").lower())
         if service_and_vnic in services_and_vnics_list:
             return  # we already have this tuple define
         services_and_vnics_list.append(service_and_vnic)
@@ -51,6 +77,7 @@ class MonitoringInstance(MonitoringSimpleObject):
             'objtype': 'instance',
             'objid': self.encode_special_characters(instance['id']),
             'host': service['host'],
+            'check_type': 'instance_vnics',
             'services_and_vnics': ';'.join(services_and_vnics_list)
         }
         self.create_monitoring_for_object(instance, values)

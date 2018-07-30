@@ -8,7 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 COMPUTE_HOST_ID = "node-5.cisco.com"
-COMMAND = "virsh list"
+COMMAND = "virsh list --all"
 NON_GATEWAY_CACHED_COMMAND = \
     '{},ssh -q -o StrictHostKeyChecking=no {} \'sudo {}\'' \
     .format(COMPUTE_HOST_ID, COMPUTE_HOST_ID, COMMAND)

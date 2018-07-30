@@ -84,6 +84,19 @@
   {
     "environment" : {
       "distribution" : "Mercury",
+      "distribution_version" : ["13840"],
+      "mechanism_drivers" : "OVS",
+      "type_drivers" : "vlan"
+    },
+    "features" : {
+      "listening" : true,
+      "scanning" : true,
+      "monitoring" : false
+    }
+  },
+  {
+    "environment" : {
+      "distribution" : "Mercury",
       "distribution_version" : ["10239"],
       "mechanism_drivers" : "OVS",
       "type_drivers" : "vlan"
