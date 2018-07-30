@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+# build the ui image, it is used to build the new meteor app from recent front-end code:
+IMAGE_NAME=${1:-"korenlev/calipso"}
+printf "\n[-] Building the new meteor app $IMAGE_NAME:ui from your local sorce...\n\n"
+sudo docker build -f ./Dockerfile -t $IMAGE_NAME:ui .
