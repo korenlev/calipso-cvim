@@ -229,16 +229,13 @@ function genSvgLinks(
   onLinkOver
 ) {
   let svgLinks = g.selectAll('.link-group')
-    .data(links, (d) => d._osid);
+    .data(links, d => d._osid);
 
   let svgLinksEnter = svgLinks
     .enter()
     .append('g')
     .attr('class', 'link-group')
-    .attr('data-link-id', function (d) {
-      return d._osid;
-    })
-    ;
+    .attr('data-link-id', d => d._osid);
 
   //let svgLinksExit = 
   svgLinks
@@ -270,12 +267,10 @@ function genSvgLinks(
 
   let svgLinkLabels = svgLinksEnter
     .append('text')
-    .text(function (d) {
-      return d.label;
-    })
+    .text(d => d.label)
     .attr('class', 'link-label')
-    .attr('x', function (d) { return (d.source.x + (d.target.x - d.source.x) * 0.5); })
-    .attr('y', function (d) { return (d.source.y + (d.target.y - d.source.y) * 0.5); })
+    .attr('x', d => (d.source.x + (d.target.x - d.source.x) * 0.5))
+    .attr('y', d => (d.source.y + (d.target.y - d.source.y) * 0.5))
     .attr('dy', '.25em')
     .attr('text-anchor', 'right')
     .attr('font-size', initialLinkLabelsFontSize)
@@ -286,13 +281,13 @@ function genSvgLinks(
 
 function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroupNodeClick) {
   let svgNodes = g.selectAll('.node')
-    .data(nodes, (d) => d._osid);
+    .data(nodes, d => d._osid);
 
   let svgNodesEnter = svgNodes
     .enter()
     .append('g')
     .attr('class', 'node')
-    .attr('data-node-id', (d) => d._osid)
+    .attr('data-node-id', d => d._osid)
     .call(drag);
 
   //let svgNodesExit = 
@@ -307,18 +302,10 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
       status = _.toLower(status);
       return `/${calcImageForNodeType(d._osmeta.type, status)}`;
     })
-    .attr('x', function (d) {
-      return -(Math.floor(imageLength / 2));
-    })
-    .attr('y', function (d) {
-      return -(Math.floor(imageLength / 2));
-    })
-    .attr('width', function (d) {
-      return imageLength;
-    })
-    .attr('height', function (d) {
-      return imageLength;
-    })
+    .attr('x', -Math.floor(imageLength / 2))
+    .attr('y', -Math.floor(imageLength / 2))
+    .attr('width', imageLength)
+    .attr('height', imageLength)
     .on('mouseover', function (d) {
       onNodeOver(d._osmeta.nodeId, d3.event.pageX, d3.event.pageY);
     })
@@ -524,22 +511,14 @@ function renderView(force,
     });
 
     let svgLinkLines = mainEl.selectAll('.link-group').selectAll('.link-line');
-    svgLinkLines
-      .attr('x1', function (d) {
-        return d.source.x;
-      })
-      .attr('y1', function (d) { return d.source.y; })
-      .attr('x2', function (d) { return d.target.x; })
-      .attr('y2', function (d) { return d.target.y; });
+    svgLinkLines.attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
 
     let svgLinkLabels = mainEl.selectAll('.link-group').selectAll('.link-label');
-    svgLinkLabels
-      .attr('x', function (d) {
-        return (d.source.x + (d.target.x - d.source.x) * 0.5);
-      })
-      .attr('y', function (d) {
-        return (d.source.y + (d.target.y - d.source.y) * 0.5);
-      });
+    svgLinkLabels.attr('x', d => (d.source.x + (d.target.x - d.source.x) * 0.5))
+                 .attr('y', d => (d.source.y + (d.target.y - d.source.y) * 0.5));
 
   }
 
@@ -559,19 +538,10 @@ function renderView(force,
     }
 
     let svgImages = mainEl.selectAll('.node-image');
-    svgImages
-      .attr('x', function (d) {
-        return -(Math.floor(imageLength / 2));
-      })
-      .attr('y', function (d) {
-        return -(Math.floor(imageLength / 2));
-      })
-      .attr('width', function (d) {
-        return imageLength;
-      })
-      .attr('height', function (d) {
-        return imageLength;
-      });
+    svgImages.attr('x', -(Math.floor(imageLength / 2)))
+             .attr('y', -(Math.floor(imageLength / 2)))
+             .attr('width', imageLength)
+             .attr('height', imageLength);
 
     let labelsFontSize;
 
@@ -591,7 +561,7 @@ function renderView(force,
 
 function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver, onNodeOut) {
   let svgGroups = g.selectAll('.group')
-    .data(groups, (d) => d._osid);
+    .data(groups, d => d._osid);
 
   let enterGroups = svgGroups.enter();
 
@@ -599,7 +569,7 @@ function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver, onNodeOut) 
     enterGroups
       .append('g')
       .attr('class', 'group')
-      .attr('data-group-id', (d) => d._osid)
+      .attr('data-group-id', d => d._osid)
       .call(drag)
       .on('mouseover', function (_d) {
         onGroupOver(_d._osid, d3.event.pageX, d3.event.pageY);
@@ -621,16 +591,10 @@ function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver, onNodeOut) 
 
   groupsContainers
     .append('text')
-    .text(function (d) {
-      return d.name;
-    })
+    .text(d => d.name)
     .attr('class', 'group-name')
-    .attr('x', function (d) {
-      return (d.bounds.width() / 2);
-    })
-    .attr('y', function (_d) {
-      return 30;
-    })
+    .attr('x', d => (d.bounds.width() / 2))
+    .attr('y', 30)
     .attr('dy', '.25em')
     .attr('text-anchor', 'middle')
     .attr('font-size', 20)

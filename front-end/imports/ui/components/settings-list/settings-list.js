@@ -5,6 +5,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { UserSettings } from '/imports/api/user-settings/user-settings';
 
 import './settings-list.html';
+import {handleLoginMenu} from "../top-navbar-menu/top-navbar-menu";
 
 
 Template.settingsList.onCreated(function () {
@@ -29,6 +30,12 @@ Template.settingsList.onCreated(function () {
     instance.subscribe('messages/count?backDelta&level', msgsViewBackDelta, 'warning');
     instance.subscribe('messages/count?backDelta&level', msgsViewBackDelta, 'error');
   });
+});
+
+Template.settingsList.events({
+    'click': function (e) {
+      handleLoginMenu(e);
+    }
 });
 
 Template.settingsList.helpers({

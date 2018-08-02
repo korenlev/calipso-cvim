@@ -7,6 +7,7 @@
 // http://www.apache.org/licenses/LICENSE-2.0                                           /
 /////////////////////////////////////////////////////////////////////////////////////////
 import './landing.html';
+import {handleLoginMenu} from "../top-navbar-menu/top-navbar-menu";
 
 Template.landing.onCreated(function () {
   let instance = this;
@@ -24,7 +25,8 @@ Template.landing.rendered = function () {
 
   // smooth scrolling function
   $(function () {
-    $('a[href*="#"]:not([href="#"])').click(function () {
+    $('a[href*="#"]:not([href="#"])').click(function (e) {
+      handleLoginMenu(e);
       if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
         var target = $(this.hash);
         target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');

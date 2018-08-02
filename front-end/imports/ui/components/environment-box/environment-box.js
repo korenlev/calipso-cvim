@@ -50,5 +50,3 @@ Template.EnvironmentBox.helpers({
         return results;
     }
 }); // end: helpers
-
-

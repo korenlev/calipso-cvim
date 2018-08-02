@@ -10,14 +10,10 @@
  * Template Component: TopNavbarMenu 
  */
 
-import * as R from 'ramda';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
-//import * as R from 'ramda';
 
 import { store } from '/imports/ui/store/store';
-//import { setSearchTerm } from '/imports/ui/actions/search-interested-parties';
-//import { notifySearchAutoCompleteTermChanged } from '/imports/ui/actions/search-interested-parties';
 import { idToStr } from '/imports/lib/utilities';
 import factory from 'reactive-redux';
 
@@ -28,11 +24,18 @@ import '/imports/ui/components/alarm-icons/alarm-icons';
 import '/imports/ui/components/settings-list/settings-list';
 
 import './top-navbar-menu.html';
-import { getParentTemplateInstance } from "../../../lib/utilities";
 
 /*  
  * Lifecycles
  */
+
+let loginButtonsSession = Accounts._loginButtonsSession;
+
+Template.body.events({
+    'click': function (e) {
+        handleLoginMenu(e);
+    }
+});
 
 Template.TopNavbarMenu.onCreated(function () {
   let instance = this;
@@ -62,8 +65,9 @@ Template.TopNavbarMenu.events = {
     instance.searchDebounced();
   },
 
-  'click .os-nav-link': function () {
+  'click .os-nav-link': function (event) {
     let instance = Template.instance();
+    handleLoginMenu(event);
     instance.state.set('isAutoCompleteOpen', false);
   },
 
@@ -76,106 +80,37 @@ Template.TopNavbarMenu.events = {
   }
 };
 
-let parentInstance = null;
-let loginButtonsSession = null;
-
-Template.loginButtons.onCreated(function () {
-  parentInstance = getParentTemplateInstance(Template.instance());
-  loginButtonsSession = Accounts._loginButtonsSession;
-});
-
-Template.body.events({
-  'click': function (ev, instance) {
-
-    if (parentInstance == null || parentInstance.state == null)
-      return;
-
-    //if user clicked on the following elements
-    // need to find solution for this code - we want solution for that if user click 
-    // on location in the page body except from the area of the whole control, then the control will be closed
-    // so if user clicked on one of the control that has the following id's then the control won't be closed
-    if (R.contains(ev.target.id, ["login-name-link", "login-sign-in-link", "login-username",
-          "login-password", "login-username-label-and-input", "login-username-label", "login-password-label",
-          "login-password-label-and-input", "login-buttons-password", "signup-link", "login-dropdown-list", "login-password-again",
-          "login-password-again-label", "login-password-again-label-and-input", "login-buttons-open-change-password",
-          "login-old-password-label", "login-old-password-label-and-input", "login-old-password", 
-          "login-buttons-do-change-password","back-to-login-link",'login-link-and-dropdown-list', 'login-form-sign-in'])) {
-      return;
-    }
-
-    let isOpen = parentInstance.state.get('loginButtonsOpen');
-    if (isOpen === false) {
-      if (ev.target.id === "login-main-container" || ev.target.id === "login-user-container") {
-        openLoginMenu();
+export function handleLoginMenu(ev) {
+  // Toggle login buttons dropdown if clicked on login block
+  if ($("#login-main-container").find(ev.target).addBack(ev.target).length > 0) {
+      // Keep dropdown open if clicked inside of it
+      if ($("#login-dropdown-list").find(ev.target).addBack(ev.target).length === 0) {
+          toggleLoginMenu();
       }
-    }
-    else {
-      closeLoginMenu();
-    }
   }
-});
-
-Template.settingsList.events({
-  'click': function (ev, instance) {
-
-    if (parentInstance == null || parentInstance.state == null)
-      return;
-
-    let isOpen = parentInstance.state.get('loginButtonsOpen');
-    if (isOpen === true) {
+  else if ($("#login-buttons").find(ev.target).addBack(ev.target).length === 0) {
+      // Close dropdown if clicked anywhere outside of it
       closeLoginMenu();
-    }
   }
-});
+}
 
-Template.envForm.events({
-  'click': function (ev, instance) {
-
-    if (parentInstance == null || parentInstance.state == null)
-      return;
-
-    let isOpen = parentInstance.state.get('loginButtonsOpen');
-    if (isOpen === true) {
-      closeLoginMenu();
-    }
-  }
-});
+function toggleLoginMenu() {
+  if (loginButtonsSession.get('dropdownVisible') === true) { closeLoginMenu(); } else { openLoginMenu(); }
+}
 
 function openLoginMenu() {
-  parentInstance.state.set('loginButtonsOpen', true);
   loginButtonsSession.set('dropdownVisible', true);
 }
 
-function closeLoginMenu() {
+export function closeLoginMenu() {
+  loginButtonsSession.set('dropdownVisible', false);
   loginButtonsSession.closeDropdown();
-  parentInstance.state.set('loginButtonsOpen', false);
 }
 
 Template.loginButtons.events({
-  'click #login-sign-in-link': function (ev, _instance) {
-    let isOpen = parentInstance.state.get('loginButtonsOpen');
-
-    if (isOpen === false) {
-      openLoginMenu();
-    }
-    else {
-      closeLoginMenu();
-    }
-  },
-  'click #login-name-link': function (ev, _instance) {
-    let isOpen = parentInstance.state.get('loginButtonsOpen');
-
-    if (isOpen === false) {
-      openLoginMenu();
-    }
-    else {
-      closeLoginMenu();
-    }
-  },
   'click #login-buttons-open-change-password': function (ev, _instance) {
-    if(loginButtonsSession.get('inChangePasswordFlow') == true){
-      let $loginDropDown = _instance.$('#login-dropdown-list');
-      $loginDropDown.addClass('change-password-dialog-wide');
+    if(loginButtonsSession.get('inChangePasswordFlow') === true){
+        _instance.$('#login-dropdown-list').addClass('change-password-dialog-wide');
     }
   },
 });

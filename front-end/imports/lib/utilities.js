@@ -83,7 +83,3 @@ export function dereferenceType(object_type) {
 export function isNullOrEmpty(objVal) {
   return R.or(R.isNil(objVal), R.isEmpty(objVal));
 }
-
-export function getParentTemplateInstance(instance) {
-  return instance.view.parentView.templateInstance();
-}
