@@ -54,6 +54,7 @@ let infoBoxes = [{
 
 let listInfoBoxes = [{
   header: ['components', 'zoneDashboard', 'listInfoBoxes', 'hosts', 'header'],
+  baseType: ['components', 'zoneDashboard', 'listInfoBoxes', 'hosts', 'baseType'],
   listName: 'hosts',
   listItemFormat: { 
     getLabelFn: (item) => { return item.name; },
@@ -185,6 +186,7 @@ Template.ZoneDashboard.helpers({
 
     return {
       header: R.path(listInfoBox.header, store.getState().api.i18n),
+      baseType: R.path(listInfoBox.baseType, store.getState().api.i18n),
       list: getList(listInfoBox.listName, zone_id_path),
       //dataInfo: instance.state.get(infoBox.dataSource).toString(),
       icon: new Icon(listInfoBox.icon),

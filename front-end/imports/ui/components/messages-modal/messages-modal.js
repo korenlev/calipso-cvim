@@ -19,6 +19,8 @@ import * as R from 'ramda';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
 
+import { UserSettings } from '/imports/api/user-settings/user-settings';
+
 import '/imports/ui/components/pager/pager';
 
 import './messages-modal.html';
@@ -27,10 +29,11 @@ import './messages-modal.html';
  * Lifecycles
  */
 
-Template.MessagesModal.onCreated(function() {
+Template.MessagesModal.onCreated(function () {
   let instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
+    msgsViewBackDelta: 1,
     messageLevel: 'info',
     iconType: null,
     listHeader: null,
@@ -46,14 +49,25 @@ Template.MessagesModal.onCreated(function() {
     //let page = instance.state.get('page');
     let envName = instance.state.get('envName');
     let messageLevel = instance.state.get('messageLevel');
+
+    instance.subscribe('user_settings?user');
+    UserSettings.find({ user_id: Meteor.userId() }).forEach((userSettings) => {
+      instance.state.set('msgsViewBackDelta', userSettings.messages_view_backward_delta);
+    });
+
     /*
 
     instance.subscribe('messages?env&level&page&amount', envName, messageLevel, page, amountPerPage);
+   
     */
+    let backDelta = instance.state.get('msgsViewBackDelta');
+    instance.subscribe('messages/count');
+    instance.subscribe('messages/count?backDelta', backDelta);
+    instance.subscribe('messages/count?level', 'info');
+    instance.subscribe('messages/count?level', 'warning');
+    instance.subscribe('messages/count?level', 'error');
 
-    if (R.isNil(envName)) {
-      instance.subscribe('messages/count?level', messageLevel);
-    } else {
+    if (!R.isNil(envName)) {
       instance.subscribe('messages/count?level&env', messageLevel, envName);
     }
   });
@@ -67,15 +81,15 @@ Template.MessagesModal.onCreated(function() {
     Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
       level, envName, page, amountPerPage, null, null
     ], {
-      wait: false
-    }, function (err, res) {
-      if (err) {
-        console.error(R.toString(err));
-        return;
-      }
+        wait: false
+      }, function (err, res) {
+        if (err) {
+          console.error(R.toString(err));
+          return;
+        }
 
-      instance.state.set('messages', res);
-    });
+        instance.state.set('messages', res);
+      });
   });
 });
 
@@ -91,6 +105,7 @@ Template.MessagesModal.rendered = function() {
 Template.MessagesModal.events({
   'show.bs.modal #messagesModalGlobal': function (event, instance) {
     let data = event.relatedTarget.dataset;
+
     setParams(data.messageLevel, data.envName, instance);
   },
 
@@ -105,29 +120,29 @@ Template.MessagesModal.events({
       environment.name,
       nodeId,
     ], {
-      wait: false
-    }, function (err, resp) {
-      if (err) {
-        console.error(R.toString(err));
-        return;
-      }
-
-      if (R.isNil(resp.node)) {
-        console.error('error finding node related to message', R.toString(nodeId));
-        return;
-      }
-
-      Router.go('environment', {
-        _id: idToStr(environment._id)
-      }, {
-        query: {
-          selectedNodeId: idToStr(resp.node._id)
+        wait: false
+      }, function (err, resp) {
+        if (err) {
+          console.error(R.toString(err));
+          return;
         }
+
+        if (R.isNil(resp.node)) {
+          console.error('error finding node related to message', R.toString(nodeId));
+          return;
+        }
+
+        Router.go('environment', {
+          _id: idToStr(environment._id)
+        }, {
+            query: {
+              selectedNodeId: idToStr(resp.node._id)
+            }
+          });
+
+        instance.$('#messagesModalGlobal').modal('hide');
+
       });
-
-      instance.$('#messagesModalGlobal').modal('hide');
-
-    });
 
   }
 });
@@ -244,16 +259,16 @@ function setParams(messageLevel, envName, instance) {
 
 function calcIconType(messageLevel) {
   switch (messageLevel) {
-  case 'notify':
-    return 'notifications';
-  case 'info':
-    return 'notifications';
-  case 'warning':
-    return 'warning';
-  case 'error':
-    return 'error';
-  default:
-    throw 'unimplemented message level for icon';
+    case 'notify':
+      return 'notifications';
+    case 'info':
+      return 'info';
+    case 'warning':
+      return 'warning';
+    case 'error':
+      return 'error';
+    default:
+      throw 'unimplemented message level for icon';
   }
 }
 
@@ -261,23 +276,23 @@ function calcListHeader(messageLevel, envName) {
   let header;
 
   switch (messageLevel) {
-  case 'notify':
-    header = 'List of notifications';
-    break;
-  case 'info':
-    header = 'List of info messages';
-    break;
-  case 'warning':
-    header = 'List of warnings';
-    break;
-  case 'error':
-    header = 'List of errors';
-    break;
-  default:
-    throw 'unimplemented message level for list header';
+    case 'notify':
+      header = 'List of notifications';
+      break;
+    case 'info':
+      header = 'List of info messages';
+      break;
+    case 'warning':
+      header = 'List of warnings';
+      break;
+    case 'error':
+      header = 'List of errors';
+      break;
+    default:
+      throw 'unimplemented message level for list header';
   }
 
-  if (! R.isNil(envName)) {
+  if (!R.isNil(envName)) {
     header = header + ` for environment ${envName}.`;
   }
 

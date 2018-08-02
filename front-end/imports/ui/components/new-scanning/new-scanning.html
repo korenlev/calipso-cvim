@@ -9,45 +9,28 @@
 ########################################################################################
  -->
 <template name="NewScanning">
-<div class="os-new-scanning">
-  <div class="sm-content cards white">
-    <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation"
-                class="active">
-        <a href="#newImmediateScan"
-           aria-controls=""
-           role="tab"
-           data-toggle="tab"
-           id=""
-           data-is-disabled=""
-           class="sm-tab-link"
-           >Run a Scan Now</a>
-      </li>
-      <li role="presentation">
-        <a href="#newScheduledScan"
-           aria-controls="#newScheduledScan"
-           role="tab"
-           data-toggle="tab"
-           id="link-scheduled-schen"
-           data-is-disabled="false"
-           class="sm-tab-link"
-           >Schedule a Scan</a>
-      </li>
-    </ul>
-
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <div role="tabpanel" 
-           class="tab-pane fade active in" 
-           id="newImmediateScan">
-        {{>ScanningRequest (argsScanningRequest env) }}
-      </div>
-      <div role="tabpanel" 
-           class="tab-pane fade" 
-           id="newScheduledScan">
-        {{>ScheduledScan (argsScheduledScan env) }}
+  <div class="scanning-container">
+    <div class="scanning-headers">
+      <ul class="nav nav-tabs env-tabs-control" role="tablist">
+        <li role="presentation" class="active">
+          <a href="#newImmediateScan" aria-controls="" role="tab" data-toggle="tab" id="" data-is-disabled="" class="sm-tab-link">Run a Scan Now</a>
+        </li>
+        <li role="presentation">
+          <a href="#newScheduledScan" aria-controls="#newScheduledScan" role="tab" data-toggle="tab" id="link-scheduled-schen" data-is-disabled="false"
+            class="sm-tab-link">Schedule a Scan</a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade active in" id="newImmediateScan">
+          {{>ScanningRequest (argsScanningRequest env) }}
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="newScheduledScan">
+          {{>ScheduledScan (argsScheduledScan env) }}
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>

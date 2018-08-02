@@ -22,13 +22,13 @@ import { calcColorMem } from '/imports/lib/utilities';
 import 'jquery.scrollto';
 
 import './tree-node.html';
-import {isReferenceType} from "../../../lib/utilities";
+import { isReferenceType } from "../../../lib/utilities";
 
 /*
  * Lifecycles
  */
 
-Template.TreeNode.onCreated(function() {
+Template.TreeNode.onCreated(function () {
   let instance = this;
   instance.state = new ReactiveDict();
   instance.state.setDefault({
@@ -48,8 +48,8 @@ Template.TreeNode.onCreated(function() {
 
   instance.currentData = new ReactiveVar(null, EJSON.equals);
 
-  instance.autorun((function(_this) {
-    return function(_computation) {
+  instance.autorun((function (_this) {
+    return function (_computation) {
       return _this.currentData.set(Template.currentData());
     };
   })(instance));
@@ -119,24 +119,24 @@ Template.TreeNode.onCreated(function() {
     let openState = instance.state.get('openState');
 
     switch (openState) {
-    case 'start_open':
-      issueOrder(instance, 'orderDataSubscribe', { node: node, forOpen: true });
-      setTimeout(() => { 
-        instance.data.onOpeningDone([node._id._str], node);
-      }, 400);
-      break;
-    case 'opened':
-      issueOrder(instance, 'needOpenCloseAnimation', { type: 'opening', node: node});  
-      break;
-    case 'start_close':
-      issueOrder(instance, 'needOpenCloseAnimation', { type: 'closing', node: node });  
-      setTimeout(() => {
-        instance.data.onClosingDone([node._id._str]);
-      }, 200);
-      break;
-    case 'closed':
-      issueOrder(instance, 'orderDataSubscribe', { node: node, forOpen: false });
-      break;
+      case 'start_open':
+        issueOrder(instance, 'orderDataSubscribe', { node: node, forOpen: true });
+        setTimeout(() => {
+          instance.data.onOpeningDone([node._id._str], node);
+        }, 400);
+        break;
+      case 'opened':
+        issueOrder(instance, 'needOpenCloseAnimation', { type: 'opening', node: node });
+        break;
+      case 'start_close':
+        issueOrder(instance, 'needOpenCloseAnimation', { type: 'closing', node: node });
+        setTimeout(() => {
+          instance.data.onClosingDone([node._id._str]);
+        }, 200);
+        break;
+      case 'closed':
+        issueOrder(instance, 'orderDataSubscribe', { node: node, forOpen: false });
+        break;
     }
   });
 
@@ -152,7 +152,7 @@ Template.TreeNode.onCreated(function() {
 
       let children = [];
       let onChildReadThrottle = _.throttle(() => {
-        instance.data.onChildrenRead([ order.data.node._id._str ], children);
+        instance.data.onChildrenRead([order.data.node._id._str], children);
         children = [];
       }, 200);
 
@@ -160,7 +160,7 @@ Template.TreeNode.onCreated(function() {
         // todo: aggregate the collection into threshold and then dispatch. 
         // debounce/throttle
         // https://lodash.com/docs#debounce
-        
+
         //instance.data.onChildRead(
         //  [order.data.node._id._str, child._id._str], child);
 
@@ -185,18 +185,18 @@ Template.TreeNode.onCreated(function() {
   });
 
   instance.autorun(function () {
-    let positionNeeded = instance.state.get('positionNeeded'); 
-      
+    let positionNeeded = instance.state.get('positionNeeded');
+
     if (positionNeeded) {
       let el = instance.$('>.os-tree-node')[0];
       let rect = el.getBoundingClientRect();
-      instance.data.onPositionRetrieved([instance.data.node._id._str], rect);  
+      instance.data.onPositionRetrieved([instance.data.node._id._str], rect);
     }
   });
 
   instance.autorun(function () {
-    let scrollToNodeIsNeeded = instance.state.get('scrollToNodeIsNeeded'); 
-      
+    let scrollToNodeIsNeeded = instance.state.get('scrollToNodeIsNeeded');
+
     if (scrollToNodeIsNeeded) {
       let el = instance.$('>.os-tree-node')[0];
       let rect = el.getBoundingClientRect();
@@ -224,7 +224,7 @@ Template.TreeNode.onCreated(function() {
 
 });
 
-Template.TreeNode.rendered = function() {
+Template.TreeNode.rendered = function () {
   let instance = Template.instance();
   // Detect change in isOpen.
   instance.autorun(() => {
@@ -233,22 +233,22 @@ Template.TreeNode.rendered = function() {
 
     let $childrenList;
 
-    switch(order.data.type) {
-    case 'opening':
-      // The children list element is not present on first isOpen change render. We
-      // need to wait out of loop inorder to let the render first render to list then 
-      // we animate the opening/closing action.
-      
-      //$childrenList = instance.$('>.sm-children-list');
-      $childrenList = instance.$(instance.firstNode).children('.sm-children-list');
-      $childrenList.slideDown(200);
-      break;
+    switch (order.data.type) {
+      case 'opening':
+        // The children list element is not present on first isOpen change render. We
+        // need to wait out of loop inorder to let the render first render to list then 
+        // we animate the opening/closing action.
 
-    case 'closing':
-      //$childrenList = instance.$('>.sm-children-list');
-      $childrenList = instance.$(instance.firstNode).children('.sm-children-list');
-      $childrenList.slideUp(200);
-      break;
+        //$childrenList = instance.$('>.sm-children-list');
+        $childrenList = instance.$(instance.firstNode).children('.sm-children-list');
+        $childrenList.slideDown(200);
+        break;
+
+      case 'closing':
+        //$childrenList = instance.$('>.sm-children-list');
+        $childrenList = instance.$(instance.firstNode).children('.sm-children-list');
+        $childrenList.slideUp(200);
+        break;
     }
 
   });
@@ -259,7 +259,7 @@ Template.TreeNode.rendered = function() {
  */
 
 Template.TreeNode.events({
-  'click .sm-details-line': function (event, _instance) {
+  'click .sm-details-line, click .sm-details-line-main': function (event, _instance) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -269,18 +269,18 @@ Template.TreeNode.events({
       data.onOpenLinkReq(data.node.type, data.node.environment, data.node.name);
 
     } else {
-      switch(data.openState) {
-      case 'opened':
-        R.when(R.pipe(R.isNil, R.not),
-          (fn) => fn([data.node._id._str])
-        )(data.onStartCloseReq);
-        break;
+      switch (data.openState) {
+        case 'opened':
+          R.when(R.pipe(R.isNil, R.not),
+            (fn) => fn([data.node._id._str])
+          )(data.onStartCloseReq);
+          break;
 
-      case 'closed':
-        R.when(R.pipe(R.isNil, R.not),
-          (fn) => fn([data.node._id._str])
-        )(data.onStartOpenReq);
-        break;
+        case 'closed':
+          R.when(R.pipe(R.isNil, R.not),
+            (fn) => fn([data.node._id._str])
+          )(data.onStartOpenReq);
+          break;
       }
 
       data.onNodeSelected(data.node);
@@ -344,6 +344,12 @@ Template.TreeNode.helpers({
     }
 
     return '';
+  },
+
+  getNodeClass: function (level) {
+    if (level === 1)
+      return 'sm-details-line-main';
+    return 'sm-details-line';
   }
 }); // end: helpers
 
@@ -353,7 +359,7 @@ function issueOrder(instance, name, data) {
     counter: val.counter + 1,
     data: data
   });
-  
+
   instance.state.set(name, val);
 }
 

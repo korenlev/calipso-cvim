@@ -40,22 +40,73 @@ const defaultState = {
             header: 'Number of pods'
         },
       },
+      newBriefInfos: {
+        lastScanning: {
+          header: 'Last scanning'
+        },
+        vConnectorsNum: {
+          header: 'vConnectors'
+        },
+        hostsNum: {
+          header: 'Hosts'
+        },
+        vServicesNum: {
+          header: 'vServices'
+        },
+        instancesNum: {
+          header: 'Instances'
+        },
+        containersNum: {
+            header: 'Containers'
+        },
+        podsNum: {
+            header: 'Pods'
+        },
+      },
+      newListInfoBoxes: {
+        regions: {
+          header: 'Regions',
+          baseType: 'region'
+        },
+        projects: {
+          header: 'Projects',
+          baseType: 'project'
+        },
+        networks: {
+          header: 'Networks',
+          baseType: 'network'
+        },
+        hosts: {
+          header: 'Hosts',
+          baseType: 'host'
+        },
+        namespaces: {
+          header: 'Namespaces',
+          baseType: 'namespace'
+        }
+      },
       listInfoBoxes: {
         regions: {
           header: 'Regions'
         },
         projects: {
           header: 'Projects'
+        },
+        networks: {
+          header: 'Networks'
+        },
+        hosts: {
+          header: 'Hosts'
         }
       }
     },
     projectDashboard: {
       infoBoxes: {
         networks: {
-          header: 'Number of networks'
+          header: 'Networks'
         },
         ports: {
-          header: 'Number of ports'
+          header: 'Ports'
         }
       }
     },
@@ -63,24 +114,26 @@ const defaultState = {
     regionDashboard: {
       infoBoxes: {
         instances: {
-          header: 'Number of instances'
+          header: 'Instances',
         },
         vServices: {
-          header: 'Number of vServices'
+          header: 'vServices'
         },
         hosts: {
-          header: 'Number of hosts'
+          header: 'Hosts'
         },
         vConnectors: {
-          header: 'Number of vConnectors'
+          header: 'vConnectors'
         }
       },
       listInfoBoxes: {
         availabilityZones: {
-          header: 'Availability zones'
+          header: 'Availability zones',
+          baseType: 'zone'
         },
         aggregates: {
-          header: 'Aggregates'
+          header: 'Aggregates',
+          baseType: 'aggregate'
         }
       }
     },
@@ -88,24 +141,25 @@ const defaultState = {
     zoneDashboard: {
       infoBoxes: {
         instances: {
-          header: 'Number of instances'
+          header: 'Instances'
         },
         vServices: {
-          header: 'Number of vServices'
+          header: 'vServices'
         },
         hosts: {
-          header: 'Number of hosts'
+          header: 'Hosts'
         },
         vConnectors: {
-          header: 'Number of vConnectors'
+          header: 'vConnectors'
         },
         vEdges: {
-          header: 'Number of vEdges'
+          header: 'vEdges'
         }
       },
       listInfoBoxes: {
         hosts: {
-          header: 'Hosts'
+          header: 'Hosts',
+          baseType: 'host'
         },
       }
     },
@@ -113,24 +167,25 @@ const defaultState = {
     aggregateDashboard: {
       infoBoxes: {
         instances: {
-          header: 'Number of instances'
+          header: 'Instances'
         },
         vServices: {
-          header: 'Number of vServices'
+          header: 'vServices'
         },
         hosts: {
-          header: 'Number of hosts'
+          header: 'Hosts'
         },
         vConnectors: {
-          header: 'Number of vConnectors'
+          header: 'vConnectors'
         },
         vEdges: {
-          header: 'Number of vEdges'
+          header: 'vEdges'
         }
       },
       listInfoBoxes: {
         hosts: {
-          header: 'Hosts'
+          header: 'Hosts',
+          baseType: 'host'
         },
       }
     },
@@ -138,25 +193,31 @@ const defaultState = {
     hostDashboard: {
       infoBoxes: {
         instances: {
-          header: 'Number of instances'
+          header: 'Instances'
         },
         vServices: {
-          header: 'Number of vServices'
+          header: 'vServices'
+        },
+        containers: {
+            header: 'Containers'
+        },
+        pods: {
+            header: 'Pods'
         },
         vConnectors: {
-          header: 'Number of vConnectors'
+          header: 'vConnectors'
         },
         networkAgents: {
-          header: 'Number of agents'
+          header: 'Agents'
         },
         pnics: {
-          header: 'Number of pnics'
+          header: 'pnics'
         },
         vEdges: {
-          header: 'Number of vEdges'
+          header: 'vEdges'
         },
         ports: {
-          header: 'Number of ports'
+          header: 'Ports'
         }
       },
     },

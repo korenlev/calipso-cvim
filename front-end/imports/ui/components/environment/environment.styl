@@ -6,7 +6,7 @@
     max-width: initial;
 
     &.collapsed
-      width: 30px;
+      width: 48px;
       overflow: hidden;
 
   .sm-node-no-graph-data-msg
@@ -29,10 +29,24 @@
     align-items: center
  
   .cl-action-button 
-    color: spark-blue
+    color: spark-blue;
+    width:112px;
+    height: 36px; 
+    border-radius: 20px;
+    color: text-blue;
+    background-color: white;
+    cursor:pointer;
+    border: 1px solid text-blue;
+    text-align: center;
+    padding-top: 7px;
+    margin-left: 11px;
+
+  .cl-action-button:hover
+    color: white;
+    background-color: text-blue;
 
   .sm-delete-button.cl-action-button
-    color: status-red;
+    //color: status-red;
 
   .main-layout-no-nav
     display: flex;
@@ -41,7 +55,8 @@
     margin: 0px; 
     
     .sm-breadcrumb-segment
-       background-color brand-blue 
+       //background-color brand-blue
+       height: 40px;
 
     .sm-main-content-segment
       display: flex;
@@ -50,12 +65,16 @@
       flex: 1 0;
 
       .sm-dashboard
-        padding: 20px;
+        padding: 0px;
 
       //.sm-graph
       //  flex: 1 0;
       .sm-network-graph
         flex: 1 0;
+
+  .env-main-content
+    margin-left: 36px;
+    margin-right: 48px;
 
   .sm-items-segment
     display: flex
@@ -65,6 +84,6 @@
   .sm-list-info-boxes
     display: flex
     flex-flow: row wrap
-    justify-content: space-around
+    justify-content: flex-start
 
 

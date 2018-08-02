@@ -9,7 +9,7 @@
 .left-nav-content-wiki {
   width: 300px;
   height: 100vh
-  background brand-blue
+  background white-grey
   top 90px
   position fixed
 }
@@ -27,23 +27,31 @@
   box-sizing: border-box;
   outline: 0;
   .menu-footer, .menu-header
-    background: brand-blue;
+    background: text-light-blue;
     color: #f0f0f0;
     float: left;
     font-weight: normal;
     line-height: 50px;
     font-size: 0.8em;
     width: 100%;
-    border-bottom 1px solid black
   .menu-footer
     text-align: center;
   .menu-header
-    height: 39px;
-    p
-      font-size 1.7em
-      padding 6px
-      margin 0px 
-      
+    height: 65px;
+    justify-content: space-between;
+    div, p
+      font-size: 17px;
+      text-transform: uppercase;
+      margin: 0px;
+    .menu-header-env
+      padding-left: 16px
+      padding-top: 8px;
+      &:hover
+        text-decoration: underline;
+    .img-left-nav
+       width: 47px; 
+       height: 64px;
+       cursor: pointer;
       
     i
       cursor pointer

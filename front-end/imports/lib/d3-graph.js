@@ -350,16 +350,15 @@ let d3Graph = {
 
     // A map from group ID to image URL.
     var imageByGroup = {
-      'instance': 'ic_computer_black_48dp_2x.png',
-      'pnic': 'ic_dns_black_48dp_2x.png',
-      'vconnector': 'ic_settings_input_composite_black_48dp_2x.png',
-      // 'network': 'ic_cloud_queue_black_48dp_2x.png',
-      'network': 'ic_cloud_queue_black_48dp_2x.png',
-      'vedge': 'ic_gamepad_black_48dp_2x.png',
-      'vservice': 'ic_storage_black_48dp_2x.png',
-      'vnic': 'ic_settings_input_hdmi_black_48dp_2x.png',
-      'otep':'ic_keyboard_return_black_48dp_2x.png',
-      'default':'ic_lens_black_48dp_2x.png'
+      'instance': 'new_ic_computer_black_48dp_2x.svg',
+      'pnic': 'new_ic_dns_black_48dp_2x.svg',
+      'vconnector': 'new_ic_settings_input_composite_black_48dp_2x.svg',
+      'network': 'new_ic_cloud_queue_black_48dp_2x.svg',
+      'vedge': 'new_ic_gamepad_black_48dp_2x.svg',
+      'vservice': 'new_ic_storage_black_48dp_2x.svg',
+      'vnic': 'new_ic_settings_input_hdmi_black_48dp_2x.png',
+      'otep':'new_ic_keyboard_return_black_48dp_2x.svg',
+      'default':'new_ic_lens_black_48dp_2x.png'
     };
 
     node.append('image')

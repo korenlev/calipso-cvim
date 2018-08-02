@@ -1,0 +1,28 @@
+<template name="EnvironmentBoxNetworks">
+    <div id="networks-section" class="single-env-section three-part-section">
+        <span class="section-title">Networks</span>
+        <div class="section-details">
+            <img src="/icons/icon-network-C.svg">
+            <div class="objects-list">
+                <span class="objects-count">{{ networks.count }}</span>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="true">
+                        SELECT
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        {{#each networkItem in networks }}
+                            <li>
+                                <a href="{{pathFor route='environment'
+                                                   data=(asHash _id=(idToStr envId))
+                                                   query=(asHash
+                                                           selectedNodeId=(idToStr networkItem._id ) ) }}">{{ networkItem.object_name }}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

@@ -18,6 +18,7 @@ import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Environments } from '/imports/api/environments/environments';
 import { idToStr } from '/imports/lib/utilities';
+import { UserSettings } from '/imports/api/user-settings/user-settings';
 
 import '/imports/ui/components/pager/pager';
 import '/imports/ui/components/inventory-properties-display/inventory-properties-display';
@@ -34,16 +35,23 @@ Template.MessagesList.onCreated(function () {
 
   instance.state = new ReactiveDict();
   instance.state.setDefault({
+    msgsViewBackDelta: 1,
     env: null,
     page: 1,
     amountPerPage: 10,
     sortField: 'timestamp',
     sortDirection: -1,
     messsages: [],
+    msgLevel: null
   });
 
+  instance.state.set('msgLevel', 'total');
+
   instance.autorun(function () {
-    //let data = Template.currentData();
+    instance.subscribe('user_settings?user');
+    UserSettings.find({ user_id: Meteor.userId() }).forEach((userSettings) => {
+      instance.state.set('msgsViewBackDelta', userSettings.messages_view_backward_delta);
+    });
 
     var controller = Iron.controller();
     var params = controller.getParams();
@@ -53,33 +61,35 @@ Template.MessagesList.onCreated(function () {
     }).validate(query);
 
     instance.subscribe('environments_config');
-
-    instance.subscribe('messages/count');
   });
 
   instance.autorun(function () {
-
-    showMessagesList(instance);
+    let msgLvl = instance.state.get('msgLevel');
+    showMessagesList(instance, msgLvl);
   });
 });
 
-
-function showMessagesList(instance) {
+function showMessagesList(instance, msgLevel) {
   let amountPerPage = instance.state.get('amountPerPage');
   let page = instance.state.get('page');
   let sortField = instance.state.get('sortField');
   let sortDirection = instance.state.get('sortDirection');
+  let level = null;
 
-  Meteor.apply('messages/get?level&env&page&amountPerPage&sortField&sortDirection', [
-    null, null, page, amountPerPage, sortField, sortDirection
-  ], {
+  if (msgLevel === 'total')
+    level = null;
+  else
+    level = msgLevel;
+  instance.state.set('msgLevel', msgLevel);
+  let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+  Meteor.apply('messages/get?backDelta&level&env&page&amountPerPage&sortField&sortDirection', [msgsViewBackDelta, level, null, page, amountPerPage, sortField, sortDirection],
+    {
       wait: false
     }, function (err, res) {
       if (err) {
         console.error(R.toString(err));
         return;
       }
-
       instance.state.set('messages', res);
     });
 }
@@ -93,6 +103,23 @@ Template.MessagesList.rendered = function() {
  */
 
 Template.MessagesList.events({
+  'click .messages-all-container': function (event, _instance) {
+    _instance.state.set('page', 1);
+    showMessagesList(_instance, 'total');
+  },
+  'click .info-main-container': function (event, _instance) {
+    _instance.state.set('page', 1);
+    showMessagesList(_instance, 'info');
+  },
+  'click .warning-main-container': function (event, _instance) {
+    _instance.state.set('page', 1);
+    showMessagesList(_instance, 'warning');
+  },
+  'click .error-main-container': function (event, _instance) {
+    _instance.state.set('page', 1);
+    showMessagesList(_instance, 'error');
+  },
+
   'click .sm-display-context-link': function (event, _instance) {
     event.preventDefault();
     let envName = event.target.dataset.envName;
@@ -218,8 +245,45 @@ Template.MessagesList.helpers({
     return instance.state.get('amountPerPage');
   },
 
+  currentPagedMessages: function () {
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    const lvl = instance.state.get('msgLevel');
+    if (lvl === 'info')
+      return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=info`);
+    if (lvl === 'warning')
+      return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=warning`);
+    if (lvl === 'error')
+      return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=error`);
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}`);
+  },
+
   totalMessages: function () {
-    return Counter.get(`messages/count`);
+    // let instance = Template.instance();
+    // let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    // return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}`);
+    let im = Template.MessagesList.__helpers.get('infoMessages').call();
+    let wm = Template.MessagesList.__helpers.get('warningMessages').call();
+    let em = Template.MessagesList.__helpers.get('errorMessages').call();
+    return im + wm + em;
+  },
+
+  infoMessages: function () {
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=info`);
+  },
+
+  warningMessages: function () {
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=warning`);
+  },
+
+  errorMessages: function () {
+    let instance = Template.instance();
+    let msgsViewBackDelta = instance.state.get('msgsViewBackDelta');
+    return Counter.get(`messages/count?backDelta=${msgsViewBackDelta}&level=error`);
   },
 
   toIsoFormatStr: function (date) {
@@ -241,25 +305,20 @@ Template.MessagesList.helpers({
       totalPages: totalPages,
       currentPage: currentPage,
       onReqNext: function () {
-        console.log('next');
         let page = (currentPage * amountPerPage > totalMessages) ? currentPage : currentPage + 1;
         instance.state.set('page', page);
       },
       onReqPrev: function () {
-        console.log('prev');
         let page = (currentPage == 1) ? currentPage : currentPage - 1;
         instance.state.set('page', page);
       },
       onReqFirst: function () {
-        console.log('req first');
         instance.state.set('page', 1);
       },
       onReqLast: function () {
-        console.log('req last');
         instance.state.set('page', totalPages);
       },
       onReqPage: function (pageNumber) {
-        console.log('req page');
         let page;
         if (pageNumber <= 1) {
           page = 1;
@@ -304,7 +363,7 @@ Template.MessagesList.helpers({
     let instance = Template.instance();
     return {
       onDeleteReq: function () {
-        showMessagesList(instance);
+        showMessagesList(instance, 'total');
       }
     };
   },

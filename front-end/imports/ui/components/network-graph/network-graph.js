@@ -1,7 +1,7 @@
 /*
  * Template Component: NetworkGraph 
  */
-    
+
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
@@ -11,15 +11,16 @@ import * as cola from 'webcola';
 import { imagesForNodeType, defaultNodeTypeImage } from '/imports/lib/images-for-node-type';
 import { idToStr } from '/imports/lib/utilities';
 import * as _ from 'lodash';
-        
+
 import './network-graph.html';
-import {Environments} from "../../../api/environments/environments";
-    
+import { Environments } from "../../../api/environments/environments";
+import { Inventory } from "../../../api/inventories/inventories";
+
 /*  
  * Lifecycles
- */   
-  
-Template.NetworkGraph.onCreated(function() {
+ */
+
+Template.NetworkGraph.onCreated(function () {
   let instance = this;
 
   instance.state = new ReactiveDict();
@@ -47,17 +48,17 @@ Template.NetworkGraph.onCreated(function() {
 
     instance.simpleState.graphData = data.graphData;
     instance.state.set('graphDataChanged', Date.now());
-    instance.onNodeOver = R.defaultTo(() => {}, data.onNodeOver);
-    instance.onNodeOut = R.defaultTo(() => {}, data.onNodeOut);
-    instance.onNodeClick = R.defaultTo(() => {}, data.onNodeClick);
-    instance.onDragStart = R.defaultTo(() => {}, data.onDragStart);
-    instance.onDragEnd = R.defaultTo(() => {}, data.onDragEnd);
-    instance.onGroupOver = R.defaultTo(() => {}, data.onGroupOver);
-    instance.onLinkOver = R.defaultTo(() => {}, data.onLinkOver);
+    instance.onNodeOver = R.defaultTo(() => { }, data.onNodeOver);
+    instance.onNodeOut = R.defaultTo(() => { }, data.onNodeOut);
+    instance.onNodeClick = R.defaultTo(() => { }, data.onNodeClick);
+    instance.onDragStart = R.defaultTo(() => { }, data.onDragStart);
+    instance.onDragEnd = R.defaultTo(() => { }, data.onDragEnd);
+    instance.onGroupOver = R.defaultTo(() => { }, data.onGroupOver);
+    instance.onLinkOver = R.defaultTo(() => { }, data.onLinkOver);
   });
-});  
+});
 
-Template.NetworkGraph.rendered = function() {
+Template.NetworkGraph.rendered = function () {
   let instance = Template.instance();
 
   instance.autorun(function () {
@@ -65,13 +66,13 @@ Template.NetworkGraph.rendered = function() {
     instance.state.get('graphDataChanged');
     let graphEl = instance.$('.sm-graph')[0];
 
-    renderGraph(graphEl, 
-      graphEl.clientWidth, 
+    renderGraph(graphEl,
+      graphEl.clientWidth,
       graphEl.clientHeight,
       instance.simpleState.graphData,
       genConfig(),
       instance.onNodeOver,
-      instance.onNodeOut, 
+      instance.onNodeOut,
       instance.onNodeClick,
       instance.onDragStart,
       instance.onDragEnd,
@@ -85,7 +86,7 @@ Template.NetworkGraph.rendered = function() {
       }
     );
   });
-};  
+};
 
 Template.NetworkGraph.onDestroyed(function () {
   let instance = Template.instance();
@@ -94,7 +95,7 @@ Template.NetworkGraph.onDestroyed(function () {
   if (instance.prevForce) {
     instance.prevForce.stop();
   }
-  
+
   svg.remove();
 });
 /*
@@ -103,12 +104,12 @@ Template.NetworkGraph.onDestroyed(function () {
 
 Template.NetworkGraph.events({
 });
-   
+
 /*  
  * Helpers
  */
 
-Template.NetworkGraph.helpers({    
+Template.NetworkGraph.helpers({
 }); // end: helpers
 
 
@@ -146,13 +147,13 @@ function genConfig() {
 }
 
 function renderGraph(
-  mainElement, 
-  w, 
-  h, 
-  graph, 
-  config, 
-  onNodeOver, 
-  onNodeOut, 
+  mainElement,
+  w,
+  h,
+  graph,
+  config,
+  onNodeOver,
+  onNodeOut,
   onNodeClick,
   onDragStart,
   onDragEnd,
@@ -171,7 +172,7 @@ function renderGraph(
     .on('end', function (_d) {
       onDragEnd();
     })
-  ;
+    ;
 
   let svg = d3.select(mainElement).select('svg');
   svg.remove();
@@ -184,25 +185,25 @@ function renderGraph(
   let groupsEl = mainEl.append('g').attr('class', 'groups-container');
   let linksEl = mainEl.append('g').attr('class', 'links-container');
   let nodesEl = mainEl.append('g').attr('class', 'nodes-container');
-  
+
   renderView(force, {
-    graph: graph, 
+    graph: graph,
     viewGraph: {
-      nodes: [], 
-      links: [], 
+      nodes: [],
+      links: [],
       groups: []
-    },  
+    },
   },
-  mainEl, 
-  groupsEl,
-  nodesEl,
-  linksEl,
-  drag, zoom, config, 
-  onNodeOver, 
-  onNodeOut, 
-  onNodeClick,
-  onGroupOver,
-  onLinkOver
+    mainEl,
+    groupsEl,
+    nodesEl,
+    linksEl,
+    drag, zoom, config,
+    onNodeOver,
+    onNodeOut,
+    onNodeClick,
+    onGroupOver,
+    onLinkOver
   );
 }
 
@@ -220,24 +221,21 @@ function genSvg(d3, mainElement) {
 }
 
 function genSvgLinks(
-  g, 
-  links, 
-  nominal_stroke, 
-  default_link_color, 
+  g,
+  links,
+  nominal_stroke,
+  default_link_color,
   initialLinkLabelsFontSize,
   onLinkOver
 ) {
   let svgLinks = g.selectAll('.link-group')
-    .data(links, (d) => d._osid);
+    .data(links, d => d._osid);
 
   let svgLinksEnter = svgLinks
     .enter()
     .append('g')
     .attr('class', 'link-group')
-    .attr('data-link-id', function (d) {
-      return d._osid;
-    })
-  ;
+    .attr('data-link-id', d => d._osid);
 
   //let svgLinksExit = 
   svgLinks
@@ -247,83 +245,96 @@ function genSvgLinks(
     .append('line')
     .attr('class', 'link-line')
     .style('stroke-width', nominal_stroke)
-    .style('stroke', 
-      function(d) { 
+    .style('stroke',
+      function (d) {
         let status = R.defaultTo('', R.path(['_osmeta', 'status'], d));
         status = _.toLower(status);
-        switch(status) {
-        case 'ok': 
-          return 'green';
-        case 'warning':
-          return 'orange';
-        case 'error':
-          return 'red';
-        default:
-          return default_link_color;
+        switch (status) {
+          case 'ok':
+            return 'green';
+          case 'warning':
+            return 'orange';
+          case 'error':
+            return 'red';
+          default:
+            return default_link_color;
         }
       })
     .on('mouseover', function (d) {
       onLinkOver(d._osmeta.linkId, d3.event.pageX, d3.event.pageY);
     })
-  ;
+    ;
 
   let svgLinkLabels = svgLinksEnter
     .append('text')
-    .text(function(d) { 
-      return d.label; 
-    })
+    .text(d => d.label)
     .attr('class', 'link-label')
-    .attr('x', function(d) { return (d.source.x + (d.target.x - d.source.x) * 0.5); })
-    .attr('y', function(d) { return (d.source.y + (d.target.y - d.source.y) * 0.5); })
+    .attr('x', d => (d.source.x + (d.target.x - d.source.x) * 0.5))
+    .attr('y', d => (d.source.y + (d.target.y - d.source.y) * 0.5))
     .attr('dy', '.25em')
     .attr('text-anchor', 'right')
     .attr('font-size', initialLinkLabelsFontSize)
-  ;
+    ;
 
-  return {svgLinks, svgLinkLines, svgLinkLabels};
+  return { svgLinks, svgLinkLines, svgLinkLabels };
 }
 
 function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroupNodeClick) {
   let svgNodes = g.selectAll('.node')
-    .data(nodes, (d) => d._osid);
+    .data(nodes, d => d._osid);
 
   let svgNodesEnter = svgNodes
     .enter()
     .append('g')
     .attr('class', 'node')
-    .attr('data-node-id', (d) => d._osid)
+    .attr('data-node-id', d => d._osid)
     .call(drag);
 
   //let svgNodesExit = 
   svgNodes
     .exit().remove();
-  
+
   let imageLength = 36;
   let svgImages = svgNodesEnter.append('image')
     .attr('class', 'node-image')
-    .attr('xlink:href', function(d) {
+    .attr('xlink:href', function (d) {
       let status = R.defaultTo('', R.path(['_osmeta', 'status'], d));
       status = _.toLower(status);
       return `/${calcImageForNodeType(d._osmeta.type, status)}`;
     })
-    .attr('x', -(Math.floor(imageLength / 2)))
-    .attr('y', -(Math.floor(imageLength / 2)))
+    .attr('x', -Math.floor(imageLength / 2))
+    .attr('y', -Math.floor(imageLength / 2))
     .attr('width', imageLength)
     .attr('height', imageLength)
     .on('mouseover', function (d) {
       onNodeOver(d._osmeta.nodeId, d3.event.pageX, d3.event.pageY);
     })
     .on('mouseout', function (d) {
-      onNodeOut(d._osmeta.nodeId);
+      // onNodeOut(d._osmeta.nodeId);
     })
     .on('click', function (d) {
       let meta = R.defaultTo({}, R.path(['_osmeta'], d));
       let type = R.defaultTo('', R.path(['type'], meta));
-      if (type === "network") {
-        let env = Environments.findOne({name: R.prop('environment', meta)});
+
+      // TODO: TEMPORARY!!!
+      let node = Inventory.findOne({'_id': meta.nodeId});
+      if (node && node.name === "Korlev-kub2") {
+
+        let toEnv = Environments.findOne({name: 'kube-cluster1'});
+        let toNode = Inventory.findOne({environment: 'kube-cluster1', type: 'network', name: 'none'});
         Router.go('environment',
-            { _id: idToStr(R.prop('_id', env)) },
-            { query: { selectedNodeId: idToStr(R.prop('nodeId', meta)) }}
+            { _id: idToStr(R.prop('_id', toEnv)) },
+            { query: { selectedNodeId: idToStr(R.prop('_id', toNode)) }}
+        );
+        return;
+      }
+      // TODO: TEMPORARY!!!
+
+      if (type === "network") {
+        let env = Environments.findOne({ name: R.prop('environment', meta) });
+        Router.go('environment',
+          { _id: idToStr(R.prop('_id', env)) },
+          { query: { selectedNodeId: idToStr(R.prop('nodeId', meta)) } }
         );
         return;
       }
@@ -332,11 +343,11 @@ function genSvgNodes(g, nodes, drag, onNodeOver, onNodeOut, onNodeClick, onGroup
         return;
       }
       onNodeClick(meta.nodeId, meta.type, meta.environment,
-                  d3.event.pageX, d3.event.pageY);
+        d3.event.pageX, d3.event.pageY);
     })
-  ;
+    ;
 
-  return {svgNodes, svgImages};
+  return { svgNodes, svgImages };
   //return [svgNodes];
 }
 
@@ -371,7 +382,7 @@ function genForceCola(cola, d3, w, h) {
     .convergenceThreshold(0.1)
     //.convergenceThreshold(1e-9)
     .linkDistance(120)
-    .size([w,h]);
+    .size([w, h]);
 
   return force;
 }
@@ -379,7 +390,7 @@ function genForceCola(cola, d3, w, h) {
 function activateForce(force, nodes, links, groups) {
   force
     .nodes(nodes)
-    .links(links) 
+    .links(links)
     .groups(groups)
     //.symmetricDiffLinkLengths(25)
     .handleDisconnected(true)
@@ -406,17 +417,17 @@ function resize() {
 }
 */
 
-function renderView(force, 
-  state, 
-  mainEl, 
+function renderView(force,
+  state,
+  mainEl,
   groupsEl,
   nodesEl,
   linksEl,
-  drag, 
-  zoom, 
-  config, 
-  onNodeOver, 
-  onNodeOut, 
+  drag,
+  zoom,
+  config,
+  onNodeOver,
+  onNodeOut,
   onNodeClick,
   onGroupOver,
   onLinkOver
@@ -428,34 +439,34 @@ function renderView(force,
 
   zoom.on('zoom', zoomFn);
 
-  genSvgGroups(groupsEl, state.viewGraph.groups, drag, onRenderViewReq, onGroupOver);
+  genSvgGroups(groupsEl, state.viewGraph.groups, drag, onRenderViewReq, onGroupOver, onNodeOut);
 
   genSvgLinks(
-    linksEl, state.viewGraph.links, 
-    config.nominal_stroke, 
+    linksEl, state.viewGraph.links,
+    config.nominal_stroke,
     config.default_link_color,
     config.initialLinkLabelsFontSize,
     onLinkOver
   );
 
   genSvgNodes(
-    nodesEl, state.viewGraph.nodes, drag, onNodeOver, onNodeOut, onNodeClick, 
+    nodesEl, state.viewGraph.nodes, drag, onNodeOver, onNodeOut, onNodeClick,
     function onGroupNodeClick(groupId) {
       let group = R.find(R.propEq('_osid', groupId), state.graph.groups);
       group.isExpanded = true;
 
-      state.viewGraph = renderView(force, state, 
+      state.viewGraph = renderView(force, state,
         mainEl, groupsEl, nodesEl, linksEl,
-        drag, zoom, config, 
+        drag, zoom, config,
         onNodeOver, onNodeOut, onNodeClick, onGroupOver, onLinkOver);
-    }); 
+    });
 
   force.on('tick', tickFn);
-  
+
   function onRenderViewReq() {
-    state.viewGraph = renderView(force, state, 
+    state.viewGraph = renderView(force, state,
       mainEl, groupsEl, nodesEl, linksEl,
-      drag, zoom, config, 
+      drag, zoom, config,
       onNodeOver, onNodeOut, onNodeClick, onGroupOver, onLinkOver);
   }
 
@@ -467,7 +478,7 @@ function renderView(force,
         let y = R.path(['bounds', 'y'], d);
         return `translate(${x},${y})`;
       })
-    ;
+      ;
     /*
       .attr('x', function (d) { 
         return R.path(['bounds', 'x'], d); 
@@ -478,50 +489,42 @@ function renderView(force,
       */
 
     svgGroups.selectAll('.group-shape')
-      .attr('width', function (d) { 
-        if (d.bounds) { return d.bounds.width(); } 
+      .attr('width', function (d) {
+        if (d.bounds) { return d.bounds.width(); }
       })
-      .attr('height', function (d) { 
-        if (d.bounds) { return d.bounds.height(); } 
+      .attr('height', function (d) {
+        if (d.bounds) { return d.bounds.height(); }
       });
 
     svgGroups.selectAll('.group-name')
-      .attr('x', function(d) { 
+      .attr('x', function (d) {
         return (d.bounds.width() / 2);
       })
-      .attr('y', function(_d) { 
+      .attr('y', function (_d) {
         return 30;
       })
-    ;
+      ;
 
     let svgNodes = mainEl.selectAll('.node');
-    svgNodes.attr('transform', function(d) {
+    svgNodes.attr('transform', function (d) {
       return 'translate(' + d.x + ',' + d.y + ')';
     });
 
     let svgLinkLines = mainEl.selectAll('.link-group').selectAll('.link-line');
-    svgLinkLines
-      .attr('x1', function(d) { 
-        return d.source.x; 
-      })
-      .attr('y1', function(d) { return d.source.y; })
-      .attr('x2', function(d) { return d.target.x; })
-      .attr('y2', function(d) { return d.target.y; });
+    svgLinkLines.attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
 
     let svgLinkLabels = mainEl.selectAll('.link-group').selectAll('.link-label');
-    svgLinkLabels
-      .attr('x', function(d) { 
-        return (d.source.x + (d.target.x - d.source.x) * 0.5); 
-      })
-      .attr('y', function(d) { 
-        return (d.source.y + (d.target.y - d.source.y) * 0.5); 
-      });
+    svgLinkLabels.attr('x', d => (d.source.x + (d.target.x - d.source.x) * 0.5))
+                 .attr('y', d => (d.source.y + (d.target.y - d.source.y) * 0.5));
 
   }
 
   function zoomFn() {
     mainEl.attr('transform', d3.event.transform);
-    
+
     let trn = d3.event.transform;
 
     let maxZoomAllowedForNodes = 1.8;
@@ -535,12 +538,10 @@ function renderView(force,
     }
 
     let svgImages = mainEl.selectAll('.node-image');
-    svgImages 
-      .attr('x', -(Math.floor(imageLength / 2)))
-      .attr('y', -(Math.floor(imageLength / 2)))
-      .attr('width', imageLength)
-      .attr('height', imageLength)
-    ;
+    svgImages.attr('x', -(Math.floor(imageLength / 2)))
+             .attr('y', -(Math.floor(imageLength / 2)))
+             .attr('width', imageLength)
+             .attr('height', imageLength);
 
     let labelsFontSize;
 
@@ -558,20 +559,22 @@ function renderView(force,
   return state.viewGraph;
 }
 
-function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver) {
+function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver, onNodeOut) {
   let svgGroups = g.selectAll('.group')
-    .data(groups, (d) => d._osid);
+    .data(groups, d => d._osid);
 
   let enterGroups = svgGroups.enter();
 
-  let groupsContainers = 
+  let groupsContainers =
     enterGroups
       .append('g')
       .attr('class', 'group')
-      .attr('data-group-id', (d) => d._osid)
+      .attr('data-group-id', d => d._osid)
       .call(drag)
       .on('mouseover', function (_d) {
-        onGroupOver();
+        onGroupOver(_d._osid, d3.event.pageX, d3.event.pageY);
+      }).on('mouseout', function (_d) {
+        onNodeOut(_d._osid);
       })
       .on('click', function (d) {
         console.log('click', d);
@@ -584,25 +587,18 @@ function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver) {
     .attr('class', 'group-shape')
     .attr('rx', 8)
     .attr('ry', 8)
-    .style('fill', function (_d, _i) { return 'lightblue'; })
-  ;
+    .style('fill', function (_d, _i) { return 'lightblue'; });
 
   groupsContainers
     .append('text')
-    .text(function(d) { 
-      return d.name;
-    })
+    .text(d => d.name)
     .attr('class', 'group-name')
-    .attr('x', function(d) { 
-      return (d.bounds.width() / 2);
-    })
-    .attr('y', function(_d) { 
-      return 30;
-    })
+    .attr('x', d => (d.bounds.width() / 2))
+    .attr('y', 30)
     .attr('dy', '.25em')
     .attr('text-anchor', 'middle')
     .attr('font-size', 20)
-  ;
+    ;
 
   svgGroups.exit()
     .remove();
@@ -610,21 +606,21 @@ function genSvgGroups(g, groups, drag, onRenderViewReq, onGroupOver) {
   return svgGroups;
 }
 function calcViewGraph(graph, prevViewGraph) {
-  let {groups, rejectedGroups} = calcGroupsAndRejectedGroups(graph.groups);
+  let { groups, rejectedGroups } = calcGroupsAndRejectedGroups(graph.groups);
   let newClosedGroupNodes = calcClosedGroupsNodes(rejectedGroups, prevViewGraph.nodes);
-  let {nodes, rejectedNodes} = calcNodesAndRejectedNodes(graph.nodes, graph.groups);
+  let { nodes, rejectedNodes } = calcNodesAndRejectedNodes(graph.nodes, graph.groups);
   nodes = R.concat(newClosedGroupNodes, nodes);
 
-  let {links, rejectedSourceLinks, rejectedTargetLinks, rejectedBothLinks} =
+  let { links, rejectedSourceLinks, rejectedTargetLinks, rejectedBothLinks } =
     calcLinksAndRejectedLinks(graph.links, rejectedNodes);
 
-  let newLinksForRejectedSource = 
+  let newLinksForRejectedSource =
     calcNewLinksForRejectedSource(rejectedSourceLinks, nodes, prevViewGraph.links);
 
   let newLinksForRejectedTarget =
     calcNewLinksForRejectedTarget(rejectedTargetLinks, nodes, prevViewGraph.links);
 
-  let newLinksForRejectedBoth = 
+  let newLinksForRejectedBoth =
     calcNewLinksForRejectedBoth(rejectedBothLinks, nodes, prevViewGraph.links);
 
   links = R.pipe(
@@ -649,7 +645,8 @@ function calcGroupsAndRejectedGroups(originalGroups) {
 
 function calcClosedGroupsNodes(rejectedGroups, prevViewNodes) {
   return R.reduce((acc, group) => {
-    let nodeId = `${group._osid}-group-node`;
+    let groupNode = Inventory.findOne({ _id: group._osid });
+    let nodeId = `${groupNode._id}-group-node`;
     let prevNode = R.find(R.propEq('_osid', nodeId), prevViewNodes);
     if (prevNode) {
       return R.append(prevNode, acc);
@@ -659,11 +656,11 @@ function calcClosedGroupsNodes(rejectedGroups, prevViewNodes) {
       _osid: nodeId,
       _osmeta: {
         type: `view_group-${group.type}`,
-        nodeId: group._osid,
+        nodeId: groupNode._id,
       },
       width: 60,
       height: 40,
-      name: group._osid
+      name: groupNode.id
     }, acc);
   }, [], rejectedGroups);
 }
@@ -677,7 +674,7 @@ function calcNodesAndRejectedNodes(originalNodes, originalGroups) {
     let group = R.find(R.propEq('_osid', groupId), originalGroups);
     if (R.isNil(group)) { return false; }
 
-    if (group.isExpanded) { return false; } 
+    if (group.isExpanded) { return false; }
 
     rejectedNodes = R.append(node, rejectedNodes);
     return true;
@@ -708,9 +705,9 @@ function calcLinksAndRejectedLinks(originalLinks, rejectedNodes) {
 
     acc = R.assoc('links', R.append(link, acc.links), acc);
     return acc;
-  }, 
-  {links: [], rejectedSourceLinks: [], rejectedTargetLinks: [], rejectedBothLinks: [] }, 
-  originalLinks);
+  },
+    { links: [], rejectedSourceLinks: [], rejectedTargetLinks: [], rejectedBothLinks: [] },
+    originalLinks);
 }
 
 function calcNewLinksForRejectedSource(rejectedSourceLinks, nodes, prevLinks) {
@@ -718,14 +715,14 @@ function calcNewLinksForRejectedSource(rejectedSourceLinks, nodes, prevLinks) {
     let groupId = R.path(['_osmeta', 'groupId'], link.source);
     let groupNodeId = `${groupId}-group-node`;
     let newSource = R.find(R.propEq('_osid', groupNodeId), nodes);
-    if (R.isNil(newSource)) { 
+    if (R.isNil(newSource)) {
       throw 'error in new links for rejected source function';
     }
 
     let newLinkId = `${newSource._osid}:${link.target._osid}:rejected-source`;
 
     let existingLink = R.find(R.propEq('_osid', newLinkId), acc);
-    if (existingLink) { 
+    if (existingLink) {
       return acc;
     }
 
@@ -735,10 +732,10 @@ function calcNewLinksForRejectedSource(rejectedSourceLinks, nodes, prevLinks) {
     }
 
     return R.append({
-      source: newSource ,
+      source: newSource,
       target: link.target,
       label: link.label,
-      _osid: newLinkId    
+      _osid: newLinkId
     }, acc);
   }, [], rejectedSourceLinks);
 
@@ -750,14 +747,14 @@ function calcNewLinksForRejectedTarget(rejectedLinks, nodes, prevLinks) {
     let groupId = R.path(['_osmeta', 'groupId'], link.target);
     let groupNodeId = `${groupId}-group-node`;
     let newTarget = R.find(R.propEq('_osid', groupNodeId), nodes);
-    if (R.isNil(newTarget)) { 
+    if (R.isNil(newTarget)) {
       throw 'error in new links for rejected target function';
     }
 
     let newLinkId = `${link.source._osid}:${newTarget._osid}:rejected-target`;
 
     let existingLink = R.find(R.propEq('_osid', newLinkId), acc);
-    if (existingLink) { 
+    if (existingLink) {
       return acc;
     }
 
@@ -767,7 +764,7 @@ function calcNewLinksForRejectedTarget(rejectedLinks, nodes, prevLinks) {
     }
 
     return R.append({
-      source: link.source ,
+      source: link.source,
       target: newTarget,
       label: link.label,
       _osid: newLinkId
@@ -779,7 +776,7 @@ function calcNewLinksForRejectedTarget(rejectedLinks, nodes, prevLinks) {
 
 function getCollapsedGroupsLinkName(link) {
   let groupTypes = [R.path(['_osmeta', 'groupType'], link.source),
-                    R.path(['_osmeta', 'groupType'], link.target)];
+  R.path(['_osmeta', 'groupType'], link.target)];
   if (R.contains('host', groupTypes)) {
     return 'hosts link';
   }
@@ -797,7 +794,7 @@ function calcNewLinksForRejectedBoth(rejectedLinks, nodes, prevLinks) {
     let groupTargetNodeId = `${targetGroup}-group-node`;
 
     if (sourceGroup === targetGroup) {
-      return acc; 
+      return acc;
     }
 
     let newLinkId = `${sourceGroup}:${targetGroup}:groups-link`;

@@ -50,12 +50,20 @@ Template.Dashboard.onCreated(function () {
     instance.subscribe('messages/count?level', 'error');
 
     Environments.find({}).forEach(function (envItem) {
-      instance.subscribe('inventory?env+type', envItem.name, 'instance');
-      instance.subscribe('inventory?env+type', envItem.name, 'vservice');
       instance.subscribe('inventory?env+type', envItem.name, 'host');
       instance.subscribe('inventory?env+type', envItem.name, 'vconnector');
-      instance.subscribe('inventory?env+type', envItem.name, 'project');
-      instance.subscribe('inventory?env+type', envItem.name, 'region');
+      if (envItem.environment_type === 'OpenStack') {
+        instance.subscribe('inventory?env+type', envItem.name, 'project');
+        instance.subscribe('inventory?env+type', envItem.name, 'region');
+        instance.subscribe('inventory?env+type', envItem.name, 'instance');
+        instance.subscribe('inventory?env+type', envItem.name, 'vservice');
+      }
+      else if (envItem.environment_type === 'Kubernetes') {
+        instance.subscribe('inventory?env+type', envItem.name, 'network');
+        instance.subscribe('inventory?env+type', envItem.name, 'container');
+        instance.subscribe('inventory?env+type', envItem.name, 'pod');
+        instance.subscribe('inventory?env+type', envItem.name, 'namespace');
+      }
     });
 
     store.dispatch(setMainAppSelectedEnvironment(null));
@@ -130,6 +138,38 @@ Template.Dashboard.helpers({
     return Environments.find({});
   },
 
+  envObjects: function (env) {
+      let envName = env.name;
+
+      let specificFields = {};
+      if (env.environment_type === 'OpenStack') {
+        specificFields = {
+          projects: Inventory.find({environment: envName, type: 'project'}),
+          regions: Inventory.find({environment: envName, type: 'region'}),
+          instancesCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=instance'),
+          vservicesCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=vservice'),
+        }
+      }
+      else if (env.environment_type === 'Kubernetes') {
+        specificFields = {
+          networks: Inventory.find({environment: envName, type: 'network'}),
+          hosts: Inventory.find({environment: envName, type: 'host'}),
+          namespaces: Inventory.find({environment: envName, type: 'namespace'}),
+          containersCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=container'),
+          podsCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=pod'),
+        }
+      }
+
+      return {
+          ...specificFields,
+          ...{
+              env: env,
+              hostsCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=host'),
+              vconnectorsCount: Counts.get('inventory?env+type!counter?env=' + envName + '&type=vconnector')
+          }
+      }
+  },
+
   instancesCount: function (envName){
     //return Inventory.find({environment: envName, type:'instance'}).count();
     return Counts.get('inventory?env+type!counter?env=' +
@@ -160,13 +200,13 @@ Template.Dashboard.helpers({
       envName + '&type=' + 'project');
   },
 
-  regoinsCount: function (envName){
+  regionsCount: function (envName){
     //return Inventory.find({environment: envName, type:'region'}).count();
     return Counts.get('inventory?env+type!counter?env=' +
       envName + '&type=' + 'region');
   },
 
-  regoins: function (envName) {
+  regions: function (envName) {
     return Inventory.find({environment: envName, type:'region'});
   },
 
@@ -245,29 +285,4 @@ Template.Dashboard.helpers({
       }
     };
   },
-
-  argsEnvBox: function (
-    environmentName,
-    regionsCount,
-    regions,
-    projectsCount,
-    projects,
-    instancesCount,
-    vservicesCount,
-    vconnectorsCount,
-    hostsCount
-  ) {
-
-    return {
-      environmentName: environmentName,
-      regionsCount: regionsCount,
-      regions: regions,
-      projectsCount,
-      projects: projects,
-      instancesCount: instancesCount,
-      vservicesCount: vservicesCount,
-      vconnectorsCount: vconnectorsCount,
-      hostsCount: hostsCount,
-    };
-  }
 }); // end: helpers

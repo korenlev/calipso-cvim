@@ -9,21 +9,21 @@
 /*
  * Template Component: GraphTooltipWindow 
  */
-    
+
 //import { Meteor } from 'meteor/meteor'; 
 import { Template } from 'meteor/templating';
 //import { ReactiveDict } from 'meteor/reactive-dict';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { store } from '/imports/ui/store/store';
 import { closeGraphTooltipWindow } from '/imports/ui/actions/graph-tooltip-window.actions';
-        
-import './graph-tooltip-window.html';     
-    
+
+import './graph-tooltip-window.html';
+
 /*  
  * Lifecycles
- */   
-  
-Template.GraphTooltipWindow.onCreated(function() {
+ */
+
+Template.GraphTooltipWindow.onCreated(function () {
   let instance = this;
   instance.simpleState = {
     gotIn: false,
@@ -31,6 +31,7 @@ Template.GraphTooltipWindow.onCreated(function() {
 
   instance.autorun(() => {
     new SimpleSchema({
+      tooltipIcon: { type: String },
       label: { type: String },
       title: { type: String },
       left: { type: Number },
@@ -38,7 +39,7 @@ Template.GraphTooltipWindow.onCreated(function() {
       show: { type: Boolean }
     }).validate(Template.currentData());
   });
-});  
+});
 
 /*
 Template.GraphTooltipWindow.rendered = function() {
@@ -50,11 +51,11 @@ Template.GraphTooltipWindow.rendered = function() {
  */
 
 Template.GraphTooltipWindow.events({
-  'mouseenter .os-graph-tooltip-window': function(e, instance) {
+  'mouseenter .os-graph-tooltip-window': function (e, instance) {
     instance.simpleState.gotIn = true;
   },
 
-  'mouseleave .os-graph-tooltip-window': function(e, instance) {
+  'mouseleave .os-graph-tooltip-window': function (e, instance) {
     if (!instance.data.show) { return; }
 
     //e.preventDefault();
@@ -65,7 +66,7 @@ Template.GraphTooltipWindow.events({
     }
   },
 
-  'click .os-graph-tooltip-window': function(e, instance) {
+  'click .os-graph-tooltip-window': function (e, instance) {
     if (!instance.data.show) { return; }
 
     e.preventDefault();
@@ -73,12 +74,12 @@ Template.GraphTooltipWindow.events({
     store.dispatch(closeGraphTooltipWindow());
   },
 });
-   
+
 /*  
  * Helpers
  */
 
-Template.GraphTooltipWindow.helpers({    
+Template.GraphTooltipWindow.helpers({
 });
 
 

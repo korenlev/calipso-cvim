@@ -1,0 +1,28 @@
+<template name="EnvironmentBoxHosts">
+    <div id="hosts-section" class="single-env-section three-part-section">
+        <span class="section-title">Hosts</span>
+        <div class="section-details">
+            <img src="/icons/icon-host-C.svg">
+            <div class="objects-list">
+                <span class="objects-count">{{ hosts.count }}</span>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="true">
+                        SELECT
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        {{#each hostItem in hosts }}
+                            <li>
+                                <a href="{{pathFor route='environment'
+                                                   data=(asHash _id=(idToStr envId))
+                                                   query=(asHash
+                                                           selectedNodeId=(idToStr hostItem._id ) ) }}">{{ hostItem.object_name }}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

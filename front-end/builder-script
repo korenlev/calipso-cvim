@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+# build the ui-builder image, it is used to build new meteor apps:
+IMAGE_NAME=${1:-"korenlev/calipso"}
+printf "\n[-] Building the meteor ui builder $IMAGE_NAME...\n\n"
+sudo docker build -f ./builder-Dockerfile -t $IMAGE_NAME:ui-builder .
+
+# build the ui image, it is used to build the new meteor app from recent front-end code:
+printf "\n[-] Building the new meteor app from your local sorce...\n\n"
+sudo docker build -f ./Dockerfile -t $IMAGE_NAME:ui .
