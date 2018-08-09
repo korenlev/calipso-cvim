@@ -26,6 +26,7 @@ from utils.util import ClassResolver
 
 class Monitor:
     DEFAULTS = {
+        'mongo_config': '',
         'env': 'WebEX-Mirantis@Cisco',
         'inventory': 'inventory',
         'loglevel': 'WARNING'
@@ -43,7 +44,7 @@ class Monitor:
     def get_args(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
-                            default="",
+                            default=self.DEFAULTS['mongo_config'],
                             help="name of config file with MongoDB server " +
                             "access details")
         parser.add_argument("-e", "--env", nargs="?", type=str,

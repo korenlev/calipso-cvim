@@ -14,6 +14,7 @@ from ldap3 import Server, Connection, Tls
 from utils.config_file import ConfigFile
 from utils.logging.full_logger import FullLogger
 from utils.singleton import Singleton
+from utils.util import read_environment_variables
 
 
 class LDAPAccess(metaclass=Singleton):
@@ -27,16 +28,46 @@ class LDAPAccess(metaclass=Singleton):
     }
     user_ssl = True
 
+    REQUIRED_ENV_VARIABLES = {
+        'user_tree_dn': 'LDAP_USER_TREE_DN',
+        'user_id_attribute': 'LDAP_USER_ID_ATTRIBUTE',
+    }
+    OPTIONAL_ENV_VARIABLES = {
+        'user': 'LDAP_USER',
+        'password': 'LDAP_PASSWORD',
+        'url': 'LDAP_URL',
+        'user_pass_attribute': 'LDAP_USER_PASS_ATTRIBUTE',
+        'user_objectclass': 'LDAP_USER_OBJECTCLASS',
+        'query_scope': 'LDAP_QUERY_SCOPE',
+        'tls_req_cert': 'LDAP_TLS_REQ_CERT',
+        'tls_cacertfile': 'LDAP_TLS_CACERTFILE',
+        'group_member_attribute': 'LDAP_GROUP_MEMBER_ATTRIBUTE'
+    }
+
     def __init__(self, config_file_path=""):
         super().__init__()
         self.log = FullLogger()
-        self.ldap_params = self.get_ldap_params(config_file_path)
-        self.server = self.connect_ldap_server()
-
-    def get_ldap_params(self, config_file_path):
-        ldap_params = {
+        self.ldap_params = {
             "url": "ldap://localhost:389"
         }
+        self.ldap_params.update(self.get_ldap_params(config_file_path))
+        self.server = self.connect_ldap_server()
+
+    # Try to read ldap config from environment variables
+    def read_config_from_env_vars(self):
+        try:
+            return read_environment_variables(
+                required=self.REQUIRED_ENV_VARIABLES,
+                optional=self.OPTIONAL_ENV_VARIABLES
+            )
+        except ValueError:
+            return {}
+
+    def get_ldap_params(self, config_file_path):
+        ldap_params = self.read_config_from_env_vars()
+        if ldap_params:
+            return ldap_params
+
         if not config_file_path:
             config_file_path = ConfigFile.get(self.default_config_file)
         if config_file_path:

@@ -176,3 +176,29 @@ def merge_dicts(*dicts):
     for dictionary in dicts:
         result.update(dictionary)
     return result
+
+
+# required and optional parameters should be dicts
+# of the following structure: {"target key name": "environment variable name"}
+# empty_is_none parameter is used to fill missing optional keys with None value
+# rather than omitting them
+def read_environment_variables(required=None, optional=None, empty_is_none=False):
+    errors = []
+    results = {}
+
+    for key, variable_name in required.items():
+        if variable_name not in os.environ:
+            errors.append(variable_name)
+        else:
+            results[key] = os.environ[variable_name]
+    if errors:
+        raise ValueError("Environment variables are missing: {}".format(errors))
+
+    for key, variable_name in optional.items():
+        if variable_name not in os.environ:
+            if empty_is_none:
+                results[key] = None
+        else:
+            results[key] = os.environ[variable_name]
+
+    return results

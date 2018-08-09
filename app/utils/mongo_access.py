@@ -24,6 +24,7 @@ from utils.logging.logger import Logger
 # Notes on authentication:
 # default config file is calipso_mongo_access.conf
 # you can also specify name of file from CLI with --mongo_config
+from utils.util import read_environment_variables
 
 
 class MongoAccess(DictNamingConverter):
@@ -37,13 +38,23 @@ class MongoAccess(DictNamingConverter):
     DEFAULT_LOG_DIR = os.path.join(os.path.abspath("."), LOG_FILENAME)
     TMP_DIR = tempfile.gettempdir()
 
+    REQUIRED_ENV_VARIABLES = {
+        'server': 'MONGO_HOST',
+        'user': 'MONGO_USER',
+        'pwd': 'MONGO_PWD'
+    }
+    OPTIONAL_ENV_VARIABLES = {
+        'port': 'MONGO_PORT',
+        'auth_db': 'MONGO_AUTH_DB'
+    }
+
     def __init__(self):
         super().__init__()
         self.log = ConsoleLogger()
         self.log = self.set_log()
 
         self.connect_params = {}
-        self.mongo_connect(self.config_file)
+        self.mongo_connect()
 
     def set_log(self) -> Logger:
         dirs_to_try = [
@@ -86,17 +97,24 @@ class MongoAccess(DictNamingConverter):
     def set_config_file(_conf_file):
         MongoAccess.config_file = _conf_file
 
-    def mongo_connect(self, config_file_path=""):
-        if MongoAccess.client:
-            return
+    # Try to read mongo config from environment variables
+    def read_config_from_env_vars(self):
+        try:
+            return read_environment_variables(
+                required=self.REQUIRED_ENV_VARIABLES,
+                optional=self.OPTIONAL_ENV_VARIABLES
+            )
+        except ValueError:
+            return {}
 
-        self.connect_params = {
-            "server": "localhost",
-            "port": 27017
-        }
+    def get_connection_parameters(self):
+        config_params = self.read_config_from_env_vars()
+        if config_params:
+            return config_params
 
-        if not config_file_path:
-            config_file_path = self.default_conf_file
+        config_file_path = (
+            self.config_file if self.config_file else self.default_conf_file
+        )
 
         try:
             config_file = ConfigFile(config_file_path)
@@ -107,13 +125,25 @@ class MongoAccess(DictNamingConverter):
             self.log.exception(e)
             raise
 
+    def mongo_connect(self):
+        if MongoAccess.client:
+            return
+
+        self.connect_params = {
+            "server": "localhost",
+            "port": 27017
+        }
+
+        connection_params = self.get_connection_parameters()
+        self.connect_params.update(connection_params)
+
         self.prepare_connect_uri()
         MongoAccess.client = MongoClient(
             self.connect_params["server"],
             int(self.connect_params["port"])
         )
         MongoAccess.db = getattr(MongoAccess.client,
-                                 config_params.get('auth_db', self.DB_NAME))
+                                 self.connect_params.get('auth_db', self.DB_NAME))
         MongoAccess.db.authenticate(name=self.connect_params['user'],
                                     password=self.connect_params['pwd'])
         self.log.info('Connected to MongoDB')
