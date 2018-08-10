@@ -28,10 +28,16 @@ from utils.util import read_environment_variables
 
 
 class MongoAccess(DictNamingConverter):
+    class ConfigSource:
+        ENV = 1
+        FILE = 2
+        DEFAULT_FILE = 3
+
     client = None
     db = None
     default_conf_file = '/local_dir/calipso_mongo_access.conf'
     config_file = None
+    config_source = None
 
     DB_NAME = 'calipso'
     LOG_FILENAME = 'mongo_access.log'
@@ -110,17 +116,21 @@ class MongoAccess(DictNamingConverter):
     def get_connection_parameters(self):
         config_params = self.read_config_from_env_vars()
         if config_params:
+            MongoAccess.config_source = MongoAccess.ConfigSource.ENV
             return config_params
 
-        config_file_path = (
-            self.config_file if self.config_file else self.default_conf_file
-        )
+        if self.config_file:
+            config_file_path = self.config_file
+            MongoAccess.config_source = MongoAccess.ConfigSource.FILE
+        else:
+            config_file_path = self.default_conf_file
+            MongoAccess.config_source = MongoAccess.ConfigSource.DEFAULT_FILE
 
         try:
             config_file = ConfigFile(config_file_path)
             # read connection parameters from config file
             config_params = config_file.read_config()
-            self.connect_params.update(config_params)
+            return config_params
         except Exception as e:
             self.log.exception(e)
             raise
@@ -197,3 +207,15 @@ class MongoAccess(DictNamingConverter):
         return dict(item, **{"_id": str(item["_id"])}) \
             if item and "_id" in item \
             else item
+
+    @staticmethod
+    def get_source_text():
+        if not MongoAccess.config_source:
+            return "Mongo Access not initialized"
+        template = "Mongo configuration taken from"
+        if MongoAccess.config_source == MongoAccess.ConfigSource.ENV:
+            return "{} environment variables".format(template)
+        if MongoAccess.config_source == MongoAccess.ConfigSource.FILE:
+            return "{} file: {}".format(template, MongoAccess.config_file)
+        if MongoAccess.config_source == MongoAccess.ConfigSource.DEFAULT_FILE:
+            return "{} default file: {}".format(template, MongoAccess.default_conf_file)

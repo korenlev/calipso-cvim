@@ -191,10 +191,10 @@ class EventManager(Manager):
         self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started EventManager with following configuration:\n"
-                      "Mongo config file path: {0}\n"
-                      "Collection: {1}\n"
-                      "Polling interval: {2} second(s)"
-                      .format(self.args.mongo_config, self.collection.name, self.interval))
+                      "{1}\n"
+                      "Collection: {0.collection.name}\n"
+                      "Polling interval: {0.interval} second(s)"
+                      .format(self, MongoAccess.get_source_text()))
 
     def get_listener(self, env: str):
         env_config = self.inv.get_env_config(env)

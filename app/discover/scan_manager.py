@@ -97,12 +97,12 @@ class ScanManager(Manager):
         self.log.set_loglevel(self.args.loglevel)
 
         self.log.info("Started ScanManager with following configuration:\n"
-                      "Mongo config file path: {0.args.mongo_config}\n"
+                      "{1}\n"
                       "Scans collection: {0.scans_collection.name}\n"
                       "Environments collection: "
                       "{0.environments_collection.name}\n"
                       "Polling interval: {0.interval} second(s)"
-                      .format(self))
+                      .format(self, MongoAccess.get_source_text()))
 
     def _build_scan_args(self, scan_request: dict):
         args = {
