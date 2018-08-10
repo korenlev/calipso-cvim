@@ -1,11 +1,12 @@
-/////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems) and others /
-//                                                                                      /
-// All rights reserved. This program and the accompanying materials                     /
-// are made available under the terms of the Apache License, Version 2.0                /
-// which accompanies this distribution, and is available at                             /
-// http://www.apache.org/licenses/LICENSE-2.0                                           /
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2017-2018 Koren Lev (Cisco Systems),                         /
+// Yaron Yogev (Cisco Systems), Ilia Abashin (Cisco Systems) and others       /
+//                                                                            /
+// All rights reserved. This program and the accompanying materials           /
+// are made available under the terms of the Apache License, Version 2.0      /
+// which accompanies this distribution, and is available at                   /
+// http://www.apache.org/licenses/LICENSE-2.0                                 /
+///////////////////////////////////////////////////////////////////////////////
 /* Created by oashery on 3/2/2016. Modified by sisakov on 9/7/2016*/
 import * as R from 'ramda';
 import { Environments } from '/imports/api/environments/environments';
