@@ -1,6 +1,6 @@
 ###############################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
-# and others                                                                  #
+# Copyright (c) 2017-2018 Koren Lev (Cisco Systems),                          #
+# Yaron Yogev (Cisco Systems), Ilia Abashin (Cisco Systems) and others        #
 #                                                                             #
 # All rights reserved. This program and the accompanying materials            #
 # are made available under the terms of the Apache License, Version 2.0       #
@@ -222,11 +222,11 @@ class ConnectionTest(Manager):
         self.log.set_loglevel(self.args.loglevel)
 
         self.log.info('Started ConnectionTest with following configuration:\n'
-                      'Mongo config file path: {0.args.mongo_config}\n'
+                      '{1}\n'
                       'connection_tests collection: '
                       '{0.connection_tests_collection.name}\n'
                       'Polling interval: {0.interval} second(s)'
-                      .format(self))
+                      .format(self, MongoAccess.get_source_text()))
 
     def _build_test_args(self, test_request: dict):
         args = {

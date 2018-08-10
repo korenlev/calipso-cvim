@@ -1,7 +1,7 @@
 #!/bin/bash
 ###############################################################################
-# Copyright (c) 2017 Koren Lev (Cisco Systems), Yaron Yogev (Cisco Systems)   #
-# and others                                                                  #
+# Copyright (c) 2017-2018 Koren Lev (Cisco Systems),                          #
+# Yaron Yogev (Cisco Systems), Ilia Abashin (Cisco Systems) and others        #
 #                                                                             #
 # All rights reserved. This program and the accompanying materials            #
 # are made available under the terms of the Apache License, Version 2.0       #
