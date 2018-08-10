@@ -45,13 +45,13 @@ class MongoAccess(DictNamingConverter):
     TMP_DIR = tempfile.gettempdir()
 
     REQUIRED_ENV_VARIABLES = {
-        'server': 'MONGO_HOST',
-        'user': 'MONGO_USER',
-        'pwd': 'MONGO_PWD'
+        'server': 'CALIPSO_MONGO_SERVICE_HOST',
+        'user': 'CALIPSO_MONGO_SERVICE_USER',
+        'pwd': 'CALIPSO_MONGO_SERVICE_PWD'
     }
     OPTIONAL_ENV_VARIABLES = {
-        'port': 'MONGO_PORT',
-        'auth_db': 'MONGO_AUTH_DB'
+        'port': 'CALIPSO_MONGO_SERVICE_PORT',
+        'auth_db': 'CALIPSO_MONGO_SERVICE_AUTH_DB'
     }
 
     def __init__(self):

@@ -29,19 +29,19 @@ class LDAPAccess(metaclass=Singleton):
     user_ssl = True
 
     REQUIRED_ENV_VARIABLES = {
-        'user_tree_dn': 'LDAP_USER_TREE_DN',
-        'user_id_attribute': 'LDAP_USER_ID_ATTRIBUTE',
+        'user_tree_dn': 'CALIPSO_LDAP_SERVICE_USER_TREE_DN',
+        'user_id_attribute': 'CALIPSO_LDAP_SERVICE_USER_ID_ATTRIBUTE',
     }
     OPTIONAL_ENV_VARIABLES = {
-        'user': 'LDAP_USER',
-        'password': 'LDAP_PASSWORD',
-        'url': 'LDAP_URL',
-        'user_pass_attribute': 'LDAP_USER_PASS_ATTRIBUTE',
-        'user_objectclass': 'LDAP_USER_OBJECTCLASS',
-        'query_scope': 'LDAP_QUERY_SCOPE',
-        'tls_req_cert': 'LDAP_TLS_REQ_CERT',
-        'tls_cacertfile': 'LDAP_TLS_CACERTFILE',
-        'group_member_attribute': 'LDAP_GROUP_MEMBER_ATTRIBUTE'
+        'user': 'CALIPSO_LDAP_SERVICE_USER',
+        'password': 'CALIPSO_LDAP_SERVICE_PWD',
+        'url': 'CALIPSO_LDAP_SERVICE_URL',
+        'user_pass_attribute': 'CALIPSO_LDAP_SERVICE_USER_PASS_ATTRIBUTE',
+        'user_objectclass': 'CALIPSO_LDAP_SERVICE_USER_OBJECTCLASS',
+        'query_scope': 'CALIPSO_LDAP_SERVICE_QUERY_SCOPE',
+        'tls_req_cert': 'CALIPSO_LDAP_SERVICE_TLS_REQ_CERT',
+        'tls_cacertfile': 'CALIPSO_LDAP_SERVICE_TLS_CACERTFILE',
+        'group_member_attribute': 'CALIPSO_LDAP_SERVICE_GROUP_MEMBER_ATTRIBUTE'
     }
 
     def __init__(self, config_file_path=""):
