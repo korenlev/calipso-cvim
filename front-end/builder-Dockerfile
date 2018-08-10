@@ -68,9 +68,15 @@ ONBUILD RUN cd $APP_SOURCE_DIR && \
   $BUILD_SCRIPTS_DIR/build-meteor.sh && \
   $BUILD_SCRIPTS_DIR/post-build-cleanup.sh
 
-# Default values for Meteor environment variables
-ENV ROOT_URL http://localhost
-ENV MONGO_URL mongodb://127.0.0.1:27017/meteor
+# Default values for Meteor environment variables, fits calipso-installer and helm environments
+
+ONBUILD ARG ROOT_URL
+ONBUILD ARG MONGO_URL
+
+ONBUILD ARG CALIPSO_MONGO_SERVICE_HOST
+ONBUILD ARG CALIPSO_MONGO_SERVICE_PORT
+ENV ROOT_URL http://localhost:80
+ENV MONGO_URL mongodb://calipso:calipso_default@$CALIPSO_MONGO_SERVICE_HOST:$CALIPSO_MONGO_SERVICE_PORT/calipso
 ENV PORT 4000
 
 EXPOSE 4000
