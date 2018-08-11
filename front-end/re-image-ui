@@ -17,4 +17,4 @@ HTTP_PROXY=${2:-"http://10.56.20.16:8080"}
 CALIPSO_MONGO_SERVICE_HOST="localhost"
 CALIPSO_MONGO_SERVICE_PORT="27017"
 printf "\n[-] Building the new meteor app $IMAGE_NAME:ui from your local source...\n\n"
-sudo docker build --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg https_proxy=$HTTP_PROXY --build-arg MONGO_URL=mongodb://calipso:calipso_default@$CALIPSO_MONGO_SERVICE_HOST:$CALIPSO_MONGO_SERVICE_PORT/calipso -f ./Dockerfile -t $IMAGE_NAME:ui .
+sudo docker build --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg https_proxy=$HTTP_PROXY --build-arg -f ./Dockerfile -t $IMAGE_NAME:ui .
