@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 ###############################################################################
 # Copyright (c) 2017-2018 Koren Lev (Cisco Systems),                          #
 # Yaron Yogev (Cisco Systems), Ilia Abashin (Cisco Systems) and others        #
@@ -50,5 +50,4 @@ fi
 
 # Start app
 echo "=> Starting app on port $PORT..."
-exec bash
 exec "$@"
