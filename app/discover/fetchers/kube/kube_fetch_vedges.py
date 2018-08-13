@@ -27,7 +27,8 @@ class KubeFetchVedges(Fetcher):
             'environment': self.get_env(),
             'type': 'pod',
             'host': host['name'],
-            'labels.app': 'flannel'
+            # the following allows matching by several labels, tested:
+            '$or': [{"labels.k8s-app": "flannel"}, {"labels.app": "flannel"}]
         }
         vedges = self.inv.find_items(search_condition)
         for o in vedges:
