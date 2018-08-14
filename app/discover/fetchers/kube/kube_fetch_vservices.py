@@ -11,6 +11,7 @@ from kubernetes.client.models \
     import V1Service, V1ObjectMeta, V1ServiceSpec, V1ServiceStatus
 
 from discover.fetchers.kube.kube_access import KubeAccess
+from utils.mongo_access import MongoAccess
 
 
 class KubeFetchVservices(KubeAccess):
@@ -99,25 +100,21 @@ class KubeFetchVservices(KubeAccess):
             return
         doc['status'] = {KubeFetchVservices.LOAD_BALANCER_ATTR: load_balancer}
 
-    @classmethod
-    def get_app_field(cls, service: dict) -> str:
-        selector = service.get('selector', {})
-        app_fields = ['k8s-app', 'app']
-        for field in app_fields:
-            app_name = selector.get(field, '')
-            if app_name:
-                return field
-        return ''
-
     def get_service_pods(self, service: dict) -> list:
-        app_field = self.get_app_field(service)
-        if not app_field:
+        selectors = service.get('selector')
+        if not selectors:
+            self.log.warning("No selectors specified for vservice {}".format(service['id']))
             return []
-        app_name = service.get('selector', {}).get(app_field, '')
+
+        labels_query = [
+            {'labels.{}'.format(MongoAccess.encode_dots(selector)): value}
+            for selector, value in selectors.items()
+        ]
+
         cond = {
             'environment': self.env,
             'type': 'pod',
-            'labels.{}'.format(app_field): app_name
+            '$or': labels_query
         }
         pods = []
         for pod in self.inv.find_items(cond):
