@@ -11,7 +11,16 @@
 
 set -e
 
-# try to start local MongoDB if no external MONGO_URL was set
+echo "Testing if MONGO_URL was set by calipso installer..."
+if [ -n "$MONGO_URL" ]; then
+    echo "MONGO_URL was set by calipso installer and the value is: "$MONGO_URL", going to use this value..."
+else 
+    echo "MONGO_URL was not set by calipso installer, trying to build it from environment variables..."
+    export MONGO_URL="mongodb://$CALIPSO_MONGO_SERVICE_USER:$CALIPSO_MONGO_SERVICE_PWD@$CALIPSO_MONGO_SERVICE_HOST:$CALIPSO_MONGO_SERVICE_PORT/$CALIPSO_MONGO_SERVICE_AUTH_DB"
+    echo MONGO_URL built as: "$MONGO_URL"
+fi
+
+# try to start local MongoDB if no external MONGO_URL was built
 if [[ "${MONGO_URL}" == *"127.0.0.1"* ]]; then
   if hash mongod 2>/dev/null; then
     printf "\n[-] External MONGO_URL not found. Starting local MongoDB...\n\n"
@@ -22,6 +31,7 @@ if [[ "${MONGO_URL}" == *"127.0.0.1"* ]]; then
     exit 1
   fi
 fi
+
 
 # Set a delay to wait to start the Node process
 if [[ $STARTUP_DELAY ]]; then
