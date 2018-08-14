@@ -52,7 +52,6 @@ class FindLinksForPods(FindLinks):
         for pod in pods:
             self.find_pod_containers(pod)
 
-
     def find_pod_containers(self, pod):
         if 'containers' not in pod or not pod['containers']:
             return

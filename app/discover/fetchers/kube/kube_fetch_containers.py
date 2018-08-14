@@ -105,9 +105,13 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
 
     def get_container_config(self, doc, pod_obj):
         cmd = 'docker inspect {}'.format(doc['container_id'])
-        output = self.run(cmd, pod_obj['host'])
         try:
+            output = self.run(cmd, pod_obj['host'])
             data = json.loads(output)
+        except SshError as e:
+            self.log.warning('"docker inspect" cmd failed for container {}.\n'
+                             'Error: {}'.format(doc['container_id'], e))
+            return
         except JSONDecodeError as e:
             self.log.error('error reading output of cmd: {}, {}'
                            .format(cmd, str(e)))
