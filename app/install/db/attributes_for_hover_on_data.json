@@ -1,6 +1,7 @@
 [
 {
     "attributes" : [
+        "type",
 	"ip_address",
 	"aci_document"
    ],
@@ -8,6 +9,7 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name", 
         "model", 
         "mac_address",
@@ -27,6 +29,7 @@
 { 
     "type" : "container", 
     "attributes" : [
+        "type",
         "name", 
         "name_path", 
         "ip_address",
@@ -47,6 +50,7 @@
 { 
     "type" : "pod", 
     "attributes" : [
+        "type",
         "object_name", 
         "host", 
         "namespace",
@@ -58,9 +62,9 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name", 
         "connector_type", 
-        "type", 
         "interfaces",
 	"stp_enabled",
 	"connector_type", 
@@ -74,10 +78,10 @@
 },
 { 
     "attributes" : [
+        "type", 
         "object_name", 
         "host", 
         "service_type", 
-        "type",
 	"gw_port_id",
         "kube-proxy",
         "status_text",
@@ -93,6 +97,7 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name", 
         "host", 
         "agent_type", 
@@ -101,7 +106,6 @@
 	"configurations",
 	"ports",
         "heartbeat_timestamp",
-        "type",
         "status", 
         "status_timestamp", 
         "status_text",
@@ -115,6 +119,7 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name", 
         "host", 
         "mac_address",
@@ -124,7 +129,6 @@
         "IP Address", 
         "Speed", 
         "Link detected", 
-        "type",
         "Bonding Mode", 
         "Ethernet Channel Bonding Driver", 
         "members",
@@ -137,10 +141,10 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name", 
         "provider:segmentation_id", 
         "provider:network_type", 
-        "type",
         "status",
         "port_security_enabled",
         "availability_zones",
@@ -160,11 +164,11 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name",
         "OS",	
         "host_type", 
         "services", 
-        "type",
         "status", 
         "status_timestamp", 
         "status_text",
@@ -174,10 +178,10 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name",
 	"host", 
         "project", 
-        "type",
  	"ip_address", 
         "parent_id", 
         "local_name", 
@@ -192,10 +196,10 @@
 },
 { 
     "attributes" : [
+        "type",
         "object_name", 
         "overlay_type", 
         "ip_address", 
-        "type", 
         "ports",
         "overlay_mac_address", 
         "udp_port",
@@ -208,6 +212,7 @@
 { 
     "type" : "switch_pnic", 
     "attributes" : [
+        "type",
         "aci_document", 
         "parent_id", 
         "role"
@@ -215,6 +220,7 @@
 },
 { 
     "attributes" : [
+        "type",
         "link_type",
 	"source_id", 
         "target_id", 
