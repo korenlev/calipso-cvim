@@ -51,10 +51,10 @@ export let imagesForNodeType = {
     error: 'new_ic_gamepad_black_48dp_2x-red.svg',
   },
   'vservice': {
-    default: 'new_ic_storage_black_48dp_2x.svg',
-    ok: 'new_ic_storage_black_48dp_2x-green.svg',
-    warning: 'new_ic_storage_black_48dp_2x-orange.svg',
-    error: 'new_ic_storage_black_48dp_2x-red.svg',
+    default: 'service.svg',
+    ok: 'service-green.svg',
+    warning: 'service-orange.svg',
+    error: 'service-red.svg',
   },
   'vnic': {
     default: 'new_ic_device_hub_black_24dp_2x.svg',
