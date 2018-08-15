@@ -13,12 +13,17 @@ import * as R from 'ramda';
 export const NodeHoverAttr = new Mongo.Collection(
   'attributes_for_hover_on_data', { idGeneration: 'MONGO' });
 
-export const calcAttrsForItem = function (node, attrsDefsRec) {
-  if (R.isNil(attrsDefsRec)) {
-    return [];
+export const calcAttrsForItem = function (node, attrsDefsRec, defaults) {
+  if (R.isNil(attrsDefsRec) || R.isEmpty(attrsDefsRec)) {
+    attrsDefsRec = [];
+  }
+  if (R.isNil(defaults) || R.isEmpty(defaults)) {
+    defaults = [];
   }
 
-  let attrsDefs = attrsDefsRec.attributes;
+  if (R.isEmpty(attrsDefsRec) && R.isEmpty(defaults)) {
+    return [];
+  }
 
   return R.reduce((acc, attrDef) => {
     if (R.is(Array, attrDef)) {
@@ -33,5 +38,5 @@ export const calcAttrsForItem = function (node, attrsDefsRec) {
         (attrVal) => R.append(R.assoc(attrDef, attrVal, {}), acc)
       )(R.prop(attrDef, node));
     }
-  }, [], attrsDefs);
+  }, [], R.uniq(R.concat(attrsDefsRec.attributes, defaults.attributes)));
 };

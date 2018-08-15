@@ -9,11 +9,12 @@
 ###############################################################################
 from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec, V1PodStatus
 
+from discover.fetchers.cli.cli_fetcher import CliFetcher
 from discover.fetchers.kube.kube_access import KubeAccess
 from utils.inventory_mgr import InventoryMgr
 
 
-class KubeFetchPods(KubeAccess):
+class KubeFetchPods(KubeAccess, CliFetcher):
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -34,7 +35,33 @@ class KubeFetchPods(KubeAccess):
             resource_version=pods.metadata.resource_version
         )
 
-        return [self.get_pod_document(pod) for pod in pods.items]
+        results = [self.get_pod_document(pod) for pod in pods.items]
+        if 'cattle-system' in (p['namespace'] for p in results):
+            results.append(self.get_rancher_proxy())
+        return results
+
+    # TODO: temporary
+    def get_rancher_proxy(self):
+        pod_id = '{}-kube-proxy-pod'.format(self.host['name'])
+        doc = {
+            'id': pod_id,
+            'name': pod_id,
+            'environment': self.env,
+            'host': self.host['name'],
+            'namespace': 'cattle-system',
+            'labels': {
+                'calipso-rancher-pod-for-kube-proxy': True
+            },
+            'containers': [
+                {'name': 'kube-proxy'}
+            ]
+        }
+        self.set_folder_parent(doc, object_type='pod',
+                                    master_parent_type='host',
+                                    master_parent_id=self.host['id'])
+        doc['type'] = 'pod'
+        self.add_pod_ref_to_namespace(doc)
+        return doc
 
     def get_pod_document(self, pod: V1Pod):
         doc = self.get_pod_details(pod)

@@ -28,6 +28,7 @@ class KubeFetchVservices(KubeAccess):
             self.log.error('unable to find namespace of vServices folder '
                            'by id: {}'.format(namespace_id))
             return []
+
         services = self.api.list_namespaced_service(namespace['name'])
 
         self.update_resource_version(
@@ -35,7 +36,23 @@ class KubeFetchVservices(KubeAccess):
             resource_version=services.metadata.resource_version
         )
 
-        return [self.get_service_details(s) for s in services.items]
+        results = [self.get_service_details(s) for s in services.items]
+        # TODO: temporary
+        if namespace['name'] == 'cattle-system':
+            results.append(self.get_rancher_proxy_service_details())
+
+        return results
+
+    def get_rancher_proxy_service_details(self):
+        doc = {
+            'id': 'cattle-system-vservice',
+            'type': 'vservice',
+            'name': 'cattle-system-vservice',
+            'service_type': 'proxy',
+            'selector': {'calipso-rancher-pod-for-kube-proxy': True}
+        }
+        doc['pods'] = self.get_service_pods(doc)
+        return doc
 
     def get_service_details(self, service: V1Service):
         doc = {}

@@ -32,6 +32,11 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         if not pod_obj:
             self.log.error('inventory has no pod with uid={}'.format(pod_id))
             return []
+
+        # TODO: temporary
+        if pod_obj.get('labels', {}).get('calipso-rancher-pod-for-kube-proxy'):
+            return [self.get_rancher_proxy_container(pod_obj)]
+
         host = pod_obj['host']
         pod_filter = 'spec.nodeName={}'.format(host)
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
@@ -47,6 +52,21 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         for container in pod.spec.containers:
             ret.append(self.get_container(container, pod, pod_obj))
         return ret
+
+    def get_rancher_proxy_container(self, pod_obj):
+        doc = {
+            'type': 'container',
+            'namespace': pod_obj['namespace'],
+            'host': pod_obj['host'],
+            'pod': {'id': pod_obj['id'], 'name': pod_obj['object_name']},
+            'id': '{}-kube-proxy'.format(pod_obj['id']),
+            'name': 'kube-proxy',
+            'container_id': 'kube-proxy'
+        }
+        self.get_container_config(doc, pod_obj)
+        self.get_interface_link(doc, pod_obj)
+        self.get_proxy_container_info(doc, pod_obj)
+        return doc
 
     def get_container(self, container, pod, pod_obj):
         doc = {'type': 'container', 'namespace': pod.metadata.namespace}
@@ -126,6 +146,9 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
 
     def get_container_sandbox(self, doc, pod_obj):
         sandbox_id = doc['config'].get('Labels').get(self.SANDBOX_ID_ATTR)
+        if not sandbox_id:
+            return
+
         cmd = 'docker inspect {}'.format(sandbox_id)
         output = self.run(cmd, pod_obj['host'])
         try:
