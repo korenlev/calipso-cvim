@@ -140,7 +140,7 @@ def start_mongo(dbport, copy):
     if container_started(name):
         return
     print("\nstarting container {}, please wait...\n".format(name))
-    image_name = "korenlev/calipso:mongo-v1"
+    image_name = "korenlev/calipso:mongo-v2"
     download_image(image_name)
     mongo_ports = {'27017/tcp': dbport, '28017/tcp': 28017}
     DockerClient.containers.run(image_name,
@@ -198,7 +198,7 @@ def start_listen():
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:listen-v1"
+    image_name = "korenlev/calipso:listen-v2"
     download_image(image_name)
     ports = {'22/tcp': 50022}
     DockerClient.containers.run(image_name,
@@ -215,7 +215,7 @@ def start_ldap():
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:ldap-v1"
+    image_name = "korenlev/calipso:ldap-v2"
     download_image(image_name)
     ports = {'389/tcp': 389, '389/udp': 389}
     DockerClient.containers.run(image_name,
@@ -231,7 +231,7 @@ def start_api(apiport):
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:api-v1"
+    image_name = "korenlev/calipso:api-v2"
     download_image(image_name)
     api_ports = {'8000/tcp': apiport, '22/tcp': 40022}
     DockerClient.containers.run(image_name,
@@ -250,7 +250,7 @@ def start_scan():
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:scan-v1"
+    image_name = "korenlev/calipso:scan-v2"
     download_image(image_name)
     ports = {'22/tcp': 30022}
     DockerClient.containers.run(image_name,
@@ -267,7 +267,7 @@ def start_monitor(uchiwaport, sensuport, rabbitport, rabbitmport):
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:monitor-v1"
+    image_name = "korenlev/calipso:monitor-v2"
     download_image(image_name)
     sensu_ports = {'22/tcp': 20022, '3000/tcp': uchiwaport, '4567/tcp': sensuport,
                    '5671/tcp': rabbitport, '15672/tcp': rabbitmport}
@@ -285,7 +285,7 @@ def start_ui(host, dbuser, dbpassword, webport, dbport):
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:ui-v1"
+    image_name = "korenlev/calipso:ui-v2"
     download_image(image_name)
     root_url = "ROOT_URL=http://{}:{}".format(host, str(webport))
     mongo_url = "MONGO_URL=mongodb://{}:{}@{}:{}/calipso" \
@@ -304,7 +304,7 @@ def start_test():
     if container_started(name):
         return
     print("\nstarting container {}...\n".format(name))
-    image_name = "korenlev/calipso:test-v1"
+    image_name = "korenlev/calipso:test-v2"
     download_image(image_name)
     ports = {'22/tcp': 10022}
     DockerClient.containers.run(image_name,
