@@ -141,7 +141,8 @@ Meteor.methods({
     let query = { _id: nodeId };
     let node = Inventory.findOne(query);
     let attrsDefs = NodeHoverAttr.findOne({ 'type': node.type });
-    let attributes = calcAttrsForItem(node, attrsDefs);
+    let defaults = NodeHoverAttr.findOne({ 'type': 'ALL' });
+    let attributes = calcAttrsForItem(node, attrsDefs, defaults);
 
     return {
       node: node,
