@@ -120,7 +120,8 @@
     "focal_point_type" : "network"
 },
 {  
-    "environment" : "Mercury", 
+    "environment" : "", 
+    "distribution" : "Mercury",
     "focal_point_type" : "instance", 
     "link_types" : [
         "instance-vnic", 
@@ -132,7 +133,8 @@
     "name" : "instance_vconnector_clique"
 },
 { 
-    "environment" : "Mercury", 
+    "environment" : "",
+    "distribution" : "Mercury", 
     "link_types" : [
         "vservice-vnic",
         "vnic-vedge", 
@@ -143,7 +145,8 @@
     "name" : "vservice_vedge_clique"
 },
 { 
-    "environment" : "Mercury", 
+    "environment" : "",
+    "distribution" : "Mercury", 
     "focal_point_type" : "network", 
     "link_types" : [
         "network-host_pnic", 
