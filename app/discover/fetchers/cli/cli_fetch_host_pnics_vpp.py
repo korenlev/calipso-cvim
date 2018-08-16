@@ -14,7 +14,7 @@ from discover.fetchers.cli.cli_fetch_interface_hardware_details_vpp \
     import CliFetchInterfaceHardwareDetailsVpp
 from utils.inventory_mgr import InventoryMgr
 
-NAME_RE = '^[a-zA-Z]*GigabitEthernet'
+NAME_RE = '^[a-zA-Z]*(GigabitEthernet|Bond)'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
 
 

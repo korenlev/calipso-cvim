@@ -61,9 +61,6 @@ class FindLinksForVconnectors(FindLinks):
                 'mac_address': vconnector_if_mac})
         if not vnic:
             return
-        if 'network' in vnic:
-            vconnector['network'] = vnic['network']
-            self.inv.set(vconnector)
         link_name = vnic["mac_address"]
         attributes = {}
         if 'network' in vnic:

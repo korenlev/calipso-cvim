@@ -24,6 +24,14 @@ class FindLinksForInstanceVnics(FindLinks):
         for v in vnics:
             self.add_link_for_vnic(v)
 
+    @staticmethod
+    def match_vnic_and_network(vnic, network):
+        return (
+            "{}-{}".format(vnic["host"], network["devname"]) == vnic["id"]
+            or
+            vnic["mac_address"] == network["address"]
+        )
+
     def add_link_for_vnic(self, v):
         # link_type: "instance-vnic"
         instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
@@ -40,7 +48,7 @@ class FindLinksForInstanceVnics(FindLinks):
         network_name = None
         network_id = None
         for net in instance["network_info"]:
-            if "{}-{}".format(v["host"], net["devname"]) == v["id"]:
+            if self.match_vnic_and_network(v, net):
                 network_name = net["network"]["label"]
                 network_id = net['network']['id']
                 v['network'] = network_id

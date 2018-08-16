@@ -28,7 +28,8 @@ class CliDistTranslator:
             'bridge fdb show': '{docker_call} ovs_vswitch_{version} {cmd}',
             'brctl': '{docker_call} ovs_vswitch_{version} {cmd}',
             'ovs-vsctl': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'ovs-dpctl': '{docker_call} ovs_vswitch_{version} {cmd}'
+            'ovs-dpctl': '{docker_call} ovs_vswitch_{version} {cmd}',
+            'vppctl': '{docker_call} neutron_vpp_{version} {cmd}',
         }
     }
 

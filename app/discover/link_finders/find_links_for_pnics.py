@@ -22,25 +22,28 @@ class FindLinksForPnics(FindLinks):
 
     def add_links(self):
         self.log.info("adding links of type: pnic-network, "
-                      "host_pnic-switch_pnic, switch-host_pnic")
+                      "host_pnic-switch_pnic, switch-switch_pnic")
         pnics = self.inv.find_items({
             "environment": self.get_env(),
             "type": "host_pnic"
         })
+        aci_enabled = self.configuration.environment.get('aci_enabled')
         for pnic in pnics:
             self.add_pnic_network_links(pnic)
-            self.add_host_pnic_to_switch_pnic_link(pnic)
+            if aci_enabled is True:
+                self.add_host_pnic_to_switch_pnic_link(pnic)
 
-        self.log.info("adding links of type: switch_pnic-switch_pnic, "
-                      "switch-switch_pnic")
-        pnics = self.inv.find_items({
-            "environment": self.get_env(),
-            "type": "switch_pnic",
-        })
-        for pnic in pnics:
-            self.add_switch_to_pnic_link(pnic)
-            if pnic.get('role', '') == 'uplink':
-                self.add_switch_pnic_to_switch_pnic_link(pnic)
+        if aci_enabled is True:
+            self.log.info("adding links of type: switch_pnic-switch_pnic, "
+                          "switch-switch_pnic")
+            pnics = self.inv.find_items({
+                "environment": self.get_env(),
+                "type": "switch_pnic",
+            })
+            for pnic in pnics:
+                self.add_switch_to_pnic_link(pnic)
+                if pnic.get('role', '') == 'uplink':
+                    self.add_switch_pnic_to_switch_pnic_link(pnic)
 
     def add_pnic_network_links(self, pnic):
         if self.environment_type == self.ENV_TYPE_OPENSTACK:
