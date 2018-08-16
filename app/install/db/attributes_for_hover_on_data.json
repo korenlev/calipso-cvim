@@ -1,4 +1,10 @@
 [
+{ 
+    "type" : "ALL", 
+    "attributes" : [
+        "type"
+    ]
+},
 {
     "attributes" : [
         "type",
