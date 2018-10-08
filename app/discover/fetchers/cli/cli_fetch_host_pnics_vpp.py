@@ -16,6 +16,7 @@ from utils.inventory_mgr import InventoryMgr
 
 NAME_RE = '^[a-zA-Z]*(GigabitEthernet|Bond)'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
+PNIC_WITH_NETWORK_RE = '.*\.([0-9]+)$'
 
 
 class CliFetchHostPnicsVpp(CliFetcher):
@@ -23,6 +24,7 @@ class CliFetchHostPnicsVpp(CliFetcher):
         super().__init__()
         self.inv = InventoryMgr()
         self.name_re = re.compile(NAME_RE)
+        self.pnic_with_network_re = re.compile(PNIC_WITH_NETWORK_RE)
         self.if_details_fetcher = CliFetchInterfaceHardwareDetailsVpp()
 
     def set_env(self, env):
@@ -46,9 +48,11 @@ class CliFetchHostPnicsVpp(CliFetcher):
                 pnic = pnic_ports[pnic_name]
                 pnic['host'] = host_id
                 pnic['id'] = host_id + "-pnic-" + pnic_name
+                pnic['IP Address'] = ''
                 pnic['type'] = 'host_pnic'
                 pnic['object_name'] = pnic_name
                 pnic['Link detected'] = 'yes' if pnic['state'] == 'up' else 'no'
+                self.add_pnic_network(pnic)
                 self.set_folder_parent(pnic, object_type='pnic',
                                        master_parent_type='host',
                                        master_parent_id=host_id,
@@ -59,6 +63,11 @@ class CliFetchHostPnicsVpp(CliFetcher):
         return ret
 
     def add_pnic_ip_addresses(self, host_id, pnics: list):
+        is_vpp = 'VPP' in self.configuration.environment['mechanism_drivers']
+        is_vlan = self.configuration.environment['type_drivers'] == 'vlan'
+        if is_vpp and is_vlan:
+            return
+
         cmd = 'vppctl show int addr'
         lines = self.run_fetch_lines(cmd, host_id)
         for pnic in pnics:
@@ -75,3 +84,26 @@ class CliFetchHostPnicsVpp(CliFetcher):
                 if '/' in ip_address:
                     ip_address = ip_address[:ip_address.index('/')]
                 pnic['IP Address'] = ip_address
+
+    def add_pnic_network(self, pnic):
+        name_match = re.match(self.pnic_with_network_re, pnic['name'])
+        if not name_match:
+            return
+
+        segment_id = int(name_match.groups()[0])
+        network = self.inv.find_one({
+            'type': 'network',
+            'provider:segmentation_id': segment_id,
+            'provider:network_type': 'vlan'
+        })
+        if not network:
+            return
+
+        pnic.update({
+            'network': network['id'],
+            'network_name': network['name'],
+            'network_type': network['provider:network_type']
+        })
+
+
+

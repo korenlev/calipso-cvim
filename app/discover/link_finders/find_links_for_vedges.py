@@ -108,9 +108,15 @@ class FindLinksForVedges(FindLinks):
         }, get_single=True)
         if not pnic:
             return
+
+        attributes = {}
+        if 'network' in pnic:
+            attributes['network'] = pnic['network']
+
         link_name = "Port-" + port["id"]
         state = "up" if pnic["Link detected"] == "yes" else "down"
-        self.link_items(vedge, pnic, link_name=link_name, state=state)
+        self.link_items(vedge, pnic, link_name=link_name, state=state,
+                        extra_attributes=attributes)
 
     def add_link_for_kubernetes_vedge(self, vedge):
         # link_type: 'vedge-otep'
