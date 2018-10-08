@@ -13,5 +13,5 @@ set -e
 
 # re-image the ui-builder image, it is used to build new meteor apps:
 IMAGE_NAME=${1:-"korenlev/calipso"}
-printf "\n[-] Building the meteor ui builder $IMAGE_NAME:ui-builder...\n\n"
-sudo docker build -f ./builder-Dockerfile -t $IMAGE_NAME:ui-builder .
+printf "\n[-] Building the meteor ui builder $IMAGE_NAME:ui-builder-v2...\n\n"
+sudo docker build -f ./builder-Dockerfile -t $IMAGE_NAME:ui-builder-v2 .
