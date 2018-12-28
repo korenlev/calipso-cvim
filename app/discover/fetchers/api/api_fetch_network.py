@@ -11,6 +11,9 @@ from discover.fetchers.api.api_access import ApiAccess
 from utils.inventory_mgr import InventoryMgr
 
 
+#####
+# DEPRECATED
+#####
 class ApiFetchNetwork(ApiAccess):
     def __init__(self):
         super(ApiFetchNetwork, self).__init__()
@@ -18,7 +21,7 @@ class ApiFetchNetwork(ApiAccess):
 
     def get(self, project_id):
         # use project admin credentials, to be able to fetch all networks
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         ret = []

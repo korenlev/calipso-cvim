@@ -18,7 +18,7 @@ class ApiFetchPorts(ApiAccess):
 
     def get(self, project_id):
         # use project admin credentials, to be able to fetch all ports
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         ret = []
@@ -27,14 +27,14 @@ class ApiFetchPorts(ApiAccess):
         return ret
 
     def get_ports_for_region(self, region, token):
-        endpoint = self.get_region_url_nover(region, "neutron")
+        endpoint = self.get_region_url_nover(region, "neutron", force_http=True)
         req_url = endpoint + "/v2.0/ports"
         headers = {
             "X-Auth-Project-Id": self.admin_project,
             "X-Auth-Token": token["id"]
         }
         response = self.get_url(req_url, headers)
-        if not "ports" in response:
+        if "ports" not in response:
             return []
         ports = response["ports"]
         for doc in ports:

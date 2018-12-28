@@ -15,24 +15,29 @@ class ApiFetchProjects(ApiAccess):
         super(ApiFetchProjects, self).__init__()
 
     def get(self, project_id):
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         if not self.regions:
             self.log.error('No regions found')
             return []
+
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(region, token))
-        projects_for_user = self.get_projects_for_api_user(region, token)
-        return [p for p in ret if p['name'] in projects_for_user] \
-            if projects_for_user else ret
+            projects = self.get_projects_for_api_user(region, token)
+            if self.keystone_client.tenants_enabled:
+                tenants = self.get_tenants_for_region(region, token)
+                ret.extend(t for t in tenants if t['name'] in (p['name'] for p in projects))
+            else:
+                ret.extend(projects)
+        return ret
 
     def get_projects_for_api_user(self, region, token):
         if not token:
-            token = self.v2_auth_pwd(self.admin_project)
+            token = self.auth(self.admin_project)
             if not token:
                 return []
+
         endpoint = self.get_region_url_nover(region, "keystone")
         headers = {
             'X-Auth-Project-Id': self.admin_project,
@@ -42,13 +47,13 @@ class ApiFetchProjects(ApiAccess):
         req_url = endpoint + '/v3/projects'
         response = self.get_url(req_url, headers)
         if not response or 'projects' not in response:
-            return None
-        response = [p['name'] for p in response['projects']]
-        return response
+            return []
+        # 'services' project does not contain any networks or ports
+        return [p for p in response['projects'] if p.get("name") != "services"]
 
-    def get_for_region(self, region, token):
+    def get_tenants_for_region(self, region, token):
         endpoint = self.get_region_url_nover(region, "keystone")
-        req_url = endpoint + "/v2.0/tenants"
+        req_url = endpoint + self.keystone_client.tenants_url
         headers = {
             "X-Auth-Project-Id": self.admin_project,
             "X-Auth-Token": token["id"]
@@ -62,5 +67,4 @@ class ApiFetchProjects(ApiAccess):
             self.log.error('invalid response to /tenants request: '
                            'tenants value is n ot a list')
             return []
-        response = [t for t in tenants_list if t.get("name", "") != "services"]
-        return response
+        return tenants_list

@@ -22,7 +22,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         if project_id != self.admin_project:
             # do not scan hosts except under project 'admin'
             return []
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         ret = []

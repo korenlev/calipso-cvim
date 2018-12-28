@@ -18,7 +18,7 @@ class ApiFetchNetworks(ApiAccess):
 
     def get(self, project_id=None):
         # use project admin credentials, to be able to fetch all networks
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         ret = []
@@ -27,7 +27,7 @@ class ApiFetchNetworks(ApiAccess):
         return ret
 
     def get_networks(self, region, token):
-        endpoint = self.get_region_url_nover(region, "neutron")
+        endpoint = self.get_region_url_nover(region, "neutron", force_http=True)
         req_url = endpoint + "/v2.0/networks"
         headers = {
             "X-Auth-Project-Id": self.admin_project,
@@ -55,6 +55,7 @@ class ApiFetchNetworks(ApiAccess):
                                                 get_single=True)
                 if not project:
                     self.log.error("failed to find admin project in DB")
+                    return []
                 project_id = project["id"]
             self.set_folder_parent(doc, object_type='network',
                                    master_parent_id=project_id,

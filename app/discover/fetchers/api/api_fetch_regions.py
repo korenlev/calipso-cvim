@@ -11,31 +11,25 @@ from discover.fetchers.api.api_access import ApiAccess
 
 
 class ApiFetchRegions(ApiAccess):
-    def __init__(self):
-        super(ApiFetchRegions, self).__init__()
-        self.endpoint = self.base_url
+    NULL_REGION = "No-Region"
 
     def get(self, regions_folder_id):
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
-        # the returned authentication response contains the list of end points
-        # and regions
+
         project_id = regions_folder_id.replace('-regions', '')
-        response = ApiAccess.get_auth_response(project_id)
-        service_catalog = response.get('access', {}).get('serviceCatalog')
+        service_catalog = self.get_catalog(project_id)
         if not service_catalog:
             return []
-        env = self.get_env()
-        ret = []
-        NULL_REGION = "No-Region"
+
         for service in service_catalog:
             for e in service["endpoints"]:
                 if "region" in e:
                     region_name = e.pop("region")
-                    region_name = region_name if region_name else NULL_REGION
+                    region_name = region_name if region_name else self.NULL_REGION
                 else:
-                    region_name = NULL_REGION
+                    region_name = self.NULL_REGION
                 if region_name in self.regions.keys():
                     region = self.regions[region_name]
                 else:
@@ -46,8 +40,7 @@ class ApiFetchRegions(ApiAccess):
                     }
                     ApiAccess.regions[region_name] = region
                 region["parent_type"] = "regions_folder"
-                region["parent_id"] = env + "-regions"
+                region["parent_id"] = self.get_env() + "-regions"
                 e["service_type"] = service["type"]
                 region["endpoints"][service["name"]] = e
-        ret.extend(list(ApiAccess.regions.values()))
-        return ret
+        return list(ApiAccess.regions.values())

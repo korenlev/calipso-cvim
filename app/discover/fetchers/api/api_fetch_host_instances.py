@@ -38,12 +38,11 @@ class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
         return instances_found
 
     def get_instances_from_api(self, host_name):
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         tenant_id = token["tenant"]["id"]
-        req_url = self.endpoint + "/v2/" + tenant_id + \
-                  "/os-hypervisors/" + host_name + "/servers"
+        req_url = self.endpoint + "/v2/" + tenant_id + "/os-hypervisors/" + host_name + "/servers"
         response = self.get_url(req_url, {"X-Auth-Token": token["id"]})
         ret = []
         if not "hypervisors" in response:

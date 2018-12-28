@@ -7,11 +7,9 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import calendar
 import re
-import requests
-import time
 
+from discover.fetchers.api.clients.keystone import *
 from utils.api_access_base import ApiAccessBase
 from utils.exceptions import CredentialsError
 from utils.string_utils import jsonify
@@ -20,157 +18,91 @@ from utils.string_utils import jsonify
 class ApiAccess(ApiAccessBase):
 
     ADMIN_PORT = "35357"
-
-    subject_token = None
-    initialized = False
-    regions = {}
-
-    tokens = {}
-    admin_endpoint = ""
-    admin_project = None
-    auth_response = {}
-
+    KEYSTONE_CLIENTS = {
+        "v2": KeystoneClientV2,
+        "v3": KeystoneClientV3
+    }
     alternative_services = {
         "neutron": ["quantum"]
     }
+    regions = {}
 
-    # identity API v2 version with admin token
     def __init__(self, config=None):
         super().__init__('OpenStack', config)
+
         self.base_url = "http://" + self.host + ":" + self.port
-        if self.initialized:
-            return
-        ApiAccess.admin_project = self.api_config.get("admin_project", "admin")
-        ApiAccess.admin_endpoint = "http://" + self.host + ":" + self.ADMIN_PORT
+        self.admin_project = self.api_config.get("admin_project", "admin")
+        self.admin_endpoint = "http://" + self.host + ":" + self.ADMIN_PORT
+        self.keystone_client = self.get_keystone_client()
 
-        token = self.v2_auth_pwd(ApiAccess.admin_project)
+        token = self.keystone_client.auth()
         if not token:
-            raise CredentialsError("Authentication failed. "
+            raise CredentialsError("ApiAccess: Authentication failed. "
                                    "Failed to obtain token")
-        else:
-            self.subject_token = token
-            self.initialized = True
 
-    @staticmethod
-    def parse_time(time_str):
-        try:
-            time_struct = time.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
-        except ValueError:
-            try:
-                time_struct = time.strptime(time_str,
-                                            "%Y-%m-%dT%H:%M:%S.%fZ")
-            except ValueError:
-                return None
-        return time_struct
+    def get_keystone_client(self):
+        response = requests.get(self.base_url).json()
+        versions = response["versions"]["values"]
+        for version in versions:
+            if version.get("status") == "stable":
+                version_id = version.get("id")
+                if not version_id:
+                    continue
 
-    @classmethod
-    def reset(cls):
-        cls.subject_token = None
-        cls.initialized = False
-        cls.regions = {}
+                id_match = re.match("^(v\d+)\..*", version_id)
+                if not id_match:
+                    self.log.warning(
+                        "ApiAccess: Failed to determine stable OpenStack auth version id. "
+                        "Found id: {}".format(version.get("id"))
+                    )
+                    continue
 
-        cls.tokens = {}
-        cls.admin_endpoint = ""
-        cls.admin_project = None
-        cls.auth_response = {}
+                auth_class = self.KEYSTONE_CLIENTS.get(id_match.groups()[0])
+                if not auth_class:
+                    self.log.warning(
+                        "ApiAccess: OpenStack auth version {} unsupported (no auth class found)"
+                        .format(version.get("id"))
+                    )
+                    continue
 
-    # try to use existing token, if it did not expire
-    def get_existing_token(self, project_id):
-        try:
-            token_details = ApiAccess.tokens[project_id]
-        except KeyError:
-            return None
-        token_expiry = token_details["expires"]
-        token_expiry_time_struct = self.parse_time(token_expiry)
-        if not token_expiry_time_struct:
-            return None
-        token_expiry_time = token_details["token_expiry_time"]
-        now = time.time()
-        if now > token_expiry_time:
-            # token has expired
-            ApiAccess.tokens.pop(project_id)
-            return None
-        return token_details
+                self.log.info("ApiAccess: Using keystone API version: '{}'".format(version_id))
+                return auth_class(base_url=self.base_url, version=version_id,
+                                  project=self.admin_project, api_config=self.api_config)
+        raise ValueError("ApiAccess: Failed to determine stable OpenStack auth version")
 
-    def v2_auth(self, project_id, headers, post_body):
-        subject_token = self.get_existing_token(project_id)
-        if subject_token:
-            return subject_token
-        req_url = self.base_url + "/v2.0/tokens"
-        response = requests.post(req_url, json=post_body, headers=headers,
-                                 timeout=self.CONNECT_TIMEOUT)
-        response = response.json()
-        ApiAccess.auth_response[project_id] = response
-        if 'error' in response:
-            e = response['error']
-            self.log.error(str(e['code']) + ' ' + e['title'] + ': ' +
-                           e['message'] + ", URL: " + req_url)
-            return None
-        try:
-            token_details = response["access"]["token"]
-        except KeyError:
-            # assume authentication failed
-            return None
-        token_expiry = token_details["expires"]
-        token_expiry_time_struct = self.parse_time(token_expiry)
-        if not token_expiry_time_struct:
-            return None
-        token_expiry_time = calendar.timegm(token_expiry_time_struct)
-        token_details["token_expiry_time"] = token_expiry_time
-        ApiAccess.tokens[project_id] = token_details
-        return token_details
+    def get_auth_response(self, project_id):
+        return self.keystone_client.get_auth_response(project_id)
 
-    def v2_auth_pwd(self, project):
-        user = self.api_config["user"]
-        pwd = self.api_config["pwd"]
-        post_body = {
-            "auth": {
-                "passwordCredentials": {
-                    "username": user,
-                    "password": pwd
-                }
-            }
-        }
-        if project is not None:
-            post_body["auth"]["tenantName"] = project
-            project_id = project
-        else:
-            project_id = ""
-        headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json; charset=UTF-8'
-        }
-        return self.v2_auth(project_id, headers, post_body)
+    def auth(self, project=None):
+        return self.keystone_client.auth(project)
 
-    @staticmethod
-    def get_auth_response(project_id):
-        auth_response = ApiAccess.auth_response.get(project_id)
-        if not auth_response:
-            auth_response = ApiAccess.auth_response.get('admin', {})
-        return auth_response
-
-    def get_region_url(self, region_name, service):
+    def get_region_url(self, region_name, service, force_http=False):
         if region_name not in self.regions:
             return None
         region = self.regions[region_name]
         s = self.get_service_region_endpoints(region, service)
         if not s:
             return None
-        orig_url = s["adminURL"]
+        orig_url = self.keystone_client.get_region_url_from_service(s)
         # replace host name with the host found in config
         url = re.sub(r"^([^/]+)//[^:]+", r"\1//" + self.host, orig_url)
+        if force_http and url.startswith("https"):
+            url = url.replace("https", "http", 1)
         return url
 
-    # like get_region_url(), but remove everything starting from the "/v2"
-    def get_region_url_nover(self, region, service):
-        full_url = self.get_region_url(region, service)
+    # like get_region_url_from_service(), but remove everything starting from the "/v*"
+    def get_region_url_nover(self, region, service, force_http=False):
+        full_url = self.get_region_url(region, service, force_http)
         if not full_url:
             self.log.error("could not find region URL for region: " + region)
             exit()
         url = re.sub(r":([0-9]+)/v[2-9].*", r":\1", full_url)
         return url
 
-    def get_catalog(self, pretty):
+    def get_catalog(self, project_id=None):
+        return self.keystone_client.get_catalog(project_id)
+
+    def get_regions(self, pretty):
         return jsonify(self.regions, pretty)
 
     # find the endpoints for a given service name,

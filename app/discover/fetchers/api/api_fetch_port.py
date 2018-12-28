@@ -21,7 +21,7 @@ class ApiFetchPort(ApiAccess):
             self.log.info("Get method needs ID parameter")
             return []
         # use project admin credentials, to be able to fetch all ports
-        token = self.v2_auth_pwd(self.admin_project)
+        token = self.auth(self.admin_project)
         if not token:
             return []
         ret = []
