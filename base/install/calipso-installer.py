@@ -101,7 +101,7 @@ DockerClient = docker.from_env()
 
 def copy_file(filename):
     c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
-    txt = open( 'initial_data/' + filename +'.json')
+    txt = open('../../mongo/initial_data/{}.json'.format(filename))
     data = json.load(txt)
     c.remove_coll(filename)
     doc_id = c.insert(filename, data)
