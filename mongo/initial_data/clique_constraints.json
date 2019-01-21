@@ -1,0 +1,29 @@
+[
+{
+    "environment" : "", 
+    "focal_point_type" : "instance", 
+    "constraints" : [
+        "network"
+    ]
+},
+{
+    "environment":"",
+    "focal_point_type" : "container",
+    "constraints" : [
+        "network"
+    ]
+},
+{ 
+    "environment":"",
+    "focal_point_type" : "vservice", 
+    "constraints" : [
+        "network"
+    ]
+},
+{ 
+    "environment":"",
+    "constraints" : [
+    ], 
+    "focal_point_type" : "network"
+}
+]
