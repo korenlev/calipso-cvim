@@ -26,7 +26,7 @@ local_hostname = dockerip.read().replace("\n", "")
 
 C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
 H_MONGO_CONFIG = "calipso_mongo_access.conf"
-PYTHONPATH = "/home/scan/calipso_prod/app"
+PYTHONPATH = "/home/scan/calipso"
 C_LDAP_CONFIG = "/local_dir/ldap.conf"
 H_LDAP_CONFIG = "ldap.conf"
 
