@@ -1,5 +1,5 @@
 {
-  "handlers_package": "discover.events",
+  "handlers_package": "listen.events",
   "queues": [
     {
       "queue": "notifications.nova",

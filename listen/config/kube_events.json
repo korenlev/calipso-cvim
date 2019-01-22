@@ -1,5 +1,5 @@
 {
-  "handlers_package": "discover.events.kube",
+  "handlers_package": "listen.events.kube",
   "endpoints": [
     "list_pod_for_all_namespaces"
   ],
