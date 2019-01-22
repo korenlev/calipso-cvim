@@ -197,7 +197,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
 
         env_config = conf.get_env_config()
         common_metadata_file = os.path.join(env_config.get('app_path', '/etc/calipso'),
-                                            'config',
+                                            'listen/config',
                                             DefaultListener.COMMON_METADATA_FILE)
 
         # import common metadata

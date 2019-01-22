@@ -266,7 +266,7 @@ class KubernetesListener(ListenerBase):
         env_config = conf.get_env_config()
         common_metadata_file = os.path.join(
             env_config.get('app_path', '/etc/calipso'),
-            'config',
+            'listen/config',
             KubernetesListener.COMMON_METADATA_FILE
         )
 

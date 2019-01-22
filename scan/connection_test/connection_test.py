@@ -14,7 +14,6 @@
 import socket
 
 import amqp
-import kubernetes
 import paramiko
 import requests
 import argparse
@@ -26,7 +25,7 @@ import time
 import pymongo
 from functools import partial
 
-
+from kubernetes.client.rest import ApiException as KubeApiException
 from scan.fetchers.aci.aci_access import AciAccess
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.db.db_access import DbAccess
@@ -41,7 +40,6 @@ from base.utils.ssh_connection import SshConnection
 
 def test_openstack(config, test_request):
     try:
-        ApiAccess.reset()
         ApiAccess(config)
         ConnectionTest.report_success(test_request,
                                       ConnectionTestType.OPENSTACK.value)
@@ -139,7 +137,7 @@ def test_kubernetes(config, test_request):
         kube_access.api.list_namespace(watch=False, _request_timeout=3)
     except urllib3.exceptions.MaxRetryError:
         raise HostAddressError()
-    except kubernetes.client.rest.ApiException as e:
+    except KubeApiException as e:
         if e.status == requests.codes.UNAUTHORIZED:
             raise CredentialsError()
         else:
@@ -326,6 +324,7 @@ class ConnectionTest(Manager):
                 time.sleep(self.interval)
             else:
                 self.do_test(results[0])
+
 
 if __name__ == '__main__':
     ConnectionTest().run()
