@@ -10,7 +10,7 @@
 import json
 from datetime import datetime
 
-import inflect
+from inflection import pluralize
 from bson import ObjectId
 
 
@@ -60,9 +60,5 @@ def stringify_object_values_by_types(obj, object_types):
         stringify_object_values_by_type(obj, object_type)
 
 
-# Inflection shorthand methods
-inflection = inflect.engine()
-
-
 def plural(name):
-    return inflection.plural(name)
+    return pluralize(name)
