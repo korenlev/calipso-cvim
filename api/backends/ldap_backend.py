@@ -11,13 +11,13 @@ import ssl
 
 from ldap3 import Server, Connection, Tls
 
+from api.backends.auth_backend import AuthBackend
 from base.utils.config_file import ConfigFile
 from base.utils.logging.full_logger import FullLogger
-from base.utils.singleton import Singleton
 from base.utils.util import read_environment_variables
 
 
-class LDAPAccess(metaclass=Singleton):
+class LDAPBackend(AuthBackend):
 
     default_config_file = "ldap.conf"
     TLS_REQUEST_CERTS = {
@@ -47,14 +47,14 @@ class LDAPAccess(metaclass=Singleton):
     def __init__(self, config_file_path=""):
         super().__init__()
         self.log = FullLogger()
-        self.ldap_params = {
+        self._ldap_params = {
             "url": "ldap://localhost:389"
         }
-        self.ldap_params.update(self.get_ldap_params(config_file_path))
-        self.server = self.connect_ldap_server()
+        self._ldap_params.update(self._get_ldap_params(config_file_path))
+        self._server = self._connect_ldap_server()
 
     # Try to read ldap config from environment variables
-    def read_config_from_env_vars(self):
+    def _read_config_from_env_vars(self):
         try:
             return read_environment_variables(
                 required=self.REQUIRED_ENV_VARIABLES,
@@ -63,8 +63,8 @@ class LDAPAccess(metaclass=Singleton):
         except ValueError:
             return {}
 
-    def get_ldap_params(self, config_file_path):
-        ldap_params = self.read_config_from_env_vars()
+    def _get_ldap_params(self, config_file_path):
+        ldap_params = self._read_config_from_env_vars()
         if ldap_params:
             return ldap_params
 
@@ -86,10 +86,10 @@ class LDAPAccess(metaclass=Singleton):
                              config_file_path)
         return ldap_params
 
-    def connect_ldap_server(self):
-        ca_certificate_file = self.ldap_params.get('tls_cacertfile')
-        req_cert = self.ldap_params.get('tls_req_cert')
-        ldap_url = self.ldap_params.get('url')
+    def _connect_ldap_server(self):
+        ca_certificate_file = self._ldap_params.get('tls_cacertfile')
+        req_cert = self._ldap_params.get('tls_req_cert')
+        ldap_url = self._ldap_params.get('url')
 
         if ca_certificate_file:
             if not req_cert or req_cert not in self.TLS_REQUEST_CERTS.keys():
@@ -102,12 +102,12 @@ class LDAPAccess(metaclass=Singleton):
         return Server(ldap_url, use_ssl=self.user_ssl)
 
     def authenticate_user(self, username, pwd):
-        if not self.server:
-            self.server = self.connect_ldap_server()
+        if not self._server:
+            self._server = self._connect_ldap_server()
 
-        user_dn = self.ldap_params['user_id_attribute'] + "=" + \
-                  username + "," + self.ldap_params['user_tree_dn']
-        connection = Connection(self.server, user=user_dn, password=pwd)
+        user_dn = self._ldap_params['user_id_attribute'] + "=" + \
+                  username + "," + self._ldap_params['user_tree_dn']
+        connection = Connection(self._server, user=user_dn, password=pwd)
         # validate the user by binding
         # bound is true if binding succeed, otherwise false
         bound = False

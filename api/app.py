@@ -12,7 +12,8 @@ import importlib
 import falcon
 
 from api.auth.token import Token
-from api.backends.ldap_access import LDAPAccess
+from api.backends import auth_backend
+from api.backends.ldap_backend import LDAPBackend
 from api.exceptions.exceptions import CalipsoApiException
 from api.middleware.authentication import AuthenticationMiddleware
 from base.utils.inventory_mgr import InventoryMgr
@@ -50,7 +51,7 @@ class App:
         self.inv.set_collections(inventory)
         self.log = FullLogger()
         self.log.set_loglevel(log_level)
-        self.ldap_access = LDAPAccess(ldap_config)
+        self.setup_auth_backend(ldap_config=ldap_config)
         Token.set_token_lifetime(token_lifetime)
         self.middleware = AuthenticationMiddleware()
         self.app = falcon.API(middleware=[self.middleware])
@@ -70,3 +71,14 @@ class App:
             class_ = getattr(module, class_name)
             resource = class_()
             app.add_route(url, resource)
+
+    def setup_auth_backend(self, ldap_config=None):
+        try:
+            auth_backend.ApiAuth = LDAPBackend(ldap_config)
+            return
+        except ValueError as e:
+            self.log.warning("Failed to setup LDAP Access. Exception: {}".format(e))
+            pass
+
+        # TODO: try mongo auth
+        self.log.warning("Falling back to no authentication")

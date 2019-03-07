@@ -7,8 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from api.backends.auth_backend import ApiAuth
 from api.auth.token import Token
-from api.backends.ldap_access import LDAPAccess
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.full_logger import FullLogger
 
@@ -20,7 +20,6 @@ class Auth:
         self.inv = InventoryMgr()
         self.log = FullLogger()
         self.tokens_coll = self.inv.collections['api_tokens']
-        self.ldap_access = LDAPAccess()
 
     def get_token(self, token):
         tokens = None
@@ -54,7 +53,7 @@ class Auth:
         return error
 
     def validate_credentials(self, username, pwd):
-        return self.ldap_access.authenticate_user(username, pwd)
+        return ApiAuth.authenticate_user(username, pwd)
 
     def validate_token(self, token):
         error = None

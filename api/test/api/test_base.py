@@ -13,7 +13,7 @@ import copy
 from falcon.testing import TestCase
 
 from api.app import App
-from api.backends.ldap_access import LDAPAccess
+from api.backends.ldap_backend import LDAPBackend
 from api.middleware.authentication import AuthenticationMiddleware
 from api.responders.responder_base import ResponderBase
 from api.test.api.responders_test.test_data import base
@@ -43,8 +43,8 @@ class TestBase(TestCase):
         MongoAccess.db = MagicMock()
         MongoAccess.client = MagicMock()
         # mock ldap access
-        LDAPAccess.get_ldap_params = MagicMock()
-        LDAPAccess.connect_ldap_server = MagicMock()
+        LDAPBackend._get_ldap_params = MagicMock()
+        LDAPBackend._connect_ldap_server = MagicMock()
 
         log_level = 'debug'
         self.app = App(log_level=log_level).get_app()
