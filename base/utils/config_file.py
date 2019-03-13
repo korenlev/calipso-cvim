@@ -42,7 +42,7 @@ class ConfigFile:
         # config file is taken from app/config by default
         # look in the current work directory to get the
         # config path
-        python_path = os.environ['PYTHONPATH']
+        python_path = os.environ.get('PYTHONPATH', os.getcwd())
         if os.pathsep in python_path:
             python_path = python_path.split(os.pathsep)[0]
         return python_path + '/config/' + file_name
