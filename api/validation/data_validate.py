@@ -60,7 +60,8 @@ class DataValidate:
     # this requirement object will be used in validate_data method
     @staticmethod
     def require(types, convert_to_type=False, validate=None,
-                requirement=None, mandatory=False, error_messages=None):
+                requirement=None, mandatory=False, error_messages=None,
+                default=None):
         if error_messages is None:
             error_messages = {}
         return {
@@ -69,7 +70,8 @@ class DataValidate:
             "validate": validate,
             "requirement": requirement,
             "mandatory": mandatory,
-            "error_messages": error_messages
+            "error_messages": error_messages,
+            "default": default
         }
 
     def validate_data(self, data, requirements,
@@ -102,6 +104,11 @@ class DataValidate:
                                                      mandatory_error)
                 if error_message:
                     return error_message
+
+                default = requirement["default"]
+                if default is not None:
+                    data[key] = default
+
                 continue
 
             # check the required types

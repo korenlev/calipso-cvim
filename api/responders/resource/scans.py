@@ -17,6 +17,7 @@ from api.validation.data_validate import DataValidate
 
 class Scans(ResponderBase):
 
+    DEFAULT_STATUS = "pending"
     COLLECTION = "scans"
     ID = "_id"
     PROJECTION = {
@@ -60,36 +61,32 @@ class Scans(ResponderBase):
         if error:
             self.bad_request(error)
 
-        scan_statuses = self.get_constants_by_name("scans_statuses")
         log_levels = self.get_constants_by_name("log_levels")
 
         scan_requirements = {
-            "status": self.require(str,
-                                   mandatory=True,
-                                   validate=DataValidate.LIST,
-                                   requirement=scan_statuses),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
                                       requirement=log_levels),
             "clear": self.require(bool, convert_to_type=True),
-            "scan_only_inventory": self.require(bool, convert_to_type=True),
-            "scan_only_links": self.require(bool, convert_to_type=True),
-            "scan_only_cliques": self.require(bool, convert_to_type=True),
+            "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
+            "scan_only_links": self.require(bool, convert_to_type=True, default=False),
+            "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
             "environment": self.require(str, mandatory=True),
             "inventory": self.require(str),
             "object_id": self.require(str)
         }
         self.validate_query_data(scan, scan_requirements)
-        scan_only_keys = [k for k in scan if k.startswith("scan_only_")]
+        scan_only_keys = [k for k in scan if k.startswith("scan_only_") and scan[k] is True]
         if len(scan_only_keys) > 1:
-            self.bad_request("multiple scan_only_* flags found: {0}. "
-                             "only one of them can be set."
+            self.bad_request("multiple scan_only_* flags are set to true: {0}. "
+                             "only one of them can be set to true."
                              .format(", ".join(scan_only_keys)))
 
         env_name = scan["environment"]
         if not self.check_environment_name(env_name):
             self.bad_request("unknown environment: " + env_name)
 
+        scan["status"] = self.DEFAULT_STATUS
         scan["submit_timestamp"] = datetime.now()
         self.write(scan, self.COLLECTION)
         self.set_successful_response(resp,

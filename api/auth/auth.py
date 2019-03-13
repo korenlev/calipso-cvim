@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from api.backends.auth_backend import ApiAuth
+from api.backends import auth_backend
 from api.auth.token import Token
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.full_logger import FullLogger
@@ -53,7 +53,7 @@ class Auth:
         return error
 
     def validate_credentials(self, username, pwd):
-        return ApiAuth.authenticate_user(username, pwd)
+        return auth_backend.ApiAuth.authenticate_user(username, pwd)
 
     def validate_token(self, token):
         error = None

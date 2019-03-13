@@ -274,32 +274,26 @@ class EnvironmentConfigs(ResponderBase):
                                          validate=DataValidate.LIST,
                                          requirement=self.distributions),
             "distribution_version": self.require(str, mandatory=True),
-            "listen": self.require(bool,
-                                   mandatory=True,
-                                   convert_to_type=True),
+            "listen": self.require(bool, convert_to_type=True, default=False),
             "user": self.require(str),
             "mechanism_drivers": self.require(list,
                                               mandatory=True,
                                               validate=DataValidate.LIST,
                                               requirement=self.mechanism_drivers),
             "name": self.require(str, mandatory=True),
-            "operational": self.require(str,
-                                        mandatory=True,
-                                        convert_to_type=True,
-                                        validate=DataValidate.LIST,
-                                        requirement=self.operational_values),
-            "scanned": self.require(bool, convert_to_type=True),
+            "scanned": self.require(bool, convert_to_type=True, default=False),
             "last_scanned": self.require(str),
             "type": self.require(str, mandatory=True),
             "type_drivers": self.require(str,
                                          mandatory=True,
                                          validate=DataValidate.LIST,
                                          requirement=self.type_drivers),
-            "enable_monitoring": self.require(bool, convert_to_type=True),
-            "monitoring_setup_done": self.require(bool, convert_to_type=True),
+            "enable_monitoring": self.require(bool, convert_to_type=True, default=False),
+            "monitoring_setup_done": self.require(bool, convert_to_type=True, default=False),
             "auth": self.require(dict),
-            "aci_enabled": self.require(bool, convert_to_type=True),
+            "aci_enabled": self.require(bool, convert_to_type=True, default=False),
             "environment_type": self.require(str,
+                                             mandatory=True,
                                              validate=DataValidate.LIST,
                                              requirement=self.environment_types),
         }
@@ -307,6 +301,8 @@ class EnvironmentConfigs(ResponderBase):
                                  environment_config_requirement,
                                  can_be_empty_keys=["last_scanned",
                                                     "environment_type"])
+        self.validate_env_name(env_config['name'])
+
         self.check_and_convert_datetime("last_scanned", env_config)
 
         # validate the configurations
@@ -336,15 +332,23 @@ class EnvironmentConfigs(ResponderBase):
             if err_msg:
                 self.bad_request("auth error: " + err_msg)
 
-        if "scanned" not in env_config:
-            env_config["scanned"] = False
-
         self.write(env_config, self.COLLECTION)
         self.set_successful_response(resp,
                                      {"message": "created environment_config "
                                                  "for {0}"
                                                  .format(env_config["name"])},
                                      "201")
+
+    def validate_env_name(self, env_name):
+        if env_name:
+            env_match = self.read(
+                matches={"name": env_name},
+                collection="environments_config"
+            )
+            if env_match:
+                self.bad_request("Environment with name '{}' already exists".format(env_name))
+        else:
+            self.bad_request("Environment name is required")
 
     def validate_environment_config(self, configurations, environment_type=None,
                                     require_mandatory=True):
