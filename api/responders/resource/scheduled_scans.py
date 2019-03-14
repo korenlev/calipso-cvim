@@ -73,9 +73,9 @@ class ScheduledScans(ResponderBase):
         log_levels = self.get_constants_by_name("log_levels")
         scheduled_scan_requirements = {
             "environment": self.require(str, mandatory=True),
-            "scan_only_links": self.require(bool, convert_to_type=True),
-            "scan_only_cliques": self.require(bool, convert_to_type=True),
-            "scan_only_inventory": self.require(bool, convert_to_type=True),
+            "scan_only_links": self.require(bool, convert_to_type=True, default=False),
+            "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
+            "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
             "freq": self.require(str,
                                  mandatory=True,
                                  validate=DataValidate.LIST,
@@ -88,7 +88,10 @@ class ScheduledScans(ResponderBase):
         }
         self.validate_query_data(scheduled_scan, scheduled_scan_requirements)
         self.check_and_convert_datetime("submit_timestamp", scheduled_scan)
-        scan_only_keys = [k for k in scheduled_scan if k.startswith("scan_only_")]
+
+        scan_only_keys = [
+            k for k in scheduled_scan if k.startswith("scan_only_") and scheduled_scan[k] is True
+        ]
         if len(scan_only_keys) > 1:
             self.bad_request("multiple scan_only_* flags found: {0}. "
                              "only one of them can be set."
