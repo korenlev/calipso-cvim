@@ -15,6 +15,20 @@ from api.validation import regex
 class DataValidate:
     LIST = "list"
     REGEX = "regex"
+    CUSTOM = "custom"
+
+    class NumberValidators:
+        @staticmethod
+        def positive(x): return x > 0
+
+        @staticmethod
+        def non_negative(x): return x >= 0
+
+        @staticmethod
+        def negative(x): return x < 0
+
+        @staticmethod
+        def non_positive(x): return x <= 0
 
     def __init__(self):
         super().__init__()
@@ -34,7 +48,8 @@ class DataValidate:
         }
         self.VALIDATE_SWITCHER = {
             self.LIST: self.validate_value_in_list,
-            self.REGEX: regex.validate
+            self.REGEX: regex.validate,
+            self.CUSTOM: self.validate_custom
         }
 
     def validate_type(self, obj, t, convert_to_type):
@@ -140,7 +155,7 @@ class DataValidate:
     def mandatory_check(key, mandatory, error_message):
         if mandatory:
             return error_message if error_message \
-                    else "{} must be specified".format(key)
+                else "{} must be specified".format(key)
         return None
 
     def types_check(self, requirement_types, convert_to_type, key,
@@ -175,6 +190,15 @@ class DataValidate:
             return error_message if error_message else\
                 "The possible value of {0} is {1}".\
                 format(key, " or ".join(required_list))
+        return None
+
+    @staticmethod
+    def validate_custom(key, value, func, error_message):
+        if not func(value):
+            return (
+                error_message if error_message
+                else "Key {} failed validation".format(key)
+            )
         return None
 
     # get customized type names from type names array

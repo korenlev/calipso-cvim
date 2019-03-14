@@ -39,17 +39,14 @@ class DbAccess(Fetcher):
     conn = None
     query_count_per_con = 0
 
-    # connection timeout set to 5 seconds
-    TIMEOUT = 5
+    TIMEOUT = 10
 
     def __init__(self, mysql_config=None, force_connect=False):
         super().__init__()
         self.config = {'mysql': mysql_config} if mysql_config \
             else Configuration()
         self.conf = self.config.get("mysql")
-        self.connect_timeout = int(self.conf['connect_timeout']) \
-            if 'connect_timeout' in self.conf \
-            else self.TIMEOUT
+        self.connect_timeout = int(self.conf.get('connect_timeout', self.TIMEOUT))
         self.connect_to_db(force=force_connect)
         self.neutron_db = self.get_neutron_db_name()
 

@@ -70,7 +70,11 @@ class EnvironmentConfigs(ResponderBase):
                                      convert_to_type=True,
                                      validate=DataValidate.REGEX,
                                      requirement=regex.PORT),
-                "user": self.require(str, mandatory=True)
+                "user": self.require(str, mandatory=True),
+                "connect_timeout": self.require(int,
+                                                validate=DataValidate.CUSTOM,
+                                                requirement=DataValidate.NumberValidators.positive,
+                                                error_messages={"requirement": "connect_timeout should be positive"})
             },
             "OpenStack": {
                 "name": self.require(str, mandatory=True),
