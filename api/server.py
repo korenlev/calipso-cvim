@@ -38,6 +38,8 @@ def get_args():
                         default="",
                         help="name of config file with mongo access "
                              "details")
+    parser.add_argument("--no_ldap", action='store_true',
+                        help="skip LDAP authentication")
     parser.add_argument("--ldap_config", nargs="?", type=str,
                         default="",
                         help="name of the config file with ldap server "
@@ -66,9 +68,10 @@ if __name__ == "__main__":
     options = {
         "bind": args.bind
     }
-    app = App(args.mongo_config,
-              args.ldap_config,
-              args.loglevel,
-              args.inventory,
-              args.token_lifetime).get_app()
+    app = App(mongo_config=args.mongo_config,
+              ldap_enabled=not args.no_ldap,
+              ldap_config=args.ldap_config,
+              log_level=args.loglevel,
+              inventory=args.inventory,
+              token_lifetime=args.token_lifetime).get_app()
     StandaloneApplication(app, options).run()
