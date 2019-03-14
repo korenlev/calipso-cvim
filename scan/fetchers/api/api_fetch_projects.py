@@ -48,8 +48,16 @@ class ApiFetchProjects(ApiAccess):
         response = self.get_url(req_url, headers)
         if not response or 'projects' not in response:
             return []
-        # 'services' project does not contain any networks or ports
-        return [p for p in response['projects'] if p.get("name") != "services"]
+
+        projects = []
+        for project in response['projects']:
+            # 'services' project does not contain any networks or ports
+            if project.get('name') == 'services':
+                continue
+            if 'parent_id' in project:
+                project['parent_domain_id'] = project.pop('parent_id')
+            projects.append(project)
+        return projects
 
     def get_tenants_for_region(self, region, token):
         endpoint = self.get_region_url_nover(region, "keystone")
