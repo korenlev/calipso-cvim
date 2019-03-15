@@ -11,6 +11,7 @@ from bson.objectid import ObjectId
 
 from base.fetcher import Fetcher
 from base.utils.inventory_mgr import InventoryMgr
+from base.utils.origins import Origin
 
 
 class CliqueFinder(Fetcher):
@@ -20,6 +21,17 @@ class CliqueFinder(Fetcher):
     def __init__(self):
         super().__init__()
         self.env_config = None
+        self.inv = None
+        self.inventory = None
+        self.links = None
+        self.clique_types = None
+        self.clique_types_by_type = {}
+        self.clique_constraints_by_type = {}
+        self.clique_constraints = None
+        self.cliques = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.inv = InventoryMgr()
         self.inventory = self.inv.inventory_collection
         self.links = self.inv.collections["links"]

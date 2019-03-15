@@ -15,8 +15,6 @@ from scan.fetchers.db.db_access import DbAccess
 
 
 class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
-    def __init__(self):
-        super(ApiFetchProjectHosts, self).__init__()
 
     def get(self, project_id):
         if project_id != self.admin_project:

@@ -8,19 +8,26 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.configuration import Configuration
+from base.utils.origins import Origin
 from scan.link_finders.find_links import FindLinks
 
 
 class FindLinksForVedges(FindLinks):
     def __init__(self):
         super().__init__()
+        self.environment_type = None
+        self.mechanism_drivers = None
+        self.is_kubernetes_vpp = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.configuration = Configuration()
         self.environment_type = self.configuration.get_env_type()
-        self.mechanism_drivers = \
-            self.configuration.environment.get('mechanism_drivers', [])
-        self.is_kubernetes_vpp = \
-            self.environment_type == self.ENV_TYPE_KUBERNETES \
-            and 'VPP' in self.mechanism_drivers
+        self.mechanism_drivers = self.configuration.environment.get('mechanism_drivers', [])
+        self.is_kubernetes_vpp = (
+                self.environment_type == self.ENV_TYPE_KUBERNETES
+                and 'VPP' in self.mechanism_drivers
+        )
 
     def add_links(self):
         self.log.info("adding link types: " +

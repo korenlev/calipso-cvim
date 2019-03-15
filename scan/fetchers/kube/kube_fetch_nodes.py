@@ -11,6 +11,7 @@ import re
 from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec, \
     V1NodeStatus
 
+from base.utils.origins import Origin
 from base.utils.ssh_connection import SshError
 from scan.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from scan.fetchers.cli.cli_fetch_interface_details \
@@ -23,6 +24,10 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
 
     def __init__(self, config=None):
         super().__init__(config)
+        self.details_fetcher = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.details_fetcher = CliFetchInterfaceDetails()
 
     def set_env(self, env):

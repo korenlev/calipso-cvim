@@ -26,6 +26,8 @@ from base.utils.origins import ScanOrigins, ScanOrigin
 from base.utils.ssh_connection import SshConnection
 from base.utils.util import setup_args
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from scan.fetchers.api.api_access import ApiAccess
+from scan.fetchers.db.db_access import DbAccess
 from scan.scan_error import ScanError
 from scan.scanner import Scanner
 
@@ -253,6 +255,12 @@ class ScanController(Fetcher):
         plan.scanner_type = "Scan" + plan.object_type
         return plan
 
+    @staticmethod
+    def reset_connections():
+        ApiAccess.reset()
+        DbAccess.close_connection()
+        SshConnection.disconnect_all()
+
     def run(self, args: dict = None):
         args = setup_args(args, self.DEFAULTS, self.get_args)
         # After this setup we assume args dictionary has all keys
@@ -278,6 +286,9 @@ class ScanController(Fetcher):
 
         env_name = scan_plan.env
         self.conf.use_env(env_name)
+
+        # Reset active connections
+        self.reset_connections()
 
         # generate ScanObject Class and instance.
         scanner = Scanner()
@@ -323,7 +334,9 @@ class ScanController(Fetcher):
                     scanner.deploy_monitoring_setup()
         except ScanError as e:
             return False, "scan error: " + str(e)
-        SshConnection.disconnect_all()
+        finally:
+            self.reset_connections()
+
         status = 'ok' if not scanner.found_errors.get(env_name, False) \
             else 'errors detected'
         if status == 'ok' and scan_plan.object_type == "environment":
@@ -336,6 +349,7 @@ class ScanController(Fetcher):
         environments_collection \
             .update_one(filter={'name': env},
                         update={'$set': {'scanned': True}})
+
 
 if __name__ == '__main__':
     scan_controller = ScanController()

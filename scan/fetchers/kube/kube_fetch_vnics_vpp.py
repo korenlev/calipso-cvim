@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.inventory_mgr import InventoryMgr
+from base.utils.origins import Origin
 from scan.fetchers.cli.cli_fetch_interface_hardware_details_vpp \
     import CliFetchInterfaceHardwareDetailsVpp
 from scan.fetchers.cli.cli_fetcher import CliFetcher
@@ -17,6 +18,10 @@ class KubeFetchVnicsVpp(CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
+        self.if_details_fetcher = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.if_details_fetcher = CliFetchInterfaceHardwareDetailsVpp()
 
     def set_env(self, env):

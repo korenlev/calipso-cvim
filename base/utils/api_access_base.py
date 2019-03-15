@@ -29,6 +29,9 @@ class ApiAccessBase(Fetcher):
 
         if api_name is None:
             raise ValueError('ApiAccessBase: api_name must be defined')
+        self.set_api_config(api_name=api_name, config=config)
+
+    def set_api_config(self, api_name=None, config=None):
         self.config = {api_name: config} if config else Configuration()
         self.api_config = self.config.get(api_name)
         if self.api_config is None:

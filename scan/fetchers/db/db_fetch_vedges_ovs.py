@@ -12,12 +12,11 @@ import json
 import re
 
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.singleton import Singleton
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
 
 
-class DbFetchVedgesOvs(DbAccess, CliFetcher, metaclass=Singleton):
+class DbFetchVedgesOvs(DbAccess, CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

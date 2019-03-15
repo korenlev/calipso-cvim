@@ -8,18 +8,22 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.singleton import Singleton
+from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
-from scan.fetchers.db.db_access import DbAccess
 from scan.fetchers.db.db_fetch_instances import DbFetchInstances
 
 
-class ApiFetchHostInstances(ApiAccess, DbAccess, metaclass=Singleton):
+class ApiFetchHostInstances(ApiAccess):
     def __init__(self):
-        super(ApiFetchHostInstances, self).__init__()
+        super().__init__()
         self.inv = InventoryMgr()
-        self.endpoint = self.base_url.replace(":5000", ":8774")
+        self.endpoint = None
         self.projects = None
+        self.db_fetcher = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.endpoint = self.base_url.replace(":5000", ":8774")
         self.db_fetcher = DbFetchInstances()
 
     def get_projects(self):

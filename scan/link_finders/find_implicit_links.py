@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.origins import Origin
 from scan.link_finders.find_links import FindLinks
 
 
@@ -14,6 +15,11 @@ class FindImplicitLinks(FindLinks):
 
     def __init__(self):
         super().__init__()
+        self.links = []
+        self.constraint_attributes = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.links = []
         self.constraint_attributes = self.get_constraint_attributes()
 

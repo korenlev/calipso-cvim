@@ -10,6 +10,7 @@
 import re
 
 from base.utils.configuration import Configuration
+from base.utils.origins import Origin
 from base.utils.util import decode_aci_dn
 from scan.link_finders.find_links import FindLinks
 
@@ -17,6 +18,10 @@ from scan.link_finders.find_links import FindLinks
 class FindLinksForPnics(FindLinks):
     def __init__(self):
         super().__init__()
+        self.environment_type = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.configuration = Configuration()
         self.environment_type = self.configuration.get_env_type()
 

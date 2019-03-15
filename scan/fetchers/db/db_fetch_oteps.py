@@ -10,12 +10,11 @@
 import re
 
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.singleton import Singleton
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
 
 
-class DbFetchOteps(DbAccess, CliFetcher, metaclass=Singleton):
+class DbFetchOteps(DbAccess, CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()

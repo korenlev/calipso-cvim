@@ -11,8 +11,6 @@ from scan.link_finders.find_links import FindLinks
 
 
 class FindLinksForPods(FindLinks):
-    def __init__(self):
-        super().__init__()
 
     def add_links(self):
         self.find_service_pod_links()

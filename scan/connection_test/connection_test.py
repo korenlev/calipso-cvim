@@ -40,6 +40,7 @@ from base.utils.ssh_connection import SshConnection
 
 def test_openstack(config, test_request):
     try:
+        ApiAccess.reset()
         ApiAccess(config)
         ConnectionTest.report_success(test_request,
                                       ConnectionTestType.OPENSTACK.value)
@@ -48,6 +49,7 @@ def test_openstack(config, test_request):
 
 
 def test_mysql(config, test_request):
+    DbAccess.close_connection()
     db_access = DbAccess(config, force_connect=True)
     ConnectionTest.report_success(test_request, ConnectionTestType.MYSQL.value)
     if db_access:
@@ -55,6 +57,7 @@ def test_mysql(config, test_request):
 
 
 def test_ssh_connect(config) -> bool:
+    SshConnection.disconnect_all()
     ssh = SshConnection(config.get('host', ''),
                         config.get('user', ''),
                         _pwd=config.get('pwd'),

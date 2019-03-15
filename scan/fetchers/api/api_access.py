@@ -11,6 +11,7 @@ import re
 
 from base.utils.api_access_base import ApiAccessBase
 from base.utils.exceptions import CredentialsError
+from base.utils.origins import Origin
 from base.utils.string_utils import jsonify
 from scan.fetchers.api.clients.keystone import *
 
@@ -29,7 +30,13 @@ class ApiAccess(ApiAccessBase):
 
     def __init__(self, config=None):
         super().__init__('OpenStack', config)
+        self.base_url = None
+        self.admin_project = None
+        self.admin_endpoint = None
+        self.keystone_client = None
+        self.set_keystone_connection()
 
+    def set_keystone_connection(self):
         self.base_url = "http://" + self.host + ":" + self.port
         self.admin_project = self.api_config.get("admin_project", "admin")
         self.admin_endpoint = "http://" + self.host + ":" + self.ADMIN_PORT
@@ -39,6 +46,18 @@ class ApiAccess(ApiAccessBase):
         if not token:
             raise CredentialsError("ApiAccess: Authentication failed. "
                                    "Failed to obtain token")
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.set_api_config('OpenStack')
+        self.set_keystone_connection()
+
+    @classmethod
+    def reset(cls):
+        cls.regions = {}
+        KeystoneClient.tokens, KeystoneClient.auth_responses = {}, {}
+        for keystone_client in cls.KEYSTONE_CLIENTS.values():
+            keystone_client.tokens, keystone_client.auth_responses = {}, {}
 
     def get_keystone_client(self):
         response = requests.get(self.base_url).json()

@@ -12,8 +12,6 @@ from scan.link_finders.find_links import FindLinks
 
 
 class FindLinksForContainers(FindLinks):
-    def __init__(self):
-        super().__init__()
 
     def add_links(self):
         containers = self.inv.find_items({

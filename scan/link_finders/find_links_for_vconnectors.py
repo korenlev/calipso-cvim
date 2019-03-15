@@ -8,16 +8,21 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.configuration import Configuration
+from base.utils.origins import Origin
 from scan.link_finders.find_links import FindLinks
 
 
 class FindLinksForVconnectors(FindLinks):
     def __init__(self):
         super().__init__()
+        self.environment_type = None
+        self.mechanism_drivers = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
         self.configuration = Configuration()
         self.environment_type = self.configuration.get_env_type()
-        self.mechanism_drivers = self.configuration.get_env_config().\
-            get('mechanism_drivers', [])
+        self.mechanism_drivers = self.configuration.get_env_config().get('mechanism_drivers', [])
 
     def add_links(self):
         if self.environment_type == self.ENV_TYPE_OPENSTACK:

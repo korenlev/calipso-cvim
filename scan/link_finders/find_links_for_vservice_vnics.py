@@ -11,8 +11,6 @@ from scan.link_finders.find_links import FindLinks
 
 
 class FindLinksForVserviceVnics(FindLinks):
-    def __init__(self):
-        super().__init__()
 
     def add_links(self, search=None):
         self.log.info("adding links of type: vservice-vnic")

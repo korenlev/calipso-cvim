@@ -14,18 +14,18 @@ from scan.fetchers.db.db_access import DbAccess
 
 class DbFetchAZNetworkHosts(DbAccess):
 
-  def get(self, id):
-    query = """
+    def get(self, id):
+        query = """
       SELECT DISTINCT host, host AS id, configurations
       FROM {}.agents
       WHERE agent_type = 'Metadata agent'
     """.format(self.neutron_db)
-    results = self.get_objects_list(query, "host")
-    for r in results:
-      self.set_host_details(r)
-    return results
+        results = self.get_objects_list(query, "host")
+        for r in results:
+            self.set_host_details(r)
+        return results
 
-  def set_host_details(self, r):
-    config = json.loads(r["configurations"])
-    r["ip_address"] = config["nova_metadata_ip"]
-    r["host_type"] = "Network Node"
+    def set_host_details(self, r):
+        config = json.loads(r["configurations"])
+        r["ip_address"] = config["nova_metadata_ip"]
+        r["host_type"] = "Network Node"

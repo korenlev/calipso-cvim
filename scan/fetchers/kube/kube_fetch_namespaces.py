@@ -12,9 +12,6 @@ from scan.fetchers.kube.kube_access import KubeAccess
 
 class KubeFetchNamespaces(KubeAccess):
 
-    def __init__(self, config=None):
-        super().__init__(config)
-
     def get(self, object_id):
         namespaces = self.api.list_namespace()
 

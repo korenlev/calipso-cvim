@@ -20,7 +20,7 @@ from scan.scan_error import ScanError
 def with_cursor(method):
     @functools.wraps(method)
     def wrap(self, *args, **kwargs):
-        self.connect_to_db(DbAccess.query_count_per_con >= 25)
+        self.connect_to_db(DbAccess.query_count_per_con >= 1000)
         DbAccess.query_count_per_con += 1
         cursor = DbAccess.conn.cursor(dictionary=True)
         try:
@@ -98,9 +98,7 @@ class DbAccess(Fetcher):
             self.log.info("DbAccess: ****** forcing reconnect, " +
                           "query count: %s ******",
                           DbAccess.query_count_per_con)
-            DbAccess.conn.commit()
-            DbAccess.conn.close()
-            DbAccess.conn = None
+            DbAccess.close_connection()
         self.conf = self.config.get("mysql")
         cnf = self.conf
         pwd = cnf.get('pwd', '')
@@ -109,6 +107,13 @@ class DbAccess(Fetcher):
         self.db_connect(cnf.get('host', ''), cnf.get('port', ''),
                         cnf.get('user', ''), pwd,
                         cnf.get('schema', 'nova'))
+
+    @staticmethod
+    def close_connection():
+        if DbAccess.conn:
+            DbAccess.conn.commit()
+            DbAccess.conn.close()
+            DbAccess.conn = None
 
     @with_cursor
     def get_objects_list_for_id(self, query, object_type, object_id,

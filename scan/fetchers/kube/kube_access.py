@@ -13,6 +13,7 @@ import kubernetes.client as kube_client
 from base.utils.api_access_base import ApiAccessBase
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.kube_utils import update_resource_version
+from base.utils.origins import Origin
 
 
 class KubeAccess(ApiAccessBase):
@@ -22,7 +23,14 @@ class KubeAccess(ApiAccessBase):
         kube_client.configuration.api_client = None
 
         super().__init__('Kubernetes', config)
+
         self.inv = InventoryMgr()
+        self.base_url = None
+        self.bearer_token = None
+        self.api = None
+        self.set_kube_config()
+
+    def set_kube_config(self):
         self.base_url = 'https://{}:{}'.format(self.host, self.port)
         self.bearer_token = self.api_config.get('token', '')
         conf = kube_client.Configuration()
@@ -32,6 +40,10 @@ class KubeAccess(ApiAccessBase):
         conf.api_key['authorization'] = self.bearer_token
         conf.verify_ssl = False
         self.api = kube_client.CoreV1Api()
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.set_kube_config()
 
     @staticmethod
     def del_attribute_map(o):
