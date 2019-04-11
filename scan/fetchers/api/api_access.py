@@ -37,9 +37,9 @@ class ApiAccess(ApiAccessBase):
         self.set_keystone_connection()
 
     def set_keystone_connection(self):
-        self.base_url = "http://" + self.host + ":" + self.port
+        self.base_url = "http://{}:{}".format(self.host, self.port)
         self.admin_project = self.api_config.get("admin_project", "admin")
-        self.admin_endpoint = "http://" + self.host + ":" + self.ADMIN_PORT
+        self.admin_endpoint = "http://{}:{}".format(self.host, self.ADMIN_PORT)
         self.keystone_client = self.get_keystone_client()
 
         token = self.keystone_client.auth()

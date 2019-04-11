@@ -137,9 +137,13 @@ class ScanManager(Manager):
         # We need to update environments collection
         # to reflect the scan results.
         if not scan_request.get('id'):
+            env_update_data = {'scanned': scanned}
+            if scanned:
+                env_update_data['last_scanned'] = scan_request.get('end_timestamp')
+
             self.environments_collection\
                 .update_one(filter={'name': scan_request.get('environment')},
-                            update={'$set': {'scanned': scanned}})
+                            update={'$set': env_update_data})
 
     def _fail_scan(self, scan_request: dict):
         self._finalize_scan(scan_request, ScanStatus.FAILED, False)

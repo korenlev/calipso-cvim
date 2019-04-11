@@ -12,6 +12,7 @@ from datetime import datetime
 from bson.objectid import ObjectId
 
 from api.responders.responder_base import ResponderBase
+from api.validation.data_validate import DataValidate
 
 
 class Inventory(ResponderBase):
@@ -21,8 +22,13 @@ class Inventory(ResponderBase):
     PROJECTION = {
         ID: True,
         "name": True,
-        "name_path": True
+        "name_path": True,
+        "type": True
     }
+
+    def __init__(self):
+        super().__init__()
+        self.object_types = self.get_constants_by_name("object_types")
 
     def on_get(self, req, resp):
         self.log.debug("Getting objects from inventory")
@@ -32,6 +38,7 @@ class Inventory(ResponderBase):
             'env_name': self.require(str, mandatory=True),
             'id': self.require(str),
             'id_path': self.require(str),
+            'type': self.require(str, validate=DataValidate.LIST, requirement=self.object_types),
             'parent_id': self.require(str),
             'parent_path': self.require(str),
             'sub_tree': self.require(bool, convert_to_type=True),
@@ -46,13 +53,13 @@ class Inventory(ResponderBase):
                                         [ObjectId, datetime], self.ID)
             self.set_successful_response(resp, obj)
         else:
-            objects_ids = self.get_objects_list(self.COLLECTION, query,
-                                                page, page_size, self.PROJECTION)
-            self.set_successful_response(resp, {"objects": objects_ids})
+            objects = self.get_objects_list(self.COLLECTION, query,
+                                            page, page_size, self.PROJECTION)
+            self.set_successful_response(resp, {"objects": objects})
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ['parent_id', 'id_path', 'id']
+        filters_keys = ['parent_id', 'id_path', 'id', 'type']
         self.update_query_with_filters(filters, filters_keys, query)
         parent_path = filters.get('parent_path')
         if parent_path:
