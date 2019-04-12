@@ -123,6 +123,22 @@ class Scanner(Fetcher):
                 else:
                     if conf[attr] != required_val:
                         return False
+
+        env_restrictions = type_to_fetch.get("environment_restriction", {})
+        if not isinstance(env_restrictions, dict):
+            self.log.warn('Illegal environment_restriction given '
+                          'for type {type}'.format(type=type_to_fetch['type']))
+            return True
+        for attr, restricted_val in env_restrictions.items():
+            if attr not in conf:
+                continue
+            else:
+                if isinstance(restricted_val, list):
+                    if conf[attr] in restricted_val:
+                        return False
+                elif conf[attr] == restricted_val:
+                    return False
+
         # no check failed
         return True
 

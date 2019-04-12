@@ -28,7 +28,7 @@ class CliFetchBondHostPnics(CliFetcher):
         cmd = 'ls -1 {} 2>&1'.format(self.BOND_DIR)
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
-            self.log.error('CliFetchBondHostPnics: host not found: ' + host_id)
+            self.log.error('CliFetchBondHostPnics: host not found: {}'.format(host_id))
             return []
         host_types = host['host_type']
         if 'Network' not in host_types and 'Compute' not in host_types:

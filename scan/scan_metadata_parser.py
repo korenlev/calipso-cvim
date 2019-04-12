@@ -23,13 +23,14 @@ class ScanMetadataParser(MetadataParser):
     FETCHER = 'fetcher'
     CHILDREN_SCANNER = 'children_scanner'
     ENVIRONMENT_CONDITION = 'environment_condition'
+    ENVIRONMENT_RESTRICTION = 'environment_restriction'
     OBJECT_ID_TO_USE_IN_CHILD = 'object_id_to_use_in_child'
 
     COMMENT = '_comment'
 
     REQUIRED_SCANNER_ATTRIBUTES = [TYPE, FETCHER]
     ALLOWED_SCANNER_ATTRIBUTES = [TYPE, FETCHER, CHILDREN_SCANNER,
-                                  ENVIRONMENT_CONDITION,
+                                  ENVIRONMENT_CONDITION, ENVIRONMENT_RESTRICTION,
                                   OBJECT_ID_TO_USE_IN_CHILD]
 
     MECHANISM_DRIVER = 'mechanism_driver'
@@ -100,11 +101,7 @@ class ScanMetadataParser(MetadataParser):
                                .format(scanner_name, type_index,
                                        children_scanner))
 
-    def validate_environment_condition(self, scanner_name: str, type_index: int,
-                                       scanner: dict):
-        if self.ENVIRONMENT_CONDITION not in scanner:
-            return
-        condition = scanner[self.ENVIRONMENT_CONDITION]
+    def _validate_condition(self, scanner_name: str, type_index: int, condition: dict):
         if not isinstance(condition, dict):
             self.add_error('scanner {} type #{}: condition must be dict'
                            .format(scanner_name, str(type_index)))
@@ -127,6 +124,18 @@ class ScanMetadataParser(MetadataParser):
                                            driver,
                                            'mechanism_drivers',
                                            'mechanism drivers')
+
+    def validate_environment_condition(self, scanner_name: str, type_index: int, scanner: dict):
+        if self.ENVIRONMENT_CONDITION not in scanner:
+            return
+        condition = scanner[self.ENVIRONMENT_CONDITION]
+        return self._validate_condition(scanner_name, type_index, condition)
+
+    def validate_environment_restriction(self, scanner_name: str, type_index: int, scanner: dict):
+        if self.ENVIRONMENT_RESTRICTION not in scanner:
+            return
+        restriction = scanner[self.ENVIRONMENT_RESTRICTION]
+        return self._validate_condition(scanner_name, type_index, restriction)
 
     def validate_scanner(self, scanners: dict, name: str, package: str):
         scanner = scanners.get(name)
@@ -168,10 +177,9 @@ class ScanMetadataParser(MetadataParser):
         self.validate_constant(scanner_name, scan_type[self.TYPE],
                                'scan_object_types', 'types')
         self.validate_fetcher(scanner_name, scan_type, type_index, package)
-        self.validate_children_scanner(scanner_name, type_index, scanners,
-                                       scan_type)
-        self.validate_environment_condition(scanner_name, type_index,
-                                            scan_type)
+        self.validate_children_scanner(scanner_name, type_index, scanners, scan_type)
+        self.validate_environment_condition(scanner_name, type_index, scan_type)
+        self.validate_environment_restriction(scanner_name, type_index, scan_type)
 
     def get_constants(self, scanner_name, items_desc, constant_type):
         if not self.constants.get(constant_type):

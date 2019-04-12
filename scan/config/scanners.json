@@ -255,6 +255,18 @@
         "environment_condition": {
           "environment_type": ["OpenStack", "Kubernetes"]
         },
+        "environment_restriction": {
+          "distribution": ["Mercury"]
+        },
+        "children_scanner": "ScanHostPnic"
+      },
+      {
+        "type": "host_pnic",
+        "fetcher": "CliFetchTeamHostPnics",
+        "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"],
+          "distribution": ["Mercury"]
+        },
         "children_scanner": "ScanHostPnic"
       }
     ],
