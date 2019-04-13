@@ -85,58 +85,91 @@ class Scanner(Fetcher):
             return children[0]
         return obj
 
+    @staticmethod
+    def _match_condition_values(values, condition):
+        if not values:
+            return False
+        elif not condition:
+            return True
+        else:
+            condition_list = condition if isinstance(condition, list) else [condition]
+            conf_list = values if isinstance(values, list) else [values]
+            for item in conf_list:
+                if item in condition_list:
+                    return True
+        return False
+
+    @classmethod
+    def _match_conditions(cls, conf, condition):
+        for attr, required_val in condition.items():
+            if cls._match_condition_values(conf[attr], required_val) is False:
+                return False
+        return True
+
+    @staticmethod
+    def _match_restriction_values(values, restriction):
+        if not values:
+            return False
+        if not restriction:
+            return False
+        else:
+            restriction_list = restriction if isinstance(restriction, list) else [restriction]
+            conf_list = values if isinstance(values, list) else [values]
+            for item in restriction_list:
+                if item in conf_list:
+                    return True
+        return False
+
+    @classmethod
+    def _match_restrictions(cls, conf, restriction):
+        for attr, restricted_val in restriction.items():
+            if cls._match_restriction_values(conf[attr], restricted_val) is False:
+                return False
+        return True
+
     def check_type_env(self, type_to_fetch):
         # check if type is to be run in this environment
         basic_cond = {'environment_type': self.ENV_TYPE_OPENSTACK}
-        env_cond = type_to_fetch.get("environment_condition", {}) \
-            if "environment_condition" in type_to_fetch \
-            else basic_cond
-        if not env_cond:
-            env_cond = basic_cond
-        if 'environment_type' not in env_cond.keys():
-            env_cond.update(basic_cond)
-        if not isinstance(env_cond, dict):
+
+        env_conditions = type_to_fetch.get("environment_condition")
+        if env_conditions is None:
+            env_conditions = [basic_cond]
+        elif isinstance(env_conditions, dict):
+            env_conditions = [env_conditions]
+        elif not isinstance(env_conditions, list) \
+                or not all(isinstance(c, dict) for c in env_conditions):
             self.log.warn('Illegal environment_condition given '
                           'for type {type}'.format(type=type_to_fetch['type']))
             return True
+
+        for env_condition in env_conditions:
+            if 'environment_type' not in env_condition:
+                env_condition.update(basic_cond)
+
         conf = self.config.get_env_config()
         if 'environment_type' not in conf:
             conf.update(basic_cond)
-        for attr, required_val in env_cond.items():
-            if attr == "mechanism_drivers":
-                if "mechanism_drivers" not in conf:
-                    self.log.warn('Illegal environment configuration: '
-                                  'missing mechanism_drivers')
-                    return False
-                if not isinstance(required_val, list):
-                    required_val = [required_val]
-                value_ok = bool(set(required_val) &
-                                set(conf["mechanism_drivers"]))
-                if not value_ok:
-                    return False
-            elif attr not in conf:
-                return False
-            else:
-                if isinstance(required_val, list):
-                    if conf[attr] not in required_val:
-                        return False
-                else:
-                    if conf[attr] != required_val:
-                        return False
 
-        env_restrictions = type_to_fetch.get("environment_restriction", {})
-        if not isinstance(env_restrictions, dict):
-            self.log.warn('Illegal environment_restriction given '
-                          'for type {type}'.format(type=type_to_fetch['type']))
-            return True
-        for attr, restricted_val in env_restrictions.items():
-            if attr not in conf:
-                continue
-            else:
-                if isinstance(restricted_val, list):
-                    if conf[attr] in restricted_val:
-                        return False
-                elif conf[attr] == restricted_val:
+        # If any condition dict matches configuration, we're good.
+        if env_conditions:
+            if all(self._match_conditions(conf, condition) is False
+                   for condition in env_conditions):
+                return False
+
+        env_restrictions = type_to_fetch.get("environment_restriction", None)
+        if env_conditions is not None:
+            if isinstance(env_restrictions, dict):
+                env_restrictions = [env_restrictions]
+            elif not isinstance(env_restrictions, list) \
+                    or not all(isinstance(r, dict) for r in env_restrictions):
+                self.log.warn('Illegal environment_restriction given '
+                              'for type {type}'.format(type=type_to_fetch['type']))
+                return True
+
+            # If any restriction dict matches configuration, scanner is discarded
+            if env_restrictions:
+                if any(self._match_restrictions(conf, restriction) is True
+                       for restriction in env_restrictions):
                     return False
 
         # no check failed

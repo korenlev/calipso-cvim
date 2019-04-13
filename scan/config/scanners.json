@@ -256,7 +256,8 @@
           "environment_type": ["OpenStack", "Kubernetes"]
         },
         "environment_restriction": {
-          "distribution": ["Mercury"]
+          "distribution": ["Mercury"],
+          "mechanism_drivers": ["OVS"]
         },
         "children_scanner": "ScanHostPnic"
       },
@@ -265,7 +266,8 @@
         "fetcher": "CliFetchTeamHostPnics",
         "environment_condition": {
           "environment_type": ["OpenStack", "Kubernetes"],
-          "distribution": ["Mercury"]
+          "distribution": ["Mercury"],
+          "mechanism_drivers": ["OVS"]
         },
         "children_scanner": "ScanHostPnic"
       }
