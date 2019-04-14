@@ -156,8 +156,8 @@ class Scanner(Fetcher):
                    for condition in env_conditions):
                 return False
 
-        env_restrictions = type_to_fetch.get("environment_restriction", None)
-        if env_conditions is not None:
+        env_restrictions = type_to_fetch.get("environment_restriction")
+        if env_restrictions is not None:
             if isinstance(env_restrictions, dict):
                 env_restrictions = [env_restrictions]
             elif not isinstance(env_restrictions, list) \
