@@ -34,7 +34,7 @@
             "Flannel", 
             "VPP"
         ], 
-        "type_drivers" : "vxlan"
+        "type_drivers" : ["vxlan", "vlan"]  
     }
 },
 { 
@@ -144,8 +144,8 @@
         "distribution_version" : [
             "2.1.6"
         ], 
-        "mechanism_drivers" : "OVS", 
-        "type_drivers" : "vlan"
+        "mechanism_drivers" : ["OVS"], 
+        "type_drivers" : ["vlan"] 
     }
 }
 ]
