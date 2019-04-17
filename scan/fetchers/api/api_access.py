@@ -95,7 +95,7 @@ class ApiAccess(ApiAccessBase):
     def auth(self, project=None):
         return self.keystone_client.auth(project)
 
-    def get_region_url(self, region_name, service, force_http=False):
+    def get_region_url(self, region_name, service, force_http=True):
         if region_name not in self.regions:
             return None
         region = self.regions[region_name]
@@ -110,7 +110,7 @@ class ApiAccess(ApiAccessBase):
         return url
 
     # like get_region_url_from_service(), but remove everything starting from the "/v*"
-    def get_region_url_nover(self, region, service, force_http=False):
+    def get_region_url_nover(self, region, service, force_http=True):
         full_url = self.get_region_url(region, service, force_http)
         if not full_url:
             self.log.error("could not find region URL for region: " + region)
