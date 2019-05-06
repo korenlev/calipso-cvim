@@ -69,20 +69,30 @@ scan_request_payload = {
     "scan_only_cliques": False,
     "environment": "staging"
 }
-# scan_request_reply = cc.call_api('post', 'scans', scan_request_payload)
-# print scan_request_reply
+scan_request_reply = cc.call_api('post', 'scans', scan_request_payload)
+print scan_request_reply
 # then here we will place a check for specific scan id status
-# once VIMNET-1860 is implemented
-# time.sleep(180)
+# once VIMNET-1860 is implemented - to add scan 'id' into reply
+time.sleep(140)
 # get scans made for a specific environment (for status of scan etc)
 scan_params = {"env_name": "staging"}
-scans_statuses = cc.call_api('get', 'scans', scan_params)
-print scans_statuses
-inv_params = {"env_name": "staging", "id": "01776a49-a522-41ab-ab7c-94f4297c4227"}
+scan_reply = cc.call_api('get', 'scans', scan_params)
+scans = scan_reply["scans"]
+for scan in scans:
+    print scan["status"], scan["id"]
+# get network object from inventory
+inv_params = {"env_name": "staging",
+              "id": "01776a49-a522-41ab-ab7c-94f4297c4227"}
 staging_network = cc.call_api('get', 'inventory', inv_params)
 print staging_network
 print "TYPE_DRIVER=", staging_network["provider:network_type"]
-
+# another inventory example for instances:
+inv_params = {"env_name": "staging",
+              "type": "instance"}
+staging_instances = cc.call_api('get', 'inventory', inv_params)
+instances = staging_instances["objects"]
+for instance in instances:
+    print instance["name"], instance["name_path"]
 
 # consider http1.1: sess = requests.Session()
 # sess.headers.update({'x-auth-token': token,'Content-type':'application/json'}  )
