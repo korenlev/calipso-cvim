@@ -1,6 +1,7 @@
 import requests
 import urlparse
 import json
+import time
 
 
 class CalipsoClient:
@@ -40,7 +41,8 @@ class CalipsoClient:
         url = urlparse.urljoin(self.base_url, endpoint)
         self.get_token()
         if method == 'post':
-            response = requests.post(url, data=payload, headers=self.headers)
+            print payload
+            response = requests.post(url, json=payload, headers=self.headers)
         elif method == 'delete':
             response = requests.delete(url, headers=self.headers)
         elif method == 'put':
@@ -54,9 +56,28 @@ class CalipsoClient:
 cc = CalipsoClient()
 print cc.get_token()
 print cc.headers
+# get all environment_configs
 print cc.call_api('get', 'environment_configs')
+# get specific environment_config
+print cc.call_api('get', 'environment_configs', payload={"name": "staging"})
+# post a scan request for a specific environment
+scan_request_payload = {
+    "log_level": "warning",
+    "clear": True,
+    "scan_only_inventory": False,
+    "scan_only_links": False,
+    "scan_only_cliques": False,
+    "environment": "staging"
+}
+# scan_request_reply = cc.call_api('post', 'scans', scan_request_payload)
+# print scan_request_reply
+# then here we will place a check for specific scan id status
+# once VIMNET-1860 is implemented
+# time.sleep(180)
+# get scans made for a specific environment (for status of scan etc)
 scan_params = {"env_name": "staging"}
-print cc.call_api('get', 'scans', scan_params)
+scans_statuses = cc.call_api('get', 'scans', scan_params)
+print scans_statuses
 inv_params = {"env_name": "staging", "id": "01776a49-a522-41ab-ab7c-94f4297c4227"}
 staging_network = cc.call_api('get', 'inventory', inv_params)
 print staging_network
