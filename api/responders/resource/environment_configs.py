@@ -242,11 +242,11 @@ class EnvironmentConfigs(ResponderBase):
         if self.ID in query:
             environment_config = self.get_object_by_id(self.COLLECTION, query,
                                                        [ObjectId, datetime], self.ID)
-            self.set_successful_response(resp, environment_config)
+            self.set_ok_response(resp, environment_config)
         else:
             objects_ids = self.get_objects_list(self.COLLECTION, query,
                                                 page, page_size, self.PROJECTION)
-            self.set_successful_response(resp, {'environment_configs': objects_ids})
+            self.set_ok_response(resp, {'environment_configs': objects_ids})
 
     def build_query(self, filters):
         query = {}
@@ -336,12 +336,12 @@ class EnvironmentConfigs(ResponderBase):
             if err_msg:
                 self.bad_request("auth error: " + err_msg)
 
-        self.write(env_config, self.COLLECTION)
-        self.set_successful_response(resp,
-                                     {"message": "created environment_config "
-                                                 "for {0}"
-                                                 .format(env_config["name"])},
-                                     "201")
+        result = self.write(env_config, self.COLLECTION)
+        response_body = {
+            "message": "created environment_config for {0}".format(env_config["name"]),
+            "id": str(result.inserted_id)
+        }
+        self.set_created_response(resp, response_body)
 
     def validate_env_name(self, env_name):
         if env_name:

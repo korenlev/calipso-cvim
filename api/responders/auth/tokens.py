@@ -66,7 +66,7 @@ class Tokens(ResponderBase):
             self.bad_request(write_error)
 
         stringify_object_values_by_types(new_token, [datetime, ObjectId])
-        self.set_successful_response(resp, new_token, '201')
+        self.set_created_response(resp, new_token)
 
     def authenticate(self, auth):
         error = None
@@ -114,4 +114,4 @@ class Tokens(ResponderBase):
         if delete_error:
             self.bad_request(delete_error)
 
-        self.set_successful_response(resp)
+        self.set_ok_response(resp)

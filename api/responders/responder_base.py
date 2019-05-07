@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import json
+from http import HTTPStatus
 from urllib import parse
 
 import re
@@ -33,41 +34,48 @@ class ResponderBase(DataValidate, DictNamingConverter):
         self.log = FullLogger()
         self.inv = InventoryMgr()
 
-    def set_successful_response(self, resp, body="", status="200"):
+    def _set_successful_response(self, resp, body="", status=HTTPStatus.OK):
         if not isinstance(body, str):
             try:
                 body = jsonify(body)
             except Exception as e:
                 self.log.exception(e)
                 raise ValueError("The response body should be a string")
-        resp.status = status
+        resp.status = str(status.value)
         resp.body = body
 
-    def set_error_response(self, title="", code="", message="", body=""):
+    def set_ok_response(self, resp, body=""):
+        return self._set_successful_response(resp, body, HTTPStatus.OK)
+
+    def set_created_response(self, resp, body=""):
+        return self._set_successful_response(resp, body, HTTPStatus.CREATED)
+
+    @staticmethod
+    def _set_error_response(title="", code=HTTPStatus.BAD_REQUEST, message="", body=""):
+        code = str(code.value)
         if body:
             raise exceptions.CalipsoApiException(code, body, message)
-        body = {
+
+        body = jsonify({
             "error": {
                 "message": message,
                 "code": code,
                 "title": title
             }
-        }
-        body = jsonify(body)
+        })
         raise exceptions.CalipsoApiException(code, body, message)
 
-    def not_found(self, message="Requested resource not found"):
-        self.set_error_response("Not Found", "404", message)
-
-    def conflict(self,
-                 message="The posted data conflicts with the existing data"):
-        self.set_error_response("Conflict", "409", message)
-
     def bad_request(self, message="Invalid request content"):
-        self.set_error_response("Bad Request", "400", message)
+        self._set_error_response("Bad Request", HTTPStatus.BAD_REQUEST, message)
 
     def unauthorized(self, message="Request requires authorization"):
-        self.set_error_response("Unauthorized", "401", message)
+        self._set_error_response("Unauthorized", HTTPStatus.UNAUTHORIZED, message)
+
+    def not_found(self, message="Requested resource not found"):
+        self._set_error_response("Not Found", HTTPStatus.NOT_FOUND, message)
+
+    def conflict(self, message="The posted data conflicts with the existing data"):
+        self._set_error_response("Conflict", HTTPStatus.CONFLICT, message)
 
     def validate_query_data(self, data, data_requirements,
                             additional_key_reg=None,
@@ -207,12 +215,10 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def write(self, document, collection="inventory"):
         try:
-            return self.get_collection_by_name(collection)\
-                       .insert_one(document)
+            return self.get_collection_by_name(collection).insert_one(document)
         except errors.DuplicateKeyError as e:
             self.conflict("The key value ({0}) already exists".
-                          format(', '.
-                                 join(self.get_duplicate_key_values(e.details['errmsg']))))
+                          format(', '.join(self.get_duplicate_key_values(e.details['errmsg']))))
         except errors.WriteError as e:
             self.bad_request('Failed to create resource for {0}'.format(str(e)))
 

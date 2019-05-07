@@ -48,7 +48,7 @@ class Aggregates(ResponderBase):
                 self.bad_request("unknown environment: " + env_name)
 
         aggregates = self.AGGREGATES_MAP[query_type](query)
-        self.set_successful_response(resp, aggregates)
+        self.set_ok_response(resp, aggregates)
 
     def build_query(self, filters):
         query = {}

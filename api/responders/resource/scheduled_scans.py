@@ -55,14 +55,13 @@ class ScheduledScans(ResponderBase):
             scheduled_scan = self.get_object_by_id(self.COLLECTION, query,
                                                    [ObjectId, datetime],
                                                    self.ID)
-            self.set_successful_response(resp, scheduled_scan)
+            self.set_ok_response(resp, scheduled_scan)
         else:
             scheduled_scan_ids = self.get_objects_list(self.COLLECTION, query,
                                                        page, page_size,
                                                        self.PROJECTION,
                                                        [datetime])
-            self.set_successful_response(resp,
-                                         {"scheduled_scans": scheduled_scan_ids})
+            self.set_ok_response(resp, {"scheduled_scans": scheduled_scan_ids})
 
     def on_post(self, req, resp):
         self.log.debug("Posting new scheduled scan")
@@ -101,12 +100,12 @@ class ScheduledScans(ResponderBase):
         if not self.check_environment_name(env_name):
             self.bad_request("unknown environment: " + env_name)
 
-        self.write(scheduled_scan, self.COLLECTION)
-        self.set_successful_response(resp,
-                                     {"message": "created a new scheduled scan "
-                                                 "for environment {0}"
-                                     .format(env_name)},
-                                     "201")
+        result = self.write(scheduled_scan, self.COLLECTION)
+        response_body = {
+            "message": "created a new scheduled scan for environment {0}".format(env_name),
+            "id": str(result.inserted_id)
+        }
+        self.set_created_response(resp, response_body)
 
     def build_query(self, filters):
         query = {}
