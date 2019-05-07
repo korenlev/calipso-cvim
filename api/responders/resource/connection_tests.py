@@ -116,7 +116,7 @@ class ConnectionTests(ResponderBase):
             result[self.CONFIGURATIONS] = targets_config
             result[self.RESULTS] = test_results
 
-            self.set_successful_response(resp, result)
+            self.set_ok_response(resp, result)
         else:
             page, page_size = self.get_pagination(filters)
             tests_ids = self.get_objects_list(collection=self.COLLECTION,
@@ -124,7 +124,7 @@ class ConnectionTests(ResponderBase):
                                               page=page,
                                               page_size=page_size,
                                               projection=self.PROJECTION)
-            self.set_successful_response(resp, {"connection_tests": tests_ids})
+            self.set_ok_response(resp, {"connection_tests": tests_ids})
 
     def on_post(self, req, resp):
         self.log.debug("Posting a new connection test")
@@ -163,9 +163,8 @@ class ConnectionTests(ResponderBase):
         connection_test['submit_timestamp'] = datetime.datetime.now()
 
         result = self.write(connection_test, self.COLLECTION)
-        self.set_successful_response(resp,
-                                     {"id": str(result.inserted_id),
-                                      "message": "Created a new connection test"
-                                                 " for environment {0}"
-                                                 .format(env_name)},
-                                     "201")
+        response_body = {
+            "message": "Created a new connection test for environment {0}".format(env_name),
+            "id": str(result.inserted_id)
+        }
+        self.set_created_response(resp, response_body)

@@ -49,11 +49,11 @@ class Scans(ResponderBase):
         if "_id" in query:
             scan = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId, datetime], self.ID)
-            self.set_successful_response(resp, scan)
+            self.set_ok_response(resp, scan)
         else:
             scans_ids = self.get_objects_list(self.COLLECTION, query,
                                               page, page_size, self.PROJECTION)
-            self.set_successful_response(resp, {"scans": scans_ids})
+            self.set_ok_response(resp, {"scans": scans_ids})
 
     def on_post(self, req, resp):
         self.log.debug("Posting new scan")
@@ -88,12 +88,13 @@ class Scans(ResponderBase):
 
         scan["status"] = self.DEFAULT_STATUS
         scan["submit_timestamp"] = datetime.now()
-        self.write(scan, self.COLLECTION)
-        self.set_successful_response(resp,
-                                     {"message": "created a new scan for "
-                                                 "environment {0}"
-                                                 .format(env_name)},
-                                     "201")
+
+        result = self.write(scan, self.COLLECTION)
+        response_body = {
+            "message": "created a new scan for environment {0}".format(env_name),
+            "id": str(result.inserted_id)
+        }
+        self.set_created_response(resp, response_body)
 
     def build_query(self, filters):
         query = {}

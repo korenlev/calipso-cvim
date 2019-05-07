@@ -27,4 +27,4 @@ class Constants(ResponderBase):
         query = {"name": filters['name']}
         constant = self.get_object_by_id(self.COLLECTION, query,
                                          [ObjectId], self.ID)
-        self.set_successful_response(resp, constant)
+        self.set_ok_response(resp, constant)

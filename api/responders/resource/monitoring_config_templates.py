@@ -47,14 +47,11 @@ class MonitoringConfigTemplates(ResponderBase):
         if self.ID in query:
             template = self.get_object_by_id(self.COLLECTION, query,
                                              [ObjectId], self.ID)
-            self.set_successful_response(resp, template)
+            self.set_ok_response(resp, template)
         else:
             templates = self.get_objects_list(self.COLLECTION, query,
                                               page, page_size, self.PROJECTION)
-            self.set_successful_response(
-                resp,
-                {"monitoring_config_templates": templates}
-            )
+            self.set_ok_response(resp, {"monitoring_config_templates": templates})
 
     def build_query(self, filters):
         query = {}

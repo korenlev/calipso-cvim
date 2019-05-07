@@ -56,11 +56,11 @@ class Messages(ResponderBase):
         if self.ID in query:
             message = self.get_object_by_id(self.COLLECTION, query,
                                             [ObjectId, datetime], self.ID)
-            self.set_successful_response(resp, message)
+            self.set_ok_response(resp, message)
         else:
             objects_ids = self.get_objects_list(self.COLLECTION, query,
                                                 page, page_size, self.PROJECTION)
-            self.set_successful_response(resp, {'messages': objects_ids})
+            self.set_ok_response(resp, {'messages': objects_ids})
 
     def build_query(self, filters):
         query = {}
