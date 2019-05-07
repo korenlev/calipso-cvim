@@ -14,7 +14,7 @@ class CalipsoClient:
 
     def __init__(self):
         self.api_server = "korlev-calipso-testing"
-        self.client_version = "0.1.9"
+        self.client_version = "0.2.0"
         self.username = "calipso"
         self.password = "calipso_default"
         self.port = "8000"
@@ -84,19 +84,13 @@ class CalipsoClient:
             }
             return self.call_api('post', 'scheduled_scans', request_payload)
 
-    def scan_status(self, environment, scheduled=False):
+    def scan_check(self, environment, doc_id, scheduled=False):
         if scheduled is False:
-            params = {"env_name": environment}
-            reply = self.call_api('get', 'scans', params)
-            scans = reply["scans"]
-            for scan in scans:
-                print scan["status"], scan["id"]
+            params = {"env_name": environment, "id": doc_id}
+            return self.call_api('get', 'scans', params)
         else:
-            params = {"environment": environment}
-            reply = self.call_api('get', 'scheduled_scans', params)
-            schedules = reply["scheduled_scans"]
-            for schedule in schedules:
-                print schedule["scheduled_timestamp"], schedule["id"]
+            params = {"environment": environment, "id": doc_id}
+            return self.call_api('get', 'scheduled_scans', params)
 
 
 cc = CalipsoClient()
@@ -108,18 +102,27 @@ print cc.call_api('get', 'environment_configs')
 # get a specific environment_config
 print cc.call_api('get', 'environment_configs', payload={"name": "staging"})
 
-# post a scan request, with defaults, for a specific environment
-print cc.scan_request(environment="staging", scheduled=False)
-# post a scheduled scan, with defaults, for a specific environment
-print cc.scan_request(environment="staging", scheduled=True, freq="WEEKLY")
+# post a scan request, with defaults, for a specific environment, get it's id
+scan_reply = cc.scan_request(environment="staging", scheduled=False)
+scan_doc_id = scan_reply["id"]
+# post a scheduled scan, with defaults, for a specific environment, get it's id
+schedule_reply = cc.scan_request(environment="staging", scheduled=True,
+                                 freq="WEEKLY")
+schedule_doc_id = schedule_reply["id"]
 
-# then here we will place a check for specific scan id status
-# once VIMNET-1860 is implemented - to add scan 'id' into reply
-time.sleep(120)
-# get scans made for a specific environment (for status of scan etc)
-cc.scan_status(environment="staging", scheduled=False)
-cc.scan_status(environment="staging", scheduled=True)
+# wait till the specific scan status is 'completed' ..
+scan_status = "pending"
+while scan_status != "completed":
+    scan_doc = cc.scan_check(environment="staging", doc_id=scan_doc_id,
+                             scheduled=False)
+    scan_status = scan_doc["status"]
+    print "scanning status: ", scan_status
+    time.sleep(2)
 
+# get a specific scheduled_doc scheduled time, start time and freq
+schedule_doc = cc.scan_check(environment="staging", doc_id=schedule_doc_id,
+                             scheduled=True)
+print schedule_doc["scheduled_timestamp"], schedule_doc["freq"]
 
 # get network object from inventory
 inv_params = {"env_name": "staging",
