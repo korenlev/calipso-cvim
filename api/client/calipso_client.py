@@ -20,8 +20,8 @@ class CalipsoClient:
         self.password = "calipso_default"
         self.port = args.api_port
         self.base_url = "http://{}:{}/".format(self.api_server, self.port)
-        self.auth_url = self.base_url + "/auth/tokens"
-        self.headers = {'Content-type': 'application/json'}
+        self.auth_url = self.base_url + "auth/tokens"
+        self.headers = {'Content-Type': 'application/json'}
         self.token = None
         self.time = None
         self.auth_body = {
