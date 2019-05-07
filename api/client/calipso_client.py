@@ -160,6 +160,7 @@ if not args.environment:
         else:  # case for all environments
             env_reply = cc.call_api(args.method, args.endpoint)
         print env_reply
+        exit()
     else:
         print " environment and payload are needed with this requested endpoint"
         exit()
@@ -193,6 +194,8 @@ if args.scan:
                 scan_status = scan_doc["status"]
                 print " wait for scan to complete, scan status: ", scan_status
                 time.sleep(2)
+                if scan_status == "failed":
+                    print "scan has failed, please debug in scan container"
             print " inventory, links and cliques has been discovered"
             exit()
         else:
@@ -238,6 +241,3 @@ print reply
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance'}"
-
-
-
