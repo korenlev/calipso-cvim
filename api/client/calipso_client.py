@@ -3,6 +3,7 @@ import urlparse
 import json
 import time
 import datetime
+import argparse
 # This is a calipso api client designed to be small and simple
 # currently for single pod, single api_server and single environment
 # assuming environment_config details are already deployed by CVIM automation
@@ -13,11 +14,11 @@ import datetime
 class CalipsoClient:
 
     def __init__(self):
-        self.api_server = "korlev-calipso-testing"
+        self.api_server = args.api_server
         self.client_version = "0.2.0"
         self.username = "calipso"
         self.password = "calipso_default"
-        self.port = "8000"
+        self.port = args.api_port
         self.base_url = "http://{}:{}/".format(self.api_server, self.port)
         self.auth_url = self.base_url + "/auth/tokens"
         self.headers = {'Content-type': 'application/json'}
@@ -56,12 +57,14 @@ class CalipsoClient:
             response = requests.put(url, data=payload, headers=self.headers)
         else:
             response = requests.get(url, params=payload, headers=self.headers)
-        content = json.loads(response.content)
-        return content
+        if response:
+            content = json.loads(response.content)
+            return content
+        else:
+            return " endpoint not found"
 
-    def scan_request(self, environment, scheduled=False, freq="DAILY"):
-        self.time = datetime.datetime.now().isoformat()
-        if scheduled is False:
+    def scan_request(self, environment, freq="NOW"):
+        if freq == "NOW":
             request_payload = {
                 "log_level": "warning",
                 "clear": True,
@@ -72,6 +75,7 @@ class CalipsoClient:
             }
             return self.call_api('post', 'scans', request_payload)
         else:
+            self.time = datetime.datetime.now().isoformat()
             request_payload = {
                 "freq": freq,
                 "log_level": "warning",
@@ -86,60 +90,154 @@ class CalipsoClient:
 
     def scan_check(self, environment, doc_id, scheduled=False):
         if scheduled is False:
-            params = {"env_name": environment, "id": doc_id}
-            return self.call_api('get', 'scans', params)
+            scan_params = {"env_name": environment, "id": doc_id}
+            return self.call_api('get', 'scans', scan_params)
         else:
-            params = {"environment": environment, "id": doc_id}
-            return self.call_api('get', 'scheduled_scans', params)
+            scan_params = {"environment": environment, "id": doc_id}
+            return self.call_api('get', 'scheduled_scans', scan_params)
 
+
+# parser for getting mandatory and some optional command arguments:
+parser = argparse.ArgumentParser()
+parser.add_argument("--api_server",
+                    help="FQDN (ex:mysrv.cisco.com) or IP address of API Server"
+                         " (default=localhost)",
+                    type=str,
+                    default="localhost",
+                    required=True)
+parser.add_argument("--api_port",
+                    help="TCP Port exposed for the Calipso API Server "
+                         " (default=8000)",
+                    type=int,
+                    default="8000",
+                    required=True)
+parser.add_argument("--environment",
+                    help="specify environment name configured on calipso server"
+                         " (default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
+parser.add_argument("--scan",
+                    help="scan/discover the specific cloud environment -"
+                         " options: NOW/HOURLY/DAILY/WEEKLY/MONTHLY/YEARLY"
+                         " (default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
+parser.add_argument("--method",
+                    help="method to use on the calipso API server -"
+                         " options: get/post/delete/put"
+                         " (default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
+parser.add_argument("--endpoint",
+                    help="endpoint url extension to use on calipso API server -"
+                         " options: please see API documentation on endpoints"
+                         " (default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
+parser.add_argument("--payload",
+                    help="dict string with parameters to send to calipso API -"
+                         " options: please see API documentation per endpoint"
+                         " (default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
+
+args = parser.parse_args()
 
 cc = CalipsoClient()
-# print cc.get_token()
-# print cc.headers
 
-# get all environment_configs, with their names
-print cc.call_api('get', 'environment_configs')
-# get a specific environment_config
-print cc.call_api('get', 'environment_configs', payload={"name": "staging"})
+# only interaction with environment_configs is allowed without environment name
+if not args.environment:
+    if args.endpoint == "environment_configs":
+        if args.payload:  # case for a specific environment
+            payload_str = args.payload.replace("'", "\"")
+            payload_json = json.loads(payload_str)
+            env_reply = cc.call_api(args.method, args.endpoint, payload_json)
+        else:  # case for all environments
+            env_reply = cc.call_api(args.method, args.endpoint)
+        print env_reply
+    else:
+        print " environment and payload are needed with this requested endpoint"
+        exit()
+# ex1: get all environment_configs, with their names
+# print cc.call_api('get', 'environment_configs')
+# ex2: get a specific environment_config
+# print cc.call_api('get', 'environment_configs', payload={"name": "staging"})
 
-# post a scan request, with defaults, for a specific environment, get it's id
-scan_reply = cc.scan_request(environment="staging", scheduled=False)
-scan_doc_id = scan_reply["id"]
-# post a scheduled scan, with defaults, for a specific environment, get it's id
-schedule_reply = cc.scan_request(environment="staging", scheduled=True,
-                                 freq="WEEKLY")
-schedule_doc_id = schedule_reply["id"]
+scan_options = ["NOW", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
+if args.scan:
+    if args.scan not in scan_options:
+        print " unaccepted scan option, use --help for more details"
+        exit()
+    if args.method:
+        print " method not needed for scan requests, please remove"
+        exit(0)
+    if args.endpoint:
+        print " endpoint not needed for scan requests, please remove"
+        exit()
+    else:
+        if args.scan == "NOW":
+            # post scan request, for specific environment, get doc_id
+            scan_reply = cc.scan_request(environment=args.environment)
+            print " scan request posted for environment", args.environment, ".."
+            scan_doc_id = scan_reply["id"]
+            # wait till the specific scan status is 'completed'
+            scan_status = "pending"
+            while scan_status != "completed":
+                scan_doc = cc.scan_check(environment=args.environment,
+                                         doc_id=scan_doc_id)
+                scan_status = scan_doc["status"]
+                print " wait for scan to complete, scan status: ", scan_status
+                time.sleep(2)
+            print " inventory, links and cliques has been discovered"
+            exit()
+        else:
+            # post scan schedule, for specific environment, get doc_id
+            schedule_reply = cc.scan_request(environment=args.environment,
+                                             freq=args.scan)
+            schedule_doc_id = schedule_reply["id"]
+            schedule_doc = cc.scan_check(environment=args.environment,
+                                         doc_id=schedule_doc_id,
+                                         scheduled=True)
+            print "\n scheduled scan at:", schedule_doc["scheduled_timestamp"],\
+                "\n submitted at:", schedule_doc["submit_timestamp"],\
+                "\n scan frequency:", schedule_doc["freq"]
 
-# wait till the specific scan status is 'completed' ..
-scan_status = "pending"
-while scan_status != "completed":
-    scan_doc = cc.scan_check(environment="staging", doc_id=scan_doc_id,
-                             scheduled=False)
-    scan_status = scan_doc["status"]
-    print "scanning status: ", scan_status
-    time.sleep(2)
+#  generic request for items from any endpoint using any method, per environment
+if not args.endpoint or not args.method:
+    print " endpoint and method are needed for this type of request"
+method_options = ["get", "post", "delete", "put"]
+if args.method not in method_options:
+    print " unaccepted method option, use --help for more details"
+    exit()
+params = {"env_name": args.environment}
+if args.payload:
+    payload_str = args.payload.replace("'", "\"")
+    payload_json = json.loads(payload_str)
+    params.update(payload_json)
+reply = cc.call_api(args.method, args.endpoint, params)
+print reply
 
-# get a specific scheduled_doc scheduled time, start time and freq
-schedule_doc = cc.scan_check(environment="staging", doc_id=schedule_doc_id,
-                             scheduled=True)
-print schedule_doc["scheduled_timestamp"], schedule_doc["freq"]
+# examples of some working arguments:
 
-# get network object from inventory
-inv_params = {"env_name": "staging",
-              "id": "01776a49-a522-41ab-ab7c-94f4297c4227"}
-staging_network = cc.call_api('get', 'inventory', inv_params)
-print staging_network
-print "TYPE_DRIVER=", staging_network["provider:network_type"]
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --endpoint environment_configs
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
 
-# another inventory example for instances:
-inv_params = {"env_name": "staging",
-              "type": "instance"}
-staging_instances = cc.call_api('get', 'inventory', inv_params)
-instances = staging_instances["objects"]
-for instance in instances:
-    print instance["name"], instance["name_path"]
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan NOW
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan WEEKLY
 
-# consider http1.1: sess = requests.Session()
-# sess.headers.update({'x-auth-token': token,'Content-type':'application/json'}  )
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance'}"
+
 
 
