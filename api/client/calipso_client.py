@@ -15,7 +15,7 @@ class CalipsoClient:
 
     def __init__(self):
         self.api_server = args.api_server
-        self.client_version = "0.2.0"
+        self.client_version = "0.1.10"
         self.username = "calipso"
         self.password = "calipso_default"
         self.port = args.api_port
@@ -58,8 +58,7 @@ class CalipsoClient:
         else:
             response = requests.get(url, params=payload, headers=self.headers)
         if response:
-            content = json.loads(response.content)
-            return content
+            return response.json()
         else:
             return " endpoint not found"
 
@@ -73,7 +72,8 @@ class CalipsoClient:
                 "scan_only_cliques": False,
                 "environment": environment
             }
-            return self.call_api('post', 'scans', request_payload)
+            s_reply = self.call_api('post', 'scans', request_payload)
+            return s_reply.json()
         else:
             self.time = datetime.datetime.now().isoformat()
             request_payload = {
@@ -86,15 +86,18 @@ class CalipsoClient:
                 "scan_only_inventory": False,
                 "submit_timestamp": self.time
             }
-            return self.call_api('post', 'scheduled_scans', request_payload)
+            s_reply = self.call_api('post', 'scheduled_scans', request_payload)
+            return s_reply.json()
 
     def scan_check(self, environment, doc_id, scheduled=False):
         if scheduled is False:
             scan_params = {"env_name": environment, "id": doc_id}
-            return self.call_api('get', 'scans', scan_params)
+            c_reply = self.call_api('get', 'scans', scan_params)
+            return c_reply.json()
         else:
             scan_params = {"environment": environment, "id": doc_id}
-            return self.call_api('get', 'scheduled_scans', scan_params)
+            c_reply = self.call_api('get', 'scheduled_scans', scan_params)
+            return c_reply.json()
 
 
 # parser for getting mandatory and some optional command arguments:
@@ -145,6 +148,10 @@ parser.add_argument("--payload",
                     type=str,
                     default=None,
                     required=False)
+parser.add_argument("--version",
+                    help="request to get client version",
+                    default=None,
+                    required=False)
 
 args = parser.parse_args()
 
@@ -162,7 +169,7 @@ if not args.environment:
         print env_reply
         exit()
     else:
-        print " environment is needed with this requested endpoint"
+        print (" environment is needed with this requested endpoint")
         exit()
 # ex1: get all environment_configs, with their names
 # print cc.call_api('get', 'environment_configs')
@@ -172,19 +179,22 @@ if not args.environment:
 scan_options = ["NOW", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
 if args.scan:
     if args.scan not in scan_options:
-        print " unaccepted scan option, use --help for more details"
+        print (" unaccepted scan option, use --help for more details")
         exit()
     if args.method:
-        print " method not needed for scan requests, please remove"
+        print (" method not needed for scan requests, please remove")
         exit(0)
     if args.endpoint:
-        print " endpoint not needed for scan requests, please remove"
+        print (" endpoint not needed for scan requests, please remove")
+        exit()
+    if args.payload:
+        print (" payload not needed for scan requests, please remove")
         exit()
     else:
         if args.scan == "NOW":
             # post scan request, for specific environment, get doc_id
             scan_reply = cc.scan_request(environment=args.environment)
-            print " scan request posted for environment", args.environment, ".."
+            print (" scan request posted for environment", args.environment)
             scan_doc_id = scan_reply["id"]
             # wait till the specific scan status is 'completed'
             scan_status = "pending"
@@ -192,11 +202,11 @@ if args.scan:
                 scan_doc = cc.scan_check(environment=args.environment,
                                          doc_id=scan_doc_id)
                 scan_status = scan_doc["status"]
-                print " wait for scan to complete, scan status: ", scan_status
+                print (" wait for scan to complete, scan status: ", scan_status)
                 time.sleep(2)
                 if scan_status == "failed":
-                    print " scan has failed, please debug in scan container"
-            print " inventory, links and cliques has been discovered"
+                    print (" scan has failed, please debug in scan container")
+            print (" inventory, links and cliques has been discovered")
             exit()
         else:
             # post scan schedule, for specific environment, get doc_id
@@ -206,16 +216,16 @@ if args.scan:
             schedule_doc = cc.scan_check(environment=args.environment,
                                          doc_id=schedule_doc_id,
                                          scheduled=True)
-            print "\n scheduled scan at:", schedule_doc["scheduled_timestamp"],\
-                "\n submitted at:", schedule_doc["submit_timestamp"],\
-                "\n scan frequency:", schedule_doc["freq"]
+            print ("\n scheduled scan at:", schedule_doc["scheduled_timestamp"],
+                   "\n submitted at:", schedule_doc["submit_timestamp"],
+                   "\n scan frequency:", schedule_doc["freq"])
 
 #  generic request for items from any endpoint using any method, per environment
 if not args.endpoint or not args.method:
-    print " endpoint and method are needed for this type of request"
+    print (" endpoint and method are needed for this type of request")
 method_options = ["get", "post", "delete", "put"]
 if args.method not in method_options:
-    print " unaccepted method option, use --help for more details"
+    print (" unaccepted method option, use --help for more details")
     exit()
 params = {"env_name": args.environment}
 if args.payload:
@@ -235,6 +245,7 @@ print reply
 
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --method get --endpoint scans --payload "{'id': '5cd1cef401b845000d186079'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
