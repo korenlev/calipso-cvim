@@ -64,6 +64,9 @@ class CalipsoClient:
         else:
             response = requests.get(url, params=payload, headers=self.headers)
 
+        if response.status_code == 404:
+            print (" endpoint not found")
+            exit(0)
         content = json.loads(response.content)
         if 'error' in content and fail_on_error:
             fatal(content['error'])
@@ -257,5 +260,6 @@ if __name__ == "__main__":
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '4fd1cef4019b846013d18606e'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance'}"
