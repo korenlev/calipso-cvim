@@ -65,12 +65,11 @@ class CalipsoClient:
             response = requests.get(url, params=payload, headers=self.headers)
 
         if response.status_code == 404:
-            print (" endpoint or payload item not found")
-            exit(0)
+            fatal("Endpoint or payload item not found")
         elif response.status_code == 400:
-            print response.content
-            print (" environment or resource not found, or invalid keys")
-            exit(0)
+            fatal("Environment or resource not found, or invalid keys. "
+                  "Response: {}".format(response.content))
+
         content = json.loads(response.content)
         if 'error' in content and fail_on_error:
             fatal(content['error'])
