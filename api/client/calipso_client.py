@@ -15,7 +15,7 @@ class CalipsoClient:
 
     def __init__(self, api_host, api_port):
         self.api_server = api_host
-        self.client_version = "0.1.10"
+        self.client_version = "0.1.11"
         self.username = "calipso"
         self.password = "calipso_default"
         self.port = api_port
@@ -248,6 +248,7 @@ if __name__ == "__main__":
 
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --method get --endpoint scans --payload "{'id': '5cd1cef401b845000d186079'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
