@@ -162,7 +162,7 @@ if not args.environment:
         print env_reply
         exit()
     else:
-        print " environment and payload are needed with this requested endpoint"
+        print " environment is needed with this requested endpoint"
         exit()
 # ex1: get all environment_configs, with their names
 # print cc.call_api('get', 'environment_configs')
@@ -195,7 +195,7 @@ if args.scan:
                 print " wait for scan to complete, scan status: ", scan_status
                 time.sleep(2)
                 if scan_status == "failed":
-                    print "scan has failed, please debug in scan container"
+                    print " scan has failed, please debug in scan container"
             print " inventory, links and cliques has been discovered"
             exit()
         else:
