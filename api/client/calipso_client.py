@@ -15,7 +15,6 @@ class CalipsoClient:
 
     def __init__(self, api_host, api_port):
         self.api_server = api_host
-        self.client_version = "0.1.11"
         self.username = "calipso"
         self.password = "calipso_default"
         self.port = api_port
@@ -157,6 +156,11 @@ def run():
                         type=str,
                         default=None,
                         required=False)
+    parser.add_argument("--version",
+                        help="get a reply back with calipso_client version",
+                        action='version',
+                        default=None,
+                        version='%(prog)s version: 0.1.11')
 
     args = parser.parse_args()
 
