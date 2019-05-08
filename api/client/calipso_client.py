@@ -72,8 +72,7 @@ class CalipsoClient:
                 "scan_only_cliques": False,
                 "environment": environment
             }
-            s_reply = self.call_api('post', 'scans', request_payload)
-            return s_reply.json()
+            return self.call_api('post', 'scans', request_payload)
         else:
             self.time = datetime.datetime.now().isoformat()
             request_payload = {
@@ -86,18 +85,15 @@ class CalipsoClient:
                 "scan_only_inventory": False,
                 "submit_timestamp": self.time
             }
-            s_reply = self.call_api('post', 'scheduled_scans', request_payload)
-            return s_reply.json()
+            return self.call_api('post', 'scheduled_scans', request_payload)
 
     def scan_check(self, environment, doc_id, scheduled=False):
         if scheduled is False:
             scan_params = {"env_name": environment, "id": doc_id}
-            c_reply = self.call_api('get', 'scans', scan_params)
-            return c_reply.json()
+            return self.call_api('get', 'scans', scan_params)
         else:
             scan_params = {"environment": environment, "id": doc_id}
-            c_reply = self.call_api('get', 'scheduled_scans', scan_params)
-            return c_reply.json()
+            return self.call_api('get', 'scheduled_scans', scan_params)
 
 
 # parser for getting mandatory and some optional command arguments:
