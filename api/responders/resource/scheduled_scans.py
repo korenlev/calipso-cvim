@@ -38,7 +38,7 @@ class ScheduledScans(ResponderBase):
         filters = self.parse_query_params(req)
 
         filters_requirements = {
-            "environment": self.require(str, mandatory=True),
+            "env_name": self.require(str, mandatory=True),
             "id": self.require(ObjectId, convert_to_type=True),
             "freq": self.require(str,
                                  validate=DataValidate.LIST,
@@ -71,7 +71,7 @@ class ScheduledScans(ResponderBase):
 
         log_levels = self.get_constants_by_name("log_levels")
         scheduled_scan_requirements = {
-            "environment": self.require(str, mandatory=True),
+            "env_name": self.require(str, mandatory=True),
             "scan_only_links": self.require(bool, convert_to_type=True, default=False),
             "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
             "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
@@ -96,23 +96,25 @@ class ScheduledScans(ResponderBase):
                              "only one of them can be set."
                              .format(", ".join(scan_only_keys)))
 
-        env_name = scheduled_scan["environment"]
+        env_name = scheduled_scan.pop("env_name")
+        scheduled_scan["environment"] = env_name
         if not self.check_environment_name(env_name):
-            self.bad_request("unknown environment: " + env_name)
+            self.bad_request("unknown environment: {}".format(env_name))
 
         result = self.write(scheduled_scan, self.COLLECTION)
         response_body = {
-            "message": "created a new scheduled scan for environment {0}".format(env_name),
+            "message": "created a new scheduled scan for environment {}".format(env_name),
             "id": str(result.inserted_id)
         }
         self.set_created_response(resp, response_body)
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ["freq", "environment"]
+        filters_keys = ["freq", "env_name"]
         self.update_query_with_filters(filters, filters_keys, query)
 
         _id = filters.get("id")
         if _id:
             query["_id"] = _id
+        query['environment'] = filters['env_name']
         return query

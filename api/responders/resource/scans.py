@@ -71,7 +71,7 @@ class Scans(ResponderBase):
             "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
             "scan_only_links": self.require(bool, convert_to_type=True, default=False),
             "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
-            "environment": self.require(str, mandatory=True),
+            "env_name": self.require(str, mandatory=True),
             "inventory": self.require(str),
             "object_id": self.require(str)
         }
@@ -82,16 +82,19 @@ class Scans(ResponderBase):
                              "only one of them can be set to true."
                              .format(", ".join(scan_only_keys)))
 
-        env_name = scan["environment"]
+        env_name = scan.pop("env_name")
+        scan["environment"] = env_name
         if not self.check_environment_name(env_name):
-            self.bad_request("unknown environment: " + env_name)
+            self.bad_request("unknown environment: {}".format(env_name))
 
-        scan["status"] = self.DEFAULT_STATUS
-        scan["submit_timestamp"] = datetime.now()
+        scan.update({
+            "status": self.DEFAULT_STATUS,
+            "submit_timestamp": datetime.now()
+        })
 
         result = self.write(scan, self.COLLECTION)
         response_body = {
-            "message": "created a new scan for environment {0}".format(env_name),
+            "message": "created a new scan for environment {}".format(env_name),
             "id": str(result.inserted_id)
         }
         self.set_created_response(resp, response_body)
