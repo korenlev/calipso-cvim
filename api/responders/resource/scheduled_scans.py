@@ -110,7 +110,7 @@ class ScheduledScans(ResponderBase):
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ["freq", "env_name"]
+        filters_keys = ["freq"]
         self.update_query_with_filters(filters, filters_keys, query)
 
         _id = filters.get("id")
