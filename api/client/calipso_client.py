@@ -65,7 +65,11 @@ class CalipsoClient:
             response = requests.get(url, params=payload, headers=self.headers)
 
         if response.status_code == 404:
-            print (" endpoint not found")
+            print (" endpoint or payload item not found")
+            exit(0)
+        elif response.status_code == 400:
+            print response.content
+            print (" environment or resource not found, or invalid keys")
             exit(0)
         content = json.loads(response.content)
         if 'error' in content and fail_on_error:
@@ -80,7 +84,7 @@ class CalipsoClient:
                 "scan_only_inventory": False,
                 "scan_only_links": False,
                 "scan_only_cliques": False,
-                "environment": environment
+                "env_name": environment
             }
             return self.call_api('post', 'scans', request_payload)
         else:
@@ -90,18 +94,17 @@ class CalipsoClient:
                 "clear": True,
                 "scan_only_links": False,
                 "scan_only_cliques": False,
-                "environment": environment,
+                "env_name": environment,
                 "scan_only_inventory": False,
                 "submit_timestamp": datetime.datetime.now().isoformat()
             }
             return self.call_api('post', 'scheduled_scans', request_payload)
 
     def scan_check(self, environment, doc_id, scheduled=False):
+        scan_params = {"env_name": environment, "id": doc_id}
         if scheduled is False:
-            scan_params = {"env_name": environment, "id": doc_id}
             return self.call_api('get', 'scans', scan_params)
         else:
-            scan_params = {"environment": environment, "id": doc_id}
             return self.call_api('get', 'scheduled_scans', scan_params)
 
 
@@ -254,12 +257,16 @@ if __name__ == "__main__":
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan WEEKLY
 
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages --payload "{'id': '17678.55917.5562'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scans
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --method get --endpoint scans --payload "{'id': '5cd1cef401b845000d186079'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --method get --endpoint scans --payload "{'id': '5cd2c6de01b845000dbaf0d9'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'page_size': '2000'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links --payload "{'id': '5cd2aa2699bb0dc9c2f9021f'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques --payload "{'id': '5cd2aa3199bb0dc9c2f911fc'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '4fd1cef4019b846013d18606e'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
