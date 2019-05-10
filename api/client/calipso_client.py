@@ -13,10 +13,10 @@ import argparse
 
 class CalipsoClient:
 
-    def __init__(self, api_host, api_port):
+    def __init__(self, api_host, api_port, api_password):
         self.api_server = api_host
         self.username = "calipso"
-        self.password = "calipso_default"
+        self.password = api_password
         self.port = api_port
         self.base_url = "http://{}:{}".format(self.api_server, self.port)
         self.auth_url = urlparse.urljoin(self.base_url, "auth/tokens")
@@ -46,6 +46,14 @@ class CalipsoClient:
             return self.token
         except requests.exceptions.RequestException as e:
             raise Exception("Error sending request: {}".format(e))
+
+    @staticmethod
+    def pp_json(json_text, sort=True, indents=4):
+        if type(json_text) is str:
+            print(json.dumps(json.loads(json_text), sort_keys=sort, indent=indents))
+        else:
+            print(json.dumps(json_text, sort_keys=sort, indent=indents))
+        return None
 
     def call_api(self, method, endpoint, payload=None, fail_on_error=True):
         url = urlparse.urljoin(self.base_url, endpoint)
@@ -120,13 +128,19 @@ def run():
                              " (default=localhost)",
                         type=str,
                         default="localhost",
-                        required=True)
+                        required=False)
     parser.add_argument("--api_port",
                         help="TCP Port exposed for the Calipso API Server "
                              " (default=8000)",
                         type=int,
                         default="8000",
-                        required=True)
+                        required=False)
+    parser.add_argument("--api_password",
+                        help="API password (secret) used for the Calipso API Server "
+                             " (default=calipso_default)",
+                        type=int,
+                        default="calipso_default",
+                        required=False)
     parser.add_argument("--environment",
                         help="specify environment name configured on calipso server"
                              " (default=None)",
@@ -169,7 +183,7 @@ def run():
 
     args = parser.parse_args()
 
-    cc = CalipsoClient(args.api_server, args.api_port)
+    cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
 
     # only interaction with environment_configs is allowed without environment name
     if not args.environment:
