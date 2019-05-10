@@ -179,7 +179,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.1.13')  
+                        version='%(prog)s version: 0.1.15')
 
     args = parser.parse_args()
 
@@ -197,7 +197,7 @@ def run():
             cc.pp_json(env_reply)
             exit(0)
         else:
-            fatal("Environment is needed with this requested endpoint")
+            fatal("Enter well-known endpoint, method and/or environment")
     # ex1: get all environment_configs, with their names
     # print cc.call_api('get', 'environment_configs')
     # ex2: get a specific environment_config
@@ -226,7 +226,7 @@ def run():
                     print("Wait for scan to complete, scan status: {}".format(scan_status))
                     time.sleep(2)
                     if scan_status == "failed":
-                        print("Scan has failed, please debug in scan container")
+                        fatal("Scan has failed, please debug in scan container")
                 print("Inventory, links and cliques has been discovered")
             else:
                 # post scan schedule, for specific environment, get doc_id
@@ -243,11 +243,10 @@ def run():
 
     #  generic request for items from any endpoint using any method, per environment
     if not args.endpoint or not args.method:
-        print("Endpoint and method are needed for this type of request")
+        fatal("Endpoint and method are needed for this type of request")
     method_options = ["get", "post", "delete", "put"]
     if args.method not in method_options:
-        print("Unaccepted method option, use --help for more details")
-        exit(1)
+        fatal("Unaccepted method option, use --help for more details")
     params = {"env_name": args.environment}
     if args.payload:
         payload_str = args.payload.replace("'", "\"")
