@@ -133,12 +133,12 @@ def run():
                         help="TCP Port exposed for the Calipso API Server "
                              " (default=8000)",
                         type=int,
-                        default="8000",
+                        default=8000,
                         required=False)
     parser.add_argument("--api_password",
                         help="API password (secret) used for the Calipso API Server "
                              " (default=calipso_default)",
-                        type=int,
+                        type=str,
                         default="calipso_default",
                         required=False)
     parser.add_argument("--environment",
@@ -194,7 +194,7 @@ def run():
                 env_reply = cc.call_api(args.method, args.endpoint, payload_json)
             else:  # case for all environments
                 env_reply = cc.call_api(args.method, args.endpoint)
-            print(env_reply)
+            cc.pp_json(env_reply)
             exit(0)
         else:
             fatal("Environment is needed with this requested endpoint")
@@ -254,7 +254,7 @@ def run():
         payload_json = json.loads(payload_str)
         params.update(payload_json)
     reply = cc.call_api(args.method, args.endpoint, params)
-    print(reply)
+    cc.pp_json(reply)
     exit(0)
 
 
