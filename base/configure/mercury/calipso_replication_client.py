@@ -1,16 +1,11 @@
-import json
-import os
 import time
 import traceback
-from bson import json_util
-from bson import BSON
 try:
     from urllib import quote_plus
 except ImportError:
     from urllib.parse import quote_plus
 from pymongo import MongoClient
 
-BACKUP_DATA_PATH = """C:\it_logs"""
 DEFAULT_PORT = 27017
 DEFAULT_USER = 'calipso'
 AUTH_DB = 'calipso'
@@ -45,45 +40,25 @@ class MongoConnector(object):
 
     def disconnect(self):
         if self.client:
-            print("Disconnecting from mongo...")
+            print("Disconnecting from DB...")
             self.client.close()
             self.client = None
 
     def remove_collection(self, collection):
         self.database[collection].remove()
 
-    def insert(self, collection, docs):
-        return self.database[collection].insert(docs)
-
-    def get_collection(self, srv_name, collection):
-        file_name = "%s-%s.json" % (srv_name, collection)
+    def get_collection(self, collection):
         cursor = self.database[collection].find()
-        f = open(os.path.join(BACKUP_DATA_PATH, file_name), "w")
-        f.write('[')
-        qnt_cursor = 0
-        for document in cursor:
-            qnt_cursor += 1
-            num_max = cursor.count()
-            if num_max == 1:
-                f.write(json.dumps(document, indent=4, sort_keys=False, default=json_util.default))
-            elif num_max >= 1 and qnt_cursor <= num_max - 1:
-                f.write(json.dumps(document, indent=4, sort_keys=False, default=json_util.default))
-                f.write(',')
-            elif qnt_cursor == num_max:
-                f.write(json.dumps(document, indent=4, sort_keys=False, default=json_util.default))
-        f.write(']')
-        print ("exported data saved to {}/{}-{}.json".format(BACKUP_DATA_PATH, srv_name, collection))
-        return f
+        docs = []
+        for doc in cursor:
+            docs.append(doc)
+        return docs
 
-    def insert_collection(self, srv_name, collection):
-        file_name = "%s-%s.json" % (srv_name, collection)
-        with open(os.path.join(BACKUP_DATA_PATH, file_name)) as f:
-            j_data = json.load(f)
-            data = BSON.encode(j_data)
-            self.remove_collection(collection)
-            doc_ids = self.insert(collection, data)
-            doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-            print("Inserted '%s' collection in central db. Documents inserted: %s" % (collection, doc_count))
+    def insert_collection(self, collection, data):
+        self.remove_collection(collection)
+        doc_ids = self.database[collection].insert(data)
+        doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
+        print("Inserted '%s' collection in central DB, Total docs inserted: %s" % (collection, doc_count))
 
 
 def backoff(i):
@@ -91,37 +66,40 @@ def backoff(i):
 
 
 if __name__ == "__main__":
-    SRVN = input("How many SRVs to replicate? ")
-    SRV = {}
+    SRVn = input("How many Calipso Servers to replicate? ")
     SRVs = []
     n = 1
-    while n < SRVN + 1:
+    while n < SRVn + 1:
+        SRV = {}
         remote_name = raw_input("Remote Calipso Server {} Hostname/IP\n".format(n))
         remote_secret = raw_input("Remote Calipso Server {} Secret\n".format(n))
         SRV.update({"name": remote_name, "secret": remote_secret})
         SRVs.append(SRV)
         n += 1
-    collection_names = ["inventory", "links", "messages", "scans", "scheduled_scans",
-                        "statistics", "cliques"]
+    collection_names = ["inventory", "links", "messages", "scans",
+                        "scheduled_scans", "cliques"]
     central_name = raw_input("Central Calipso Server Hostname/IP\n")
     central_secret = raw_input("Central Calipso Server Secret\n")
     attempt = 2
     while True:
         try:
-            # read from remote DBs and export to local json files
+            print SRVs
             for s in SRVs:
-                mongo_connector = MongoConnector(s["name"], DEFAULT_PORT,
+                mongo_connector1 = MongoConnector(s["name"], DEFAULT_PORT,
                                                  DEFAULT_USER, s["secret"], AUTH_DB)
-                print ("Exporting collections from {}...".format(s["name"]))
                 for col in collection_names:
-                    print("Exporting Collection {}...".format(col))
-                    mongo_connector.get_collection(s["name"], col)
-                    mongo_connector.disconnect()
-                    # write from all local json files into the central DB
-                    mongo_connector = MongoConnector(central_name, DEFAULT_PORT,
+                    # read from remote DBs and export to local json files
+                    print("Getting the {} Collection from {}...".format(col, s["name"]))
+                    documents = mongo_connector1.get_collection(col)
+                    time.sleep(1)
+                    mongo_connector1.disconnect()
+                    # write all in-memory json docs into the central DB
+                    mongo_connector2 = MongoConnector(central_name, DEFAULT_PORT,
                                                      DEFAULT_USER, central_secret, AUTH_DB)
-                    print ("Importing data from {}-{}.json...".format(s["name"], col))
-                    mongo_connector.insert_collection(s["name"], col)
+                    print ("Pushing the {} Collection into {}...".format(col, central_name))
+                    mongo_connector2.insert_collection(col, documents)
+                    time.sleep(1)
+                    mongo_connector2.disconnect()
             break
         except:
             traceback.print_exc()
@@ -130,6 +108,7 @@ if __name__ == "__main__":
             attempt += 1
             print("Waiting for mongodb to come online... Attempt #%s" % attempt)
             time.sleep(backoff(attempt))
-        mongo_connector.disconnect()
+        mongo_connector1.disconnect()
+        mongo_connector2.disconnect()
         print("Workload completed")
         exit(0)
