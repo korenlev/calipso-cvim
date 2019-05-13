@@ -55,10 +55,10 @@ class MongoConnector(object):
         return docs
 
     def insert_collection(self, collection, data):
-        self.remove_collection(collection)
         doc_ids = self.database[collection].insert(data)
         doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-        print("Inserted '%s' collection in central DB, Total docs inserted: %s" % (collection, doc_count))
+        print("Inserted '%s' collection in central DB, Total docs inserted: %s"
+              % (collection, doc_count))
 
 
 def backoff(i):
@@ -82,24 +82,26 @@ if __name__ == "__main__":
     central_secret = raw_input("Central Calipso Server Secret\n")
     attempt = 2
     while True:
+        mc2 = MongoConnector(central_name, DEFAULT_PORT, DEFAULT_USER,
+                             central_secret, AUTH_DB)
+        for col in collection_names:
+            print ("Clearing collection {} from {}...".format(col,central_name))
+            mc2.remove_collection(col)
         try:
-            print SRVs
             for s in SRVs:
-                mongo_connector1 = MongoConnector(s["name"], DEFAULT_PORT,
-                                                 DEFAULT_USER, s["secret"], AUTH_DB)
                 for col in collection_names:
                     # read from remote DBs and export to local json files
+                    mc1 = MongoConnector(s["name"], DEFAULT_PORT, DEFAULT_USER,
+                                         s["secret"], AUTH_DB)
                     print("Getting the {} Collection from {}...".format(col, s["name"]))
-                    documents = mongo_connector1.get_collection(col)
+                    documents = mc1.get_collection(col)
                     time.sleep(1)
-                    mongo_connector1.disconnect()
+                    mc1.disconnect()
                     # write all in-memory json docs into the central DB
-                    mongo_connector2 = MongoConnector(central_name, DEFAULT_PORT,
-                                                     DEFAULT_USER, central_secret, AUTH_DB)
                     print ("Pushing the {} Collection into {}...".format(col, central_name))
-                    mongo_connector2.insert_collection(col, documents)
+                    mc2.insert_collection(col, documents)
                     time.sleep(1)
-                    mongo_connector2.disconnect()
+                    mc2.disconnect()
             break
         except:
             traceback.print_exc()
@@ -108,7 +110,7 @@ if __name__ == "__main__":
             attempt += 1
             print("Waiting for mongodb to come online... Attempt #%s" % attempt)
             time.sleep(backoff(attempt))
-        mongo_connector1.disconnect()
-        mongo_connector2.disconnect()
+        mc1.disconnect()
+        mc2.disconnect()
         print("Workload completed")
         exit(0)
