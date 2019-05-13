@@ -1,3 +1,5 @@
+import argparse
+import json
 import time
 import traceback
 try:
@@ -11,6 +13,7 @@ DEFAULT_USER = 'calipso'
 AUTH_DB = 'calipso'
 
 max_connection_attempts = 5
+collection_names = ["inventory", "links", "messages", "scans", "scheduled_scans", "cliques"]
 
 
 class MongoConnector(object):
@@ -44,13 +47,15 @@ class MongoConnector(object):
             self.client.close()
             self.client = None
 
-    def remove_collection(self, collection):
+    def clear_collection(self, collection):
         self.database[collection].remove()
 
-    def get_collection(self, collection):
+    def find_all(self, collection, remove_mongo_ids=False):
         cursor = self.database[collection].find()
         docs = []
         for doc in cursor:
+            if remove_mongo_ids is True:
+                doc.pop('_id')
             docs.append(doc)
         return docs
 
@@ -65,52 +70,96 @@ def backoff(i):
     return 2 ** (i - 1)
 
 
-if __name__ == "__main__":
-    SRVn = input("How many Calipso Servers to replicate? ")
-    SRVs = []
-    n = 1
-    while n < SRVn + 1:
-        SRV = {}
-        remote_name = raw_input("Remote Calipso Server {} Hostname/IP\n".format(n))
-        remote_secret = raw_input("Remote Calipso Server {} Secret\n".format(n))
-        SRV.update({"name": remote_name, "secret": remote_secret})
-        SRVs.append(SRV)
-        n += 1
-    collection_names = ["inventory", "links", "messages", "scans",
-                        "scheduled_scans", "cliques"]
+def read_servers_from_cli():
+    try:
+        servers_count = int(input("How many Calipso Servers to replicate? "))
+        if servers_count < 1:
+            raise TypeError()
+    except TypeError:
+        print("Server count should be a positive integer")
+        return 1
+
+    servers = []
+    for n in range(1, servers_count + 1):
+        remote_name = raw_input("Remote Calipso Server #{} Hostname/IP\n".format(n))
+        remote_secret = raw_input("Remote Calipso Server #{} Secret\n".format(n))
+        servers.append({"name": remote_name, "secret": remote_secret, "attempt": 0, "imported": False})
+
     central_name = raw_input("Central Calipso Server Hostname/IP\n")
     central_secret = raw_input("Central Calipso Server Secret\n")
-    attempt = 2
-    while True:
-        mc2 = MongoConnector(central_name, DEFAULT_PORT, DEFAULT_USER,
-                             central_secret, AUTH_DB)
-        for col in collection_names:
-            print ("Clearing collection {} from {}...".format(col,central_name))
-            mc2.remove_collection(col)
-        try:
-            for s in SRVs:
+
+    central = {'name': central_name, 'secret': central_secret}
+    return servers, central
+
+
+def read_servers_from_file(filename):
+    with open(filename) as f:
+        config = json.load(f)
+
+        servers = [
+            {"name": r['name'], "secret": r['secret'], "attempt": 0, "imported": False}
+            for r in config['remotes']
+        ]
+
+        return servers, config['central']
+
+
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config",
+                        help="Path to server configurations json file",
+                        type=str,
+                        required=False)
+
+    args = parser.parse_args()
+    servers, central = read_servers_from_file(args.config) if args.config else read_servers_from_cli()
+
+    if not servers or all(s['imported'] is True for s in servers):
+        print("Nothing to do. Exiting")
+        return 0
+
+    destination_connector = MongoConnector(central['name'], DEFAULT_PORT, DEFAULT_USER, central['secret'], AUTH_DB)
+    for col in collection_names:
+        print ("Clearing collection {} from {}...".format(col, central['name']))
+        destination_connector.clear_collection(col)
+
+    while all(s['imported'] is False for s in servers):
+        source_connector = None
+        for s in servers:
+            s['attempt'] += 1
+            if s['attempt'] > 1:
+                print("Retrying import from remote {}... Attempt #{}".format(s['name'], s['attempt']))
+                time.sleep(backoff(s['attempt']))
+
+            try:
+                source_connector = MongoConnector(s["name"], DEFAULT_PORT, DEFAULT_USER, s["secret"], AUTH_DB)
                 for col in collection_names:
                     # read from remote DBs and export to local json files
-                    mc1 = MongoConnector(s["name"], DEFAULT_PORT, DEFAULT_USER,
-                                         s["secret"], AUTH_DB)
                     print("Getting the {} Collection from {}...".format(col, s["name"]))
-                    documents = mc1.get_collection(col)
-                    time.sleep(1)
-                    mc1.disconnect()
+
+                    documents = source_connector.find_all(col, remove_mongo_ids=True)
+
                     # write all in-memory json docs into the central DB
-                    print ("Pushing the {} Collection into {}...".format(col, central_name))
-                    mc2.insert_collection(col, documents)
-                    time.sleep(1)
-                    mc2.disconnect()
-            break
-        except:
-            traceback.print_exc()
-            if attempt >= max_connection_attempts:
-                raise ValueError("Failed to connect to mongodb. Tried %s times" % attempt)
-            attempt += 1
-            print("Waiting for mongodb to come online... Attempt #%s" % attempt)
-            time.sleep(backoff(attempt))
-        mc1.disconnect()
-        mc2.disconnect()
-        print("Workload completed")
-        exit(0)
+                    print ("Pushing the {} Collection into {}...".format(col, central['name']))
+                    destination_connector.insert_collection(col, documents)
+
+                s['imported'] = True
+                source_connector.disconnect()
+                source_connector = None
+            except Exception:
+                if source_connector is not None:
+                    source_connector.disconnect()
+                traceback.print_exc()
+
+                if s['attempt'] >= max_connection_attempts:
+                    destination_connector.disconnect()
+                    print("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
+                    return 1
+
+    destination_connector.disconnect()
+    print("Workload completed")
+    return 0
+
+
+if __name__ == "__main__":
+    exit(run())

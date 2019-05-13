@@ -49,11 +49,8 @@ class CalipsoClient:
 
     @staticmethod
     def pp_json(json_text, sort=True, indents=4):
-        if type(json_text) is str:
-            print(json.dumps(json.loads(json_text), sort_keys=sort, indent=indents))
-        else:
-            print(json.dumps(json_text, sort_keys=sort, indent=indents))
-        return None
+        json_data = json.loads(json_text) if type(json_text) is str else json_text
+        print(json.dumps(json_data, sort_keys=sort, indent=indents))
 
     def call_api(self, method, endpoint, payload=None, fail_on_error=True):
         url = urlparse.urljoin(self.base_url, endpoint)
