@@ -13,6 +13,7 @@ import falcon
 
 from api.auth.token import Token
 from api.backends import auth_backend
+from api.backends.credentials_backend import CredentialsBackend
 from api.backends.ldap_backend import LDAPBackend
 from api.exceptions.exceptions import CalipsoApiException
 from api.middleware.authentication import AuthenticationMiddleware
@@ -44,14 +45,14 @@ class App:
 
     responders_path = "api.responders"
 
-    def __init__(self, mongo_config="", ldap_enabled=True, ldap_config="",
+    def __init__(self, mongo_config="", ldap_enabled=True, ldap_config="", auth_config="",
                  log_level="", inventory="", token_lifetime=86400):
         MongoAccess.set_config_file(mongo_config)
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory)
         self.log = FullLogger()
         self.log.set_loglevel(log_level)
-        self.setup_auth_backend(ldap_enabled=ldap_enabled, ldap_config=ldap_config)
+        self.setup_auth_backend(ldap_enabled=ldap_enabled, ldap_config=ldap_config, auth_config=auth_config)
         Token.set_token_lifetime(token_lifetime)
         self.middleware = AuthenticationMiddleware()
         self.app = falcon.API(middleware=[self.middleware])
@@ -71,7 +72,7 @@ class App:
             resource = class_()
             app.add_route(url, resource)
 
-    def setup_auth_backend(self, ldap_enabled, ldap_config):
+    def setup_auth_backend(self, ldap_enabled, ldap_config, auth_config=""):
         if ldap_enabled:
             try:
                 auth_backend.ApiAuth = LDAPBackend(ldap_config)
@@ -79,6 +80,13 @@ class App:
             except ValueError as e:
                 self.log.error("Failed to setup LDAP access. Exception: {}".format(e))
                 raise ValueError("LDAP authentication required.")
+        elif auth_config:
+            try:
+                auth_backend.ApiAuth = CredentialsBackend(auth_config)
+                return
+            except ValueError as e:
+                self.log.error("Failed to setup credentials access. Exception: {}".format(e))
+                raise ValueError("Credentials authentication required.")
         else:
             self.log.info("Skipping LDAP authentication")
 
