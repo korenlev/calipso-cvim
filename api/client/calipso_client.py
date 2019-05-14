@@ -172,13 +172,27 @@ def run():
                         type=str,
                         default=None,
                         required=False)
+    parser.add_argument("--guide",
+                        help="get a reply back with calipso api guide location",
+                        dest='guide',
+                        default=False,
+                        action='store_true',
+                        required=False)
+
     parser.add_argument("--version",
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.1.17')
+                        version='%(prog)s version: 0.1.19')
 
     args = parser.parse_args()
+
+    if args.guide:
+        guide_url = "https://cloud-gogs.cisco.com/mercury/calipso/src/master/docs/release/api-guide.rst"
+        # guide = requests.get(guide_url)
+        # print(guide.content)
+        print ("wget/curl from: {}".format(guide_url))
+        exit(0)
 
     cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
 
