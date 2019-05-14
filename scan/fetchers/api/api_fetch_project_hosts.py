@@ -8,7 +8,10 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import json
+import re
 
+from base.utils.inventory_mgr import InventoryMgr
+from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from scan.fetchers.db.db_access import DbAccess
@@ -16,27 +19,38 @@ from scan.fetchers.db.db_access import DbAccess
 
 class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
 
+    def __init__(self):
+        super().__init__()
+        self.inv = InventoryMgr()
+        self.nova_endpoint = None
+        self.token = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.token = None
+        self.nova_endpoint = self.base_url.replace(":5000", ":8774")
+
     def get(self, project_id):
         if project_id != self.admin_project:
             # do not scan hosts except under project 'admin'
             return []
-        token = self.auth(self.admin_project)
-        if not token:
+        self.token = self.auth(self.admin_project)
+        if not self.token:
             return []
         ret = []
         for region in self.regions:
-            ret.extend(self.get_for_region(region, token))
+            ret.extend(self.get_for_region(region))
         return ret
 
-    def get_for_region(self, region, token):
+    def get_for_region(self, region):
         endpoint = self.get_region_url(region, "nova")
         ret = []
-        if not token:
+        if not self.token:
             return []
         req_url = endpoint + "/os-availability-zone/detail"
         headers = {
             "X-Auth-Project-Id": self.admin_project,
-            "X-Auth-Token": token["id"]
+            "X-Auth-Token": self.token["id"]
         }
         response = self.get_url(req_url, headers)
         if "status" in response and int(response["status"]) != 200:
@@ -46,6 +60,8 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         for doc in az_info:
             az_hosts = self.get_hosts_from_az(doc)
             for h in az_hosts:
+                if "compute" in (ht.lower() for ht in h["host_type"]):
+                    self.fetch_host_resources(h)
                 if h["name"] in hosts:
                     # merge host_type data between AZs
                     existing_entry = hosts[h["name"]]
@@ -108,6 +124,20 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 self.add_host_type(doc, "Compute", az['zoneName'])
         self.fetch_host_os_details(doc)
         return doc
+
+    def fetch_host_resources(self, host):
+        req_url = "{}/v2.1/os-hosts/{}".format(self.nova_endpoint, host["id"])
+        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+
+        host["flavor_resources"] = {}
+        for resource in response["host"]:
+            resource = resource["resource"]
+            project_id = resource["project"]
+            if not re.match("^\(.*\)$", project_id):
+                project = self.inv.find_one({"id": project_id})
+                if project:
+                    resource["project_name"] = project["name"]
+            host["flavor_resources"][project_id] = resource
 
     # fetch more details of network nodes from neutron DB agents table
     def fetch_network_node_details(self, docs):

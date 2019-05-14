@@ -17,14 +17,26 @@ class ApiFetchHostInstances(ApiAccess):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
-        self.endpoint = None
+        self.token = None
+        self.nova_endpoint = None
+        self.neutron_endpoint = None
         self.projects = None
         self.db_fetcher = None
 
+        self.flavors = None
+        self.images = None
+        self.security_groups = None
+
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
-        self.endpoint = self.base_url.replace(":5000", ":8774")
+        self.token = None
+        self.nova_endpoint = self.base_url.replace(":5000", ":8774")
+        self.neutron_endpoint = self.base_url.replace(":5000", ":9696")
         self.db_fetcher = DbFetchInstances()
+
+        self.flavors = {}
+        self.images = {}
+        self.security_groups = {}
 
     def get_projects(self):
         if not self.projects:
@@ -42,12 +54,12 @@ class ApiFetchHostInstances(ApiAccess):
         return instances_found
 
     def get_instances_from_api(self, host_name):
-        token = self.auth(self.admin_project)
-        if not token:
+        self.token = self.auth(self.admin_project)
+        if not self.token:
             return []
-        tenant_id = token["tenant"]["id"]
-        req_url = self.endpoint + "/v2/" + tenant_id + "/os-hypervisors/" + host_name + "/servers"
-        response = self.get_url(req_url, {"X-Auth-Token": token["id"]})
+        tenant_id = self.token["tenant"]["id"]
+        req_url = "{}/v2/{}/os-hypervisors/{}/servers".format(self.nova_endpoint, tenant_id, host_name)
+        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
         ret = []
         if not "hypervisors" in response:
             return []
@@ -57,6 +69,71 @@ class ApiFetchHostInstances(ApiAccess):
             doc["id"] = doc["uuid"]
             doc["host"] = host_name
             doc["local_name"] = doc.pop("name")
+            self.get_additional_instance_data(doc)
             ret.append(doc)
         self.log.info("found %s instances for host: %s", str(len(ret)), host_name)
         return ret
+
+    @staticmethod
+    def set_server_info(doc, server):
+        for field in ("key_name", "addresses", "user_id", "tenant_id", "metadata",
+                      "accessIPv4", "accessIPv6", "progress", "config_drive"):
+            if field in server:
+                doc[field] = server[field]
+
+        for field in ("OS-SRV-USG:launched_at", "OS-EXT-STS:task_state", "OS-EXT-STS:vm_state",
+                      "OS-SRV-USG:terminated_at", "OS-EXT-AZ:availability_zone", "OS-EXT-STS:power_state",
+                      "OS-DCF:diskConfig", "os-extended-volumes:volumes_attached"):
+            if field in server:
+                doc[field.split(":")[-1]] = server[field]
+
+        doc["created_at"] = server.get("created")
+
+    def get_additional_instance_data(self, doc):
+        req_url = "{}/v2/servers/{}".format(self.nova_endpoint, doc['id'])
+        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+        server = response["server"]
+
+        self.set_server_info(doc, server)
+        doc.update({
+            "flavor": self.get_flavor_data(server["flavor"]["id"]) if isinstance(server.get('flavor'), dict) else None,
+            "image": self.get_image_data(server["image"]["id"]) if isinstance(server.get('image'), dict) else None,
+            "security_groups": self.get_security_groups(server)
+        })
+
+    def get_flavor_data(self, flavor_id):
+        if flavor_id in self.flavors:
+            return self.flavors[flavor_id]
+
+        req_url = "{}/v2/flavors/{}".format(self.nova_endpoint, flavor_id)
+        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+        flavor = response["flavor"]
+        flavor.pop("links", None)
+        for field in flavor:
+            flavor[field.split(":")[-1]] = flavor.pop(field)
+        self.flavors[flavor_id] = flavor
+        return flavor
+
+    def get_image_data(self, image_id):
+        if image_id in self.images:
+            return self.images[image_id]
+
+        req_url = "{}/v2/images/{}".format(self.nova_endpoint, image_id)
+        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+        image = response["image"]
+        image.pop("links", None)
+        self.images[image_id] = image
+        return image
+
+    def get_security_groups(self, server):
+        if not self.security_groups:
+            req_url = "{}/v2.0/security-groups".format(self.neutron_endpoint)
+            response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+            self.security_groups = {"{}:{}".format(sg["tenant_id"], sg["name"]): sg for sg in response["security_groups"]}
+
+        security_groups = {}
+        for security_group in server["security_groups"]:
+            sg_key = "{}:{}".format(server["tenant_id"], security_group["name"])
+            security_groups[security_group["name"]] = self.security_groups.get(sg_key)
+
+        return security_groups
