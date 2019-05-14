@@ -37,7 +37,7 @@ class CalipsoClient:
         try:
             resp = requests.post(self.auth_url,
                                  data=json.dumps(self.auth_body),
-                                 headers=self.headers)
+                                 headers=self.headers, timeout=3)
             cont = resp.json()
             if "token" not in cont:
                 raise ValueError("Failed to fetch auth token. Response:\n{}".format(cont))
@@ -45,7 +45,7 @@ class CalipsoClient:
             self.headers.update({'X-Auth-Token': self.token})
             return self.token
         except requests.exceptions.RequestException as e:
-            raise Exception("Error sending request: {}".format(e))
+            fatal("Error sending request: {}".format(e))
 
     @staticmethod
     def pp_json(json_text, sort=True, indents=4):
@@ -61,13 +61,16 @@ class CalipsoClient:
 
         method = method.lower()
         if method == 'post':
-            response = requests.post(url, json=payload, headers=self.headers)
+            response = requests.post(url, json=payload, headers=self.headers,
+                                     timeout=3)
         elif method == 'delete':
             response = requests.delete(url, headers=self.headers)
         elif method == 'put':
-            response = requests.put(url, json=payload, headers=self.headers)
+            response = requests.put(url, json=payload, headers=self.headers,
+                                    timeout=3)
         else:
-            response = requests.get(url, params=payload, headers=self.headers)
+            response = requests.get(url, params=payload, headers=self.headers,
+                                    timeout=3)
 
         if response.status_code == 404:
             fatal("Endpoint or payload item not found")
@@ -183,7 +186,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.0')
+                        version='%(prog)s version: 0.2.1')
 
     args = parser.parse_args()
 
