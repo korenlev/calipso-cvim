@@ -276,23 +276,23 @@ if __name__ == "__main__":
 
 # examples of some working arguments:
 
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --endpoint environment_configs
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
 
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan NOW
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan WEEKLY
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan NOW
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan WEEKLY
 
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages --payload "{'id': '17678.55917.5562'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scans
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --method get --endpoint scans --payload "{'id': '5cd2c6de01b845000dbaf0d9'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'page_size': '2000'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links --payload "{'id': '5cd2aa2699bb0dc9c2f9021f'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques --payload "{'id': '5cd2aa3199bb0dc9c2f911fc'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint messages
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint messages --payload "{'id': '17678.55917.5562'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --method get --endpoint scans --payload "{'id': '5cd2c6de01b845000dbaf0d9'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'page_size': '2000'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint links
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint links --payload "{'id': '5cd2aa2699bb0dc9c2f9021f'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint cliques
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint cliques --payload "{'id': '5cd2aa3199bb0dc9c2f911fc'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scheduled_scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
