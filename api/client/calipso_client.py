@@ -131,9 +131,9 @@ def run():
                         required=False)
     parser.add_argument("--api_port",
                         help="TCP Port exposed for the Calipso API Server "
-                             " (default=8000)",
+                             " (default=8747)",
                         type=int,
-                        default=8000,
+                        default=8747,
                         required=False)
     parser.add_argument("--api_password",
                         help="API password (secret) used for the Calipso API Server "
