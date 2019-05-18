@@ -40,7 +40,7 @@ class CalipsoClient:
                                  headers=self.headers, timeout=3)
             cont = resp.json()
             if "token" not in cont:
-                raise ValueError("Failed to fetch auth token. Response:\n{}".format(cont))
+                fatal("Failed to fetch auth token. Response:\n{}".format(cont))
             self.token = cont["token"]
             self.headers.update({'X-Auth-Token': self.token})
             return self.token
