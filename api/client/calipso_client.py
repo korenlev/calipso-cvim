@@ -211,7 +211,9 @@ def run():
             cc.pp_json(env_reply)
             exit(0)
         else:
-            fatal("Enter well-known endpoint, method and/or environment")
+            none_env_collections = ["inventory", "cliques", "links"]
+            if args.endpoint not in none_env_collections:
+                fatal("Enter well-known endpoint, method and/or environment")
     # ex1: get all environment_configs, with their names
     # print cc.call_api('get', 'environment_configs')
     # ex2: get a specific environment_config
@@ -261,7 +263,7 @@ def run():
     method_options = ["get", "post", "delete", "put"]
     if args.method not in method_options:
         fatal("Unaccepted method option, use --help for more details")
-    params = {"env_name": args.environment}
+    params = {"env_name": args.environment} if args.environment else {}
     if args.payload:
         payload_str = args.payload.replace("'", "\"")
         payload_json = json.loads(payload_str)
