@@ -104,7 +104,10 @@ class ApiAccess(ApiAccessBase):
             return None
         orig_url = self.keystone_client.get_region_url_from_service(s)
         # replace host name with the host found in config
-        url = re.sub(r"^([^/]+)//[^:]+", r"\1//" + self.host, orig_url)
+
+        host_match = re.match(r"^[^/]+//(.+):[0-9]+", orig_url)
+        url = orig_url.replace(host_match.group(1), self.host)
+
         if force_http and url.startswith("https"):
             url = url.replace("https", "http", 1)
         return url

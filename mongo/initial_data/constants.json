@@ -475,7 +475,11 @@
         {
             "label" : "host", 
             "value" : "host"
-        } 
+        },
+        {
+            "label" : "project",
+            "value" : "project"
+        }
     ]
 },
 { 
