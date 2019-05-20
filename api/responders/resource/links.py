@@ -33,7 +33,7 @@ class Links(ResponderBase):
         link_types = self.get_constants_by_name("link_types")
         link_states = self.get_constants_by_name("link_states")
         filters_requirements = {
-            'env_name': self.require(str, mandatory=True),
+            'env_name': self.require(str),
             'id': self.require(ObjectId, convert_to_type=True),
             'host': self.require(str),
             'link_type': self.require(str,
@@ -74,5 +74,6 @@ class Links(ResponderBase):
         _id = filters.get('id')
         if _id:
             query[self.ID] = _id
-        query['environment'] = filters['env_name']
+        if 'env_name' in filters:
+            query['environment'] = filters['env_name']
         return query

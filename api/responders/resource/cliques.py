@@ -30,7 +30,7 @@ class Cliques(ResponderBase):
         focal_point_types = self.get_constants_by_name("object_types")
         link_types = self.get_constants_by_name("link_types")
         filters_requirements = {
-            'env_name': self.require(str, mandatory=True),
+            'env_name': self.require(str),
             'id': self.require(ObjectId, convert_to_type=True),
             'focal_point': self.require(ObjectId, convert_to_type=True),
             'focal_point_type': self.require(str,
@@ -69,5 +69,6 @@ class Cliques(ResponderBase):
         _id = filters.get('id')
         if _id:
             query[self.ID] = _id
-        query['environment'] = filters['env_name']
+        if 'env_name' in filters:
+            query['environment'] = filters['env_name']
         return query

@@ -23,7 +23,8 @@ class Inventory(ResponderBase):
         ID: True,
         "name": True,
         "name_path": True,
-        "type": True
+        "type": True,
+        "environment": True
     }
 
     def __init__(self):
@@ -35,7 +36,7 @@ class Inventory(ResponderBase):
 
         filters = self.parse_query_params(req)
         filters_requirements = {
-            'env_name': self.require(str, mandatory=True),
+            'env_name': self.require(str),
             'id': self.require(str),
             'id_path': self.require(str),
             'type': self.require(str, validate=DataValidate.LIST, requirement=self.object_types),
@@ -69,5 +70,6 @@ class Inventory(ResponderBase):
             else:
                 regular_expression += "/[^/]+$"
             query['id_path'] = {"$regex": regular_expression}
-        query['environment'] = filters['env_name']
+        if 'env_name' in filters:
+            query['environment'] = filters['env_name']
         return query
