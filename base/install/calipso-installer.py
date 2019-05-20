@@ -352,9 +352,9 @@ parser.add_argument("--dbport",
                     required=False)
 parser.add_argument("--apiport",
                     help="Port for the Calipso API "
-                         "(default=8000)",
+                         "(default=8747)",
                     type=int,
-                    default="8000",
+                    default="8747",
                     required=False)
 parser.add_argument("--uchiwaport",
                     help="Port for the Calipso Uchiwa "

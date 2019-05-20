@@ -37,15 +37,15 @@ class CalipsoClient:
         try:
             resp = requests.post(self.auth_url,
                                  data=json.dumps(self.auth_body),
-                                 headers=self.headers)
+                                 headers=self.headers, timeout=3)
             cont = resp.json()
             if "token" not in cont:
-                raise ValueError("Failed to fetch auth token. Response:\n{}".format(cont))
+                fatal("Failed to fetch auth token. Response:\n{}".format(cont))
             self.token = cont["token"]
             self.headers.update({'X-Auth-Token': self.token})
             return self.token
         except requests.exceptions.RequestException as e:
-            raise Exception("Error sending request: {}".format(e))
+            fatal("Error sending request: {}".format(e))
 
     @staticmethod
     def pp_json(json_text, sort=True, indents=4):
@@ -61,13 +61,16 @@ class CalipsoClient:
 
         method = method.lower()
         if method == 'post':
-            response = requests.post(url, json=payload, headers=self.headers)
+            response = requests.post(url, json=payload, headers=self.headers,
+                                     timeout=3)
         elif method == 'delete':
             response = requests.delete(url, headers=self.headers)
         elif method == 'put':
-            response = requests.put(url, json=payload, headers=self.headers)
+            response = requests.put(url, json=payload, headers=self.headers,
+                                    timeout=3)
         else:
-            response = requests.get(url, params=payload, headers=self.headers)
+            response = requests.get(url, params=payload, headers=self.headers,
+                                    timeout=3)
 
         if response.status_code == 404:
             fatal("Endpoint or payload item not found")
@@ -128,9 +131,9 @@ def run():
                         required=False)
     parser.add_argument("--api_port",
                         help="TCP Port exposed for the Calipso API Server "
-                             " (default=8000)",
+                             " (default=8747)",
                         type=int,
-                        default=8000,
+                        default=8747,
                         required=False)
     parser.add_argument("--api_password",
                         help="API password (secret) used for the Calipso API Server "
@@ -183,7 +186,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.0')
+                        version='%(prog)s version: 0.2.1')
 
     args = parser.parse_args()
 
@@ -273,23 +276,23 @@ if __name__ == "__main__":
 
 # examples of some working arguments:
 
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --endpoint environment_configs
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
 
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan NOW
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --scan WEEKLY
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan NOW
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan WEEKLY
 
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint messages --payload "{'id': '17678.55917.5562'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scans
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --environment staging --method get --endpoint scans --payload "{'id': '5cd2c6de01b845000dbaf0d9'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'page_size': '2000'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint links --payload "{'id': '5cd2aa2699bb0dc9c2f9021f'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint cliques --payload "{'id': '5cd2aa3199bb0dc9c2f911fc'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
-# --api_server korlev-calipso-testing.cisco.com --api_port 8000 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint messages
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint messages --payload "{'id': '17678.55917.5562'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --method get --endpoint scans --payload "{'id': '5cd2c6de01b845000dbaf0d9'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'page_size': '2000'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint links
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint links --payload "{'id': '5cd2aa2699bb0dc9c2f9021f'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint cliques
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint cliques --payload "{'id': '5cd2aa3199bb0dc9c2f911fc'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scheduled_scans
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
+# --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
