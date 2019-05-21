@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 import traceback
+
 try:
     from urllib import quote_plus
 except ImportError:
@@ -11,9 +12,17 @@ from pymongo import MongoClient
 DEFAULT_PORT = 27017
 DEFAULT_USER = 'calipso'
 AUTH_DB = 'calipso'
+DEBUG = False
 
 max_connection_attempts = 5
-collection_names = ["inventory", "links", "messages", "scans", "scheduled_scans", "cliques"]
+collection_names = ["environments_config", "inventory", "links", "messages", "scans", "scheduled_scans", "clique_types",
+                    "cliques"]
+reconstructable_collections = ["inventory", "links", "clique_types", "cliques"]
+
+
+def debug(msg):
+    if DEBUG is True:
+        print(msg)
 
 
 class MongoConnector(object):
@@ -55,7 +64,9 @@ class MongoConnector(object):
         docs = []
         for doc in cursor:
             if remove_mongo_ids is True:
-                doc.pop('_id')
+                original_id = doc.pop('_id')
+                if collection in reconstructable_collections:
+                    doc['original_id'] = original_id
             docs.append(doc)
         return docs
 
@@ -104,14 +115,71 @@ def read_servers_from_file(filename):
         return servers, config['central']
 
 
+def reconstruct_ids(destination_connector):
+    print("Fixing ids for links and cliques")
+    rc = {}
+    for col in reconstructable_collections:
+        rc[col] = {}
+        objects = destination_connector.find_all(col)
+        for obj in objects:
+            original_id = obj.pop("original_id")
+            rc[col][original_id] = obj
+
+    for link_orig_id, link in rc["links"].items():
+        if 'source' not in link or 'target' not in link:
+            debug("Malformed link: {}".format(link))
+            continue
+        link["source"] = rc["inventory"][link["source"]]["_id"]
+        link["target"] = rc["inventory"][link["target"]]["_id"]
+
+    for clique_orig_id, clique in rc["cliques"].items():
+        if any(req_field not in clique for req_field in ('links', 'links_detailed')):
+            debug("Malformed clique: {}".format(clique))
+            continue
+
+        clique["focal_point"] = rc["inventory"][clique["focal_point"]]["_id"]
+
+        if 'nodes' in clique:
+            debug("No nodes defined in clique: {}".format(clique["_id"]))
+            clique["nodes"] = [rc["inventory"][node_id]["_id"] for node_id in clique["nodes"]]
+
+        clique_new_links, clique_new_links_detailed = [], []
+        for link_id in clique["links"]:
+            new_link = rc["links"][link_id]
+            clique_new_links.append(new_link["_id"])
+            clique_new_links_detailed.append(new_link)
+
+        if 'clique_type' in clique:
+            rc_clique_type = rc["clique_types"].get(clique["clique_type"])
+            if not rc_clique_type:
+                debug("Illegal clique type: {}".format(clique["clique_type"]))
+            else:
+                clique["clique_type"] = rc_clique_type["_id"]
+
+        clique["links"] = clique_new_links
+        clique["links_detailed"] = clique_new_links_detailed
+
+    for col in reconstructable_collections:
+        destination_connector.clear_collection(col)
+        destination_connector.insert_collection(col, list(rc[col].values()))
+
+
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config",
                         help="Path to server configurations json file",
                         type=str,
                         required=False)
+    parser.add_argument("--debug",
+                        help="Print debug messages",
+                        action="store_true",
+                        required=False)
 
     args = parser.parse_args()
+
+    global DEBUG
+    DEBUG = args.debug
+
     servers, central = read_servers_from_file(args.config) if args.config else read_servers_from_cli()
 
     if not servers or all(s['imported'] is True for s in servers):
@@ -120,7 +188,7 @@ def run():
 
     destination_connector = MongoConnector(central['name'], DEFAULT_PORT, DEFAULT_USER, central['secret'], AUTH_DB)
     for col in collection_names:
-        print ("Clearing collection {} from {}...".format(col, central['name']))
+        print("Clearing collection {} from {}...".format(col, central['name']))
         destination_connector.clear_collection(col)
 
     while all(s['imported'] is False for s in servers):
@@ -140,7 +208,7 @@ def run():
                     documents = source_connector.find_all(col, remove_mongo_ids=True)
 
                     # write all in-memory json docs into the central DB
-                    print ("Pushing the {} Collection into {}...".format(col, central['name']))
+                    print("Pushing the {} Collection into {}...".format(col, central['name']))
                     destination_connector.insert_collection(col, documents)
 
                 s['imported'] = True
@@ -156,6 +224,8 @@ def run():
                     print("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
                     return 1
 
+    # reconstruct source-target ids for links and cliques
+    reconstruct_ids(destination_connector)
     destination_connector.disconnect()
     print("Workload completed")
     return 0
