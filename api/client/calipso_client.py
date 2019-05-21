@@ -267,8 +267,8 @@ def run():
     if args.payload:
         payload_str = args.payload.replace("'", "\"")
         try:
-         payload_json = json.loads(payload_str)
-         params.update(payload_json)
+            payload_json = json.loads(payload_str)
+            params.update(payload_json)
         except ValueError as e:
             fatal("unsupported payload data {}, should follow JSON formatting".format(e))
     reply = cc.call_api(args.method, args.endpoint, params)
