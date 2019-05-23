@@ -165,6 +165,11 @@ def run():
                         help="Print debug messages",
                         action="store_true",
                         required=False)
+    parser.add_argument("--version",
+                        help="get a reply back with replication_client version",
+                        action='version',
+                        default=None,
+                        version='%(prog)s version: 0.2.4')
 
     args = parser.parse_args()
 
