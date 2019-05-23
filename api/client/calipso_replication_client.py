@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 import traceback
+from sys import exit
 try:
     from urllib import quote_plus
 except ImportError:

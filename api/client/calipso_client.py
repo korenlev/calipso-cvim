@@ -4,6 +4,7 @@ import json
 import time
 import datetime
 import argparse
+from sys import exit
 # This is a calipso api client designed to be small and simple
 # currently for single pod, single api_server and single environment
 # assuming environment_config details are already deployed by CVIM automation
