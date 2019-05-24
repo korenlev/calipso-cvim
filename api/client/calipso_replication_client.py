@@ -82,7 +82,7 @@ def backoff(i):
 
 def read_servers_from_cli():
     try:
-        servers_count = int(input("How many Calipso Servers to replicate? "))
+        servers_count = int(raw_input("How many Calipso Servers to replicate? "))
         if servers_count < 1:
             raise TypeError()
     except TypeError:
