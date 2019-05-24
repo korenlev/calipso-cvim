@@ -62,10 +62,10 @@ class KeystoneClient(metaclass=ABCMeta):
             token_details = cls.tokens[project_id]
         except KeyError:
             return None
-        token_expiry = token_details["expires"]
-        token_expiry_time_struct = cls.parse_time(token_expiry)
-        if not token_expiry_time_struct:
-            return None
+        # token_expiry = token_details["expires"]
+        # token_expiry_time_struct = cls.parse_time(token_expiry)
+        #if not token_expiry_time_struct:
+        #    return None
         token_expiry_time = token_details["token_expiry_time"]
         now = time.time()
         if now > token_expiry_time:
