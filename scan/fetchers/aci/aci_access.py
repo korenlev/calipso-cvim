@@ -11,9 +11,12 @@
 import time
 
 import requests
+import urllib3
 
 from base.utils.api_access_base import ApiAccessBase
 from base.utils.configuration import Configuration
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def aci_config_required(default=None):

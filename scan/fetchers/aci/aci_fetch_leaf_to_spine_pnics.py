@@ -27,6 +27,7 @@ class AciFetchLeafToSpinePnics(AciBaseFetchSwitch):
     def __init__(self, config=None):
         super().__init__(config=config)
         self.inv = InventoryMgr()
+        self.spines = {}  # Persist spines data for the duration of scan
 
     def fetch_switches_by_role(self, role_name):
         query_filter = {"query-target-filter":
@@ -51,6 +52,10 @@ class AciFetchLeafToSpinePnics(AciBaseFetchSwitch):
     # 2. Downlink pnic id for spine switch
     # 3. Uplink pnic id for leaf switch
     def fetch_spines_and_pnics_by_leaf_id(self, leaf_id):
+        if leaf_id in self.spines:
+            self.log.info("Reusing cached spines for leaf: {}".format(leaf_id))
+            return self.spines[leaf_id]
+
         spine_switches = self.fetch_switches_by_role("spine")
         adjacent_devices = self.fetch_adjacent_connections(leaf_id)
         spines = []
@@ -74,6 +79,7 @@ class AciFetchLeafToSpinePnics(AciBaseFetchSwitch):
                 except AttributeError:
                     continue  # TODO: probably raise an exception
 
+        self.spines[leaf_id] = spines
         return spines
 
     @aci_config_required(default=[])

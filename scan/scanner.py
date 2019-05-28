@@ -199,10 +199,13 @@ class Scanner(Fetcher):
 
         escaped_id = fetcher.escape(str(obj_id)) if obj_id else obj_id
         self.log.info(
-            "Scanning: type={type}, "
+            "Scanning: "
+            "fetcher={fetcher}, "
+            "type={type}, "
             "parent: (type={parent_type}, "
             "name={parent_name}, "
-            "id={parent_id})".format(type=type_to_fetch["type"],
+            "id={parent_id})".format(fetcher=fetcher.__class__.__name__,
+                                     type=type_to_fetch["type"],
                                      parent_type=parent.get('type', 'environment'),
                                      parent_name=parent.get('name', ''),
                                      parent_id=escaped_id))
