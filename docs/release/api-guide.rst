@@ -1616,6 +1616,55 @@ Error response code: badRequest(400), unauthorized(401), notFound(404)
 |       "name": "link\_states"
 | }
 
+list of constants available in current release:
+
+    "name" : "constraints"
+
+    "name" : "env_types"
+
+    "name" : "log_levels"
+
+    "name" : "environment_types"
+
+    "name" : "mechanism_drivers"
+
+    "name" : "type_drivers"
+
+    "name" : "environment_monitoring_types"
+
+    "name" : "monitoring_check_statuses"
+
+    "name" : "link_states"
+
+    "name" : "environment_provision_types"
+
+    "name" : "environment_operational_status"
+
+    "name" : "link_types"
+
+    "name" : "monitoring_sides"
+
+    "name" : "messages_severity"
+
+    "name" : "object_types"
+
+    "name" : "scans_statuses"
+
+    "name" : "distributions"
+
+    "name" : "distribution_versions"
+
+    "name" : "message_source_systems"
+
+    "name" : "object_types_for_links"
+
+    "name" : "scan_object_types"
+
+    "name" : "configuration_targets"
+
+
+
+
 Monitoring\_Config\_Templates
 -----------------------------
 

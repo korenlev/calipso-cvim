@@ -187,7 +187,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.7')
+                        version='%(prog)s version: 0.2.8')
 
     args = parser.parse_args()
 
@@ -202,8 +202,8 @@ def run():
 
     # only interaction with environment_configs is allowed without environment name
     if not args.environment:
-        if args.endpoint == "environment_configs":
-            if args.payload:  # case for a specific environment
+        if args.endpoint == "environment_configs" or args.endpoint == "constants":
+            if args.payload:  # case for a specific environment or constant
                 payload_str = args.payload.replace("'", "\"")
                 payload_json = json.loads(payload_str)
                 env_reply = cc.call_api(args.method, args.endpoint, payload_json)
@@ -302,3 +302,5 @@ if __name__ == "__main__":
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
+# --api_server korlev-calipso-testing.cisco.com --api_password bxLkRiwCkk6xyXMS --method get --endpoint constants --payload "{'name': 'link_types'}"
+# --api_server korlev-calipso-testing.cisco.com --api_password bxLkRiwCkk6xyXMS --method get --endpoint constants --payload "{'name': 'object_types'}"
