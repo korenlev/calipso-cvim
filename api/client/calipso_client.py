@@ -302,3 +302,5 @@ if __name__ == "__main__":
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scheduled_scans --payload "{'id': '5cd2aad401b845000d186174'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'id': '01776a49-a522-41ab-ab7c-94f4297c4227'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint inventory --payload "{'type': 'instance', 'page_size': '1500'}"
+# --api_server korlev-calipso-testing.cisco.com --api_password bxLkRiwCkk6xyXMS --method get --endpoint constants --payload "{'name': 'link_types'}"
+# --api_server korlev-calipso-testing.cisco.com --api_password bxLkRiwCkk6xyXMS --method get --endpoint constants --payload "{'name': 'object_types'}"
