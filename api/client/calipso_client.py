@@ -202,7 +202,7 @@ def run():
 
     # only interaction with environment_configs is allowed without environment name
     if not args.environment:
-        if args.endpoint == "environments_config":
+        if args.endpoint == "environment_configs":
             if args.payload:  # case for a specific environment
                 payload_str = args.payload.replace("'", "\"")
                 payload_json = json.loads(payload_str)
