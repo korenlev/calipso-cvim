@@ -203,6 +203,8 @@ def run():
     # only interaction with environment_configs is allowed without environment name
     if not args.environment:
         if args.endpoint == "environment_configs" or args.endpoint == "constants":
+            if args.environment:
+                fatal("Environment is not needed in this request, please remove")
             if args.payload:  # case for a specific environment or constant
                 payload_str = args.payload.replace("'", "\"")
                 payload_json = json.loads(payload_str)
