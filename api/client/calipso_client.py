@@ -199,8 +199,13 @@ def run():
         exit(0)
 
     cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
+    per_environment_collections = ["inventory", "cliques", "links", "messages"]
 
-    # only interaction with environment_configs is allowed without environment name
+    # currently, only environment_configs and constants allowed without environment
+    if args.endpoint in per_environment_collections and not args.environment:
+        fatal("Missing well-known endpoint, method or environment")
+    if args.environment and args.endpoint not in per_environment_collections:
+        fatal("Environment is not needed in this request, please remove")
     if not args.environment:
         if args.endpoint == "environment_configs" or args.endpoint == "constants":
             if args.payload:  # case for a specific environment or constant
@@ -211,10 +216,6 @@ def run():
                 env_reply = cc.call_api(args.method, args.endpoint)
             cc.pp_json(env_reply)
             exit(0)
-        else:
-            none_env_collections = ["inventory", "cliques", "links"]
-            if args.endpoint not in none_env_collections:
-                fatal("Enter well-known endpoint, method and/or environment")
     # ex1: get all environment_configs, with their names
     # print cc.call_api('get', 'environment_configs')
     # ex2: get a specific environment_config
