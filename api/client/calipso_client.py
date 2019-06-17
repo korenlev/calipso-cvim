@@ -229,9 +229,11 @@ def run():
             fatal("Scan request requires an environment")
         if args.scan not in scan_options:
             fatal("Unaccepted scan option, use --help for more details")
-        if args.method:
+        if args.method is not None:
             fatal("Method not needed for scan requests, please remove")
-        if args.endpoint:
+        if args.payload is not None:
+            fatal("Payload not needed for scan requests, please remove")
+        if args.endpoint is not None:
             fatal("Endpoint not needed for scan requests, please remove")
         else:
             if args.scan == "NOW":
