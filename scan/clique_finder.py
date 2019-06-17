@@ -196,6 +196,7 @@ class CliqueFinder(Fetcher):
         clique = {
             "environment": self.env,
             "focal_point": o["_id"],
+            "focal_point_object_id": o["id"],
             "focal_point_type": o["type"],
             "links": [],
             "links_detailed": [],

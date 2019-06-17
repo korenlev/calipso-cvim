@@ -20,6 +20,7 @@ class Cliques(ResponderBase):
     PROJECTION = {
         ID: True,
         "focal_point_type": True,
+        "focal_point_object_id": True,
         "environment": True
     }
 
@@ -33,6 +34,7 @@ class Cliques(ResponderBase):
             'env_name': self.require(str),
             'id': self.require(ObjectId, convert_to_type=True),
             'focal_point': self.require(ObjectId, convert_to_type=True),
+            'focal_point_object_id': self.require(str),
             'focal_point_type': self.require(str,
                                              validate=DataValidate.LIST,
                                              requirement=focal_point_types),
@@ -53,12 +55,13 @@ class Cliques(ResponderBase):
             self.set_ok_response(resp, clique)
         else:
             cliques_ids = self.get_objects_list(self.COLLECTION, query,
-                                                page, page_size, self.PROJECTION)
+                                                page, page_size, self.PROJECTION,
+                                                stringify_types=[ObjectId])
             self.set_ok_response(resp, {"cliques": cliques_ids})
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ['focal_point', 'focal_point_type']
+        filters_keys = ['focal_point', 'focal_point_object_id', 'focal_point_type']
         self.update_query_with_filters(filters, filters_keys, query)
         link_type = filters.get('link_type')
         if link_type:
