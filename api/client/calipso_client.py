@@ -176,6 +176,18 @@ def run():
                         type=str,
                         default=None,
                         required=False)
+    parser.add_argument("--page",
+                        help="a page number for retrieval"
+                             " (default=0)",
+                        type=int,
+                        default=0,
+                        required=False)
+    parser.add_argument("--page_size",
+                        help="a number of total objects listed per page" 
+                             " (default=1000)",
+                        type=int,
+                        default=1000,
+                        required=False)
     parser.add_argument("--guide",
                         help="get a reply back with API guide location",
                         dest='guide',
@@ -187,7 +199,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.13')
+                        version='%(prog)s version: 0.2.14')
 
     args = parser.parse_args()
 
@@ -274,7 +286,10 @@ def run():
     method_options = ["get", "post", "delete", "put"]
     if args.method not in method_options:
         fatal("Unaccepted method option, use --help for more details")
-    params = {"env_name": args.environment} if args.environment else {}
+    if not isinstance(args.page, int) or not isinstance(args.page, int):
+        fatal("Unaccepted page or page_size (must be a number")
+    params = {"env_name": args.environment, "page": args.page,
+              "page_size": args.page_size} if args.environment is not None else {}
     if args.payload:
         payload_str = args.payload.replace("'", "\"")
         try:
