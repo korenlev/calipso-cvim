@@ -187,7 +187,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.12')
+                        version='%(prog)s version: 0.2.13')
 
     args = parser.parse_args()
 
