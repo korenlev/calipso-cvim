@@ -125,59 +125,59 @@ def run():
     # parser for getting mandatory and some optional command arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument("--api_server",
-                        help="FQDN (ex:mysrv.cisco.com) or IP address of API Server"
+                        help="FQDN or IP address of the API Server"
                              " (default=localhost)",
                         type=str,
                         default="localhost",
                         required=False)
     parser.add_argument("--api_port",
-                        help="TCP Port exposed for the Calipso API Server "
+                        help="TCP Port exposed on the API Server "
                              " (default=8747)",
                         type=int,
                         default=8747,
                         required=False)
     parser.add_argument("--api_password",
-                        help="API password (secret) used for the Calipso API Server "
+                        help="API password (secret) used by the API Server "
                              " (default=calipso_default)",
                         type=str,
                         default="calipso_default",
                         required=False)
     parser.add_argument("--environment",
-                        help="specify environment name configured on calipso server"
+                        help="specify environment(pod) name configured on the API server"
                              " (default=None)",
                         type=str,
                         default=None,
                         required=False)
     parser.add_argument("--scan",
-                        help="scan/discover the specific cloud environment -"
+                        help="scan/discover the specific cloud environment/pod -"
                              " options: NOW/HOURLY/DAILY/WEEKLY/MONTHLY/YEARLY"
                              " (default=None)",
                         type=str,
                         default=None,
                         required=False)
     parser.add_argument("--method",
-                        help="method to use on the calipso API server -"
+                        help="method to use on the API server -"
                              " options: get/post/delete/put"
                              " (default=None)",
                         type=str,
                         default=None,
                         required=False)
     parser.add_argument("--endpoint",
-                        help="endpoint url extension to use on calipso API server -"
-                             " options: please see API documentation on endpoints"
+                        help="endpoint url extension to use on the API server -"
+                             " options: please see API documentation for endpoints"
                              " (default=None)",
                         type=str,
                         default=None,
                         required=False)
     parser.add_argument("--payload",
-                        help="dict string with parameters to send to calipso API -"
+                        help="dict string with parameters to send to the API -"
                              " options: please see API documentation per endpoint"
                              " (default=None)",
                         type=str,
                         default=None,
                         required=False)
     parser.add_argument("--guide",
-                        help="get a reply back with calipso api guide location",
+                        help="get a reply back with API guide location",
                         dest='guide',
                         default=False,
                         action='store_true',
