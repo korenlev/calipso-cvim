@@ -187,7 +187,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.9')
+                        version='%(prog)s version: 0.2.12')
 
     args = parser.parse_args()
 
@@ -199,30 +199,34 @@ def run():
         exit(0)
 
     cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
-    per_environment_collections = ["inventory", "cliques", "links", "messages"]
+    per_environment_collections = ["inventory", "cliques", "links", "messages",
+                                   "scans", "scheduled_scans"]
 
     # currently, only environment_configs and constants allowed without environment
-    if args.endpoint in per_environment_collections and not args.environment:
-        fatal("Missing well-known endpoint, method or environment")
-    if args.environment and args.endpoint not in per_environment_collections:
-        fatal("Environment is not needed in this request, please remove")
-    if not args.environment:
-        if args.endpoint == "environment_configs" or args.endpoint == "constants":
-            if args.payload:  # case for a specific environment or constant
-                payload_str = args.payload.replace("'", "\"")
-                payload_json = json.loads(payload_str)
-                env_reply = cc.call_api(args.method, args.endpoint, payload_json)
-            else:  # case for all environments
-                env_reply = cc.call_api(args.method, args.endpoint)
-            cc.pp_json(env_reply)
-            exit(0)
+    if args.endpoint in per_environment_collections and args.environment is None:
+        fatal("This request requires an environment")
+    if args.endpoint == "environment_configs" or args.endpoint == "constants":
+        if args.method is None:
+            fatal("Method is needed for this type of request")
+        if args.environment is not None:
+            fatal("Environment not needed for this request, please remove")
+        if args.payload:  # case for a specific environment or specific constant
+            payload_str = args.payload.replace("'", "\"")
+            payload_json = json.loads(payload_str)
+            env_reply = cc.call_api(args.method, args.endpoint, payload_json)
+        else:  # case for all environments
+            env_reply = cc.call_api(args.method, args.endpoint)
+        cc.pp_json(env_reply)
+        exit(0)
     # ex1: get all environment_configs, with their names
     # print cc.call_api('get', 'environment_configs')
     # ex2: get a specific environment_config
     # print cc.call_api('get', 'environment_configs', payload={"name": "staging"})
 
     scan_options = ["NOW", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
-    if args.scan:
+    if args.scan is not None:
+        if args.environment is None:
+            fatal("Scan request requires an environment")
         if args.scan not in scan_options:
             fatal("Unaccepted scan option, use --help for more details")
         if args.method:
@@ -259,8 +263,11 @@ def run():
                       .format(schedule_doc['scheduled_timestamp'], schedule_doc['submit_timestamp'], schedule_doc['freq']))
             exit(0)
 
+    if args.environment is not None and args.endpoint not in per_environment_collections:
+        fatal("Environment is not needed for this request, please remove")
+
     #  generic request for items from any endpoint using any method, per environment
-    if not args.endpoint or not args.method:
+    if args.endpoint is None or args.method is None:
         fatal("Endpoint and method are needed for this type of request")
     method_options = ["get", "post", "delete", "put"]
     if args.method not in method_options:
@@ -282,13 +289,10 @@ if __name__ == "__main__":
     run()
 
 # examples of some working arguments:
-
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
-
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan NOW
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan WEEKLY
-
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint messages
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint messages --payload "{'id': '17678.55917.5562'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --environment staging --endpoint scans
