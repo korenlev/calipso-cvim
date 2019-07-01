@@ -10,8 +10,6 @@
 import re
 
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.origins import Origin
-from base.utils.vpp_utils import parse_hw_interfaces
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
@@ -26,16 +24,6 @@ class CliFetchVserviceVnics(CliFetcher):
             {'name': 'netmask', 're': '^\s*inet [0-9.]+/([0-9]+)'},
             {'name': 'IPv6 Address', 're': '^\s*inet6 ([^/]+)/.* global '}
         ]
-        self.is_vpp = None
-        self.vpp_interfaces = None
-        self.is_ovs = None
-
-    def setup(self, env, origin: Origin = None):
-        super().setup(env, origin)
-        mechanism_drivers = [md.upper() for md in self.configuration.environment.get('mechanism_drivers', [])]
-        self.is_vpp = 'VPP' in mechanism_drivers
-        self.vpp_interfaces = {}
-        self.is_ovs = 'OVS' in mechanism_drivers
 
     def get(self, host_id):
         host = self.inv.get_by_id(self.get_env(), host_id)
@@ -50,10 +38,6 @@ class CliFetchVserviceVnics(CliFetcher):
             return []
         lines = self.run_fetch_lines("ip netns list", host_id)
         ret = []
-
-        if self.is_vpp and host_id not in self.vpp_interfaces:
-            vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", host_id)
-            self.vpp_interfaces[host_id] = parse_hw_interfaces(vpp_show_lines)
 
         for l in [l for l in lines
                   if l.startswith("qdhcp") or l.startswith("qrouter")]:
@@ -104,25 +88,12 @@ class CliFetchVserviceVnics(CliFetcher):
         self.find_matching_regexps(interface, line, self.regexps)
         interface["lines"].append(line.strip())
 
-    def set_mechanism_driver_specific_data(self, vnic):
-        # TODO: move to dedicated fetchers
-        if self.is_vpp:
-            interface_name = next(
-                    i["name"] for i in self.vpp_interfaces[vnic["host"]]
-                    if i.get("mac_address") == vnic["mac_address"]
-            )
-            vnic["interface_name"] = interface_name
-            vnic["id"] = "|".join((vnic["host"], interface_name))
-            vnic["name"] = "|".join((vnic["id"], vnic["object_name"]))
-        elif self.is_ovs:
-            vnic["id"] = "|".join((vnic["host"], vnic["object_name"]))
-            vnic["name"] = "|".join((vnic["object_name"], vnic["mac_address"]))
-        else:
-            vnic["id"] = "|".join((vnic["host"], vnic["object_name"]))
-            vnic["name"] = vnic["object_name"]
+    def set_vnic_names(self, vnic):
+        vnic["id"] = "|".join((vnic["host"], vnic["object_name"]))
+        vnic["name"] = "|".join((vnic["object_name"], vnic["mac_address"]))
 
     def set_vnic_data(self, vnic):
-        self.set_mechanism_driver_specific_data(vnic)
+        self.set_vnic_names(vnic)
         if not vnic or 'IP Address' not in vnic or 'netmask' not in vnic:
             return
 
