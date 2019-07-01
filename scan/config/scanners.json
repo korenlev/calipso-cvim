@@ -99,7 +99,18 @@
       {
         "_comment": "fetch vService vNICs from host for efficiency",
         "type": "vnic",
-        "fetcher": "CliFetchVserviceVnics"
+        "fetcher": "CliFetchVserviceVnics",
+        "environment_restriction": {
+          "mechanism_drivers": ["VPP"]
+        }
+      },
+      {
+        "_comment": "fetch vService vNICs from host for efficiency (VPP)",
+        "type": "vnic",
+        "fetcher": "CliFetchVserviceVnicsVpp",
+        "environment_condition": {
+          "mechanism_drivers": ["VPP"]
+        }
       },
       {
         "type": "instances_folder",
