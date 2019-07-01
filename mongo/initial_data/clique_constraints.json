@@ -23,7 +23,8 @@
 { 
     "environment":"",
     "constraints" : [
-    ], 
+        "network"
+    ],
     "focal_point_type" : "network"
 }
 ]

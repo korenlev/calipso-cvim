@@ -7,9 +7,12 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import abc
+
 import xmltodict
 
 from base.utils.inventory_mgr import InventoryMgr
+from scan.fetchers.cli.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
@@ -35,10 +38,10 @@ class CliFetchInstanceVnicsBase(CliFetcher):
         # therefore, we will decide whether the instance is the correct one
         # based on comparison of the uuid in the dumpxml output
         for name in virsh_names:
-            results.extend(self.get_vnics_from_dumpxml(name, instance))
+            results.extend(self.get_vnics_data(name, instance))
         return results
 
-    def get_vnics_from_dumpxml(self, name, instance):
+    def get_vnics_data(self, name, instance):
         xml_string = self.run("virsh dumpxml " + name, instance["host"])
         if not xml_string.strip():
             return []
@@ -56,13 +59,35 @@ class CliFetchInstanceVnicsBase(CliFetcher):
             self.set_vnic_properties(v, instance)
         return vnics
 
+    @abc.abstractmethod
+    def set_vnic_names(self, v, instance):
+        return ""
+
     def set_vnic_properties(self, v, instance):
-        v["name"] = self.get_vnic_name(v, instance)
-        v["id"] = "{}-{}".format(instance["host"], v["name"])
-        v["vnic_type"] = "instance_vnic"
-        v["host"] = instance["host"]
-        v["instance_id"] = instance["id"]
-        v["instance_db_id"] = instance["_id"]
-        v["mac_address"] = v["mac"]["@address"]
+        v.update({
+            "vnic_type": "instance_vnic",
+            "host": instance["host"],
+            "instance_id": instance["id"],
+            "instance_db_id": instance["_id"],
+            "mac_address": v["mac"]["@address"],
+        })
+        self.set_vnic_names(v, instance)
+
         instance["mac_address"] = v["mac_address"]
+
+        network = next((n for n in instance.get("network_info", []) if n["address"] == v["mac_address"]), None)
+        if network:
+            v["addresses"] = []
+            for subnet in network.get("network", {}).get("subnets", []):
+                cidr = subnet["cidr"]
+                v["addresses"].append({
+                    "cidr": cidr,
+                    "netmask": CliFetchVserviceVnics.convert_netmask(cidr.split("/")[-1]),
+                    "IP Address": subnet["ips"][0]["address"],
+                    "dhcp_server": subnet["meta"]["dhcp_server"],
+                    "gateway": subnet["gateway"]["address"],
+                    "routes": subnet["routes"],
+                    "dns": subnet["dns"]
+                })
+
         self.inv.set(instance)

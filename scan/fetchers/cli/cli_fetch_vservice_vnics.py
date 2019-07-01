@@ -10,6 +10,8 @@
 import re
 
 from base.utils.inventory_mgr import InventoryMgr
+from base.utils.origins import Origin
+from base.utils.vpp_utils import parse_hw_interfaces
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
@@ -22,9 +24,18 @@ class CliFetchVserviceVnics(CliFetcher):
             {'name': 'mac_address', 're': '^.*\slink/ether\s(\S+)\s'},
             {'name': 'IP Address', 're': '^\s*inet ([0-9.]+)/'},
             {'name': 'netmask', 're': '^\s*inet [0-9.]+/([0-9]+)'},
-            {'name': 'IPv6 Address',
-             're': '^\s*inet6 ([^/]+)/.* global '}
+            {'name': 'IPv6 Address', 're': '^\s*inet6 ([^/]+)/.* global '}
         ]
+        self.is_vpp = None
+        self.vpp_interfaces = None
+        self.is_ovs = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        mechanism_drivers = [md.upper() for md in self.configuration.environment.get('mechanism_drivers', [])]
+        self.is_vpp = 'VPP' in mechanism_drivers
+        self.vpp_interfaces = {}
+        self.is_ovs = 'OVS' in mechanism_drivers
 
     def get(self, host_id):
         host = self.inv.get_by_id(self.get_env(), host_id)
@@ -39,6 +50,11 @@ class CliFetchVserviceVnics(CliFetcher):
             return []
         lines = self.run_fetch_lines("ip netns list", host_id)
         ret = []
+
+        if self.is_vpp and host_id not in self.vpp_interfaces:
+            vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", host_id)
+            self.vpp_interfaces[host_id] = parse_hw_interfaces(vpp_show_lines)
+
         for l in [l for l in lines
                   if l.startswith("qdhcp") or l.startswith("qrouter")]:
             service = l.strip()
@@ -56,7 +72,7 @@ class CliFetchVserviceVnics(CliFetcher):
             matches = self.if_header.match(line)
             if matches:
                 if current:
-                    self.set_interface_data(current)
+                    self.set_vnic_data(current)
                 name = matches.group(1).strip(":")
                 # ignore 'lo' interface
                 if name == 'lo':
@@ -65,11 +81,11 @@ class CliFetchVserviceVnics(CliFetcher):
                     line_remainder = matches.group(2)
                     master_parent_id = "{}-{}".format(host, service)
                     current = {
-                        "id": host + "-" + name,
                         "vnic_type": "vservice_vnic",
                         "host": host,
-                        "name": name,
-                        "lines": []
+                        "object_name": name,
+                        "lines": [],
+                        "addresses": []
                     }
                     self.set_folder_parent(current, object_type="vnic",
                                            master_parent_type="vservice",
@@ -81,27 +97,52 @@ class CliFetchVserviceVnics(CliFetcher):
                 if current:
                     self.handle_line(current, line)
         if current:
-            self.set_interface_data(current)
+            self.set_vnic_data(current)
         return interfaces
 
     def handle_line(self, interface, line):
         self.find_matching_regexps(interface, line, self.regexps)
         interface["lines"].append(line.strip())
 
-    def set_interface_data(self, interface):
-        if not interface or 'IP Address' not in interface or 'netmask' not in interface:
+    def set_mechanism_driver_specific_data(self, vnic):
+        # TODO: move to dedicated fetchers
+        if self.is_vpp:
+            interface_name = next(
+                    i["name"] for i in self.vpp_interfaces[vnic["host"]]
+                    if i.get("mac_address") == vnic["mac_address"]
+            )
+            vnic["interface_name"] = interface_name
+            vnic["id"] = "|".join((vnic["host"], interface_name))
+            vnic["name"] = "|".join((vnic["id"], vnic["object_name"]))
+        elif self.is_ovs:
+            vnic["id"] = "|".join((vnic["host"], vnic["object_name"]))
+            vnic["name"] = "|".join((vnic["object_name"], vnic["mac_address"]))
+        else:
+            vnic["id"] = "|".join((vnic["host"], vnic["object_name"]))
+            vnic["name"] = vnic["object_name"]
+
+    def set_vnic_data(self, vnic):
+        self.set_mechanism_driver_specific_data(vnic)
+        if not vnic or 'IP Address' not in vnic or 'netmask' not in vnic:
             return
 
-        interface["data"] = "\n".join(interface.pop("lines", None))
-        interface["cidr"] = self.get_cidr_for_vnic(interface)
-        network = self.inv.get_by_field(self.get_env(), "network", "cidrs",
-                                        interface["cidr"], get_single=True)
+        address = {
+            "IP Address": vnic.pop("IP Address"),
+            "IPv6 Address": vnic.pop("IPv6 Address", None),
+            "netmask": self.convert_netmask(vnic.pop("netmask")),
+        }
+        address["cidr"] = self.get_cidr_for_vnic(address["IP Address"], address["netmask"])
+
+        vnic["addresses"].append(address)
+        vnic["data"] = "\n".join(vnic.pop("lines", None))
+        network = self.inv.get_by_field(self.get_env(), "network", "cidrs", address["cidr"], get_single=True)
         if not network:
             return
-        interface["network"] = network["id"]
+
+        vnic["network"] = network["id"]
         # set network for the vservice, to check network on clique creation
         vservice = self.inv.get_by_id(self.get_env(),
-                                      interface["master_parent_id"])
+                                      vnic["master_parent_id"])
         network_id = network["id"]
         if "network" not in vservice:
             vservice["network"] = list()
@@ -110,24 +151,22 @@ class CliFetchVserviceVnics(CliFetcher):
         self.inv.set(vservice)
 
     # find CIDR string by IP address and netmask
-    def get_cidr_for_vnic(self, vnic):
-        if "IP Address" not in vnic:
-            vnic["IP Address"] = "No IP Address"
-            return "No IP Address"
-        ipaddr = vnic["IP Address"].split('.')
-        vnic['netmask'] = self.convert_netmask(vnic['netmask'])
-        netmask = vnic["netmask"].split('.')
+    @classmethod
+    def get_cidr_for_vnic(cls, ip_address, netmask):
+        ipaddr_parts = ip_address.split('.')
+        netmask_parts = netmask.split('.')
 
         # calculate network start
         net_start = []
         for pos in range(0, 4):
-            net_start.append(str(int(ipaddr[pos]) & int(netmask[pos])))
+            net_start.append(str(int(ipaddr_parts[pos]) & int(netmask_parts[pos])))
 
         cidr_string = '.'.join(net_start) + '/'
-        cidr_string = cidr_string + self.get_net_size(netmask)
+        cidr_string = cidr_string + cls.get_net_size(netmask_parts)
         return cidr_string
 
-    def get_net_size(self, netmask):
+    @staticmethod
+    def get_net_size(netmask):
         binary_str = ''
         for octet in netmask:
             binary_str += bin(int(octet))[2:].zfill(8)
@@ -135,41 +174,12 @@ class CliFetchVserviceVnics(CliFetcher):
 
     @staticmethod
     def convert_netmask(cidr):
-        netmask_conversion = {
-            '32': '255.255.255.255',
-            '31': '255.255.255.254',
-            '30': '255.255.255.252',
-            '29': '255.255.255.248',
-            '28': '255.255.255.240',
-            '27': '255.255.255.224',
-            '26': '255.255.255.192',
-            '25': '255.255.255.128',
-            '24': '255.255.255.0',
-            '23': '255.255.254.0',
-            '22': '255.255.252.0',
-            '21': '255.255.248.0',
-            '20': '255.255.240.0',
-            '19': '255.255.224.0',
-            '18': '255.255.192.0',
-            '17': '255.255.128.0',
-            '16': '255.255.0.0',
-            '15': '255.254.0.0',
-            '14': '255.252.0.0',
-            '13': '255.248.0.0',
-            '12': '255.240.0.0',
-            '11': '255.224.0.0',
-            '10': '255.192.0.0',
-            '9': '255.128.0.0',
-            '8': '255.0.0.0',
-            '7': '254.0.0.0',
-            '6': '252.0.0.0',
-            '5': '248.0.0.0',
-            '4': '240.0.0.0',
-            '3': '224.0.0.0',
-            '2': '192.0.0.0',
-            '1': '128.0.0.0',
-            '0': '0.0.0.0'
-        }
-        if cidr not in netmask_conversion:
-            raise ValueError('can''t convert to netmask: {}'.format(cidr))
-        return netmask_conversion.get(cidr)
+        cidr = int(cidr)
+
+        if cidr < 0 or cidr > 32:
+            raise ValueError('can\'t convert to netmask: {}'.format(cidr))
+
+        return '.'.join(
+            str(sum(2 ** (7 - i) for i in range(0, min(8, max(cidr - part * 8, 0)))))
+            for part in range(4)
+        )

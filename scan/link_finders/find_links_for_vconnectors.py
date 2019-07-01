@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import functools
+
 from base.utils.configuration import Configuration
 from base.utils.origins import Origin
 from scan.link_finders.find_links import FindLinks
@@ -49,10 +51,12 @@ class FindLinksForVconnectors(FindLinks):
         ovs_or_flannel = 'OVS' in mech_drivers or 'Flannel' in mech_drivers
         if ovs_or_flannel:
             # interface ID for OVS
-            vnic = self.inv.get_by_field(self.get_env(), 'vnic',
-                                         field_name='name',
-                                         field_value=interface_name,
-                                         get_single=True)
+            search_func = functools.partial(self.inv.get_by_field,
+                                            self.get_env(), 'vnic',
+                                            field_value=interface_name, get_single=True)
+            vnic = search_func(field_name='name')
+            if not vnic:
+                vnic = search_func(field_name='target.@dev')
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC
             interface = vconnector['interfaces'][interface_name]

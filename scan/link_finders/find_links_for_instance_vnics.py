@@ -25,7 +25,7 @@ class FindLinksForInstanceVnics(FindLinks):
     @staticmethod
     def match_vnic_and_network(vnic, network):
         return (
-            "{}-{}".format(vnic["host"], network["devname"]) == vnic["id"]
+            "{}|{}".format(vnic["host"], network["devname"]) == vnic["id"]
             or
             vnic["mac_address"] == network["address"]
         )

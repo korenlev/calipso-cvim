@@ -137,8 +137,7 @@
     "distribution" : "Mercury", 
     "link_types" : [
         "vservice-vnic",
-	"vnic-vconnector",
-        "vconnector-vedge", 
+        "vnic-vedge",
         "vedge-host_pnic", 
         "host_pnic-network"
     ], 

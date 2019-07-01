@@ -20,7 +20,7 @@ class DbFetchInstances(DbAccess):
 
         query = """
           SELECT DISTINCT i.uuid AS id, i.display_name AS name,
-            i.host AS host, host_ip AS ip_address,
+            i.host AS host, host_ip AS host_ip_address,
             network_info, project_id,
             IF(p.name IS NULL, "Unknown", p.name) AS project
           FROM nova.instances i

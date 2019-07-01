@@ -47,9 +47,10 @@ class FindLinksForVedges(FindLinks):
 
     def add_link_for_vedge(self, vedge, port):
         # link_type: "vnic-vedge"
-        vnic = None if self.environment_type == self.ENV_TYPE_KUBERNETES \
-            else self.inv.get_by_id(self.get_env(),
-                                    vedge['host'] + '-' + port["name"])
+        vnic = None
+        if self.environment_type != self.ENV_TYPE_KUBERNETES:
+            vnic = self.inv.get_by_id(self.get_env(), '|'.join((vedge['host'], port["name"].replace("/", "."))))
+
         if not vnic:
             self.find_matching_vconnector(vedge, port)
             self.find_matching_pnic(vedge, port)

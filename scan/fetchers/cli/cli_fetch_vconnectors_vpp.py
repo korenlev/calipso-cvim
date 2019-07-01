@@ -11,6 +11,7 @@ from collections import defaultdict
 
 import re
 
+from base.utils.vpp_utils import parse_hw_interfaces
 from scan.fetchers.cli.cli_fetch_vconnectors import CliFetchVconnectors
 
 
@@ -73,22 +74,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
     def get_interface_details(self, host, name):
         # find vconnector interfaces
-        cmd = "vppctl show hardware-int " + self.clean_interface(name)
+        cmd = "vppctl show hardware-int {}".format(self.clean_interface(name))
         interface_lines = self.run_fetch_lines(cmd, host['id'])
-        # remove header line
-        interface_lines.pop(0)
-        interface = None
-        for l in interface_lines:
-            if not l.strip():
-                continue  # ignore empty lines
-            if not l.startswith(' '):
-                details = l.split()
-                interface = {
-                    "name": details[0],
-                    "hardware": details[3],
-                    "state": details[2],
-                    "id": details[1],
-                }
-            elif l.startswith('  Ethernet address '):
-                interface['mac_address'] = l[l.rindex(' ') + 1:]
-        return interface
+        interfaces = parse_hw_interfaces(interface_lines)[0]
+        return interfaces[0] if interfaces else None
