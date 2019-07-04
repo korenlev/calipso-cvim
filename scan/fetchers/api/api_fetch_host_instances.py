@@ -126,13 +126,17 @@ class ApiFetchHostInstances(ApiAccess):
         return image
 
     def get_security_groups(self, server):
+        server_sec_groups = server.get('security_groups')
+        if not server_sec_groups:
+            return {}
+
         if not self.security_groups:
             req_url = "{}/v2.0/security-groups".format(self.neutron_endpoint)
             response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
             self.security_groups = {"{}:{}".format(sg["tenant_id"], sg["name"]): sg for sg in response["security_groups"]}
 
         security_groups = {}
-        for security_group in server["security_groups"]:
+        for security_group in server_sec_groups:
             sg_key = "{}:{}".format(server["tenant_id"], security_group["name"])
             security_groups[security_group["name"]] = self.security_groups.get(sg_key)
 

@@ -84,7 +84,7 @@ class CliFetchInstanceVnicsBase(CliFetcher):
                     "cidr": cidr,
                     "netmask": CliFetchVserviceVnics.convert_netmask(cidr.split("/")[-1]),
                     "IP Address": subnet["ips"][0]["address"],
-                    "dhcp_server": subnet["meta"]["dhcp_server"],
+                    "dhcp_server": subnet["meta"].get("dhcp_server"),
                     "gateway": subnet["gateway"]["address"],
                     "routes": subnet["routes"],
                     "dns": subnet["dns"]

@@ -170,7 +170,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.2.16')
+                        version='%(prog)s version: 0.2.18')
 
     args = parser.parse_args()
 
