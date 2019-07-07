@@ -17,8 +17,20 @@ class CliFetchInstanceVnics(CliFetchInstanceVnicsBase):
     def set_vnic_names(self, v, instance):
         v["object_name"] = "|".join((instance["name"], v["mac_address"]))
         v["id"] = "|".join((instance["host"], v["object_name"]))
-        v["name"] = "|".join((v["object_name"], v["target"]["@dev"]))
+        if v.get("target"):
+            v["name"] = "|".join((v["object_name"], v["target"]["@dev"]))
+        elif v.get("alias"):
+            v["name"] = "|".join((v["object_name"], v["alias"]["@name"]))
+        else:
+            v["name"] = "|".join((v["object_name"], v["type"]))
 
     def set_vnic_properties(self, v, instance):
         super().set_vnic_properties(v, instance)
-        v["source_bridge"] = v["source"]["@bridge"]
+        if v.get("source"):
+            v_source = v.get("source")
+            if "bridge" in v_source:
+                v["source_bridge"] = v["source"]["@bridge"]
+            else:
+                v["source_bridge"] = v["driver"]["@name"]
+        else:
+            v["source_bridge"] = v["driver"]["@name"]
