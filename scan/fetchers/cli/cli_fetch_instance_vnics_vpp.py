@@ -30,7 +30,7 @@ class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
         vpp_interfaces = self.get_vpp_interfaces(instance["host"])
 
         for vnic in vnics:
-            interface = next((i for i in vpp_interfaces if i["mac_address"] == vnic["mac_address"]), None)
+            interface = next((i for i in vpp_interfaces if i.get("mac_address") == vnic["mac_address"]), None)
             if not interface:
                 continue
 
