@@ -98,7 +98,9 @@ class CliqueFinder(Fetcher):
 
             mechanism_drivers = clique_type.get('mechanism_drivers')
             if mechanism_drivers:
-                if mechanism_drivers not in config['mechanism_drivers']:
+                if not isinstance(mechanism_drivers, list):
+                    mechanism_drivers = [mechanism_drivers]
+                if all(m not in config['mechanism_drivers'] for m in mechanism_drivers):
                     return 0
                 score += 2**3
 

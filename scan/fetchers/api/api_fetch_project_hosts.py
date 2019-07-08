@@ -24,13 +24,20 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         self.inv = InventoryMgr()
         self.nova_endpoint = None
         self.token = None
+        self.availability_zones = None
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
         self.token = None
         self.nova_endpoint = self.base_url.replace(":5000", ":8774")
+        self.availability_zones = {}
 
     def get(self, project_id):
+        if not self.availability_zones:
+            self.availability_zones = {
+                az["name"]: az for az in self.inv.find({"type": "availability_zone"})
+            }
+
         if project_id != self.admin_project:
             # do not scan hosts except under project 'admin'
             return []
@@ -55,6 +62,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         response = self.get_url(req_url, headers)
         if "status" in response and int(response["status"]) != 200:
             return []
+
         az_info = response["availabilityZoneInfo"]
         hosts = {}
         for doc in az_info:
@@ -62,6 +70,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
             for h in az_hosts:
                 if "compute" in (ht.lower() for ht in h["host_type"]):
                     self.fetch_host_resources(h)
+
                 if h["name"] in hosts:
                     # merge host_type data between AZs
                     existing_entry = hosts[h["name"]]
@@ -70,6 +79,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 else:
                     hosts[h["name"]] = h
                     ret.append(h)
+
         # get os_id for hosts using the os-hypervisors API call
         req_url = endpoint + "/os-hypervisors"
         response = self.get_url(req_url, headers)
@@ -104,26 +114,28 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
     def get_host_details(self, az, h):
         # for hosts we use the name
         services = az["hosts"][h]
-        doc = {
+
+        az_doc = self.availability_zones[az["zoneName"]]
+        host_doc = {
             "id": h,
             "host": h,
             "name": h,
-            "zone": az["zoneName"],
+            "zone": az_doc["name"],
             "parent_type": "availability_zone",
-            "parent_id": az["zoneName"],
+            "parent_id": az_doc["id"],
             "services": services,
             "host_type": []
         }
         if "nova-conductor" in services:
             s = services["nova-conductor"]
             if s["available"] and s["active"]:
-                self.add_host_type(doc, "Controller", az['zoneName'])
+                self.add_host_type(host_doc, "Controller", az['zoneName'])
         if "nova-compute" in services:
             s = services["nova-compute"]
             if s["available"] and s["active"]:
-                self.add_host_type(doc, "Compute", az['zoneName'])
-        self.fetch_host_os_details(doc)
-        return doc
+                self.add_host_type(host_doc, "Compute", az['zoneName'])
+        self.fetch_host_os_details(host_doc)
+        return host_doc
 
     def fetch_host_resources(self, host):
         req_url = "{}/v2.1/os-hosts/{}".format(self.nova_endpoint, host["id"])
@@ -171,10 +183,11 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         for db_row in results:
             doc.update(db_row)
 
-    @staticmethod
-    def add_host_type(doc, host_type, zone):
+    def add_host_type(self, doc, host_type, zone):
         if host_type not in doc["host_type"]:
             doc["host_type"].append(host_type)
-            if host_type == 'Compute':
-                doc['zone'] = zone
-                doc['parent_id'] = zone
+            if host_type.lower() == 'compute':
+                az_doc = self.availability_zones.get(zone)
+                if az_doc:
+                    doc['zone'] = az_doc["name"]
+                    doc['parent_id'] = az_doc["id"]

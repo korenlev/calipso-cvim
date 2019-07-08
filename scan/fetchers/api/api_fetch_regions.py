@@ -34,7 +34,7 @@ class ApiFetchRegions(ApiAccess):
                     region = self.regions[region_name]
                 else:
                     region = {
-                        "id": region_name,
+                        "id": "|".join(("region", region_name)),
                         "name": region_name,
                         "endpoints": {}
                     }

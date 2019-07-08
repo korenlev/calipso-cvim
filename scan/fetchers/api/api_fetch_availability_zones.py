@@ -23,10 +23,10 @@ class ApiFetchAvailabilityZones(ApiAccess):
             ret.extend(self.get_for_region(project_id, region, token))
         return ret
 
-    def get_for_region(self, project, region, token):
+    def get_for_region(self, project, region_id, token):
         # we use os-availability-zone/detail rather than os-availability-zone,
         # because the latter does not include the "internal" zone in the results
-        endpoint = self.get_region_url_nover(region, "nova")
+        endpoint = self.get_region_url_nover(region_id, "nova")
         req_url = endpoint + "/v2/" + token["tenant"]["id"] + "/os-availability-zone/detail"
         headers = {
             "X-Auth-Project-Id": project,
@@ -46,7 +46,7 @@ class ApiFetchAvailabilityZones(ApiAccess):
             doc["name"] = doc.pop("zoneName")
             self.set_folder_parent(doc, object_type="availability_zone",
                                    master_parent_type="region",
-                                   master_parent_id=region,
+                                   master_parent_id="|".join(("region", region_id)),
                                    parent_text="Availability Zones")
             doc["available"] = doc["zoneState"]["available"]
             doc.pop("zoneState")
