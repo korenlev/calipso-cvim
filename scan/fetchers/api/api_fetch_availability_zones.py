@@ -42,7 +42,7 @@ class ApiFetchAvailabilityZones(ApiAccess):
         if not azs:
             return []
         for doc in azs:
-            doc["id"] = "zone|{}".format(doc["zoneName"])
+            doc["id"] = doc["zoneName"]
             doc["name"] = doc.pop("zoneName")
             self.set_folder_parent(doc, object_type="availability_zone",
                                    master_parent_type="region",
