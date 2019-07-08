@@ -79,9 +79,16 @@ class CliFetchInstanceVnicsBase(CliFetcher):
         if network:
             v["addresses"] = []
             for subnet in network.get("network", {}).get("subnets", []):
-                cidr = subnet["cidr"]
+                if subnet["version"] == 4:
+                    cidr = subnet["cidr"]
+                elif subnet["version"] == 6:
+                    # revise in the future to real calculations of IPv6 cidr
+                    cidr = "1.1.1.0/24"
+                else:
+                    cidr = "exception_no_cidr"
                 v["addresses"].append({
                     "cidr": cidr,
+                    "version": subnet["version"],
                     "netmask": CliFetchVserviceVnics.convert_netmask(cidr.split("/")[-1]),
                     "IP Address": subnet["ips"][0]["address"],
                     "dhcp_server": subnet["meta"].get("dhcp_server"),
