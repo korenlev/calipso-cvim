@@ -21,6 +21,8 @@
         "mac_address",
         "vnic_type",
         "data",
+        "port",
+        "addresses",
 	"source", 
         "alias", 
         "last_scanned", 
