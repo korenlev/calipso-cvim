@@ -31,10 +31,15 @@ class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
 
         for vnic in vnics:
             interface = next((i for i in vpp_interfaces if i.get("mac_address") == vnic["mac_address"]), None)
-            if not interface:
-                continue
+            if interface:
+                vnic["interface_name"] = interface["name"]
+            else:  # Mismatched mac address between libvirt and vpp
+                uuid = vnic.get("uuid")
+                if uuid:
+                    vnic["interface_name"] = "undefined-{}".format(uuid)
+                else:
+                    continue
 
-            vnic["interface_name"] = interface["name"]
             self.set_vnic_names(vnic, instance)
 
         return vnics

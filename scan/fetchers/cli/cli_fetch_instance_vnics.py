@@ -26,11 +26,8 @@ class CliFetchInstanceVnics(CliFetchInstanceVnicsBase):
 
     def set_vnic_properties(self, v, instance):
         super().set_vnic_properties(v, instance)
-        if v.get("source"):
-            v_source = v.get("source")
-            if "bridge" in v_source:
-                v["source_bridge"] = v["source"]["@bridge"]
-            else:
-                v["source_bridge"] = v["driver"]["@name"]
+        v_source = v.get("source")
+        if v_source and "@bridge" in v_source:
+            v["source_bridge"] = v_source["@bridge"]
         else:
             v["source_bridge"] = v["driver"]["@name"]

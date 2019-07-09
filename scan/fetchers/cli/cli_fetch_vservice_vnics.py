@@ -9,6 +9,8 @@
 ###############################################################################
 import re
 
+from base.utils.origins import Origin
+
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
@@ -24,6 +26,11 @@ class CliFetchVserviceVnics(CliFetcher):
             {'name': 'netmask', 're': '^\s*inet [0-9.]+/([0-9]+)'},
             {'name': 'IPv6 Address', 're': '^\s*inet6 ([^/]+)/.* global '}
         ]
+        self.ports = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.ports = {}
 
     def get(self, host_id):
         host = self.inv.get_by_id(self.get_env(), host_id)
@@ -36,6 +43,12 @@ class CliFetchVserviceVnics(CliFetcher):
             return []
         if "Network" not in host["host_type"]:
             return []
+
+        if host_id not in self.ports:
+            self.ports[host_id] = self.inv.find({"environment": self.get_env(),
+                                                 "type": "port",
+                                                 "binding:host_id": host_id})
+
         lines = self.run_fetch_lines("ip netns list", host_id)
         ret = []
 
@@ -106,6 +119,11 @@ class CliFetchVserviceVnics(CliFetcher):
 
         vnic["addresses"].append(address)
         vnic["data"] = "\n".join(vnic.pop("lines", None))
+
+        port = next((p for p in self.ports.get(vnic["host"], []) if p.get("mac_address") == vnic["mac_address"]), None)
+        if port:
+            vnic["port"] = port["id"]
+
         network = self.inv.get_by_field(self.get_env(), "network", "cidrs", address["cidr"], get_single=True)
         if not network:
             return

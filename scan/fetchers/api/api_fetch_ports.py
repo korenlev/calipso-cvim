@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.origins import Origin
+
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.api.api_access import ApiAccess
 
@@ -15,25 +17,33 @@ class ApiFetchPorts(ApiAccess):
     def __init__(self):
         super(ApiFetchPorts, self).__init__()
         self.inv = InventoryMgr()
+        self.token = None
+        self.auth_headers = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.token = None
+        self.auth_headers = {}
 
     def get(self, project_id):
         # use project admin credentials, to be able to fetch all ports
-        token = self.auth(self.admin_project)
-        if not token:
+        self.token = self.auth(self.admin_project)
+        if not self.token:
             return []
+        self.auth_headers = {
+            "X-Auth-Project-Id": self.admin_project,
+            "X-Auth-Token": self.token["id"]
+        }
+
         ret = []
         for region in self.regions:
-            ret.extend(self.get_ports_for_region(region, token))
+            ret.extend(self.get_ports_for_region(region))
         return ret
 
-    def get_ports_for_region(self, region, token):
+    def get_ports_for_region(self, region):
         endpoint = self.get_region_url_nover(region, "neutron", force_http=True)
         req_url = endpoint + "/v2.0/ports"
-        headers = {
-            "X-Auth-Project-Id": self.admin_project,
-            "X-Auth-Token": token["id"]
-        }
-        response = self.get_url(req_url, headers)
+        response = self.get_url(req_url, self.auth_headers)
         if "ports" not in response:
             return []
         ports = response["ports"]
