@@ -8,8 +8,10 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import abc
+import re
 
 import xmltodict
+from base.utils.origins import Origin
 
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetch_vservice_vnics import CliFetchVserviceVnics
@@ -17,18 +19,32 @@ from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
 class CliFetchInstanceVnicsBase(CliFetcher):
+    PATH_UUID_REGEX = re.compile(".*([A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-4[A-Fa-f0-9]{3}-[89aAbB][A-Fa-f0-9]{3}-[A-Fa-f0-9]{12})")
+
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
+        self.ports = None
+
+    def setup(self, env, origin: Origin = None):
+        super().setup(env, origin)
+        self.ports = {}
 
     def get(self, id):
         instance_uuid = id[:id.rindex('-')]
         instance = self.inv.get_by_id(self.get_env(), instance_uuid)
         if not instance:
             return []
+
         host = self.inv.get_by_id(self.get_env(), instance["host"])
         if not host or "Compute" not in host["host_type"]:
             return []
+
+        if instance["host"] not in self.ports:
+            self.ports[instance["host"]] = self.inv.find({"environment": self.get_env(),
+                                                          "type": "port",
+                                                          "binding:host_id": instance["host"]})
+
         lines = self.run_fetch_lines("virsh list --all", instance["host"])
         del lines[:2]  # remove header
         virsh_names = [l.split()[1] for l in lines if l > ""]  # need to use names instead of ids
@@ -69,11 +85,18 @@ class CliFetchInstanceVnicsBase(CliFetcher):
             "host": instance["host"],
             "instance_id": instance["id"],
             "instance_db_id": instance["_id"],
-            "mac_address": v["mac"]["@address"],
+            "mac_address": v["mac"]["@address"]
         })
         self.set_vnic_names(v, instance)
 
         instance["mac_address"] = v["mac_address"]
+        uuid_match = re.match(self.PATH_UUID_REGEX, v.get("source", {}).get("@path", ""))
+        if uuid_match:
+            v["uuid"] = uuid_match.group(1)
+
+        port = next((p for p in self.ports.get(instance["host"], []) if p.get("mac_address") == v["mac_address"]), None)
+        if port:
+            v["port"] = port["id"]
 
         network = next((n for n in instance.get("network_info", []) if n["address"] == v["mac_address"]), None)
         if network:
