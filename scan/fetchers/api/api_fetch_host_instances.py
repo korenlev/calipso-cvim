@@ -61,16 +61,18 @@ class ApiFetchHostInstances(ApiAccess):
         req_url = "{}/v2/{}/os-hypervisors/{}/servers".format(self.nova_endpoint, tenant_id, host_name)
         response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
         ret = []
-        if not "hypervisors" in response:
-            return []
-        if not "servers" in response["hypervisors"][0]:
-            return []
-        for doc in response["hypervisors"][0]["servers"]:
-            doc["id"] = doc["uuid"]
-            doc["host"] = host_name
-            doc["local_name"] = doc.pop("name")
-            self.get_additional_instance_data(doc)
-            ret.append(doc)
+        # Ironic hosts/nodes will not have instances, not 'hypevisors'
+        if response is not None:
+            if "hypervisors" not in response:
+                return []
+            if "servers" not in response["hypervisors"][0]:
+                return []
+            for doc in response["hypervisors"][0]["servers"]:
+                doc["id"] = doc["uuid"]
+                doc["host"] = host_name
+                doc["local_name"] = doc.pop("name")
+                self.get_additional_instance_data(doc)
+                ret.append(doc)
         self.log.info("found %s instances for host: %s", str(len(ret)), host_name)
         return ret
 
