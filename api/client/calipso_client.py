@@ -255,7 +255,7 @@ def run():
                 scan_doc_id = scan_reply["id"]
                 # wait till the specific scan status is 'completed'
                 scan_status = "pending"
-                while scan_status != "completed":
+                while scan_status != "completed" and scan_status != "completed_with_errors":
                     scan_doc = cc.scan_check(environment=args.environment,
                                              doc_id=scan_doc_id)
                     scan_status = scan_doc["status"]
@@ -263,7 +263,12 @@ def run():
                     time.sleep(2)
                     if scan_status == "failed":
                         fatal("Scan has failed, please debug in scan container")
-                print("Inventory, links and cliques has been discovered")
+                if scan_status == "completed_with_errors":
+                    print("Inventory, links and cliques has been discovered with some errors")
+                elif scan_status == "completed":
+                    print("Inventory, links and cliques has been discovered")
+                else:
+                    exit(0)
             else:
                 # post scan schedule, for specific environment, get doc_id
                 schedule_reply = cc.scan_request(environment=args.environment,
