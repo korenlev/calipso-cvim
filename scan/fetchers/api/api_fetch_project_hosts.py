@@ -23,6 +23,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         super().__init__()
         self.inv = InventoryMgr()
         self.nova_endpoint = None
+        self.ironic_endpoint = None
         self.token = None
         self.availability_zones = None
 
@@ -30,6 +31,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         super().setup(env, origin)
         self.token = None
         self.nova_endpoint = self.base_url.replace(":5000", ":8774")
+        self.ironic_endpoint = self.base_url.replace(":5000", ":6385")
         self.availability_zones = {}
 
     def get(self, project_id):
@@ -102,6 +104,10 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
             self.fetch_compute_node_ip_address(doc, hvname)
         # get more network nodes details
         self.fetch_network_node_details(ret)
+        # temp solution to add ironic hosts/instances from ironic api
+        ironic_instances = self.fetch_ironic_instances()
+        for ironic in ironic_instances:
+            ret.append(ironic)
         return ret
 
     def get_hosts_from_az(self, az):
@@ -194,3 +200,34 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 if az_doc:
                     doc['zone'] = az_doc["name"]
                     doc['parent_id'] = az_doc["id"]
+
+    def fetch_ironic_instances(self):
+        # temp solution here , until we fully support ironic bare-metals
+        # ironic instance is bare-metal host/node fully assigned to a tenant
+        req_url = "{}/v1/nodes".format(self.ironic_endpoint)
+        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+        ironic_instances = []
+        if response is not None:
+            nodes = response["nodes"]
+            for node in nodes:
+                node_url = "{}/{}".format(req_url, node["uuid"])
+                node_resp = self.get_url(node_url, {"X-Auth-Token": self.token["id"]})
+                if node_resp is not None:
+                    ironic_instances.append(node_resp)
+                ports_url = "{}/{}".format(node_url, "/ports")
+                ports_resp = self.get_url(ports_url, {"X-Auth-Token": self.token["id"]})
+                if ports_resp is not None:
+                    ports = ports_resp["ports"]
+            for ironic in ironic_instances:
+                ironic.update({"id": ironic["uuid"], "ports": ports,
+                               "name": "ironic-{}".format(ironic["uuid"]),
+                               "host_type": ["Bare_metal"],
+                               "host": "host-{}".format(ironic["uuid"]),
+                               "zone": "ironic",
+                               "services": {"ironic-compute": {"created_at": ironic["created_at"],
+                                                               "updated_at": ironic["updated_at"]}},
+                               "OS": {"name": "Red Hat Enterprise Linux Server"}
+                               })
+                for e in ["links", "uuid"]:
+                    ironic.pop(e)
+        return ironic_instances
