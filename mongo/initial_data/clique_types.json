@@ -247,5 +247,22 @@
     "name" : "generic k8s clique for physical switch", 
     "environment_type" : "Kubernetes", 
     "use_implicit_links" : false
+},
+{
+    "name" : "instance_config_based_sriov",
+    "focal_point_type" : "instance",
+    "environment" : "",
+    "link_types" : [
+        "instance-vnic",
+        "vnic-vedge",
+        "vedge-host_pnic",
+        "host_pnic-network"
+    ],
+    "distribution" : "Mercury",
+    "mechanism_drivers" : [
+        "OVS",
+        "SRIOV"
+    ],
+    "type_drivers" : "vlan",
 }
 ]

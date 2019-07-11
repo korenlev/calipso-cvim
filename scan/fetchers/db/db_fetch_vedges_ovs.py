@@ -42,7 +42,8 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
         vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host["id"])
         ports = self.fetch_ports(host, vsctl_lines)
         for doc in results:
-            doc["name"] = doc["host"] + "-OVS"
+            doc["vedge_type"] = "OVS"
+            doc["name"] = "{}-OVS".format(doc["host"])
             doc["configurations"] = json.loads(doc["configurations"])
             doc["ports"] = ports
             doc["tunnel_ports"] = self.get_overlay_tunnels(doc, vsctl_lines)

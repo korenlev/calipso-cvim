@@ -8,11 +8,10 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.singleton import Singleton
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
-class CliFetchVedgesVpp(CliFetcher, metaclass=Singleton):
+class CliFetchVedgesVpp(CliFetcher):
     def __init__(self):
         super().__init__()
         self.inv = InventoryMgr()
@@ -23,7 +22,8 @@ class CliFetchVedgesVpp(CliFetcher, metaclass=Singleton):
             'host': host_id,
             'id': host_id + '-VPP',
             'name': 'VPP-' + host_id,
-            'agent_type': 'VPP'
+            'agent_type': 'VPP',
+            'vedge_type': 'VPP'
         }
         ver = self.run_fetch_lines('vppctl show ver', host_id)
         if ver:

@@ -41,15 +41,12 @@ class FindLinksForVedges(FindLinks):
                     or self.is_kubernetes_vpp:
                 ports = vedge.get("ports", {})
                 for p in ports.values():
-                    self.add_link_for_vedge(vedge, p)
+                    self.add_links_for_vedge_port(vedge, p)
             elif self.environment_type == self.ENV_TYPE_KUBERNETES:
                 self.add_link_for_kubernetes_vedge(vedge)
 
-    def add_link_for_vedge(self, vedge, port):
-        # link_type: "vnic-vedge"
-        vnic = None
-        if self.environment_type != self.ENV_TYPE_KUBERNETES:
-            vnic = self.inv.get_by_id(self.get_env(), '|'.join((vedge['host'], port["name"].replace("/", "."))))
+    def add_links_for_vedge_port(self, vedge, port):
+        vnic = self.find_matching_vnic(vedge, port)
 
         if not vnic:
             self.find_matching_vconnector(vedge, port)
@@ -63,6 +60,27 @@ class FindLinksForVedges(FindLinks):
         self.link_items(vnic, vedge, link_name=link_name,
                         extra_attributes={"source_label": source_label,
                                           "target_label": target_label})
+
+    def find_matching_vnic(self, vedge, port):
+        # link_type: "vnic-vedge"
+        vnic = None
+        if self.environment_type != self.ENV_TYPE_KUBERNETES:
+            if vedge["vedge_type"] == "SRIOV":
+                for vf in port["VFs"]:
+                    vf_mac = vf.get("mac_address")
+                    if not vf_mac or vf_mac == "00:00:00:00:00:00":
+                        continue
+                    vnic = self.inv.find_one({
+                        "environment": self.get_env(),
+                        "type": "vnic",
+                        "host": vedge["host"],
+                        "mac_address": vf_mac
+                    })
+                    if vnic:
+                        break
+            else:
+                vnic = self.inv.get_by_id(self.get_env(), '|'.join((vedge['host'], port["name"].replace("/", "."))))
+        return vnic
 
     def find_matching_vconnector(self, vedge, port):
         # link_type: "vconnector-vedge"
@@ -105,15 +123,20 @@ class FindLinksForVedges(FindLinks):
     def find_matching_pnic(self, vedge, port):
         # link_type: "vedge-host_pnic"
         pname = port["name"]
-        if "pnic" in vedge:
-            if pname != vedge["pnic"]:
-                return
-        pnic = self.inv.find_items({
+        if "pnic" in vedge and pname != vedge["pnic"]:
+            return
+
+        pnic_query = {
             "environment": self.get_env(),
             "type": "host_pnic",
-            "host": vedge["host"],
-            "name": pname
-        }, get_single=True)
+            "host": vedge["host"]
+        }
+        if vedge["vedge_type"] == "SRIOV":
+            pnic_query["local_name"] = pname
+        else:
+            pnic_query["name"] = pname
+
+        pnic = self.inv.find_one(pnic_query)
         if not pnic:
             return
 

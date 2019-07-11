@@ -148,16 +148,6 @@
         "children_scanner": "ScanVconnectorsRoot"
       },
       {
-        "type": "vedges_folder",
-        "fetcher": {
-          "folder": true,
-          "types_name": "vedges",
-          "parent_type": "host",
-          "text": "vEdges"
-        },
-        "children_scanner": "ScanVedgesRoot"
-      },
-      {
         "type": "network_agents_folder",
         "fetcher": {
           "folder": true,
@@ -166,6 +156,16 @@
           "text": "Network agents"
         },
         "children_scanner": "ScanHostNetworkAgentsRoot"
+      },
+      {
+        "type": "vedges_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "vedges",
+          "parent_type": "host",
+          "text": "vEdges"
+        },
+        "children_scanner": "ScanVedgesRoot"
       }
     ],
     "ScanInstance": [
@@ -406,6 +406,13 @@
           "mechanism_drivers": "VPP"
         },
         "children_scanner": "ScanVedgePnicsRoot"
+      },
+      {
+        "type": "vedge",
+        "fetcher": "CliFetchVedgesSriov",
+        "environment_condition": {
+          "mechanism_drivers": "SRIOV"
+        }
       }
     ],
     "ScanVnicsRoot": [

@@ -36,7 +36,6 @@ class CliFetchHostPnics(CliFetcher):
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex("-")]
-        cmd = 'ls -l /sys/class/net | grep ^l | grep -v "/virtual/"'
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
             self.log.error("CliFetchHostPnics: host not found: " + host_id)
@@ -49,9 +48,14 @@ class CliFetchHostPnics(CliFetcher):
         accepted_host_types = ['Network', 'Compute']
         if not [t for t in accepted_host_types if t in host_types]:
             return []
+
+        cmd = 'ls -l /sys/class/net | grep ^l'
         interface_lines = self.run_fetch_lines(cmd, host_id)
         interfaces = []
         for line in interface_lines:
+            if "/virtual/" in line and "ovs-system" not in line:
+                continue
+
             interface_name = line[line.rindex('/')+1:]
             interface_name = interface_name.strip()
             # run 'ip address show' with specific interface name,
