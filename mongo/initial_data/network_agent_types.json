@@ -31,12 +31,12 @@
 },
 { 
     "folder_text" : "vEdges", 
-    "description" : "Open vSwitch agent", 
+    "description" : "Open vSwitch agent, VPP agent, SRIOV agent",
     "type" : "vedge"
 },
 { 
     "folder_text" : "vConnectors", 
-    "description" : "Linux bridge agent", 
+    "description" : "Linux bridge agent, VPP Bridge Domains",
     "type" : "vconnector"
 },
 { 
