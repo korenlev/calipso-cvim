@@ -142,14 +142,17 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
 
         host["flavor_resources"] = {}
-        for resource in response["host"]:
-            resource = resource["resource"]
-            project_id = resource["project"]
-            if not re.match("^\(.*\)$", project_id):
-                project = self.inv.find_one({"id": project_id})
-                if project:
-                    resource["project_name"] = project["name"]
-            host["flavor_resources"][project_id] = resource
+        # For Ironic hosts/nodes nova_endpoint will respond with None
+        if response is not None:
+            if "host" in response:
+                for resource in response["host"]:
+                    resource = resource["resource"]
+                    project_id = resource["project"]
+                    if not re.match("^\(.*\)$", project_id):
+                        project = self.inv.find_one({"id": project_id})
+                        if project:
+                            resource["project_name"] = project["name"]
+                    host["flavor_resources"][project_id] = resource
 
     # fetch more details of network nodes from neutron DB agents table
     def fetch_network_node_details(self, docs):
