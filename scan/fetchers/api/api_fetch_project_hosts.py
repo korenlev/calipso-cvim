@@ -9,7 +9,7 @@
 ###############################################################################
 import json
 import re
-
+from requests import exceptions
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
@@ -205,7 +205,11 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         # temp solution here , until we fully support ironic bare-metals
         # ironic instance is bare-metal host/node fully assigned to a tenant
         req_url = "{}/v1/nodes/detail".format(self.ironic_endpoint)
-        response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+        try:
+            response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
+        # Ironic is an optional API, we might have environment with no Ironic
+        except (exceptions.ConnectionError, exceptions.ConnectTimeout):
+            response = None
         ironic_instances = []
         if response is not None:
             nodes = response["nodes"]
