@@ -204,17 +204,15 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
     def fetch_ironic_instances(self):
         # temp solution here , until we fully support ironic bare-metals
         # ironic instance is bare-metal host/node fully assigned to a tenant
-        req_url = "{}/v1/nodes".format(self.ironic_endpoint)
+        req_url = "{}/v1/nodes/detail".format(self.ironic_endpoint)
         response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
         ironic_instances = []
         if response is not None:
             nodes = response["nodes"]
+            ports = []
             for node in nodes:
-                node_url = "{}/{}".format(req_url, node["uuid"])
-                node_resp = self.get_url(node_url, {"X-Auth-Token": self.token["id"]})
-                if node_resp is not None:
-                    ironic_instances.append(node_resp)
-                ports_url = "{}/{}".format(node_url, "/ports")
+                ironic_instances.append(node)
+                ports_url = "{}/v1/nodes/{}/ports".format(self.ironic_endpoint, node["uuid"])
                 ports_resp = self.get_url(ports_url, {"X-Auth-Token": self.token["id"]})
                 if ports_resp is not None:
                     ports = ports_resp["ports"]
