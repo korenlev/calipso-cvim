@@ -119,9 +119,7 @@ class CliAccess(BinaryConverter):
 
     def adapt_cmd_to_dist(self, cmd):
         env_conf = self.configuration.get_env_config()
-        dist = env_conf.get('distribution')
-        dist_version = env_conf.get('distribution_version')
-        translator = CliDistTranslator(dist, dist_version=dist_version)
+        translator = CliDistTranslator(env_conf)
         cmd = translator.translate(cmd)
         return cmd
 

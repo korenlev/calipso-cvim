@@ -30,15 +30,13 @@ class FindLinksForVedges(FindLinks):
         )
 
     def add_links(self):
-        self.log.info("adding link types: " +
-                      "vnic-vedge, vconnector-vedge, vedge-host_pnic")
+        self.log.info("adding link types: vnic-vedge, vconnector-vedge, vedge-host_pnic")
         vedges = self.inv.find_items({
             "environment": self.get_env(),
             "type": "vedge"
         })
         for vedge in vedges:
-            if self.environment_type == self.ENV_TYPE_OPENSTACK \
-                    or self.is_kubernetes_vpp:
+            if self.environment_type == self.ENV_TYPE_OPENSTACK or self.is_kubernetes_vpp:
                 ports = vedge.get("ports", {})
                 for p in ports.values():
                     self.add_links_for_vedge_port(vedge, p)
@@ -46,12 +44,13 @@ class FindLinksForVedges(FindLinks):
                 self.add_link_for_kubernetes_vedge(vedge)
 
     def add_links_for_vedge_port(self, vedge, port):
-        vnic = self.find_matching_vnic(vedge, port)
+        self.add_link_for_vconnector(vedge, port)
+        self.add_link_for_pnic(vedge, port)
 
+        vnic = self.find_matching_vnic(vedge, port)
         if not vnic:
-            self.find_matching_vconnector(vedge, port)
-            self.find_matching_pnic(vedge, port)
             return
+
         link_name = vnic["name"] + "-" + vedge["name"]
         if "tag" in port:
             link_name += "-" + port["tag"]
@@ -82,7 +81,7 @@ class FindLinksForVedges(FindLinks):
                 vnic = self.inv.get_by_id(self.get_env(), '|'.join((vedge['host'], port["name"].replace("/", "."))))
         return vnic
 
-    def find_matching_vconnector(self, vedge, port):
+    def add_link_for_vconnector(self, vedge, port):
         # link_type: "vconnector-vedge"
         if self.configuration.has_network_plugin('VPP'):
             vconnector_interface_name = port['name']
@@ -90,23 +89,29 @@ class FindLinksForVedges(FindLinks):
             if not port["name"].startswith("qv"):
                 return
             base_id = port["name"][3:]
-            vconnector_interface_name = "qvb" + base_id
-        vconnector = self.inv.find_items({
+            vconnector_interface_name = "qvb{}".format(base_id)
+
+        vconnector = self.inv.find_one({
             "environment": self.get_env(),
             "type": "vconnector",
             "host": vedge['host'],
-            'interfaces_names': vconnector_interface_name},
-            get_single=True)
+            'interfaces_names': vconnector_interface_name
+        })
         if not vconnector:
             return
-        link_name = "port-" + port["id"]
+
+        link_name = "-".join(("port", port["id"]))
         if "tag" in port:
-            link_name += "-" + port["tag"]
+            link_name = "-".join((link_name, port["tag"]))
         source_label = vconnector_interface_name
         target_label = port["name"]
         mac_address = "Unknown"
-        attributes = {'mac_address': mac_address, 'source_label': source_label,
-                      'target_label': target_label}
+        attributes = {
+            'mac_address': mac_address,
+            'source_label': source_label,
+            'target_label': target_label
+        }
+
         for interface in vconnector['interfaces'].values():
             if vconnector_interface_name != interface['name']:
                 continue
@@ -117,10 +122,11 @@ class FindLinksForVedges(FindLinks):
             break
         if 'network' in vconnector:
             attributes['network'] = vconnector['network']
+
         self.link_items(vconnector, vedge, link_name=link_name,
                         extra_attributes=attributes)
 
-    def find_matching_pnic(self, vedge, port):
+    def add_link_for_pnic(self, vedge, port):
         # link_type: "vedge-host_pnic"
         pname = port["name"]
         if "pnic" in vedge and pname != vedge["pnic"]:

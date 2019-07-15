@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 
+
 class CliDistTranslator:
 
     DOCKER_CALL = 'docker exec --user root'
@@ -15,27 +16,40 @@ class CliDistTranslator:
     TRANSLATIONS = {
         # special handling of cli commands in Mercury environments
         'Mercury': {
-            'ip netns list':
-                '{docker_call} neutron_l3_agent_{version} {cmd};;;'
-                '{docker_call} neutron_dhcp_agent_{version} {cmd}',
-            'ip netns exec qdhcp': \
-                '{docker_call} neutron_dhcp_agent_{version} {cmd}',
-            'ip netns exec qrouter': \
-                '{docker_call} neutron_l3_agent_{version} {cmd}',
-            'virsh': '{docker_call} novalibvirt_{version} {cmd}',
-            'ip link': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'ip -d link': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'bridge fdb show': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'brctl': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'ovs-vsctl': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'ovs-dpctl': '{docker_call} ovs_vswitch_{version} {cmd}',
-            'vppctl': '{docker_call} neutron_vpp_{version} {cmd}',
+            'ALL': {
+                'ip netns list': '{docker_call} neutron_l3_agent_{version} {cmd};;;'
+                                 '{docker_call} neutron_dhcp_agent_{version} {cmd}',
+                'ip netns exec qdhcp': '{docker_call} neutron_dhcp_agent_{version} {cmd}',
+                'ip netns exec qrouter': '{docker_call} neutron_l3_agent_{version} {cmd}',
+                'virsh': '{docker_call} novalibvirt_{version} {cmd}',
+            },
+            'VPP': {
+                'ip -d link': '{docker_call} neutron_vpp_{version} {cmd}',
+                'vppctl': '{docker_call} neutron_vpp_{version} {cmd}',
+            },
+            'OVS': {
+                'ip link': '{docker_call} ovs_vswitch_{version} {cmd}',
+                'ip -d link': '{docker_call} ovs_vswitch_{version} {cmd}',
+                'bridge fdb show': '{docker_call} ovs_vswitch_{version} {cmd}',
+                'brctl': '{docker_call} ovs_vswitch_{version} {cmd}',
+                'ovs-vsctl': '{docker_call} ovs_vswitch_{version} {cmd}',
+                'ovs-dpctl': '{docker_call} ovs_vswitch_{version} {cmd}',
+            },
         }
     }
 
-    def __init__(self, dist: str, dist_version: str=''):
-        self.translation = self.TRANSLATIONS.get(dist, {})
-        self.dist_version = dist_version
+    def __init__(self, env: dict):
+        self.dist_version = env['distribution_version']
+        self.translation = {}
+        dist_translations = self.TRANSLATIONS.get(env['distribution'], {})
+        if not dist_translations:
+            return
+        else:
+            self.translation = dist_translations.get('ALL', {})
+            for mechanism_driver in env['mechanism_drivers']:
+                md_translations = dist_translations.get(mechanism_driver.upper(), {})
+                if md_translations:
+                    self.translation.update(md_translations)
 
     def translate(self, command_to_translate: str) -> str:
         for command in self.translation.keys():
