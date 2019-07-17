@@ -57,8 +57,9 @@ class CliqueFinder(Fetcher):
     def find_cliques(self):
         self.log.info("Scanning for cliques")
         clique_types = self.get_clique_types().values()
-        for clique_type in clique_types:
-            self.find_cliques_for_type(clique_type)
+        for focal_point_clique_types in clique_types:
+            for clique_type in focal_point_clique_types:
+                self.find_cliques_for_type(clique_type)
         self.log.info("Finished scanning for cliques")
 
     # Calculate priority score for clique type per environment and configuration
@@ -77,7 +78,6 @@ class CliqueFinder(Fetcher):
         # NECT - Clique Type without Environment name
         else:
             env_type = clique_type.get('environment_type')
-            # TODO: remove backward compatibility ('if not env_type' check)
             if env_type and env_type != config.get('environment_type'):
                 return 0
 
@@ -116,28 +116,31 @@ class CliqueFinder(Fetcher):
 
     # Get clique type with max priority
     # for given focal point type
-    def _get_clique_type(self, clique_types):
-        scored_clique_types = [{'score': self.get_priority_score(clique_type),
-                                'clique_type': clique_type}
-                               for clique_type in clique_types]
+    def _get_clique_types(self, candidates):
+        if not candidates:
+            return []
+
+        scored_clique_types = [{'score': self.get_priority_score(candidate),
+                                'clique_type': candidate}
+                               for candidate in candidates]
         max_score = max(scored_clique_types, key=lambda t: t['score'])
-        if max_score['score'] == 0:
+        if not max_score['score'] == 0:
             self.log.warn('No matching clique types '
                           'for focal point type: {fp_type}'
-                          .format(fp_type=clique_types[0].get('focal_point_type')))
-            return None
-        return max_score.get('clique_type')
+                          .format(fp_type=candidates[0].get('focal_point_type')))
+            return []
+        return [sct['clique_type'] for sct in scored_clique_types if sct['score'] == max_score['score']]
 
     def get_clique_types(self):
         if not self.clique_types_by_type:
             clique_types_candidates = {}
-            for clique in self.clique_types.find({}):
-                fp_type = clique.get('focal_point_type', '')
+            for clique_type in self.clique_types.find({}):
+                fp_type = clique_type.get('focal_point_type', '')
                 if not clique_types_candidates.get(fp_type):
                     clique_types_candidates[fp_type] = []
-                clique_types_candidates[fp_type].append(clique)
+                clique_types_candidates[fp_type].append(clique_type)
             for t in clique_types_candidates.keys():
-                selected = self._get_clique_type(clique_types_candidates[t])
+                selected = self._get_clique_types(clique_types_candidates[t])
                 if not selected:
                     continue
                 self.clique_types_by_type[t] = selected
@@ -166,6 +169,8 @@ class CliqueFinder(Fetcher):
 
     def find_cliques_for_type(self, clique_type):
         focal_point_type = clique_type["focal_point_type"]
+        self.log.info("Scanning cliques for focal_point_type '{}', clique_type name: '{}'"
+                      .format(focal_point_type, clique_type.get('name')))
         constraints = self.get_clique_constraints(focal_point_type)
         object_type = clique_type["focal_point_type"]
         objects_for_focal_point_type = self.inventory.find({

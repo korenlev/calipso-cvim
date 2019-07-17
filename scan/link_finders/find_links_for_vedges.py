@@ -44,21 +44,22 @@ class FindLinksForVedges(FindLinks):
                 self.add_link_for_kubernetes_vedge(vedge)
 
     def add_links_for_vedge_port(self, vedge, port):
-        self.add_link_for_vconnector(vedge, port)
-        self.add_link_for_pnic(vedge, port)
 
         vnic = self.find_matching_vnic(vedge, port)
-        if not vnic:
+        if vnic:
+            link_name = vnic["name"] + "-" + vedge["name"]
+            if "tag" in port:
+                link_name += "-" + port["tag"]
+            source_label = vnic["mac_address"]
+            target_label = port["id"]
+            self.link_items(vnic, vedge, link_name=link_name,
+                            extra_attributes={"source_label": source_label,
+                                              "target_label": target_label})
+        elif vedge["vedge_type"] == "SRIOV":  # No vnic - no pnic
             return
 
-        link_name = vnic["name"] + "-" + vedge["name"]
-        if "tag" in port:
-            link_name += "-" + port["tag"]
-        source_label = vnic["mac_address"]
-        target_label = port["id"]
-        self.link_items(vnic, vedge, link_name=link_name,
-                        extra_attributes={"source_label": source_label,
-                                          "target_label": target_label})
+        self.add_link_for_vconnector(vedge, port)
+        self.add_link_for_pnic(vedge, port)
 
     def find_matching_vnic(self, vedge, port):
         # link_type: "vnic-vedge"
