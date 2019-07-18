@@ -124,7 +124,7 @@ class CliqueFinder(Fetcher):
                                 'clique_type': candidate}
                                for candidate in candidates]
         max_score = max(scored_clique_types, key=lambda t: t['score'])
-        if not max_score['score'] == 0:
+        if max_score['score'] == 0:
             self.log.warn('No matching clique types '
                           'for focal point type: {fp_type}'
                           .format(fp_type=candidates[0].get('focal_point_type')))

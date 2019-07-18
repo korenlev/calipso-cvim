@@ -1,13 +1,9 @@
 import requests
-# support py3 urlparse
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
 import json
 import time
 import datetime
 import argparse
+from six.moves.urllib.parse import urljoin
 from sys import exit
 # This is a calipso api client designed to be small and simple
 # currently for single pod, single api_server and single environment
@@ -24,7 +20,7 @@ class CalipsoClient:
         self.password = api_password
         self.port = api_port
         self.base_url = "http://{}:{}".format(self.api_server, self.port)
-        self.auth_url = urlparse.urljoin(self.base_url, "auth/tokens")
+        self.auth_url = urljoin(self.base_url, "auth/tokens")
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
         self.auth_body = {
@@ -58,7 +54,7 @@ class CalipsoClient:
         print(json.dumps(json_data, sort_keys=sort, indent=indents))
 
     def call_api(self, method, endpoint, payload=None, fail_on_error=True):
-        url = urlparse.urljoin(self.base_url, endpoint)
+        url = urljoin(self.base_url, endpoint)
         if not self.token:
             self.get_token()
         # print("Calling API: {}.\nMethod:{}.\nPayload:{}.\nHeaders:{}."
@@ -203,7 +199,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.5')
+                        version='%(prog)s version: 0.3.6')
 
     args = parser.parse_args()
 

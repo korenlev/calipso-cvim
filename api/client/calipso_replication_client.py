@@ -2,13 +2,10 @@ import argparse
 import json
 import time
 import traceback
-from sys import exit
-try:
-    from urllib import quote_plus
-except ImportError:
-    from urllib.parse import quote_plus
 from pymongo import MongoClient
+from sys import exit
 from six.moves import input
+from six.moves.urllib.parse import quote_plus
 
 DEFAULT_PORT = 27017
 DEFAULT_USER = 'calipso'
@@ -171,7 +168,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.5')
+                        version='%(prog)s version: 0.3.6')
 
     args = parser.parse_args()
 
