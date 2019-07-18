@@ -3,10 +3,7 @@ import json
 import time
 import traceback
 from sys import exit
-try:
-    from urllib import quote_plus
-except ImportError:
-    from urllib.parse import quote_plus
+from six.moves.urllib.parse import quote_plus
 from pymongo import MongoClient
 from six.moves import input
 

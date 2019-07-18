@@ -1,9 +1,5 @@
 import requests
-# support py3 urlparse
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
+from six.moves.urllib.parse import urlparse
 import json
 import time
 import datetime
