@@ -1,5 +1,9 @@
 import requests
-import urlparse
+# support py3 urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 import json
 import time
 import datetime
