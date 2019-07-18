@@ -1,5 +1,5 @@
 import requests
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urljoin
 import json
 import time
 import datetime
@@ -20,7 +20,7 @@ class CalipsoClient:
         self.password = api_password
         self.port = api_port
         self.base_url = "http://{}:{}".format(self.api_server, self.port)
-        self.auth_url = urlparse.urljoin(self.base_url, "auth/tokens")
+        self.auth_url = urljoin(self.base_url, "auth/tokens")
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
         self.auth_body = {
@@ -54,7 +54,7 @@ class CalipsoClient:
         print(json.dumps(json_data, sort_keys=sort, indent=indents))
 
     def call_api(self, method, endpoint, payload=None, fail_on_error=True):
-        url = urlparse.urljoin(self.base_url, endpoint)
+        url = urljoin(self.base_url, endpoint)
         if not self.token:
             self.get_token()
         # print("Calling API: {}.\nMethod:{}.\nPayload:{}.\nHeaders:{}."
