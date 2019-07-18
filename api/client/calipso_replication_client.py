@@ -8,6 +8,7 @@ try:
 except ImportError:
     from urllib.parse import quote_plus
 from pymongo import MongoClient
+from six.moves import input
 
 DEFAULT_PORT = 27017
 DEFAULT_USER = 'calipso'
@@ -82,7 +83,7 @@ def backoff(i):
 
 def read_servers_from_cli():
     try:
-        servers_count = int(raw_input("How many Calipso Servers to replicate? "))
+        servers_count = int(input("How many Calipso Servers to replicate? "))
         if servers_count < 1:
             raise TypeError()
     except TypeError:
@@ -91,12 +92,12 @@ def read_servers_from_cli():
 
     servers = []
     for n in range(1, servers_count + 1):
-        remote_name = raw_input("Remote Calipso Server #{} Hostname/IP\n".format(n))
-        remote_secret = raw_input("Remote Calipso Server #{} Secret\n".format(n))
+        remote_name = input("Remote Calipso Server #{} Hostname/IP\n".format(n))
+        remote_secret = input("Remote Calipso Server #{} Secret\n".format(n))
         servers.append({"name": remote_name, "secret": remote_secret, "attempt": 0, "imported": False})
 
-    central_name = raw_input("Central Calipso Server Hostname/IP\n")
-    central_secret = raw_input("Central Calipso Server Secret\n")
+    central_name = input("Central Calipso Server Hostname/IP\n")
+    central_secret = input("Central Calipso Server Secret\n")
 
     central = {'name': central_name, 'secret': central_secret}
     return servers, central
