@@ -27,8 +27,8 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         self.details_fetcher = None
 
     def setup(self, env, origin: Origin = None):
-        super().setup(env, origin)
         self.details_fetcher = CliFetchInterfaceDetails()
+        super().setup(env, origin)
 
     def set_env(self, env):
         super().set_env(env)
