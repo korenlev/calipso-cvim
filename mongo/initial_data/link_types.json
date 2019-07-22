@@ -240,8 +240,7 @@
 {
     "type" : "switch_pnic-switch",
     "description" : "switch_pnic-switch",
-    "endPointA" : "switch_pnic",
-    "description" : "switch_pnic-switch"
+    "endPointA" : "switch_pnic"
 },
 {
     "endPointB" : "container",
@@ -297,8 +296,6 @@
     "type" : "network-container",
     "user_id" : "WS7j8oTbWPf3LbNne",
     "endPointA" : "network",
-    "description" : "network-container",
-    "endPointB" : "switch",
-    "user_id" : "WS7j8oTbWPf3LbNne"
+    "description" : "network-container"
 }
 ]
