@@ -32,22 +32,25 @@ docker push korenlev/calipso:listen-v2
 echo "killing running containers..."
 python3 /home/calipso/Calipso/base/install/calipso-installer.py --command stop-all
 
-# remove new and old local images
-echo "removing local new and old images..."
+# remove new local images
+echo "removing new local images..."
 docker rmi -f korenlev/calipso:test-v2
 docker rmi -f korenlev/calipso:monitor-v2
 docker rmi -f korenlev/calipso:scan-v2
 docker rmi -f korenlev/calipso:api-v2
 docker rmi -f korenlev/calipso:listen-v2
-docker rmi -f $(sudo docker images --filter 'dangling=true' -q --no-trunc)
 
 # pull for new images from dockerhub
-echo "pulling new images from dockerhub..."
+echo "pulling new remote images from dockerhub..."
 docker pull korenlev/calipso:test-v2
 docker pull korenlev/calipso:monitor-v2
 docker pull korenlev/calipso:scan-v2
 docker pull korenlev/calipso:api-v2
 docker pull korenlev/calipso:listen-v2
+
+# remove old local untagged images
+echo "removing old local images..."
+docker rmi -f $(sudo docker images --filter 'dangling=true' -q --no-trunc)
 
 # tag new images for cisco docker repo
 echo "tagging for cisco docker repo..."
