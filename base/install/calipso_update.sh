@@ -39,7 +39,7 @@ docker rmi -f korenlev/calipso:monitor-v2
 docker rmi -f korenlev/calipso:scan-v2
 docker rmi -f korenlev/calipso:api-v2
 docker rmi -f korenlev/calipso:listen-v2
-docker rmi -f $(docker images | grep '<none>')
+docker rmi -f $(sudo docker images --filter 'dangling=true' -q --no-trunc)
 
 # pull for new images from dockerhub
 echo "pulling new images from dockerhub..."
