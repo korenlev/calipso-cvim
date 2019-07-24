@@ -67,11 +67,22 @@ class MongoConnector(object):
             docs.append(doc)
         return docs
 
+    def collection_exists(self, name):
+        return name in self.database.collection_names()
+
+    def create_collection(self, name):
+        return self.database.create_collection(name)
+
     def insert_collection(self, collection, data):
-        doc_ids = self.database[collection].insert(data)
-        doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-        print("Inserted '%s' collection in central DB, Total docs inserted: %s"
-              % (collection, doc_count))
+        if data:
+            doc_ids = self.database[collection].insert(data)
+            doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
+            print("Inserted '%s' collection in central DB, Total docs inserted: %s" % (collection, doc_count))
+        elif not self.collection_exists(collection):
+            self.create_collection(collection)
+            print("Inserted empty '%s' collection in central DB" % (collection,))
+        else:
+            print("Skipping empty '%s' collection" % (collection,))
 
 
 def backoff(i):
@@ -168,7 +179,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.8')
+                        version='%(prog)s version: 0.3.9')
 
     args = parser.parse_args()
 
