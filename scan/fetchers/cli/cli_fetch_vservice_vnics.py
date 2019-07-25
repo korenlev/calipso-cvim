@@ -76,17 +76,18 @@ class CliFetchVserviceVnics(CliFetcher):
                     current = None
                 else:
                     line_remainder = matches.group(2)
-                    master_parent_id = "{}-{}".format(host, service)
+                    vservice_id = "{}-{}".format(host, service)
                     current = {
                         "vnic_type": "vservice_vnic",
                         "host": host,
                         "object_name": name,
+                        "vservice_id": vservice_id,
                         "lines": [],
                         "addresses": []
                     }
                     self.set_folder_parent(current, object_type="vnic",
                                            master_parent_type="vservice",
-                                           master_parent_id=master_parent_id,
+                                           master_parent_id=vservice_id,
                                            parent_text="vNICs")
                     interfaces.append(current)
                     self.handle_line(current, line_remainder)
