@@ -28,10 +28,10 @@ class CliFetchInterfaceDetails(CliFetcher):
              'description': 'IPv6 Address'}
         ]
 
-    def get_interface_details(self, host_id, interface_name, lines) -> dict:
+    def get_interface_details(self, host_id, interface_name, ip_lines, ethtool_lines) -> dict:
         interface = None
         status_up = None
-        for line in [l1 for l1 in lines if l1 != '']:
+        for line in [l1 for l1 in ip_lines if l1 != '']:
             tokens = None
             if interface is None:
                 tokens = line.split()
@@ -53,7 +53,7 @@ class CliFetchInterfaceDetails(CliFetcher):
                     status_up = 'UP' in tokens
             if interface:
                 self.handle_line(interface, line)
-        self.set_interface_data(interface)
+        self.set_interface_data(interface, ethtool_lines)
         interface['state'] = 'UP' if status_up else 'DOWN'
         if 'id' not in interface:
             interface['id'] = interface_name + '-unknown_mac'
@@ -65,19 +65,13 @@ class CliFetchInterfaceDetails(CliFetcher):
             interface["id"] = interface["name"] + "-" + interface["mac_address"]
         interface["lines"].append(line.strip())
 
-    def set_interface_data(self, interface):
+    def set_interface_data(self, interface, ethtool_lines):
         if not interface:
             return
         interface["data"] = "\n".join(interface["lines"])
         interface.pop("lines", None)
-        ethtool_ifname = interface["local_name"]
-        if "@" in interface["local_name"]:
-            pos = interface["local_name"].index("@")
-            ethtool_ifname = ethtool_ifname[pos + 1:]
-        cmd = "ethtool " + ethtool_ifname
-        lines = self.run_fetch_lines(cmd, interface["host"])
         attr = None
-        for line in lines[1:]:
+        for line in ethtool_lines[1:]:
             matches = self.ethtool_attr.match(line)
             if matches:
                 # add this attribute to the interface
