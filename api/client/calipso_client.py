@@ -149,7 +149,7 @@ def run():
                         default=None,
                         required=False)
     parser.add_argument("--scan",
-                        help="scan/discover the specific cloud environment/pod -"
+                        help="actively discover the specific cloud environment -"
                              " options: NOW/HOURLY/DAILY/WEEKLY/MONTHLY/YEARLY"
                              " (default=None)",
                         type=str,
