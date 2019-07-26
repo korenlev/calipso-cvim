@@ -54,7 +54,8 @@ class FindLinksForVedges(FindLinks):
             target_label = port["id"]
             self.link_items(vnic, vedge, link_name=link_name,
                             extra_attributes={"source_label": source_label,
-                                              "target_label": target_label})
+                                              "target_label": target_label,
+                                              "vedge_type": vedge["type"]})
         elif vedge["vedge_type"] == "SRIOV":  # No vnic - no pnic
             return
 
@@ -110,7 +111,8 @@ class FindLinksForVedges(FindLinks):
         attributes = {
             'mac_address': mac_address,
             'source_label': source_label,
-            'target_label': target_label
+            'target_label': target_label,
+            'vedge_type': vedge['type']
         }
 
         for interface in vconnector['interfaces'].values():

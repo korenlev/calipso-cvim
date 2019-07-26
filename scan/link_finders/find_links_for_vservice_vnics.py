@@ -35,11 +35,11 @@ class FindLinksForVserviceVnics(FindLinks):
         vservice_id = v["parent_id"]
         vservice_id = vservice_id[:vservice_id.rindex('-')]
         vservice = self.inv.get_by_id(self.get_env(), vservice_id)
-        extra_attributes = None
-        link_name=None
+        extra_attributes = {'vedge_type': v['vedge_type']}
+        link_name = None
         if "network" in v:
             network = self.inv.get_by_id(self.get_env(), v["network"])
             link_name = network["name"]
-            extra_attributes = {'network': v['network']}
+            extra_attributes['network'] = v['network']
         self.link_items(vservice, v, link_name=link_name, host=v["host"],
                         extra_attributes=extra_attributes)
