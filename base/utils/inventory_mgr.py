@@ -90,14 +90,15 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
                             use_default_name=True)
 
     def clear(self, scan_plan):
+        collections = set()
         if scan_plan.inventory_only:
-            collections = {"inventory"}
+            collections.add("inventory")
         elif scan_plan.links_only:
-            collections = {"links"}
+            collections.add("links")
         elif scan_plan.cliques_only:
-            collections = {"cliques"}
-        else:
-            collections = {"inventory", "links", "cliques", "monitoring_config"}
+            collections.add("cliques")
+        elif not scan_plan.processors_only:
+            collections.update({"inventory", "links", "cliques", "monitoring_config"})
 
         env_cond = {} if scan_plan.clear_all else {"environment": scan_plan.env}
 

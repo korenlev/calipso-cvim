@@ -45,6 +45,7 @@ class ScanPlan:
     # def_key - corresponding key in DEFAULTS (equal to attr_name if not set)
     COMMON_ATTRIBUTES = (("loglevel",),
                          ("inventory_only",),
+                         ("processors_only",),
                          ("links_only",),
                          ("cliques_only",),
                          ("monitoring_setup_only",),
@@ -74,11 +75,8 @@ class ScanPlan:
 
     def _validate_args(self):
         errors = []
-        if (self.inventory_only and self.links_only) \
-                or (self.inventory_only and self.cliques_only) \
-                or (self.links_only and self.cliques_only):
-            errors.append("Only one of (inventory_only, links_only, "
-                          "cliques_only) can be True.")
+        if sum((self.inventory_only, self.processors_only, self.links_only, self.cliques_only)) > 1:
+            errors.append("Only one of (inventory_only, processors_only, links_only, cliques_only) can be True.")
         if errors:
             raise ScanArgumentsError("\n".join(errors))
 
@@ -126,6 +124,7 @@ class ScanController(Fetcher):
         "id_field": "id",
         "loglevel": "INFO",
         "inventory_only": False,
+        "processors_only": False,
         "links_only": False,
         "cliques_only": False,
         "monitoring_setup_only": False,
@@ -194,6 +193,9 @@ class ScanController(Fetcher):
         scan_only_group = parser.add_mutually_exclusive_group()
         scan_only_group.add_argument("--inventory_only", action="store_true",
                                      help="do only scan to inventory\n" +
+                                          "(default: False)")
+        scan_only_group.add_argument("--processors_only", action="store_true",
+                                     help="do only post-scan processors \n" +
                                           "(default: False)")
         scan_only_group.add_argument("--links_only", action="store_true",
                                      help="do only links creation \n" +
@@ -298,11 +300,11 @@ class ScanController(Fetcher):
 
         # decide what scanning operations to do
         inventory_only = scan_plan.inventory_only
+        processors_only = scan_plan.processors_only
         links_only = scan_plan.links_only
         cliques_only = scan_plan.cliques_only
         monitoring_setup_only = scan_plan.monitoring_setup_only
-        run_all = False if inventory_only or links_only or cliques_only \
-            or monitoring_setup_only else True
+        run_all = not any((inventory_only, processors_only, links_only, cliques_only, monitoring_setup_only))
 
         # setup monitoring server
         monitoring = \
@@ -323,6 +325,8 @@ class ScanController(Fetcher):
                     scan_plan.id_field,
                     scan_plan.child_id,
                     scan_plan.child_type)
+            if processors_only or run_all:
+                scanner.run_processors()
             if links_only or run_all:
                 scanner.scan_links()
             if cliques_only or run_all:
@@ -330,7 +334,7 @@ class ScanController(Fetcher):
             if monitoring:
                 if monitoring_setup_only:
                     self.inv.monitoring_setup_manager.simulate_track_changes()
-                if not (inventory_only or links_only or cliques_only):
+                if not any((inventory_only, processors_only, links_only, cliques_only)):
                     scanner.deploy_monitoring_setup()
         except ScanError as e:
             return False, "scan error: " + str(e)
