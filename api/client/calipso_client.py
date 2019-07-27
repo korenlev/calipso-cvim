@@ -158,16 +158,16 @@ def run():
     parser.add_argument("--method",
                         help="method to use on the API server -"
                              " options: get/post/delete/put"
-                             " (default=None)",
+                             " (default=get)",
                         type=str,
-                        default=None,
+                        default="get",
                         required=False)
     parser.add_argument("--endpoint",
                         help="endpoint url extension to use on the API server -"
                              " options: please see API documentation for endpoints"
-                             " (default=None)",
+                             " (default=inventory)",
                         type=str,
-                        default=None,
+                        default="inventory",
                         required=False)
     parser.add_argument("--payload",
                         help="dict string with parameters to send to the API -"
