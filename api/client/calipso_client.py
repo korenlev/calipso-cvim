@@ -1,15 +1,13 @@
 import requests
 import json
 import time
-import datetime
+from datetime import datetime
 import argparse
 from six.moves.urllib.parse import urljoin
 from sys import exit
 # This is a calipso api client designed to be small and simple
-# currently for single pod, single api_server and single environment
-# assuming environment_config details are already deployed by CVIM automation
-# for central CVIM monitoring we'll need to add to this client per pod scanning
-# and allow adding multiple environments
+# assuming environment_config details are already deployed by CVIM (typically: cvim-<mgmt_hostname>)
+# For central CVIM monitoring add this client per pod scanning and allow adding multiple environments
 
 
 class CalipsoClient:
@@ -34,7 +32,6 @@ class CalipsoClient:
         }
 
     def get_token(self):
-        # print("Getting auth token")
         try:
             resp = requests.post(self.auth_url,
                                  data=json.dumps(self.auth_body),
@@ -57,8 +54,6 @@ class CalipsoClient:
         url = urljoin(self.base_url, endpoint)
         if not self.token:
             self.get_token()
-        # print("Calling API: {}.\nMethod:{}.\nPayload:{}.\nHeaders:{}."
-        #       .format(url, method, payload, self.headers))
 
         method = method.lower()
         if method == 'post':
@@ -104,7 +99,7 @@ class CalipsoClient:
                 "scan_only_cliques": False,
                 "env_name": environment,
                 "scan_only_inventory": False,
-                "submit_timestamp": datetime.datetime.now().isoformat()
+                "submit_timestamp": datetime.now().isoformat()
             }
             return self.call_api('post', 'scheduled_scans', request_payload)
 
@@ -122,7 +117,6 @@ def fatal(err):
 
 
 def run():
-    # parser for getting mandatory and some optional command arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument("--api_server",
                         help="FQDN or IP address of the API Server"
@@ -199,15 +193,13 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.10')
+                        version='%(prog)s version: 0.3.11')
 
     args = parser.parse_args()
 
     if args.guide:
         guide_url = "https://cloud-gogs.cisco.com/mercury/calipso/src/master/docs/release/api-guide.rst"
-        # guide = requests.get(guide_url)
-        # print(guide.content)
-        print ("wget/curl from: {}".format(guide_url))
+        print("wget/curl from: {}".format(guide_url))
         exit(0)
 
     cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
@@ -230,10 +222,6 @@ def run():
             env_reply = cc.call_api(args.method, args.endpoint)
         cc.pp_json(env_reply)
         exit(0)
-    # ex1: get all environment_configs, with their names
-    # print cc.call_api('get', 'environment_configs')
-    # ex2: get a specific environment_config
-    # print cc.call_api('get', 'environment_configs', payload={"name": "staging"})
 
     scan_options = ["NOW", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
     if args.scan is not None:
@@ -310,7 +298,7 @@ def run():
 if __name__ == "__main__":
     run()
 
-# examples of some working arguments:
+# examples of running client with some arguments:
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --method get --endpoint environment_configs --payload "{'name': 'staging'}"
 # --api_server korlev-calipso-testing.cisco.com --api_port 8747 --environment staging --scan NOW
