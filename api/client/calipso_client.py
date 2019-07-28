@@ -176,7 +176,7 @@ def run():
                              " options: get/post/delete/put"
                              " (default=None)",
                         type=str,
-                        default="None",
+                        default=None,
                         required=False)
     parser.add_argument("--endpoint",
                         help="endpoint url extension to use on the API server -"
@@ -215,7 +215,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.11')
+                        version='%(prog)s version: 0.3.12')
 
     args = parser.parse_args()
 
