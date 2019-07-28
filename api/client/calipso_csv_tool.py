@@ -108,7 +108,7 @@ def run():
 
         attributes = {
                          "ENVIRONMENT": instance["environment"],
-                         "PROJECT_NAME": instance["name"],
+                         "PROJECT_NAME": project["name"],
                          "CPU_QUOTA": cores_limit,
                          "MEM_QUOTA": ram_limit,
                          "HOST": instance["host"],
