@@ -79,6 +79,28 @@ class CalipsoClient:
             fatal(content['error'])
         return content
 
+    def scan_handler(self, environment):
+        # post scan request, for specific environment, get doc_id
+        scan_reply = self.scan_request(environment=environment)
+        print("Scan request posted for environment {}".format(environment))
+        scan_doc_id = scan_reply["id"]
+        # check status of scan id and wait till scan status is 'completed'
+        scan_status = "pending"
+        while scan_status != "completed" and scan_status != "completed_with_errors":
+            scan_doc = self.scan_check(environment=environment,
+                                     doc_id=scan_doc_id)
+            scan_status = scan_doc["status"]
+            print("Wait for scan to complete, scan status: {}".format(scan_status))
+            time.sleep(2)
+            if scan_status == "failed":
+                fatal("Scan has failed, please debug in scan container")
+        if scan_status == "completed_with_errors":
+            print("Inventory, links and cliques has been discovered with some errors")
+        elif scan_status == "completed":
+            print("Inventory, links and cliques has been discovered")
+        else:
+            exit(0)
+
     def scan_request(self, environment, freq="NOW"):
         if freq == "NOW":
             request_payload = {
@@ -152,16 +174,16 @@ def run():
     parser.add_argument("--method",
                         help="method to use on the API server -"
                              " options: get/post/delete/put"
-                             " (default=get)",
+                             " (default=None)",
                         type=str,
-                        default="get",
+                        default="None",
                         required=False)
     parser.add_argument("--endpoint",
                         help="endpoint url extension to use on the API server -"
                              " options: please see API documentation for endpoints"
-                             " (default=inventory)",
+                             " (default=None)",
                         type=str,
-                        default="inventory",
+                        default=None,
                         required=False)
     parser.add_argument("--payload",
                         help="dict string with parameters to send to the API -"
@@ -237,26 +259,7 @@ def run():
             fatal("Endpoint not needed for scan requests, please remove")
         else:
             if args.scan == "NOW":
-                # post scan request, for specific environment, get doc_id
-                scan_reply = cc.scan_request(environment=args.environment)
-                print("Scan request posted for environment {}".format(args.environment))
-                scan_doc_id = scan_reply["id"]
-                # wait till the specific scan status is 'completed'
-                scan_status = "pending"
-                while scan_status != "completed" and scan_status != "completed_with_errors":
-                    scan_doc = cc.scan_check(environment=args.environment,
-                                             doc_id=scan_doc_id)
-                    scan_status = scan_doc["status"]
-                    print("Wait for scan to complete, scan status: {}".format(scan_status))
-                    time.sleep(2)
-                    if scan_status == "failed":
-                        fatal("Scan has failed, please debug in scan container")
-                if scan_status == "completed_with_errors":
-                    print("Inventory, links and cliques has been discovered with some errors")
-                elif scan_status == "completed":
-                    print("Inventory, links and cliques has been discovered")
-                else:
-                    exit(0)
+                cc.scan_handler(environment=args.environment)
             else:
                 # post scan schedule, for specific environment, get doc_id
                 schedule_reply = cc.scan_request(environment=args.environment,
