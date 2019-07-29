@@ -7,7 +7,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from api.client.calipso_replication_client import MongoConnector
 import docker
 import argparse
 import dockerpycreds
@@ -19,6 +18,10 @@ import socket
 # if hostname argument will not be provided as argument for the calipso-installer
 import os
 import errno
+
+from pymongo import MongoClient
+from six.moves.urllib.parse import quote_plus
+
 
 dockerip = os.popen('ip addr show docker0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'')
 local_hostname = dockerip.read().replace("\n", "")
@@ -45,6 +48,65 @@ DockerClient = docker.from_env()
 # docker.DockerClient(base_url='tcp://korlev-calipso-testing.cisco.com:2375')
 
 
+class MongoConnector(object):
+    def __init__(self, host, port, user, pwd, db, db_label="db"):
+        # Create calipso db and user if they don't exist
+        base_uri = "mongodb://%s:%s/" % (host, port)
+        base_client = MongoClient(base_uri)
+        base_client.close()
+
+        self.host = host
+        self.port = port
+        self.user = user
+        self.pwd = pwd
+        self.db = db
+        self.db_label = db_label
+
+        self.uri = None
+        self.client = None
+        self.database = None
+
+    def connect(self):
+        self.disconnect()
+        self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
+                                                 self.host, self.port, self.db)
+        self.client = MongoClient(self.uri)
+        self.database = self.client[self.db]
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def disconnect(self):
+        if self.client:
+            print("Disconnecting from {}...".format(self.db_label))
+            self.client.close()
+            self.client = None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
+
+    def clear_collection(self, collection):
+        self.database[collection].remove()
+
+    def collection_exists(self, name):
+        return name in self.database.collection_names()
+
+    def create_collection(self, name):
+        return self.database.create_collection(name)
+
+    def insert_collection(self, collection, data):
+        if data:
+            doc_ids = self.database[collection].insert(data)
+            doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
+            print("Inserted '{}' collection in {}, Total docs inserted: {}".format(collection, self.db_label, doc_count))
+        elif not self.collection_exists(collection):
+            self.create_collection(collection)
+            print("Inserted empty '{}' collection in {}".format(collection, self.db_label))
+        else:
+            print("Skipping empty '{}' collection".format(collection,))
+
+
 def insert_data(conn, filename):
     with open('../../mongo/initial_data/{}.json'.format(filename)) as file:
         data = json.load(file)
@@ -52,7 +114,7 @@ def insert_data(conn, filename):
         conn.insert_collection(filename, data)
 
 
-def container_started(name: str, print_message=True):
+def container_started(name, print_message=True):
     found = DockerClient.containers.list(all=True, filters={"name": name})
     if found and print_message:
         print("container named {} already exists, "
@@ -102,14 +164,14 @@ def start_mongo(dbport, copy):
         return
     print("\nstarting to copy json files to mongoDB...\n\n")
     print("-----------------------------------------\n\n")
-    conn = MongoConnector(host=args.hostname, port=args.dbport, user=args.dbuser, pwd=args.dbpassword,
-                          db="calipso", db_label="db")
-    for collection in ("api_tokens", "attributes_for_hover_on_data", "clique_constraints", "clique_types", "cliques",
-                       "connection_tests", "constants", "environment_options", "environments_config", "inventory",
-                       "link_types", "links", "messages", "meteor_accounts_loginServiceConfiguration",
-                       "monitoring_config", "monitoring_config_templates", "network_agent_types", "roles", "scans",
-                       "scheduled_scans", "statistics", "supported_environments", "user_settings", "users"):
-        insert_data(conn, collection)
+    with MongoConnector(host=args.hostname, port=args.dbport, user=args.dbuser, pwd=args.dbpassword,
+                        db="calipso", db_label="db") as conn:
+        for collection in ("api_tokens", "attributes_for_hover_on_data", "clique_constraints", "clique_types",
+                           "cliques", "connection_tests", "constants", "environment_options", "environments_config",
+                           "inventory", "link_types", "links", "messages", "meteor_accounts_loginServiceConfiguration",
+                           "monitoring_config", "monitoring_config_templates", "network_agent_types", "roles", "scans",
+                           "scheduled_scans", "statistics", "supported_environments", "user_settings", "users"):
+            insert_data(conn, collection)
     # note : 'messages', 'roles', 'users' and some of the 'constants'
     # are filled by calipso-ui at runtime
     # some other docs are filled later by scanning, logging
