@@ -126,7 +126,7 @@ def run():
         }
         attributes_list.append(attributes)
     cs = CalipsoCsvTool()
-    print("\nCreating the requested CSV file: {}".format(cs.filename))
+    print("\nCreating the requested CSV file: {}_{}".format(args.environment, cs.filename))
     written = cs.write_dicts_to_csv(attributes_list, args.environment)
     if written:
         print("\n...Done\n")
