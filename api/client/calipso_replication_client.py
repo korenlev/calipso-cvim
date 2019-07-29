@@ -23,7 +23,7 @@ def debug(msg):
 
 
 class MongoConnector(object):
-    def __init__(self, host, port, user, pwd, db):
+    def __init__(self, host, port, user, pwd, db, db_label="central DB"):
         # Create calipso db and user if they don't exist
         base_uri = "mongodb://%s:%s/" % (host, port)
         base_client = MongoClient(base_uri)
@@ -34,6 +34,7 @@ class MongoConnector(object):
         self.user = user
         self.pwd = pwd
         self.db = db
+        self.db_label = db_label
 
         self.uri = None
         self.client = None
@@ -49,7 +50,7 @@ class MongoConnector(object):
 
     def disconnect(self):
         if self.client:
-            print("Disconnecting from DB...")
+            print("Disconnecting from {}...".format(self.db_label))
             self.client.close()
             self.client = None
 
@@ -77,12 +78,12 @@ class MongoConnector(object):
         if data:
             doc_ids = self.database[collection].insert(data)
             doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-            print("Inserted '%s' collection in central DB, Total docs inserted: %s" % (collection, doc_count))
+            print("Inserted '{}' collection in {}, Total docs inserted: {}".format(collection, self.db_label, doc_count))
         elif not self.collection_exists(collection):
             self.create_collection(collection)
-            print("Inserted empty '%s' collection in central DB" % (collection,))
+            print("Inserted empty '{}' collection in {}".format(collection, self.db_label))
         else:
-            print("Skipping empty '%s' collection" % (collection,))
+            print("Skipping empty '{}' collection".format(collection,))
 
 
 def backoff(i):
