@@ -51,7 +51,12 @@ class FindLinksForVedges(FindLinks):
             if "tag" in port:
                 link_name += "-" + port["tag"]
             source_label = vnic["mac_address"]
-            target_label = port["id"]
+            if vedge["vedge_type"] == "SRIOV":
+                for vf in port["VFs"]:
+                    if vf["mac_address"] == vnic["mac_address"]:
+                        target_label = "port_{}-vlan_{}-vf_{}".format(port["id"], vf["vlan"], vf["vf"])
+            else:
+                target_label = port["id"]
             self.link_items(vnic, vedge, link_name=link_name,
                             extra_attributes={"source_label": source_label,
                                               "target_label": target_label})
