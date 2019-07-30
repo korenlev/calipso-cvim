@@ -17,6 +17,7 @@ import socket
 # if hostname argument will not be provided as argument for the calipso-installer
 import os
 import errno
+from six.moves import input
 
 from pymongo import MongoClient
 from six.moves.urllib.parse import quote_plus
