@@ -43,7 +43,7 @@ class ApiAccessBase(Fetcher):
         # support IPv6 addresses in host value:
         if ":" in self.host:
             self.host = "[{}]".format(self.host)
-            self.log.info("Api_Access_base: IPV6 Address used in 'host' configuration in {} !".format(api_name))
+            self.log.info("ApiAccess: Note IPV6 Address might be used in 'host' configuration in {} !!".format(api_name))
         self.port = self.api_config.get('port', '80')
         if not (self.host and self.port):
             raise ValueError('Missing definition of host or port ' +
