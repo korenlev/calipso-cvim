@@ -9,7 +9,6 @@
 ###############################################################################
 import docker
 import argparse
-import dockerpycreds
 # note : not used, useful for docker api security if used
 import time
 import json
