@@ -15,9 +15,10 @@ class CalipsoCsvTool:
                             "STATUS", "POWER_STATE",
                             "DAYS_SINCE_CREATED", "INSTANCE_UUID"]
 
-    def write_dicts_to_csv(self, att_list):
+    def write_dicts_to_csv(self, att_list, env):
         try:
-            cf = open(self.filename, "w+")
+            filename = "{}_{}".format(env, self.filename)
+            cf = open(filename, "w+")
             writer = csv.DictWriter(cf, fieldnames=self.csv_columns)
             writer.writeheader()
             for att in att_list:
@@ -71,7 +72,7 @@ def run():
                         help="get a reply back with csv_tool version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.13')
+                        version='%(prog)s version: 0.4.0')
 
     args = parser.parse_args()
 
@@ -125,8 +126,8 @@ def run():
         }
         attributes_list.append(attributes)
     cs = CalipsoCsvTool()
-    print("\nCreating the requested CSV file: {}".format(cs.filename))
-    written = cs.write_dicts_to_csv(attributes_list)
+    print("\nCreating the requested CSV file: {}_{}".format(args.environment, cs.filename))
+    written = cs.write_dicts_to_csv(attributes_list, args.environment)
     if written:
         print("\n...Done\n")
     else:
