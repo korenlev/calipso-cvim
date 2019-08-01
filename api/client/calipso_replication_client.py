@@ -45,7 +45,7 @@ class MongoConnector(object):
         self.disconnect()
         self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
                                                  self.host, self.port, self.db)
-        self.client = MongoClient(self.uri)
+        self.client = MongoClient(self.uri, serverSelectionTimeoutMS=5000)
         self.database = self.client[self.db]
 
     def disconnect(self):
@@ -221,10 +221,11 @@ def run():
                 s['imported'] = True
                 source_connector.disconnect()
                 source_connector = None
-            except Exception:
+            except Exception as e:
+                print("Failed to connect to {}, error: {}".format(s["name"], e.message))
                 if source_connector is not None:
                     source_connector.disconnect()
-                traceback.print_exc()
+                # traceback.print_exc()
 
                 if s['attempt'] >= max_connection_attempts:
                     destination_connector.disconnect()
