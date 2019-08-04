@@ -14,7 +14,7 @@ from scan.fetchers.cli.cli_fetch_interface_hardware_details_vpp \
     import CliFetchInterfaceHardwareDetailsVpp
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
-NAME_RE = '^[a-zA-Z]*(GigabitEthernet|Bond)'
+NAME_RE = '^[a-uA-U]*(Ethernet|Bond)'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
 PNIC_WITH_NETWORK_RE = '.*\.([0-9]+)$'
 
