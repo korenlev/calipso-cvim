@@ -180,7 +180,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.4.1')
+                        version='%(prog)s version: 0.4.2')
 
     args = parser.parse_args()
 
@@ -222,7 +222,7 @@ def run():
                 source_connector.disconnect()
                 source_connector = None
             except Exception as e:
-                print("Failed to connect to {}, error: {}".format(s["name"], e.message))
+                print("Failed to connect to {}, error: {}".format(s["name"], e.args))
                 if source_connector is not None:
                     source_connector.disconnect()
                 # traceback.print_exc()
@@ -231,6 +231,7 @@ def run():
                     destination_connector.disconnect()
                     print("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
                     return 1
+                break
 
     # reconstruct source-target ids for links and cliques
     reconstruct_ids(destination_connector)
