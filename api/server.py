@@ -42,6 +42,12 @@ def get_args():
                         default="",
                         help="name of config file with "
                              "plaintext auth credentials")
+    parser.add_argument("--cert_file", nargs="?", type=str,
+                        default="",
+                        help="path to SSL certificate")
+    parser.add_argument("--key_file", nargs="?", type=str,
+                        default="",
+                        help="path to SSL key")
     parser.add_argument("--no_ldap", action='store_true',
                         help="skip LDAP authentication")
     parser.add_argument("--ldap_config", nargs="?", type=str,
@@ -70,7 +76,9 @@ if __name__ == "__main__":
     args = get_args()
     # Gunicorn configuration
     options = {
-        "bind": args.bind
+        "bind": args.bind,
+        "certfile": args.cert_file,
+        "keyfile": args.key_file
     }
     app = App(mongo_config=args.mongo_config,
               ldap_enabled=not args.no_ldap,
