@@ -27,7 +27,7 @@ class CalipsoClient:
         self.username = "calipso"
         self.password = api_password
         self.port = api_port
-        self.schema = "http"
+        self.schema = "https"
         self.auth_url = "auth/tokens"
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
@@ -44,9 +44,6 @@ class CalipsoClient:
     @property
     def base_url(self):
         return "{}://{}:{}".format(self.schema, self.api_server, self.port)
-
-    def switch_schema(self):
-        self.schema = "http" if self.schema == "https" else "https"
 
     def get_token(self):
         try:
@@ -84,8 +81,7 @@ class CalipsoClient:
         try:
             return self._send_request(method, urljoin(self.base_url, url), payload)
         except requests.ConnectionError:
-            self.switch_schema()
-            return self._send_request(method, urljoin(self.base_url, url), payload)
+            fatal("SSL Connection could not be established")
 
     def call_api(self, method, endpoint, payload=None, fail_on_error=True):
         if not self.token:
