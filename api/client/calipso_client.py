@@ -3,8 +3,18 @@ import json
 import time
 from datetime import datetime
 import argparse
+
+try:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+except ImportError:
+    import urllib3
+    from urllib3.exceptions import InsecureRequestWarning
+    urllib3.disable_warnings(InsecureRequestWarning)
+
 from six.moves.urllib.parse import urljoin
 from sys import exit
+
 # This is a calipso api client designed to be small and simple
 # assuming environment_config details are already deployed by CVIM (typically: cvim-<mgmt_hostname>)
 # For central CVIM monitoring add this client per pod scanning and allow adding multiple environments
@@ -17,8 +27,8 @@ class CalipsoClient:
         self.username = "calipso"
         self.password = api_password
         self.port = api_port
-        self.base_url = "http://{}:{}".format(self.api_server, self.port)
-        self.auth_url = urljoin(self.base_url, "auth/tokens")
+        self.schema = "https"
+        self.auth_url = "auth/tokens"
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
         self.auth_body = {
@@ -31,11 +41,13 @@ class CalipsoClient:
             }
         }
 
+    @property
+    def base_url(self):
+        return "{}://{}:{}".format(self.schema, self.api_server, self.port)
+
     def get_token(self):
         try:
-            resp = requests.post(self.auth_url,
-                                 data=json.dumps(self.auth_body),
-                                 headers=self.headers, timeout=3)
+            resp = self.send_request("POST", self.auth_url, payload=self.auth_body)
             cont = resp.json()
             if "token" not in cont:
                 fatal("Failed to fetch auth token. Response:\n{}".format(cont))
@@ -50,23 +62,32 @@ class CalipsoClient:
         json_data = json.loads(json_text) if type(json_text) is str else json_text
         print(json.dumps(json_data, sort_keys=sort, indent=indents))
 
+    def _send_request(self, method, url, payload):
+        method = method.lower()
+        if method == 'post':
+            response = requests.post(url, json=payload, headers=self.headers, verify=False,
+                                     timeout=3)
+        elif method == 'delete':
+            response = requests.delete(url, headers=self.headers, verify=False)
+        elif method == 'put':
+            response = requests.put(url, json=payload, headers=self.headers, verify=False,
+                                    timeout=3)
+        else:
+            response = requests.get(url, params=payload, headers=self.headers, verify=False,
+                                    timeout=3)
+        return response
+
+    def send_request(self, method, url, payload):
+        try:
+            return self._send_request(method, urljoin(self.base_url, url), payload)
+        except requests.ConnectionError:
+            fatal("SSL Connection could not be established")
+
     def call_api(self, method, endpoint, payload=None, fail_on_error=True):
-        url = urljoin(self.base_url, endpoint)
         if not self.token:
             self.get_token()
 
-        method = method.lower()
-        if method == 'post':
-            response = requests.post(url, json=payload, headers=self.headers,
-                                     timeout=3)
-        elif method == 'delete':
-            response = requests.delete(url, headers=self.headers)
-        elif method == 'put':
-            response = requests.put(url, json=payload, headers=self.headers,
-                                    timeout=3)
-        else:
-            response = requests.get(url, params=payload, headers=self.headers,
-                                    timeout=3)
+        response = self.send_request(method, endpoint, payload)
 
         if response.status_code == 404:
             fatal("Endpoint or payload item not found")
@@ -215,7 +236,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.4.0')
+                        version='%(prog)s version: 0.4.7')
 
     args = parser.parse_args()
 

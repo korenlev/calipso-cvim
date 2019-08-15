@@ -23,7 +23,7 @@ import re
 
 from .binary_converter import binary2str
 
-NAME_RE = '^[a-zA-Z]*GigabitEthernet'
+NAME_RE = '^\w*(?<!Virtual)Ethernet'
 
 rc = 0
 
