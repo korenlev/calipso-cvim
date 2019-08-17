@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 import traceback
+import ssl
 from pymongo import MongoClient
 from sys import exit
 from six.moves import input
@@ -45,7 +46,8 @@ class MongoConnector(object):
         self.disconnect()
         self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
                                                  self.host, self.port, self.db)
-        self.client = MongoClient(self.uri, serverSelectionTimeoutMS=5000)
+        self.client = MongoClient(self.uri, serverSelectionTimeoutMS=5000,
+                                  ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         self.database = self.client[self.db]
 
     def disconnect(self):
@@ -180,7 +182,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.4.7')
+                        version='%(prog)s version: 0.4.8')
 
     args = parser.parse_args()
 
