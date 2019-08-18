@@ -26,7 +26,7 @@ class MongoConnector(object):
     def __init__(self, host, port, user, pwd, db):
         # Create calipso db and user if they don't exist
         base_uri = "mongodb://%s:%s/" % (host, port)
-        base_client = MongoClient(base_uri)
+        base_client = MongoClient(base_uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         if db not in base_client.database_names():
             new_db = base_client[db]
             new_db.add_user(user, pwd)
