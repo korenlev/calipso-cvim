@@ -3,6 +3,7 @@ import json
 import os
 import time
 import traceback
+import ssl
 try:
     from urllib import quote_plus
 except ImportError:
@@ -46,7 +47,7 @@ class MongoConnector(object):
         self.disconnect()
         self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
                                                  self.host, self.port, self.db)
-        self.client = MongoClient(self.uri)
+        self.client = MongoClient(self.uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         self.database = self.client[self.db]
 
     def disconnect(self):
