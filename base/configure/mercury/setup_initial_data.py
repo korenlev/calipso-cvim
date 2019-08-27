@@ -3,6 +3,7 @@ import json
 import os
 import time
 import traceback
+import ssl
 try:
     from urllib import quote_plus
 except ImportError:
@@ -25,7 +26,7 @@ class MongoConnector(object):
     def __init__(self, host, port, user, pwd, db):
         # Create calipso db and user if they don't exist
         base_uri = "mongodb://%s:%s/" % (host, port)
-        base_client = MongoClient(base_uri)
+        base_client = MongoClient(base_uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         if db not in base_client.database_names():
             new_db = base_client[db]
             new_db.add_user(user, pwd)
@@ -46,7 +47,7 @@ class MongoConnector(object):
         self.disconnect()
         self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
                                                  self.host, self.port, self.db)
-        self.client = MongoClient(self.uri)
+        self.client = MongoClient(self.uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         self.database = self.client[self.db]
 
     def disconnect(self):

@@ -415,70 +415,78 @@
 },
 { 
     "name" : "object_types", 
-    "data" : [
+        "data" : [
         {
-            "label" : "vnic", 
-            "value" : "vnic"
-        }, 
-        {
-            "label" : "vconnector", 
-            "value" : "vconnector"
-        }, 
-        {
-            "label" : "vedge", 
-            "value" : "vedge"
-        }, 
-        {
-            "label" : "instance", 
-            "value" : "instance"
+            "value" : "vnic",
+            "label" : "vnic"
         },
         {
-            "label" : "container",
-            "value" : "container"
+            "value" : "vconnector",
+            "label" : "vconnector"
         },
         {
-            "label" : "pod",
-            "value" : "pod"
-        }, 
-        {
-            "label" : "vservice", 
-            "value" : "vservice"
+            "value" : "vedge",
+            "label" : "vedge"
         },
         {
-            "label" : "host_pnic",
-            "value" : "host_pnic"
+            "value" : "instance",
+            "label" : "instance"
         },
         {
-            "label" : "switch_pnic",
-            "value" : "switch_pnic"
+            "value" : "container",
+            "label" : "container"
         },
         {
-            "label" : "network", 
-            "value" : "network"
+            "value" : "pod",
+            "label" : "pod"
         },
         {
-            "label" : "switch",
-            "value" : "switch"
-        }, 
-        {
-            "label" : "port", 
-            "value" : "port"
-        }, 
-        {
-            "label" : "otep", 
-            "value" : "otep"
-        }, 
-        {
-            "label" : "agent", 
-            "value" : "agent"
-        }, 
-        {
-            "label" : "host", 
-            "value" : "host"
+            "value" : "vservice",
+            "label" : "vservice"
         },
         {
-            "label" : "project",
-            "value" : "project"
+            "value" : "host_pnic",
+            "label" : "host_pnic"
+        },
+        {
+            "value" : "switch_pnic",
+            "label" : "switch_pnic"
+        },
+        {
+            "value" : "network",
+            "label" : "network"
+        },
+        {
+            "value" : "switch",
+            "label" : "switch"
+        },
+        {
+            "value" : "port",
+            "label" : "port"
+        },
+        {
+            "value" : "otep",
+            "label" : "otep"
+        },
+        {
+            "value" : "network_agent",
+            "label" : "network_agent"
+        },
+        {
+            "value" : "host",
+            "label" : "host"
+        },
+        {
+            "value" : "project",
+            "label" : "project"
+        },
+        {
+            "value" : "region",
+            "label" : "region"
+        },
+        {
+            "value" : "availability_zone",
+            "label" : "availability_zone"
         }
     ]
 },
