@@ -47,20 +47,19 @@ class ApiFetchNetwork(ApiAccess):
         subnets = network['subnets']
 
         # get subnets documents.
-        subnets_hash = {}
+        subnets_list = []
         cidrs = []
         subnet_ids = []
         for subnet_id in subnets:
             req_url = endpoint + "/v2.0/subnets/" + subnet_id
             response = self.get_url(req_url, headers)
             if "subnet" in response:
-                # create a hash subnets, to allow easy locating of subnets
                 subnet = response["subnet"]
-                subnets_hash[subnet["name"]] = subnet
+                subnets_list.append(subnet)
                 cidrs.append(subnet["cidr"])
                 subnet_ids.append(subnet["id"])
 
-        network["subnets"] = subnets_hash
+        network["subnets"] = subnets_list
         network["cidrs"] = cidrs
         network["subnet_ids"] = subnet_ids
 

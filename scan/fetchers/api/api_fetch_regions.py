@@ -36,11 +36,12 @@ class ApiFetchRegions(ApiAccess):
                     region = {
                         "id": "|".join(("region", region_name)),
                         "name": region_name,
-                        "endpoints": {}
+                        "endpoints": []
                     }
                     ApiAccess.regions[region_name] = region
                 region["parent_type"] = "regions_folder"
                 region["parent_id"] = self.get_env() + "-regions"
+                e["name"] = service["name"]
                 e["service_type"] = service["type"]
-                region["endpoints"][service["name"]] = e
+                region["endpoints"].append(e)
         return list(ApiAccess.regions.values())

@@ -50,5 +50,14 @@ class ApiFetchAvailabilityZones(ApiAccess):
                                    parent_text="Availability Zones")
             doc["available"] = doc["zoneState"]["available"]
             doc.pop("zoneState")
+
+            hosts = []
+            for host_name, services in doc["hosts"].items():
+                hosts.append({
+                    "name": host_name,
+                    "services": services
+                })
+            doc["hosts"] = hosts
+
             ret.append(doc)
         return ret

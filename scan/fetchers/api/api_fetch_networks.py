@@ -68,7 +68,7 @@ class ApiFetchNetworks(ApiAccess):
             project = self.inv.get_by_id(self.get_env(), project_id)
             if project:
                 doc["project"] = project["name"]
-            subnets_details = {}
+            subnets_details = []
             cidrs = []
             subnet_ids = []
             for s in doc["subnets"]:
@@ -76,7 +76,7 @@ class ApiFetchNetworks(ApiAccess):
                     subnet = subnets_hash[s]
                     cidrs.append(subnet["cidr"])
                     subnet_ids.append(subnet["id"])
-                    subnets_details[subnet["name"]] = subnet
+                    subnets_details.append(subnet)
                 except KeyError:
                     pass
 

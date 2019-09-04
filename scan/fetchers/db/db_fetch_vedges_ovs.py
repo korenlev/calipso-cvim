@@ -45,7 +45,7 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
             doc["vedge_type"] = "OVS"
             doc["name"] = "{}-OVS".format(doc["host"])
             doc["configurations"] = json.loads(doc["configurations"])
-            doc["ports"] = ports
+            doc["ports"] = list(ports.values())
             doc["tunnel_ports"] = self.get_overlay_tunnels(doc, vsctl_lines)
         return results
 

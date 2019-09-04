@@ -135,6 +135,7 @@ class ApiAccess(ApiAccessBase):
         if service in self.alternative_services:
             alternatives.extend(self.alternative_services[service])
         for sname in alternatives:
-            if sname in endpoints:
-                return endpoints[sname]
+            for endpoint in endpoints:
+                if endpoint['name'] == sname:
+                    return endpoint
         return None

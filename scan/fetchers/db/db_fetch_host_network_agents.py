@@ -26,9 +26,10 @@ class DbFetchHostNetworkAgents(DbAccess):
         """.format(self.neutron_db)
         host_id = id[:-1 * len("-network_agents")]
         results = self.get_objects_list_for_id(query, "network_agent", host_id)
-        mechanism_drivers = self.env_config['mechanism_drivers']
         for o in results:
             o["configurations"] = json.loads(o["configurations"])
             o["name"] = o["binary"]
-            o['id'] = o['name'] + '-' + o['id']
+            o['id'] = "{}-{}".format(o['name'], o['id'])
+            if o.get('admin_state_up') in (0, 1):
+                o['admin_state_up'] = bool(o['admin_state_up'])
         return results
