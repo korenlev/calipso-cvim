@@ -52,16 +52,17 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
             self.add_vconnector(host=host, bd_id=bd_id)
             interface = self.get_interface_details(host, name)
             if interface:
+                interface['name'] = name  # Avoid bond interface name substitution
                 self.interfaces[bd_id][name] = interface
                 self.interfaces_names[bd_id].append(name)
 
         for vconnector in self.vconnectors.values():
-            vconnector['interfaces'] = self.interfaces[vconnector['bd_id']]
+            vconnector['interfaces'] = list(self.interfaces[vconnector['bd_id']].values())
             vconnector['interfaces_names'] = self.interfaces_names[vconnector['bd_id']]
 
         return list(self.vconnectors.values())
 
-    def add_vconnector(self, host: dict=None, bd_id: str=''):
+    def add_vconnector(self, host: dict = None, bd_id: str = ''):
         if not bd_id or bd_id in self.vconnectors:
             return
         self.vconnectors[bd_id] = dict(

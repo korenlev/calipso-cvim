@@ -59,7 +59,7 @@ class FindLinksForVconnectors(FindLinks):
                 vnic = search_func(field_name='target.@dev')
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC
-            interface = vconnector['interfaces'][interface_name]
+            interface = next(i for i in vconnector['interfaces'] if i['name'] == interface_name)
             if not interface or 'mac_address' not in interface:
                 return
             vconnector_if_mac = interface['mac_address']

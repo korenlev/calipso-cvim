@@ -55,9 +55,13 @@ def stringify_object_values_by_type(obj, object_type):
 # convert some values of the specific types of the object into string
 # e.g convert all the ObjectId to string
 #     convert all the datetime object to string
-def stringify_object_values_by_types(obj, object_types):
+def stringify_object_values_by_types(obj, object_types=stringify_map.keys()):
     for object_type in object_types:
         stringify_object_values_by_type(obj, object_type)
+
+
+def stringify_doc(doc):
+    stringify_object_values_by_types(doc, stringify_map.keys())
 
 
 def plural(name):

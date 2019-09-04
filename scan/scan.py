@@ -19,6 +19,7 @@ import sys
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
 from base.utils.constants import EnvironmentFeatures
+from base.utils.elastic_access import ElasticAccess
 from base.utils.exceptions import ScanArgumentsError
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.mongo_access import MongoAccess
@@ -280,6 +281,11 @@ class ScanController(Fetcher):
         except FileNotFoundError as e:
             return False, 'Mongo configuration file not found: {}'\
                 .format(str(e))
+
+        # # TODO: temp
+        # es_client = ElasticAccess(bulk_chunk_size=1000)
+        # es_client.dump_collections(args['env'])
+        # return True, "ok"
 
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:

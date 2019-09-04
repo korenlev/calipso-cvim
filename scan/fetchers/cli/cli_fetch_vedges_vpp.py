@@ -45,7 +45,7 @@ class CliFetchVedgesVpp(CliFetcher):
 
     @staticmethod
     def fetch_ports(interfaces):
-        ports = {}
+        ports = []
         for i in interfaces:
             if not i or i.startswith(' '):
                 continue
@@ -55,5 +55,5 @@ class CliFetchVedgesVpp(CliFetcher):
                 'state': parts[2],
                 'name': parts[0]
             }
-            ports[port['name']] = port
+            ports.append(port)
         return ports

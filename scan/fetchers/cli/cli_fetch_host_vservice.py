@@ -40,6 +40,8 @@ class CliFetchHostVservice(CliFetcher, DbAccess):
         r["name"] = prefix + "-" + name
         r["host"] = host_id
         r["id"] = "{}-{}".format(host_id, id_full)
+        if r.get('admin_state_up') in (0, 1):
+            r['admin_state_up'] = bool(r['admin_state_up'])
         self.set_agent_type(r)
 
     def get_network_name(self, network_id):

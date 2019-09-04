@@ -15,6 +15,7 @@ import pymongo
 from functools import partial
 
 from base.utils.constants import ScanStatus, EnvironmentFeatures
+from base.utils.elastic_access import ElasticAccess
 from base.utils.exceptions import ScanArgumentsError
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.file_logger import FileLogger
@@ -45,6 +46,7 @@ class ScanManager(Manager):
         self.environments_collection = None
         self.scans_collection = None
         self.scheduled_scans_collection = None
+        self.es_client = None
 
     @staticmethod
     def get_args():
@@ -78,6 +80,8 @@ class ScanManager(Manager):
                             default=FileLogger.LOG_DIRECTORY,
                             help="File logger directory \n(default: '{}')"
                                  .format(FileLogger.LOG_DIRECTORY))
+        parser.add_argument("--es_host", nargs="?", type=str, default=None, help="Elasticsearch host")
+        parser.add_argument("--es_port", nargs="?", type=str, default=None, help="Elasticsearch port")
         args = parser.parse_args()
         return args
 
@@ -94,6 +98,8 @@ class ScanManager(Manager):
             partial(MongoAccess.update_document, self.scans_collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
+        if self.args.es_host and self.args.es_port:
+            self.es_client = ElasticAccess(host=self.args.es_host, port=self.args.es_port)
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "{1}\n"
@@ -297,6 +303,10 @@ class ScanManager(Manager):
                             .format(scan_request['_id'], message))
                 end_time = datetime.datetime.utcnow()
                 scan_request['end_timestamp'] = end_time
+
+                if self.es_client:
+                    self.es_client.dump_collections(self, env)
+
                 self._complete_scan(scan_request, message)
 
     def do_action(self):

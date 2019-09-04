@@ -42,10 +42,10 @@ class CliFetchHostPnicsVpp(CliFetcher):
         ret = []
         for vedge in vedges:
             pnic_ports = vedge['ports']
-            for pnic_name in pnic_ports:
+            for pnic in pnic_ports:
+                pnic_name = pnic['name']
                 if not self.name_re.search(pnic_name):
                     continue
-                pnic = pnic_ports[pnic_name]
                 pnic['host'] = host_id
                 pnic['id'] = host_id + "-pnic-" + pnic_name
                 pnic['IP Address'] = ''
