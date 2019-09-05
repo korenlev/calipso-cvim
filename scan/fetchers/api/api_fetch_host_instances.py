@@ -20,7 +20,8 @@ class ApiFetchHostInstances(ApiAccess):
         self.token = None
         self.nova_endpoint = None
         self.neutron_endpoint = None
-        self.projects = None
+        self.project = {}
+        self.projects = []
         self.db_fetcher = None
 
         self.flavors = None
@@ -41,7 +42,9 @@ class ApiFetchHostInstances(ApiAccess):
     def get_projects(self):
         if not self.projects:
             projects_list = self.inv.get(self.get_env(), "project", None)
-            self.projects = [p["name"] for p in projects_list]
+            for p in projects_list:
+                self.project = {"name": p["name"], "id": p["id"], "domain_id": p["domain_id"]}
+                self.projects.append(self.project)
 
     def get(self, id):
         self.get_projects()
@@ -97,7 +100,11 @@ class ApiFetchHostInstances(ApiAccess):
         server = response["server"]
 
         self.set_server_info(doc, server)
+        # find the specific instance's project/tenant based on tenant_id and add more project details
+        instance_project = next(pi for pi in self.projects if pi["id"] == doc["tenant_id"])
         doc.update({
+            "project_name": instance_project["name"],
+            "project_domain": instance_project["domain_id"],
             "flavor": self.get_flavor_data(server["flavor"]["id"]) if isinstance(server.get('flavor'), dict) else None,
             "image": self.get_image_data(server["image"]["id"]) if isinstance(server.get('image'), dict) else None,
             "security_groups": self.get_security_groups(server)
