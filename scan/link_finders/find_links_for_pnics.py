@@ -113,6 +113,10 @@ class FindLinksForPnics(FindLinks):
 
     def add_host_pnic_to_switch_pnic_link(self, host_pnic):
         # link_type: "host_pnic-switch_pnic"
+        mac_address = host_pnic.get("mac_address")
+        if not mac_address:
+            return
+
         switch_pnic = self.inv.find_items({
             "environment": self.get_env(),
             "type": "switch_pnic",

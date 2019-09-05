@@ -19,7 +19,6 @@ import sys
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
 from base.utils.constants import EnvironmentFeatures
-from base.utils.elastic_access import ElasticAccess
 from base.utils.exceptions import ScanArgumentsError
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.mongo_access import MongoAccess
@@ -27,6 +26,7 @@ from base.utils.origins import ScanOrigins, ScanOrigin
 from base.utils.ssh_connection import SshConnection
 from base.utils.util import setup_args
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
+from scan.fetchers.aci.aci_access import AciAccess
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.db.db_access import DbAccess
 from scan.scan_error import ScanError
@@ -259,8 +259,9 @@ class ScanController(Fetcher):
         return plan
 
     @staticmethod
-    def reset_connections():
+    def reset_connections(ignore_errors=False):
         ApiAccess.reset()
+        AciAccess().logout(ignore_errors=ignore_errors)
         DbAccess.close_connection()
         SshConnection.disconnect_all()
 
@@ -282,11 +283,6 @@ class ScanController(Fetcher):
             return False, 'Mongo configuration file not found: {}'\
                 .format(str(e))
 
-        # # TODO: temp
-        # es_client = ElasticAccess(bulk_chunk_size=1000)
-        # es_client.dump_collections(args['env'])
-        # return True, "ok"
-
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:
             self.inv.clear(scan_plan)
@@ -296,7 +292,7 @@ class ScanController(Fetcher):
         self.conf.use_env(env_name)
 
         # Reset active connections
-        self.reset_connections()
+        self.reset_connections(ignore_errors=True)
 
         # generate ScanObject Class and instance.
         scanner = Scanner()

@@ -234,13 +234,6 @@
       {
         "type": "otep",
         "environment_condition": {
-          "mechanism_drivers": "VPP"
-        },
-        "fetcher": "DbFetchOteps"
-      },
-      {
-        "type": "otep",
-        "environment_condition": {
           "mechanism_drivers": "LXB"
         },
         "fetcher": "CliFetchOtepsLxb"
@@ -442,7 +435,24 @@
           "environment_type": ["OpenStack", "Kubernetes"],
           "mechanism_drivers": "VPP"
         },
-        "children_scanner": "ScanOteps"
+        "children_scanner": "ScanVppPnic"
+      }
+    ],
+    "ScanVppPnic": [
+      {
+        "type": "otep",
+        "environment_condition": {
+          "mechanism_drivers": "VPP"
+        },
+        "fetcher": "DbFetchOteps"
+      },
+      {
+        "type": "switch_pnic",
+        "fetcher": "AciFetchSwitchPnic",
+        "environment_condition": {
+          "environment_type": ["OpenStack", "Kubernetes"]
+        },
+        "children_scanner": "ScanSpines"
       }
     ],
     "ScanVservicesRoot": [

@@ -130,19 +130,19 @@
         "vedge-host_pnic", 
         "host_pnic-network"
     ], 
-    "name" : "instance_vconnector_clique"
+    "name" : "mercury_instance_vconnector_clique"
 },
 { 
     "environment" : "",
-    "distribution" : "Mercury", 
+    "distribution" : "Mercury",
+    "focal_point_type" : "vservice",
     "link_types" : [
         "vservice-vnic",
         "vnic-vedge",
         "vedge-host_pnic", 
         "host_pnic-network"
-    ], 
-    "focal_point_type" : "vservice", 
-    "name" : "vservice_vedge_clique"
+    ],
+    "name" : "mercury_vservice_vedge_clique"
 },
 { 
     "environment" : "",
@@ -157,7 +157,26 @@
         "vnic-instance", 
         "vnic-vservice"
     ], 
-    "name" : "network"
+    "name" : "mercury_network_clique"
+},
+{
+    "environment" : "",
+    "distribution" : "Mercury",
+    "focal_point_type" : "switch",
+    "link_types" : [
+        "switch-switch_pnic",
+        "switch_pnic-switch_pnic",
+        "switch_pnic-switch",
+        "switch-switch_pnic",
+        "switch_pnic-host_pnic",
+        "host_pnic-vedge",
+        "vedge-vconnector",
+        "vedge-vnic",
+        "vconnector-vnic",
+        "vnic-instance",
+        "vnic-vservice"
+    ],
+    "name" : "mercury_switch_clique"
 },
 { 
     "name" : "instance", 

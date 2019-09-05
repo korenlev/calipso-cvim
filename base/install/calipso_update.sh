@@ -3,7 +3,7 @@
 # script to initiate after manual update of the 5 calipso containers
 
 my_ip=$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f7)
-echo "running from ip:" $my_ip
+echo "running from ip:" $(my_ip)
 
 # update local calipso code
 cd /home/calipso/Calipso
@@ -13,7 +13,7 @@ git pull
 # python3 /home/calipso/Calipso/base/install/calipso-installer.py --command start-all --copy q
 
 # commit code changes to new images
-echo "commiting code changes..."
+echo "committing code changes..."
 sleep 1
 docker commit calipso-test korenlev/calipso:test-v2
 docker commit calipso-monitor korenlev/calipso:monitor-v2

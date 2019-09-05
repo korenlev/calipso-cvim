@@ -7,12 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from pymongo import MongoClient, ReturnDocument
-from pymongo.errors import ConnectionFailure
-from urllib.parse import quote_plus
 import docker
 import argparse
-import dockerpycreds
 # note : not used, useful for docker api security if used
 import time
 import json
@@ -21,6 +17,12 @@ import socket
 # if hostname argument will not be provided as argument for the calipso-installer
 import os
 import errno
+from six.moves import input
+
+from pymongo import MongoClient
+from six.moves.urllib.parse import quote_plus
+
+
 dockerip = os.popen('ip addr show docker0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'')
 local_hostname = dockerip.read().replace("\n", "")
 
@@ -38,59 +40,6 @@ MONGO_CONFIG = "MONGO_CONFIG=" + C_MONGO_CONFIG
 LDAP_CONFIG = "LDAP_CONFIG=" + C_LDAP_CONFIG
 LOG_LEVEL = "LOG_LEVEL=DEBUG"
 
-
-class MongoComm:
-    # deals with communication from host/installer server to mongoDB,
-    # includes methods for future use
-    try:
-
-        def __init__(self, host, user, pwd, port):
-            self.uri = "mongodb://%s:%s@%s:%s/%s" % (
-                quote_plus(user), quote_plus(pwd), host, port, "calipso")
-            self.client = MongoClient(self.uri)
-
-        def find(self, coll, key, val):
-            collection = self.client.calipso[coll]
-            doc = collection.find({key: val})
-            return doc
-
-        def get(self, coll, doc_name):
-            collection = self.client.calipso[coll]
-            doc = collection.find_one({"name": doc_name})
-            return doc
-
-        def insert(self, coll, doc):
-            collection = self.client.calipso[coll]
-            doc_id = collection.insert(doc)
-            return doc_id
-
-        def remove_doc(self, coll, doc):
-            collection = self.client.calipso[coll]
-            collection.remove(doc)
-
-        def remove_coll(self, coll):
-            collection = self.client.calipso[coll]
-            collection.remove()
-
-        def find_update(self, coll, key, val, data):
-            collection = self.client.calipso[coll]
-            collection.find_one_and_update(
-                {key: val},
-                {"$set": data},
-                upsert=True
-            )
-
-        def update(self, coll, doc, upsert=False):
-            collection = self.client.calipso[coll]
-            doc_id = collection.update_one({'_id': doc['_id']},
-                                           {'$set': doc},
-                                           upsert=upsert)
-            return doc_id
-
-    except ConnectionFailure:
-        print("MongoDB Server not available")
-
-
 # using local host docker environment parameters
 DockerClient = docker.from_env()
 
@@ -99,17 +48,73 @@ DockerClient = docker.from_env()
 # docker.DockerClient(base_url='tcp://korlev-calipso-testing.cisco.com:2375')
 
 
-def copy_file(filename):
-    c = MongoComm(args.hostname, args.dbuser, args.dbpassword, args.dbport)
-    txt = open('../../mongo/initial_data/{}.json'.format(filename))
-    data = json.load(txt)
-    c.remove_coll(filename)
-    doc_id = c.insert(filename, data)
-    print("Copied", filename, "mongo doc_ids:\n\n", doc_id, "\n\n")
-    time.sleep(1)
+class MongoConnector(object):
+    def __init__(self, host, port, user, pwd, db, db_label="db"):
+        # Create calipso db and user if they don't exist
+        base_uri = "mongodb://%s:%s/" % (host, port)
+        base_client = MongoClient(base_uri)
+        base_client.close()
+
+        self.host = host
+        self.port = port
+        self.user = user
+        self.pwd = pwd
+        self.db = db
+        self.db_label = db_label
+
+        self.uri = None
+        self.client = None
+        self.database = None
+
+    def connect(self):
+        self.disconnect()
+        self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
+                                                 self.host, self.port, self.db)
+        self.client = MongoClient(self.uri)
+        self.database = self.client[self.db]
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def disconnect(self):
+        if self.client:
+            print("Disconnecting from {}...".format(self.db_label))
+            self.client.close()
+            self.client = None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
+
+    def clear_collection(self, collection):
+        self.database[collection].remove()
+
+    def collection_exists(self, name):
+        return name in self.database.collection_names()
+
+    def create_collection(self, name):
+        return self.database.create_collection(name)
+
+    def insert_collection(self, collection, data):
+        if data:
+            doc_ids = self.database[collection].insert(data)
+            doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
+            print("Inserted '{}' collection in {}, Total docs inserted: {}".format(collection, self.db_label, doc_count))
+        elif not self.collection_exists(collection):
+            self.create_collection(collection)
+            print("Inserted empty '{}' collection in {}".format(collection, self.db_label))
+        else:
+            print("Skipping empty '{}' collection".format(collection,))
 
 
-def container_started(name: str, print_message=True):
+def insert_data(conn, filename):
+    with open('../../mongo/initial_data/{}.json'.format(filename)) as file:
+        data = json.load(file)
+        conn.clear_collection(filename)
+        conn.insert_collection(filename, data)
+
+
+def container_started(name, print_message=True):
     found = DockerClient.containers.list(all=True, filters={"name": name})
     if found and print_message:
         print("container named {} already exists, "
@@ -159,32 +164,14 @@ def start_mongo(dbport, copy):
         return
     print("\nstarting to copy json files to mongoDB...\n\n")
     print("-----------------------------------------\n\n")
-    time.sleep(1)
-    copy_file("attributes_for_hover_on_data")
-    copy_file("clique_constraints")
-    copy_file("clique_types")
-    copy_file("cliques")
-    copy_file("constants")
-    copy_file("environments_config"),
-    copy_file("environment_options"),
-    copy_file("inventory")
-    copy_file("link_types")
-    copy_file("links")
-    copy_file("messages")
-    copy_file("meteor_accounts_loginServiceConfiguration")
-    copy_file("users")
-    copy_file("monitoring_config")
-    copy_file("monitoring_config_templates")
-    copy_file("network_agent_types")
-    copy_file("roles")
-    copy_file("scans")
-    copy_file("scheduled_scans")
-    copy_file("statistics")
-    copy_file("supported_environments")
-    copy_file("connection_tests")
-    copy_file("api_tokens")
-    copy_file("user_settings")
-
+    with MongoConnector(host=args.hostname, port=args.dbport, user=args.dbuser, pwd=args.dbpassword,
+                        db="calipso", db_label="db") as conn:
+        for collection in ("api_tokens", "attributes_for_hover_on_data", "clique_constraints", "clique_types",
+                           "cliques", "connection_tests", "constants", "environment_options", "environments_config",
+                           "inventory", "link_types", "links", "messages", "meteor_accounts_loginServiceConfiguration",
+                           "monitoring_config", "monitoring_config_templates", "network_agent_types", "roles", "scans",
+                           "scheduled_scans", "statistics", "supported_environments", "user_settings", "users"):
+            insert_data(conn, collection)
     # note : 'messages', 'roles', 'users' and some of the 'constants'
     # are filled by calipso-ui at runtime
     # some other docs are filled later by scanning, logging
@@ -312,6 +299,7 @@ def start_test():
                                 restart_policy=RESTART_POLICY,
                                 environment=[PYTHON_PATH, MONGO_CONFIG],
                                 volumes=calipso_volume)
+
 
 # check and stop a calipso container by given name
 def container_stop(container_name):

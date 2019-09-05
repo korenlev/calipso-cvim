@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 import traceback
+import ssl
 from pymongo import MongoClient
 from sys import exit
 from six.moves import input
@@ -23,7 +24,7 @@ def debug(msg):
 
 
 class MongoConnector(object):
-    def __init__(self, host, port, user, pwd, db):
+    def __init__(self, host, port, user, pwd, db, db_label="central DB"):
         # Create calipso db and user if they don't exist
         base_uri = "mongodb://%s:%s/" % (host, port)
         base_client = MongoClient(base_uri)
@@ -34,6 +35,7 @@ class MongoConnector(object):
         self.user = user
         self.pwd = pwd
         self.db = db
+        self.db_label = db_label
 
         self.uri = None
         self.client = None
@@ -44,12 +46,13 @@ class MongoConnector(object):
         self.disconnect()
         self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
                                                  self.host, self.port, self.db)
-        self.client = MongoClient(self.uri)
+        self.client = MongoClient(self.uri, serverSelectionTimeoutMS=5000,
+                                  ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         self.database = self.client[self.db]
 
     def disconnect(self):
         if self.client:
-            print("Disconnecting from DB...")
+            print("Disconnecting from {}...".format(self.db_label))
             self.client.close()
             self.client = None
 
@@ -77,12 +80,12 @@ class MongoConnector(object):
         if data:
             doc_ids = self.database[collection].insert(data)
             doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-            print("Inserted '%s' collection in central DB, Total docs inserted: %s" % (collection, doc_count))
+            print("Inserted '{}' collection in {}, Total docs inserted: {}".format(collection, self.db_label, doc_count))
         elif not self.collection_exists(collection):
             self.create_collection(collection)
-            print("Inserted empty '%s' collection in central DB" % (collection,))
+            print("Inserted empty '{}' collection in {}".format(collection, self.db_label))
         else:
-            print("Skipping empty '%s' collection" % (collection,))
+            print("Skipping empty '{}' collection".format(collection,))
 
 
 def backoff(i):
@@ -179,7 +182,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.3.10')
+                        version='%(prog)s version: 0.4.12')
 
     args = parser.parse_args()
 
@@ -220,15 +223,17 @@ def run():
                 s['imported'] = True
                 source_connector.disconnect()
                 source_connector = None
-            except Exception:
+            except Exception as e:
+                print("Failed to connect to {}, error: {}".format(s["name"], e.args))
                 if source_connector is not None:
                     source_connector.disconnect()
-                traceback.print_exc()
+                # traceback.print_exc()
 
                 if s['attempt'] >= max_connection_attempts:
                     destination_connector.disconnect()
                     print("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
                     return 1
+                break
 
     # reconstruct source-target ids for links and cliques
     reconstruct_ids(destination_connector)

@@ -10,6 +10,7 @@
 import os
 import tempfile
 from pymongo import MongoClient
+import ssl
 
 from base.utils.config_file import ConfigFile
 from base.utils.dict_naming_converter import DictNamingConverter
@@ -147,7 +148,8 @@ class MongoAccess(DictNamingConverter):
         self.prepare_connect_uri()
         MongoAccess.client = MongoClient(
             self.connect_params["server"],
-            int(self.connect_params["port"])
+            int(self.connect_params["port"]),
+            ssl=True, ssl_cert_reqs=ssl.CERT_NONE
         )
         MongoAccess.db = getattr(MongoAccess.client,
                                  self.connect_params.get('auth_db', self.DB_NAME))

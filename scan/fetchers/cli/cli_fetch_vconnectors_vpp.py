@@ -75,7 +75,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
     def get_interface_details(self, host, name):
         # find vconnector interfaces
-        cmd = "vppctl show hardware-int {}".format(self.clean_interface(name))
+        cmd = "vppctl show hardware-interfaces {}".format(self.clean_interface(name))
         interface_lines = self.run_fetch_lines(cmd, host['id'])
         interfaces = parse_hw_interfaces(interface_lines)
         return interfaces[0] if interfaces else None

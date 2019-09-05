@@ -14,7 +14,7 @@ from scan.fetchers.cli.cli_fetch_interface_hardware_details_vpp \
     import CliFetchInterfaceHardwareDetailsVpp
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
-NAME_RE = '^[a-zA-Z]*(GigabitEthernet|Bond)'
+NAME_RE = '^\w*(?<!Virtual)Ethernet'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
 PNIC_WITH_NETWORK_RE = '.*\.([0-9]+)$'
 
@@ -60,6 +60,7 @@ class CliFetchHostPnicsVpp(CliFetcher):
                 ret.append(pnic)
         self.if_details_fetcher.add_hardware_interfaces_details(host_id, ret)
         self.add_pnic_ip_addresses(host_id, ret)
+        self.add_interfaces_bond_details(host_id, ret)
         return ret
 
     def add_pnic_ip_addresses(self, host_id, pnics: list):
@@ -104,6 +105,32 @@ class CliFetchHostPnicsVpp(CliFetcher):
             'network_name': network['name'],
             'network_type': network['provider:network_type']
         })
+
+    def add_interfaces_bond_details(self, host_id: str, interfaces: list):
+        cmd = 'vppctl show bond'
+        lines = self.run_fetch_lines(cmd, host_id)
+        bond_keys = ["bond_master_interface", "sw_if_index", "mode", "local_balance", "active_slaves", "slaves"]
+        bond_details = {}
+        for line in lines:
+            if "Bond" in line:
+                bond_values = line.split()
+                bond_details = dict(zip(bond_keys, bond_values))
+        cmd = 'vppctl show bond details'
+        lines = self.run_fetch_lines(cmd, host_id)
+        members = []
+        for interface in interfaces:
+            for line in lines:
+                if interface["name"] in line:
+                    if (interface["name"] not in members) and ("Bond" not in interface["name"]):
+                        members.append(interface["name"])
+                    interface["EtherChannel"] = True
+                    interface["EtherChannel Master"] = bond_details["bond_master_interface"]
+                    interface["EtherChannel Config"] = bond_details
+                    details_cmd = 'vppctl show lacp details {} | grep -v "{}"'.format(interface["name"], interface["name"])
+                    details_lines = self.run_fetch_lines(details_cmd, host_id)
+                    interface["EtherChannel Runtime"] = details_lines
+            interface["members"] = members
+
 
 
 

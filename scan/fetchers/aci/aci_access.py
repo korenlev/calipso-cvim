@@ -32,8 +32,9 @@ def aci_config_required(default=None):
 class AciAccess(ApiAccessBase):
 
     RESPONSE_FORMAT = "json"
-    cookie_token = None
     MAX_LOGIN_ATTEMPTS = 5
+    cookie_token = None
+    session = None
 
     def __init__(self, config=None):
         self.aci_enabled = (
@@ -58,6 +59,22 @@ class AciAccess(ApiAccessBase):
 
     def get_base_url(self):
         return "https://{}/api".format(self.host)
+
+    # Debug method
+    def send_request(self, method, url, *args, **kwargs):
+        if not AciAccess.session:
+            self.log.error("Session not initialized")
+            return None
+
+        method = method.upper()
+        # self.log.info("Sending a {} request to ACI url: {}. Headers: {}".format(method, url, kwargs.get('headers')))
+        if method == "GET":
+            return AciAccess.session.get(url, *args, **kwargs)
+        elif method == "POST":
+            return AciAccess.session.post(url, *args, **kwargs)
+        else:
+            self.log.error("Unknown method")
+            return None
 
     # Unwrap ACI response payload
     # and return an array of desired fields' values.
@@ -129,14 +146,20 @@ class AciAccess(ApiAccessBase):
 
     @staticmethod
     def _set_token(response):
-        tokens = AciAccess.get_objects_by_field_names(response.json(), "aaaLogin", "attributes", "token")
+        tokens = AciAccess.get_objects_by_field_names(response.json(), "aaaLogin", "attributes", "urlToken")
         token = tokens[0]
 
-        AciAccess.cookie_token = {"APIC-Cookie": token}
+        if token:  # Refresh sends empty url tokens
+            AciAccess.cookie_token = {"APIC-Challenge": token}
 
     @aci_config_required()
     def login(self):
-        url = "/".join((self.get_base_url(), "aaaLogin.json"))
+        if AciAccess.session:
+            self.logout(ignore_errors=True)
+            AciAccess.session.close()
+            AciAccess.session = None
+
+        url = "/".join((self.get_base_url(), "aaaLogin.json?gui-token-request=yes"))
         payload = {
             "aaaUser": {
                 "attributes": {
@@ -146,8 +169,8 @@ class AciAccess(ApiAccessBase):
             }
         }
 
-        response = requests.post(url, json=payload, verify=False,
-                                 timeout=self.CONNECT_TIMEOUT)
+        AciAccess.session = requests.Session()
+        response = self.send_request("POST", url, json=payload, verify=False, timeout=self.CONNECT_TIMEOUT)
 
         response.raise_for_status()
 
@@ -158,15 +181,17 @@ class AciAccess(ApiAccessBase):
     def refresh_token(self):
         # First time login
         if not AciAccess.cookie_token:
+            self.log.info("ACI token is empty. Logging in")
             self.login()
             return
 
         url = "/".join((self.get_base_url(), "aaaRefresh.json"))
 
-        response = requests.get(url, verify=False)
+        response = self.send_request("GET", url, headers=self.cookie_token, verify=False)
 
         # Login again if the token has expired
         if response.status_code == requests.codes.forbidden:
+            self.log.info("ACI token refresh failed. Response: {}".format(response.text))
             self.login()
             return
         # Propagate any other error
@@ -174,6 +199,28 @@ class AciAccess(ApiAccessBase):
             response.raise_for_status()
 
         AciAccess._set_token(response)
+
+    @aci_config_required()
+    def logout(self, ignore_errors=False):
+        if not AciAccess.cookie_token or not AciAccess.session:
+            return
+
+        url = "/".join((self.get_base_url(), "aaaLogout.json"))
+        payload = {
+            "aaaUser": {
+                "attributes": {
+                    "name": self.aci_configuration["user"]
+                }
+            }
+        }
+
+        response = self.send_request("POST", url, headers=self.cookie_token, json=payload,
+                                     verify=False, timeout=self.CONNECT_TIMEOUT)
+
+        if not ignore_errors:
+            response.raise_for_status()
+
+        self.reset_token()
 
     def get_token(self, attempt=1):
         try:
@@ -191,10 +238,11 @@ class AciAccess(ApiAccessBase):
     def send_get(self, url, params, headers, cookies):
         self.get_token()
 
-        cookies = self._insert_token_into_request(cookies)
+        headers = self._insert_token_into_request(headers)
 
-        response = requests.get(url, params=params, headers=headers,
-                                cookies=cookies, verify=False)
+        response = self.send_request("GET", url,
+                                     params=params, headers=headers,
+                                     cookies=cookies, verify=False)
         # Let client handle HTTP errors
         response.raise_for_status()
 
