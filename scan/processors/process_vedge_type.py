@@ -83,7 +83,7 @@ class ProcessVedgeType(Processor):
                 vnic = search_func(field_name='target.@dev')
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC
-            interface = vconnector['interfaces'][interface_name]
+            interface = next(i for i in vconnector['interfaces'] if interface_name == i['name'])
             if not interface or 'mac_address' not in interface:
                 return None
             vconnector_if_mac = interface['mac_address']
@@ -124,5 +124,5 @@ class ProcessVedgeType(Processor):
         super().run()
         vedges = self.find_by_type("vedge")
         for vedge in vedges:
-            for port in vedge["ports"].values():
+            for port in vedge["ports"]:
                 self.update_matching_objects(vedge, port)
