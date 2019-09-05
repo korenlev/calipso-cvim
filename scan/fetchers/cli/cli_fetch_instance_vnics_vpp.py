@@ -19,7 +19,10 @@ class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
         interface_name = v.get("interface_name", "").replace("/", ".")
         if interface_name:
             v["id"] = "|".join((v["id"], interface_name))
-        v["name"] = "|".join((v["id"], v["object_name"]))
+            v["name"] = "|".join((v["id"], v["object_name"]))
+        else:
+            v["id"] = "|".join((v["id"], v["object_name"]))
+            v["name"] = v["id"]
 
     def get_vpp_interfaces(self, host):
         vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", host)

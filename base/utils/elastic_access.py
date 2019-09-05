@@ -22,6 +22,7 @@ class ElasticAccess:
         'links': [],
         'cliques': []
     }
+    TREE_ROOT_ID = 'root'
 
     def __init__(self, host="localhost", port="9200", bulk_chunk_size=1000):
         self.log = ConsoleLogger()
@@ -79,5 +80,31 @@ class ElasticAccess:
         ok, errors = bulk(self.connection, actions, stats_only=True, raise_on_error=False, chunk_size=self.bulk_chunk_size)
         self.log.info("Successfully indexed {} documents to Elasticsearch, errors: {}".format(ok, errors))
 
+    def dump_tree(self, env):
+        data_list = [
+            {
+                'id': ElasticAccess.TREE_ROOT_ID,
+                'name': 'environments'
+            }, {
+                'id': env,
+                'name': env,
+                'parent': ElasticAccess.TREE_ROOT_ID
+            }
+        ]
 
+        for doc in self.inv.find({'environment': env}):
+            data_list.append({
+                'id': doc['id'],
+                'name': doc['name'],
+                'parent': doc['parent_id'],
+                'type': doc['type']
+            })
 
+        index_name = 'calipso-tree-{}'.format(datetime.datetime.now().strftime("%Y.%m.%d"))
+        # TODO: handle response
+        # ok, errors = self.connection.index(index_name, {'doc': data_list})
+        # self.log.info("Successfully indexed {} documents to Elasticsearch index '{}', errors: {}".format(
+        #     ok, index_name, errors)
+        # )
+        env_doc = self.inv.find_one({'name': env}, collection='environments_config')
+        print(self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id='1'))
