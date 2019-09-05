@@ -20,8 +20,7 @@ class ApiFetchHostInstances(ApiAccess):
         self.token = None
         self.nova_endpoint = None
         self.neutron_endpoint = None
-        self.project = {}
-        self.projects = []
+        self.projects = None
         self.db_fetcher = None
 
         self.flavors = None
@@ -42,9 +41,7 @@ class ApiFetchHostInstances(ApiAccess):
     def get_projects(self):
         if not self.projects:
             projects_list = self.inv.get(self.get_env(), "project", None)
-            for p in projects_list:
-                self.project = {"name": p["name"], "id": p["id"], "domain_id": p["domain_id"]}
-                self.projects.append(self.project)
+            self.projects = [{"name": p["name"], "id": p["id"], "domain_id": p["domain_id"]} for p in projects_list]
 
     def get(self, id):
         self.get_projects()
