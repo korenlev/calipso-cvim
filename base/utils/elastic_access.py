@@ -18,7 +18,7 @@ from base.utils.string_utils import stringify_doc
 
 
 class ElasticAccess(DataAccessBase):
-    default_conf_file = '/local_dir/elastic_access.conf'
+    default_conf_file = '/local_dir/es_access.conf'
 
     REQUIRED_ENV_VARIABLES = {
         'host': 'ES_SERVICE_HOST',
@@ -26,7 +26,7 @@ class ElasticAccess(DataAccessBase):
     }
     OPTIONAL_ENV_VARIABLES = {}
 
-    LOG_FILENAME = 'elastic_access.log'
+    LOG_FILENAME = 'es_access.log'
     PROJECTIONS = {  # TODO
         'inventory': ['_id', 'id', 'type', 'environment'],
         'links': [],

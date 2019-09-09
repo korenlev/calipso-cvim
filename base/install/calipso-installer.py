@@ -459,7 +459,7 @@ if action == "start":
         "pwd {}\n" \
         "auth_db calipso".format(args.hostname, args.dbuser, args.dbport, args.dbpassword)
     calipso_es_access_text = \
-        "server {}\n" \
+        "host {}\n" \
         "port {}\n".format(args.es_host, args.es_port)
 
     LDAP_PWD_ATTRIBUTE = "password password"
