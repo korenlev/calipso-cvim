@@ -21,8 +21,8 @@ class ElasticAccess(DataAccessBase):
     default_conf_file = '/local_dir/es_access.conf'
 
     REQUIRED_ENV_VARIABLES = {
-        'host': 'ES_SERVICE_HOST',
-        'port': 'ES_SERVICE_PORT'
+        'host': 'CALIPSO_ELASTIC_SERVICE_HOST',
+        'port': 'CALIPSO_ELASTIC_SERVICE_PORT'
     }
     OPTIONAL_ENV_VARIABLES = {}
 
