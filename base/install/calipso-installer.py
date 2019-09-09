@@ -229,7 +229,7 @@ def start_api(apiport):
                                 restart_policy=RESTART_POLICY,
                                 environment=[PYTHON_PATH, MONGO_CONFIG,
                                              LDAP_CONFIG,
-                                             LOG_LEVEL],
+                                             LOG_LEVEL, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
@@ -246,7 +246,7 @@ def start_scan():
                                 name=name,
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
-                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
@@ -300,7 +300,7 @@ def start_test():
                                 name=name,
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
-                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
