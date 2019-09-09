@@ -141,6 +141,21 @@ def download_image(image_name):
 
 
 # functions to check and start calipso containers:
+def start_elastic(esport):
+    name = "calipso-elastic"
+    if container_started(name):
+        return
+    print("\nstarting container {}, please wait...\n".format(name))
+    image_name = "korenlev/calipso:elastic-v2"
+    download_image(image_name)
+    elastic_ports = {'9200/tcp': esport, '9300/tcp': 9300}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=elastic_ports,
+                                restart_policy=RESTART_POLICY)
+
+
 def start_mongo(dbport, copy):
     name = "calipso-mongo"
     if container_started(name):
@@ -403,15 +418,15 @@ parser.add_argument("--copy",
                     required=False)
 parser.add_argument("--es_host",
                     help="ElasticSearch HOST if ElasticSearch indexing is needed "
-                         "(default=None)",
+                         "(default=localhost)",
                     type=str,
-                    default=None,
+                    default="localhost",
                     required=False)
 parser.add_argument("--es_port",
                     help="ElasticSearch PORT if ElasticSearch indexing is needed "
-                         "(default=None)",
+                         "(default=9200)",
                     type=str,
-                    default=None,
+                    default="9200",
                     required=False)
 
 args = parser.parse_args()
@@ -430,7 +445,7 @@ else:
     action = ""
 
 container_names = ["calipso-ui", "calipso-scan", "calipso-test", "calipso-listen",
-                   "calipso-ldap", "calipso-api", "calipso-monitor", "calipso-mongo"]
+                   "calipso-ldap", "calipso-api", "calipso-monitor", "calipso-mongo", "calipso-elastic"]
 container_actions = ["stop", "start"]
 while action not in container_actions:
     action = input("Action? (stop, start, or 'q' to quit):\n")
@@ -495,6 +510,9 @@ if action == "start":
     ldap_file.write(ldap_text)
     ldap_file.close()
 
+    if container == "calipso-elastic" or container == "all":
+        start_elastic(args.es_port)
+        time.sleep(1)
     if container == "calipso-mongo" or container == "all":
         start_mongo(args.dbport, args.copy)
         time.sleep(1)
