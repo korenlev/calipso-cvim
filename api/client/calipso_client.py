@@ -22,12 +22,13 @@ from sys import exit
 
 class CalipsoClient:
 
-    def __init__(self, api_host, api_port, api_password):
+    def __init__(self, api_host, api_port, api_password, es_index):
         self.api_server = api_host
         self.username = "calipso"
         self.password = api_password
         self.port = api_port
         self.schema = "https"
+        self.es_index = es_index
         self.auth_url = "auth/tokens"
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
@@ -130,7 +131,8 @@ class CalipsoClient:
                 "scan_only_inventory": False,
                 "scan_only_links": False,
                 "scan_only_cliques": False,
-                "env_name": environment
+                "env_name": environment,
+                "es_index": self.es_index
             }
             return self.call_api('post', 'scans', request_payload)
         else:
@@ -141,6 +143,7 @@ class CalipsoClient:
                 "scan_only_links": False,
                 "scan_only_cliques": False,
                 "env_name": environment,
+                "es_index": self.es_index,
                 "scan_only_inventory": False,
                 "submit_timestamp": datetime.now().isoformat()
             }
@@ -206,6 +209,13 @@ def run():
                         type=str,
                         default=None,
                         required=False)
+    parser.add_argument("--es_index",
+                        help="index environment inventory, links and cliques on ElasticSearch DB"
+                             " options: boolean, add argument or not"
+                             " (default=False)",
+                        action='store_true',
+                        default=False,
+                        required=False)
     parser.add_argument("--payload",
                         help="dict string with parameters to send to the API -"
                              " options: please see API documentation per endpoint"
@@ -236,7 +246,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.4.12')
+                        version='%(prog)s version: 0.4.13')
 
     args = parser.parse_args()
 
@@ -245,9 +255,12 @@ def run():
         print("wget/curl from: {}".format(guide_url))
         exit(0)
 
-    cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
+    cc = CalipsoClient(args.api_server, args.api_port, args.api_password, args.es_index)
     per_environment_collections = ["inventory", "cliques", "links", "messages",
                                    "scans", "scheduled_scans"]
+
+    if (args.es_index is True) and (args.scan is None):
+        fatal("es_index should only be used with --scan requests")
 
     # currently, only environment_configs and constants allowed without environment
     if args.endpoint in per_environment_collections and args.environment is None:
