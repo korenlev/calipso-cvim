@@ -1,3 +1,4 @@
+###############################################################################
 # Copyright (c) 2017-2019 Koren Lev (Cisco Systems),                          #
 # Yaron Yogev (Cisco Systems), Ilia Abashin (Cisco Systems) and others        #
 #                                                                             #
@@ -11,12 +12,21 @@ import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
+from base.utils.data_access_base import DataAccessBase
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.logging.console_logger import ConsoleLogger
 from base.utils.string_utils import stringify_doc
 
 
-class ElasticAccess:
+class ElasticAccess(DataAccessBase):
+    default_conf_file = '/local_dir/elastic_access.conf'
+
+    REQUIRED_ENV_VARIABLES = {
+        'host': 'ES_SERVICE_HOST',
+        'port': 'ES_SERVICE_PORT'
+    }
+    OPTIONAL_ENV_VARIABLES = {}
+
+    LOG_FILENAME = 'elastic_access.log'
     PROJECTIONS = {  # TODO
         'inventory': ['_id', 'id', 'type', 'environment'],
         'links': [],
@@ -24,23 +34,41 @@ class ElasticAccess:
     }
     TREE_ROOT_ID = 'root'
 
-    def __init__(self, host="localhost", port="9200", bulk_chunk_size=1000):
-        self.log = ConsoleLogger()
+    def __init__(self, bulk_chunk_size=1000):
+        super().__init__()
         self.inv = InventoryMgr()
 
-        self.host = host
-        self.port = port
         self.bulk_chunk_size = bulk_chunk_size
+        self.connection_params = {}
         self.connection = None
         self.connect()
 
+    @property
+    def is_connected(self):
+        return self.connection is not None
+
+    def get_connection_parameters(self):
+        try:
+            return self._get_connection_parameters()
+        except Exception as e:
+            self.log.warning("Failed to connect to ElasticSearch. Error: {}".format(e))
+            return {}
+
     def connect(self):
-        connection = Elasticsearch([{'host': self.host, 'port': self.port}])
+        connection_params = self.get_connection_parameters()
+        if not connection_params or (connection_params == self.connection_params and self.connection):
+            return
+
+        self.connection_params = connection_params
+
+        connection = Elasticsearch([self.connection_params])
         if connection.ping():
-            self.log.info("Successfully connected to Elasticsearch at {}:{}".format(self.host, self.port))
+            self.log.info("Successfully connected to Elasticsearch at {}:{}".format(self.connection_params['host'],
+                                                                                    self.connection_params['port']))
             self.connection = connection
         else:
-            raise ConnectionError("Failed to connect to Elasticsearch at {}:{}".format(self.host, self.port))
+            raise ConnectionError("Failed to connect to Elasticsearch at {}:{}".format(self.connection_params['host'],
+                                                                                       self.connection_params['port']))
         self.connection = connection
 
     def create_index(self, index_name, settings=None):
@@ -94,9 +122,9 @@ class ElasticAccess:
 
         for doc in self.inv.find({'environment': env}):
             data_list.append({
-                'id': doc['id'],
+                'id': "{}:{}".format(env, doc['id']),
                 'name': doc['name'],
-                'parent': doc['parent_id'],
+                'parent': "{}:{}".format(env, doc['parent_id']),
                 'type': doc['type']
             })
 

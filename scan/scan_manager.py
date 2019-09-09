@@ -80,8 +80,6 @@ class ScanManager(Manager):
                             default=FileLogger.LOG_DIRECTORY,
                             help="File logger directory \n(default: '{}')"
                                  .format(FileLogger.LOG_DIRECTORY))
-        parser.add_argument("--es_host", nargs="?", type=str, default=None, help="Elasticsearch host")
-        parser.add_argument("--es_port", nargs="?", type=str, default=None, help="Elasticsearch port")
         args = parser.parse_args()
         return args
 
@@ -98,8 +96,7 @@ class ScanManager(Manager):
             partial(MongoAccess.update_document, self.scans_collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
-        if self.args.es_host and self.args.es_port:
-            self.es_client = ElasticAccess(host=self.args.es_host, port=self.args.es_port)
+        self.es_client = ElasticAccess()
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "{1}\n"
@@ -304,8 +301,9 @@ class ScanManager(Manager):
                 end_time = datetime.datetime.utcnow()
                 scan_request['end_timestamp'] = end_time
 
-                if self.es_client:
-                    self.es_client.dump_collections(self, env)
+                if self.es_client.is_connected and scan_request.get('es_index') is True:
+                    self.es_client.dump_collections(env)
+                    self.es_client.dump_tree(env)
 
                 self._complete_scan(scan_request, message)
 
