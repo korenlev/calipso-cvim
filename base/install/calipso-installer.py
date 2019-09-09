@@ -418,9 +418,9 @@ parser.add_argument("--copy",
                     required=False)
 parser.add_argument("--es_host",
                     help="ElasticSearch HOST if ElasticSearch indexing is needed "
-                         "(default=localhost)",
+                         "(default=docker0 interface ip address)",
                     type=str,
-                    default="localhost",
+                    default=local_hostname,
                     required=False)
 parser.add_argument("--es_port",
                     help="ElasticSearch PORT if ElasticSearch indexing is needed "
