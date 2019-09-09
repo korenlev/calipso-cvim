@@ -59,7 +59,7 @@ class FindLinksForVconnectors(FindLinks):
                 vnic = search_func(field_name='target.@dev')
         else:
             # interface ID for VPP - match interface MAC address to vNIC MAC
-            interface = vconnector['interfaces'][interface_name]
+            interface = next(i for i in vconnector['interfaces'] if i['name'] == interface_name)
             if not interface or 'mac_address' not in interface:
                 return
             vconnector_if_mac = interface['mac_address']
@@ -71,9 +71,11 @@ class FindLinksForVconnectors(FindLinks):
         if not vnic:
             return
         link_name = vnic["mac_address"]
-        attributes = {}
+        attributes = {
+            'vedge_type': vnic['vedge_type']
+        }
         if 'network' in vnic:
-            attributes = {'network': vnic['network']}
+            attributes['network'] = vnic['network']
             vconnector['network'] = vnic['network']
             self.inv.set(vconnector)
         self.link_items(vnic, vconnector, link_name=link_name,
@@ -107,4 +109,5 @@ class FindLinksForVconnectors(FindLinks):
         })
         if not vedge:
             return
-        self.link_items(vconnector, vedge, link_name=vedge['name'])
+        self.link_items(vconnector, vedge,
+                        link_name=vedge['name'], extra_attributes={'vedge_type': vedge['vedge_type']})

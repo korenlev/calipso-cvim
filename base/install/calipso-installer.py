@@ -28,6 +28,8 @@ local_hostname = dockerip.read().replace("\n", "")
 
 C_MONGO_CONFIG = "/local_dir/calipso_mongo_access.conf"
 H_MONGO_CONFIG = "calipso_mongo_access.conf"
+C_ES_CONFIG = "/local_dir/calipso_es_access.conf"
+H_ES_CONFIG = "calipso_es_access.conf"
 PYTHONPATH = "/home/scan/calipso"
 C_LDAP_CONFIG = "/local_dir/ldap.conf"
 H_LDAP_CONFIG = "ldap.conf"
@@ -35,9 +37,10 @@ H_LDAP_CONFIG = "ldap.conf"
 RESTART_POLICY = {"Name": "always"}
 
 # environment variables definitions
-PYTHON_PATH = "PYTHONPATH=" + PYTHONPATH
-MONGO_CONFIG = "MONGO_CONFIG=" + C_MONGO_CONFIG
-LDAP_CONFIG = "LDAP_CONFIG=" + C_LDAP_CONFIG
+PYTHON_PATH = "PYTHONPATH={}".format(PYTHONPATH)
+MONGO_CONFIG = "MONGO_CONFIG={}".format(C_MONGO_CONFIG)
+ES_CONFIG = "ES_CONFIG={}".format(C_ES_CONFIG)
+LDAP_CONFIG = "LDAP_CONFIG={}".format(C_LDAP_CONFIG)
 LOG_LEVEL = "LOG_LEVEL=DEBUG"
 
 # using local host docker environment parameters
@@ -191,7 +194,7 @@ def start_listen():
                                 name=name,
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
-                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
@@ -226,7 +229,7 @@ def start_api(apiport):
                                 restart_policy=RESTART_POLICY,
                                 environment=[PYTHON_PATH, MONGO_CONFIG,
                                              LDAP_CONFIG,
-                                             LOG_LEVEL],
+                                             LOG_LEVEL, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
@@ -243,7 +246,7 @@ def start_scan():
                                 name=name,
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
-                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
@@ -297,7 +300,7 @@ def start_test():
                                 name=name,
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
-                                environment=[PYTHON_PATH, MONGO_CONFIG],
+                                environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
                                 volumes=calipso_volume)
 
 
@@ -398,6 +401,18 @@ parser.add_argument("--copy",
                     type=str,
                     default=None,
                     required=False)
+parser.add_argument("--es_host",
+                    help="ElasticSearch HOST if ElasticSearch indexing is needed "
+                         "(default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
+parser.add_argument("--es_port",
+                    help="ElasticSearch PORT if ElasticSearch indexing is needed "
+                         "(default=None)",
+                    type=str,
+                    default=None,
+                    required=False)
 
 args = parser.parse_args()
 calipso_volume = {args.home: {'bind': '/local_dir', 'mode': 'rw'}}
@@ -442,8 +457,11 @@ if action == "start":
         "user {}\n" \
         "port {}\n" \
         "pwd {}\n" \
-        "auth_db calipso" \
-            .format(args.hostname, args.dbuser, args.dbport, args.dbpassword)
+        "auth_db calipso".format(args.hostname, args.dbuser, args.dbport, args.dbpassword)
+    calipso_es_access_text = \
+        "server {}\n" \
+        "port {}\n".format(args.es_host, args.es_port)
+
     LDAP_PWD_ATTRIBUTE = "password password"
     LDAP_USER_PWD_ATTRIBUTE = "userpassword"
     ldap_text = \
@@ -460,11 +478,15 @@ if action == "start":
     ldap_text = ldap_text.format(LDAP_PWD_ATTRIBUTE, args.hostname,
                                  LDAP_USER_PWD_ATTRIBUTE)
     mongo_file_path = os.path.join(args.home, H_MONGO_CONFIG)
+    es_file_path = os.path.join(args.home, H_ES_CONFIG)
     print("creating default", mongo_file_path, "file...\n")
     calipso_mongo_access_file = open(mongo_file_path, "w+")
+    calipso_es_access_file = open(es_file_path, "w+")
     time.sleep(1)
     calipso_mongo_access_file.write(calipso_mongo_access_text)
     calipso_mongo_access_file.close()
+    calipso_es_access_file.write(calipso_es_access_text)
+    calipso_es_access_file.close()
     ldap_file_path = os.path.join(args.home, H_LDAP_CONFIG)
     print("creating default", ldap_file_path, "file...\n")
     ldap_file = open(ldap_file_path, "w+")

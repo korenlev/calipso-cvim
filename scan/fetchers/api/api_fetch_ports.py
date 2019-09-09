@@ -57,6 +57,10 @@ class ApiFetchPorts(ApiAccess):
                 doc["name"] = doc["mac_address"]
             else:
                 doc["name"] = doc["id"]
+
+            if "security_groups" in doc:
+                doc["security_groups"] = [{"id": s} for s in doc["security_groups"]]
+
             project = self.inv.get_by_id(self.get_env(), doc["tenant_id"])
             if project:
                 doc["project"] = project["name"]

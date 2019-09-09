@@ -73,7 +73,8 @@ class Scans(ResponderBase):
             "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
             "env_name": self.require(str, mandatory=True),
             "inventory": self.require(str),
-            "object_id": self.require(str)
+            "object_id": self.require(str),
+            "es_index": self.require(bool, convert_to_type=True, default=False)
         }
         self.validate_query_data(scan, scan_requirements)
         scan_only_keys = [k for k in scan if k.startswith("scan_only_") and scan[k] is True]

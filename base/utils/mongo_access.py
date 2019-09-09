@@ -7,30 +7,19 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import os
-import tempfile
 from pymongo import MongoClient
 import ssl
 
-from base.utils.config_file import ConfigFile
+from base.utils.data_access_base import DataAccessBase
 from base.utils.dict_naming_converter import DictNamingConverter
-from base.utils.logging.console_logger import ConsoleLogger
-from base.utils.logging.file_logger import FileLogger
-from base.utils.logging.logger import Logger
 # Provides access to MongoDB using PyMongo library
 #
 # Notes on authentication:
 # default config file is calipso_mongo_access.conf
 # you can also specify name of file from CLI with --mongo_config
-from base.utils.util import read_environment_variables
 
 
-class MongoAccess(DictNamingConverter):
-    class ConfigSource:
-        ENV = 1
-        FILE = 2
-        DEFAULT_FILE = 3
-
+class MongoAccess(DataAccessBase, DictNamingConverter):
     client = None
     db = None
     default_conf_file = '/local_dir/calipso_mongo_access.conf'
@@ -39,8 +28,6 @@ class MongoAccess(DictNamingConverter):
 
     DB_NAME = 'calipso'
     LOG_FILENAME = 'mongo_access.log'
-    DEFAULT_LOG_DIR = os.path.join(os.path.abspath("."), LOG_FILENAME)
-    TMP_DIR = tempfile.gettempdir()
 
     REQUIRED_ENV_VARIABLES = {
         'server': 'CALIPSO_MONGO_SERVICE_HOST',
@@ -54,84 +41,13 @@ class MongoAccess(DictNamingConverter):
 
     def __init__(self):
         super().__init__()
-        self.log = ConsoleLogger()
-        self.log = self.set_log()
 
         self.connect_params = {}
         self.mongo_connect()
 
-    def set_log(self) -> Logger:
-        dirs_to_try = [
-            FileLogger.LOG_DIRECTORY,
-            self.DEFAULT_LOG_DIR,
-            self.TMP_DIR
-        ]
-        for directory in dirs_to_try:
-            log = self.get_logger(directory)
-            if log:
-                return log
-
-        self.log.error('Unable to open log file {} in any of '
-                       'the following directories: {}'
-                       .format(self.LOG_FILENAME, ', '.join(dirs_to_try)))
-        self.log.error('will use console logger for MongoAccess logging')
-        return self.log
-
-    @staticmethod
-    def get_logger(directory):
-        if not os.path.isdir(directory):
-            ConsoleLogger().warning('Can\'t use inexistent directory {} '
-                                    'for logging'.format(directory))
-            return None
-        log_file = os.path.join(directory, MongoAccess.LOG_FILENAME)
-
-        try:
-            log = FileLogger(log_file)
-            return log
-        except OSError as e:
-            ConsoleLogger().warning("Couldn't use file {} for logging. "
-                                    "Error: {}".format(log_file, e))
-            return None
-
     @staticmethod
     def is_db_ready() -> bool:
         return MongoAccess.client is not None
-
-    @staticmethod
-    def set_config_file(_conf_file):
-        MongoAccess.config_file = _conf_file
-
-    # Try to read mongo config from environment variables
-    def read_config_from_env_vars(self):
-        try:
-            return read_environment_variables(
-                required=self.REQUIRED_ENV_VARIABLES,
-                optional=self.OPTIONAL_ENV_VARIABLES
-            )
-        except ValueError:
-            return {}
-
-    def get_connection_parameters(self):
-        config_params = self.read_config_from_env_vars()
-        if config_params:
-            MongoAccess.config_source = MongoAccess.ConfigSource.ENV
-            return config_params
-
-        if self.config_file:
-            config_file_path = self.config_file
-            MongoAccess.config_source = MongoAccess.ConfigSource.FILE
-        else:
-            config_file_path = self.default_conf_file
-            MongoAccess.config_source = MongoAccess.ConfigSource.DEFAULT_FILE
-
-        try:
-            config_file = ConfigFile(config_file_path)
-            # read connection parameters from config file
-            config_params = config_file.read_config()
-            return config_params
-        except Exception as e:
-            self.log.exception(e)
-            raise
 
     def mongo_connect(self):
         if MongoAccess.client:

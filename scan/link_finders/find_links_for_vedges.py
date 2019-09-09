@@ -37,8 +37,8 @@ class FindLinksForVedges(FindLinks):
         })
         for vedge in vedges:
             if self.environment_type == self.ENV_TYPE_OPENSTACK or self.is_kubernetes_vpp:
-                ports = vedge.get("ports", {})
-                for p in ports.values():
+                ports = vedge.get("ports", [])
+                for p in ports:
                     self.add_links_for_vedge_port(vedge, p)
             elif self.environment_type == self.ENV_TYPE_KUBERNETES:
                 self.add_link_for_kubernetes_vedge(vedge)
@@ -59,7 +59,8 @@ class FindLinksForVedges(FindLinks):
                 target_label = port["id"]
             self.link_items(vnic, vedge, link_name=link_name,
                             extra_attributes={"source_label": source_label,
-                                              "target_label": target_label})
+                                              "target_label": target_label,
+                                              "vedge_type": vedge["type"]})
         elif vedge["vedge_type"] == "SRIOV":  # No vnic - no pnic
             return
 
@@ -115,10 +116,11 @@ class FindLinksForVedges(FindLinks):
         attributes = {
             'mac_address': mac_address,
             'source_label': source_label,
-            'target_label': target_label
+            'target_label': target_label,
+            'vedge_type': vedge['type']
         }
 
-        for interface in vconnector['interfaces'].values():
+        for interface in vconnector['interfaces']:
             if vconnector_interface_name != interface['name']:
                 continue
             if 'mac_address' not in interface:

@@ -41,7 +41,7 @@ class ApiFetchHostInstances(ApiAccess):
     def get_projects(self):
         if not self.projects:
             projects_list = self.inv.get(self.get_env(), "project", None)
-            self.projects = [p["name"] for p in projects_list]
+            self.projects = [{"name": p["name"], "id": p["id"], "domain_id": p["domain_id"]} for p in projects_list]
 
     def get(self, id):
         self.get_projects()
@@ -78,10 +78,16 @@ class ApiFetchHostInstances(ApiAccess):
 
     @staticmethod
     def set_server_info(doc, server):
-        for field in ("key_name", "addresses", "user_id", "tenant_id", "metadata",
+        for field in ("key_name", "user_id", "tenant_id", "metadata",
                       "accessIPv4", "accessIPv6", "progress", "config_drive"):
             if field in server:
                 doc[field] = server[field]
+
+        if "addresses" in server:
+            doc["addresses"] = [
+                {"network": network_name, "addresses": addresses}
+                for network_name, addresses in server["addresses"].items()
+            ]
 
         for field in ("OS-SRV-USG:launched_at", "OS-EXT-STS:task_state", "OS-EXT-STS:vm_state",
                       "OS-SRV-USG:terminated_at", "OS-EXT-AZ:availability_zone", "OS-EXT-STS:power_state",
@@ -97,7 +103,11 @@ class ApiFetchHostInstances(ApiAccess):
         server = response["server"]
 
         self.set_server_info(doc, server)
+        # find the specific instance's project/tenant based on tenant_id and add more project details
+        instance_project = next(pi for pi in self.projects if pi["id"] == doc["tenant_id"])
         doc.update({
+            "project_name": instance_project["name"],
+            "project_domain": instance_project["domain_id"],
             "flavor": self.get_flavor_data(server["flavor"]["id"]) if isinstance(server.get('flavor'), dict) else None,
             "image": self.get_image_data(server["image"]["id"]) if isinstance(server.get('image'), dict) else None,
             "security_groups": self.get_security_groups(server)
@@ -137,9 +147,9 @@ class ApiFetchHostInstances(ApiAccess):
             response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
             self.security_groups = {"{}:{}".format(sg["tenant_id"], sg["name"]): sg for sg in response["security_groups"]}
 
-        security_groups = {}
+        security_groups = []
         for security_group in server_sec_groups:
             sg_key = "{}:{}".format(server["tenant_id"], security_group["name"])
-            security_groups[security_group["name"]] = self.security_groups.get(sg_key)
+            security_groups.append(self.security_groups.get(sg_key))
 
         return security_groups

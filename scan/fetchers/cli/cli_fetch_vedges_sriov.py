@@ -41,7 +41,7 @@ class CliFetchVedgesSriov(CliFetcher):
                 "vedge_type": "SRIOV",
                 "parent_type": "vedges_folder",
                 "parent_id": "{}-vedges".format(host_id),
-                "ports": {},
+                "ports": [],
             }
 
             for field in ("agent_type", "description", "heartbeat_timestamp", "show_in_tree", "load",
@@ -49,9 +49,9 @@ class CliFetchVedgesSriov(CliFetcher):
                           "resource_versions"):
                 vedge[field] = agent.get(field)
 
-            for port, mapping in agent.get("configurations", {}).get("device_mappings", {}).items():
-                vedge["ports"][port] = {
-                    "id": port,
+            for port_id, mapping in agent.get("configurations", {}).get("device_mappings", {}).items():
+                port = {
+                    "id": port_id,
                     "name": mapping[0] if mapping else None,
                     "internal": False,
                     "VFs": []
@@ -66,7 +66,9 @@ class CliFetchVedgesSriov(CliFetcher):
                     if not vf_match:
                         continue
 
-                    vedge["ports"][port]["VFs"].append(vf_match.groupdict())
+                    port["VFs"].append(vf_match.groupdict())
+
+                vedge["ports"].append(port)
 
             vedges.append(vedge)
 

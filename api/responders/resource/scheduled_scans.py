@@ -83,7 +83,8 @@ class ScheduledScans(ResponderBase):
                                       validate=DataValidate.LIST,
                                       requirement=log_levels),
             "clear": self.require(bool, convert_to_type=True),
-            "submit_timestamp": self.require(str, mandatory=True)
+            "submit_timestamp": self.require(str, mandatory=True),
+            "es_index": self.require(bool, convert_to_type=True, default=False)
         }
         self.validate_query_data(scheduled_scan, scheduled_scan_requirements)
         self.check_and_convert_datetime("submit_timestamp", scheduled_scan)

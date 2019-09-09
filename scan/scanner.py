@@ -21,8 +21,8 @@ from base.utils.exceptions import CredentialsError, HostAddressError
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.ssh_connection import SshError
 from scan.clique_finder import CliqueFinder
-from scan.link_finders.find_links_metadata_parser import \
-    FindLinksMetadataParser
+from scan.link_finders.find_links_metadata_parser import FindLinksMetadataParser
+from scan.processors.processors_metadata_parser import ProcessorsMetadataParser
 from scan.scan_error import ScanError
 from scan.scan_metadata_parser import ScanMetadataParser
 
@@ -50,7 +50,9 @@ class Scanner(Fetcher):
         self.inv = InventoryMgr()
         self.scanners_package = None
         self.scanners = {}
+        self.processors = []
         self.link_finders = []
+        self.load_processors_metadata()
         self.load_scanners_metadata()
         self.load_link_finders_metadata()
 
@@ -302,17 +304,21 @@ class Scanner(Fetcher):
             self.scan(scanner_type, item["object"], item["child_id_field"])
         self.log.info("Scan complete")
 
+    def run_processors(self):
+        self.log.info("Running post-scan processors")
+        for processor in self.processors:
+            processor.setup(env=self.get_env(), origin=self.origin)
+            processor.run()
+
     def scan_links(self):
         self.log.info("Scanning for links")
         for fetcher in self.link_finders:
-            fetcher.setup(env=self.get_env(),
-                          origin=self.origin)
+            fetcher.setup(env=self.get_env(), origin=self.origin)
             fetcher.add_links()
 
     def scan_cliques(self):
         clique_scanner = CliqueFinder()
-        clique_scanner.setup(env=self.get_env(),
-                             origin=self.origin)
+        clique_scanner.setup(env=self.get_env(), origin=self.origin)
         clique_scanner.find_cliques()
 
     def deploy_monitoring_setup(self):
@@ -336,6 +342,14 @@ class Scanner(Fetcher):
         metadata = parser.parse_metadata_file(scanners_file)
         self.scanners_package = metadata[ScanMetadataParser.SCANNERS_PACKAGE]
         self.scanners = metadata[ScanMetadataParser.SCANNERS]
+
+    def load_processors_metadata(self):
+        parser = ProcessorsMetadataParser()
+        processors_file = os.path.join(self.get_run_app_path(),
+                                       self.metadata_files_path,
+                                       ProcessorsMetadataParser.PROCESSORS_FILE)
+        metadata = parser.parse_metadata_file(processors_file)
+        self.processors = metadata[ProcessorsMetadataParser.PROCESSORS]
 
     def load_link_finders_metadata(self):
         parser = FindLinksMetadataParser()

@@ -44,7 +44,7 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
             doc['interfaces'] = {}
             doc['interfaces_names'] = []
             return
-        interfaces = {}
+        interfaces = []
         interface_names = doc['interfaces'].split(',')
         for interface_name in interface_names:
             # find MAC address for this interface from ports list
@@ -57,6 +57,6 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
             }, get_single=True)
             mac_address = '' if not port else port['mac_address']
             interface = {'name': interface_name, 'mac_address': mac_address}
-            interfaces[interface_name] = interface
+            interfaces.append(interface)
         doc['interfaces'] = interfaces
-        doc['interfaces_names'] = list(interfaces.keys())
+        doc['interfaces_names'] = interface_names
