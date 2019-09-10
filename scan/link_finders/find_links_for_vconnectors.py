@@ -71,9 +71,8 @@ class FindLinksForVconnectors(FindLinks):
         if not vnic:
             return
         link_name = vnic["mac_address"]
-        attributes = {
-            'vedge_type': vnic['vedge_type']
-        }
+        attributes = {'vedge_type': vnic['vedge_type']} if 'vedge_type' in vnic else {}
+
         if 'network' in vnic:
             attributes['network'] = vnic['network']
             vconnector['network'] = vnic['network']
@@ -109,5 +108,6 @@ class FindLinksForVconnectors(FindLinks):
         })
         if not vedge:
             return
-        self.link_items(vconnector, vedge,
-                        link_name=vedge['name'], extra_attributes={'vedge_type': vedge['vedge_type']})
+
+        attributes = {'vedge_type': vedge['vedge_type']} if 'vedge_type' in vedge else {}
+        self.link_items(vconnector, vedge, link_name=vedge['name'], extra_attributes=attributes)
