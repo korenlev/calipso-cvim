@@ -117,6 +117,14 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         node_info = KubeFetchNodes.class_to_dict(doc['node_info'])
         doc['node_info'] = node_info
 
+    def get_interface_data(self, interface_name, interface_lines, host_id):
+        ethtool_cmd = 'ethtool {}'.format(interface_name)
+        ethtool_lines = self.run_fetch_lines(ethtool_cmd, host_id)
+        return self.details_fetcher.get_interface_details(host_id=host_id,
+                                                          interface_name=interface_name,
+                                                          ip_lines=interface_lines,
+                                                          ethtool_lines=ethtool_lines)
+
     def get_host_interfaces(self, host: dict) -> dict:
         cmd = 'ip address show'
         id_re = r'^[0-9]+:\s([^@:]+)'
@@ -135,16 +143,12 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
                 continue
             if interface_lines and interface_name != 'lo':
                 # handle previous section
-                interface = self.details_fetcher.\
-                    get_interface_details(host['id'], interface_name,
-                                          interface_lines)
+                interface = self.get_interface_data(interface_name, interface_lines, host['id'])
                 interfaces[interface['id']] = interface
             interface_lines = []
             interface_name = matches.group(1)
             interface_lines.append(line)
         # add last interface
-        interface = self.details_fetcher. \
-            get_interface_details(host['id'], interface_name,
-                                  interface_lines)
+        interface = self.get_interface_data(interface_name, interface_lines, host['id'])
         interfaces[interface['id']] = interface
         return interfaces
