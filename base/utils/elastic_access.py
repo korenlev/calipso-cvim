@@ -71,20 +71,24 @@ class ElasticAccess(DataAccessBase):
                                                                                        self.connection_params['port']))
         self.connection = connection
 
-    def create_index(self, index_name, settings=None):
+    def create_index(self, index_name, settings=None, delete_if_exists=True):
         if settings is None:
             settings = {
                 "settings": {
                     "number_of_shards": 1,
-                    "number_of_replicas": 0,
+                    "number_of_replicas": 1,
                     "index.mapping.total_fields.limit": 2000
                 }
             }
-        if not self.connection.indices.exists(index_name):
-            self.connection.indices.create(index=index_name, ignore=[400, 404], body=settings)
-            self.log.info('Created Index {}'.format(index_name))
-            return True
-        return False
+
+        if self.connection.indices.exists(index_name):
+            if not delete_if_exists:
+                return False
+            self.connection.indices.delete(index=index_name, ignore=[400, 404])
+
+        self.connection.indices.create(index=index_name, ignore=[400, 404], body=settings)
+        self.log.info('Created Index {}'.format(index_name))
+        return True
 
     def dump_collections(self, env, projections=None):
         if not projections:
@@ -135,4 +139,4 @@ class ElasticAccess(DataAccessBase):
         #     ok, index_name, errors)
         # )
         env_doc = self.inv.find_one({'name': env}, collection='environments_config')
-        print(self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id='1'))
+        self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id='1')
