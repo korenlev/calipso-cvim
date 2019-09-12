@@ -16,6 +16,8 @@
 import argparse
 import sys
 
+from base.utils.elastic_access import ElasticAccess
+
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
 from base.utils.constants import EnvironmentFeatures
@@ -348,6 +350,14 @@ class ScanController(Fetcher):
         if status == 'ok' and scan_plan.object_type == "environment":
             self.mark_env_scanned(scan_plan.env)
         self.log.info('Scan completed, status: {}'.format(status))
+
+        # self.log.info('Starting ES upload')
+        # es = ElasticAccess()
+        # es.dump_collections(args['env'])
+        # es.dump_tree(args['env'])
+        # self.log.info('ES upload successful')
+        # return True, ""
+
         return True, status
 
     def mark_env_scanned(self, env):

@@ -18,15 +18,15 @@ class KubeFetchPods(KubeAccess, CliFetcher):
 
     def __init__(self, config=None):
         super().__init__(config)
-        self.host = None
+        self.k8s_host = None
 
     def get(self, host_id) -> list:
-        self.host = self.inv.get_by_id(self.get_env(), host_id)
-        if not self.host:
+        self.k8s_host = self.inv.get_by_id(self.get_env(), host_id)
+        if not self.k8s_host:
             self.log.error('failed to find node with id={}'.format(host_id))
             return []
 
-        host_name = self.host['name']
+        host_name = self.k8s_host['name']
         pod_filter = 'spec.nodeName={}'.format(host_name)
         pods = self.api.list_pod_for_all_namespaces(field_selector=pod_filter)
 
@@ -42,12 +42,12 @@ class KubeFetchPods(KubeAccess, CliFetcher):
 
     # TODO: temporary
     def get_rancher_proxy(self):
-        pod_id = '{}-kube-proxy-pod'.format(self.host['name'])
+        pod_id = '{}-kube-proxy-pod'.format(self.k8s_host['name'])
         doc = {
             'id': pod_id,
             'name': pod_id,
             'environment': self.env,
-            'host': self.host['name'],
+            'host': self.k8s_host['name'],
             'namespace': 'cattle-system',
             'labels': {
                 'calipso-rancher-pod-for-kube-proxy': True
@@ -58,18 +58,18 @@ class KubeFetchPods(KubeAccess, CliFetcher):
         }
         self.set_folder_parent(doc, object_type='pod',
                                     master_parent_type='host',
-                                    master_parent_id=self.host['id'])
+                                    master_parent_id=self.k8s_host['id'])
         doc['type'] = 'pod'
         self.add_pod_ref_to_namespace(doc)
         return doc
 
     def get_pod_document(self, pod: V1Pod):
         doc = self.get_pod_details(pod)
-        if self.host:
+        if self.k8s_host:
             self.set_folder_parent(doc, object_type='pod',
                                    master_parent_type='host',
-                                   master_parent_id=self.host['id'])
-            doc['host'] = self.host['name']
+                                   master_parent_id=self.k8s_host['id'])
+            doc['host'] = self.k8s_host['name']
         doc['type'] = 'pod'
         doc['environment'] = self.env
         self.add_pod_ref_to_namespace(doc)

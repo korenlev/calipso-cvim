@@ -292,7 +292,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             "source_label": source_label,
             "target_label": target_label,
             "implicit": implicit,
-            "attributes": extra_attributes if extra_attributes else {}
+            "attributes": extra_attributes if extra_attributes else {},
+            "last_scanned": datetime.now()
         }
         if host:
             link['host'] = host
