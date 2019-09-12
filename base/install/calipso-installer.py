@@ -141,6 +141,9 @@ def download_image(image_name):
 
 
 # functions to check and start calipso containers:
+def docker_start(cont_name):
+    print()
+
 def start_elastic(esport):
     name = "calipso-elastic"
     if container_started(name):
@@ -153,6 +156,38 @@ def start_elastic(esport):
                                 detach=True,
                                 name=name,
                                 ports=elastic_ports,
+                                restart_policy=RESTART_POLICY)
+
+
+def start_kibana(kport, esport):
+    name = "calipso-kibana"
+    if container_started(name):
+        return
+    print("\nstarting container {}, please wait...\n".format(name))
+    image_name = "korenlev/calipso:kibana-v2"
+    download_image(image_name)
+    elastic_var = "ELASTICSEARCH_HOSTS=http://{}:{}".format(local_hostname, esport)
+    kibana_ports = {'5601/tcp': kport}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=kibana_ports,
+                                environment=[elastic_var],
+                                restart_policy=RESTART_POLICY)
+
+
+def start_grafana(gport):
+    name = "calipso-grafana"
+    if container_started(name):
+        return
+    print("\nstarting container {}, please wait...\n".format(name))
+    image_name = "korenlev/calipso:grafana-v2"
+    download_image(image_name)
+    grafana_ports = {'3000/tcp': gport}
+    DockerClient.containers.run(image_name,
+                                detach=True,
+                                name=name,
+                                ports=grafana_ports,
                                 restart_policy=RESTART_POLICY)
 
 
@@ -398,6 +433,30 @@ parser.add_argument("--dbpassword",
                     type=str,
                     default="calipso_default",
                     required=False)
+parser.add_argument("--es_host",
+                    help="Host with ElasticSearch if ElasticSearch indexing is needed "
+                         "(default=docker0 interface ip address)",
+                    type=str,
+                    default=local_hostname,
+                    required=False)
+parser.add_argument("--es_port",
+                    help="Port for ElasticSearch if ElasticSearch indexing is needed "
+                         "(default=9200)",
+                    type=str,
+                    default="9200",
+                    required=False)
+parser.add_argument("--g_port",
+                    help="Port for Grafana if grafana is needed "
+                         "(default=3003)",
+                    type=str,
+                    default="3003",
+                    required=False)
+parser.add_argument("--k_port",
+                    help="Port for Kibana if kibana  is needed "
+                         "(default=5601)",
+                    type=str,
+                    default="5601",
+                    required=False)
 parser.add_argument("--home",
                     help="Home directory for configuration files "
                          "(default=/home/calipso)",
@@ -416,18 +475,7 @@ parser.add_argument("--copy",
                     type=str,
                     default=None,
                     required=False)
-parser.add_argument("--es_host",
-                    help="ElasticSearch HOST if ElasticSearch indexing is needed "
-                         "(default=docker0 interface ip address)",
-                    type=str,
-                    default=local_hostname,
-                    required=False)
-parser.add_argument("--es_port",
-                    help="ElasticSearch PORT if ElasticSearch indexing is needed "
-                         "(default=9200)",
-                    type=str,
-                    default="9200",
-                    required=False)
+
 
 args = parser.parse_args()
 calipso_volume = {args.home: {'bind': '/local_dir', 'mode': 'rw'}}
@@ -445,7 +493,8 @@ else:
     action = ""
 
 container_names = ["calipso-ui", "calipso-scan", "calipso-test", "calipso-listen",
-                   "calipso-ldap", "calipso-api", "calipso-monitor", "calipso-mongo", "calipso-elastic"]
+                   "calipso-ldap", "calipso-api", "calipso-monitor", "calipso-mongo",
+                   "calipso-elastic", "calipso-kibana", "calipso-grafana"]
 container_actions = ["stop", "start"]
 while action not in container_actions:
     action = input("Action? (stop, start, or 'q' to quit):\n")
@@ -511,7 +560,14 @@ if action == "start":
     ldap_file.close()
 
     if container == "calipso-elastic" or container == "all":
+        a = "elastic"
         start_elastic(args.es_port)
+        time.sleep(1)
+    if container == "calipso-kibana" or container == "all":
+        start_kibana(args.k_port, args.es_port)
+        time.sleep(1)
+    if container == "calipso-grafana" or container == "all":
+        start_grafana(args.g_port)
         time.sleep(1)
     if container == "calipso-mongo" or container == "all":
         start_mongo(args.dbport, args.copy)
