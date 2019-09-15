@@ -125,7 +125,7 @@ class ElasticAccess(DataAccessBase):
         for col, projection in projections.items():
             date = datetime.datetime.now().strftime("%Y.%m.%d")
             index_name = 'calipso-{}-{}'.format(col, date)
-            self.create_index(index_name)
+            self.create_index(index_name, delete_if_exists=True)
             self.delete_documents_by_env(index_name, env)
 
             for doc in self.inv.find({'environment': env}, collection=col):
