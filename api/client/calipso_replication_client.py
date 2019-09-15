@@ -59,9 +59,14 @@ class MongoConnector(object):
     def clear_collection(self, collection):
         self.database[collection].remove()
 
-    def find_all(self, collection, remove_mongo_ids=False, env={"$exists": True}):
+    def find_all(self, collection, remove_mongo_ids=False, env=None):
+        if not env:
+            env = {"$exists": True}
         if collection == "environments_config":
-            cursor = self.database[collection].find()
+            if env:
+                cursor = self.database[collection].find({"name": env})
+            else:
+                cursor = self.database[collection].find()
         else:
             mongo_filter = {"environment": env}
             cursor = self.database[collection].find(mongo_filter)
