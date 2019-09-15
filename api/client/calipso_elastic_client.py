@@ -84,7 +84,7 @@ class ElasticClient(object):
         while True:
             if connection.ping():
                 print("Successfully connected to Elasticsearch at {}:{}".format(conn_params['host'],
-                                                                                        conn_params['port']))
+                                                                                conn_params['port']))
                 self.connection = connection
                 break
             else:
@@ -135,7 +135,8 @@ class ElasticClient(object):
         for col, projection in projections.items():
             date = datetime.now().strftime("%Y.%m.%d")
             index_name = 'calipso-{}-{}'.format(col, date)
-            self.create_index(index_name)
+            print("Indexing {}...\n".format(index_name))
+            self.create_index(index_name, delete_if_exists=True)
             if env:
                 self.delete_documents_by_env(index_name, env)
             for doc in self.mongo.find_all(collection=col, env=env):
@@ -148,9 +149,10 @@ class ElasticClient(object):
                 })
 
         ok, errors = bulk(self.connection, actions, stats_only=True, raise_on_error=False, chunk_size=self.bulk_chunk_size)
-        print("Successfully indexed {} documents to Elasticsearch, errors: {}".format(ok, errors))
+        print("Successfully indexed {} documents to Elasticsearch, errors: {}\n".format(ok, errors))
 
     def dump_tree(self, env=None):
+        print("Creating VEGA tree model for visualizations...\n")
         data_list = [
             {
                 'id': ElasticClient.TREE_ROOT_ID,
@@ -187,8 +189,8 @@ class ElasticClient(object):
         # self.log.info("Successfully indexed {} documents to Elasticsearch index '{}', errors: {}".format(
         #     ok, index_name, errors)
         # )
-        env_doc = self.mongo.find_all(env=env, collection='environments_config')
-        self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id=doc_id)
+        tree_time = datetime.now()
+        self.connection.index(index_name, {'last_scanned': tree_time, 'doc': data_list}, id=doc_id)
 
 
 def fatal(err):
