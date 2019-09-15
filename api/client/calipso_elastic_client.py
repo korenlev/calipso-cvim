@@ -150,7 +150,7 @@ class ElasticClient(object):
         ok, errors = bulk(self.connection, actions, stats_only=True, raise_on_error=False, chunk_size=self.bulk_chunk_size)
         print("Successfully indexed {} documents to Elasticsearch, errors: {}".format(ok, errors))
 
-    def dump_tree(self, env):
+    def dump_tree(self, env=None):
         data_list = [
             {
                 'id': ElasticClient.TREE_ROOT_ID,
@@ -172,7 +172,7 @@ class ElasticClient(object):
                 'environment': env
             })
 
-        index_name = 'calipso-tree-{}'.format(datetime.datetime.now().strftime("%Y.%m.%d"))
+        index_name = 'calipso-tree-{}'.format(datetime.now().strftime("%Y.%m.%d"))
         doc_id = '1'
 
         doc = self.connection.get(index_name, doc_id, ignore=[400, 404])
