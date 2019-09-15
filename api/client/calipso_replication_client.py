@@ -59,8 +59,12 @@ class MongoConnector(object):
     def clear_collection(self, collection):
         self.database[collection].remove()
 
-    def find_all(self, collection, remove_mongo_ids=False):
-        cursor = self.database[collection].find()
+    def find_all(self, collection, remove_mongo_ids=False, env={"$exists": True}):
+        if collection == "environments_config":
+            cursor = self.database[collection].find()
+        else:
+            mongo_filter = {"environment": env}
+            cursor = self.database[collection].find(mongo_filter)
         docs = []
         for doc in cursor:
             if remove_mongo_ids is True:
@@ -182,7 +186,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.4.17')
+                        version='%(prog)s version: 0.4.18')
 
     args = parser.parse_args()
 
@@ -217,7 +221,7 @@ def run():
                     documents = source_connector.find_all(col, remove_mongo_ids=True)
 
                     # write all in-memory json docs into the central DB
-                    print ("Pushing the {} Collection into {}...".format(col, central['name']))
+                    print("Pushing the {} Collection into {}...".format(col, central['name']))
                     destination_connector.insert_collection(col, documents)
 
                 s['imported'] = True
