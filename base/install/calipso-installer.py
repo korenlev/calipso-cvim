@@ -163,13 +163,14 @@ def start_kibana(kport, esport):
     print("\nstarting container {}, please wait...\n".format(name))
     image_name = "korenlev/calipso:kibana-v2"
     download_image(image_name)
-    elastic_var = "ELASTICSEARCH_HOSTS=http://{}:{}".format(local_hostname, esport)
+    elastic_vars = ["CALIPSO_ELASTIC_SERVICE_HOST={}".format(local_hostname),
+                    "CALIPSO_ELASTIC_SERVICE_PORT={}".format(esport)]
     kibana_ports = {'5601/tcp': kport}
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
                                 ports=kibana_ports,
-                                environment=[elastic_var],
+                                environment=elastic_vars,
                                 restart_policy=RESTART_POLICY)
 
 
@@ -559,27 +560,21 @@ if action == "start":
     if container == "calipso-elastic" or container == "all":
         a = "elastic"
         start_elastic(args.es_port)
-        time.sleep(1)
-    if container == "calipso-kibana" or container == "all":
-        start_kibana(args.k_port, args.es_port)
-        time.sleep(1)
+        time.sleep(4)
     if container == "calipso-grafana" or container == "all":
         start_grafana(args.g_port)
         time.sleep(1)
     if container == "calipso-mongo" or container == "all":
         start_mongo(args.dbport, args.copy)
         time.sleep(1)
-    if container == "calipso-listen" or container == "all":
-        start_listen()
-        time.sleep(1)
     if container == "calipso-ldap" or container == "all":
         start_ldap()
         time.sleep(1)
+    if container == "calipso-listen" or container == "all":
+        start_listen()
+        time.sleep(1)
     if container == "calipso-api" or container == "all":
         start_api(args.apiport)
-        time.sleep(1)
-    if container == "calipso-scan" or container == "all":
-        start_scan()
         time.sleep(1)
     if container == "calipso-test" or container == "all":
         start_test()
@@ -590,6 +585,12 @@ if action == "start":
     if container == "calipso-ui" or container == "all":
         start_ui(args.hostname, args.dbuser, args.dbpassword, args.webport,
                  args.dbport)
+        time.sleep(1)
+    if container == "calipso-scan" or container == "all":
+        start_scan()
+        time.sleep(1)
+    if container == "calipso-kibana" or container == "all":
+        start_kibana(args.k_port, args.es_port)
         time.sleep(1)
 
 # stopping the containers per arguments:
