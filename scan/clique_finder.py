@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from bson.objectid import ObjectId
+from datetime import datetime
 
 from base.fetcher import Fetcher
 from base.utils.inventory_mgr import InventoryMgr
@@ -207,7 +208,8 @@ class CliqueFinder(Fetcher):
             "focal_point_type": o["type"],
             "links": [],
             "links_detailed": [],
-            "constraints": {}
+            "constraints": {},
+            "last_scanned": datetime.now()
         }
         for c in constraints:
             val = o[c] if c in o else None

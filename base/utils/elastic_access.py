@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import datetime
+import time
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -18,21 +19,22 @@ from base.utils.string_utils import stringify_doc
 
 
 class ElasticAccess(DataAccessBase):
-    default_conf_file = '/local_dir/elastic_access.conf'
+    default_conf_file = '/local_dir/es_access.conf'
 
     REQUIRED_ENV_VARIABLES = {
-        'host': 'ES_SERVICE_HOST',
-        'port': 'ES_SERVICE_PORT'
+        'host': 'CALIPSO_ELASTIC_SERVICE_HOST',
+        'port': 'CALIPSO_ELASTIC_SERVICE_PORT'
     }
     OPTIONAL_ENV_VARIABLES = {}
 
-    LOG_FILENAME = 'elastic_access.log'
+    LOG_FILENAME = 'es_access.log'
     PROJECTIONS = {  # TODO
         'inventory': ['_id', 'id', 'type', 'environment'],
         'links': [],
         'cliques': []
     }
     TREE_ROOT_ID = 'root'
+    CONNECTION_RETRIES = 10
 
     def __init__(self, bulk_chunk_size=1000):
         super().__init__()
@@ -42,6 +44,10 @@ class ElasticAccess(DataAccessBase):
         self.connection_params = {}
         self.connection = None
         self.connect()
+
+    @staticmethod
+    def connection_backoff(i):
+        return i  # Linear backoff
 
     @property
     def is_connected(self):
@@ -62,29 +68,54 @@ class ElasticAccess(DataAccessBase):
         self.connection_params = connection_params
 
         connection = Elasticsearch([self.connection_params])
-        if connection.ping():
-            self.log.info("Successfully connected to Elasticsearch at {}:{}".format(self.connection_params['host'],
-                                                                                    self.connection_params['port']))
-            self.connection = connection
-        else:
-            raise ConnectionError("Failed to connect to Elasticsearch at {}:{}".format(self.connection_params['host'],
-                                                                                       self.connection_params['port']))
+
+        attempt = 1
+        while True:
+            if connection.ping():
+                self.log.info("Successfully connected to Elasticsearch at {}:{}".format(self.connection_params['host'],
+                                                                                        self.connection_params['port']))
+                self.connection = connection
+                break
+            else:
+                fail_msg = "Failed to connect to Elasticsearch at {}:{}".format(self.connection_params['host'],
+                                                                                self.connection_params['port'])
+                if attempt <= self.CONNECTION_RETRIES:
+                    backoff = self.connection_backoff(attempt)
+                    self.log.info("{}. Retrying after {} seconds".format(fail_msg, backoff))
+                    time.sleep(backoff)
+                    attempt += 1
+                    continue
+                raise ConnectionError(fail_msg)
         self.connection = connection
 
-    def create_index(self, index_name, settings=None):
+    def create_index(self, index_name, settings=None, delete_if_exists=False):
         if settings is None:
             settings = {
                 "settings": {
                     "number_of_shards": 1,
-                    "number_of_replicas": 0,
+                    "number_of_replicas": 1,
                     "index.mapping.total_fields.limit": 2000
                 }
             }
-        if not self.connection.indices.exists(index_name):
-            self.connection.indices.create(index=index_name, ignore=[400, 404], body=settings)
-            self.log.info('Created Index {}'.format(index_name))
-            return True
-        return False
+
+        if self.connection.indices.exists(index_name):
+            if not delete_if_exists:
+                return False
+            self.connection.indices.delete(index=index_name, ignore=[400, 404])
+
+        self.connection.indices.create(index=index_name, ignore=[400, 404], body=settings)
+        self.log.info('Created Index {}'.format(index_name))
+        return True
+
+    def delete_documents_by_env(self, index, env):
+        query = {
+          "query": {
+            "match": {
+              "environment": env
+            }
+          }
+        }
+        self.connection.delete_by_query(index, query)
 
     def dump_collections(self, env, projections=None):
         if not projections:
@@ -95,6 +126,7 @@ class ElasticAccess(DataAccessBase):
             date = datetime.datetime.now().strftime("%Y.%m.%d")
             index_name = 'calipso-{}-{}'.format(col, date)
             self.create_index(index_name)
+            self.delete_documents_by_env(index_name, env)
 
             for doc in self.inv.find({'environment': env}, collection=col):
                 stringify_doc(doc)
@@ -114,8 +146,9 @@ class ElasticAccess(DataAccessBase):
                 'id': ElasticAccess.TREE_ROOT_ID,
                 'name': 'environments'
             }, {
-                'id': env,
+                'id': "{}:{}".format(env, env),
                 'name': env,
+                'environment': env,
                 'parent': ElasticAccess.TREE_ROOT_ID
             }
         ]
@@ -125,14 +158,24 @@ class ElasticAccess(DataAccessBase):
                 'id': "{}:{}".format(env, doc['id']),
                 'name': doc['name'],
                 'parent': "{}:{}".format(env, doc['parent_id']),
-                'type': doc['type']
+                'type': doc['type'],
+                'environment': env
             })
 
         index_name = 'calipso-tree-{}'.format(datetime.datetime.now().strftime("%Y.%m.%d"))
+        doc_id = '1'
+
+        doc = self.connection.get(index_name, doc_id, ignore=[400, 404])
+        if doc and doc.get('found', False) is True:
+            for item in doc.get('_source', {}).get('doc', []):
+                item_env = item.get('environment')
+                if item_env and item_env != env:
+                    data_list.append(item)
+
         # TODO: handle response
         # ok, errors = self.connection.index(index_name, {'doc': data_list})
         # self.log.info("Successfully indexed {} documents to Elasticsearch index '{}', errors: {}".format(
         #     ok, index_name, errors)
         # )
         env_doc = self.inv.find_one({'name': env}, collection='environments_config')
-        print(self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id='1'))
+        self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id=doc_id)

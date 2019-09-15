@@ -31,6 +31,7 @@ class ScanManager(Manager):
 
     DEFAULTS = {
         "mongo_config": "",
+        "es_config": "",
         "scans": "scans",
         "scheduled_scans": "scheduled_scans",
         "environments": "environments_config",
@@ -53,8 +54,12 @@ class ScanManager(Manager):
         parser = argparse.ArgumentParser()
         parser.add_argument("-m", "--mongo_config", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["mongo_config"],
-                            help="Name of config file " +
+                            help="Path to config file " +
                                  "with MongoDB server access details")
+        parser.add_argument("--es_config", nargs="?", type=str,
+                            default=ScanManager.DEFAULTS["es_config"],
+                            help="Path to config file " +
+                                 "with ElasticSearch server access details")
         parser.add_argument("-c", "--scans_collection", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["scans"],
                             help="Scans collection to read from")
@@ -96,6 +101,8 @@ class ScanManager(Manager):
             partial(MongoAccess.update_document, self.scans_collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
+
+        ElasticAccess.config_file = self.args.es_config
         self.es_client = ElasticAccess()
 
         self.log.info("Started ScanManager with following configuration:\n"

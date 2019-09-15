@@ -140,6 +140,8 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             return
 
         data = data[0]
+        if 'State' in data:
+            doc['state'] = data['State']
         if 'Config' in data:
             doc['config'] = data['Config']
             self.get_container_sandbox(doc, pod_obj)
@@ -164,17 +166,14 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         self.find_network(doc)
 
     def get_interface_link(self, doc, pod_obj):
-        if doc['namespace'] == 'cattle-system':
+        container_running = doc.get('state', {}).get('Running', False)
+        if container_running is not True or doc['namespace'] == 'cattle-system' or doc['name'] == 'kubernetes-dashboard':
             doc['vnic_index'] = ''
             return
-        if doc['name'] == 'kubernetes-dashboard':
-            doc['vnic_index'] = ''
-            return
-        interface_name = 'vpp1' \
-            if 'VPP' in self.configuration.environment['mechanism_drivers'] \
-            else 'eth0'
-        cmd = 'docker exec {} cat /sys/class/net/{}/iflink' \
-            .format(doc['container_id'], interface_name)
+
+        interface_name = 'vpp1' if 'VPP' in self.configuration.environment['mechanism_drivers'] else 'eth0'
+        file_name = "/sys/class/net/{}/iflink".format(interface_name)
+        cmd = 'docker exec {0} sh -c "test -f {1} && cat {1} || exit 0"'.format(doc['container_id'], file_name)
         try:
             output = self.run(cmd, pod_obj['host'])
             doc['vnic_index'] = output.strip()

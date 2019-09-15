@@ -39,7 +39,7 @@ class KubeAccess(ApiAccessBase):
         conf.api_key_prefix['authorization'] = 'Bearer'
         conf.api_key['authorization'] = self.bearer_token
         conf.verify_ssl = False
-        self.api = kube_client.CoreV1Api()
+        self.api = kube_client.CoreV1Api(kube_client.ApiClient(conf))
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)

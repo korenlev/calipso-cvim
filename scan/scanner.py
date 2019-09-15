@@ -52,8 +52,8 @@ class Scanner(Fetcher):
         self.scanners = {}
         self.processors = []
         self.link_finders = []
-        self.load_processors_metadata()
         self.load_scanners_metadata()
+        self.load_processors_metadata()
         self.load_link_finders_metadata()
 
     def scan(self, scanner_type, obj, id_field="id",

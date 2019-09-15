@@ -124,5 +124,5 @@ class ProcessVedgeType(Processor):
         super().run()
         vedges = self.find_by_type("vedge")
         for vedge in vedges:
-            for port in vedge["ports"]:
+            for port in vedge.get("ports", []):
                 self.update_matching_objects(vedge, port)

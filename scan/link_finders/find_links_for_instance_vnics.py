@@ -54,7 +54,7 @@ class FindLinksForInstanceVnics(FindLinks):
                 if self.inv.monitoring_setup_manager:
                     self.inv.monitoring_setup_manager.create_setup(instance)
                 break
-        attributes = {'vedge_type': v['vedge_type']}
+        attributes = {'vedge_type': v.get('vedge_type')}
         if network_id:
             attributes['network'] = network_id
         self.link_items(instance, v, link_name=network_name,
