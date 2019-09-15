@@ -46,7 +46,7 @@ LOG_LEVEL = "LOG_LEVEL=DEBUG"
 # using local host docker environment parameters
 DockerClient = docker.from_env()
 
-# use the below example for installer against a remote docker host:
+# to use the below example for installer against a remote docker host:
 # DockerClient = \
 # docker.DockerClient(base_url='tcp://korlev-calipso-testing.cisco.com:2375')
 
@@ -141,9 +141,6 @@ def download_image(image_name):
 
 
 # functions to check and start calipso containers:
-def docker_start(cont_name):
-    print()
-
 def start_elastic(esport):
     name = "calipso-elastic"
     if container_started(name):
