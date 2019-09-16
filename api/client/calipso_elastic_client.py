@@ -83,16 +83,16 @@ class ElasticClient(object):
         attempt = 1
         while True:
             if connection.ping():
-                print("Successfully connected to Elasticsearch at {}:{}".format(conn_params['host'],
+                print("Successfully connected to Elasticsearch at {}:{}\n".format(conn_params['host'],
                                                                                 conn_params['port']))
                 self.connection = connection
                 break
             else:
-                fail_msg = "Failed to connect to Elasticsearch at {}:{}".format(conn_params['host'],
+                fail_msg = "Failed to connect to Elasticsearch at {}:{}\n".format(conn_params['host'],
                                                                                 conn_params['port'])
                 if attempt <= self.CONNECTION_RETRIES:
                     backoff = self.connection_backoff(attempt)
-                    print("{}. Retrying after {} seconds".format(fail_msg, backoff))
+                    print("{}. Retrying after {} seconds\n".format(fail_msg, backoff))
                     time.sleep(backoff)
                     attempt += 1
                     continue
@@ -114,8 +114,8 @@ class ElasticClient(object):
                 return False
             self.connection.indices.delete(index=index_name, ignore=[400, 404])
 
-        self.connection.indices.create(index=index_name, ignore=[400, 404], body=settings)
-        print('Created Index {}'.format(index_name))
+        self.connection.indices.create(index=index_name, ignore=[400, 404], body=settings, request_timeout=30)
+        print('Created Index {}\n'.format(index_name))
         return True
 
     def delete_documents_by_env(self, index, env):
@@ -135,7 +135,7 @@ class ElasticClient(object):
         for col, projection in projections.items():
             date = datetime.now().strftime("%Y.%m.%d")
             index_name = 'calipso-{}-{}'.format(col, date)
-            print("Indexing {}...\n".format(index_name))
+            print("Indexing {}...".format(index_name))
             self.create_index(index_name, delete_if_exists=True)
             if env:
                 self.delete_documents_by_env(index_name, env)
@@ -148,7 +148,8 @@ class ElasticClient(object):
                     'doc': doc  # TODO: use projections
                 })
 
-        ok, errors = bulk(self.connection, actions, stats_only=True, raise_on_error=False, chunk_size=self.bulk_chunk_size)
+        ok, errors = bulk(self.connection, actions, stats_only=True, raise_on_error=False,
+                          chunk_size=self.bulk_chunk_size, request_timeout=30)
         print("Successfully indexed {} documents to Elasticsearch, errors: {}\n".format(ok, errors))
 
     def dump_tree(self, env=None):
@@ -169,7 +170,7 @@ class ElasticClient(object):
             data_list.append({
                 'id': "{}:{}".format(env, doc['id']),
                 'name': doc['name'],
-                'parent': "{}:{}".format(env, doc['parent_id']),
+                'parent': "{}:{}".format(env, (doc['parent_id'] if env else None)),
                 'type': doc['type'],
                 'environment': env
             })
@@ -190,7 +191,7 @@ class ElasticClient(object):
         #     ok, index_name, errors)
         # )
         tree_time = datetime.now()
-        self.connection.index(index_name, {'last_scanned': tree_time, 'doc': data_list}, id=doc_id)
+        self.connection.index(index_name, {'last_scanned': tree_time, 'doc': data_list}, id=doc_id, request_timeout=30)
 
 
 def fatal(err):
@@ -246,7 +247,7 @@ def run():
                         help="get a reply back with calipso_elastic_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.4.18')
+                        version='%(prog)s version: 0.4.19')
 
     args = parser.parse_args()
     es = ElasticClient(args.m_server, args.m_port, args.m_user, args.m_pwd, "calipso")

@@ -157,7 +157,7 @@ class ElasticAccess(DataAccessBase):
             data_list.append({
                 'id': "{}:{}".format(env, doc['id']),
                 'name': doc['name'],
-                'parent': "{}:{}".format(env, doc['parent_id']),
+                'parent': "{}:{}".format(env, doc['parent_id'] if env else None),
                 'type': doc['type'],
                 'environment': env
             })
