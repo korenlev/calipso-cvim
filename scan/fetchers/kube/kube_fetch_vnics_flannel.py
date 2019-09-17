@@ -21,8 +21,7 @@ class KubeFetchVnicsFlannel(Fetcher):
         if not host:
             self.log.error('Failed to find host {}', host_id)
             return []
-        interfaces = [i for i in host['interfaces'].values()
-                      if i['id'].startswith('veth')]
+        interfaces = [i for i in host['interfaces'] if i['id'].startswith('veth')]
         ret = []
         for interface in interfaces:
             ret.append(self.process_interface(host_id, interface))

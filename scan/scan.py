@@ -33,6 +33,7 @@ from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.db.db_access import DbAccess
 from scan.scan_error import ScanError
 from scan.scanner import Scanner
+from scan.validators import validators
 
 
 class ScanPlan:
@@ -267,6 +268,20 @@ class ScanController(Fetcher):
         DbAccess.close_connection()
         SshConnection.disconnect_all()
 
+    def validate_results(self, env):
+        self.log.info("Running post-scan validations")
+        result = True
+        errors = []
+        for validator_class in validators:
+            self.log.info("Running validator: {}".format(validator_class.__name__))
+            v_result, v_errors = validator_class(env).run()
+            if v_result is False:
+                result = False
+            errors.extend(v_errors)
+            self.log.info("Validator '{}' finished. {} detected".format(validator_class.__name__,
+                                                                        "Errors" if v_errors else "No errors"))
+        return result, errors
+
     def run(self, args: dict = None):
         args = setup_args(args, self.DEFAULTS, self.get_args)
         # After this setup we assume args dictionary has all keys
@@ -284,6 +299,9 @@ class ScanController(Fetcher):
         except FileNotFoundError as e:
             return False, 'Mongo configuration file not found: {}'\
                 .format(str(e))
+
+        #validation_result, validation_errors = self.validate_results(args['env'])
+        #return validation_result, 'validation errors detected' if validation_errors else 'ok'
 
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:
@@ -358,7 +376,8 @@ class ScanController(Fetcher):
         # self.log.info('ES upload successful')
         # return True, ""
 
-        return True, status
+        validation_result, validation_errors = self.validate_results(env_name)
+        return validation_result, 'validation errors detected' if validation_errors else status
 
     def mark_env_scanned(self, env):
         environments_collection = self.inv.collection['environments_config']

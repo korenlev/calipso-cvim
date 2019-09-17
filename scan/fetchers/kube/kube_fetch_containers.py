@@ -69,17 +69,25 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         return doc
 
     def get_container(self, container, pod, pod_obj):
-        doc = {'type': 'container', 'namespace': pod.metadata.namespace}
+        doc = {'type': 'container', 'environment': self.get_env(), 'namespace': pod.metadata.namespace}
         self.get_container_data(doc, container)
         self.fetch_container_status_data(doc, pod_obj)
         doc['host'] = pod_obj['host']
         doc['pod'] = dict(id=pod_obj['id'], name=pod_obj['object_name'])
         doc['ip_address'] = pod_obj.get('pod_status', {}).get('pod_ip', '')
         doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
+        if doc.get('image'):
+            doc['image'] = {"name": doc['image']}
         self.get_container_config(doc, pod_obj)
         self.get_interface_link(doc, pod_obj)
         self.get_proxy_container_info(doc, pod_obj)
         return doc
+
+    @staticmethod
+    def _get_state_from_container_status(container_status):
+        for status_key in ('waiting', 'running', 'terminated'):
+            if container_status.get('state', {}).get(status_key):
+                return status_key
 
     def fetch_container_status_data(self, doc, pod_obj):
         container_statuses = pod_obj['pod_status']['container_statuses']
@@ -99,6 +107,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             doc['container_type'] = id_parts[0]
             doc['container_id'] = id_parts[1]
         doc['container_status'] = container_status
+        doc['state'] = self._get_state_from_container_status(container_status)
 
     @staticmethod
     def get_container_data(doc: dict, container: V1Container):
@@ -124,6 +133,9 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
                 pass
 
     def get_container_config(self, doc, pod_obj):
+        if doc.get('state') == 'waiting':
+            return
+
         cmd = 'docker inspect {}'.format(doc['container_id'])
         try:
             output = self.run(cmd, pod_obj['host'])
@@ -141,7 +153,8 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
 
         data = data[0]
         if 'State' in data:
-            doc['state'] = data['State']
+            doc['container_state'] = data['State']
+            doc['state'] = data['State']['Status']  # Prefer actual state to the one fetched from container_status
         if 'Config' in data:
             doc['config'] = data['Config']
             self.get_container_sandbox(doc, pod_obj)
@@ -166,8 +179,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         self.find_network(doc)
 
     def get_interface_link(self, doc, pod_obj):
-        container_running = doc.get('state', {}).get('Running', False)
-        if container_running is not True or doc['namespace'] == 'cattle-system' or doc['name'] == 'kubernetes-dashboard':
+        if doc.get('state') != 'running' or doc['namespace'] == 'cattle-system' or doc['name'] == 'kubernetes-dashboard':
             doc['vnic_index'] = ''
             return
 
@@ -212,14 +224,19 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         if not vnic:
             return
 
+        # TODO: figure out this logic
         # re-calc new ID and name path for vNIC and vNICs folder
-        self.set_folder_parent(vnic, object_type='vnic',
-                               master_parent_id=container['id'],
-                               master_parent_type='container')
+        # self.set_folder_parent(vnic, object_type='vnic',
+        #                        master_parent_id=container['id'],
+        #                        master_parent_type='container')
         vnic_containers = vnic.get('containers', [])
-        vnic['containers'] = vnic_containers.append(container['container_id']) \
-            if vnic_containers else [container['container_id']]
+        vnic_container = {'id': container['container_id'], 'name': container['name']}
+        vnic['containers'] = vnic_containers.append(vnic_container) if vnic_containers else [vnic_container]
         self.inv.set(vnic)
+
+        # self.inv.save_inventory_object(vnic,
+        #                                parent=container,
+        #                                environment=self.get_env())
 
     def get_proxy_container_info(self, container, pod_obj):
         if container['name'] != self.PROXY_ATTR:

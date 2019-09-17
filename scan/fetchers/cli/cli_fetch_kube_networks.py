@@ -43,10 +43,10 @@ class CliFetchKubeNetworks(CliFetcher):
         host_id = host['host']
         name = network_data['NAME']
         network = {
-            'hosts': [host_id],
+            'hosts': [{"name": host_id}],
             'local_name': name,
             'name': name,
-            'driver': network_data['DRIVER'],
+            'driver': {'type': network_data['DRIVER']},
             'scope': network_data['SCOPE']
         }
         self.get_network_data(network, host_id)
@@ -70,6 +70,12 @@ class CliFetchKubeNetworks(CliFetcher):
                            .format(network['id'], str(e)))
             return
         network_data = network_data[0]
+        containers_list = []
+        for container_id, container_doc in network_data.get('Containers', {}).items():
+            container_doc['ContainerID'] = container_id
+            containers_list.append(container_doc)
+        network_data['Containers'] = containers_list
+
         # until we find why long network ID is shared between hosts, we'll call
         # it 'network_id' and use the name as the ID for the networks
         network_data['id'] = network_data.pop('Id')
@@ -83,9 +89,9 @@ class CliFetchKubeNetworks(CliFetcher):
 
     def add_host_to_network(self, existing_network, host_id):
         hosts_list = existing_network['hosts']
-        if host_id in hosts_list:
+        if host_id in (h["name"] for h in existing_network['hosts']):
             return
-        hosts_list.append(host_id)
+        hosts_list.append({"name": host_id})
         existing_network['hosts'] = hosts_list
         old_name = existing_network['name']
         new_name = existing_network['local_name']
