@@ -7,12 +7,11 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from base.fetcher import Fetcher
-from base.utils.constants import EnvironmentFeatures
 from base.utils.inventory_mgr import InventoryMgr
+from scan.fetchers.kube.kube_fetch_oteps_base import KubeFetchOtepsBase
 
 
-class KubeFetchOtepsVpp(Fetcher):
+class KubeFetchOtepsVpp(KubeFetchOtepsBase):
 
     def __init__(self):
         super().__init__()
@@ -27,12 +26,8 @@ class KubeFetchOtepsVpp(Fetcher):
         if not host:
             self.log.error('failed to find host by ID: {}'.format(host_id))
             return []
-        host_interfaces = host.get('interfaces', {})
-        interface_names = list(host_interfaces.keys())
-        vpp_interface_name = next(name for name in interface_names
-                                  if name.startswith('vpp1-'))
-        vpp_interface = {} if not vpp_interface_name \
-            else host_interfaces[vpp_interface_name]
+        host_interfaces = host.get('interfaces', [])
+        vpp_interface = next((interface for interface in host_interfaces if interface['name'].startswith('vpp1-')), {})
         ip_address = vpp_interface.get('IP Address', '')
         otep_mac = vpp_interface.get('mac_address')
         overlay_type = self.configuration.environment.get('type_drivers')
@@ -50,39 +45,14 @@ class KubeFetchOtepsVpp(Fetcher):
         }
         return [doc]
 
-    def get_ports(self, host: str, ip: str, overlay_type: str) -> dict:
-        ports = dict()
-        existing_oteps = self.inv.get_by_field(self.env, 'otep')
-        for other_otep in existing_oteps:
-            port = self.get_port(overlay_type, ip, other_otep['ip_address'],
-                                 other_otep['host'])
-            ports[port['name']] = port
-            self.add_port_to_other_otep(other_otep, ip, host)
-        return ports
-
-    def add_port_to_other_otep(self, other_otep: dict, local_ip: str,
-                               local_host: str):
-        other_ports = other_otep.get('ports', {})
-        port_in_other = self.get_port(other_otep['overlay_type'],
-                                      other_otep['ip_address'],
-                                      local_ip, local_host)
-        other_ports[port_in_other['name']] = port_in_other
-        other_otep['ports'] = other_ports
-        self.inv.set(other_otep)
-        # repeat call to create_setup() as initial call
-        # did not include this port
-        if self.inv.is_feature_supported(self.env,
-                                         EnvironmentFeatures.MONITORING):
-            self.inv.monitoring_setup_manager.create_setup(other_otep)
-
     PORT_ID_PREFIX = 'vxlan-remote-'
 
     @staticmethod
     def get_port_id(remote_host_id: str) -> str:
         return '{}{}'.format(KubeFetchOtepsVpp.PORT_ID_PREFIX, remote_host_id)
 
-    @staticmethod
-    def get_port(overlay_type: str, local_ip: str,
+    @classmethod
+    def get_port(cls, overlay_type: str, local_ip: str,
                  remote_ip: str, remote_host: str) -> dict:
         port_id = KubeFetchOtepsVpp.get_port_id(remote_host)
         return {

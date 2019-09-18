@@ -48,13 +48,13 @@ class Fetcher:
 
     def set_folder_parent(self,
                           o: dict,
-                          object_type: str =None,
-                          master_parent_type: str =None,
-                          master_parent_id: str =None,
-                          parent_objects_name=None,
-                          parent_type: str =None,
-                          parent_id: str =None,
-                          parent_text: str =None):
+                          object_type: str = None,
+                          master_parent_type: str = None,
+                          master_parent_id: str = None,
+                          parent_objects_name: str = None,
+                          parent_type: str = None,
+                          parent_id: str = None,
+                          parent_text: str = None):
         if object_type:
             o['type'] = object_type
             if not parent_objects_name:

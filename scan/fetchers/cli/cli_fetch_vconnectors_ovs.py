@@ -41,7 +41,7 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
 
     def get_vconnector_interfaces(self, doc, host_id):
         if 'interfaces' not in doc:
-            doc['interfaces'] = {}
+            doc['interfaces'] = []
             doc['interfaces_names'] = []
             return
         interfaces = []

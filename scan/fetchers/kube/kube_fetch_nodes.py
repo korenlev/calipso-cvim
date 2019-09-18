@@ -133,7 +133,7 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
             raise ScanError('No output returned by command: {}'.format(cmd))
         interface_lines = []
         interface_name = None
-        interfaces = {}
+        interfaces = []
         for line in lines:
             # look for interfaces sections in the output of 'ip address show'
             matches = re.match(id_re, line)
@@ -144,11 +144,11 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
             if interface_lines and interface_name != 'lo':
                 # handle previous section
                 interface = self.get_interface_data(interface_name, interface_lines, host['id'])
-                interfaces[interface['id']] = interface
+                interfaces.append(interface)
             interface_lines = []
             interface_name = matches.group(1)
             interface_lines.append(line)
         # add last interface
         interface = self.get_interface_data(interface_name, interface_lines, host['id'])
-        interfaces[interface['id']] = interface
+        interfaces.append(interface)
         return interfaces
