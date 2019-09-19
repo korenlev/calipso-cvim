@@ -191,7 +191,8 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
         if not pnic:
             return
         vedge["pnic"] = interface
-        port = vedge["ports"].get(interface, {})
-        pnic["port_id"] = port.get("id", "")
-        self.inv.set(pnic)
+        port = next((i for i in vedge["ports"] if i['name'] == interface), None)
+        if port:
+            pnic["port_id"] = port.get("id", "")
+            self.inv.set(pnic)
         return pnic
