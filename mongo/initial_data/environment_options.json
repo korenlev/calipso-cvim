@@ -93,6 +93,28 @@
         "flat"
     ]
 },
+    {
+    "environment_type" : "OpenStack",
+    "distributions" : [
+        "Kolla"
+    ],
+    "mechanism_drivers" : [
+        "OVS",
+        "LXB",
+        "VPP"
+    ],
+    "distribution_versions" : [
+        "train",
+        "stein",
+        "rocky",
+        "queens"
+    ],
+    "type_drivers" : [
+        "vlan",
+        "vxlan",
+        "gre"
+    ]
+},
 {
     "environment_type" : "OpenStack",
     "distributions" : [
