@@ -559,6 +559,10 @@
             "label" : "Mercury"
         },
         {
+            "value" : "Kolla",
+            "label" : "Kolla"
+        },
+        {
             "value" : "Kubernetes",
             "label" : "Kubernetes"
         }
@@ -651,9 +655,25 @@
             "value" : "11190", 
             "label" : "11190"
         },
-	{
+	    {
             "value" : "13840", 
             "label" : "13840"
+        },
+        {
+            "value" : "train",
+            "label" : "train"
+        },
+        {
+            "value" : "stein",
+            "label" : "stein"
+        },
+        {
+            "value" : "rocky",
+            "label" : "rocky"
+        },
+        {
+            "value" : "queens",
+            "label" : "queens"
         }
     ]
 },

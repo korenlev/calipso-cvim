@@ -35,6 +35,27 @@ class CliDistTranslator:
                 'ovs-vsctl': '{docker_call} ovs_vswitch_{version} {cmd}',
                 'ovs-dpctl': '{docker_call} ovs_vswitch_{version} {cmd}',
             },
+        },
+        'Kolla': {
+            'ALL': {
+                'ip netns list': '{docker_call} neutron_l3_agent {cmd};;;'
+                                 '{docker_call} neutron_dhcp_agent {cmd}',
+                'ip netns exec qdhcp': '{docker_call} neutron_dhcp_agent {cmd}',
+                'ip netns exec qrouter': '{docker_call} neutron_l3_agent {cmd}',
+                'virsh': '{docker_call} nova_libvirt {cmd}',
+            },
+            'VPP': {
+                'ip -d link': '{docker_call} neutron_vpp {cmd}',
+                'vppctl': '{docker_call} neutron_vpp {cmd}',
+            },
+            'OVS': {
+                'ip link': '{docker_call} openvswitch_vswitchd {cmd}',
+                'ip -d link': '{docker_call} openvswitch_vswitchd {cmd}',
+                'bridge fdb show': '{docker_call} openvswitch_vswitchd {cmd}',
+                'brctl': '{docker_call} openvswitch_vswitchd {cmd}',
+                'ovs-vsctl': '{docker_call} openvswitch_vswitchd {cmd}',
+                'ovs-dpctl': '{docker_call} openvswitch_vswitchd {cmd}',
+            },
         }
     }
 
