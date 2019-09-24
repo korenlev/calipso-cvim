@@ -182,7 +182,7 @@ class SshConnection(BinaryConverter):
         if err:
             # ignore messages about loading plugin and dpif_netlinks
             err_lines = [l for l in err.splitlines()
-                         if ('Loaded plugin: ' not in l and 'dpif_netlink' not in l)]
+                         if ('Loaded plugin: ' not in l and 'dpif_netlink|INFO' not in l)]
             if err_lines:
                 msg = "CLI access: \nHost: {}\nCommand: {}\nError: {}\n"
                 msg = msg.format(self.host, cmd, err)
