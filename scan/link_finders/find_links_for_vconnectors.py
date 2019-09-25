@@ -43,7 +43,7 @@ class FindLinksForVconnectors(FindLinks):
                     self.add_vconnector_pnic_link(vconnector, interface)
             if self.environment_type == self.ENV_TYPE_KUBERNETES \
                     and 'Flannel' in self.mechanism_drivers:
-                self.add_vconnector_vedge_link(vconnector)
+                self.add_k8s_vconnector_vedge_link(vconnector)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):
         # link_type: "vnic-vconnector"
@@ -95,7 +95,7 @@ class FindLinksForVconnectors(FindLinks):
             return
         self.link_items(vconnector, pnic, link_name=pnic["name"])
 
-    def add_vconnector_vedge_link(self, vconnector):
+    def add_k8s_vconnector_vedge_link(self, vconnector):
         # link_type: 'vconnector-vedge'
         host = vconnector['host']
         prefix = '{}-cni'.format(host)
