@@ -431,6 +431,13 @@ parser.add_argument("--dbpassword",
                     type=str,
                     default="calipso_default",
                     required=False)
+parser.add_argument("--es_index",
+                    help="allow indexing environment inventory, links and cliques on ElasticSearch DB"
+                         " options: boolean, add argument or not"
+                         " (default=False)",
+                    action='store_true',
+                    default=False,
+                    required=False)
 parser.add_argument("--es_host",
                     help="Host with ElasticSearch if ElasticSearch indexing is needed "
                          "(default=docker0 interface ip address)",
@@ -520,9 +527,6 @@ if action == "start":
         "port {}\n" \
         "pwd {}\n" \
         "auth_db calipso".format(args.hostname, args.dbuser, args.dbport, args.dbpassword)
-    calipso_es_access_text = \
-        "host {}\n" \
-        "port {}\n".format(args.es_host, args.es_port)
 
     LDAP_PWD_ATTRIBUTE = "password password"
     LDAP_USER_PWD_ATTRIBUTE = "userpassword"
@@ -539,19 +543,24 @@ if action == "start":
         "group_member_attribute member"
     ldap_text = ldap_text.format(LDAP_PWD_ATTRIBUTE, args.hostname,
                                  LDAP_USER_PWD_ATTRIBUTE)
+    if args.es_index:
+        calipso_es_access_text = \
+            "host {}\n" \
+            "port {}\n".format(args.es_host, args.es_port)
+        es_file_path = os.path.join(args.home, H_ES_CONFIG)
+        calipso_es_access_file = open(es_file_path, "w+")
+        calipso_es_access_file.write(calipso_es_access_text)
+        calipso_es_access_file.close()
+        print("\ncreating default", es_file_path, "file...\n")
+        time.sleep(1)
     mongo_file_path = os.path.join(args.home, H_MONGO_CONFIG)
-    es_file_path = os.path.join(args.home, H_ES_CONFIG)
+    print("\ncreating default", mongo_file_path, "file...\n")
     calipso_mongo_access_file = open(mongo_file_path, "w+")
-    calipso_es_access_file = open(es_file_path, "w+")
-    time.sleep(1)
-    print("creating default", mongo_file_path, "file...\n")
     calipso_mongo_access_file.write(calipso_mongo_access_text)
     calipso_mongo_access_file.close()
-    print("creating default", es_file_path, "file...\n")
-    calipso_es_access_file.write(calipso_es_access_text)
-    calipso_es_access_file.close()
+    time.sleep(1)
     ldap_file_path = os.path.join(args.home, H_LDAP_CONFIG)
-    print("creating default", ldap_file_path, "file...\n")
+    print("\ncreating default", ldap_file_path, "file...\n")
     ldap_file = open(ldap_file_path, "w+")
     time.sleep(1)
     ldap_file.write(ldap_text)
