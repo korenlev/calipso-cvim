@@ -86,6 +86,32 @@
         ]
     }
 },
+    {
+    "features" : {
+        "scanning" : true,
+        "monitoring" : true,
+        "listening" : true
+    },
+    "environment" : {
+        "distribution" : "Kolla",
+        "distribution_version" : [
+            "train",
+            "stein",
+            "rocky",
+            "queens"
+        ],
+        "mechanism_drivers" : [
+            "OVS",
+            "VPP",
+            "LXB"
+        ],
+        "type_drivers" : [
+            "vlan",
+            "vxlan",
+            "gre"
+        ]
+    }
+},
 {  
     "features" : {
         "scanning" : true, 

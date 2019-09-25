@@ -117,7 +117,7 @@ class FindLinksForVedges(FindLinks):
             'mac_address': mac_address,
             'source_label': source_label,
             'target_label': target_label,
-            'vedge_type': vedge['type']
+            'vedge_type': vedge['vedge_type']
         }
 
         for interface in vconnector['interfaces']:

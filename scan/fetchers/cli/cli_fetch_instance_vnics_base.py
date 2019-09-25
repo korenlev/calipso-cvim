@@ -85,7 +85,8 @@ class CliFetchInstanceVnicsBase(CliFetcher):
             "host": instance["host"],
             "instance_id": instance["id"],
             "instance_db_id": instance["_id"],
-            "mac_address": v["mac"]["@address"]
+            "mac_address": v["mac"]["@address"],
+            "mtu": v.get("mtu", {}).get("@size")
         })
         self.set_vnic_names(v, instance)
 
