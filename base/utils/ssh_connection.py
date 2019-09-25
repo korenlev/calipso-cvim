@@ -171,6 +171,7 @@ class SshConnection(BinaryConverter):
             self.log.error(msg)
             raise SshError(msg)
         stdin.close()
+
         try:
             err = self.binary2str(stderr.read())
         except (paramiko.buffered_pipe.PipeTimeout, socket.timeout) \
@@ -179,17 +180,15 @@ class SshConnection(BinaryConverter):
                 .format(self.host, cmd, str(timeout_error))
             self.log.error(msg)
             raise SshError(msg)
-        if err:
-            # ignore messages about loading plugin and dpif_netlinks
-            err_lines = [l for l in err.splitlines()
-                         if ('Loaded plugin: ' not in l and 'dpif_netlink|INFO' not in l)]
-            if err_lines:
+        if stdout.channel.recv_exit_status() != 0 and err:
+            if err.splitlines():
                 msg = "CLI access: \nHost: {}\nCommand: {}\nError: {}\n"
                 msg = msg.format(self.host, cmd, err)
                 self.log.error(msg)
                 stderr.close()
                 stdout.close()
                 raise SshError(msg)
+
         try:
             ret = self.binary2str(stdout.read())
         except (paramiko.buffered_pipe.PipeTimeout, socket.timeout) \
