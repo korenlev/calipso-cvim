@@ -188,7 +188,7 @@
     "attributes" : [
         "type",
         "object_name",
-	"host", 
+        "host",
         "project", 
  	    "addresses",
         "image",
