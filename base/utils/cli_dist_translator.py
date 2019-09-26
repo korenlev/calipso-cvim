@@ -51,8 +51,6 @@ class CliDistTranslator:
             'OVS': {
                 'ip link': '{docker_call} openvswitch_vswitchd {cmd}',
                 'ip -d link': '{docker_call} openvswitch_vswitchd {cmd}',
-                'bridge fdb show': '{docker_call} openvswitch_vswitchd {cmd}',
-                'brctl': '{docker_call} openvswitch_vswitchd {cmd}',
                 'ovs-vsctl': '{docker_call} openvswitch_vswitchd {cmd}',
                 'ovs-dpctl': '{docker_call} openvswitch_vswitchd {cmd}',
             },

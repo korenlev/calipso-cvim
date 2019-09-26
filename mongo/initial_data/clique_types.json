@@ -178,6 +178,49 @@
     ],
     "name" : "mercury_switch_clique"
 },
+    {
+    "environment" : "",
+    "focal_point_type" : "instance",
+    "link_types" : [
+        "instance-vnic",
+        "vnic-vconnector",
+        "vconnector-vedge",
+        "vedge-otep",
+        "otep-host_pnic",
+        "host_pnic-network"
+    ],
+    "name" : "instance",
+    "distribution" : "Kolla"
+},
+    {
+    "environment" : "",
+    "focal_point_type" : "vservice",
+    "link_types" : [
+        "vservice-vnic",
+        "vnic-vedge",
+        "vedge-otep",
+        "otep-host_pnic",
+        "host_pnic-network"
+    ],
+    "name" : "vservice",
+    "distribution" : "Kolla"
+},
+    {
+    "environment" : "",
+    "focal_point_type" : "network",
+    "link_types" : [
+        "network-host_pnic",
+        "host_pnic-otep",
+        "otep-vedge",
+        "vedge-vconnector",
+        "vedge-vnic",
+        "vconnector-vnic",
+        "vnic-instance",
+        "vnic-vservice"
+    ],
+    "name" : "network",
+    "distribution" : "Kolla"
+},
 { 
     "name" : "instance", 
     "use_implicit_links" : true, 

@@ -30,4 +30,4 @@ class CliFetchInstanceVnics(CliFetchInstanceVnicsBase):
         if v_source and "@bridge" in v_source:
             v["source_bridge"] = v_source["@bridge"]
         else:
-            v["source_bridge"] = v["driver"]["@name"]
+            v["source_bridge"] = v.get("driver", {}).get("@name")
