@@ -76,7 +76,7 @@ def run():
 
     args = parser.parse_args()
 
-    cc = CalipsoClient(args.api_server, args.api_port, args.api_password)
+    cc = CalipsoClient(args.api_server, args.api_port, args.api_password, False)
     if args.scan_first:
         print("\nSCAN initiated NOW using calipso_client, wait until completed...")
         cc.scan_handler(environment=args.environment)
@@ -93,13 +93,12 @@ def run():
         quota_set = project["quota_set"]
         cores_limit = quota_set["cores"]["limit"]
         ram_limit = quota_set["ram"]["limit"]
-        addresses = instance["addresses"]
-        net_names = list(addresses.keys())
+        addresses = list(instance["addresses"])
         address_list = []
-        for net in net_names:
-            subnet_list = addresses[net]
-            for subnet in subnet_list:
-                address_list.append(subnet["addr"])
+        for item in addresses:
+            items = list(item["addresses"])
+            for addr in items:
+                address_list.append(addr["addr"])
         addresses_joined = ';'.join(address_list)
         flavor = instance["flavor"]
         power_state = "Running" if instance["power_state"] == 1 else "Shutdown"
