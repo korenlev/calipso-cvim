@@ -251,6 +251,7 @@ Template.ScheduledScan.helpers({
       { label: 'Scan only inventory', value: 'scan_only_inventory' },
       { label: 'Scan only links', value: 'scan_only_links' },
       { label: 'Scan only cliques', value: 'scan_only_cliques' },
+      { label: 'ElasticSearch Indexing', value: 'es_index' },
     ];
   },
 
@@ -450,6 +451,7 @@ function submitItem(
       scan_only_inventory: model.scan_only_inventory,
       scan_only_links: model.scan_only_links,
       scan_only_cliques: model.scan_only_cliques,
+      es_index: model.es_index,
       freq: model.freq,
     }, processActionResult.bind(null, instance));
     break;
@@ -464,6 +466,7 @@ function submitItem(
       scan_only_inventory: model.scan_only_inventory,
       scan_only_links: model.scan_only_links,
       scan_only_cliques: model.scan_only_cliques,
+      es_index: model.es_index,
       freq: model.freq,
     }, processActionResult.bind(null, instance));
     break;

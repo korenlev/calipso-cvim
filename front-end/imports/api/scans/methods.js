@@ -24,6 +24,7 @@ export const insert = new ValidatedMethod({
       'scan_only_inventory',
       'scan_only_links',
       'scan_only_cliques',
+      'es_index',
     ]).validator({ clean: true, filter: false }),
   run({
     environment,
@@ -34,6 +35,7 @@ export const insert = new ValidatedMethod({
     scan_only_inventory,
     scan_only_links,
     scan_only_cliques,
+    es_index,
   }) {
     let scan = Scans.schema.clean({
       status: 'pending'
@@ -47,6 +49,7 @@ export const insert = new ValidatedMethod({
       scan_only_inventory,
       scan_only_links,
       scan_only_cliques,
+      es_index,
       submit_timestamp: Date.now()
     });
 

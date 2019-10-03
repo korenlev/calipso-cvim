@@ -58,9 +58,13 @@ Scans.schemaRelated = {
     label: 'Scan only cliques',
     description: 'do only cliques creation',
   },
+  es_index: {
+    label: 'ElasticSearch Indexing',
+    description: 'do elasticsearch indices creation',
+  }
 };
 
-Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques'];
+Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques', 'es_index'];
 
 let schema = {
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
@@ -108,6 +112,10 @@ let schema = {
     defaultValue: false,
   },
   scan_only_cliques: {
+    type: Boolean,
+    defaultValue: false,
+  },
+  es_index: {
     type: Boolean,
     defaultValue: false,
   },
