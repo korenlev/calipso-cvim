@@ -29,10 +29,12 @@ cd $APP_SOURCE_DIR
 # Install app deps
 printf "\n[-] Running npm install in app directory...\n\n"
 meteor npm install
-
+meteor npm install --save bcrypt
 # Removing buggy minifier package
 printf "\n[-] Removing buggy minifier...\n\n"
 meteor remove standard-minifier-js
+meteor add accounts-password
+apt-get install -y sudo
 
 # build the bundle
 printf "\n[-] Building Meteor application...\n\n"
@@ -47,7 +49,8 @@ meteor npm install --production
 # fix fibers bug
 printf "\n[-] Fixing Fibers PATH bug in node>8.x...\n\n"
 cd $APP_BUNDLE_DIR/bundle/programs/server/
-npm remove fibers && npm install fibers
+sudo npm remove fibers
+sudo npm install fibers
 
 # copy the entrypoint script in WORKDIR
 cp $BUILD_SCRIPTS_DIR/entrypoint.sh $APP_BUNDLE_DIR/bundle/entrypoint.sh

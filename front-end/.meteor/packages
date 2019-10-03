@@ -25,7 +25,6 @@ pcel:loading
 spectrum:material-design-lite
 timmyg:wow
 accounts-ui@1.1.9
-accounts-password@1.3.5
 zimme:active-route
 gwendall:auth-client-callbacks
 meteortoys:allthings
