@@ -64,7 +64,7 @@ Scans.schemaRelated = {
   }
 };
 
-Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques', 'es_index'];
+Scans.scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques'];
 
 let schema = {
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },

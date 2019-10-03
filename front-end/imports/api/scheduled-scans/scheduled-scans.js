@@ -14,7 +14,7 @@ import * as R from 'ramda';
 
 export const ScheduledScans = new Mongo.Collection('scheduled_scans', { idGeneration: 'MONGO' });
 
-export const scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques', 'es_index'];
+export const scansOnlyFields = ['scan_only_inventory', 'scan_only_links', 'scan_only_cliques'];
 
 let schema = new SimpleSchema({
   _id: { type: { _str: { type: String, regEx: SimpleSchema.RegEx.Id } } },
