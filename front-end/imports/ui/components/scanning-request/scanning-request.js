@@ -279,6 +279,7 @@ function submitItem(instance) {
       scan_only_inventory: model.scan_only_inventory,
       scan_only_links: model.scan_only_links,
       scan_only_cliques: model.scan_only_cliques,
+      es_index: model.es_index,
     }, processActionResult.bind(null, instance));
     break;
   default:

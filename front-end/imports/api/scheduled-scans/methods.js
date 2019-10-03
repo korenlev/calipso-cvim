@@ -24,6 +24,7 @@ export const insert = new ValidatedMethod({
       'scan_only_inventory',
       'scan_only_links',
       'scan_only_cliques',
+      'es_index',
       'freq',
     ]).validator({ clean: true, filter: false }),
   run({
@@ -35,6 +36,7 @@ export const insert = new ValidatedMethod({
     scan_only_inventory,
     scan_only_links,
     scan_only_cliques,
+    es_index,
     freq,
   }) {
     let scan = ScheduledScans.schema.clean({ });
@@ -48,6 +50,7 @@ export const insert = new ValidatedMethod({
       scan_only_inventory,
       scan_only_links,
       scan_only_cliques,
+      es_index,
       freq, 
       submit_timestamp: Date.now()
     });
@@ -70,6 +73,7 @@ export const update = new ValidatedMethod({
       'scan_only_inventory',
       'scan_only_links',
       'scan_only_cliques',
+      'es_index',
       'freq',
     ]).validator({ clean: true, filter: false }),
   run({
@@ -82,6 +86,7 @@ export const update = new ValidatedMethod({
     scan_only_inventory,
     scan_only_links,
     scan_only_cliques,
+    es_index,
     freq,
   }) {
     let item = ScheduledScans.findOne({ _id: _id });
@@ -96,6 +101,7 @@ export const update = new ValidatedMethod({
       'scan_only_inventory',
       'scan_only_links',
       'scan_only_cliques',
+      'es_index',
       'submit_timestamp', 
       'freq',
     ], item), {
@@ -107,6 +113,7 @@ export const update = new ValidatedMethod({
       scan_only_inventory,
       scan_only_links,
       scan_only_cliques,
+      es_index,
       freq,
       submit_timestamp: Date.now()
     });
