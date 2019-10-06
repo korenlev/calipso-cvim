@@ -200,6 +200,7 @@ def start_mongo(dbport, copy):
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
+                                volumes=calipso_volume,
                                 ports=mongo_ports,
                                 restart_policy=RESTART_POLICY)
     # wait a bit till mongoDB is up before starting to copy the json files
