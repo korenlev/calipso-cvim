@@ -292,7 +292,6 @@ def start_scan():
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
-                                network="host",
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
                                 environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
