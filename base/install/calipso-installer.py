@@ -292,6 +292,7 @@ def start_scan():
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
+                                network="host",
                                 ports=ports,
                                 restart_policy=RESTART_POLICY,
                                 environment=[PYTHON_PATH, MONGO_CONFIG, ES_CONFIG],
@@ -326,7 +327,7 @@ def start_ui(host, dbuser, dbpassword, webport, dbport):
     root_url = "ROOT_URL=http://{}:{}".format(host, str(webport))
     mongo_url = "MONGO_URL=mongodb://{}:{}@{}:{}/calipso" \
         .format(dbuser, dbpassword, host, str(dbport))
-    ports = {'4000/tcp': webport}
+    ports = {'4000/tcp': '8088'}
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
@@ -483,7 +484,7 @@ parser.add_argument("--copy",
 
 
 args = parser.parse_args()
-calipso_volume = {args.home: {'bind': '/local_dir', 'mode': 'rw'}}
+calipso_volume = {args.home: {'bind': '/local_dir', 'mode': 'rw'}, "/etc/localtime": {'bind': '/etc/localtime', 'mode': 'rw'}}
 
 print("\nrunning installer against host:", args.hostname, "\n")
 
