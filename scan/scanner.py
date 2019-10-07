@@ -76,11 +76,11 @@ class Scanner(Fetcher):
                         continue
                 types_children.append({"type": t["type"],
                                       "children": children})
-        except ValueError:
-            return False
         except (SshError, CredentialsError, HostAddressError):
             # mark the error
             self.found_errors[self.get_env()] = True
+        except ValueError as e:
+            raise ScanError(e)
         if limit_to_child_id and len(types_children) > 0:
             t = types_children[0]
             children = t["children"]

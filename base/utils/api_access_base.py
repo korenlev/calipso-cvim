@@ -17,6 +17,8 @@ from base.utils.logging.console_logger import ConsoleLogger
 class ApiAccessBase(Fetcher):
 
     CONNECT_TIMEOUT = 5
+    READ_TIMEOUT = 5
+    REQUEST_RETRIES = 3
 
     def __init__(self, api_name=None, config=None, enabled=True):
         super().__init__()

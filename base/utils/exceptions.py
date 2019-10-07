@@ -9,6 +9,10 @@
 ###############################################################################
 
 
+class OpenStackAPIError(Exception):
+    pass
+
+
 class ScanArgumentsError(ValueError):
     pass
 

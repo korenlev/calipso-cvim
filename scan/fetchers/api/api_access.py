@@ -9,11 +9,16 @@
 ###############################################################################
 import re
 
+from urllib3 import Retry
+
 from base.utils.api_access_base import ApiAccessBase
 from base.utils.exceptions import CredentialsError
 from base.utils.origins import Origin
 from base.utils.string_utils import jsonify
 from scan.fetchers.api.clients.keystone import *
+from requests import adapters
+
+from scan.scan_error import ScanError
 
 
 class ApiAccess(ApiAccessBase):
@@ -60,8 +65,18 @@ class ApiAccess(ApiAccessBase):
             keystone_client.tokens, keystone_client.auth_responses = {}, {}
 
     def get_keystone_client(self):
-        response = requests.get(self.base_url).json()
-        versions = response["versions"]["values"]
+        session = requests.Session()
+        session.mount(self.base_url, adapters.HTTPAdapter(max_retries=Retry(self.REQUEST_RETRIES)))
+        # Intercept improper configuration errors
+        try:
+            response = session.get(self.base_url, timeout=(self.CONNECT_TIMEOUT, self.READ_TIMEOUT))
+            response.raise_for_status()
+        except Exception as e:
+            raise ScanError("Failed to get keystone client. Error: {}".format(e))
+        finally:
+            session.close()
+
+        versions = response.json()["versions"]["values"]
         for version in versions:
             if version.get("status") == "stable":
                 version_id = version.get("id")

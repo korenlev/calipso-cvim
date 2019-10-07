@@ -31,6 +31,7 @@ class DataAccessBase:
 
     default_conf_file = '/local_dir/data_access_base.conf'
     config_file = None
+    config_source = None
 
     def __init__(self):
         super().__init__()
@@ -109,3 +110,18 @@ class DataAccessBase:
         except Exception as e:
             self.log.exception(e)
             raise
+
+    @classmethod
+    def get_source_text(cls):
+        if not cls.config_source:
+            return "{} not initialized".format(cls.__name__)
+        template = "{} configuration taken from".format(cls.__name__)
+        if cls.config_source == DataAccessBase.ConfigSource.ENV:
+            return "{} environment variables".format(template)
+        if cls.config_source == DataAccessBase.ConfigSource.FILE:
+            return "{} file: {}".format(template, cls.config_file)
+        if cls.config_source == DataAccessBase.ConfigSource.DEFAULT_FILE:
+            return "{} default file: {}".format(template, cls.default_conf_file)
+
+    def get_connection_text(self):
+        return self.get_source_text()

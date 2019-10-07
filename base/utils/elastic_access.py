@@ -43,7 +43,6 @@ class ElasticAccess(DataAccessBase):
         self.bulk_chunk_size = bulk_chunk_size
         self.connection_params = {}
         self.connection = None
-        self.connect()
 
     @staticmethod
     def connection_backoff(i):
@@ -51,7 +50,17 @@ class ElasticAccess(DataAccessBase):
 
     @property
     def is_connected(self):
-        return self.connection is not None
+        return self.connection is not None and self.connection.ping()
+
+    def get_connection_text(self):
+        src_text = super().get_connection_text()
+        if self.is_connected:
+            conn_text = "{} is connected to {}:{}".format(self.__class__.__name__,
+                                                          self.connection_params.get('host'),
+                                                          self.connection_params.get('port'))
+        else:
+            conn_text = "{} is not connected".format(self.__class__.__name__)
+        return "{}. {}".format(src_text, conn_text)
 
     def get_connection_parameters(self):
         try:
@@ -60,9 +69,9 @@ class ElasticAccess(DataAccessBase):
             self.log.warning("Failed to connect to ElasticSearch. Error: {}".format(e))
             return {}
 
-    def connect(self):
+    def connect(self, retries=CONNECTION_RETRIES):
         connection_params = self.get_connection_parameters()
-        if not connection_params or (connection_params == self.connection_params and self.connection):
+        if not connection_params or (connection_params == self.connection_params and self.is_connected):
             return
 
         self.connection_params = connection_params
@@ -79,14 +88,14 @@ class ElasticAccess(DataAccessBase):
             else:
                 fail_msg = "Failed to connect to Elasticsearch at {}:{}".format(self.connection_params['host'],
                                                                                 self.connection_params['port'])
-                if attempt <= self.CONNECTION_RETRIES:
+                self.connection = None
+                if attempt <= retries + 1:
                     backoff = self.connection_backoff(attempt)
                     self.log.info("{}. Retrying after {} seconds".format(fail_msg, backoff))
                     time.sleep(backoff)
                     attempt += 1
                     continue
                 raise ConnectionError(fail_msg)
-        self.connection = connection
 
     def create_index(self, index_name, settings=None, delete_if_exists=False):
         if settings is None:

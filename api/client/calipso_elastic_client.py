@@ -108,7 +108,7 @@ class ElasticClient(object):
 
     @property
     def is_connected(self):
-        return self.connection is not None
+        return self.connection is not None and self.connection.ping()
 
     def connect(self, conn_params):
         connection = Elasticsearch([conn_params])
@@ -282,7 +282,7 @@ def run():
                         help="get a reply back with calipso_elastic_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.5.5')
+                        version='%(prog)s version: 0.5.6')
 
     args = parser.parse_args()
     es = ElasticClient(args.m_server, args.m_port, args.m_user, args.m_pwd, "calipso")

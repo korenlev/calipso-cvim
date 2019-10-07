@@ -14,6 +14,8 @@ import time
 import pymongo
 from functools import partial
 
+import urllib3
+
 from base.utils.constants import ScanStatus, EnvironmentFeatures
 from base.utils.elastic_access import ElasticAccess
 from base.utils.exceptions import ScanArgumentsError
@@ -102,16 +104,30 @@ class ScanManager(Manager):
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
 
-        ElasticAccess.config_file = self.args.es_config
         self.es_client = ElasticAccess()
+        self._connect_es_client(self.args.es_config)
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "{1}\n"
+                      "{2}\n"
                       "Scans collection: {0.scans_collection.name}\n"
                       "Environments collection: "
                       "{0.environments_collection.name}\n"
                       "Polling interval: {0.interval} second(s)"
-                      .format(self, MongoAccess.get_source_text()))
+                      .format(self,
+                              MongoAccess.get_source_text(),
+                              self.es_client.get_connection_text()))
+
+    def _connect_es_client(self, es_config, retries=ElasticAccess.CONNECTION_RETRIES):
+        if not self.es_client:
+            return False
+
+        ElasticAccess.config_file = es_config
+        try:
+            self.es_client.connect(retries)
+        except (urllib3.exceptions.NewConnectionError, ConnectionError) as e:
+            self.log.error("Failed to connect to ElasticSearch. Error: {}".format(e))
+        return self.es_client.is_connected
 
     def _build_scan_args(self, scan_request: dict):
         args = {
@@ -308,9 +324,15 @@ class ScanManager(Manager):
                 end_time = datetime.datetime.utcnow()
                 scan_request['end_timestamp'] = end_time
 
-                if self.es_client.is_connected and scan_request.get('es_index') is True:
-                    self.es_client.dump_collections(env)
-                    self.es_client.dump_tree(env)
+                if scan_request.get('es_index') is True:
+                    if self.es_client.is_connected:
+                        try:
+                            self.es_client.dump_collections(env)
+                            self.es_client.dump_tree(env)
+                        except Exception as e:
+                            self.log.error("Error occurred while trying to index documents to ElasticSearch: {}".format(e))
+                    elif not self._connect_es_client(self.args.es_config, retries=3):
+                        self.log.error("ElasticSearch client is not connected, but post-scan indexing was requested")
 
                 self._complete_scan(scan_request, message)
 

@@ -16,8 +16,6 @@
 import argparse
 import sys
 
-from base.utils.elastic_access import ElasticAccess
-
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
 from base.utils.constants import EnvironmentFeatures
@@ -359,7 +357,7 @@ class ScanController(Fetcher):
                 if not any((inventory_only, processors_only, links_only, cliques_only)):
                     scanner.deploy_monitoring_setup()
         except ScanError as e:
-            return False, "scan error: " + str(e)
+            return False, "Scan error: {}".format(e)
         finally:
             self.reset_connections()
 

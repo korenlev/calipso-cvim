@@ -13,11 +13,13 @@ import time
 import requests
 from abc import abstractmethod, ABCMeta
 
+
 from base.utils.logging.full_logger import FullLogger
 
 
 class KeystoneClient(metaclass=ABCMeta):
     CONNECT_TIMEOUT = 5
+
     auth_path = None
     tenants_url = None
 
@@ -62,11 +64,10 @@ class KeystoneClient(metaclass=ABCMeta):
             token_details = cls.tokens[project_id]
         except KeyError:
             return None
-        # token_expiry = token_details["expires"]
-        # token_expiry_time_struct = cls.parse_time(token_expiry)
-        #if not token_expiry_time_struct:
-        #    return None
-        token_expiry_time = token_details["token_expiry_time"]
+
+        token_expiry_time = token_details.get("token_expiry_time")
+        if not token_expiry_time:
+            return token_details  # Token doesn't have expiration time
         now = time.time()
         if now > token_expiry_time:
             # token has expired
@@ -112,7 +113,8 @@ class KeystoneClient(metaclass=ABCMeta):
         self.auth_responses[project_id] = response
 
         token = self.get_token(response)
-        self.tokens[project_id] = token
+        if token:
+            self.tokens[project_id] = token
         return token
 
 
@@ -204,13 +206,17 @@ class KeystoneClientV3(KeystoneClient):
 
         token_details["id"] = auth_response.headers["X-Subject-Token"]
         token_details["tenant"] = token_details.pop("project")
-        token_expiry = token_details.pop("expires_at")
-        token_details["expires"] = token_expiry
-        token_expiry_time_struct = self.parse_time(token_expiry)
-        if not token_expiry_time_struct:
-            return None
-        token_expiry_time = calendar.timegm(token_expiry_time_struct)
-        token_details["token_expiry_time"] = token_expiry_time
+
+        token_expiry = token_details.pop("expires_at", None)  # A null value indicates that the token never expires
+        token_details["token_expiry_time"] = None
+        if token_expiry:
+            token_details["expires"] = token_expiry
+            token_expiry_time_struct = self.parse_time(token_expiry)
+            if not token_expiry_time_struct:
+                self.log.warning("Failed to parse Keystone token expiry time from string: {}".format(token_expiry))
+                return token_details
+            token_expiry_time = calendar.timegm(token_expiry_time_struct)
+            token_details["token_expiry_time"] = token_expiry_time
         return token_details
 
     def get_catalog(self, project_id=None):

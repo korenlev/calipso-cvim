@@ -24,7 +24,6 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
     db = None
     default_conf_file = '/local_dir/calipso_mongo_access.conf'
     config_file = None
-    config_source = None
 
     DB_NAME = 'calipso'
     LOG_FILENAME = 'mongo_access.log'
@@ -122,15 +121,3 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
         return dict(item, **{"_id": str(item["_id"])}) \
             if item and "_id" in item \
             else item
-
-    @staticmethod
-    def get_source_text():
-        if not MongoAccess.config_source:
-            return "Mongo Access not initialized"
-        template = "Mongo configuration taken from"
-        if MongoAccess.config_source == MongoAccess.ConfigSource.ENV:
-            return "{} environment variables".format(template)
-        if MongoAccess.config_source == MongoAccess.ConfigSource.FILE:
-            return "{} file: {}".format(template, MongoAccess.config_file)
-        if MongoAccess.config_source == MongoAccess.ConfigSource.DEFAULT_FILE:
-            return "{} default file: {}".format(template, MongoAccess.default_conf_file)
