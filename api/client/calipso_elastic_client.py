@@ -194,7 +194,7 @@ class ElasticClient(object):
         }]
         if env:
             data_list.append({
-                'id': "{}:{}".format(env, env),
+                'id': "environment:{}".format(env),
                 'name': env,
                 'environment': env,
                 'parent': ElasticClient.TREE_ROOT_ID
@@ -282,7 +282,7 @@ def run():
                         help="get a reply back with calipso_elastic_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.5.6')
+                        version='%(prog)s version: 0.5.7')
 
     args = parser.parse_args()
     es = ElasticClient(args.m_server, args.m_port, args.m_user, args.m_pwd, "calipso")
