@@ -76,6 +76,8 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 if h["name"] in hosts:
                     # merge host_type data between AZs
                     existing_entry = hosts[h["name"]]
+                    if 'flavor_resources' in h:
+                        existing_entry['flavor_resources'] = h['flavor_resources']
                     for t in h["host_type"]:
                         self.add_host_type(existing_entry, t, doc['zoneName'])
                 else:
