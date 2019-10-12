@@ -160,6 +160,18 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                         project = self.inv.find_one({"id": project_id})
                         if project:
                             resource["project_name"] = project["name"]
+                    if resource["project"] == '(total)':
+                        resource['memory_mb_total'] = resource.pop('memory_mb')
+                        resource['cpu_total'] = resource.pop('cpu')
+                        resource['disk_gb_total'] = resource.pop('disk_gb')
+                    elif resource["project"] == '(used_now)':
+                        resource['memory_mb_used_now'] = resource.pop('memory_mb')
+                        resource['cpu_used_now'] = resource.pop('cpu')
+                        resource['disk_gb_used_now'] = resource.pop('disk_gb')
+                    elif resource["project"] == '(used_max)':
+                        resource['memory_mb_used_max'] = resource.pop('memory_mb')
+                        resource['cpu_used_max'] = resource.pop('cpu')
+                        resource['disk_gb_used_max'] = resource.pop('disk_gb')
                     host["flavor_resources"].append(resource)
 
     # fetch more details of network nodes from neutron DB agents table
