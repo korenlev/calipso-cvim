@@ -210,7 +210,7 @@ class ElasticClient(object):
             for env in self.mongo.find_all(collection="environments_config"):
                 env_name = env['name']
                 data_list.append({
-                    'id': "{}:{}".format(env_name, env_name),
+                    'id': "environment:{}".format(env_name),
                     'name': env_name,
                     'environment': env_name,
                     'parent': ElasticClient.TREE_ROOT_ID
