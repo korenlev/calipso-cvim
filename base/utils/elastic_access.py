@@ -155,7 +155,7 @@ class ElasticAccess(DataAccessBase):
                 'id': ElasticAccess.TREE_ROOT_ID,
                 'name': 'environments'
             }, {
-                'id': "environment:{}".format(env),
+                'id': "{}:{}".format(env, env),
                 'name': env,
                 'environment': env,
                 'parent': ElasticAccess.TREE_ROOT_ID

@@ -194,7 +194,7 @@ class ElasticClient(object):
         }]
         if env:
             data_list.append({
-                'id': "environment:{}".format(env),
+                'id': "{}:{}".format(env, env),
                 'name': env,
                 'environment': env,
                 'parent': ElasticClient.TREE_ROOT_ID
@@ -210,7 +210,7 @@ class ElasticClient(object):
             for env in self.mongo.find_all(collection="environments_config"):
                 env_name = env['name']
                 data_list.append({
-                    'id': "environment:{}".format(env_name),
+                    'id': "{}:{}".format(env_name, env_name),
                     'name': env_name,
                     'environment': env_name,
                     'parent': ElasticClient.TREE_ROOT_ID
