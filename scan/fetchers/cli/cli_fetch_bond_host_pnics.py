@@ -59,7 +59,7 @@ class CliFetchBondHostPnics(CliFetcher):
             'Link detected': 'yes' if status == 'up' else 'no',
             'EtherChannel': True,
             'EtherChannel Master': '',
-            'members': {}
+            'members': []
         }
         # keep stack of info objects to support multi-level info
         info_objects = deque([interface])
@@ -73,7 +73,7 @@ class CliFetchBondHostPnics(CliFetcher):
                 # remove any pending info objects, keep only interface
                 info_objects = deque([interface])
                 info_objects.append(slave)
-                interface['members'][name] = slave
+                interface['members'].append(slave)
             elif line.rstrip(':').lower().endswith('info'):
                 # move to lower level info object
                 info_name = line.rstrip(':')
@@ -83,7 +83,7 @@ class CliFetchBondHostPnics(CliFetcher):
                 info_objects.append(info_obj)
             else:
                 self.get_attribute_from_line(info_objects[-1], line)
-        for slave in list(interface['members'].values()):
+        for slave in interface['members']:
             self.set_slave_host_pnic_bond_attributes(host_id, slave,
                                                      interface_id)
         return interface

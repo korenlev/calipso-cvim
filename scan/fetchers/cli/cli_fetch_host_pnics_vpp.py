@@ -121,14 +121,13 @@ class CliFetchHostPnicsVpp(CliFetcher):
         for interface in interfaces:
             for line in lines:
                 if interface["name"] in line:
-                    if (interface["name"] not in members) and ("Bond" not in interface["name"]):
-                        members.append(interface["name"])
+                    if "Bond" not in interface["name"] and not next((_ for member in members if member.get("name") == interface), None):
+                        members.append({"name": interface["name"]})
                     interface["EtherChannel"] = True
                     interface["EtherChannel Master"] = bond_details["bond_master_interface"]
                     interface["EtherChannel Config"] = bond_details
                     details_cmd = 'vppctl show lacp details {} | grep -v "{}"'.format(interface["name"], interface["name"])
-                    details_lines = self.run_fetch_lines(details_cmd, host_id)
-                    interface["EtherChannel Runtime"] = details_lines
+                    interface["EtherChannel Runtime"] = {"lines": self.run_fetch_lines(details_cmd, host_id)}
             interface["members"] = members
 
 

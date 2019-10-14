@@ -59,7 +59,7 @@ class CliFetchTeamHostPnics(CliFetcher):
                 "Link detected": "{}, {}".format(columns[2], columns[3]),
                 "EtherChannel": True,
                 "EtherChannel Master": "",
-                "members": {}
+                "members": []
             })
 
         return teams
@@ -84,13 +84,13 @@ class CliFetchTeamHostPnics(CliFetcher):
             'team_device': cmd_output_json.get('team_device'),
             'EtherChannel Config': cmd_output_json.get('setup'),
             'EtherChannel Runtime': cmd_output_json.get('runner'),
-            'members': cmd_output_json.get('ports', {})
+            'members': [{"name": name, **data} for name, data in cmd_output_json.get('ports', {}).items()]
         })
 
-        for member_name, member_data in team['members'].items():
+        for member_data in team['members']:
             member_mac = member_data.get('ifinfo', {}).get('dev_addr')
             member_data.update({
-                'id': '{}-{}'.format(member_name, member_mac),
+                'id': '{}-{}'.format(member_data['name'], member_mac),
                 'mac_address': member_mac
             })
 

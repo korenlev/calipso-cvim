@@ -162,7 +162,14 @@ class ElasticAccess(DataAccessBase):
             }
         ]
 
-        for doc in self.inv.find({'environment': env}):
+        env_inventory = self.inv.find({'environment': env})
+        if not env_inventory:
+            self.log.warning("No inventory objects found for environment '{}'".format(env))
+            return
+        else:
+            last_scanned = env_inventory[-1].get('last_scanned')
+
+        for doc in env_inventory:
             data_list.append({
                 'id': "{}:{}".format(env, doc['id']),
                 'name': doc['name'],
@@ -187,4 +194,7 @@ class ElasticAccess(DataAccessBase):
         #     ok, index_name, errors)
         # )
         env_doc = self.inv.find_one({'name': env}, collection='environments_config')
-        self.connection.index(index_name, {'last_scanned': env_doc['last_scanned'], 'doc': data_list}, id=doc_id)
+        if env_doc.get('last_scanned'):
+            last_scanned = env_doc['last_scanned']
+
+        self.connection.index(index_name, {'last_scanned': last_scanned, 'doc': data_list}, id=doc_id)

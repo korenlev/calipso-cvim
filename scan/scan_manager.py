@@ -324,6 +324,7 @@ class ScanManager(Manager):
                 end_time = datetime.datetime.utcnow()
                 scan_request['end_timestamp'] = end_time
 
+                self._complete_scan(scan_request, message)
                 if scan_request.get('es_index') is True:
                     if self.es_client.is_connected:
                         try:
@@ -333,8 +334,6 @@ class ScanManager(Manager):
                             self.log.error("Error occurred while trying to index documents to ElasticSearch: {}".format(e))
                     elif not self._connect_es_client(self.args.es_config, retries=3):
                         self.log.error("ElasticSearch client is not connected, but post-scan indexing was requested")
-
-                self._complete_scan(scan_request, message)
 
     def do_action(self):
         self._clean_up()
