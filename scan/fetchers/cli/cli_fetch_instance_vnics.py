@@ -31,3 +31,9 @@ class CliFetchInstanceVnics(CliFetchInstanceVnicsBase):
             v["source_bridge"] = v_source["@bridge"]
         else:
             v["source_bridge"] = v.get("driver", {}).get("@name")
+
+        if v["source_bridge"]:
+            v["interface_name"] = v["source_bridge"].replace("qbr", "qvo")
+        else:
+            # SRIOV interfaces
+            v["interface_name"] = v["object_name"]

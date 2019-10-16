@@ -33,6 +33,6 @@ class CliFetchVserviceVnicsVpp(CliFetchVserviceVnics):
             i["name"] for i in self.vpp_interfaces[vnic["host"]]
             if i.get("mac_address") == vnic["mac_address"]
         )
-        vnic["interface_name"] = interface_name
+        vnic["interface_name"] = "|".join((interface_name, vnic["object_name"].split("@")[0]))
         vnic["id"] = "|".join((vnic["host"], interface_name))
         vnic["name"] = "|".join((vnic["id"], vnic["object_name"]))

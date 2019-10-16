@@ -105,6 +105,7 @@ class CliFetchVserviceVnics(CliFetcher):
     def set_vnic_names(self, vnic):
         vnic["id"] = "|".join((vnic["host"], vnic["object_name"]))
         vnic["name"] = "|".join((vnic["object_name"], vnic["mac_address"]))
+        vnic["interface_name"] = vnic["object_name"]
 
     def set_vnic_data(self, vnic):
         self.set_vnic_names(vnic)

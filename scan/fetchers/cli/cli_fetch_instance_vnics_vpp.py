@@ -21,6 +21,7 @@ class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
             v["id"] = "|".join((v["id"], interface_name))
             v["name"] = "|".join((v["id"], v["object_name"]))
         else:
+            v["interface_name"] = v["object_name"]  # SRIOV interfaces
             v["id"] = "|".join((v["id"], v["object_name"]))
             v["name"] = v["id"]
 

@@ -121,8 +121,10 @@ class CliFetchHostPnicsVpp(CliFetcher):
         for interface in interfaces:
             for line in lines:
                 if interface["name"] in line:
-                    if "Bond" not in interface["name"] and not next((_ for member in members if member.get("name") == interface), None):
-                        members.append({"name": interface["name"]})
+                    if "Bond" not in interface["name"]:
+                        existing_member = next((member for member in members if member.get("name") == interface["name"]), None)
+                        if not existing_member:
+                            members.append({"name": interface["name"]})
                     interface["EtherChannel"] = True
                     interface["EtherChannel Master"] = bond_details["bond_master_interface"]
                     interface["EtherChannel Config"] = bond_details
