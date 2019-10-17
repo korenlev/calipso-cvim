@@ -1,3 +1,4 @@
+import copy
 import functools
 
 from base.utils.origins import Origin
@@ -15,8 +16,8 @@ class ProcessVedgeType(Processor):
         super().setup(env, origin)
         self.environment_type = self.configuration.get_env_type()
 
-    def find_matching_vnic(self, vedge, port):
-        vnic = None
+    def find_matching_vnic_and_port(self, vedge, port):
+        vnic, vedge_port = None, None
         if self.environment_type != self.ENV_TYPE_KUBERNETES:
             if vedge["vedge_type"] == "SRIOV":
                 for vf in port["VFs"]:
@@ -30,10 +31,14 @@ class ProcessVedgeType(Processor):
                         "mac_address": vf_mac
                     })
                     if vnic:
+                        vedge_port = copy.deepcopy(port)
+                        vedge_port.pop('VFs', None)
+                        vedge_port.update(vf)
                         break
             else:
                 vnic = self.inv.get_by_id(self.env, '|'.join((vedge['host'], port["name"].replace("/", "."))))
-        return vnic
+                vedge_port = port
+        return vnic, vedge_port
 
     def find_matching_vconnector(self, vedge, port):
         if self.configuration.has_network_plugin('VPP'):
@@ -97,11 +102,11 @@ class ProcessVedgeType(Processor):
 
     def update_matching_objects(self, vedge, port):
         vedge_type = vedge["vedge_type"]
-        vnic = self.find_matching_vnic(vedge, port)
+        vnic, vedge_port = self.find_matching_vnic_and_port(vedge, port)
         if vnic:
             vnic.update({
                 "vedge_id": vedge["id"],
-                "vedge_port": port
+                "vedge_port": vedge_port
             })
             self.update_vnic_and_related_objects(vnic, vedge_type)
         else:
