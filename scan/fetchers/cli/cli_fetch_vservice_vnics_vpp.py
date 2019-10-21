@@ -29,10 +29,15 @@ class CliFetchVserviceVnicsVpp(CliFetchVserviceVnics):
         return super().get(host_id)
 
     def set_vnic_names(self, vnic):
-        interface_name = next(
+        interface_name = next((
             i["name"] for i in self.vpp_interfaces[vnic["host"]]
             if i.get("mac_address") == vnic["mac_address"]
-        )
+        ), None)
+
+        if not interface_name:
+            self.log.warning("vnic with mac_address '{}' is not attached to any VPP interface".format(vnic["mac_address"]))
+            interface_name = "unattached-{}".format(vnic["mac_address"])
+
         vnic["interface_name"] = "|".join((interface_name, vnic["object_name"].split("@")[0]))
         vnic["id"] = "|".join((vnic["host"], interface_name))
         vnic["name"] = "|".join((vnic["id"], vnic["object_name"]))

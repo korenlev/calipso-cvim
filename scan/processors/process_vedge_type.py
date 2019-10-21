@@ -131,3 +131,9 @@ class ProcessVedgeType(Processor):
         for vedge in vedges:
             for port in vedge.get("ports", []):
                 self.update_matching_objects(vedge, port)
+
+        vnics = self.find_by_type("vnic")
+        for vnic in vnics:
+            if not vnic.get('vedge_type'):
+                vnic['vedge_type'] = 'unknown'
+                self.inv.set(vnic)
