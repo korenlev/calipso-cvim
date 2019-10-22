@@ -49,8 +49,8 @@ class ApiAccess(ApiAccessBase):
 
         token = self.keystone_client.auth()
         if not token:
-            raise CredentialsError("ApiAccess: Authentication failed. "
-                                   "Failed to obtain token")
+            raise ScanError("ApiAccess: Authentication failed. "
+                            "Failed to obtain token")
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
