@@ -181,7 +181,7 @@ def start_grafana(gport):
     print("\nstarting container {}, please wait...\n".format(name))
     image_name = "korenlev/calipso:grafana-v2"
     download_image(image_name)
-    grafana_ports = {'3000/tcp': gport}
+    grafana_ports = {'30000/tcp': gport}
     DockerClient.containers.run(image_name,
                                 detach=True,
                                 name=name,
@@ -453,9 +453,9 @@ parser.add_argument("--es_port",
                     required=False)
 parser.add_argument("--g_port",
                     help="Port for Grafana if grafana is needed "
-                         "(default=3003)",
+                         "(default=30000)",
                     type=str,
-                    default="3003",
+                    default="30000",
                     required=False)
 parser.add_argument("--k_port",
                     help="Port for Kibana if kibana  is needed "
