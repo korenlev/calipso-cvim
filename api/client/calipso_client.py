@@ -22,13 +22,14 @@ from sys import exit
 
 class CalipsoClient:
 
-    def __init__(self, api_host, api_port, api_password, es_index):
+    def __init__(self, api_host, api_port, api_password, es_index=False, verify_tls=False):
         self.api_server = api_host
         self.username = "calipso"
         self.password = api_password
         self.port = api_port
         self.schema = "https"
         self.es_index = es_index
+        self.verify_tls = verify_tls
         self.auth_url = "auth/tokens"
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
@@ -66,15 +67,15 @@ class CalipsoClient:
     def _send_request(self, method, url, payload):
         method = method.lower()
         if method == 'post':
-            response = requests.post(url, json=payload, headers=self.headers, verify=False,
+            response = requests.post(url, json=payload, headers=self.headers, verify=self.verify_tls,
                                      timeout=3)
         elif method == 'delete':
-            response = requests.delete(url, headers=self.headers, verify=False)
+            response = requests.delete(url, headers=self.headers, verify=self.verify_tls)
         elif method == 'put':
-            response = requests.put(url, json=payload, headers=self.headers, verify=False,
+            response = requests.put(url, json=payload, headers=self.headers, verify=self.verify_tls,
                                     timeout=3)
         else:
-            response = requests.get(url, params=payload, headers=self.headers, verify=False,
+            response = requests.get(url, params=payload, headers=self.headers, verify=self.verify_tls,
                                     timeout=3)
         return response
 
@@ -223,6 +224,13 @@ def run():
                         type=str,
                         default=None,
                         required=False)
+    parser.add_argument("--verify_tls",
+                        help="verify full certificate chain from server -"
+                             " options: boolean, add option or not"
+                             " (default=False)",
+                        action='store_true',
+                        default=False,
+                        required=False)
     parser.add_argument("--page",
                         help="a page number for retrieval"
                              " (default=0)",
@@ -246,7 +254,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.6.3')
+                        version='%(prog)s version: 0.6.4')
 
     args = parser.parse_args()
 
@@ -255,7 +263,7 @@ def run():
         print("wget/curl from: {}".format(guide_url))
         exit(0)
 
-    cc = CalipsoClient(args.api_server, args.api_port, args.api_password, args.es_index)
+    cc = CalipsoClient(args.api_server, args.api_port, args.api_password, args.es_index, args.verify_tls)
     per_environment_collections = ["inventory", "cliques", "links", "messages",
                                    "scans", "scheduled_scans"]
 
