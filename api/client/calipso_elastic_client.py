@@ -137,7 +137,7 @@ class ElasticClient(object):
                 return False
             self.connection.indices.delete(index=index.full_name, ignore=[400, 404])
 
-        self.connection.indices.create(index=index.full_name, ignore=[400, 404], body=index.settings, request_timeout=30)
+        self.connection.indices.create(index=index.full_name, ignore=[400, 404], body=index.settings)
         print('Created Index {}'.format(index.full_name))
         return True
 
@@ -282,7 +282,7 @@ def run():
                         help="get a reply back with calipso_elastic_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.6.3')
+                        version='%(prog)s version: 0.6.4')
 
     args = parser.parse_args()
     es = ElasticClient(args.m_server, args.m_port, args.m_user, args.m_pwd, "calipso")
