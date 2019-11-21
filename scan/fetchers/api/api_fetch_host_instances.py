@@ -104,7 +104,10 @@ class ApiFetchHostInstances(ApiAccess):
 
         self.set_server_info(doc, server)
         # find the specific instance's project/tenant based on tenant_id and add more project details
-        instance_project = next(pi for pi in self.projects if pi["id"] == doc["tenant_id"])
+        try:
+            instance_project = next(pi for pi in self.projects if pi["id"] == doc["tenant_id"])
+        except StopIteration:
+            instance_project = {"name": "unknown", "domain_id": "unknown", "id": "unknown"}
         doc.update({
             "project_name": instance_project["name"],
             "project_domain": instance_project["domain_id"],
@@ -119,11 +122,14 @@ class ApiFetchHostInstances(ApiAccess):
 
         req_url = "{}/v2/flavors/{}".format(self.nova_endpoint, flavor_id)
         response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
-        flavor = response["flavor"]
-        flavor.pop("links", None)
-        for field in flavor:
-            flavor[field.split(":")[-1]] = flavor.pop(field)
-        self.flavors[flavor_id] = flavor
+        if response:
+            flavor = response.get("flavor", "flavor_not_found")
+            flavor.pop("links", None)
+            for field in flavor:
+                flavor[field.split(":")[-1]] = flavor.pop(field)
+            self.flavors[flavor_id] = flavor
+        else:
+            flavor = "flavor_not_found"
         return flavor
 
     def get_image_data(self, image_id):
@@ -132,9 +138,12 @@ class ApiFetchHostInstances(ApiAccess):
 
         req_url = "{}/v2/images/{}".format(self.nova_endpoint, image_id)
         response = self.get_url(req_url, {"X-Auth-Token": self.token["id"]})
-        image = response["image"]
-        image.pop("links", None)
-        self.images[image_id] = image
+        if response:
+            image = response.get("image", "image_not_found")
+            image.pop("links", None)
+            self.images[image_id] = image
+        else:
+            image = "image_not_found"
         return image
 
     def get_security_groups(self, server):
