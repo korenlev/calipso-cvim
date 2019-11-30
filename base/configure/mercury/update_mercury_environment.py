@@ -3,11 +3,7 @@ import os
 
 import json
 
-try:
-    from setup_initial_data import HOST, DB_USER, DEFAULT_DB, DEFAULT_PORT, MongoConnector
-except ImportError:
-    from base.configure.mercury.setup_initial_data import \
-        HOST, DB_USER, DEFAULT_DB, DEFAULT_PORT, MongoConnector
+from setup_initial_data import HOST, DB_USER, DEFAULT_DB, DEFAULT_PORT, MongoConnector, _exit
 
 ENV_CONFIG_COLLECTION = "environments_config"
 ENV_OPTIONS_COLLECTION = "environment_options"
@@ -160,13 +156,15 @@ def update_environment_config(env_dict):
     env_name = env_dict['name']
     existing_env = mongo_connector.find_one(ENV_CONFIG_COLLECTION, {'name': env_name})
     if existing_env:
-        print("Environment '{}' already exists".format(env_name))
-        return existing_env
+        print("Environment '{}' already exists. Updating document".format(env_name))
+        env_id = existing_env['_id']
+        mongo_connector.update(ENV_CONFIG_COLLECTION, {'_id': existing_env['_id']}, env_dict)
+        print("Environment '{}' updated successfully".format(env_name))
     else:
         print("Inserting environment '{}'".format(env_name))
         env_id = mongo_connector.insert(ENV_CONFIG_COLLECTION, env_dict)
         print("Environment '{}' inserted successfully".format(env_name))
-        return mongo_connector.find_one(ENV_CONFIG_COLLECTION, {'_id': env_id})
+    return mongo_connector.find_one(ENV_CONFIG_COLLECTION, {'_id': env_id})
 
 
 if __name__ == "__main__":
@@ -200,4 +198,4 @@ if __name__ == "__main__":
     finally:
         mongo_connector.disconnect()
 
-    exit(0)
+    _exit(0)

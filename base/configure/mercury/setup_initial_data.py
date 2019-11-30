@@ -4,10 +4,7 @@ import os
 import time
 import traceback
 import ssl
-try:
-    from urllib import quote_plus
-except ImportError:
-    from urllib.parse import quote_plus
+from urllib import quote_plus
 from pymongo import MongoClient
 
 
@@ -16,9 +13,10 @@ DEFAULT_DB = "calipso"
 DEFAULT_PORT = os.environ.get("CALIPSO_MONGO_SERVICE_PORT", 27017)
 HOST = os.environ["CALIPSO_MONGO_SERVICE_HOST"]
 DB_USER = os.environ["CALIPSO_MONGO_SERVICE_USER"]
-DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_PWD"]
+DB_PWD = os.environ.get("CALIPSO_MONGO_SERVICE_PWD")
 AUTH_DB = os.environ["CALIPSO_MONGO_SERVICE_AUTH_DB"]
 
+STATUS_CODES = ["OK", "ERROR"]
 max_connection_attempts = 5
 
 
@@ -56,8 +54,8 @@ class MongoConnector(object):
             self.client.close()
             self.client = None
 
-    def remove_collection(self, name):
-        self.database[name].remove()
+    def drop_collection(self, name):
+        self.database[name].drop()
 
     def find(self, collection, query=None):
         return self.database[collection].find(query)
@@ -71,18 +69,34 @@ class MongoConnector(object):
     def update(self, collection, spec, doc, upsert=False):
         return self.database[collection].update(spec, doc, upsert=upsert)
 
+    def collection_exists(self, name):
+        return name in self.database.collection_names()
+
+    def create_collection(self, name):
+        return self.database.create_collection(name)
+
     def insert_collection(self, name, file_name=None):
         file_name = "%s.json" % (file_name if file_name else name)
         with open(os.path.join(INITIAL_DATA_PATH, file_name)) as f:
             data = json.load(f)
-            self.remove_collection(name)
-            doc_ids = self.insert(name, data)
-            doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-            print("Inserted '%s' collection in db. Documents inserted: %s" % (name, doc_count))
+            if self.collection_exists(name):
+                self.drop_collection(name)
+
+            if data:
+                doc_ids = self.insert(name, data)
+                doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
+                print("Inserted '%s' collection in db. Documents inserted: %s" % (name, doc_count))
+            else:
+                self.create_collection(name)
+                print("Inserted empty '%s' collection in db" % (name,))
 
     def change_password(self, new_pwd):
         print("Changing password for user '%s'" % self.user)
-        if new_pwd and new_pwd != self.pwd:
+        if not new_pwd:
+            print("New password is empty")
+        elif new_pwd == self.pwd:
+            print("Passwords are identical")
+        else:
             self.database.add_user(self.user, new_pwd)
             self.pwd = new_pwd
             self.connect()
@@ -91,6 +105,13 @@ class MongoConnector(object):
 
 def backoff(i):
     return 2 ** (i - 1)
+
+
+# Exit with a pre-formatted message
+def _exit(status_code, exit_code=None):
+    # check STATUS_CODES for appropriate status texts
+    print("Status code: %s" % STATUS_CODES[status_code])
+    exit(exit_code if exit_code is not None else status_code)
 
 
 if __name__ == "__main__":
@@ -135,6 +156,6 @@ if __name__ == "__main__":
 
     mongo_connector.disconnect()
     print("Initial data setup finished")
-    exit(0)
+    _exit(0)
 
 
