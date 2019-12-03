@@ -95,16 +95,16 @@ class CliFetchTeamHostPnics(CliFetcher):
             })
 
     def update_team_members(self, team, host_id):
-        for member_name in team['members']:
+        for member_data in team['members']:
             member_doc = self.inv.find_one({
                 'environment': self.get_env(),
                 'host': host_id,
                 'type': 'host_pnic',
-                'name': member_name
+                'name': member_data['name']
             })
             if not member_doc:
                 self.log.error('unable to find member pNIC {} under team {}'
-                               .format(member_name, team['name']))
+                               .format(member_data['name'], team['name']))
                 continue
 
             member_doc.update({
