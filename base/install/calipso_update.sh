@@ -56,7 +56,7 @@ docker pull korenlev/calipso:listen-v2
 # remove old local untagged images
 echo "removing old local images..."
 sleep 5
-docker rmi $(sudo docker images --filter 'dangling=true' -q --no-trunc)
+docker rmi -f $(sudo docker images --filter 'dangling=true' -q --no-trunc)
 
 # tag new images for cisco docker repo
 echo "tagging for cisco docker repo..."
