@@ -83,7 +83,7 @@ class DockerImageCheck:
 if __name__ == '__main__':
     image_checker = DockerImageCheck()
     ret = True
-    for image in ["calipso-{}".format(i) for i in IMAGES_TO_SEARCH]:
+    for image in ["calipso-{}-v2".format(i) for i in IMAGES_TO_SEARCH]:
         if not image_checker.verify_image_is_up(image):
             ret = False
     if ret:
