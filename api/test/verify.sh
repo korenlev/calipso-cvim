@@ -11,8 +11,7 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-PYTHONPATH=$PWD/app python3 -m unittest discover -s app/test/api
-PYTHONPATH=$PWD/app python3 -m unittest discover -s app/test/event_based_scan
-PYTHONPATH=$PWD/app python3 -m unittest discover -s app/test/fetch
-PYTHONPATH=$PWD/app python3 -m unittest discover -s app/test/scan
-PYTHONPATH=$PWD/app python3 -m unittest discover -s app/test/utils
+PYTHONPATH=$PWD python3 -m unittest discover -s api/test/api
+PYTHONPATH=$PWD python3 -m unittest discover -s listen/test/event_based_scan/
+PYTHONPATH=$PWD python3 -m unittest discover -s scan/test/fetch/
+PYTHONPATH=$PWD python3 -m unittest discover -s scan/test/scan
