@@ -72,7 +72,7 @@ def run():
                         help="get a reply back with csv_tool version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.6.8')
+                        version='%(prog)s version: 0.6.9')
 
     args = parser.parse_args()
 
