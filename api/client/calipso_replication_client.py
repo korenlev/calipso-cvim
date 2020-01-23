@@ -1,12 +1,18 @@
 import argparse
 import json
 import time
-import traceback
 import ssl
 from pymongo import MongoClient
 from sys import exit
 from six.moves import input
 from six.moves.urllib.parse import quote_plus
+
+from yaml import safe_load as yaml_load
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 
 DEFAULT_PORT = 27017
 DEFAULT_USER = 'calipso'
@@ -111,28 +117,30 @@ def read_servers_from_cli():
         return 1
 
     servers = []
-    for n in range(1, servers_count + 1):
-        remote_name = input("Remote Calipso Server #{} Hostname/IP\n".format(n))
-        remote_secret = input("Remote Calipso Server #{} Secret\n".format(n))
-        servers.append({"name": remote_name, "secret": remote_secret, "attempt": 0, "imported": False})
 
-    central_name = input("Central Calipso Server Hostname/IP\n")
+    for n in range(1, servers_count + 1):
+        remote_host = input("Remote Calipso Server #{} Hostname/IP\n".format(n))
+        remote_secret = input("Remote Calipso Server #{} Secret\n".format(n))
+        servers.append({"host": remote_host, "mongo_pwd": remote_secret, "attempt": 0, "imported": False})
+
+    central_host = input("Central Calipso Server Hostname/IP\n")
     central_secret = input("Central Calipso Server Secret\n")
 
-    central = {'name': central_name, 'secret': central_secret}
+    central = {'host': central_host, 'mongo_pwd': central_secret}
     return servers, central
 
 
 def read_servers_from_file(filename):
     with open(filename) as f:
-        config = json.load(f)
+        if filename.endswith(".yaml"):
+            config = yaml_load(f)
+        elif filename.endswith(".json"):
+            config = json.load(f)
 
-        servers = [
-            {"name": r['name'], "secret": r['secret'], "attempt": 0, "imported": False}
-            for r in config['remotes']
-        ]
+        for remote in config["remotes"]:
+            remote.update({"attempt": 0, "imported": False})
 
-        return servers, config['central']
+        return config["remotes"], config["central"]
 
 
 def reconstruct_ids(destination_connector):
@@ -191,7 +199,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.6.8')
+                        version='%(prog)s version: 0.6.10')
 
     args = parser.parse_args()
 
@@ -204,7 +212,7 @@ def run():
         print("Nothing to do. Exiting")
         return 0
 
-    destination_connector = MongoConnector(central['name'], DEFAULT_PORT, DEFAULT_USER, central['secret'], AUTH_DB)
+    destination_connector = MongoConnector(central['host'], DEFAULT_PORT, DEFAULT_USER, central['mongo_pwd'], AUTH_DB)
     for col in collection_names:
         print ("Clearing collection {} from {}...".format(col, central['name']))
         destination_connector.clear_collection(col)
@@ -218,7 +226,7 @@ def run():
                 time.sleep(backoff(s['attempt']))
 
             try:
-                source_connector = MongoConnector(s["name"], DEFAULT_PORT, DEFAULT_USER, s["secret"], AUTH_DB)
+                source_connector = MongoConnector(s["host"], DEFAULT_PORT, DEFAULT_USER, s["mongo_pwd"], AUTH_DB)
                 for col in collection_names:
                     # read from remote DBs and export to local json files
                     print("Getting the {} Collection from {}...".format(col, s["name"]))

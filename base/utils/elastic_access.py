@@ -66,7 +66,7 @@ class ElasticAccess(DataAccessBase):
         try:
             return self._get_connection_parameters()
         except Exception as e:
-            self.log.warning("Failed to connect to ElasticSearch. Error: {}".format(e))
+            self.log.info("Failed to connect to ElasticSearch. Error: {}".format(e))
             return {}
 
     def connect(self, retries=CONNECTION_RETRIES):
