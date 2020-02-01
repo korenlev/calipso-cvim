@@ -1,5 +1,6 @@
 import argparse
 import json
+import subprocess
 import time
 import ssl
 from pymongo import MongoClient
@@ -19,6 +20,10 @@ DEFAULT_USER = 'calipso'
 AUTH_DB = 'calipso'
 DEBUG = False
 
+K8S = "k8s"
+DEFAULT_K8S_NAMESPACE = "calipso"
+DISCOVERABLE_DEPLOYMENT_TYPES = [K8S]
+
 max_connection_attempts = 5
 collection_names = ["environments_config", "inventory", "links", "messages", "scans", "scheduled_scans", "cliques"]
 reconstructable_collections = ["inventory", "links", "cliques"]
@@ -31,12 +36,8 @@ def debug(msg):
 
 class MongoConnector(object):
     def __init__(self, host, port, user, pwd, db, db_label="central DB"):
-        # Create calipso db and user if they don't exist
-        base_uri = "mongodb://%s:%s/" % (host, port)
-        base_client = MongoClient(base_uri)
-        base_client.close()
 
-        self.host = host
+        self.host = "[{}]".format(host) if ":" in host and "[" not in host else host
         self.port = port
         self.user = user
         self.pwd = pwd
@@ -50,10 +51,12 @@ class MongoConnector(object):
 
     def connect(self):
         self.disconnect()
-        self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
-                                                 self.host, self.port, self.db)
-        self.client = MongoClient(self.uri, serverSelectionTimeoutMS=5000,
-                                  ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
+        if self.user and self.pwd:
+            self.uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
+                                                     self.host, self.port, self.db)
+        else:
+            self.uri = "mongodb://%s:%s/%s" % (self.host, self.port, self.db)
+        self.client = MongoClient(self.uri, connectTimeoutMS=10000, serverSelectionTimeoutMS=10000, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         self.database = self.client[self.db]
 
     def disconnect(self):
@@ -124,9 +127,10 @@ def read_servers_from_cli():
         servers.append({"host": remote_host, "mongo_pwd": remote_secret, "attempt": 0, "imported": False})
 
     central_host = input("Central Calipso Server Hostname/IP\n")
+    central_port = input("Central Calipso Server Port (default: {})\n".format(DEFAULT_PORT))
     central_secret = input("Central Calipso Server Secret\n")
 
-    central = {'host': central_host, 'mongo_pwd': central_secret}
+    central = {'host': central_host, 'port': central_port if central_port else DEFAULT_PORT, 'mongo_pwd': central_secret}
     return servers, central
 
 
@@ -137,10 +141,63 @@ def read_servers_from_file(filename):
         elif filename.endswith(".json"):
             config = json.load(f)
 
-        for remote in config["remotes"]:
+        for remote in config.get("remotes", []):
             remote.update({"attempt": 0, "imported": False})
 
-        return config["remotes"], config["central"]
+        return config["remotes"], config.get("central")
+
+
+def discover_k8s_mongo(namespace="calipso", kubectl_cmd=""):
+    ns_arg = " -n {}".format(namespace) if namespace else ""
+    if not kubectl_cmd:
+        kubectl_cmd = "/usr/bin/kubectl"
+    pod_cmd = subprocess.Popen('{} get pods{} -o json'.format(kubectl_cmd, ns_arg), shell=True, stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
+
+    output, stderr = pod_cmd.communicate()
+    if pod_cmd.returncode != 0 or stderr or len(output) < 1:
+        raise Exception("Failed to discover location of central mongo server. Error: %s" % stderr)
+
+    json_output = json.loads(output)
+    central_config = None
+    for pod in json_output["items"]:
+        if pod["metadata"]["name"].startswith("calipso-mongo"):
+            containers = pod["spec"]["containers"]
+            if len(containers) == 0:
+                raise ValueError("No running containers in mongo pod")
+            env = containers[0]["env"]
+            mongo_pwd = None
+            for entry in env:
+                if entry["name"] == "CALIPSO_MONGO_SERVICE_PWD":
+                    mongo_pwd = entry["value"]
+            if not mongo_pwd:
+                raise ValueError("Mongo password not found in container env")
+            central_config = {"host": pod["status"]["hostIP"], "mongo_pwd": mongo_pwd}
+            break
+
+    if not central_config:
+        raise ValueError("Mongo pod not found")
+
+    # Assuming mongo pod uses NodePort service
+    svc_cmd = subprocess.Popen('{} get service calipso-mongo{} -o json'.format(kubectl_cmd, ns_arg), shell=True,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output, stderr = svc_cmd.communicate()
+    if svc_cmd.returncode != 0 or stderr or len(output) < 1:
+        raise Exception("Failed to get calipso-mongo service. Error: %s" % stderr)
+
+    json_output = json.loads(output)
+    ports = json_output['spec'].get('ports')
+    if len(ports) < 1 or not ports[0].get("nodePort"):
+        raise ValueError("Missing nodePort from mongo service spec")
+    central_config['port'] = ports[0]['nodePort']
+    return central_config
+
+
+def discover_mongo_active_node(deployment_type, *args, **kwargs):
+    if deployment_type == K8S:
+        return discover_k8s_mongo(namespace=kwargs.get("namespace"), kubectl_cmd=kwargs.get("kubectl_cmd"))
+    # TODO: support more deployment types
+    raise ValueError("Central credentials not specified in config and no discoverable deployment type is chosen")
 
 
 def reconstruct_ids(destination_connector):
@@ -195,11 +252,19 @@ def run():
                         help="Print debug messages",
                         action="store_true",
                         required=False)
+    parser.add_argument("--deployment_type",
+                        type=str.lower,
+                        help="Deployment type (for central config discovery)",
+                        choices=DISCOVERABLE_DEPLOYMENT_TYPES)
+    parser.add_argument("--namespace",
+                        type=str,
+                        help="K8s namespace with central mongo pod (deployment type: {}). Default: {}".format(K8S, DEFAULT_K8S_NAMESPACE),
+                        default="calipso")
     parser.add_argument("--version",
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.6.10')
+                        version='%(prog)s version: 0.7.0')
 
     args = parser.parse_args()
 
@@ -207,14 +272,18 @@ def run():
     DEBUG = args.debug
 
     servers, central = read_servers_from_file(args.config) if args.config else read_servers_from_cli()
+    if not central:
+        central = discover_mongo_active_node(args.deployment_type, namespace=args.namespace)
 
     if not servers or all(s['imported'] is True for s in servers):
         print("Nothing to do. Exiting")
         return 0
 
-    destination_connector = MongoConnector(central['host'], DEFAULT_PORT, DEFAULT_USER, central['mongo_pwd'], AUTH_DB)
+    print(central)
+    destination_connector = MongoConnector(central['host'], central.get('port', DEFAULT_PORT),
+                                           DEFAULT_USER, central['mongo_pwd'], AUTH_DB)
     for col in collection_names:
-        print ("Clearing collection {} from {}...".format(col, central['name']))
+        print ("Clearing collection {} from central...".format(col))
         destination_connector.clear_collection(col)
 
     while all(s['imported'] is False for s in servers):
@@ -226,7 +295,7 @@ def run():
                 time.sleep(backoff(s['attempt']))
 
             try:
-                source_connector = MongoConnector(s["host"], DEFAULT_PORT, DEFAULT_USER, s["mongo_pwd"], AUTH_DB)
+                source_connector = MongoConnector(s["host"], s.get("port", DEFAULT_PORT), DEFAULT_USER, s["mongo_pwd"], AUTH_DB)
                 for col in collection_names:
                     # read from remote DBs and export to local json files
                     print("Getting the {} Collection from {}...".format(col, s["name"]))
@@ -234,7 +303,7 @@ def run():
                     documents = source_connector.find_all(col, remove_mongo_ids=True)
 
                     # write all in-memory json docs into the central DB
-                    print("Pushing the {} Collection into {}...".format(col, central['name']))
+                    print("Pushing the {} Collection into central...".format(col))
                     destination_connector.insert_collection(col, documents)
 
                 s['imported'] = True

@@ -23,7 +23,7 @@ from sys import exit
 class CalipsoClient:
 
     def __init__(self, api_host, api_port, api_password, es_index=False, verify_tls=False):
-        self.api_server = api_host
+        self.api_server = "[{}]".format(api_host) if ":" in api_host and "[" not in api_host else api_host
         self.username = "calipso"
         self.password = api_password
         self.port = api_port
@@ -254,7 +254,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.6.10')
+                        version='%(prog)s version: 0.7.0')
 
     args = parser.parse_args()
 
