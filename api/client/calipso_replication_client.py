@@ -176,7 +176,7 @@ def discover_k8s_mongo(namespace="calipso", kubectl_cmd=""):
             break
 
     if not central_config:
-        raise ValueError("Mongo pod not found")
+        raise ValueError("Central mongo pod not found")
 
     # Assuming mongo pod uses NodePort service
     svc_cmd = subprocess.Popen('{} get service calipso-mongo{} -o json'.format(kubectl_cmd, ns_arg), shell=True,
@@ -201,7 +201,7 @@ def discover_mongo_active_node(deployment_type, *args, **kwargs):
 
 
 def reconstruct_ids(destination_connector):
-    print("Fixing ids for links and cliques")
+    print("\nFixing ids for links and cliques")
     rc = {}
     for col in reconstructable_collections:
         rc[col] = {}
@@ -264,7 +264,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.0')
+                        version='%(prog)s version: 0.7.1')
 
     args = parser.parse_args()
 
@@ -279,11 +279,10 @@ def run():
         print("Nothing to do. Exiting")
         return 0
 
-    print(central)
-    destination_connector = MongoConnector(central['host'], central.get('port', DEFAULT_PORT),
-                                           DEFAULT_USER, central['mongo_pwd'], AUTH_DB)
+    destination_connector = MongoConnector(host=central['host'], port=central.get('port', DEFAULT_PORT),
+                                           user=DEFAULT_USER, pwd=central['mongo_pwd'], db=AUTH_DB)
     for col in collection_names:
-        print ("Clearing collection {} from central...".format(col))
+        print ("\nClearing collection {} from central...".format(col))
         destination_connector.clear_collection(col)
 
     while all(s['imported'] is False for s in servers):
@@ -295,7 +294,10 @@ def run():
                 time.sleep(backoff(s['attempt']))
 
             try:
-                source_connector = MongoConnector(s["host"], s.get("port", DEFAULT_PORT), DEFAULT_USER, s["mongo_pwd"], AUTH_DB)
+                source_connector = MongoConnector(host=s["host"], port=s.get("port", DEFAULT_PORT),
+                                                  user=DEFAULT_USER, pwd=s["mongo_pwd"], db=AUTH_DB,
+                                                  db_label=s.get("name", "remote"))
+                print("")
                 for col in collection_names:
                     # read from remote DBs and export to local json files
                     print("Getting the {} Collection from {}...".format(col, s["name"]))
@@ -313,7 +315,6 @@ def run():
                 print("Failed to connect to {}, error: {}".format(s["name"], e.args))
                 if source_connector is not None:
                     source_connector.disconnect()
-                # traceback.print_exc()
 
                 if s['attempt'] >= max_connection_attempts:
                     destination_connector.disconnect()
@@ -324,7 +325,7 @@ def run():
     # reconstruct source-target ids for links and cliques
     reconstruct_ids(destination_connector)
     destination_connector.disconnect()
-    print("Workload completed")
+    print("\nWorkload completed")
     return 0
 
 
