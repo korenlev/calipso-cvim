@@ -7,10 +7,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from datetime import datetime
-
-from bson.objectid import ObjectId
-
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
 
@@ -50,12 +46,11 @@ class Inventory(ResponderBase):
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
-            obj = self.get_object_by_id(self.COLLECTION, query,
-                                        [ObjectId, datetime], self.ID)
+            obj = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
             self.set_ok_response(resp, obj)
         else:
-            objects = self.get_objects_list(self.COLLECTION, query,
-                                            page, page_size, self.PROJECTION)
+            objects = self.get_objects_list(collection=self.COLLECTION, query=query,
+                                            page=page, page_size=page_size, projection=self.PROJECTION)
             self.set_ok_response(resp, {"objects": objects})
 
     def build_query(self, filters):

@@ -50,7 +50,8 @@ class Aggregates(ResponderBase):
         aggregates = self.AGGREGATES_MAP[query_type](query)
         self.set_ok_response(resp, aggregates)
 
-    def build_query(self, filters):
+    @staticmethod
+    def build_query(filters):
         query = {}
         env_name = filters.get("env_name")
         query_type = filters["type"]

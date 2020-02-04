@@ -7,10 +7,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from datetime import datetime
-
-from bson.objectid import ObjectId
-
 from api.responders.responder_base import ResponderBase
 from api.validation import regex
 from api.validation.data_validate import DataValidate
@@ -240,12 +236,11 @@ class EnvironmentConfigs(ResponderBase):
         query = self.build_query(filters)
 
         if self.ID in query:
-            environment_config = self.get_object_by_id(self.COLLECTION, query,
-                                                       [ObjectId, datetime], self.ID)
+            environment_config = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
             self.set_ok_response(resp, environment_config)
         else:
-            objects_ids = self.get_objects_list(self.COLLECTION, query,
-                                                page, page_size, self.PROJECTION)
+            objects_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
+                                                page=page, page_size=page_size, projection=self.PROJECTION)
             self.set_ok_response(resp, {'environment_configs': objects_ids})
 
     def build_query(self, filters):
@@ -446,7 +441,8 @@ class EnvironmentConfigs(ResponderBase):
             return 'configuration not accepted: ' \
                    'must provide AMQP configuration to listen the environment'
 
-    def get_configuration_by_name(self, name, configurations):
+    @staticmethod
+    def get_configuration_by_name(name, configurations):
         return [config for config in configurations if config['name'] == name]
 
     def validate_configuration(self, name, configuration):

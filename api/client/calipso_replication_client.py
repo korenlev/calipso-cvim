@@ -1,4 +1,5 @@
 import argparse
+import copy
 import json
 import subprocess
 import time
@@ -19,6 +20,7 @@ DEFAULT_PORT = 27017
 DEFAULT_USER = 'calipso'
 AUTH_DB = 'calipso'
 DEBUG = False
+QUIET = False
 
 K8S = "k8s"
 DEFAULT_K8S_NAMESPACE = "calipso"
@@ -31,6 +33,11 @@ reconstructable_collections = ["inventory", "links", "cliques"]
 
 def debug(msg):
     if DEBUG is True:
+        print(msg)
+
+
+def info(msg):
+    if QUIET is not True:
         print(msg)
 
 
@@ -61,7 +68,7 @@ class MongoConnector(object):
 
     def disconnect(self):
         if self.client:
-            print("Disconnecting from {}...".format(self.db_label))
+            info("Disconnecting from {}...".format(self.db_label))
             self.client.close()
             self.client = None
 
@@ -98,12 +105,12 @@ class MongoConnector(object):
         if data:
             doc_ids = self.database[collection].insert(data)
             doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-            print("Inserted '{}' collection in {}, Total docs inserted: {}".format(collection, self.db_label, doc_count))
+            info("Inserted '{}' collection in {}, Total docs inserted: {}".format(collection, self.db_label, doc_count))
         elif not self.collection_exists(collection):
             self.create_collection(collection)
-            print("Inserted empty '{}' collection in {}".format(collection, self.db_label))
+            info("Inserted empty '{}' collection in {}".format(collection, self.db_label))
         else:
-            print("Skipping empty '{}' collection".format(collection,))
+            info("Skipping empty '{}' collection".format(collection,))
 
 
 def backoff(i):
@@ -116,7 +123,7 @@ def read_servers_from_cli():
         if servers_count < 1:
             raise TypeError()
     except TypeError:
-        print("Server count should be a positive integer")
+        info("Server count should be a positive integer")
         return 1
 
     servers = []
@@ -200,8 +207,18 @@ def discover_mongo_active_node(deployment_type, *args, **kwargs):
     raise ValueError("Central credentials not specified in config and no discoverable deployment type is chosen")
 
 
+def add_duplicate_remotes(servers, scale):
+    all_servers = copy.deepcopy(servers)
+    for i in range(scale - len(servers)):
+        dup_number = (i // len(servers)) + 1
+        server = copy.deepcopy(servers[i % len(servers)])
+        server['name'] = "{}-{}".format(server["name"], dup_number)
+        all_servers.append(server)
+    return all_servers
+
+
 def reconstruct_ids(destination_connector):
-    print("\nFixing ids for links and cliques")
+    info("\nFixing ids for links and cliques")
     rc = {}
     for col in reconstructable_collections:
         rc[col] = {}
@@ -225,7 +242,6 @@ def reconstruct_ids(destination_connector):
         clique["focal_point"] = rc["inventory"][clique["focal_point"]]["_id"]
 
         if 'nodes' in clique:
-            debug("No nodes defined in clique: {}".format(clique["_id"]))
             clique["nodes"] = [rc["inventory"][node_id]["_id"] for node_id in clique["nodes"]]
 
         clique_new_links, clique_new_links_detailed = [], []
@@ -238,6 +254,7 @@ def reconstruct_ids(destination_connector):
         clique["links_detailed"] = clique_new_links_detailed
 
     for col in reconstructable_collections:
+        # TODO: scale - don't clear collection and split insertions
         destination_connector.clear_collection(col)
         destination_connector.insert_collection(col, list(rc[col].values()))
 
@@ -260,72 +277,93 @@ def run():
                         type=str,
                         help="K8s namespace with central mongo pod (deployment type: {}). Default: {}".format(K8S, DEFAULT_K8S_NAMESPACE),
                         default="calipso")
+    parser.add_argument("--scale",
+                        type=int,
+                        default=1,
+                        help="Target number of remote pods for scale testing. Must be greater than or equal to "
+                             "the number of remote pods in the configuration. Other pods configurations will be "
+                             "copied from supplied remotes data and have names with appended sequential numbers",
+                        required=False)
+    parser.add_argument("--quiet",
+                        help="Silence all output",
+                        action="store_true",
+                        required=False)
     parser.add_argument("--version",
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.1')
+                        version='%(prog)s version: 0.7.2')
 
     args = parser.parse_args()
 
-    global DEBUG
-    DEBUG = args.debug
+    global DEBUG, QUIET
+    DEBUG, QUIET = args.debug, args.quiet
 
     servers, central = read_servers_from_file(args.config) if args.config else read_servers_from_cli()
     if not central:
         central = discover_mongo_active_node(args.deployment_type, namespace=args.namespace)
+    if len(servers) == 0:
+        info("No remote servers defined. Nothing to replicate")
+        return 0
+    if len(servers) < args.scale:
+        servers = add_duplicate_remotes(servers, args.scale)
 
     if not servers or all(s['imported'] is True for s in servers):
-        print("Nothing to do. Exiting")
+        info("Nothing to do. Exiting")
         return 0
 
+    init_time = time.time()
     destination_connector = MongoConnector(host=central['host'], port=central.get('port', DEFAULT_PORT),
                                            user=DEFAULT_USER, pwd=central['mongo_pwd'], db=AUTH_DB)
     for col in collection_names:
-        print ("\nClearing collection {} from central...".format(col))
+        info("Clearing collection {} from central...".format(col))
         destination_connector.clear_collection(col)
 
+    upload_time = time.time()
     while all(s['imported'] is False for s in servers):
         source_connector = None
         for s in servers:
             s['attempt'] += 1
             if s['attempt'] > 1:
-                print("Retrying import from remote {}... Attempt #{}".format(s['name'], s['attempt']))
+                info("Retrying import from remote {}... Attempt #{}".format(s['name'], s['attempt']))
                 time.sleep(backoff(s['attempt']))
 
             try:
                 source_connector = MongoConnector(host=s["host"], port=s.get("port", DEFAULT_PORT),
                                                   user=DEFAULT_USER, pwd=s["mongo_pwd"], db=AUTH_DB,
                                                   db_label=s.get("name", "remote"))
-                print("")
+                info("")
                 for col in collection_names:
                     # read from remote DBs and export to local json files
-                    print("Getting the {} Collection from {}...".format(col, s["name"]))
+                    info("Getting the {} Collection from {}...".format(col, s["name"]))
 
                     documents = source_connector.find_all(col, remove_mongo_ids=True)
 
                     # write all in-memory json docs into the central DB
-                    print("Pushing the {} Collection into central...".format(col))
+                    info("Pushing the {} Collection into central...".format(col))
                     destination_connector.insert_collection(col, documents)
 
                 s['imported'] = True
                 source_connector.disconnect()
                 source_connector = None
             except Exception as e:
-                print("Failed to connect to {}, error: {}".format(s["name"], e.args))
+                info("Failed to connect to {}, error: {}".format(s["name"], e.args))
                 if source_connector is not None:
                     source_connector.disconnect()
 
                 if s['attempt'] >= max_connection_attempts:
                     destination_connector.disconnect()
-                    print("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
+                    info("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
                     return 1
                 break
 
     # reconstruct source-target ids for links and cliques
+    reconstruct_time = time.time()
     reconstruct_ids(destination_connector)
     destination_connector.disconnect()
-    print("\nWorkload completed")
+    info("\nWorkload completed")
+    finish_time = time.time()
+    debug("Total time: {}\nUpload time: {}\nReconstruct time: {}".format(finish_time - init_time, reconstruct_time - upload_time, finish_time - reconstruct_time))
     return 0
 
 

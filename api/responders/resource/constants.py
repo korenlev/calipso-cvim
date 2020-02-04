@@ -7,8 +7,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from bson.objectid import ObjectId
-
 from api.responders.responder_base import ResponderBase
 
 
@@ -25,6 +23,5 @@ class Constants(ResponderBase):
         }
         self.validate_query_data(filters, filters_requirements)
         query = {"name": filters['name']}
-        constant = self.get_object_by_id(self.COLLECTION, query,
-                                         [ObjectId], self.ID)
+        constant = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
         self.set_ok_response(resp, constant)

@@ -7,15 +7,11 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from datetime import datetime
-
-from bson.objectid import ObjectId
-
 from api.auth.auth import Auth
 from api.auth.token import Token
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
-from base.utils.string_utils import stringify_object_values_by_types
+from base.utils.string_utils import stringify_doc
 
 
 class Tokens(ResponderBase):
@@ -65,7 +61,7 @@ class Tokens(ResponderBase):
             # TODO if writing token to the database failed, what kind of error should be return?
             self.bad_request(write_error)
 
-        stringify_object_values_by_types(new_token, [datetime, ObjectId])
+        stringify_doc(new_token)
         self.set_created_response(resp, new_token)
 
     def authenticate(self, auth):
@@ -82,7 +78,7 @@ class Tokens(ResponderBase):
                 return'credentials must be provided for credentials method'
             else:
                 if not self.auth.validate_credentials(credentials['username'],
-                                                       credentials['password']):
+                                                      credentials['password']):
                     error = 'authentication failed'
                 else:
                     auth['method'] = "credentials"

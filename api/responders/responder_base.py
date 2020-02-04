@@ -20,7 +20,7 @@ from api.validation.data_validate import DataValidate
 from base.utils.dict_naming_converter import DictNamingConverter
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.full_logger import FullLogger
-from base.utils.string_utils import jsonify, stringify_object_values_by_types
+from base.utils.string_utils import jsonify, stringify_doc
 
 
 class ResponderBase(DataValidate, DictNamingConverter):
@@ -93,7 +93,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
             time = time.replace(' ', '+')
             try:
                 data[time_key] = parser.parse(time)
-            except Exception:
+            except (ValueError, OverflowError):
                 self.bad_request("{0} must follow ISO 8610 date and time format,"
                                  "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
@@ -104,22 +104,22 @@ class ResponderBase(DataValidate, DictNamingConverter):
             return False
         return True
 
-    def get_object_by_id(self, collection, query, stringify_types, id):
+    def get_object_by_id(self, collection, query, id_field):
         objs = self.read(collection, query)
         if not objs:
             env_name = query.get("environment")
-            if env_name and \
-                    not self.check_environment_name(env_name):
+            if env_name and not self.check_environment_name(env_name):
                 self.bad_request("unknown environment: " + env_name)
             self.not_found()
+
         obj = objs[0]
-        stringify_object_values_by_types(obj, stringify_types)
-        if id == "_id":
+        stringify_doc(obj)
+        if id_field == "_id":
             obj['id'] = obj.get('_id')
+
         return obj
 
-    def get_objects_list(self, collection, query, page=0, page_size=1000,
-                         projection=None, stringify_types=None):
+    def get_objects_list(self, collection, query, page=0, page_size=1000, projection=None):
         objects = self.read(collection, query, projection, page, page_size)
         if not objects:
             env_name = query.get("environment")
@@ -132,9 +132,8 @@ class ResponderBase(DataValidate, DictNamingConverter):
                 obj["id"] = str(obj["_id"])
             if "_id" in obj:
                 del obj["_id"]
-        if stringify_types:
-            stringify_object_values_by_types(objects, stringify_types)
 
+        stringify_doc(objects)
         return objects
 
     def parse_query_params(self, req):
@@ -151,21 +150,25 @@ class ResponderBase(DataValidate, DictNamingConverter):
         except ValueError as e:
             self.bad_request(str("Invalid query string: {0}".format(str(e))))
 
-    def replace_colon_with_dot(self, s):
+    @staticmethod
+    def replace_colon_with_dot(s):
         return s.replace(':', '.')
 
-    def get_pagination(self, filters):
+    @staticmethod
+    def get_pagination(filters):
         page_size = filters.get('page_size', 1000)
         page = filters.get('page', 0)
         return page, page_size
 
-    def update_query_with_filters(self, filters, filters_keys, query):
+    @staticmethod
+    def update_query_with_filters(filters, filters_keys, query):
         for filter_key in filters_keys:
             filter = filters.get(filter_key)
             if filter is not None:
                 query.update({filter_key: filter})
 
-    def get_content_from_request(self, req):
+    @staticmethod
+    def get_content_from_request(req):
         error = ""
         content = ""
         if not req.content_length:
@@ -178,7 +181,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
             content = json.loads(content_string)
             if not isinstance(content, dict):
                 error = "The data in the request body must be an object"
-        except Exception:
+        except:
             error = "The request can not be fulfilled due to bad syntax"
 
         return error, content
@@ -189,21 +192,11 @@ class ResponderBase(DataValidate, DictNamingConverter):
         return self.inv.collections[name]
 
     def get_constants_by_name(self, name):
-        constants = self.get_collection_by_name("constants").\
-            find_one({"name": name})
-        # consts = [d['value'] for d in constants['data']]
-        consts = []
+        constants = self.get_collection_by_name("constants").find_one({"name": name})
         if not constants:
-            self.log.error('constant type: ' + name +
-                           'no constants exists')
-            return consts
-        for d in constants['data']:
-            try:
-                consts.append(d['value'])
-            except KeyError:
-                self.log.error('constant type: ' + name +
-                               ': no "value" key for data: ' + str(d))
-        return consts
+            self.log.error('No constants with name "{}" exist'.format(name))
+
+        return [d['value'] for d in constants['data']]
 
     def read(self, collection, matches=None, projection=None, skip=0, limit=1000):
         if matches is None:
@@ -222,7 +215,8 @@ class ResponderBase(DataValidate, DictNamingConverter):
         except errors.WriteError as e:
             self.bad_request('Failed to create resource for {0}'.format(str(e)))
 
-    def get_duplicate_key_values(self, err_msg):
+    @staticmethod
+    def get_duplicate_key_values(err_msg):
         return ["'{0}'".format(key) for key in re.findall(r'"([^",]+)"', err_msg)]
 
     def aggregate(self, pipeline, collection):

@@ -38,15 +38,11 @@ class CliqueConstraints(ResponderBase):
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
-            clique_constraint = self.get_object_by_id(self.COLLECTION,
-                                                      query,
-                                                      [ObjectId], self.ID)
+            clique_constraint = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
             self.set_ok_response(resp, clique_constraint)
         else:
-            clique_constraints_ids = self.get_objects_list(self.COLLECTION,
-                                                           query,
-                                                           page, page_size,
-                                                           self.PROJECTION)
+            clique_constraints_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
+                                                           page=page, page_size=page_size, projection=self.PROJECTION)
             self.set_ok_response(resp, {"clique_constraints": clique_constraints_ids})
 
     def build_query(self, filters):

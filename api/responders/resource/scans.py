@@ -47,12 +47,11 @@ class Scans(ResponderBase):
 
         query = self.build_query(filters)
         if "_id" in query:
-            scan = self.get_object_by_id(self.COLLECTION, query,
-                                         [ObjectId, datetime], self.ID)
+            scan = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
             self.set_ok_response(resp, scan)
         else:
-            scans_ids = self.get_objects_list(self.COLLECTION, query,
-                                              page, page_size, self.PROJECTION)
+            scans_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
+                                              page=page, page_size=page_size, projection=self.PROJECTION)
             self.set_ok_response(resp, {"scans": scans_ids})
 
     def on_post(self, req, resp):
