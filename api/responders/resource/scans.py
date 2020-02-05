@@ -38,6 +38,7 @@ class Scans(ResponderBase):
             "status": self.require(str,
                                    validate=DataValidate.LIST,
                                    requirement=scan_statuses),
+            "latest": self.require(bool, convert_to_type=True),
             "page": self.require(int, convert_to_type=True),
             "page_size": self.require(int, convert_to_type=True)
         }
@@ -46,9 +47,12 @@ class Scans(ResponderBase):
         page, page_size = self.get_pagination(filters)
 
         query = self.build_query(filters)
-        if "_id" in query:
+        if self.ID in query:
             scan = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
             self.set_ok_response(resp, scan)
+        elif filters.get("latest") is True:
+            scans = self.get_latest_scan(query)
+            self.set_ok_response(resp, scans)
         else:
             scans_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
                                               page=page, page_size=page_size, projection=self.PROJECTION)
@@ -99,6 +103,10 @@ class Scans(ResponderBase):
         }
         self.set_created_response(resp, response_body)
 
+    def get_latest_scan(self, query):
+        return self.get_objects_list(collection=self.COLLECTION, query=query,
+                                     page=0, page_size=1, sort=[("submit_timestamp", -1)])
+
     def build_query(self, filters):
         query = {}
         filters_keys = ["status"]
@@ -108,6 +116,6 @@ class Scans(ResponderBase):
             query['object_id'] = base_object
         _id = filters.get("id")
         if _id:
-            query['_id'] = _id
+            query[self.ID] = _id
         query['environment'] = filters['env_name']
         return query

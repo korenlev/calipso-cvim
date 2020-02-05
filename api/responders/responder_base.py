@@ -119,12 +119,12 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
         return obj
 
-    def get_objects_list(self, collection, query, page=0, page_size=1000, projection=None):
-        objects = self.read(collection, query, projection, page, page_size)
+    def get_objects_list(self, collection, query, page=0, page_size=1000, projection=None, sort=None):
+        objects = self.read(collection=collection, matches=query, projection=projection, sort=sort,
+                            skip=page, limit=page_size)
         if not objects:
             env_name = query.get("environment")
-            if env_name and \
-                    not self.check_environment_name(env_name):
+            if env_name and not self.check_environment_name(env_name):
                 self.bad_request("unknown environment: " + env_name)
             self.not_found()
         for obj in objects:
@@ -162,10 +162,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     @staticmethod
     def update_query_with_filters(filters, filters_keys, query):
-        for filter_key in filters_keys:
-            filter = filters.get(filter_key)
-            if filter is not None:
-                query.update({filter_key: filter})
+        query.update({k: filters[k] for k in filters_keys if filters.get(k)})
 
     @staticmethod
     def get_content_from_request(req):
@@ -198,12 +195,12 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
         return [d['value'] for d in constants['data']]
 
-    def read(self, collection, matches=None, projection=None, skip=0, limit=1000):
+    def read(self, collection, matches=None, projection=None, sort=None, skip=0, limit=1000):
         if matches is None:
             matches = {}
         collection = self.get_collection_by_name(collection)
         skip *= limit
-        query = collection.find(matches, projection).skip(skip).limit(limit)
+        query = collection.find(filter=matches, projection=projection, sort=sort).skip(skip).limit(limit)
         return list(query)
 
     def write(self, document, collection="inventory"):
