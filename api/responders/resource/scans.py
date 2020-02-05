@@ -23,7 +23,9 @@ class Scans(ResponderBase):
     PROJECTION = {
         ID: True,
         "environment": True,
-        "status": True
+        "status": True,
+        "end_timestamp": True,
+        "start_timestamp": True
     }
 
     def on_get(self, req, resp):
