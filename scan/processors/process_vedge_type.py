@@ -7,6 +7,7 @@ from scan.processors.processor import Processor
 
 
 class ProcessVedgeType(Processor):
+    PREREQUISITES = []
 
     def __init__(self):
         super().__init__()

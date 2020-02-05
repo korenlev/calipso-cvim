@@ -17,6 +17,26 @@ class ProcessorsMetadataParser(MetadataParser):
         self.base_processor_class = None
         self.base_processor = None
         self.processors = []
+        self.prerequisites = {}
+
+    # Find out whether processor prerequisites chain form a dependency loop
+    # In this case none of the affected processors can run since they require
+    # that their prerequisite is run first
+    def find_prerequisite_loops(self, source, current_prerequisites) -> (bool, str):
+        if source in current_prerequisites:
+            return False, "Inside loop: {}".format(current_prerequisites)
+
+        if not current_prerequisites:
+            # Chain resolved
+            return True, ""
+
+        new_prerequisites = set()
+        for src in current_prerequisites:
+            new_prerequisites = new_prerequisites.union(self.prerequisites.get(src, set()))
+        if new_prerequisites == current_prerequisites:
+            return False, "Outside loop"
+
+        return self.find_prerequisite_loops(source, new_prerequisites)
 
     def validate_processor(self, processor_class):
         try:
@@ -28,15 +48,24 @@ class ProcessorsMetadataParser(MetadataParser):
         except ValueError:
             instance = None
 
-        if instance:
-            if isinstance(instance, self.base_processor.__class__):
-                self.processors.append(instance)
-            else:
-                self.add_error('Processor "{}" should subclass base processor "{}"'
-                               .format(processor_class, self.base_processor_class))
-        else:
-            self.add_error('Failed to import link finder class "{}"'
+        if not instance:
+            self.add_error('Failed to import processor class "{}"'
                            .format(processor_class))
+            return
+
+        if not isinstance(instance, self.base_processor.__class__):
+            self.add_error('Processor "{}" should subclass base processor "{}"'
+                           .format(processor_class, self.base_processor_class))
+            return
+
+        self.processors.append(instance)
+        self.prerequisites[processor_class] = set(getattr(instance, "PREREQUISITES", []))
+
+    def validate_prerequisites(self):
+        for class_name, prereqs in self.prerequisites.items():
+            resolves, error_msg = self.find_prerequisite_loops(class_name, prereqs)
+            if not resolves:
+                self.add_error("Processor {} has a dependency loop. Error msg: {}".format(class_name, error_msg))
 
     def validate_metadata(self, metadata: dict):
         super().validate_metadata(metadata)
@@ -59,6 +88,8 @@ class ProcessorsMetadataParser(MetadataParser):
         for processor in metadata[self.PROCESSORS]:
             self.validate_processor(processor_class=processor)
         metadata[self.PROCESSORS] = self.processors
+
+        self.validate_prerequisites()
 
         return len(self.errors) == 0
 

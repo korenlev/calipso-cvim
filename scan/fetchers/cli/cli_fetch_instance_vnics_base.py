@@ -57,27 +57,44 @@ class CliFetchInstanceVnicsBase(CliFetcher):
             results.extend(self.get_vnics_data(name, instance))
         return results
 
+    def update_instance_with_domain_data(self, instance, domain):
+        disks = domain["devices"].get("disk")
+        if disks:
+            instance["disks"] = [disks] if isinstance(disks, dict) else disks
+        vcpu = domain.get("vcpu")
+        if vcpu:
+            instance["vcpu"] = vcpu
+        self.inv.set(instance)
+
     def get_vnics_data(self, name, instance):
-        xml_string = self.run("virsh dumpxml " + name, instance["host"])
+        xml_string = self.run("virsh dumpxml {}".format(name), instance["host"])
         if not xml_string.strip():
             return []
+
         response = xmltodict.parse(xml_string)
-        if instance["uuid"] != response["domain"]["uuid"]:
+        domain = response["domain"]
+        if instance["uuid"] != domain["uuid"]:
             # this is the wrong instance - skip it
             return []
+
+        # Update instance with matching domain data
+        self.update_instance_with_domain_data(instance, domain)
+
         try:
-            vnics = response["domain"]["devices"]["interface"]
+            vnics = domain["devices"]["interface"]
         except KeyError:
             return []
+
         if isinstance(vnics, dict):
             vnics = [vnics]
         for v in vnics:
             self.set_vnic_properties(v, instance)
+
         return vnics
 
     @abc.abstractmethod
     def set_vnic_names(self, v, instance):
-        return ""
+        return
 
     def set_vnic_properties(self, v, instance):
         v.update({

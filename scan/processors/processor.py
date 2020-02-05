@@ -3,6 +3,7 @@ from base.utils.inventory_mgr import InventoryMgr
 
 
 class Processor(Fetcher):
+    PREREQUISITES = []
 
     def __init__(self):
         super().__init__()
