@@ -17,14 +17,15 @@ class ProcessVedgeType(Processor):
         super().setup(env, origin)
         self.environment_type = self.configuration.get_env_type()
 
-    def find_matching_vnic_and_port(self, vedge, port):
-        vnic, vedge_port = None, None
+    def find_matching_vnics(self, vedge, port):
+        vnics = []
         if self.environment_type != self.ENV_TYPE_KUBERNETES:
             if vedge["vedge_type"] == "SRIOV":
                 for vf in port["VFs"]:
                     vf_mac = vf.get("mac_address")
                     if not vf_mac or vf_mac == "00:00:00:00:00:00":
                         continue
+
                     vnic = self.inv.find_one({
                         "environment": self.env,
                         "type": "vnic",
@@ -32,14 +33,21 @@ class ProcessVedgeType(Processor):
                         "mac_address": vf_mac
                     })
                     if vnic:
+                        # In fact it's a VF+port combination
                         vedge_port = copy.deepcopy(port)
                         vedge_port.pop('VFs', None)
                         vedge_port.update(vf)
-                        break
+                        vnic['vedge_port'] = vedge_port
+                        vnic['vedge_id'] = vedge['id']
+                        vnics.append(vnic)
             else:
                 vnic = self.inv.get_by_id(self.env, '|'.join((vedge['host'], port["name"].replace("/", "."))))
-                vedge_port = port
-        return vnic, vedge_port
+                if vnic:
+                    vnic['vedge_port'] = port
+                    vnic['vedge_id'] = vedge['id']
+                    vnics.append(vnic)
+
+        return vnics
 
     def find_matching_vconnector(self, vedge, port):
         if self.configuration.has_network_plugin('VPP'):
@@ -103,13 +111,10 @@ class ProcessVedgeType(Processor):
 
     def update_matching_objects(self, vedge, port):
         vedge_type = vedge["vedge_type"]
-        vnic, vedge_port = self.find_matching_vnic_and_port(vedge, port)
-        if vnic:
-            vnic.update({
-                "vedge_id": vedge["id"],
-                "vedge_port": vedge_port
-            })
-            self.update_vnic_and_related_objects(vnic, vedge_type)
+        vnics = self.find_matching_vnics(vedge, port)
+        if vnics:
+            for vnic in vnics:
+                self.update_vnic_and_related_objects(vnic, vedge_type)
         else:
             vconnector = self.find_matching_vconnector(vedge, port)
             if vconnector and "vedge_type" not in vconnector:
