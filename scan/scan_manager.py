@@ -12,11 +12,12 @@ import datetime
 import time
 
 import pymongo
+from dateutil.relativedelta import relativedelta
 from functools import partial
 
 import urllib3
 
-from base.utils.constants import ScanStatus, EnvironmentFeatures
+from base.utils.constants import ScanStatus, EnvironmentFeatures, ScheduledScanInterval, ScheduledScanStatus
 from base.utils.elastic_access import ElasticAccess
 from base.utils.exceptions import ScanArgumentsError
 from base.utils.inventory_mgr import InventoryMgr
@@ -41,6 +42,17 @@ class ScanManager(Manager):
         "loglevel": "INFO"
     }
 
+    MIN_INTERVAL = 0.1  # To prevent needlessly frequent scans
+
+    INTERVALS = {
+        ScheduledScanInterval.ONCE: None,
+        ScheduledScanInterval.HOURLY: relativedelta(hours=1),
+        ScheduledScanInterval.DAILY: relativedelta(days=1),
+        ScheduledScanInterval.WEEKLY: relativedelta(weeks=1),
+        ScheduledScanInterval.MONTHLY: relativedelta(months=1),
+        ScheduledScanInterval.YEARLY: relativedelta(years=1),
+    }
+
     def __init__(self):
         self.args = self.get_args()
         super().__init__(log_directory=self.args.log_directory,
@@ -50,6 +62,7 @@ class ScanManager(Manager):
         self.scans_collection = None
         self.scheduled_scans_collection = None
         self.es_client = None
+        self.interval = None
 
     @staticmethod
     def get_args():
@@ -95,12 +108,9 @@ class ScanManager(Manager):
         self.inv = InventoryMgr()
         self.inv.set_collections()
         self.scans_collection = self.db_client.db[self.args.scans_collection]
-        self.scheduled_scans_collection = \
-            self.db_client.db[self.args.scheduled_scans_collection]
-        self.environments_collection = \
-            self.db_client.db[self.args.environments_collection]
-        self._update_document = \
-            partial(MongoAccess.update_document, self.scans_collection)
+        self.scheduled_scans_collection = self.db_client.db[self.args.scheduled_scans_collection]
+        self.environments_collection = self.db_client.db[self.args.environments_collection]
+        self._update_document = partial(MongoAccess.update_document, self.scans_collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
 
@@ -204,48 +214,44 @@ class ScanManager(Manager):
                 .update_many(filter={'name': {'$in': env_scans}},
                              update={'$set': {'scanned': False}})
 
-    def _submit_scan_request_for_schedule(self, scheduled_scan, interval, ts):
+    def _submit_scan_request_for_schedule(self, scheduled_scan, ts):
         scans = self.scans_collection
         new_scan = {
-            'status': 'submitted',
+            'status': ScanStatus.PENDING.value,
             'log_level': scheduled_scan['log_level'],
             'clear': scheduled_scan['clear'],
             'scan_only_inventory': scheduled_scan['scan_only_inventory'],
             'scan_only_links': scheduled_scan['scan_only_links'],
             'scan_only_cliques': scheduled_scan['scan_only_cliques'],
             'submit_timestamp': ts,
-            'interval': interval,
             'environment': scheduled_scan['environment'],
-            'inventory': 'inventory'
+            'es_index': scheduled_scan.get('es_index', False)
         }
         scans.insert_one(new_scan)
 
     def _set_scheduled_requests_next_run(self, scheduled_scan, interval, ts):
-        scheduled_scan['scheduled_timestamp'] = ts + self.INTERVALS[interval]
+        if self.INTERVALS[interval]:
+            scheduled_scan['scheduled_timestamp'] = ts + self.INTERVALS[interval]
+            status = scheduled_scan.get('status')
+            if not status or status == ScheduledScanStatus.UPCOMING.value:
+                scheduled_scan['status'] = ScheduledScanStatus.ONGOING.value
+        else:
+            scheduled_scan['status'] = ScheduledScanStatus.FINISHED.value
         doc_id = scheduled_scan.pop('_id')
         self.scheduled_scans_collection.update({'_id': doc_id}, scheduled_scan)
 
     def _prepare_scheduled_requests_for_interval(self, interval):
-        now = datetime.datetime.utcnow()
-
-        # first, submit a scan request where the scheduled time has come
+        now = datetime.datetime.now()
         condition = {'$and': [
-            {'freq': interval},
-            {'scheduled_timestamp': {'$lte': now}}
+            {'freq': interval.value},
+            {'scheduled_timestamp': {'$lte': now}},
+            {'status': {'$ne': ScheduledScanStatus.FINISHED.value}}
         ]}
-        matches = self.scheduled_scans_collection.find(condition) \
-            .sort('scheduled_timestamp', pymongo.ASCENDING)
+        matches = self.scheduled_scans_collection.find(condition).sort('scheduled_timestamp', pymongo.ASCENDING)
         for match in matches:
-            self._submit_scan_request_for_schedule(match, interval, now)
-            self._set_scheduled_requests_next_run(match, interval, now)
-
-        # now set scheduled time where it was not set yet (new scheduled scans)
-        condition = {'$and': [
-            {'freq': interval},
-            {'scheduled_timestamp': {'$exists': False}}
-        ]}
-        matches = self.scheduled_scans_collection.find(condition)
-        for match in matches:
+            # first, submit a scan request where the scheduled time has come
+            self._submit_scan_request_for_schedule(match, now)
+            # next, set the next run time for the scheduled scan
             self._set_scheduled_requests_next_run(match, interval, now)
 
     def _prepare_scheduled_requests(self):
@@ -271,19 +277,18 @@ class ScanManager(Manager):
             env = scan_request.get('environment')
             scan_feature = EnvironmentFeatures.SCANNING
             origin = ScanOrigin(origin_id=scan_request["_id"],
-                                origin_type=ScanOrigins.SCHEDULED
-                                            if scan_request.get("scheduled")
-                                            else ScanOrigins.MANUAL)
+                                origin_type=(ScanOrigins.SCHEDULED
+                                             if scan_request.get("scheduled")
+                                             else ScanOrigins.MANUAL))
             logger = FullLogger(name="scan-{}-logger".format(env),
                                 env=env, origin=origin,
                                 level=scan_request.get('loglevel', Logger.default_level))
             if not self.inv.is_feature_supported(env, scan_feature):
-                logger.error("Scanning is not supported for env '{}'"
-                               .format(scan_request.get('environment')))
+                logger.error("Scanning is not supported for env '{}'".format(scan_request.get('environment')))
                 self._fail_scan(scan_request)
                 return
 
-            scan_request['start_timestamp'] = datetime.datetime.utcnow()
+            scan_request['start_timestamp'] = datetime.datetime.now()
             scan_request['status'] = ScanStatus.RUNNING.value
             self._update_document(scan_request)
 
@@ -293,8 +298,7 @@ class ScanManager(Manager):
                 scan_args['origin'] = origin
                 scan_args['logger'] = logger
 
-                logger.info("Starting scan for '{}' environment"
-                              .format(scan_args.get('env')))
+                logger.info("Starting scan for '{}' environment".format(scan_args.get('env')))
                 logger.debug("Scan arguments: {}".format(scan_args))
                 result, message = ScanController().run(scan_args)
             except ScanArgumentsError as e:
@@ -321,7 +325,7 @@ class ScanManager(Manager):
                 # update the status and timestamps.
                 logger.info("Request '{}' has been scanned. ({})"
                             .format(scan_request['_id'], message))
-                end_time = datetime.datetime.utcnow()
+                end_time = datetime.datetime.now()
                 scan_request['end_timestamp'] = end_time
 
                 self._complete_scan(scan_request, message)
@@ -331,7 +335,8 @@ class ScanManager(Manager):
                             self.es_client.dump_collections(env)
                             self.es_client.dump_tree(env)
                         except Exception as e:
-                            self.log.error("Error occurred while trying to index documents to ElasticSearch: {}".format(e))
+                            self.log.error("Error occurred while trying "
+                                           "to index documents to ElasticSearch: {}".format(e))
                     elif not self._connect_es_client(self.args.es_config, retries=3):
                         self.log.error("ElasticSearch client is not connected, but post-scan indexing was requested")
 

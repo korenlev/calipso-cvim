@@ -17,6 +17,14 @@ class StringEnum(Enum):
     def __repr__(self):
         return repr(self.value)
 
+    @classmethod
+    def members(cls):
+        return (item.value for item in cls.__members__.values())
+
+    @classmethod
+    def members_list(cls):
+        return list(cls.members())
+
 
 class ConnectionTestType(StringEnum):
     AMQP = "AMQP"
@@ -41,6 +49,21 @@ class ScanStatus(StringEnum):
     COMPLETED_WITH_ERRORS = "completed_with_errors"
     FAILED = "failed"
     ABORTED = "aborted"
+
+
+class ScheduledScanInterval(StringEnum):
+    ONCE = "ONCE"
+    HOURLY = "HOURLY"
+    DAILY = "DAILY"
+    WEEKLY = "WEEKLY"
+    MONTHLY = "MONTHLY"
+    YEARLY = "YEARLY"
+
+
+class ScheduledScanStatus(StringEnum):
+    UPCOMING = "upcoming"
+    ONGOING = "ongoing"
+    FINISHED = "finished"
 
 
 class OperationalStatus(StringEnum):

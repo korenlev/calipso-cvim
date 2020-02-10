@@ -110,6 +110,8 @@ class EventManager(Manager):
     # to each listener that is still alive.
     SIGKILL_DELAY = 5  # in seconds
 
+    MIN_POLLING_INTERVAL = 0.1
+
     DEFAULTS = {
         "mongo_config": "",
         "collection": "environments_config",

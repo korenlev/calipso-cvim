@@ -7,10 +7,13 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from datetime import datetime
+
 from bson.objectid import ObjectId
 
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
+from base.utils.constants import ScheduledScanInterval, ScheduledScanStatus
 
 
 class ScheduledScans(ResponderBase):
@@ -23,13 +26,6 @@ class ScheduledScans(ResponderBase):
         "scheduled_timestamp": True,
         "freq": True
     }
-    SCAN_FREQ = [
-        "YEARLY",
-        "MONTHLY",
-        "WEEKLY",
-        "DAILY",
-        "HOURLY"
-    ]
 
     def on_get(self, req, resp):
         self.log.debug("Getting scheduled scans")
@@ -40,7 +36,7 @@ class ScheduledScans(ResponderBase):
             "id": self.require(ObjectId, convert_to_type=True),
             "freq": self.require(str,
                                  validate=DataValidate.LIST,
-                                 requirement=self.SCAN_FREQ),
+                                 requirement=ScheduledScanInterval.members_list()),
             "page": self.require(int, convert_to_type=True),
             "page_size": self.require(int, convert_to_type=True)
         }
@@ -72,16 +68,27 @@ class ScheduledScans(ResponderBase):
             "freq": self.require(str,
                                  mandatory=True,
                                  validate=DataValidate.LIST,
-                                 requirement=self.SCAN_FREQ),
+                                 requirement=ScheduledScanInterval.members_list()),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
                                       requirement=log_levels),
             "clear": self.require(bool, convert_to_type=True),
-            "submit_timestamp": self.require(str, mandatory=True),
+            "scheduled_timestamp": self.require(str),
             "es_index": self.require(bool, convert_to_type=True, default=False)
         }
-        self.validate_query_data(scheduled_scan, scheduled_scan_requirements)
-        self.check_and_convert_datetime("submit_timestamp", scheduled_scan)
+        self.validate_query_data(scheduled_scan, scheduled_scan_requirements, can_be_empty_keys=["scheduled_timestamp",
+                                                                                                 "es_index"])
+
+        self.check_and_convert_datetime("scheduled_timestamp", scheduled_scan)
+
+        submit_timestamp = datetime.now()
+        if not scheduled_scan.get("scheduled_timestamp"):
+            if scheduled_scan["freq"] == ScheduledScanInterval.ONCE:
+                self.bad_request("scheduled_timestamp field is mandatory "
+                                 "when scheduled scan frequency is set to 'ONCE'")
+            scheduled_scan["scheduled_timestamp"] = submit_timestamp
+        elif scheduled_scan["scheduled_timestamp"] < submit_timestamp:
+            self.bad_request("scheduled_timestamp should be a datetime in the future")
 
         scan_only_keys = [
             k for k in scheduled_scan if k.startswith("scan_only_") and scheduled_scan[k] is True
@@ -92,7 +99,11 @@ class ScheduledScans(ResponderBase):
                              .format(", ".join(scan_only_keys)))
 
         env_name = scheduled_scan.pop("env_name")
-        scheduled_scan["environment"] = env_name
+        scheduled_scan.update({
+            "environment": env_name,
+            "submit_timestamp": submit_timestamp,
+            "status": ScheduledScanStatus.UPCOMING.value,
+        })
         if not self.check_environment_name(env_name):
             self.bad_request("unknown environment: {}".format(env_name))
 
