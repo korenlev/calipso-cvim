@@ -155,7 +155,7 @@ class EventManager(Manager):
                             default=EventManager.DEFAULTS["interval"],
                             help="Interval between collection polls "
                                  "(must be more than {} seconds. Default: {})"
-                                 .format(EventManager.MIN_INTERVAL,
+                                 .format(EventManager.MIN_POLLING_INTERVAL,
                                          EventManager.DEFAULTS["interval"]))
         parser.add_argument("-B", "--base_delay", nargs="?", type=int,
                             default=ProcessMonitor.RETRY_DELAY_LIMIT,
@@ -186,7 +186,7 @@ class EventManager(Manager):
         self.inv = InventoryMgr()
         self.inv.set_collections(self.args.inventory)
         self.collection = self.db_client.db[self.args.collection]
-        self.interval = max(self.MIN_INTERVAL, self.args.interval)
+        self.interval = max(self.MIN_POLLING_INTERVAL, self.args.interval)
         ProcessMonitor.BASE_DELAY = max(1, self.args.base_delay)
         ProcessMonitor.RETRY_DELAY_LIMIT = max(ProcessMonitor.MIN_RETRY_DELAY_LIMIT,
                                                self.args.max_delay)
