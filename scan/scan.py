@@ -241,6 +241,7 @@ class ScanController(Fetcher):
             plan.child_id = plan.object_id
             plan.object_id = plan.parent_id
             if plan.type_to_scan.endswith("_folder"):
+                plan.child_type = scanned_object["type"]
                 class_module = plan.child_type + "s_root"
             else:
                 class_module = plan.type_to_scan
