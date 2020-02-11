@@ -243,7 +243,7 @@ class ScanManager(Manager):
     def _prepare_scheduled_requests_for_interval(self, interval):
         now = datetime.datetime.now()
         condition = {'$and': [
-            {'freq': interval.value},
+            {'recurrence': interval.value},
             {'scheduled_timestamp': {'$lte': now}},
             {'status': {'$ne': ScheduledScanStatus.FINISHED.value}}
         ]}

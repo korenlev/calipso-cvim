@@ -24,7 +24,7 @@ class ScheduledScans(ResponderBase):
         ID: True,
         "environment": True,
         "scheduled_timestamp": True,
-        "freq": True
+        "recurrence": True
     }
 
     def on_get(self, req, resp):
@@ -34,9 +34,9 @@ class ScheduledScans(ResponderBase):
         filters_requirements = {
             "env_name": self.require(str, mandatory=True),
             "id": self.require(ObjectId, convert_to_type=True),
-            "freq": self.require(str,
-                                 validate=DataValidate.LIST,
-                                 requirement=ScheduledScanInterval.members_list()),
+            "recurrence": self.require(str,
+                                       validate=DataValidate.LIST,
+                                       requirement=ScheduledScanInterval.members_list()),
             "page": self.require(int, convert_to_type=True),
             "page_size": self.require(int, convert_to_type=True)
         }
@@ -65,10 +65,10 @@ class ScheduledScans(ResponderBase):
             "scan_only_links": self.require(bool, convert_to_type=True, default=False),
             "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
             "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
-            "freq": self.require(str,
-                                 mandatory=True,
-                                 validate=DataValidate.LIST,
-                                 requirement=ScheduledScanInterval.members_list()),
+            "recurrence": self.require(str,
+                                       mandatory=True,
+                                       validate=DataValidate.LIST,
+                                       requirement=ScheduledScanInterval.members_list()),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
                                       requirement=log_levels),
@@ -83,9 +83,9 @@ class ScheduledScans(ResponderBase):
 
         submit_timestamp = datetime.now()
         if not scheduled_scan.get("scheduled_timestamp"):
-            if scheduled_scan["freq"] == ScheduledScanInterval.ONCE:
+            if scheduled_scan["recurrence"] == ScheduledScanInterval.ONCE:
                 self.bad_request("scheduled_timestamp field is mandatory "
-                                 "when scheduled scan frequency is set to 'ONCE'")
+                                 "when scheduled scan recurrence is set to 'ONCE'")
             scheduled_scan["scheduled_timestamp"] = submit_timestamp
         elif scheduled_scan["scheduled_timestamp"] < submit_timestamp:
             self.bad_request("scheduled_timestamp should be a datetime in the future")
@@ -116,7 +116,7 @@ class ScheduledScans(ResponderBase):
 
     def build_query(self, filters):
         query = {}
-        filters_keys = ["freq"]
+        filters_keys = ["recurrence"]
         self.update_query_with_filters(filters, filters_keys, query)
 
         _id = filters.get("id")

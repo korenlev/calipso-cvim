@@ -25,22 +25,21 @@ from base.utils.mongo_access import MongoAccess
 class App:
 
     ROUTE_DECLARATIONS = {
+        "/auth/tokens": "auth.tokens.Tokens",
+        "/aggregates": "resource.aggregates.Aggregates",
+        "/clique_constraints": "resource.clique_constraints.CliqueConstraints",
+        "/clique_types": "resource.clique_types.CliqueTypes",
+        "/cliques": "resource.cliques.Cliques",
+        "/connection_tests": "resource.connection_tests.ConnectionTests",
+        "/constants": "resource.constants.Constants",
+        "/environment_configs": "resource.environment_configs.EnvironmentConfigs",
         "/inventory": "resource.inventory.Inventory",
         "/links": "resource.links.Links",
         "/messages": "resource.messages.Messages",
-        "/cliques": "resource.cliques.Cliques",
-        "/clique_types": "resource.clique_types.CliqueTypes",
-        "/clique_constraints": "resource.clique_constraints.CliqueConstraints",
+        "/monitoring_config_templates": "resource.monitoring_config_templates.MonitoringConfigTemplates",
         "/scans": "resource.scans.Scans",
         "/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
-        "/constants": "resource.constants.Constants",
-        "/monitoring_config_templates":
-            "resource.monitoring_config_templates.MonitoringConfigTemplates",
-        "/aggregates": "resource.aggregates.Aggregates",
-        "/environment_configs":
-            "resource.environment_configs.EnvironmentConfigs",
-        "/connection_tests": "resource.connection_tests.ConnectionTests",
-        "/auth/tokens": "auth.tokens.Tokens"
+        "/timezone": "resource.timezone.Timezone"
     }
 
     responders_path = "api.responders"

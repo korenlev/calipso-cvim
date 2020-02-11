@@ -1,8 +1,10 @@
+import datetime
+
 import requests
 import json
 import time
-from datetime import datetime
 import argparse
+from dateutil.parser import parse as dateutil_parse
 
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -21,6 +23,8 @@ from sys import exit
 
 
 class CalipsoClient:
+
+    RECURRENCE_OPTIONS = ["NOW", "ONCE", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
 
     def __init__(self, api_host, api_port, api_password, es_index=False, verify_tls=False):
         self.api_server = "[{}]".format(api_host) if ":" in api_host and "[" not in api_host else api_host
@@ -111,7 +115,7 @@ class CalipsoClient:
         scan_status = "pending"
         while scan_status != "completed" and scan_status != "completed_with_errors":
             scan_doc = self.scan_check(environment=environment,
-                                     doc_id=scan_doc_id)
+                                       doc_id=scan_doc_id)
             scan_status = scan_doc["status"]
             print("Wait for scan to complete, scan status: {}".format(scan_status))
             time.sleep(2)
@@ -124,8 +128,8 @@ class CalipsoClient:
         else:
             exit(0)
 
-    def scan_request(self, environment, freq="NOW"):
-        if freq == "NOW":
+    def scan_request(self, environment, recurrence="NOW", scheduled_timestamp=None):
+        if recurrence == "NOW":
             request_payload = {
                 "log_level": "warning",
                 "clear": True,
@@ -138,7 +142,7 @@ class CalipsoClient:
             return self.call_api('post', 'scans', request_payload)
         else:
             request_payload = {
-                "freq": freq,
+                "recurrence": recurrence,
                 "log_level": "warning",
                 "clear": True,
                 "scan_only_links": False,
@@ -146,7 +150,7 @@ class CalipsoClient:
                 "env_name": environment,
                 "es_index": self.es_index,
                 "scan_only_inventory": False,
-                "submit_timestamp": datetime.now().isoformat()
+                "scheduled_timestamp": scheduled_timestamp
             }
             return self.call_api('post', 'scheduled_scans', request_payload)
 
@@ -191,10 +195,17 @@ def run():
                         required=False)
     parser.add_argument("--scan",
                         help="actively discover the specific cloud environment -"
-                             " options: NOW/HOURLY/DAILY/WEEKLY/MONTHLY/YEARLY"
-                             " (default=None)",
+                             " options: {}"
+                             " (default=None)".format("/".join(CalipsoClient.RECURRENCE_OPTIONS)),
                         type=str,
                         default=None,
+                        required=False)
+    parser.add_argument("--scan_time",
+                        help="specify the local time for the first scan in recurring series - "
+                             "use 'NOW' for an immediate first scan or specify a datetime in 2000-01-01T01:01 format"
+                             " (default=NOW)",
+                        type=str,
+                        default="NOW",
                         required=False)
     parser.add_argument("--method",
                         help="method to use on the API server -"
@@ -249,12 +260,11 @@ def run():
                         default=False,
                         action='store_true',
                         required=False)
-
     parser.add_argument("--version",
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.2')
+                        version='%(prog)s version: 0.7.6')
 
     args = parser.parse_args()
 
@@ -287,11 +297,10 @@ def run():
         cc.pp_json(env_reply)
         exit(0)
 
-    scan_options = ["NOW", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
     if args.scan is not None:
         if args.environment is None:
             fatal("Scan request requires an environment")
-        if args.scan not in scan_options:
+        if args.scan not in CalipsoClient.RECURRENCE_OPTIONS:
             fatal("Unaccepted scan option, use --help for more details")
         if args.method is not None:
             fatal("Method not needed for scan requests, please remove")
@@ -301,18 +310,30 @@ def run():
             fatal("Endpoint not needed for scan requests, please remove")
         else:
             if args.scan == "NOW":
+                if args.scan_time != "NOW":
+                    fatal("--scan_time can only be specified for recurring scans")
                 cc.scan_handler(environment=args.environment)
             else:
+                scheduled_timestamp = None
+                if args.scan_time and args.scan_time != "NOW":
+                    try:
+                        scheduled_timestamp = dateutil_parse(args.scan_time).strftime("%Y-%m-%dT%H:%M")
+                    except (ValueError, OverflowError):
+                        fatal("Invalid datetime format for --scan_time argument")
+
                 # post scan schedule, for specific environment, get doc_id
                 schedule_reply = cc.scan_request(environment=args.environment,
-                                                 freq=args.scan)
+                                                 recurrence=args.scan,
+                                                 scheduled_timestamp=scheduled_timestamp if scheduled_timestamp else None)
                 schedule_doc_id = schedule_reply["id"]
                 time.sleep(2)
                 schedule_doc = cc.scan_check(environment=args.environment,
                                              doc_id=schedule_doc_id,
                                              scheduled=True)
-                print("Scheduled scan at: {}\nSubmitted at: {}\nScan frequency: {}"
-                      .format(schedule_doc['scheduled_timestamp'], schedule_doc['submit_timestamp'], schedule_doc['freq']))
+                print("Scheduled scan at: {}\nSubmitted at: {}\nScan recurrence: {}"
+                      .format(schedule_doc['scheduled_timestamp'],
+                              schedule_doc['submit_timestamp'],
+                              schedule_doc['recurrence']))
             exit(0)
 
     if args.environment is not None and args.endpoint not in per_environment_collections:
