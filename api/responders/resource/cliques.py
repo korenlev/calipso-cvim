@@ -50,7 +50,7 @@ class Cliques(ResponderBase):
         query = self.build_query(filters)
 
         if self.ID in query:
-            clique = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+            clique = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, clique)
         else:
             cliques_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
@@ -58,7 +58,7 @@ class Cliques(ResponderBase):
             self.set_ok_response(resp, {"cliques": cliques_ids})
 
     def build_query(self, filters):
-        query = {}
+        query = super().build_query(filters)
         filters_keys = ['focal_point', 'focal_point_object_id', 'focal_point_type']
         self.update_query_with_filters(filters, filters_keys, query)
         link_type = filters.get('link_type')
@@ -67,9 +67,4 @@ class Cliques(ResponderBase):
         link_id = filters.get('link_id')
         if link_id:
             query['links_detailed._id'] = link_id
-        _id = filters.get('id')
-        if _id:
-            query[self.ID] = _id
-        if 'env_name' in filters:
-            query['environment'] = filters['env_name']
         return query

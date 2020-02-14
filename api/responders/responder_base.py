@@ -28,11 +28,31 @@ class ResponderBase(DataValidate, DictNamingConverter):
                              "environments_config",
                              "messages",
                              "scheduled_scans"]
+    ID = "_id"
 
     def __init__(self):
         super().__init__()
         self.log = FullLogger()
         self.inv = InventoryMgr()
+
+    ######################
+    #     Responses      #
+    ######################
+
+    @staticmethod
+    def _set_error_response(title="", code=HTTPStatus.BAD_REQUEST, message="", body=""):
+        code = str(code.value)
+        if body:
+            raise exceptions.CalipsoApiException(code, body, message)
+
+        body = jsonify({
+            "error": {
+                "message": message,
+                "code": code,
+                "title": title
+            }
+        })
+        raise exceptions.CalipsoApiException(code, body, message)
 
     def _set_successful_response(self, resp, body="", status=HTTPStatus.OK):
         if not isinstance(body, str):
@@ -50,21 +70,6 @@ class ResponderBase(DataValidate, DictNamingConverter):
     def set_created_response(self, resp, body=""):
         return self._set_successful_response(resp, body, HTTPStatus.CREATED)
 
-    @staticmethod
-    def _set_error_response(title="", code=HTTPStatus.BAD_REQUEST, message="", body=""):
-        code = str(code.value)
-        if body:
-            raise exceptions.CalipsoApiException(code, body, message)
-
-        body = jsonify({
-            "error": {
-                "message": message,
-                "code": code,
-                "title": title
-            }
-        })
-        raise exceptions.CalipsoApiException(code, body, message)
-
     def bad_request(self, message="Invalid request content"):
         self._set_error_response("Bad Request", HTTPStatus.BAD_REQUEST, message)
 
@@ -77,6 +82,10 @@ class ResponderBase(DataValidate, DictNamingConverter):
     def conflict(self, message="The posted data conflicts with the existing data"):
         self._set_error_response("Conflict", HTTPStatus.CONFLICT, message)
 
+    ######################
+    # Query manipulation #
+    ######################
+
     def validate_query_data(self, data, data_requirements,
                             additional_key_reg=None,
                             can_be_empty_keys=None):
@@ -85,56 +94,6 @@ class ResponderBase(DataValidate, DictNamingConverter):
                                            can_be_empty_keys)
         if error_message:
             self.bad_request(error_message)
-
-    def check_and_convert_datetime(self, time_key, data):
-        time = data.get(time_key)
-
-        if time:
-            time = time.replace(' ', '+')
-            try:
-                data[time_key] = parser.parse(time)
-            except (ValueError, OverflowError):
-                self.bad_request("{0} must follow ISO 8610 date and time format,"
-                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
-
-    def check_environment_name(self, env_name):
-        query = {"name": env_name}
-        objects = self.read("environments_config", query)
-        if not objects:
-            return False
-        return True
-
-    def get_object_by_id(self, collection, query, id_field):
-        objs = self.read(collection, query)
-        if not objs:
-            env_name = query.get("environment")
-            if env_name and not self.check_environment_name(env_name):
-                self.bad_request("unknown environment: " + env_name)
-            self.not_found()
-
-        obj = objs[0]
-        stringify_doc(obj)
-        if id_field == "_id":
-            obj['id'] = obj.get('_id')
-
-        return obj
-
-    def get_objects_list(self, collection, query, page=0, page_size=1000, projection=None, sort=None):
-        objects = self.read(collection=collection, matches=query, projection=projection, sort=sort,
-                            skip=page, limit=page_size)
-        if not objects:
-            env_name = query.get("environment")
-            if env_name and not self.check_environment_name(env_name):
-                self.bad_request("unknown environment: " + env_name)
-            self.not_found()
-        for obj in objects:
-            if "id" not in obj and "_id" in obj:
-                obj["id"] = str(obj["_id"])
-            if "_id" in obj:
-                del obj["_id"]
-
-        stringify_doc(objects)
-        return objects
 
     def parse_query_params(self, req):
         query_string = req.query_string
@@ -151,18 +110,16 @@ class ResponderBase(DataValidate, DictNamingConverter):
             self.bad_request(str("Invalid query string: {0}".format(str(e))))
 
     @staticmethod
-    def replace_colon_with_dot(s):
-        return s.replace(':', '.')
-
-    @staticmethod
-    def get_pagination(filters):
-        page_size = filters.get('page_size', 1000)
-        page = filters.get('page', 0)
-        return page, page_size
-
-    @staticmethod
     def update_query_with_filters(filters, filters_keys, query):
         query.update({k: filters[k] for k in filters_keys if filters.get(k)})
+
+    def build_query(self, filters):
+        query = {}
+        _id = filters.get("id")
+        if _id:
+            query[self.ID] = _id
+        query['environment'] = filters['env_name']
+        return query
 
     @staticmethod
     def get_content_from_request(req):
@@ -183,6 +140,10 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
         return error, content
 
+    ######################
+    #     DB Helpers     #
+    ######################
+
     def get_collection_by_name(self, name):
         if name in self.UNCHANGED_COLLECTIONS:
             return self.inv.db[name]
@@ -194,6 +155,66 @@ class ResponderBase(DataValidate, DictNamingConverter):
             self.log.error('No constants with name "{}" exist'.format(name))
 
         return [d['value'] for d in constants['data']]
+
+    def check_environment_name(self, env_name):
+        query = {"name": env_name}
+        objects = self.read("environments_config", query)
+        if not objects:
+            return False
+        return True
+
+    def get_object_by_id(self, collection, query):
+        objs = self.read(collection, query)
+        if not objs:
+            env_name = query.get("environment")
+            if env_name and not self.check_environment_name(env_name):
+                self.bad_request("unknown environment: " + env_name)
+            self.not_found()
+
+        obj = objs[0]
+        stringify_doc(obj)
+        if self.ID == "_id":
+            obj['id'] = obj.get('_id')
+
+        return obj
+
+    def get_objects_list(self, collection, query, page=0, page_size=1000, projection=None, sort=None):
+        objects = self.read(collection=collection, matches=query, projection=projection, sort=sort,
+                            skip=page, limit=page_size)
+        if not objects:
+            env_name = query.get("environment")
+            if env_name and not self.check_environment_name(env_name):
+                self.bad_request("unknown environment: {}".format(env_name))
+            self.not_found()
+        for obj in objects:
+            if "id" not in obj and "_id" in obj:
+                obj["id"] = str(obj["_id"])
+            if "_id" in obj:
+                del obj["_id"]
+
+        stringify_doc(objects)
+        return objects
+
+    def delete_object_by_id(self, collection, query):
+        if self.ID not in query:
+            self.bad_request("Object ID must be specified for deletion")
+
+        env_name = query.get("environment")
+        if not env_name or not self.check_environment_name(env_name):
+            self.bad_request("Unknown environment: {}".format(env_name))
+
+        return self.delete(collection, query, delete_one=True)
+
+    def delete_objects(self, collection, query):
+        env_name = query.get("environment")
+        if not env_name or not self.check_environment_name(env_name):
+            self.bad_request("Unknown environment: {}".format(env_name))
+
+        return self.delete(collection, query, delete_one=False)
+
+    ######################
+    #      DB CRUD       #
+    ######################
 
     def read(self, collection, matches=None, projection=None, sort=None, skip=0, limit=1000):
         if matches is None:
@@ -212,11 +233,40 @@ class ResponderBase(DataValidate, DictNamingConverter):
         except errors.WriteError as e:
             self.bad_request('Failed to create resource for {0}'.format(str(e)))
 
+    def delete(self, collection, query, delete_one=True):
+        if delete_one is True:
+            result = self.get_collection_by_name(collection).delete_one(query)
+            if result.deleted_count == 0:
+                self.not_found("Document not found")
+            return result
+        else:
+            return self.get_collection_by_name(collection).delete_many(query)
+
+    ######################
+    #       Utils        #
+    ######################
+
+    def check_and_convert_datetime(self, time_key, data):
+        time = data.get(time_key)
+
+        if time:
+            time = time.replace(' ', '+')
+            try:
+                data[time_key] = parser.parse(time)
+            except (ValueError, OverflowError):
+                self.bad_request("{0} must follow ISO 8610 date and time format,"
+                                 "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
+
+    @staticmethod
+    def replace_colon_with_dot(s):
+        return s.replace(':', '.')
+
     @staticmethod
     def get_duplicate_key_values(err_msg):
         return ["'{0}'".format(key) for key in re.findall(r'"([^",]+)"', err_msg)]
 
-    def aggregate(self, pipeline, collection):
-        collection = self.get_collection_by_name(collection)
-        data = collection.aggregate(pipeline)
-        return list(data)
+    @staticmethod
+    def get_pagination(filters):
+        page_size = filters.get('page_size', 1000)
+        page = filters.get('page', 0)
+        return page, page_size

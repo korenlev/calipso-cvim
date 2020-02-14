@@ -50,7 +50,7 @@ class Scans(ResponderBase):
 
         query = self.build_query(filters)
         if self.ID in query:
-            scan = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+            scan = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, scan)
         elif filters.get("latest") is True:
             scans = self.get_latest_scan(query)
@@ -110,14 +110,10 @@ class Scans(ResponderBase):
                                      page=0, page_size=1, sort=[("submit_timestamp", -1)])
 
     def build_query(self, filters):
-        query = {}
+        query = super().build_query(filters)
         filters_keys = ["status"]
         self.update_query_with_filters(filters, filters_keys, query)
         base_object = filters.get("base_object")
         if base_object:
             query['object_id'] = base_object
-        _id = filters.get("id")
-        if _id:
-            query[self.ID] = _id
-        query['environment'] = filters['env_name']
         return query

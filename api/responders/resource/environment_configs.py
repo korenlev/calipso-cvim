@@ -236,7 +236,7 @@ class EnvironmentConfigs(ResponderBase):
         query = self.build_query(filters)
 
         if self.ID in query:
-            environment_config = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+            environment_config = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, environment_config)
         else:
             objects_ids = self.get_objects_list(collection=self.COLLECTION, query=query,

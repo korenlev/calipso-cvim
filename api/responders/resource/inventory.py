@@ -46,7 +46,7 @@ class Inventory(ResponderBase):
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
-            obj = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+            obj = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, obj)
         else:
             objects = self.get_objects_list(collection=self.COLLECTION, query=query,

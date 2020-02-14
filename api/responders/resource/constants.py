@@ -23,5 +23,5 @@ class Constants(ResponderBase):
         }
         self.validate_query_data(filters, filters_requirements)
         query = {"name": filters['name']}
-        constant = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+        constant = self.get_object_by_id(collection=self.COLLECTION, query=query)
         self.set_ok_response(resp, constant)

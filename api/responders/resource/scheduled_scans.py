@@ -44,9 +44,9 @@ class ScheduledScans(ResponderBase):
         self.validate_query_data(filters, filters_requirements)
         page, page_size = self.get_pagination(filters)
 
-        query = self.build_query(filters)
+        query = self.build_get_query(filters)
         if self.ID in query:
-            scheduled_scan = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+            scheduled_scan = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, scheduled_scan)
         else:
             scheduled_scan_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
@@ -114,13 +114,33 @@ class ScheduledScans(ResponderBase):
         }
         self.set_created_response(resp, response_body)
 
-    def build_query(self, filters):
-        query = {}
+    def on_delete(self, req, resp):
+        self.log.debug("Deleting scheduled scans")
+        filters = self.parse_query_params(req)
+
+        filters_requirements = {
+            "env_name": self.require(str, mandatory=True),
+            "id": self.require(ObjectId, convert_to_type=True),
+            "all": self.require(bool, convert_to_type=True),
+        }
+
+        self.validate_query_data(filters, filters_requirements)
+        query = self.build_query(filters)
+
+        result = None
+        if self.ID in query:
+            if filters.get("all") is True:
+                self.bad_request("Only one of 'id=<objectId>' or 'all=true' should be specified in query arguments")
+            result = self.delete_object_by_id(self.COLLECTION, query)
+        elif filters.get("all") is True:
+            result = self.delete_objects(self.COLLECTION, query)
+        else:
+            self.bad_request("Either 'id=<objectId>' or 'all=true' should be specified in query arguments")
+
+        self.set_ok_response(resp, {"count": result.deleted_count})
+
+    def build_get_query(self, filters):
+        query = super().build_query(filters)
         filters_keys = ["recurrence"]
         self.update_query_with_filters(filters, filters_keys, query)
-
-        _id = filters.get("id")
-        if _id:
-            query["_id"] = _id
-        query['environment'] = filters['env_name']
         return query

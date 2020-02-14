@@ -45,7 +45,7 @@ class MonitoringConfigTemplates(ResponderBase):
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
-            template = self.get_object_by_id(collection=self.COLLECTION, query=query, id_field=self.ID)
+            template = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, template)
         else:
             templates = self.get_objects_list(collection=self.COLLECTION, query=query,
