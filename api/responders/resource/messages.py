@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from bson import ObjectId
+
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
 
@@ -48,7 +50,7 @@ class Messages(ResponderBase):
         self.check_and_convert_datetime('start_time', filters)
         self.check_and_convert_datetime('end_time', filters)
 
-        query = self.build_query(filters)
+        query = self.build_get_query(filters)
         if self.ID in query:
             message = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, message)
@@ -57,7 +59,33 @@ class Messages(ResponderBase):
                                                 page=page, page_size=page_size, projection=self.PROJECTION)
             self.set_ok_response(resp, {'messages': objects_ids})
 
-    def build_query(self, filters):
+    def on_delete(self, req, resp):
+        # TODO: move to responder_base?
+        self.log.debug("Deleting messages")
+        filters = self.parse_query_params(req)
+
+        filters_requirements = {
+            "env_name": self.require(str, mandatory=True),
+            "id": self.require(str, convert_to_type=True),
+            "all": self.require(bool, convert_to_type=True),
+        }
+
+        self.validate_query_data(filters, filters_requirements)
+        query = self.build_query(filters)
+
+        result = None
+        if self.ID in query:
+            if filters.get("all") is True:
+                self.bad_request("Only one of 'id=<objectId>' or 'all=true' should be specified in query arguments")
+            result = self.delete_object_by_id(self.COLLECTION, query)
+        elif filters.get("all") is True:
+            result = self.delete_objects(self.COLLECTION, query)
+        else:
+            self.bad_request("Either 'id=<objectId>' or 'all=true' should be specified in query arguments")
+
+        self.set_ok_response(resp, {"count": result.deleted_count})
+
+    def build_get_query(self, filters):
         query = {}
         filters_keys = ['source_system', 'id', 'level', 'related_object',
                         'related_object_type']

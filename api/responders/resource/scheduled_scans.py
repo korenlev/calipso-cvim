@@ -115,6 +115,7 @@ class ScheduledScans(ResponderBase):
         self.set_created_response(resp, response_body)
 
     def on_delete(self, req, resp):
+        # TODO: move to responder_base?
         self.log.debug("Deleting scheduled scans")
         filters = self.parse_query_params(req)
 
