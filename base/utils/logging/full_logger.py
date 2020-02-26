@@ -20,12 +20,14 @@ class FullLogger(Logger):
     def __init__(self, name: str = None, env: str = None, origin: Origin = None,
                  log_file: str = None, level: str = Logger.default_level):
         super().__init__(logger_name=name if name else "{}-Full".format(self.PROJECT_NAME),
-                         level=level)
+                         level=level if level else Logger.default_level)
         self.env = env
         self.origin = origin
 
         # Console handler
-        self.add_handler(logging.StreamHandler())
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(self.level)
+        self.add_handler(stream_handler)
 
         # Message handler
         self.add_handler(MongoLoggingHandler(env=env, origin=origin,

@@ -17,4 +17,6 @@ class ConsoleLogger(Logger):
     def __init__(self, name: str = None, level: str = Logger.default_level):
         super().__init__(logger_name=name if name else "{}-Console".format(self.PROJECT_NAME),
                          level=level)
-        self.add_handler(logging.StreamHandler())
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(self.level)
+        self.add_handler(stream_handler)
