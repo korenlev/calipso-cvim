@@ -7,16 +7,17 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import json
-from datetime import datetime
-import time
 import argparse
-from bson import ObjectId
+import json
+import time
+from datetime import datetime
 
+from bson import ObjectId
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
 from calipso_replication_client import MongoConnector
+from version import VERSION
 
 
 class ESIndex(object):
@@ -282,7 +283,7 @@ def run():
                         help="get a reply back with calipso_elastic_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.7')
+                        version='%(prog)s version: {}'.format(VERSION))
 
     args = parser.parse_args()
     es = ElasticClient(args.m_server, args.m_port, args.m_user, args.m_pwd, "calipso")

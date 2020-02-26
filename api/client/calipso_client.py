@@ -1,10 +1,11 @@
-import datetime
-
-import requests
+import argparse
 import json
 import time
-import argparse
+
+import requests
 from dateutil.parser import parse as dateutil_parse
+
+from version import VERSION
 
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -264,7 +265,7 @@ def run():
                         help="get a reply back with calipso_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.7')
+                        version='%(prog)s version: {}'.format(VERSION))
 
     args = parser.parse_args()
 

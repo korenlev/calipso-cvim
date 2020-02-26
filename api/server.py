@@ -13,6 +13,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.six import iteritems
 
 from api.app import App
+from api.client.version import VERSION
 
 
 # This class is used to integrate Gunicorn with falcon application
@@ -68,6 +69,11 @@ def get_args():
     parser.add_argument("-t", "--token-lifetime", nargs="?", type=int,
                         default=86400,
                         help="lifetime of the token")
+    parser.add_argument("--version",
+                        help="get Calipso API version",
+                        action='version',
+                        default=None,
+                        version='Calipso API version: {}'.format(VERSION))
     args = parser.parse_args()
     return args
 

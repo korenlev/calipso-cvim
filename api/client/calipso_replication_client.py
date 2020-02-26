@@ -1,15 +1,18 @@
 import argparse
 import copy
 import json
+import ssl
 import subprocess
 import time
-import ssl
-from pymongo import MongoClient
 from sys import exit
+
+from pymongo import MongoClient
 from six.moves import input
 from six.moves.urllib.parse import quote_plus
-
 from yaml import safe_load as yaml_load
+
+from version import VERSION
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -292,7 +295,7 @@ def run():
                         help="get a reply back with replication_client version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.7')
+                        version='%(prog)s version: {}'.format(VERSION))
 
     args = parser.parse_args()
 

@@ -1,8 +1,11 @@
-from calipso_client import CalipsoClient
-import csv
 import argparse
-import dateutil.parser
+import csv
 from datetime import datetime
+
+import dateutil.parser
+
+from calipso_client import CalipsoClient
+from version import VERSION
 
 
 class CalipsoCsvTool:
@@ -72,7 +75,7 @@ def run():
                         help="get a reply back with csv_tool version",
                         action='version',
                         default=None,
-                        version='%(prog)s version: 0.7.7')
+                        version='%(prog)s version: {}'.format(VERSION))
 
     args = parser.parse_args()
 
