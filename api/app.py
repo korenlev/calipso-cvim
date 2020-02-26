@@ -33,6 +33,7 @@ class App:
         "/connection_tests": "resource.connection_tests.ConnectionTests",
         "/constants": "resource.constants.Constants",
         "/environment_configs": "resource.environment_configs.EnvironmentConfigs",
+        "/health": "resource.health.Health",
         "/inventory": "resource.inventory.Inventory",
         "/links": "resource.links.Links",
         "/messages": "resource.messages.Messages",

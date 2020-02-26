@@ -7,16 +7,14 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from bson import ObjectId
-
-from api.responders.responder_base import ResponderBase
+from api.responders.responder_base import ResponderWithOnDelete
 from api.validation.data_validate import DataValidate
 
 
-class Messages(ResponderBase):
+class Messages(ResponderWithOnDelete):
 
     COLLECTION = 'messages'
-    ID = "id"
+    ID = "_id"
     PROJECTION = {
         ID: True,
         "environment": True,
@@ -59,36 +57,9 @@ class Messages(ResponderBase):
                                                 page=page, page_size=page_size, projection=self.PROJECTION)
             self.set_ok_response(resp, {'messages': objects_ids})
 
-    def on_delete(self, req, resp):
-        # TODO: move to responder_base?
-        self.log.debug("Deleting messages")
-        filters = self.parse_query_params(req)
-
-        filters_requirements = {
-            "env_name": self.require(str, mandatory=True),
-            "id": self.require(str, convert_to_type=True),
-            "all": self.require(bool, convert_to_type=True),
-        }
-
-        self.validate_query_data(filters, filters_requirements)
-        query = self.build_query(filters)
-
-        result = None
-        if self.ID in query:
-            if filters.get("all") is True:
-                self.bad_request("Only one of 'id=<objectId>' or 'all=true' should be specified in query arguments")
-            result = self.delete_object_by_id(self.COLLECTION, query)
-        elif filters.get("all") is True:
-            result = self.delete_objects(self.COLLECTION, query)
-        else:
-            self.bad_request("Either 'id=<objectId>' or 'all=true' should be specified in query arguments")
-
-        self.set_ok_response(resp, {"count": result.deleted_count})
-
     def build_get_query(self, filters):
-        query = {}
-        filters_keys = ['source_system', 'id', 'level', 'related_object',
-                        'related_object_type']
+        query = super().build_query(filters)
+        filters_keys = ['source_system', 'level', 'related_object', 'related_object_type']
         self.update_query_with_filters(filters, filters_keys, query)
         start_time = filters.get('start_time')
         if start_time:
@@ -99,5 +70,4 @@ class Messages(ResponderBase):
                 query['timestamp'].update({"$lte": end_time})
             else:
                 query['timestamp'] = {"$lte": end_time}
-        query['environment'] = filters['env_name']
         return query

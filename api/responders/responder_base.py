@@ -29,6 +29,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
                              "messages",
                              "scheduled_scans"]
     ID = "_id"
+    COLLECTION = None
 
     def __init__(self):
         super().__init__()
@@ -54,7 +55,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
         })
         raise exceptions.CalipsoApiException(code, body, message)
 
-    def _set_successful_response(self, resp, body="", status=HTTPStatus.OK):
+    def _set_successful_response(self, resp, body: object = "", status=HTTPStatus.OK):
         if not isinstance(body, str):
             try:
                 body = jsonify(body)
@@ -64,10 +65,10 @@ class ResponderBase(DataValidate, DictNamingConverter):
         resp.status = str(status.value)
         resp.body = body
 
-    def set_ok_response(self, resp, body=""):
+    def set_ok_response(self, resp, body: object = ""):
         return self._set_successful_response(resp, body, HTTPStatus.OK)
 
-    def set_created_response(self, resp, body=""):
+    def set_created_response(self, resp, body: object = ""):
         return self._set_successful_response(resp, body, HTTPStatus.CREATED)
 
     def bad_request(self, message="Invalid request content"):
@@ -270,3 +271,33 @@ class ResponderBase(DataValidate, DictNamingConverter):
         page_size = filters.get('page_size', 1000)
         page = filters.get('page', 0)
         return page, page_size
+
+
+class ResponderWithOnDelete(ResponderBase):
+    def on_delete(self, req, resp):
+        filters = self.parse_query_params(req)
+
+        filters_requirements = {
+            "env_name": self.require(str, mandatory=True),
+            "ids": self.require(str, validate=self.ID_LIST),
+            "all": self.require(bool, convert_to_type=True),
+        }
+
+        self.validate_query_data(filters, filters_requirements)
+        query = self.build_delete_query(filters)
+
+        if self.ID in query:
+            if filters.get("all") is True:
+                self.bad_request("Only one of 'ids=[<objectId>,...]' or 'all=true' "
+                                 "should be specified in query arguments")
+        elif filters.get("all") is not True:
+            self.bad_request("Either 'ids=[<objectId>,...]' or 'all=true' should be specified in query arguments")
+
+        result = self.delete_objects(self.COLLECTION, query)
+        self.set_ok_response(resp, {"count": result.deleted_count})
+
+    def build_delete_query(self, filters):
+        query = super().build_query(filters)
+        if "ids" in filters:
+            query[self.ID] = {"$in": self.to_object_id_list(filters["ids"])}
+        return query

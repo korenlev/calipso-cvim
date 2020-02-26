@@ -40,17 +40,23 @@ class Inventory(ResponderBase):
             'parent_path': self.require(str),
             'sub_tree': self.require(bool, convert_to_type=True),
             'page': self.require(int, convert_to_type=True),
-            'page_size': self.require(int, convert_to_type=True)
+            'page_size': self.require(int, convert_to_type=True),
+            'projection': self.require(str),
+            'all': self.require(bool, convert_to_type=True)
         }
         self.validate_query_data(filters, filters_requirements)
-        page, page_size = self.get_pagination(filters)
+        page, page_size = (0, 0) if filters.get('all') is True else self.get_pagination(filters)
         query = self.build_query(filters)
+
         if self.ID in query:
             obj = self.get_object_by_id(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, obj)
         else:
+            # TODO: sanitize projection?
+            projection = {f: True for f in filters['projection'].split(',')} if 'projection' in filters else {}
             objects = self.get_objects_list(collection=self.COLLECTION, query=query,
-                                            page=page, page_size=page_size, projection=self.PROJECTION)
+                                            page=page, page_size=page_size,
+                                            projection=projection if projection else self.PROJECTION)
             self.set_ok_response(resp, {"objects": objects})
 
     def build_query(self, filters):

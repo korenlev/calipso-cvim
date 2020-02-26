@@ -9,12 +9,16 @@
 ###############################################################################
 import re
 
+from bson import ObjectId
+from bson.errors import InvalidId
+
 from api.validation import regex
 
 
 class DataValidate:
     LIST = "list"
     REGEX = "regex"
+    ID_LIST = "id_list"
     CUSTOM = "custom"
 
     class NumberValidators:
@@ -49,7 +53,8 @@ class DataValidate:
         self.VALIDATE_SWITCHER = {
             self.LIST: self.validate_value_in_list,
             self.REGEX: regex.validate,
-            self.CUSTOM: self.validate_custom
+            self.ID_LIST: self.validate_list_of_object_ids,
+            self.CUSTOM: self.validate_custom,
         }
 
     def validate_type(self, obj, t, convert_to_type):
@@ -180,27 +185,6 @@ class DataValidate:
         return self.VALIDATE_SWITCHER[validate](key, value, requirement,
                                                 error_message)
 
-    @staticmethod
-    def validate_value_in_list(key, value,
-                               required_list, error_message):
-        if not isinstance(value, list):
-            value = [value]
-
-        if [v for v in value if v not in required_list]:
-            return error_message if error_message else\
-                "The possible value of {0} is {1}".\
-                format(key, " or ".join(required_list))
-        return None
-
-    @staticmethod
-    def validate_custom(key, value, func, error_message):
-        if not func(value):
-            return (
-                error_message if error_message
-                else "Key {} failed validation".format(key)
-            )
-        return None
-
     # get customized type names from type names array
     def get_type_names(self, types):
         return [self.get_type_name(t) for t in types]
@@ -215,3 +199,44 @@ class DataValidate:
         if type_name in self.TYPES_CUSTOMIZED_NAMES.keys():
             type_name = self.TYPES_CUSTOMIZED_NAMES[type_name]
         return type_name
+
+    ######################
+    #  Type validators   #
+    ######################
+
+    @staticmethod
+    def validate_value_in_list(key, value,
+                               required_list, error_message):
+        if not isinstance(value, list):
+            value = [value]
+
+        if [v for v in value if v not in required_list]:
+            return (
+                error_message
+                if error_message
+                else "The possible value of {0} is {1}".format(key, " or ".join(required_list))
+            )
+        return None
+
+    @staticmethod
+    def validate_custom(key, value, func, error_message):
+        if not func(value):
+            return (
+                error_message if error_message
+                else "Key {} failed validation".format(key)
+            )
+        return None
+
+    @staticmethod
+    def to_object_id_list(value, separator=","):
+        return [ObjectId(item) for item in value.split(separator)]
+
+    @classmethod
+    def validate_list_of_object_ids(cls, key, value, requirement, error_message):
+        def validate(v):
+            try:
+                cls.to_object_id_list(v)
+                return True
+            except (TypeError, InvalidId):
+                return False
+        return cls.validate_custom(key, value, validate, error_message)
