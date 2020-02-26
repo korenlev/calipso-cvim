@@ -20,12 +20,13 @@ from base.utils.mongo_access import MongoAccess
 class Manager(ABC):
 
     def __init__(self, log_directory: str = None,
-                 mongo_config_file: str = None):
+                 mongo_config_file: str = None,
+                 log_level: str = None):
         super().__init__()
         if log_directory:
             FileLogger.LOG_DIRECTORY = log_directory
         MongoAccess.config_file = mongo_config_file
-        self.log = FullLogger()
+        self.log = FullLogger(level=log_level)
         self.conf = None
         self.inv = None
         self.collection = None
