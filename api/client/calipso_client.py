@@ -1,9 +1,11 @@
 import argparse
+import datetime
 import json
 import time
 
 import requests
 from dateutil.parser import parse as dateutil_parse
+from dateutil.relativedelta import relativedelta
 
 from version import VERSION
 
@@ -25,7 +27,14 @@ from sys import exit
 # assuming environment_config details are already deployed by CVIM (typically: cvim-<mgmt_hostname>)
 # For central CVIM monitoring add this client per pod scanning and allow adding multiple environments
 
+GUIDE_URL = "https://cloud-gogs.cisco.com/mercury/calipso/raw/master/docs/release/api-guide.rst"
+
 SUPPORTED_METHODS = ["GET", "POST", "PUT", "DELETE"]
+RECURRENCE_OPTIONS = ["ONCE", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
+
+PER_ENVIRONMENT_ENDPOINTS = {"cliques", "inventory", "links", "messages", "scans", "scheduled_scans"}
+ALLOWED_ENDPOINTS = {"environment_configs", "constants", "clique_types", "clique_constraints",
+                     "timezone", "health"}.union(PER_ENVIRONMENT_ENDPOINTS)
 
 
 class ConnectionError(Exception):
@@ -48,9 +57,12 @@ class ScanError(Exception):
     pass
 
 
-class CalipsoClient:
-    RECURRENCE_OPTIONS = ["ONCE", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
+def error(err, code=1):
+    print(err)
+    return code
 
+
+class CalipsoClient:
     def __init__(self, api_host, api_port, api_password, verify_tls=False):
         self.api_server = "[{}]".format(api_host) if ":" in api_host and "[" not in api_host else api_host
         self.username = "calipso"
@@ -117,16 +129,24 @@ class CalipsoClient:
             self.get_token()
 
         response = self.send_request(method, endpoint, payload)
+        err = None
+        content = None
+        try:
+            content = json.loads(response.content)
+            if "error" in content:
+                err = content["error"]
+        except ValueError:
+            pass
 
-        if response.status_code == 404:
-            raise APICallException("Endpoint or payload item not found")
-        elif response.status_code == 400:
-            raise APICallException("Environment or resource not found, or invalid keys. "
-                                   "Response: {}".format(response.content))
+        if not content:
+            if response.status_code == 404:
+                raise APICallException("Endpoint not found")
+            if response.status_code == 400:
+                raise APICallException("Environment or resource not found, or invalid keys")
+            raise APICallException("API didn't return a valid JSON")
+        if err and fail_on_error:
+            raise APICallException(err.get('message', err))
 
-        content = json.loads(response.content)
-        if 'error' in content and fail_on_error:
-            raise APICallException(content['error'])
         return content
 
     def scan_handler(self, environment, es_index=False):
@@ -191,10 +211,20 @@ def handle_scan(client, args):
             return error("--scan_at can only be specified for recurring scans")
         client.scan_handler(environment=args.environment)
     else:
-        scheduled_timestamp = None
-        if args.scan_at and args.scan_at != "NOW":
+        # TODO: timezone support
+        submit_timestamp = datetime.datetime.now()
+        if args.scan_at == "NOW":
+            # TODO: think more about this
+            scheduled_timestamp = (
+                    submit_timestamp + relativedelta(hours=1 if args.scan_recurrence == "HOURLY" else 0,
+                                                     days=1 if args.scan_recurrence == "DAILY" else 0,
+                                                     weeks=1 if args.scan_recurrence == "WEEKLY" else 0,
+                                                     months=1 if args.scan_recurrence == "MONTHLY" else 0,
+                                                     years=1 if args.scan_recurrence == "YEARLY" else 0)
+            )
+        else:
             try:
-                scheduled_timestamp = dateutil_parse(args.scan_at).strftime("%Y-%m-%dT%H:%M")
+                scheduled_timestamp = dateutil_parse(args.scan_at)
             except (ValueError, OverflowError):
                 return error("Invalid datetime format for --scan_at argument")
 
@@ -202,45 +232,26 @@ def handle_scan(client, args):
         schedule_reply = client.scan_request(environment=args.environment,
                                              recurrence=args.scan_recurrence,
                                              es_index=args.es_index,
-                                             scheduled_timestamp=scheduled_timestamp if scheduled_timestamp else None)
+                                             scheduled_timestamp=scheduled_timestamp.strftime("%Y-%m-%dT%H:%M"))
 
         schedule_doc_id = schedule_reply["id"]
-        time.sleep(2)
         schedule_doc = client.scan_check(environment=args.environment,
                                          doc_id=schedule_doc_id,
                                          scheduled=True)
+
         print("Scheduled scan at: {}\nSubmitted at: {}\nScan recurrence: {}. Schedule status: {}."
-              .format(schedule_doc['scheduled_timestamp'],
-                      schedule_doc['submit_timestamp'],
+              .format(scheduled_timestamp.strftime("%Y-%m-%dT%H:%M"),
+                      submit_timestamp.strftime("%Y-%m-%dT%H:%M"),
                       schedule_doc['recurrence'],
-                      schedule_doc.get('status', 'unknown')))
+                      schedule_doc['status']))
 
 
 def handle_call(client, args):
-    # TODO: move and rename
-    per_environment_collections = ["inventory", "cliques", "links", "messages", "scans", "scheduled_scans"]
-
     # currently, only 'environment_configs' and 'constants' are allowed without environment
-    if args.endpoint in per_environment_collections and not args.environment:
+    if args.endpoint in PER_ENVIRONMENT_ENDPOINTS and not args.environment:
         return error("This request requires an environment")
-    # TODO: remove this check?
-    if args.environment and args.endpoint not in per_environment_collections:
+    if args.endpoint not in PER_ENVIRONMENT_ENDPOINTS and args.environment:
         return error("Environment is not needed for this request, please remove")
-
-    if args.endpoint == "environment_configs" or args.endpoint == "constants":
-        if args.method is None:
-            return error("Method is needed for this type of request")
-        if args.environment is not None:
-            return error("Environment not needed for this request, please remove")
-        if args.payload:  # case for a specific environment or specific constant
-            payload_str = args.payload.replace("'", "\"")
-            payload_json = json.loads(payload_str)
-            env_reply = client.call_api(args.method, args.endpoint, payload_json)
-        else:  # case for all environments
-            env_reply = client.call_api(args.method, args.endpoint)
-
-        client.pp_json(env_reply)
-        return
 
     params = (
         {"env_name": args.environment, "page": args.page, "page_size": args.page_size}
@@ -262,11 +273,6 @@ def handle_call(client, args):
         return client.pp_json(reply)
     except (ValueError, APIException) as e:
         return error(e)
-
-
-def error(err, code=1):
-    print(err)
-    return code
 
 
 def run():
@@ -295,10 +301,9 @@ def run():
                         required=False)
     parser.add_argument("--guide",
                         help="get a reply back with API guide location",
-                        dest='guide',
-                        default=False,
-                        action='store_true',
-                        required=False)
+                        default=None,
+                        action='version',
+                        version="Read at: {}".format(GUIDE_URL))
     parser.add_argument("--version",
                         help="get a reply back with calipso_client version",
                         action='version',
@@ -323,10 +328,10 @@ def run():
     scan_parser.add_argument("--scan_recurrence",
                              help="specify the recurring series of scheduled scan requests - "
                                   "can be used with optional --scan_at argument (options: {})"
-                                  " (default=None)".format("/".join(CalipsoClient.RECURRENCE_OPTIONS)),
+                                  " (default=None)".format("/".join(RECURRENCE_OPTIONS)),
                              type=str,
                              default=None,
-                             choices=CalipsoClient.RECURRENCE_OPTIONS,
+                             choices=RECURRENCE_OPTIONS,
                              required=False)
     scan_parser.add_argument("--es_index",
                              help="index environment inventory, links and cliques on ElasticSearch DB"
@@ -344,6 +349,7 @@ def run():
                                   " (default=None)",
                              type=str,
                              default=None,
+                             choices=sorted(ALLOWED_ENDPOINTS),
                              required=True)
     call_parser.add_argument("--method",
                              help="method to use on the API server - options: {}"
@@ -379,11 +385,6 @@ def run():
                              required=False)
 
     args = parser.parse_args()
-    if args.guide:
-        guide_url = "https://cloud-gogs.cisco.com/mercury/calipso/src/master/docs/release/api-guide.rst"
-        print("Read at: {}".format(guide_url))
-        return
-
     try:
         return args.handler(CalipsoClient(api_host=args.api_server, api_port=args.api_port,
                                           api_password=args.api_password, verify_tls=args.verify_tls),

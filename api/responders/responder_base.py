@@ -185,7 +185,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
         if not objects:
             env_name = query.get("environment")
             if env_name and not self.check_environment_name(env_name):
-                self.bad_request("unknown environment: {}".format(env_name))
+                self.bad_request("Unknown environment: {}".format(env_name))
             self.not_found()
         for obj in objects:
             if "id" not in obj and "_id" in obj:
