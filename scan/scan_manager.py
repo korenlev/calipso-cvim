@@ -114,8 +114,9 @@ class ScanManager(Manager):
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
 
+        # ElasticSearch post-scan indexing is disabled in this release, no ES connection
         self.es_client = ElasticAccess()
-        self._connect_es_client(self.args.es_config)
+        #self._connect_es_client(self.args.es_config)
 
         self.log.info("Started ScanManager with following configuration:\n"
                       "{1}\n"
@@ -127,6 +128,8 @@ class ScanManager(Manager):
                       .format(self,
                               MongoAccess.get_source_text(),
                               self.es_client.get_connection_text()))
+        #  Log will include: "ElasticAccess not initialized. ElasticAccess is not connected"
+
 
     def _connect_es_client(self, es_config, retries=ElasticAccess.CONNECTION_RETRIES):
         if not self.es_client:
@@ -330,15 +333,17 @@ class ScanManager(Manager):
 
                 self._complete_scan(scan_request, message)
                 if scan_request.get('es_index') is True:
-                    if self.es_client.is_connected:
-                        try:
-                            self.es_client.dump_collections(env)
-                            self.es_client.dump_tree(env)
-                        except Exception as e:
-                            self.log.error("Error occurred while trying "
-                                           "to index documents to ElasticSearch: {}".format(e))
-                    elif not self._connect_es_client(self.args.es_config, retries=3):
-                        self.log.error("ElasticSearch client is not connected, but post-scan indexing was requested")
+                    self.log.error("ElasticSearch post-scan indexing is disabled in this release")
+                    # below lines can enable post-scan indexing, kept for future demand
+                    #if self.es_client.is_connected:
+                    #    try:
+                    #        self.es_client.dump_collections(env)
+                    #        self.es_client.dump_tree(env)
+                    #    except Exception as e:
+                    #        self.log.error("Error occurred while trying "
+                    #                       "to index documents to ElasticSearch: {}".format(e))
+                    #elif not self._connect_es_client(self.args.es_config, retries=3):
+                    #    self.log.error("ElasticSearch client is not connected, but post-scan indexing was requested")
 
     def do_action(self):
         self._clean_up()
