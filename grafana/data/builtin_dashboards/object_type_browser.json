@@ -1,0 +1,145 @@
+{
+ "dashboard": {
+ "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 29,
+  "iteration": 1584887783288,
+  "links": [
+    {
+      "icon": "external link",
+      "tags": [],
+      "title": "Goto HomePage",
+      "type": "link",
+      "url": "http://64.103.124.101:3344/d/4EwgEEXZk/welcome-to-cvim-mon?orgId=1"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": "CVIM Inventory",
+      "gridPos": {
+        "h": 26,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "text": "Inventory Type Browser"
+      },
+      "targets": [
+        {
+          "objectType": "instance",
+          "refId": "A",
+          "type": "inventory"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "ObjectType Browser",
+      "transparent": true,
+      "type": "csi-inventory-type-browser"
+    }
+  ],
+  "schemaVersion": 22,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "cvim-minnesota",
+          "value": "cvim-minnesota"
+        },
+        "datasource": "CVIM Inventory",
+        "definition": "environment_configs",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "Pod",
+        "multi": false,
+        "name": "environment_configs",
+        "options": [],
+        "query": "environment_configs",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "vedge",
+          "value": "vedge"
+        },
+        "datasource": "CVIM Inventory",
+        "definition": "object_types",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "object_type",
+        "multi": false,
+        "name": "object_types",
+        "options": [],
+        "query": "object_types",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "ObjectType Browser",
+  "uid": "ki33DrXZz",
+  "variables": {
+    "list": []
+  },
+  "version": 23
+ },
+ "overwrite": true
+}
