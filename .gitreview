@@ -1,4 +1,4 @@
 [gerrit]
 host=cloud-review.cisco.com
-project=mercury/cvim_inventory
+project=mercury/calipso
 defaultbranch=master
