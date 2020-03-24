@@ -50,7 +50,7 @@ class Cliques(ResponderBase):
         query = self.build_query(filters)
 
         if self.ID in query:
-            clique = self.get_object_by_id(collection=self.COLLECTION, query=query)
+            clique = self.get_single_object(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, clique)
         else:
             cliques_ids = self.get_objects_list(collection=self.COLLECTION, query=query,

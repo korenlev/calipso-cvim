@@ -40,7 +40,9 @@ class App:
         "/monitoring_config_templates": "resource.monitoring_config_templates.MonitoringConfigTemplates",
         "/scans": "resource.scans.Scans",
         "/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
-        "/timezone": "resource.timezone.Timezone"
+        "/search": "resource.search.Search",
+        "/timezone": "resource.timezone.Timezone",
+        "/tree": "resource.tree.Tree"
     }
 
     responders_path = "api.responders"

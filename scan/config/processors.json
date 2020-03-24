@@ -3,6 +3,7 @@
   "base_processor": "Processor",
   "processors": [
     "ProcessVedgeType",
-    "ProcessVnicCount"
+    "ProcessVnicCount",
+    "ProcessInventoryTree"
   ]
 }

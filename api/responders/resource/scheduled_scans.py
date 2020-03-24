@@ -46,7 +46,7 @@ class ScheduledScans(ResponderWithOnDelete):
 
         query = self.build_get_query(filters)
         if self.ID in query:
-            scheduled_scan = self.get_object_by_id(collection=self.COLLECTION, query=query)
+            scheduled_scan = self.get_single_object(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, scheduled_scan)
         else:
             scheduled_scan_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
@@ -71,7 +71,8 @@ class ScheduledScans(ResponderWithOnDelete):
                                        requirement=ScheduledScanInterval.members_list()),
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
-                                      requirement=log_levels),
+                                      requirement=log_levels,
+                                      mandatory=True),
             "clear": self.require(bool, convert_to_type=True),
             "scheduled_timestamp": self.require(str),
             "es_index": self.require(bool, convert_to_type=True, default=False)

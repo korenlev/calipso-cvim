@@ -38,7 +38,7 @@ class CliqueConstraints(ResponderBase):
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
-            clique_constraint = self.get_object_by_id(collection=self.COLLECTION, query=query)
+            clique_constraint = self.get_single_object(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, clique_constraint)
         else:
             clique_constraints_ids = self.get_objects_list(collection=self.COLLECTION, query=query,

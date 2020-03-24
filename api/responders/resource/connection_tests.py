@@ -74,7 +74,7 @@ class ConnectionTests(ResponderBase):
         query = self.build_query(filters)
 
         if self.ID in query:
-            result = self.get_object_by_id(collection=self.COLLECTION, query=query)
+            result = self.get_single_object(collection=self.COLLECTION, query=query)
 
             test_targets = result.get(self.TARGETS, [])
             targets_config = result.get(self.CONFIGURATIONS, [])

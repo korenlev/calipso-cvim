@@ -91,6 +91,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.set_collection("scans")
         self.set_collection("scheduled_scans")
         self.set_collection("supported_environments")
+        self.set_collection("trees")
         self.set_collection("validations")
 
     def clear(self, scan_plan):

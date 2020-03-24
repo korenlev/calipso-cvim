@@ -164,7 +164,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
             return False
         return True
 
-    def get_object_by_id(self, collection, query):
+    def get_single_object(self, collection, query):
         objs = self.read(collection, query)
         if not objs:
             env_name = query.get("environment")

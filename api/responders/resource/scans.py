@@ -50,7 +50,7 @@ class Scans(ResponderBase):
 
         query = self.build_query(filters)
         if self.ID in query:
-            scan = self.get_object_by_id(collection=self.COLLECTION, query=query)
+            scan = self.get_single_object(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, scan)
         elif filters.get("latest") is True:
             scans = self.get_latest_scan(query)
@@ -71,7 +71,8 @@ class Scans(ResponderBase):
         scan_requirements = {
             "log_level": self.require(str,
                                       validate=DataValidate.LIST,
-                                      requirement=log_levels),
+                                      requirement=log_levels,
+                                      mandatory=True),
             "clear": self.require(bool, convert_to_type=True),
             "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
             "scan_only_links": self.require(bool, convert_to_type=True, default=False),

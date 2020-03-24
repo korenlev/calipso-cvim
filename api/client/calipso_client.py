@@ -7,7 +7,10 @@ import requests
 from dateutil.parser import parse as dateutil_parse
 from dateutil.relativedelta import relativedelta
 
-from version import VERSION
+try:
+    from version import VERSION
+except ImportError:
+    from api.client.version import VERSION
 
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -32,9 +35,10 @@ GUIDE_URL = "https://cloud-gogs.cisco.com/mercury/calipso/raw/master/docs/releas
 SUPPORTED_METHODS = ["GET", "POST", "PUT", "DELETE"]
 RECURRENCE_OPTIONS = ["ONCE", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
 
-PER_ENVIRONMENT_ENDPOINTS = {"cliques", "inventory", "links", "messages", "scans", "scheduled_scans"}
-ALLOWED_ENDPOINTS = {"environment_configs", "constants", "clique_types", "clique_constraints",
-                     "timezone", "health"}.union(PER_ENVIRONMENT_ENDPOINTS)
+PAGEABLE_ENDPOINTS = {"cliques", "inventory", "links", "messages", "scans", "scheduled_scans", "search"}
+PER_ENVIRONMENT_ENDPOINTS = PAGEABLE_ENDPOINTS.union({"tree"})
+ALLOWED_ENDPOINTS = {"clique_types", "clique_constraints", "constants", "environment_configs",
+                     "health", "timezone"}.union(PER_ENVIRONMENT_ENDPOINTS)
 
 
 class ConnectionError(Exception):
@@ -253,11 +257,11 @@ def handle_call(client, args):
     if args.endpoint not in PER_ENVIRONMENT_ENDPOINTS and args.environment:
         return error("Environment is not needed for this request, please remove")
 
-    params = (
-        {"env_name": args.environment, "page": args.page, "page_size": args.page_size}
-        if args.environment
-        else {}
-    )
+    params = {}
+    if args.environment:
+        params.update({"env_name": args.environment})
+    if args.endpoint in PAGEABLE_ENDPOINTS:
+        params.update({"page": args.page, "page_size": args.page_size})
 
     if args.payload:
         # TODO: better json cast?

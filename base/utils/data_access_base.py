@@ -9,6 +9,7 @@
 ###############################################################################
 import os
 import tempfile
+from abc import ABC
 
 from base.utils.config_file import ConfigFile
 from base.utils.logging.console_logger import ConsoleLogger
@@ -23,13 +24,14 @@ class DataAccessBase:
         FILE = 2
         DEFAULT_FILE = 3
 
+    # Fields to be overridden in subclasses
+    default_conf_file = '/local_dir/data_access_base.conf'
     LOG_FILENAME = 'data_access_base.log'
-    DEFAULT_LOG_DIR = os.path.join(os.path.abspath("."), LOG_FILENAME)
-    TMP_DIR = tempfile.gettempdir()
     REQUIRED_ENV_VARIABLES = {}
     OPTIONAL_ENV_VARIABLES = {}
 
-    default_conf_file = '/local_dir/data_access_base.conf'
+    DEFAULT_LOG_DIR = os.path.join(os.path.abspath("."), LOG_FILENAME)
+    TMP_DIR = tempfile.gettempdir()
     config_file = None
     config_source = None
 

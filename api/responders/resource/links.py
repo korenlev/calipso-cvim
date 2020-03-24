@@ -54,7 +54,7 @@ class Links(ResponderBase):
         page, page_size = self.get_pagination(filters)
         query = self.build_query(filters)
         if self.ID in query:
-            link = self.get_object_by_id(collection=self.COLLECTION, query=query)
+            link = self.get_single_object(collection=self.COLLECTION, query=query)
             self.set_ok_response(resp, link)
         else:
             links_ids = self.get_objects_list(collection=self.COLLECTION, query=query,
