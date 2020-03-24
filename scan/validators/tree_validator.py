@@ -2,7 +2,7 @@ from scan.validators.validator_base import ValidatorBase
 
 
 class TreeValidator(ValidatorBase):
-    def run(self) -> (bool, list):
+    def run(self, save_result: bool = False) -> (bool, list):
         objects_list = self.inv.find(search={"environment": self.env},
                                      projection=['_id', 'id', 'type', 'parent_id', 'parent_type'])
 
@@ -24,4 +24,4 @@ class TreeValidator(ValidatorBase):
 
         # TODO: search for cycles?
 
-        return not errors, errors
+        return self.process_result(errors=errors, save_to_db=save_result)

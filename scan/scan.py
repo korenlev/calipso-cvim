@@ -273,7 +273,8 @@ class ScanController(Fetcher):
         errors = []
         for validator_class in validators:
             self.log.info("Running validator: {}".format(validator_class.__name__))
-            v_result, v_errors = validator_class(env).run()
+            validator = validator_class(env)
+            v_result, v_errors = validator.run(save_result=True)
             if v_result is False:
                 result = False
             errors.extend(v_errors)

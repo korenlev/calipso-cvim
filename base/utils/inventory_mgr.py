@@ -71,23 +71,27 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
 
     def set_collections(self, inventory_collection: str = None):
         self.set_inventory_collection(inventory_collection)
-        self.set_collection("links")
-        self.set_collection("link_types")
-        self.set_collection("clique_types")
+        self.set_collection("api_tokens",
+                            use_default_name=True)
         self.set_collection("clique_constraints")
+        self.set_collection("clique_types")
         self.set_collection("cliques")
-        self.set_collection("monitoring_config")
-        self.set_collection("scans")
-        self.set_collection("messages")
-        self.set_collection("environments_config")
-        self.set_collection("supported_environments")
         self.set_collection("connection_tests")
         self.set_collection("constants",
                             use_default_name=True)
+        self.set_collection("environment_options",
+                            use_default_name=True)
+        self.set_collection("environments_config")
+        self.set_collection("link_types")
+        self.set_collection("links")
+        self.set_collection("messages")
+        self.set_collection("monitoring_config")
         self.set_collection("monitoring_config_templates",
                             use_default_name=True)
-        self.set_collection("api_tokens",
-                            use_default_name=True)
+        self.set_collection("scans")
+        self.set_collection("scheduled_scans")
+        self.set_collection("supported_environments")
+        self.set_collection("validations")
 
     def clear(self, scan_plan):
         collections = set()
@@ -167,7 +171,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         return matches[0]
 
     # inventory item must contain properties 'environment', 'type' and 'id'
-    def set(self, item, collection=None):
+    def set(self, item, collection=None, allow_new_docs=False):
         col = (
             self.collections[collection]
             if isinstance(collection, str)
@@ -203,9 +207,8 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         else:
             find_tuple = {'_id': bson.ObjectId(mongo_id)}
             doc = col.find_one(find_tuple)
-            if not doc:
-                raise ValueError('set(): could not find document with _id=' +
-                                 mongo_id)
+            if not doc and not allow_new_docs:
+                raise ValueError('set(): could not find document with _id= {}'.format(mongo_id))
 
         col.update_one(find_tuple,
                        {'$set': self.encode_mongo_keys(item)},
