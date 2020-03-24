@@ -1,0 +1,22 @@
+{
+    "name": "Calipso",
+    "id": "calipso",
+    "type": "datasource",
+    "category": "logging",
+    "partials": {
+        "config": "partials/config.html"
+    },
+    "metrics": true,
+    "annotations": true,
+    "info": {
+        "description": "Calipso datasource",
+        "logos": {
+            "small": "img/calipso-data-source.png",
+            "large": "img/calipso-data-source.png"
+        }
+    },
+    "dependencies": {
+        "grafanaVersion": "6.4.x",
+        "plugins": [ ]
+    }
+}

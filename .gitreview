@@ -1,4 +1,4 @@
 [gerrit]
-host=gerrit.opnfv.org
-port=29418
-project=calipso.git
+host=cloud-review.cisco.com
+project=mercury/calipso
+defaultbranch=master
