@@ -30,7 +30,7 @@ from scan.fetchers.aci.aci_access import AciAccess
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.db.db_access import DbAccess
 from scan.fetchers.kube.kube_access import KubeAccess
-from scan.manager import Manager
+from base.manager import Manager
 from base.utils.constants import ConnectionTestStatus, ConnectionTestType
 from base.utils.exceptions import HostAddressError, CredentialsError, SshKeyError
 from base.utils.logging.file_logger import FileLogger

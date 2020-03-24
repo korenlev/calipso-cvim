@@ -26,7 +26,7 @@ from base.utils.logging.full_logger import FullLogger
 from base.utils.logging.logger import Logger
 from base.utils.mongo_access import MongoAccess
 from base.utils.origins import ScanOrigins, ScanOrigin
-from scan.manager import Manager
+from base.manager import Manager
 from scan.scan import ScanController
 
 

@@ -26,7 +26,7 @@ from base.utils.mongo_access import MongoAccess
 from listen.events.listeners.default_listener import DefaultListener
 from listen.events.listeners.kubernetes_listener import KubernetesListener
 from listen.events.listeners.listener_base import ListenerBase
-from scan.manager import Manager
+from base.manager import Manager
 
 
 class ProcessMonitor:

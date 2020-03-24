@@ -8,9 +8,9 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import datetime
-
+import asyncio
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from base.utils.logging.file_logger import FileLogger
 from base.utils.logging.full_logger import FullLogger
@@ -19,9 +19,9 @@ from base.utils.mongo_access import MongoAccess
 
 class Manager(ABC):
 
-    def __init__(self, log_directory: str = None,
-                 mongo_config_file: str = None,
-                 log_level: str = None):
+    def __init__(self, log_directory: Optional[str] = None,
+                 mongo_config_file: Optional[str] = None,
+                 log_level: Optional[str] = None):
         super().__init__()
         if log_directory:
             FileLogger.LOG_DIRECTORY = log_directory
@@ -33,13 +33,41 @@ class Manager(ABC):
         self._update_document = None
 
     @abstractmethod
-    def configure(self):
+    def configure(self) -> None:
         pass
 
     @abstractmethod
-    def do_action(self):
+    def do_action(self) -> None:
         pass
 
     def run(self):
         self.configure()
         self.do_action()
+
+
+class AsyncManager(Manager, ABC):
+
+    def __init__(self, log_directory: Optional[str] = None,
+                 mongo_config_file: Optional[str] = None,
+                 log_level: Optional[str] = None):
+        super().__init__(log_directory=log_directory,
+                         mongo_config_file=mongo_config_file,
+                         log_level=log_level)
+        self.task: Optional[asyncio.Future] = None
+
+    @abstractmethod
+    async def configure(self) -> None:
+        pass
+
+    @abstractmethod
+    async def do_action(self) -> None:
+        pass
+
+    def stop(self):
+        if self.task:
+            self.task.cancel()
+
+    def run(self):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.configure())
+        self.task = asyncio.ensure_future(self.do_action())
