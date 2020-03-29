@@ -367,7 +367,7 @@ def run():
                              required=False)
     call_parser.add_argument("--environment",
                              help="specify environment name(typically 'cvim-<pod_name>') configured on the API server "
-                                  "Note: call request requires an environment for following the endpoints: "
+                                  "Note: call request requires an environment for the following endpoints: "
                                   "[messages, links, inventory, scans, scheduled_scans, search, tree]"
                                   " (default=None)",
                              type=str,
