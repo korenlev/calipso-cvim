@@ -7,6 +7,7 @@ import time
 from sys import exit
 
 from pymongo import MongoClient
+import pymongo.errors
 from six.moves import input
 from six.moves.urllib.parse import quote_plus
 from yaml import safe_load as yaml_load
@@ -66,7 +67,11 @@ class MongoConnector(object):
                                                      self.host, self.port, self.db)
         else:
             self.uri = "mongodb://%s:%s/%s" % (self.host, self.port, self.db)
-        self.client = MongoClient(self.uri, connectTimeoutMS=10000, serverSelectionTimeoutMS=10000, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
+        try:
+            self.client = MongoClient(self.uri, connectTimeoutMS=10000, serverSelectionTimeoutMS=10000, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            print('Could not connect to server: {}" {}'.format(self.uri, e))
+
         self.database = self.client[self.db]
 
     def disconnect(self):
@@ -151,6 +156,13 @@ def read_servers_from_file(filename):
         elif filename.endswith(".json"):
             config = json.load(f)
 
+        if not config.get("remotes"):
+            print("bad config file, missing 'remotes', please read documentation")
+            exit()
+        if not config.get("central"):
+            print("bad config file, missing 'central', please read documentation")
+            exit()
+
         for remote in config.get("remotes", []):
             remote.update({"attempt": 0, "imported": False})
 
@@ -215,7 +227,7 @@ def add_duplicate_remotes(servers, scale):
     for i in range(scale - len(servers)):
         dup_number = (i // len(servers)) + 1
         server = copy.deepcopy(servers[i % len(servers)])
-        server['name'] = "{}-{}".format(server["name"], dup_number)
+        server['host'] = "{}-{}".format(server["host"], dup_number)
         all_servers.append(server)
     return all_servers
 
@@ -310,7 +322,12 @@ def run():
         return 0
     if len(servers) < args.scale:
         servers = add_duplicate_remotes(servers, args.scale)
-
+    if not central.get('host'):
+        print('wrong or missing attributes {"host"} in config file, please see documentation')
+        exit()
+    if not central.get('mongo_pwd'):
+        print('wrong or missing attributes {"mongo_pwd"} in config file, please see documentation')
+        exit()
     if not servers or all(s['imported'] is True for s in servers):
         info("Nothing to do. Exiting")
         return 0
@@ -328,17 +345,23 @@ def run():
         for s in servers:
             s['attempt'] += 1
             if s['attempt'] > 1:
-                info("Retrying import from remote {}... Attempt #{}".format(s['name'], s['attempt']))
+                info("Retrying import from remote {}... Attempt #{}".format(s['host'], s['attempt']))
                 time.sleep(backoff(s['attempt']))
+            if not s.get('host'):
+                print('wrong or missing attributes {"host"} in config file, please see documentation')
+                exit()
+            if not s.get('mongo_pwd'):
+                print('wrong or missing attributes {"mongo_pwd"} in config file, please see documentation')
+                exit()
 
             try:
                 source_connector = MongoConnector(host=s["host"], port=s.get("port", DEFAULT_PORT),
                                                   user=DEFAULT_USER, pwd=s["mongo_pwd"], db=AUTH_DB,
-                                                  db_label=s.get("name", "remote"))
+                                                  db_label=s.get("host", "remote"))
                 info("")
                 for col in collection_names:
                     # read from remote DBs and export to local json files
-                    info("Getting the {} Collection from {}...".format(col, s["name"]))
+                    info("Getting the {} Collection from {}...".format(col, s["host"]))
 
                     documents = source_connector.find_all(col, remove_mongo_ids=True)
 
@@ -350,13 +373,13 @@ def run():
                 source_connector.disconnect()
                 source_connector = None
             except Exception as e:
-                info("Failed to connect to {}, error: {}".format(s["name"], e.args))
+                info("Failed to connect to {}, error: {}".format(s["host"], e.args))
                 if source_connector is not None:
                     source_connector.disconnect()
 
                 if s['attempt'] >= max_connection_attempts:
                     destination_connector.disconnect()
-                    info("Failed to perform import from remote {}. Tried {} times".format(s['name'], s['attempt']))
+                    info("Failed to perform import from remote {}. Tried {} times".format(s['host'], s['attempt']))
                     return 1
                 break
 
