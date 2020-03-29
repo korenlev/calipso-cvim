@@ -321,8 +321,8 @@ def run():
     scan_parser = subparsers.add_parser('scan', help='Scan request mode')
     scan_parser.set_defaults(handler=handle_scan)
     scan_parser.add_argument("--environment",
-                             help="specify environment name(typically 'cvim-<pod_name>') configured on the API server"
-                             "note: scan request always requires an environment)",
+                             help="specify environment name(typically 'cvim-<pod_name>') configured on the API server "
+                             "Note: scan request always requires an environment)",
                              type=str,
                              required=True)
     scan_parser.add_argument("--scan_at",
@@ -366,8 +366,8 @@ def run():
                              choices=SUPPORTED_METHODS,
                              required=False)
     call_parser.add_argument("--environment",
-                             help="specify environment name(typically 'cvim-<pod_name>') configured on the API server"
-                                  "note: call request requires an environment for following the endpoints: )"
+                             help="specify environment name(typically 'cvim-<pod_name>') configured on the API server "
+                                  "Note: call request requires an environment for following the endpoints: )"
                                   "[messages, links, inventory, scans, scheduled_scans, search, tree]"
                                   " (default=None)",
                              type=str,
