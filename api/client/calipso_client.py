@@ -256,6 +256,8 @@ def handle_call(client, args):
         return error("This request requires an environment")
     if args.endpoint not in PER_ENVIRONMENT_ENDPOINTS and args.environment:
         return error("Environment is not needed for this request, please remove")
+    if args.endpoint == 'constants' and not args.payload:
+        return error("""This request requires a payload (ex: --payload '{"name": "object_types"}')""")
 
     params = {}
     if args.environment:
@@ -319,7 +321,8 @@ def run():
     scan_parser = subparsers.add_parser('scan', help='Scan request mode')
     scan_parser.set_defaults(handler=handle_scan)
     scan_parser.add_argument("--environment",
-                             help="specify environment(pod) name configured on the API server",
+                             help="specify environment name(typically 'cvim-<pod_name>') configured on the API server"
+                             "note: scan request always requires an environment)",
                              type=str,
                              required=True)
     scan_parser.add_argument("--scan_at",
@@ -363,7 +366,9 @@ def run():
                              choices=SUPPORTED_METHODS,
                              required=False)
     call_parser.add_argument("--environment",
-                             help="specify environment(pod) name configured on the API server"
+                             help="specify environment name(typically 'cvim-<pod_name>') configured on the API server"
+                                  "note: call request requires an environment for following the endpoints: )"
+                                  "[messages, links, inventory, scans, scheduled_scans, search, tree]"
                                   " (default=None)",
                              type=str,
                              default=None,
