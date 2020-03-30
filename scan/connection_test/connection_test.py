@@ -166,7 +166,7 @@ class ConnectionTest(Manager):
         'mongo_config': '',
         'connection_tests': 'connection_tests',
         'environments': 'environments_config',
-        'interval': 1,
+        'interval': 2,
         'loglevel': 'WARNING'
     }
 
@@ -198,7 +198,7 @@ class ConnectionTest(Manager):
                             default=ConnectionTest.DEFAULTS['interval'],
                             help='Interval between collection polls'
                                  '(must be more than {} seconds)'
-                                 .format(ConnectionTest.MIN_INTERVAL))
+                                 .format(ConnectionTest.DEFAULTS['interval']))
         parser.add_argument('-l', '--loglevel', nargs='?', type=str,
                             default=ConnectionTest.DEFAULTS['loglevel'],
                             help='Logging level \n(default: {})'
@@ -219,7 +219,7 @@ class ConnectionTest(Manager):
         self._update_document = \
             partial(MongoAccess.update_document,
                     self.connection_tests_collection)
-        self.interval = max(self.MIN_INTERVAL, self.args.interval)
+        self.interval = max(self.DEFAULTS['interval'], self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
 
         self.log.info('Started ConnectionTest with following configuration:\n'
