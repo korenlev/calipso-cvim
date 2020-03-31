@@ -25,7 +25,10 @@ from base.utils.mongo_access import MongoAccess
 class App:
 
     ROUTE_DECLARATIONS = {
+        # Calipso API auth
         "/auth/tokens": "auth.tokens.Tokens",
+
+        # Calipso API endpoints
         "/aggregates": "resource.aggregates.Aggregates",
         "/clique_constraints": "resource.clique_constraints.CliqueConstraints",
         "/clique_types": "resource.clique_types.CliqueTypes",
@@ -33,6 +36,7 @@ class App:
         "/connection_tests": "resource.connection_tests.ConnectionTests",
         "/constants": "resource.constants.Constants",
         "/environment_configs": "resource.environment_configs.EnvironmentConfigs",
+        "/graph": "resource.graph.Graph",
         "/health": "resource.health.Health",
         "/inventory": "resource.inventory.Inventory",
         "/links": "resource.links.Links",
@@ -42,7 +46,11 @@ class App:
         "/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
         "/search": "resource.search.Search",
         "/timezone": "resource.timezone.Timezone",
-        "/tree": "resource.tree.Tree"
+
+        # Grafana endpoints
+        "/grafana": "grafana.__init__.Health",
+        "/grafana/query": "grafana.query.Query",
+        "/grafana/search": "grafana.search.Search",
     }
 
     responders_path = "api.responders"
@@ -59,6 +67,7 @@ class App:
         self.middleware = AuthenticationMiddleware()
         self.app = falcon.API(middleware=[self.middleware])
         self.app.add_error_handler(CalipsoApiException)
+        self.app.req_options.strip_url_path_trailing_slash = True
         self.set_routes(self.app)
 
     def get_app(self):

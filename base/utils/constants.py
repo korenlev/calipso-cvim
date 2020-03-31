@@ -76,3 +76,8 @@ class EnvironmentFeatures(StringEnum):
     SCANNING = "scanning"
     MONITORING = "monitoring"
     LISTENING = "listening"
+
+
+class GraphType(StringEnum):
+    INVENTORY = "inventory"
+    CLIQUE = "clique"

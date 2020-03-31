@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 from http import HTTPStatus
+from typing import Optional
 from urllib import parse
 
 import re
@@ -159,18 +160,22 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def check_environment_name(self, env_name):
         query = {"name": env_name}
-        objects = self.read("environments_config", query)
+        objects = self.read(collection="environments_config", query=query)
         if not objects:
             return False
         return True
 
-    def get_single_object(self, collection, query):
-        objs = self.read(collection, query)
+    def get_single_object(self, collection: str, query: dict, aggregate: Optional[list] = None,
+                          raise_error_on_empty: bool = True):
+        objs = self.read(collection=collection, query=query, aggregate=aggregate)
         if not objs:
             env_name = query.get("environment")
             if env_name and not self.check_environment_name(env_name):
                 self.bad_request("unknown environment: " + env_name)
-            self.not_found()
+            elif raise_error_on_empty:
+                self.not_found()
+            else:
+                return None
 
         obj = objs[0]
         stringify_doc(obj)
@@ -179,14 +184,20 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
         return obj
 
-    def get_objects_list(self, collection, query, page=0, page_size=1000, projection=None, sort=None):
-        objects = self.read(collection=collection, matches=query, projection=projection, sort=sort,
-                            skip=page, limit=page_size)
+    def get_objects_list(self, collection: str, query: dict, page: int = 0, page_size: int = 1000,
+                         projection: Optional[dict] = None, aggregate: Optional[list] = None,
+                         sort: Optional[dict] = None, raise_error_on_empty: bool = True):
+        objects = self.read(collection=collection, query=query, projection=projection, aggregate=aggregate,
+                            sort=sort, skip=page, limit=page_size)
         if not objects:
             env_name = query.get("environment")
             if env_name and not self.check_environment_name(env_name):
                 self.bad_request("Unknown environment: {}".format(env_name))
-            self.not_found()
+            elif raise_error_on_empty:
+                self.not_found()
+            else:
+                return []
+
         for obj in objects:
             if "id" not in obj and "_id" in obj:
                 obj["id"] = str(obj["_id"])
@@ -217,13 +228,37 @@ class ResponderBase(DataValidate, DictNamingConverter):
     #      DB CRUD       #
     ######################
 
-    def read(self, collection, matches=None, projection=None, sort=None, skip=0, limit=1000):
-        if matches is None:
-            matches = {}
+    def read(self, collection, query=None, projection=None, aggregate=None, sort=None, skip=0, limit=1000):
+        if query is None:
+            query = {}
+        if not aggregate:
+            aggregate = []
+
         collection = self.get_collection_by_name(collection)
         skip *= limit
-        query = collection.find(filter=matches, projection=projection, sort=sort).skip(skip).limit(limit)
-        return list(query)
+        if aggregate:
+            # TODO: verify sequence
+            pipeline = [
+                {"$match": query}
+            ]
+
+            if projection:
+                pipeline.append({"$project": projection})
+            if sort:
+                pipeline.append({"$sort": sort})
+
+            pipeline.extend(aggregate)
+
+            if skip:
+                pipeline.append({"$skip": skip})
+            if limit:
+                pipeline.append({"$limit": limit})
+
+            results = collection.aggregate(pipeline)
+        else:
+            results = collection.find(filter=query, projection=projection, sort=sort).skip(skip).limit(limit)
+
+        return list(results)
 
     def write(self, document, collection="inventory"):
         try:

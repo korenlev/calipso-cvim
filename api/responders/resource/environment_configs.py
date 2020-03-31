@@ -341,8 +341,8 @@ class EnvironmentConfigs(ResponderBase):
     def validate_env_name(self, env_name):
         if env_name:
             env_match = self.read(
-                matches={"name": env_name},
-                collection="environments_config"
+                collection="environments_config",
+                query={"name": env_name},
             )
             if env_match:
                 self.bad_request("Environment with name '{}' already exists".format(env_name))

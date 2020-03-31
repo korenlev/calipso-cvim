@@ -82,6 +82,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.set_collection("environment_options",
                             use_default_name=True)
         self.set_collection("environments_config")
+        self.set_collection("graphs")
         self.set_collection("link_types")
         self.set_collection("links")
         self.set_collection("messages")
@@ -91,7 +92,6 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         self.set_collection("scans")
         self.set_collection("scheduled_scans")
         self.set_collection("supported_environments")
-        self.set_collection("trees")
         self.set_collection("validations")
 
     def clear(self, scan_plan):
@@ -103,7 +103,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         elif scan_plan.cliques_only:
             collections.add("cliques")
         elif not scan_plan.processors_only:
-            collections.update({"inventory", "links", "cliques", "monitoring_config"})
+            collections.update({"inventory", "links", "cliques", "graphs", "monitoring_config"})
 
         env_cond = {} if scan_plan.clear_all else {"environment": scan_plan.env}
 

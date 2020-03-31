@@ -7,8 +7,11 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional
+
 from base.utils.configuration import Configuration
 from base.utils.logging.full_logger import FullLogger
+from base.utils.logging.logger import Logger
 from base.utils.origins import Origin
 from base.utils.string_utils import plural
 
@@ -20,10 +23,10 @@ class Fetcher:
 
     def __init__(self):
         super().__init__()
-        self.env = None
-        self.log = FullLogger()
-        self.configuration = None
-        self.origin = None
+        self.env: Optional[str] = None
+        self.log: Logger = FullLogger()
+        self.configuration: Optional[Configuration] = None
+        self.origin: Optional[str] = None
 
     @staticmethod
     def escape(string):
@@ -34,7 +37,7 @@ class Fetcher:
         self.log.setup(env=env)
         self.configuration = Configuration()
 
-    def setup(self, env, origin: Origin = None):
+    def setup(self, env: str, origin: Origin = None):
         self.set_env(env=env)
         if origin:
             self.origin = origin
