@@ -100,8 +100,24 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
         return s.replace(".", "[dot]")
 
     @staticmethod
+    def encode_starting_dollars(s):
+        return s.replace("$", "[dollar]") if s.startswith("$") else s
+
+    @classmethod
+    def encode_all(cls, s):
+        return cls.encode_starting_dollars(cls.encode_dots(s))
+
+    @staticmethod
     def decode_dots(s):
         return s.replace("[dot]", ".")
+
+    @staticmethod
+    def decode_starting_dollars(s):
+        return s.replace("[dollar]", "$") if s.startswith("[dollar]") else s
+
+    @classmethod
+    def decode_all(cls, s):
+        return cls.decode_starting_dollars(cls.decode_dots(s))
 
     # Mongo will not accept dot (".") in keys, or $ in start of keys
     # $ in beginning of key does not happen in OpenStack,
@@ -109,12 +125,12 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
     @staticmethod
     def encode_mongo_keys(item):
         change_naming_func = MongoAccess.change_dict_naming_convention
-        return change_naming_func(item, MongoAccess.encode_dots)
+        return change_naming_func(item, MongoAccess.encode_all)
 
     @staticmethod
     def decode_mongo_keys(item):
         change_naming_func = MongoAccess.change_dict_naming_convention
-        return change_naming_func(item, MongoAccess.decode_dots)
+        return change_naming_func(item, MongoAccess.decode_all)
 
     @staticmethod
     def decode_object_id(item: dict):

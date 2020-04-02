@@ -28,18 +28,21 @@ class Scans(ResponderBase):
         "start_timestamp": True
     }
 
+    def __init__(self):
+        super().__init__()
+        self.scan_statuses = self.get_constants_by_name("scans_statuses")
+
     def on_get(self, req, resp):
         self.log.debug("Getting scans")
         filters = self.parse_query_params(req)
 
-        scan_statuses = self.get_constants_by_name("scans_statuses")
         filters_requirements = {
             "env_name": self.require(str, mandatory=True),
             "id": self.require(ObjectId, convert_to_type=True),
             "base_object": self.require(str),
             "status": self.require(str,
                                    validate=DataValidate.LIST,
-                                   requirement=scan_statuses),
+                                   requirement=self.scan_statuses),
             "latest": self.require(bool, convert_to_type=True),
             "page": self.require(int, convert_to_type=True),
             "page_size": self.require(int, convert_to_type=True)

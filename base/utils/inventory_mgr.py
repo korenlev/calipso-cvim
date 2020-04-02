@@ -71,28 +71,15 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
 
     def set_collections(self, inventory_collection: str = None):
         self.set_inventory_collection(inventory_collection)
-        self.set_collection("api_tokens",
-                            use_default_name=True)
-        self.set_collection("clique_constraints")
-        self.set_collection("clique_types")
-        self.set_collection("cliques")
-        self.set_collection("connection_tests")
-        self.set_collection("constants",
-                            use_default_name=True)
-        self.set_collection("environment_options",
-                            use_default_name=True)
-        self.set_collection("environments_config")
-        self.set_collection("graphs")
-        self.set_collection("link_types")
-        self.set_collection("links")
-        self.set_collection("messages")
-        self.set_collection("monitoring_config")
-        self.set_collection("monitoring_config_templates",
-                            use_default_name=True)
-        self.set_collection("scans")
-        self.set_collection("scheduled_scans")
-        self.set_collection("supported_environments")
-        self.set_collection("validations")
+
+        for coll in ("api_tokens", "constants", "environment_options", "monitoring_config_templates"):
+            self.set_collection(coll, use_default_name=True)
+
+        for coll in ("attributes_for_hover_on_data", "clique_constraints", "clique_types", "cliques",
+                     "connection_tests", "environments_config", "graphs", "link_types", "links",
+                     "messages", "monitoring_config", "scans", "scheduled_scans", "schemas", "supported_environments",
+                     "validations"):
+            self.set_collection(coll)
 
     def clear(self, scan_plan):
         collections = set()

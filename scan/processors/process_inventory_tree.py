@@ -13,14 +13,14 @@ class ProcessInventoryTree(Processor):
         super().run()
 
         data_list = [{
-            'id': "{}:{}".format(self.env, self.env),
+            'id': self.env,
             'name': self.env,
         }]
 
         data_list.extend([{
-            'id': "{}:{}".format(self.env, doc['id']),
+            'id': doc['id'],
             'name': doc['name'],
-            'parent': "{}:{}".format(self.env, doc['parent_id']),
+            'parent': doc['parent_id'],
             'type': doc['type']
         } for doc in self.inv.find_items({"environment": self.env})])
 

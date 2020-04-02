@@ -44,6 +44,7 @@ class App:
         "/monitoring_config_templates": "resource.monitoring_config_templates.MonitoringConfigTemplates",
         "/scans": "resource.scans.Scans",
         "/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
+        "/schema": "resource.schema.Schema",
         "/search": "resource.search.Search",
         "/timezone": "resource.timezone.Timezone",
 

@@ -38,6 +38,8 @@ class CliqueFinder(Fetcher):
         self.clique_constraints: Optional[pymongo.collection.Collection] = None
         self.cliques: Optional[pymongo.collection.Collection] = None
         self.graphs: Optional[pymongo.collection.Collection] = None
+        # Focal points with discovered cliques
+        self.active_focal_points: set = set()
 
     def setup(self, env: str, origin: Origin = None) -> None:
         super().setup(env, origin)
@@ -50,6 +52,7 @@ class CliqueFinder(Fetcher):
         self.clique_constraints = self.inv.collections["clique_constraints"]
         self.cliques = self.inv.collections["cliques"]
         self.graphs = self.inv.collections["graphs"]
+        self.active_focal_points: set = set()
 
     def set_env(self, env: str) -> None:
         super().set_env(env)
@@ -74,6 +77,8 @@ class CliqueFinder(Fetcher):
         for focal_point_clique_types in clique_types:
             for clique_type in focal_point_clique_types:
                 self.find_cliques_for_type(clique_type)
+
+        self.update_inventory_tree()
         self.log.info("Finished scanning for cliques")
 
     def get_priority_score(self, clique_type: dict) -> int:
@@ -234,8 +239,12 @@ class CliqueFinder(Fetcher):
             new_clique = self.construct_clique_for_focal_point(focal_point=focal_point,
                                                                clique_type=clique_type,
                                                                constraints=constraints)
-            if not new_clique:
+            if new_clique:
+                self.active_focal_points.add(focal_point["id"])
+            else:
                 self.cliques.delete({'_id': clique['_id']})
+
+            self.update_inventory_tree()
 
     def construct_clique_for_focal_point(self, focal_point: dict,
                                          clique_type: dict, constraints: list) -> Optional[dict]:
@@ -264,12 +273,6 @@ class CliqueFinder(Fetcher):
             "constraints": {c: focal_point.get(c) for c in constraints},
             "last_scanned": datetime.now()
         }
-        graph = {
-            "environment": self.env,
-            "name": "Graph for '{}' object: {}".format(focal_point["type"], focal_point["id"]),
-            "type": GraphType.CLIQUE.value,
-            "graph": {}
-        }
 
         focal_point_obj = self.inv.find_one({"_id": clique["focal_point"]})
         # Discard cliques with invalid focal point
@@ -295,6 +298,8 @@ class CliqueFinder(Fetcher):
 
         focal_point_obj["clique"] = True
         focal_point_obj.pop("_id", None)
+        self.active_focal_points.add(focal_point_obj["id"])
+
         self.cliques.update_one({
                 "environment": self.env,
                 "focal_point": clique["focal_point"]
@@ -311,6 +316,18 @@ class CliqueFinder(Fetcher):
             upsert=True
         )
 
+        self.save_clique_graph(focal_point=focal_point, clique=clique, clique_type=clique_type)
+
+        return clique_document
+
+    def save_clique_graph(self, focal_point: dict, clique: dict, clique_type: dict):
+        graph = {
+            "environment": self.env,
+            "name": "Graph for '{}' object: {}".format(focal_point["type"], focal_point["id"]),
+            "type": GraphType.CLIQUE.value,
+            "graph": {}
+        }
+
         # TODO: field names?
         graph_attributes = clique_type.get("graph_attributes", {})
         graph["graph"]["nodes"] = self.inv.find_items(
@@ -323,15 +340,13 @@ class CliqueFinder(Fetcher):
         ]
 
         self.graphs.update_one({
-                "environment": graph["environment"],
-                "name": graph["name"],
-            }, {
-                "$set": graph
-            },
+            "environment": graph["environment"],
+            "name": graph["name"],
+        }, {
+            "$set": graph
+        },
             upsert=True
         )
-
-        return clique_document
 
     @staticmethod
     def check_constraints(clique: dict, link: dict) -> bool:
@@ -456,3 +471,23 @@ class CliqueFinder(Fetcher):
             target_node = str(link[other_side])
             nodes_to_add.add(target_node)
         return nodes_to_add
+
+    def update_inventory_tree(self) -> None:
+        if not self.active_focal_points:
+            return
+
+        graph = self.graphs.find_one({"environment": self.env, "type": GraphType.INVENTORY.value})
+        if not graph:
+            return
+
+        for obj in graph["graph"]["tree"]:
+            obj["clique"] = obj["id"] in self.active_focal_points
+
+        self.graphs.update_one({
+            "environment": graph["environment"],
+            "type": graph["type"],
+        }, {
+            "$set": graph
+        },
+            upsert=True
+        )

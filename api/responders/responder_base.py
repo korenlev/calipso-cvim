@@ -9,7 +9,7 @@
 ###############################################################################
 import json
 from http import HTTPStatus
-from typing import Optional
+from typing import Optional, Tuple, List, Union
 from urllib import parse
 
 import re
@@ -186,7 +186,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def get_objects_list(self, collection: str, query: dict, page: int = 0, page_size: int = 1000,
                          projection: Optional[dict] = None, aggregate: Optional[list] = None,
-                         sort: Optional[dict] = None, raise_error_on_empty: bool = True):
+                         sort: Optional[Union[dict, List[Tuple]]] = None, raise_error_on_empty: bool = True):
         objects = self.read(collection=collection, query=query, projection=projection, aggregate=aggregate,
                             sort=sort, skip=page, limit=page_size)
         if not objects:

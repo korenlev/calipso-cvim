@@ -59,7 +59,12 @@ class ProcessorsMetadataParser(MetadataParser):
             return
 
         self.processors.append(instance)
+
         self.prerequisites[processor_class] = set(getattr(instance, "PREREQUISITES", []))
+        for prerequisite in self.prerequisites[processor_class]:
+            if prerequisite not in self.prerequisites:
+                self.add_error('Processor "{}" is listed before its prerequisite: "{}"'
+                               .format(processor_class, prerequisite))
 
     def validate_prerequisites(self):
         for class_name, prereqs in self.prerequisites.items():
@@ -81,7 +86,7 @@ class ProcessorsMetadataParser(MetadataParser):
             self.base_processor = None
 
         if not self.base_processor:
-            self.add_error("Couldn't create base processor instance"
+            self.add_error("Couldn't create base processor instance "
                            "for class name '{}'".format(self.base_processor_class))
             return False
 

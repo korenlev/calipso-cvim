@@ -6,7 +6,6 @@ from base.utils.constants import GraphType
 
 class Query(ResponderBase):
     DEFAULT_PROJECTIONS = {
-        "inventory": ["id", "name", "name_path", "type", "last_scanned"],
         "scans": ["id", "status", "submit_timestamp", "start_timestamp", "end_timestamp"],
         "scheduled_scans": ["id", "recurrence", "scheduled_timestamp"]
     }
@@ -58,12 +57,32 @@ class Query(ResponderBase):
 
         return self.set_ok_response(resp, objects)
 
+    ##### Target handlers
+
+    def get_projection_for_object_type(self, object_type: Optional[str]):
+        # Get default projection for object type and fallback projection
+        if object_type:
+            default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
+                                                    query={"type": object_type},
+                                                    raise_error_on_empty=False)
+            if default_fields:
+                return default_fields["attributes"]
+
+        common_default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
+                                                       query={"type": "ALL"},
+                                                       raise_error_on_empty=False)
+        if common_default_fields:
+            return common_default_fields["attributes"]
+
+        return []
+
     def get_inventory_table(self, environment: str, object_type: Optional[str],
                             type_fields: dict, date_filter: dict) -> dict:
-        fields = type_fields.get(object_type) if object_type else None
-        projection = {f: True for f in self.DEFAULT_PROJECTIONS["inventory"]}
-        if fields:
-            projection.update({f: True for f in fields.split(",")})
+
+        default_fields = self.get_projection_for_object_type(object_type=object_type)
+        additional_fields = type_fields[object_type].split(",") if object_type in type_fields else []
+
+        projection = {f: True for f in (default_fields + additional_fields)}
 
         query = self.build_inventory_query(environment=environment, object_type=object_type,
                                            date_filter=date_filter)
@@ -138,7 +157,8 @@ class Query(ResponderBase):
                               date_filter: Optional[dict] = None) -> dict:
 
         query = self.build_base_query(environment=environment)
-        query["type"] = object_type
+        if object_type:
+            query["type"] = object_type
         if date_filter:
             query['last_scanned'] = date_filter
 
