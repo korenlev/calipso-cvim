@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 from http import HTTPStatus
+from json import JSONDecodeError
 from typing import Optional, Tuple, List, Union
 from urllib import parse
 
@@ -137,7 +138,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
             content = json.loads(content_string)
             if not isinstance(content, dict):
                 error = "The data in the request body must be an object"
-        except:
+        except (TypeError, JSONDecodeError):
             error = "The request can not be fulfilled due to bad syntax"
 
         return error, content
@@ -165,17 +166,13 @@ class ResponderBase(DataValidate, DictNamingConverter):
             return False
         return True
 
-    def get_single_object(self, collection: str, query: dict, aggregate: Optional[list] = None,
-                          raise_error_on_empty: bool = True):
+    def get_single_object(self, collection: str, query: dict, aggregate: Optional[list] = None):
         objs = self.read(collection=collection, query=query, aggregate=aggregate)
         if not objs:
             env_name = query.get("environment")
             if env_name and not self.check_environment_name(env_name):
                 self.bad_request("unknown environment: " + env_name)
-            elif raise_error_on_empty:
-                self.not_found()
-            else:
-                return None
+            return {}
 
         obj = objs[0]
         stringify_doc(obj)
@@ -186,17 +183,14 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def get_objects_list(self, collection: str, query: dict, page: int = 0, page_size: int = 1000,
                          projection: Optional[dict] = None, aggregate: Optional[list] = None,
-                         sort: Optional[Union[dict, List[Tuple]]] = None, raise_error_on_empty: bool = True):
+                         sort: Optional[Union[dict, List[Tuple]]] = None):
         objects = self.read(collection=collection, query=query, projection=projection, aggregate=aggregate,
                             sort=sort, skip=page, limit=page_size)
         if not objects:
             env_name = query.get("environment")
             if env_name and not self.check_environment_name(env_name):
                 self.bad_request("Unknown environment: {}".format(env_name))
-            elif raise_error_on_empty:
-                self.not_found()
-            else:
-                return []
+            return []
 
         for obj in objects:
             if "id" not in obj and "_id" in obj:
@@ -271,10 +265,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def delete(self, collection, query, delete_one=True):
         if delete_one is True:
-            result = self.get_collection_by_name(collection).delete_one(query)
-            if result.deleted_count == 0:
-                self.not_found("Document not found")
-            return result
+            return self.get_collection_by_name(collection).delete_one(query)
         else:
             return self.get_collection_by_name(collection).delete_many(query)
 

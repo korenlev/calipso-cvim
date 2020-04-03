@@ -57,20 +57,18 @@ class Query(ResponderBase):
 
         return self.set_ok_response(resp, objects)
 
-    ##### Target handlers
+    # #### Target handlers
 
     def get_projection_for_object_type(self, object_type: Optional[str]):
         # Get default projection for object type and fallback projection
         if object_type:
             default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
-                                                    query={"type": object_type},
-                                                    raise_error_on_empty=False)
+                                                    query={"type": object_type})
             if default_fields:
                 return default_fields["attributes"]
 
         common_default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
-                                                       query={"type": "ALL"},
-                                                       raise_error_on_empty=False)
+                                                       query={"type": "ALL"})
         if common_default_fields:
             return common_default_fields["attributes"]
 
@@ -87,8 +85,7 @@ class Query(ResponderBase):
         query = self.build_inventory_query(environment=environment, object_type=object_type,
                                            date_filter=date_filter)
 
-        objects = self.get_objects_list(collection="inventory", query=query, projection=projection,
-                                        raise_error_on_empty=False)
+        objects = self.get_objects_list(collection="inventory", query=query, projection=projection)
         return self._build_grafana_table(columns=projection, objects=objects)
 
     def get_inventory_count_table(self, environment: str):
@@ -115,26 +112,24 @@ class Query(ResponderBase):
         projection = {f: True for f in self.DEFAULT_PROJECTIONS["scans"]}
         query = self.build_scans_query(environment=environment, date_filter=date_filter)
 
-        objects = self.get_objects_list(collection="scans", query=query, projection=projection,
-                                        raise_error_on_empty=False)
+        objects = self.get_objects_list(collection="scans", query=query, projection=projection)
         return self._build_grafana_table(columns=projection, objects=objects, target="scans")
 
     def get_scheduled_scans_table(self, environment: str) -> dict:
         projection = {f: True for f in self.DEFAULT_PROJECTIONS["scheduled_scans"]}
         query = self.build_scheduled_scans_query(environment=environment)
 
-        objects = self.get_objects_list(collection="scheduled_scans", query=query, projection=projection,
-                                        raise_error_on_empty=False)
+        objects = self.get_objects_list(collection="scheduled_scans", query=query, projection=projection)
         return self._build_grafana_table(columns=projection, objects=objects, target="scheduled_scans")
 
     def get_inventory_tree_table(self, environment: str) -> dict:
         query = self.build_tree_query(environment=environment)
 
-        tree = self.get_single_object(collection="graphs", query=query, raise_error_on_empty=False)  # TODO: graphs
+        tree = self.get_single_object(collection="graphs", query=query)  # TODO: graphs
         objects = [{"results": tree}] if tree else []
         return self._build_grafana_table(columns={"results": True}, objects=objects, target="tree")
 
-    ##### Query builders
+    # #### Query builders
 
     def _build_datetime_filter(self, date_range: Optional[dict] = None) -> dict:
         self.check_and_convert_datetime("from", date_range)
