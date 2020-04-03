@@ -179,11 +179,17 @@ class Query(ResponderBase):
 
     @staticmethod
     def _build_grafana_table(columns: dict, objects: list, target: Optional[str] = None):
-        # TODO: fix nested fields!
+        def get_nested_field(o: dict, field_parts: list):
+            return (
+                o.get(field_parts[0]) if len(field_parts) == 1
+                else get_nested_field(o.get(field_parts[0], {}), field_parts[1:]) if len(field_parts) > 1
+                else None
+            )
+
         table = {
             "type": "table",
             "columns": [{"text": name} for name in columns],  # TODO: column types
-            "rows": [[o.get(field) for field in columns] for o in objects],
+            "rows": [[get_nested_field(o, field.split(".")) for field in columns] for o in objects],
         }
         if target:
             table["target"] = target

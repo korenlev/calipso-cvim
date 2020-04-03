@@ -38,7 +38,7 @@ RECURRENCE_OPTIONS = ["ONCE", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
 PAGEABLE_ENDPOINTS = {"cliques", "inventory", "links", "messages", "scans", "scheduled_scans", "search"}
 PER_ENVIRONMENT_ENDPOINTS = PAGEABLE_ENDPOINTS.union({"graph"})
 ALLOWED_ENDPOINTS = {"clique_types", "clique_constraints", "constants", "environment_configs",
-                     "health", "timezone"}.union(PER_ENVIRONMENT_ENDPOINTS)
+                     "health", "schema", "timezone"}.union(PER_ENVIRONMENT_ENDPOINTS)
 
 
 class ConnectionError(Exception):

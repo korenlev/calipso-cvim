@@ -325,6 +325,7 @@ class CliqueFinder(Fetcher):
             "environment": self.env,
             "name": "Graph for '{}' object: {}".format(focal_point["type"], focal_point["id"]),
             "type": GraphType.CLIQUE.value,
+            "focal_point_id": focal_point["id"],
             "graph": {}
         }
 
@@ -341,7 +342,7 @@ class CliqueFinder(Fetcher):
 
         self.graphs.update_one({
             "environment": graph["environment"],
-            "name": graph["name"],
+            "focal_point_id": focal_point["id"],
         }, {
             "$set": graph
         },

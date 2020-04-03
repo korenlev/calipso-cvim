@@ -1,4 +1,5 @@
 from api.responders.responder_base import ResponderBase
+from api.validation.data_validate import DataValidate
 from base.utils.constants import GraphType
 
 
@@ -9,7 +10,14 @@ class Graph(ResponderBase):
         filters = self.parse_query_params(req)
         filters_requirements = {
             'env_name': self.require(str, mandatory=True),
+            'type': self.require(str, mandatory=True, validate=DataValidate.LIST, requirement=GraphType.members_list()),
+            'focal_point_id': self.require(str, convert_to_type=True)
         }
+
+        if filters['type'] == GraphType.CLIQUE.value and not filters.get('focal_point_id'):
+            self.bad_request("Request for clique graphs requires focal_point_id")
+        elif filters['type'] == GraphType.INVENTORY.value and filters.get('focal_point_id'):
+            self.bad_request("Request for inventory graph doesn't support focal_point_id")
 
         self.validate_query_data(filters, filters_requirements)
         query = self.build_query(filters)
@@ -19,5 +27,6 @@ class Graph(ResponderBase):
 
     def build_query(self, filters):
         query = super().build_query(filters=filters)
-        query["type"] = GraphType.INVENTORY.value  # TODO: support clique graphs
+        filters_keys = ["type", "focal_point_id"]
+        self.update_query_with_filters(filters=filters, filters_keys=filters_keys, query=query)
         return query
