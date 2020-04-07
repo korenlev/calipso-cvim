@@ -179,7 +179,7 @@ class Query(ResponderBase):
     def build_scans_query(self, environment: str, date_filter: Optional[dict] = None) -> dict:
         query = self.build_base_query(environment=environment)
         if date_filter:
-            query['end_timestamp'] = date_filter
+            query['submit_timestamp'] = date_filter
 
         return query
 
