@@ -126,14 +126,16 @@ class Query(ResponderBase):
         projection = {f: True for f in self.DEFAULT_PROJECTIONS["scans"]}
         query = self.build_scans_query(environment=environment, date_filter=date_filter)
 
-        objects = self.get_objects_list(collection="scans", query=query, projection=projection)
+        objects = self.get_objects_list(collection="scans", query=query, projection=projection,
+                                        sort={"submit_timestamp": -1})
         return self._build_grafana_table(columns=projection, objects=objects, target="scans")
 
     def get_scheduled_scans_table(self, environment: str) -> dict:
         projection = {f: True for f in self.DEFAULT_PROJECTIONS["scheduled_scans"]}
         query = self.build_scheduled_scans_query(environment=environment)
 
-        objects = self.get_objects_list(collection="scheduled_scans", query=query, projection=projection)
+        objects = self.get_objects_list(collection="scheduled_scans", query=query, projection=projection,
+                                        sort={"scheduled_timestamp": -1})
         return self._build_grafana_table(columns=projection, objects=objects, target="scheduled_scans")
 
     def get_inventory_tree_table(self, environment: str) -> dict:
