@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from typing import Optional
+from typing import Optional, Union
 
 from api.responders.responder_base import ResponderBase
 from base.utils.constants import GraphType
@@ -29,67 +29,72 @@ class Query(ResponderBase):
             if not targets:
                 return self.bad_request("Missing query targets")
             target = targets[0]  # TODO: multi-target requests?
-            endpoint = target.get("type")
+
+            scoped_vars = request_data.get("scopedVars")
+            if not scoped_vars:
+                return self.bad_request("Missing scoped vars")
+
+            endpoint = scoped_vars.get("data_type", {}).get("value")
             if not endpoint:
-                return self.bad_request("Missing target type")
+                return self.bad_request("Missing data type")
         else:
             return self.bad_request("Unsupported content type: {}".format(req.content_type))
 
         date_range = request_data.get("range")
         date_filter = self._build_datetime_filter(date_range=date_range) if date_range else {}
 
-        scoped_vars = request_data.get("scopedVars", {})
         type_fields = target.get("typeFields", {})
-        env_container = scoped_vars.get("environment_configs", scoped_vars.get("environment"))  # TODO: field name
+        env_container = scoped_vars.get("environment_configs", scoped_vars.get("environment"))
         environment = env_container["value"] if isinstance(env_container, dict) else env_container
         if not environment:
             return self.bad_request("Missing environment filter")
 
-        objects = []
-        if target["type"] == "inventory":
+        if endpoint == "inventory":
             object_type = target.get("objectType")
             table = self.get_inventory_table(environment=environment, object_type=object_type,
                                              type_fields=type_fields, date_filter=date_filter)
             objects = [table]
-        elif target["type"] == "inventoryCount":
+        elif endpoint == "inventoryCount":
             table = self.get_inventory_count_table(environment=environment)
             objects = [table]
-        elif target["type"] == "scans":
+        elif endpoint == "scans":
             scans_table = self.get_scans_table(environment=environment, date_filter=date_filter)
             scheduled_scans_table = self.get_scheduled_scans_table(environment=environment)
             objects = [scans_table, scheduled_scans_table]
-        elif target["type"] == "tree":
+        elif endpoint == "tree":
             tree_table = self.get_inventory_tree_table(environment=environment)
             objects = [tree_table]
         else:
-            return self.bad_request("Unsupported target type")
+            return self.bad_request("Unsupported data type")
 
         return self.set_ok_response(resp, objects)
 
     # #### Target handlers
 
-    def get_projection_for_object_type(self, object_type: Optional[str]):
+    def get_projection_for_object_type(self, object_type: Optional[str]) -> set:
         # Get default projection for object type and fallback projection
+
+        projection = set()
+        common_default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
+                                                       query={"type": "ALL"})
+        if common_default_fields:
+            projection = projection.union(common_default_fields["attributes"])
+
         if object_type:
             default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
                                                     query={"type": object_type})
             if default_fields:
-                return default_fields["attributes"]
+                projection = projection.union(default_fields["attributes"])
 
-        common_default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
-                                                       query={"type": "ALL"})
-        if common_default_fields:
-            return common_default_fields["attributes"]
-
-        return []
+        return projection
 
     def get_inventory_table(self, environment: str, object_type: Optional[str],
                             type_fields: dict, date_filter: dict) -> dict:
 
         default_fields = self.get_projection_for_object_type(object_type=object_type)
-        additional_fields = type_fields[object_type].split(",") if object_type in type_fields else []
+        additional_fields = set(type_fields[object_type].split(",") if object_type in type_fields else [])
 
-        projection = {f: True for f in (default_fields + additional_fields)}
+        projection = {f: True for f in (default_fields.union(additional_fields))}
 
         query = self.build_inventory_query(environment=environment, object_type=object_type,
                                            date_filter=date_filter)
@@ -188,12 +193,19 @@ class Query(ResponderBase):
 
     @staticmethod
     def _build_grafana_table(columns: dict, objects: list, target: Optional[str] = None):
-        def get_nested_field(o: dict, field_parts: list):
-            return (
-                o.get(field_parts[0]) if len(field_parts) == 1
-                else get_nested_field(o.get(field_parts[0], {}), field_parts[1:]) if len(field_parts) > 1
-                else None
-            )
+        def get_nested_field(o: Union[dict, list], field_parts: list):
+            if isinstance(o, dict):
+                return (
+                    o.get(field_parts[0]) if len(field_parts) == 1
+                    else get_nested_field(o.get(field_parts[0], {}), field_parts[1:]) if len(field_parts) > 1
+                    else None
+                )
+            else:
+                return (
+                    [item.get(field_parts[0]) for item in o] if len(field_parts) == 1
+                    else [get_nested_field(item.get(field_parts[0], {}), field_parts[1:]) for item in o] if len(field_parts) > 1
+                    else None
+                )
 
         table = {
             "type": "table",

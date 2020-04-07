@@ -52,6 +52,7 @@ class App:
         "/grafana": "grafana.__init__.Health",
         "/grafana/query": "grafana.query.Query",
         "/grafana/search": "grafana.search.Search",
+        "/grafana/scans": "resource.scans.Scans",  # TODO: verify
     }
 
     responders_path = "api.responders"
