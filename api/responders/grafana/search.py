@@ -25,7 +25,6 @@ class Search(ResponderBase):
         objects = []
         if target == "environment_configs":
             environments = self.get_objects_list(collection="environments_config", query={})
-            # TODO: return full objects?
             objects = [env["name"] for env in environments]
         elif target == "object_types":
             object_types = self.get_single_object(collection="constants", query={"name": "object_types"})

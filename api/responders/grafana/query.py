@@ -25,16 +25,11 @@ class Query(ResponderBase):
             if error:
                 return self.bad_request("Failed to get json content from request")
 
-            targets = request_data.get("targets")
-            if not targets:
-                return self.bad_request("Missing query targets")
-            target = targets[0]  # TODO: multi-target requests?
-
             scoped_vars = request_data.get("scopedVars")
             if not scoped_vars:
                 return self.bad_request("Missing scoped vars")
 
-            endpoint = scoped_vars.get("data_type", {}).get("value")
+            endpoint = self._get_value(scoped_vars.get("data_type", {}))
             if not endpoint:
                 return self.bad_request("Missing data type")
         else:
@@ -43,16 +38,13 @@ class Query(ResponderBase):
         date_range = request_data.get("range")
         date_filter = self._build_datetime_filter(date_range=date_range) if date_range else {}
 
-        type_fields = target.get("typeFields", {})
-        env_container = scoped_vars.get("environment_configs", scoped_vars.get("environment"))
-        environment = env_container["value"] if isinstance(env_container, dict) else env_container
+        environment = self._get_value(scoped_vars.get("environment_configs", scoped_vars.get("environment")))
         if not environment:
             return self.bad_request("Missing environment filter")
 
         if endpoint == "inventory":
-            object_type = target.get("objectType")
-            table = self.get_inventory_table(environment=environment, object_type=object_type,
-                                             type_fields=type_fields, date_filter=date_filter)
+            object_type = self._get_value(scoped_vars.get("object_type", scoped_vars.get("object_types")))
+            table = self.get_inventory_table(environment=environment, object_type=object_type, date_filter=date_filter)
             objects = [table]
         elif endpoint == "inventoryCount":
             table = self.get_inventory_count_table(environment=environment)
@@ -89,10 +81,12 @@ class Query(ResponderBase):
         return projection
 
     def get_inventory_table(self, environment: str, object_type: Optional[str],
-                            type_fields: dict, date_filter: dict) -> dict:
+                            date_filter: dict, type_fields: Optional[dict] = None) -> dict:
 
         default_fields = self.get_projection_for_object_type(object_type=object_type)
-        additional_fields = set(type_fields[object_type].split(",") if object_type in type_fields else [])
+        additional_fields = set(type_fields[object_type].split(",")
+                                if type_fields and object_type in type_fields
+                                else [])
 
         projection = {f: True for f in (default_fields.union(additional_fields))}
 
@@ -125,23 +119,25 @@ class Query(ResponderBase):
     def get_scans_table(self, environment: str, date_filter: dict) -> dict:
         projection = {f: True for f in self.DEFAULT_PROJECTIONS["scans"]}
         query = self.build_scans_query(environment=environment, date_filter=date_filter)
+        sort = [("submit_timestamp", -1)]
 
         objects = self.get_objects_list(collection="scans", query=query, projection=projection,
-                                        sort={"submit_timestamp": -1})
+                                        sort=sort)
         return self._build_grafana_table(columns=projection, objects=objects, target="scans")
 
     def get_scheduled_scans_table(self, environment: str) -> dict:
         projection = {f: True for f in self.DEFAULT_PROJECTIONS["scheduled_scans"]}
         query = self.build_scheduled_scans_query(environment=environment)
+        sort = [("scheduled_timestamp", 1)]
 
         objects = self.get_objects_list(collection="scheduled_scans", query=query, projection=projection,
-                                        sort={"scheduled_timestamp": -1})
+                                        sort=sort)
         return self._build_grafana_table(columns=projection, objects=objects, target="scheduled_scans")
 
     def get_inventory_tree_table(self, environment: str) -> dict:
         query = self.build_tree_query(environment=environment)
 
-        tree = self.get_single_object(collection="graphs", query=query)  # TODO: graphs
+        tree = self.get_single_object(collection="graphs", query=query)
         objects = [{"results": tree}] if tree else []
         return self._build_grafana_table(columns={"results": True}, objects=objects, target="tree")
 
@@ -217,3 +213,7 @@ class Query(ResponderBase):
         if target:
             table["target"] = target
         return table
+
+    @staticmethod
+    def _get_value(container: Union[dict, str]):
+        return container.get("value") if isinstance(container, dict) else container
