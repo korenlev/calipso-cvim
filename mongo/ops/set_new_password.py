@@ -3,8 +3,10 @@ from pymongo.errors import OperationFailure, ConnectionFailure
 
 from setup_initial_data import HOST, PORT, ADMIN_USER, ADMIN_DB, CALIPSO_DB, CALIPSO_USER, MongoConnector, _exit
 
+# Required environment variables
 OLD_DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_OLD_PWD"]
 NEW_DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_NEW_PWD"]
+################################
 
 if __name__ == "__main__":
     mongo_connector = MongoConnector(HOST, PORT)

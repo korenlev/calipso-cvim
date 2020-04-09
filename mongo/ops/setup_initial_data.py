@@ -19,14 +19,16 @@ from pymongo.errors import OperationFailure, ConnectionFailure
 
 DEFAULT_INITIAL_DATA_PATH = "/calipso/mongo/initial_data"
 DEFAULT_DB = "calipso"
+DEFAULT_USER = "calipso"
+DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 27017
 ADMIN_USER = "admin"
 ADMIN_DB = "admin"
 
 SSL_ENABLED = os.environ.get("CALIPSO_MONGO_SSL_ENABLED", True)
-HOST = os.environ["CALIPSO_MONGO_SERVICE_HOST"]
+HOST = os.environ.get("CALIPSO_MONGO_SERVICE_HOST", DEFAULT_HOST)
 PORT = os.environ.get("CALIPSO_MONGO_SERVICE_PORT", DEFAULT_PORT)
-CALIPSO_USER = os.environ["CALIPSO_MONGO_SERVICE_USER"]
+CALIPSO_USER = os.environ.get("CALIPSO_MONGO_SERVICE_USER", DEFAULT_USER)
 CALIPSO_PWD = os.environ.get("CALIPSO_MONGO_SERVICE_PWD")
 CALIPSO_DB = os.environ.get("CALIPSO_MONGO_SERVICE_AUTH_DB", DEFAULT_DB)
 
@@ -181,6 +183,10 @@ def _exit(status_code, exit_code=None):
 
 
 def run():
+    if not CALIPSO_PWD:
+        print("CALIPSO_MONGO_SERVICE_PWD environment variable is not defined")
+        _exit(1)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data_path",
                         help="Path to initial data collections (default={})".format(DEFAULT_INITIAL_DATA_PATH),

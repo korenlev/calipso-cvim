@@ -1,18 +1,15 @@
-###############################################################################
-# Copyright (c) 2017-2020 Koren Lev (Cisco Systems),                          #
-# Yaron Yogev (Cisco Systems), Ilia Abashin (Cisco Systems) and others        #
-#                                                                             #
-# All rights reserved. This program and the accompanying materials            #
-# are made available under the terms of the Apache License, Version 2.0       #
-# which accompanies this distribution, and is available at                    #
-# http://www.apache.org/licenses/LICENSE-2.0                                  #
-###############################################################################
+from __future__ import print_function
 import argparse
 import os
 
 import json
 
-from setup_initial_data import HOST, DB_USER, DEFAULT_DB, DEFAULT_PORT, MongoConnector, _exit
+from pymongo.errors import OperationFailure, ConnectionFailure
+from setup_initial_data import HOST, PORT, CALIPSO_DB, CALIPSO_USER, CALIPSO_PWD, MongoConnector, _exit
+
+# Required environment variables
+DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_PWD"]
+################################
 
 ENV_CONFIG_COLLECTION = "environments_config"
 ENV_OPTIONS_COLLECTION = "environment_options"
@@ -20,15 +17,13 @@ SUPPORTED_ENVS_COLLECTION = "supported_environments"
 CONSTANTS_COLLECTION = "constants"
 REQUIRED_FIELDS = ('name', 'environment_type', 'distribution', 'distribution_version',
                    'mechanism_drivers', 'type_drivers')
-DISTRIBUTION = 'Mercury'
 ALLOWED_FEATURES = {
     'scanning': True,
     'monitoring': True,
     'listening': True
 }
 
-DEFAULT_SOURCE = "/data/mercury_environment_config.json"
-DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_PWD"]
+DEFAULT_SOURCE = "/data/environment_config.json"
 
 
 def validate_env_config(env_dict):
@@ -36,16 +31,13 @@ def validate_env_config(env_dict):
     missing_fields = [field for field in REQUIRED_FIELDS if field not in env_dict]
     if missing_fields:
         error_msg += "Missing fields: {}\n".format(
-            ', '.join(field for field in REQUIRED_FIELDS if field not in env_dict)
+            ', '.join(missing_fields)
         )
-        return error_msg
-    if env_dict.get('distribution') != DISTRIBUTION:
-        error_msg += "Distribution must be '{}'\n".format(DISTRIBUTION)
 
     return error_msg
 
 
-def update_constants(env_dict):
+def update_constants(mongo_connector, env_dict):
     distribution_versions = mongo_connector.find_one(CONSTANTS_COLLECTION,
                                                      {'name': 'distribution_versions'})
     dv = env_dict['distribution_version']
@@ -65,7 +57,7 @@ def update_constants(env_dict):
                            distribution_versions)
 
 
-def update_environment_options(env_dict):
+def update_environment_options(mongo_connector, env_dict):
     env_options = mongo_connector.find(ENV_OPTIONS_COLLECTION)
 
     distribution = env_dict['distribution']
@@ -99,13 +91,13 @@ def update_environment_options(env_dict):
             doc['distribution_versions'].append(distribution_version)
         if type_driver not in doc['type_drivers']:
             doc['type_drivers'].append(type_driver)
-        for mecha_driver in env_dict['mechanism_drivers']:
-            if mecha_driver not in doc['mechanism_drivers']:
-                doc['mechanism_drivers'].append(mecha_driver)
+        for mechanism_driver in env_dict['mechanism_drivers']:
+            if mechanism_driver not in doc['mechanism_drivers']:
+                doc['mechanism_drivers'].append(mechanism_driver)
         mongo_connector.update(ENV_OPTIONS_COLLECTION, {'_id': doc['_id']}, doc)
 
 
-def update_supported_environments(env_dict):
+def update_supported_environments(mongo_connector, env_dict):
     env_options = mongo_connector.find(SUPPORTED_ENVS_COLLECTION,
                                        {'environment.distribution': env_dict['distribution']})
 
@@ -121,7 +113,7 @@ def update_supported_environments(env_dict):
             'type_drivers': td if isinstance(td, list) else [td]
         }
 
-        # Find out whether this combination of mecha_drivers+type_drivers+features is already supported
+        # Find out whether this combination of mechanism_drivers+type_drivers+features is already supported
         if (all(m in requirements['mechanism_drivers'] for m in env_dict['mechanism_drivers'])
                 and env_dict['type_drivers'] in requirements['type_drivers']
                 and ALLOWED_FEATURES == env_option['features']):
@@ -130,7 +122,7 @@ def update_supported_environments(env_dict):
                 print("Updating supported environment configuration for '{}-{}'"
                       .format(env_dict['distribution'], env_dict['distribution_version']))
                 env_option['environment']['distribution_version'] = (
-                        requirements['distribution_version'] + [env_dict['distribution_version']]
+                    requirements['distribution_version'] + [env_dict['distribution_version']]
                 )
                 mongo_connector.update(SUPPORTED_ENVS_COLLECTION,
                                        {'_id': env_option['_id']},
@@ -155,13 +147,13 @@ def update_supported_environments(env_dict):
     mongo_connector.insert(SUPPORTED_ENVS_COLLECTION, doc)
 
 
-def enable_environment_config(env_dict):
-    update_constants(env_dict)
-    update_environment_options(env_dict)
-    update_supported_environments(env_dict)
+def enable_environment_config(mongo_connector, env_dict):
+    update_constants(mongo_connector, env_dict)
+    update_environment_options(mongo_connector, env_dict)
+    update_supported_environments(mongo_connector, env_dict)
 
 
-def update_environment_config(env_dict):
+def update_environment_config(mongo_connector, env_dict):
     env_name = env_dict['name']
     existing_env = mongo_connector.find_one(ENV_CONFIG_COLLECTION, {'name': env_name})
     if existing_env:
@@ -176,18 +168,8 @@ def update_environment_config(env_dict):
     return mongo_connector.find_one(ENV_CONFIG_COLLECTION, {'_id': env_id})
 
 
-if __name__ == "__main__":
+def run():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--db_name",
-                        help="Database name (default={})".format(DEFAULT_DB),
-                        type=str,
-                        default=DEFAULT_DB,
-                        required=False)
-    parser.add_argument("-p", "--port",
-                        help="Port for the MongoDB daemon (default={})".format(DEFAULT_PORT),
-                        type=int,
-                        default=DEFAULT_PORT,
-                        required=False)
     parser.add_argument("-s", "--source",
                         help="Environment config file location (default={})".format(DEFAULT_SOURCE),
                         type=str,
@@ -195,16 +177,33 @@ if __name__ == "__main__":
                         required=False)
     args = parser.parse_args()
 
-    mongo_connector = MongoConnector(HOST, args.port, DB_USER, DB_PWD, args.db_name)
+    mongo_connector = MongoConnector(HOST, PORT)
     try:
+        mongo_connector.connect(db=CALIPSO_DB, user=CALIPSO_USER, pwd=CALIPSO_PWD)
         with open(args.source) as f:
             env_json = json.loads(f.read())
             validation_errors = validate_env_config(env_json)
             if validation_errors:
                 raise ValueError(validation_errors)
-            enable_environment_config(env_json)
-            update_environment_config(env_json)
+            enable_environment_config(mongo_connector, env_json)
+            update_environment_config(mongo_connector, env_json)
+    except ConnectionFailure:
+        print("Failed to connect to mongodb")
+        _exit(1)
+    except OperationFailure:
+        print("Failed to update environment config")
+        _exit(1)
+    except IOError as e:
+        print("Failed to read environment config file. Error: {}".format(e))
+        _exit(1)
+    except ValueError as e:
+        print("Failed to validate env config. Error: {}".format(e))
+        _exit(1)
     finally:
         mongo_connector.disconnect()
 
     _exit(0)
+
+
+if __name__ == "__main__":
+    run()
