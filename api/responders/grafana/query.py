@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from api.responders.responder_base import ResponderBase
 from base.utils.constants import GraphType
@@ -18,6 +18,10 @@ class Query(ResponderBase):
         "scans": ["id", "status", "submit_timestamp", "start_timestamp", "end_timestamp"],
         "scheduled_scans": ["id", "recurrence", "scheduled_timestamp"]
     }
+
+    def __init__(self):
+        super().__init__()
+        self.object_types = self.get_constants_by_name("object_types")
 
     def on_post(self, req, resp):
         if req.content_type == "application/json":
@@ -43,11 +47,11 @@ class Query(ResponderBase):
             return self.bad_request("Missing environment filter")
 
         if endpoint == "inventory":
-            object_type = self._get_value(scoped_vars.get("object_type", scoped_vars.get("object_types")))
-            table = self.get_inventory_table(environment=environment, object_type=object_type, date_filter=date_filter)
+            table = self.get_inventory_table(environment=environment, scoped_vars=scoped_vars, date_filter=date_filter)
             objects = [table]
         elif endpoint == "inventoryCount":
-            table = self.get_inventory_count_table(environment=environment)
+            object_types = self._get_value(scoped_vars.get("object_types"))
+            table = self.get_inventory_count_table(environment=environment, object_types=object_types)
             objects = [table]
         elif endpoint == "scans":
             scans_table = self.get_scans_table(environment=environment, date_filter=date_filter)
@@ -80,9 +84,9 @@ class Query(ResponderBase):
 
         return projection
 
-    def get_inventory_table(self, environment: str, object_type: Optional[str],
+    def get_inventory_table(self, environment: str, scoped_vars: dict,
                             date_filter: dict, type_fields: Optional[dict] = None) -> dict:
-
+        object_type = self._get_value(scoped_vars.get("object_type", scoped_vars.get("object_types")))
         default_fields = self.get_projection_for_object_type(object_type=object_type)
         additional_fields = set(type_fields[object_type].split(",")
                                 if type_fields and object_type in type_fields
@@ -96,8 +100,9 @@ class Query(ResponderBase):
         objects = self.get_objects_list(collection="inventory", query=query, projection=projection)
         return self._build_grafana_table(columns=projection, objects=objects)
 
-    def get_inventory_count_table(self, environment: str):
-        query = self.build_inventory_count_query(environment=environment)
+    def get_inventory_count_table(self, environment: str, object_types: Optional[List[str]] = None):
+        query = self.build_inventory_count_query(environment=environment, object_types=object_types)
+
         aggregate = [{
             "$group": {
                 "_id": "$type",
@@ -164,6 +169,7 @@ class Query(ResponderBase):
                               date_filter: Optional[dict] = None) -> dict:
 
         query = self.build_base_query(environment=environment)
+
         if object_type:
             query["type"] = object_type
         if date_filter:
@@ -171,8 +177,13 @@ class Query(ResponderBase):
 
         return query
 
-    def build_inventory_count_query(self, environment: str) -> dict:
-        return self.build_base_query(environment=environment)
+    def build_inventory_count_query(self, environment: str, object_types: Optional[List[str]] = None) -> dict:
+        query = self.build_base_query(environment=environment)
+
+        if object_types and isinstance(object_types, list):
+            query["type"] = {"$in": [ot for ot in object_types if ot in self.object_types]}
+
+        return query
 
     def build_scans_query(self, environment: str, date_filter: Optional[dict] = None) -> dict:
         query = self.build_base_query(environment=environment)

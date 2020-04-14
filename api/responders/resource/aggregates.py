@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Dict, Callable
+
 from api.responders.responder_base import ResponderBase
 from api.validation.data_validate import DataValidate
 
@@ -17,7 +19,7 @@ class Aggregates(ResponderBase):
 
     def __init__(self):
         super().__init__()
-        self.AGGREGATES_MAP = {
+        self.AGGREGATES_MAP: Dict[str, Callable[[dict], dict]] = {
             "environment": self.get_environments_aggregates,
             "message": self.get_messages_aggregates,
             "constant": self.get_constants_aggregates
@@ -66,7 +68,7 @@ class Aggregates(ResponderBase):
         data = collection.aggregate(pipeline)
         return list(data)
 
-    def get_environments_aggregates(self, query):
+    def get_environments_aggregates(self, query: dict) -> dict:
         env_name = query['env_name']
         aggregates = {
             "type": query["type"],
@@ -98,7 +100,7 @@ class Aggregates(ResponderBase):
                 group['total']
         return aggregates
 
-    def get_messages_aggregates(self, query):
+    def get_messages_aggregates(self, query: dict) -> dict:
         aggregates = {
             "type": query['type'],
             "aggregates": {
@@ -137,7 +139,7 @@ class Aggregates(ResponderBase):
 
         return aggregates
 
-    def get_constants_aggregates(self, query):
+    def get_constants_aggregates(self, query: dict) -> dict:
         aggregates = {
             "type": query['type'],
             "aggregates": {

@@ -35,23 +35,15 @@ class EnvironmentConfigs(ResponderBase):
     def __init__(self):
         super().__init__()
 
-        self.provision_types = self.\
-            get_constants_by_name("environment_provision_types")
+        self.provision_types = self.get_constants_by_name("environment_provision_types")
         self.env_types = self.get_constants_by_name("env_types")
-        self.monitoring_types = self.\
-            get_constants_by_name("environment_monitoring_types")
-        self.distributions = self.\
-            get_constants_by_name("distributions")
-        self.distribution_versions = self.\
-            get_constants_by_name("distribution_versions")
-        self.mechanism_drivers = self.\
-            get_constants_by_name("mechanism_drivers")
-        self.operational_values = self.\
-            get_constants_by_name("environment_operational_status")
-        self.type_drivers = self.\
-            get_constants_by_name("type_drivers")
-        self.environment_types = self.\
-            get_constants_by_name("environment_types")
+        self.monitoring_types = self.get_constants_by_name("environment_monitoring_types")
+        self.distributions = self.get_constants_by_name("distributions")
+        self.distribution_versions = self.get_constants_by_name("distribution_versions")
+        self.mechanism_drivers = self.get_constants_by_name("mechanism_drivers")
+        self.operational_values = self.get_constants_by_name("environment_operational_status")
+        self.type_drivers = self.get_constants_by_name("type_drivers")
+        self.environment_types = self.get_constants_by_name("environment_types")
 
         self.CONFIGURATIONS_REQUIREMENTS = {
             "mysql": {

@@ -10,10 +10,12 @@
 import json
 from http import HTTPStatus
 from json import JSONDecodeError
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List, Union, Iterable
 from urllib import parse
 
 import re
+
+import pymongo
 from dateutil import parser
 from pymongo import errors
 
@@ -147,17 +149,17 @@ class ResponderBase(DataValidate, DictNamingConverter):
     #     DB Helpers     #
     ######################
 
-    def get_collection_by_name(self, name):
+    def get_collection_by_name(self, name: str) -> pymongo.collection.Collection:
         if name in self.UNCHANGED_COLLECTIONS:
             return self.inv.db[name]
         return self.inv.collections[name]
 
-    def get_constants_by_name(self, name):
-        constants = self.get_collection_by_name("constants").find_one({"name": name})
+    def get_constants_by_name(self, name: str):
+        constants = self.distinct(collection="constants", field="data.value", query={"name": name})
         if not constants:
             self.log.error('No constants with name "{}" exist'.format(name))
 
-        return [d['value'] for d in constants['data']]
+        return constants
 
     def check_environment_name(self, env_name):
         query = {"name": env_name}
@@ -183,7 +185,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def get_objects_list(self, collection: str, query: dict, page: int = 0, page_size: int = 1000,
                          projection: Optional[dict] = None, aggregate: Optional[list] = None,
-                         sort: Optional[Union[dict, List[Tuple]]] = None):
+                         sort: Optional[List[Tuple]] = None):
         objects = self.read(collection=collection, query=query, projection=projection, aggregate=aggregate,
                             sort=sort, skip=page, limit=page_size)
         if not objects:
@@ -222,7 +224,10 @@ class ResponderBase(DataValidate, DictNamingConverter):
     #      DB CRUD       #
     ######################
 
-    def read(self, collection, query=None, projection=None, aggregate=None, sort=None, skip=0, limit=1000):
+    def read(self, collection: str, query: Optional[dict] = None,
+             projection: Optional[dict] = None,
+             aggregate: Optional[list] = None, sort: Optional[List[Tuple]] = None,
+             skip: int = 0, limit: int = 1000):
         if query is None:
             query = {}
         if not aggregate:
@@ -253,6 +258,13 @@ class ResponderBase(DataValidate, DictNamingConverter):
             results = collection.find(filter=query, projection=projection, sort=sort).skip(skip).limit(limit)
 
         return list(results)
+
+    def distinct(self, collection: str, field: str, query: Optional[dict] = None):
+        if query is None:
+            query = {}
+
+        collection = self.get_collection_by_name(collection)
+        return list(collection.distinct(key=field, filter=query))
 
     def write(self, document, collection="inventory"):
         try:
