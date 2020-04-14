@@ -60,7 +60,8 @@ def get_args():
                         help="logging level \n(default: 'INFO')")
     parser.add_argument("-b", "--bind", nargs="?", type=str,
                         default="127.0.0.1:8000",
-                        help="binding address of the API server\n"
+                        help="binding address of the API server."
+                             "Multiple comma-separated IPs are allowed\n"
                              "(default 127.0.0.1:8000)")
     parser.add_argument("-y", "--inventory", nargs="?", type=str,
                         default="inventory",
@@ -82,7 +83,7 @@ if __name__ == "__main__":
     args = get_args()
     # Gunicorn configuration
     options = {
-        "bind": args.bind,
+        "bind": args.bind.split(",") if "," in args.bind else args.bind,
         "certfile": args.cert_file,
         "keyfile": args.key_file
     }
