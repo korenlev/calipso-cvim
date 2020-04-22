@@ -39,7 +39,8 @@ def validate_env_config(env_dict):
 
 def update_constants(mongo_connector, env_dict):
     distribution_versions = mongo_connector.find_one(CONSTANTS_COLLECTION,
-                                                     {'name': 'distribution_versions'})
+                                                     {'name': 'distribution_versions',
+                                                      'environment_type': {"$in": [None, env_dict['environment_type']]}})
     dv = env_dict['distribution_version']
     for version in distribution_versions['data']:
         if version['label'] == dv:

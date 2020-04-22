@@ -33,9 +33,17 @@ class Query(ResponderBase):
             if not scoped_vars:
                 return self.bad_request("Missing scoped vars")
 
-            endpoint = self._get_value(scoped_vars.get("data_type", {}))
+            targets = request_data.get("targets")
+            if not targets:
+                return self.bad_request("Missing targets")
+
+            target = targets[0]
+            if not target:
+                return self.bad_request("Missing target")
+
+            endpoint = target.get("type")
             if not endpoint:
-                return self.bad_request("Missing data type")
+                return self.bad_request("Missing target type")
         else:
             return self.bad_request("Unsupported content type: {}".format(req.content_type))
 

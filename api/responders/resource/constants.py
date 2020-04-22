@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from api.responders.responder_base import ResponderBase
+from api.validation.data_validate import DataValidate
 
 
 class Constants(ResponderBase):
@@ -15,13 +16,27 @@ class Constants(ResponderBase):
     COLLECTION = 'constants'
     ID = '_id'
 
+    def __init__(self):
+        super().__init__()
+        self.environment_types = self.get_constants_by_name("environment_types")
+
     def on_get(self, req, resp):
         self.log.debug("Getting constants with name")
         filters = self.parse_query_params(req)
         filters_requirements = {
             "name": self.require(str, mandatory=True),
+            "env_type": self.require(str, validate=DataValidate.LIST, requirement=self.environment_types)
         }
         self.validate_query_data(filters, filters_requirements)
-        query = {"name": filters['name']}
+        query = self.build_query(filters)
         constant = self.get_single_object(collection=self.COLLECTION, query=query)
         self.set_ok_response(resp, constant)
+
+    def build_query(self, filters: dict) -> dict:
+        query = {"name": filters["name"]}
+        environment_type = filters.get("env_type")
+        if environment_type:
+            query["environment_type"] = environment_type
+        else:
+            query["environment_type"] = {"$in": [None, "OpenStack"]}
+        return query

@@ -7,4 +7,4 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-VERSION = "0.9.2"
+VERSION = "0.9.3"

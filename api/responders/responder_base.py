@@ -154,8 +154,14 @@ class ResponderBase(DataValidate, DictNamingConverter):
             return self.inv.db[name]
         return self.inv.collections[name]
 
-    def get_constants_by_name(self, name: str):
-        constants = self.distinct(collection="constants", field="data.value", query={"name": name})
+    def get_constants_by_name(self, name: str, environment_type: str = None):
+        query = {"name": name}
+        if environment_type:
+            query["environment_type"] = environment_type
+        else:
+            query["environment_type"] = {"$in": [None, "OpenStack"]}
+
+        constants = self.distinct(collection="constants", field="data.value", query=query)
         if not constants:
             self.log.error('No constants with name "{}" exist'.format(name))
 

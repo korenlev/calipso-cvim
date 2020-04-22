@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional, Union
+
 from base.utils.metadata_parser import MetadataParser
 from base.utils.mongo_access import MongoAccess
 from base.utils.util import ClassResolver
@@ -38,7 +40,8 @@ class ScanMetadataParser(MetadataParser):
     def __init__(self, inventory_mgr):
         super().__init__()
         self.inv = inventory_mgr
-        self.constants = {}
+        self.constants = MongoAccess.db['constants']
+        self.environment_types = [et["value"] for et in self.constants.find_one({"name": "environment_types"})["data"]]
 
     def get_required_fields(self):
         return [self.SCANNERS_PACKAGE, self.SCANNERS]
@@ -101,7 +104,8 @@ class ScanMetadataParser(MetadataParser):
                                .format(scanner_name, type_index,
                                        children_scanner))
 
-    def _validate_condition(self, scanner_name: str, type_index: int, condition: dict):
+    def _validate_condition(self, scanner_name: str, type_index: int, condition: dict,
+                            environment_types: Optional[Union[list, str]] = None):
         if not isinstance(condition, dict):
             self.add_error('scanner {} type #{}: condition must be dict'
                            .format(scanner_name, str(type_index)))
@@ -113,29 +117,41 @@ class ScanMetadataParser(MetadataParser):
                                '{} must be a list of strings'
                                .format(scanner_name, type_index,
                                        self.MECHANISM_DRIVER))
-            if not all((isinstance(driver, str) for driver in drivers)):
+            elif not all((isinstance(driver, str) for driver in drivers)):
                 self.add_error('scanner {} type #{}: '
                                '{} must be a list of strings'
                                .format(scanner_name, type_index,
                                        self.MECHANISM_DRIVER))
             else:
                 for driver in drivers:
-                    self.validate_constant(scanner_name,
-                                           driver,
-                                           'mechanism_drivers',
-                                           'mechanism drivers')
+                    self.validate_constant(scanner_name=scanner_name,
+                                           value_to_check=driver,
+                                           environment_types=environment_types,
+                                           constant_type='mechanism_drivers',
+                                           items_desc='mechanism drivers')
 
     def validate_environment_condition(self, scanner_name: str, type_index: int, scanner: dict):
         if self.ENVIRONMENT_CONDITION not in scanner:
             return
         condition = scanner[self.ENVIRONMENT_CONDITION]
-        return self._validate_condition(scanner_name, type_index, condition)
+        return self._validate_condition(scanner_name=scanner_name, type_index=type_index, condition=condition,
+                                        environment_types=condition.get("environment_type"))
 
     def validate_environment_restriction(self, scanner_name: str, type_index: int, scanner: dict):
         if self.ENVIRONMENT_RESTRICTION not in scanner:
             return
         restriction = scanner[self.ENVIRONMENT_RESTRICTION]
-        return self._validate_condition(scanner_name, type_index, restriction)
+
+        env_type_restriction = restriction.get("environment_type")
+        if env_type_restriction:
+            if isinstance(env_type_restriction, str):
+                env_type_restriction = [env_type_restriction]
+            env_type_condition = [et for et in self.environment_types if et not in env_type_restriction]
+        else:
+            env_type_condition = self.environment_types
+
+        return self._validate_condition(scanner_name=scanner_name, type_index=type_index, condition=restriction,
+                                        environment_types=env_type_condition)
 
     def validate_scanner(self, scanners: dict, name: str, package: str):
         scanner = scanners.get(name)
@@ -146,15 +162,16 @@ class ScanMetadataParser(MetadataParser):
         # make sure only allowed attributes are supplied
         for i in range(0, len(scanner)):
             scan_type = scanner[i]
-            self.validate_scan_type(scanners, name, i+1, scan_type, package)
+            self.validate_scan_type(scanners=scanners, scanner_name=name, type_index=i+1,
+                                    scanner=scan_type, package=package)
 
     def validate_scan_type(self, scanners: dict, scanner_name: str,
-                           type_index: int, scan_type: dict, package: str):
+                           type_index: int, scanner: dict, package: str):
         # keep previous error count to know if errors were detected here
         error_count = len(self.errors)
         # ignore comments
-        scan_type.pop(self.COMMENT, '')
-        for attribute in scan_type.keys():
+        scanner.pop(self.COMMENT, '')
+        for attribute in scanner.keys():
             if attribute not in self.ALLOWED_SCANNER_ATTRIBUTES:
                 self.add_error('unknown attribute {} '
                                'in scanner {}, type #{}'
@@ -163,7 +180,7 @@ class ScanMetadataParser(MetadataParser):
 
         # make sure required attributes are supplied
         for attribute in ScanMetadataParser.REQUIRED_SCANNER_ATTRIBUTES:
-            if attribute not in scan_type:
+            if attribute not in scanner:
                 self.add_error('scanner {}, type #{}: '
                                'missing attribute "{}"'
                                .format(scanner_name, str(type_index),
@@ -173,33 +190,50 @@ class ScanMetadataParser(MetadataParser):
         if len(self.errors) > error_count:
             return
 
-        # type must be valid object type
-        self.validate_constant(scanner_name, scan_type[self.TYPE],
-                               'scan_object_types', 'types')
-        self.validate_fetcher(scanner_name, scan_type, type_index, package)
-        self.validate_children_scanner(scanner_name, type_index, scanners, scan_type)
-        self.validate_environment_condition(scanner_name, type_index, scan_type)
-        self.validate_environment_restriction(scanner_name, type_index, scan_type)
+        # Validate fields listed in environment conditions
+        self.validate_environment_condition(scanner_name=scanner_name, type_index=type_index, scanner=scanner)
+        self.validate_environment_restriction(scanner_name=scanner_name, type_index=type_index, scanner=scanner)
 
-    def get_constants(self, scanner_name, items_desc, constant_type):
-        if not self.constants.get(constant_type):
-            constants = MongoAccess.db['constants']
-            values_list = constants.find_one({'name': constant_type})
-            if not values_list:
-                raise ValueError('scanner {}: '
-                                 'could not find {} list in DB'
-                                 .format(scanner_name, items_desc))
-            self.constants[constant_type] = values_list
-        return self.constants[constant_type]
+        # Scan of the selected type should be supported for this environment type
+        self.validate_constant(scanner_name=scanner_name, value_to_check=scanner[self.TYPE],
+                               environment_types=scanner.get(self.ENVIRONMENT_CONDITION, {}).get("environment_type"),
+                               constant_type='scan_object_types', items_desc='types')
 
-    def validate_constant(self,
-                          scanner_name: str,
-                          value_to_check: str,
-                          constant_type: str,
-                          items_desc: str = None):
-        values_list = self.get_constants(scanner_name, items_desc,
-                                         constant_type)
-        values = [t['value'] for t in values_list['data']]
+        # Validate fetcher class and try to create an instance
+        self.validate_fetcher(scanner_name=scanner_name, scan_type=scanner,
+                              type_index=type_index, package=package)
+        self.validate_children_scanner(scanner_name=scanner_name, type_index=type_index,
+                                       scanners=scanners, scan_type=scanner)
+
+    def get_constants(self, scanner_name: str, items_desc: str, constant_type: str,
+                      environment_types: Optional[Union[list, str]] = None):
+
+        query = {'name': constant_type}
+        if environment_types:
+            if isinstance(environment_types, str):
+                environment_types = [environment_types]
+
+            query['environment_type'] = {'$in': [None, *environment_types]}
+        else:
+            query['environment_type'] = {'$in': [None, "OpenStack"]}
+
+        objects_list = list(self.constants.find(query))
+        if not objects_list:
+            raise ValueError('scanner {}: '
+                             'could not find {} list in DB'
+                             .format(scanner_name, items_desc))
+
+        values_list = set()
+        for obj in objects_list:
+            values_list = values_list.union([d['value'] for d in obj['data']])
+
+        return values_list
+
+    def validate_constant(self, scanner_name: str, value_to_check: str, constant_type: str,
+                          environment_types: Optional[Union[list, str]], items_desc: Optional[str] = None):
+
+        values = self.get_constants(scanner_name=scanner_name, items_desc=items_desc,
+                                    constant_type=constant_type, environment_types=environment_types)
         if value_to_check not in values:
             self.add_error('scanner {}: value not in {}: {}'
                            .format(scanner_name, items_desc, value_to_check))

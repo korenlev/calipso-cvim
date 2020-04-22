@@ -50,10 +50,11 @@ class App:
 
         # Grafana endpoints
         "/grafana": "grafana.__init__.Health",
-        "/grafana/query": "grafana.query.Query",
         "/grafana/search": "grafana.search.Search",
-        "/grafana/scans": "resource.scans.Scans",
-        "/grafana/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
+        "/grafana/query": "grafana.query.Query",
+        "/grafana/query/graph": "resource.graph.Graph",
+        "/grafana/query/scans": "resource.scans.Scans",
+        "/grafana/query/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
     }
 
     responders_path = "api.responders"
