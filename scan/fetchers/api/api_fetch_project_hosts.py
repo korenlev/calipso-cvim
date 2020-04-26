@@ -100,10 +100,16 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
             try:
                 doc = hosts[hostname]
             except KeyError:
-                # TBD - add error output
+                self.log.info('hypervisor {} not in zone, probably dead/missing, adding as unknown'.format(hostname))
+                doc = {'id': h['hypervisor_hostname'], 'host': h['hypervisor_hostname'],
+                       'name': h['hypervisor_hostname'], 'zone': 'unknown', 'parent_type': 'region',
+                       'parent_id': 'region|{}'.format(region), 'OS': 'unknown', 'host_type': 'unknown',
+                       'services': False}
+                ret.append(doc)
                 continue
             doc["os_id"] = str(h["id"])
-            self.fetch_compute_node_ip_address(doc, hvname)
+            if doc['services']:
+                self.fetch_compute_node_ip_address(doc, hvname)
         # get more network nodes details
         self.fetch_network_node_details(ret)
         # temp solution to add ironic hosts/instances from ironic api
