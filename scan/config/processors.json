@@ -5,6 +5,7 @@
     "ProcessVedgeType",
     "ProcessVnicCount",
     "ProcessInventoryTree",
-    "ProcessInventorySchema"
+    "ProcessInventorySchema",
+    "ProcessRegionsMetros"
   ]
 }
