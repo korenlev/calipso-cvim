@@ -36,7 +36,7 @@ class Constants(ResponderBase):
         query = {"name": filters["name"]}
         environment_type = filters.get("env_type")
         if environment_type:
-            query["environment_type"] = environment_type
+            query["environment_type"] = {"$in": [None, environment_type]}
         else:
             query["environment_type"] = {"$in": [None, "OpenStack"]}
         return query

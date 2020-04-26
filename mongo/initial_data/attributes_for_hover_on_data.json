@@ -2,10 +2,10 @@
     {
         "type" : "ALL",
         "attributes" : [
-            "id",
             "type",
             "name",
             "name_path",
+            "id",
             "last_scanned"
         ]
     },
@@ -198,6 +198,7 @@
     {
         "type" : "instance",
         "attributes" : [
+            "vm_state",
             "created_at",
             "project_name",
             "user_id",

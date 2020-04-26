@@ -21,6 +21,7 @@ class EnvironmentConfigs(ResponderBase):
         ID: True,
         "_id": False,
         "name": True,
+        "environment_type": True,
         "distribution": True
     }
     CONFIGURATIONS_NAMES = ["mysql", "OpenStack", "CLI", "AMQP",

@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from collections import OrderedDict
 from typing import Optional, Union, List
 
 from api.responders.responder_base import ResponderBase
@@ -75,20 +76,20 @@ class Query(ResponderBase):
 
     # #### Target handlers
 
-    def get_projection_for_object_type(self, object_type: Optional[str]) -> set:
+    def get_projection_for_object_type(self, object_type: Optional[str]) -> list:
         # Get default projection for object type and fallback projection
 
-        projection = set()
+        projection = []
         common_default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
                                                        query={"type": "ALL"})
         if common_default_fields:
-            projection = projection.union(common_default_fields["attributes"])
+            projection += common_default_fields["attributes"]
 
         if object_type:
             default_fields = self.get_single_object(collection="attributes_for_hover_on_data",
                                                     query={"type": object_type})
             if default_fields:
-                projection = projection.union(default_fields["attributes"])
+                projection += default_fields["attributes"]
 
         return projection
 
@@ -96,11 +97,13 @@ class Query(ResponderBase):
                             date_filter: dict, type_fields: Optional[dict] = None) -> dict:
         object_type = self._get_value(scoped_vars.get("object_type", scoped_vars.get("object_types")))
         default_fields = self.get_projection_for_object_type(object_type=object_type)
-        additional_fields = set(type_fields[object_type].split(",")
-                                if type_fields and object_type in type_fields
-                                else [])
+        additional_fields = (
+            type_fields[object_type].split(",")
+            if type_fields and object_type in type_fields
+            else []
+        )
 
-        projection = {f: True for f in (default_fields.union(additional_fields))}
+        projection = OrderedDict({f: True for f in (default_fields + additional_fields)})
 
         query = self.build_inventory_query(environment=environment, object_type=object_type,
                                            date_filter=date_filter)
