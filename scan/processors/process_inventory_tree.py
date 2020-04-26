@@ -31,7 +31,7 @@ class ProcessInventoryTree(Processor):
             'name': doc['name'],
             'parent': doc['parent_id'],
             'type': doc['type'],
-            'host': doc['host'] if 'host' in doc else None
+            'host': doc.get('host')
         } for doc in self.inv.find_items({"environment": self.env})])
 
         graph_doc = self.inv.find_one({"environment": self.env}, collection=self.COLLECTION)
