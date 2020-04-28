@@ -17,6 +17,8 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
         super().__init__()
 
     def get_vconnectors(self, host):
+        if host['host_type'] == 'Storage':
+            return []
         host_id = host['id']
         lines = self.run_fetch_lines('brctl show', host_id)
         headers = ['bridge_name', 'bridge_id', 'stp_enabled', 'interfaces']

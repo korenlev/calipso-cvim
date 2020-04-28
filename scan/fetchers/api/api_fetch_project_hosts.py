@@ -116,6 +116,13 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         ironic_instances = self.fetch_ironic_instances()
         for ironic in ironic_instances:
             ret.append(ironic)
+        # for CVIM a special flag is automated:
+        # if 'VOLUME_DRIVER: ceph' is in setup_data.yaml
+        # then set root level flag in calipso environment config:
+        # "cvim_ceph": true
+        if self.configuration.environment.get('cvim_ceph'):
+            ssh_host = 'localhost'
+            ret = self.fetch_storage_hosts_details(ret, region, ssh_host)
         return ret
 
     def get_hosts_from_az(self, az):
@@ -253,3 +260,4 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 for e in ["links", "uuid"]:
                     ironic.pop(e)
         return ironic_instances
+

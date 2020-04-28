@@ -49,7 +49,7 @@ class CliFetchHostPnics(CliFetcher):
                            ", host: " + str(host))
             return []
         host_types = host["host_type"]
-        accepted_host_types = ['Network', 'Compute']
+        accepted_host_types = ['Network', 'Compute', 'Storage']
         if not [t for t in accepted_host_types if t in host_types]:
             return []
 
