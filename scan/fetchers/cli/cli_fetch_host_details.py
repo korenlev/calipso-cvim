@@ -72,9 +72,9 @@ class CliFetchHostDetails(CliFetcher):
         osd_stats = self.run('cephmon ceph osd stat', ssh_to_host=ssh_host)
         features = json.loads(self.run('cephmon ceph features', ssh_to_host=ssh_host))
 
+        dup_names = []
         for store in stores:
             for h in ret:
-                dup_names = []
                 if store['name'] == h['name']:
                     # aio controllers may also be ceph storage nodes, so we'll only append new data:
                     h['ceph_features'] = features
