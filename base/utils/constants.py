@@ -81,3 +81,12 @@ class EnvironmentFeatures(StringEnum):
 class GraphType(StringEnum):
     INVENTORY = "inventory"
     CLIQUE = "clique"
+
+
+class HostType(StringEnum):
+    COMPUTE = "Compute"
+    CONTROLLER = "Controller"
+    NETWORK = "Network"
+    STORAGE = "Storage"
+    BAREMETAL = "Bare-metal"
+    KUBEMASTER = "Kube-Master"

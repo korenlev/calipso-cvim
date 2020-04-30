@@ -9,6 +9,7 @@
 ###############################################################################
 from abc import abstractmethod, ABCMeta
 
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.singleton import Singleton
 from scan.fetchers.cli.cli_fetcher import CliFetcher
@@ -36,5 +37,7 @@ class CliFetchVconnectors(CliFetcher, metaclass=ABCSingleton):
         if "host_type" not in host:
             self.log.error("host does not have host_type: " + host_id +
                            ", host: " + str(host))
+            return []
+        if host['host_type'] == HostType.STORAGE.value:
             return []
         return self.get_vconnectors(host)

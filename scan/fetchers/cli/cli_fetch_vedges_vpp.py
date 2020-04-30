@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
@@ -16,7 +17,7 @@ class CliFetchVedgesVpp(CliFetcher):
         super().__init__()
         self.inv = InventoryMgr()
 
-    def get(self, parent_id):
+    def get(self, parent_id) -> list:
         host_id = parent_id.replace('-vedges', '')
         vedge = {
             'host': host_id,
@@ -34,7 +35,7 @@ class CliFetchVedgesVpp(CliFetcher):
             self.log.error("unable to find host in inventory: %s", host_id)
             return []
         host_types = host["host_type"]
-        if "Network" not in host_types and "Compute" not in host_types:
+        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
             return []
         interfaces = self.run_fetch_lines('vppctl show int', host_id)
         vedge['ports'] = self.fetch_ports(interfaces)

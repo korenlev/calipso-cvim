@@ -9,6 +9,7 @@
 ###############################################################################
 import re
 
+from base.utils.constants import HostType
 from base.utils.origins import Origin
 
 from base.utils.inventory_mgr import InventoryMgr
@@ -41,7 +42,7 @@ class CliFetchVserviceVnics(CliFetcher):
             self.log.error("host does not have host_type: " + host_id +
                            ", host: " + str(host))
             return []
-        if "Network" not in host["host_type"]:
+        if HostType.NETWORK.value not in host["host_type"]:
             return []
 
         if host_id not in self.ports:

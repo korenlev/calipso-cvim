@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 
+from base.utils.constants import HostType
 from scan.fetchers.db.db_access import DbAccess
 
 
@@ -28,4 +29,4 @@ class DbFetchAZNetworkHosts(DbAccess):
     def set_host_details(self, r):
         config = json.loads(r["configurations"])
         r["ip_address"] = config["nova_metadata_ip"]
-        r["host_type"] = "Network Node"
+        r["host_type"] = [HostType.NETWORK.value]

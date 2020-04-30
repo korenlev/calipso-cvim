@@ -11,6 +11,7 @@ import re
 from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec, \
     V1NodeStatus
 
+from base.utils.constants import HostType
 from base.utils.origins import Origin
 from base.utils.ssh_connection import SshError
 from scan.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
@@ -75,12 +76,12 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
             except AttributeError:
                 pass
         doc['id'] = doc['name']
-        doc['host_type'] = ['Network', 'Compute']
+        doc['host_type'] = [HostType.NETWORK.value, HostType.COMPUTE.value]
 
     @staticmethod
     def get_node_data_from_spec(doc: dict, spec: V1NodeSpec):
         if 'node-role.kubernetes.io/master' in doc['labels']:
-            doc['host_type'].append('Kube-master')
+            doc['host_type'].append(HostType.KUBEMASTER.value)
         attrs = ['pod_cidr', 'provider_id', 'taints', 'unschedulable']
         for attr in attrs:
             try:

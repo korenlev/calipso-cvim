@@ -36,8 +36,6 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
         return name
 
     def get_vconnectors(self, host):
-        if host['host_type'] == 'Storage':
-            return []
         self.vconnectors = {}
         lines = self.run_fetch_lines("vppctl show mode", host['id'])
         is_kubernetes = self.ENV_TYPE_KUBERNETES == \

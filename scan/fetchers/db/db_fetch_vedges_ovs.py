@@ -11,6 +11,7 @@ import json
 
 import re
 
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
@@ -37,7 +38,7 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
             self.log.error("unable to find host in inventory: %s", host_id)
             return []
         host_types = host["host_type"]
-        if "Network" not in host_types and "Compute" not in host_types:
+        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
             return []
         vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host["id"])
         ports = self.fetch_ports(host, vsctl_lines)
@@ -51,15 +52,15 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
             doc["tunnel_ports"] = self.get_overlay_tunnels(doc, vsctl_lines)
         return results
 
-    def fetch_ports(self, host, vsctl_lines):
+    def fetch_ports(self, host, vsctl_lines) -> dict:
         host_types = host["host_type"]
-        if "Network" not in host_types and "Compute" not in host_types:
+        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
             return {}
         ports = self.fetch_ports_from_dpctl(host["id"])
         self.fetch_port_tags_from_vsctl(vsctl_lines, ports)
         return ports
 
-    def fetch_ports_from_dpctl(self, host_id):
+    def fetch_ports_from_dpctl(self, host_id) -> dict:
         cmd = "ovs-dpctl show"
         lines = self.run_fetch_lines(cmd, host_id)
         ports = {}

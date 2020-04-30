@@ -7,6 +7,9 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional
+
+from base.utils.constants import HostType
 from scan.link_finders.find_links import FindLinks
 
 
@@ -30,7 +33,7 @@ class FindLinksForInstanceVnics(FindLinks):
             vnic["mac_address"] == network["address"]
         )
 
-    def add_link_for_vnic(self, v):
+    def add_link_for_vnic(self, v) -> Optional[list]:
         # link_type: "instance-vnic"
         instance = self.inv.get_by_id(self.get_env(), v["instance_id"])
         if "network_info" not in instance:
@@ -40,7 +43,7 @@ class FindLinksForInstanceVnics(FindLinks):
             return
         host = self.inv.get_by_id(self.get_env(), instance["host"])
         host_types = host["host_type"]
-        if "Network" not in host_types and "Compute" not in host_types:
+        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
             return []
         # find related network
         network_name = None

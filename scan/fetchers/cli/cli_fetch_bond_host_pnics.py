@@ -9,6 +9,7 @@
 ###############################################################################
 from collections import deque
 
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
@@ -31,7 +32,7 @@ class CliFetchBondHostPnics(CliFetcher):
             self.log.error('CliFetchBondHostPnics: host not found: {}'.format(host_id))
             return []
         host_types = host['host_type']
-        if 'Network' not in host_types and 'Compute' not in host_types:
+        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
             return []
         lines = self.run_fetch_lines(cmd, host_id)
         if lines and 'No such file or directory' in lines[0]:

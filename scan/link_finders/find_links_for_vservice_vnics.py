@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.constants import HostType
 from scan.link_finders.find_links import FindLinks
 
 
@@ -30,7 +31,7 @@ class FindLinksForVserviceVnics(FindLinks):
     def add_link_for_vnic(self, v):
         # link_type: "vservice-vnic"
         host = self.inv.get_by_id(self.get_env(), v["host"])
-        if "Network" not in host["host_type"]:
+        if HostType.NETWORK.value not in host["host_type"]:
             return
         vservice_id = v["parent_id"]
         vservice_id = vservice_id[:vservice_id.rindex('-')]

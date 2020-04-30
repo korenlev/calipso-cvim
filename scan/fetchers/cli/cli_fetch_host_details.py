@@ -7,14 +7,20 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import json
-
+from base.utils.constants import HostType
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
 class CliFetchHostDetails(CliFetcher):
 
-    def fetch_host_os_details(self, doc):
+    CEPH_OSD_DF_CMD = "cephmon ceph osd df -f json"
+    CEPH_NODE_LS_CMD = "cephmon ceph node ls -f json"
+    CEPH_STATUS_CMD = "cephmon ceph -s -f json"
+    CEPH_PG_STATS_CMD = "cephmon ceph pg stat -f json"
+    CEPH_OSD_STATS_CMD = "cephmon ceph osd stat -f json"
+    CEPH_FEATURES_CMD = "cephmon ceph features -f json"
+
+    def fetch_host_os_details(self, doc: dict) -> None:
         cmd = 'cat /etc/os-release && echo "ARCHITECURE=`arch`"'
         lines = self.run_fetch_lines(cmd, ssh_to_host=doc['host'])
         os_attributes = {}
@@ -34,62 +40,60 @@ class CliFetchHostDetails(CliFetcher):
         if os_attributes:
             doc['OS'] = os_attributes
 
-    def fetch_storage_hosts_details(self, ret, region, ssh_host):
-        cmd = 'cephmon ceph osd df'
-        osd_lines = self.run_fetch_lines(cmd, ssh_to_host=ssh_host)
-        osd_lines.pop(0)
-        osds = []
-        for line in osd_lines:
-            line = line.split()
-            if line[0].isdigit():
-                osd = {'id': line[0], 'class': line[1], 'weight': line[2],
-                       'reweight': line[3], 'size': line[4], 'in_use': line[5],
-                       'available': line[6], '%in_use': line[7],
-                       'variance': line[8], 'pgs': line[9]}
-                osds.append(osd)
+    def fetch_storage_hosts_details(self, ret: list, region: str) -> list:
+        osd_df_response = self.run_fetch_json_response(self.CEPH_OSD_DF_CMD)
+        osds = osd_df_response.get("nodes", [])
 
-        cmd = 'cephmon ceph node ls'
-        response = json.loads(self.run(cmd, ssh_to_host=ssh_host))
-        stores = []
-        stores_dict = response.get('osd')
-        for name in stores_dict.keys():
-            store_osds = []
-            store = {'name': name}
-            osd_ids = stores_dict[name]
-            for osd in osds:
-                if int(osd['id']) in osd_ids:
-                    store_osds.append(osd)
-            store['osds'] = store_osds
-            stores.append(store)
-        controllers = []
-        conts_dict = response.get('mon')
-        for name in conts_dict.keys():
-            monitor = {'name': name, 'mon_ids': conts_dict[name]}
-            controllers.append(monitor)
+        node_ls_response = self.run_fetch_json_response(self.CEPH_NODE_LS_CMD)
+        stores = [
+            {
+                'name': name,
+                'osds': [osd for osd in osds if int(osd['id']) in osd_ids],
+            } for name, osd_ids in node_ls_response.get('osd', {}).items()
+        ]
 
-        cluster_status = self.run('cephmon ceph -s', ssh_to_host=ssh_host)
-        pg_stats = self.run('cephmon ceph pg stat', ssh_to_host=ssh_host)
-        osd_stats = self.run('cephmon ceph osd stat', ssh_to_host=ssh_host)
-        features = json.loads(self.run('cephmon ceph features', ssh_to_host=ssh_host))
+        # TODO: Remove/reduce redundancy of this data
+        controllers = [
+            {
+                'name': name,
+                'mon_ids': mon_ids
+            } for name, mon_ids in node_ls_response.get('mon', {}).items()
+        ]
 
-        dup_names = []
+        # TODO: Remove/reduce redundancy of this data
+        cluster_status = self.run_fetch_json_response(self.CEPH_STATUS_CMD)
+        pg_stats = self.run_fetch_json_response(self.CEPH_PG_STATS_CMD)
+        osd_stats = self.run_fetch_json_response(self.CEPH_OSD_STATS_CMD)
+        features = self.run_fetch_json_response(self.CEPH_FEATURES_CMD)
+
         for store in stores:
+            ceph_details = {
+                'ceph_features': features,
+                'cluster_status': cluster_status,
+                'pg_stats': pg_stats,
+                'osd_stats': osd_stats,
+                'ceph_controllers': controllers,
+                'osds': store['osds']
+            }
+
+            host_matched = False
             for h in ret:
                 if store['name'] == h['name']:
                     # aio controllers may also be ceph storage nodes, so we'll only append new data:
-                    h['ceph_features'] = features
-                    h['cluster_status'] = cluster_status
-                    h['pg_stats'] = pg_stats
-                    h['osd_stats'] = osd_stats
-                    h['controllers'] = controllers
-                    h['osds'] = store['osds']
-                    dup_names.append(h['name'])
+                    h.update(ceph_details)
+                    host_matched = True
+
             # completely new host of type Storage:
-            if store['name'] not in dup_names:
-                host = {'id': store['name'], 'host': store['name'], 'name': store['name'],
-                        'parent_id': 'region|{}'.format(region), 'zone': 'unknown', 'parent_type': 'region',
-                        'host_type': 'Storage', 'ceph_features': features, 'cluster_status': cluster_status,
-                        'pg_stats': pg_stats, 'osd_stats': osd_stats, 'controllers': controllers, 'osds': store['osds']}
+            if not host_matched:
+                host = {
+                    'id': store['name'],
+                    'host': store['name'],
+                    'name': store['name'],
+                    'parent_id': 'region|{}'.format(region),
+                    'parent_type': 'region',
+                    'zone': 'unknown',
+                    'host_type': [HostType.STORAGE.value]}
+                host.update(ceph_details)
                 self.fetch_host_os_details(host)
                 ret.append(host)
         return ret

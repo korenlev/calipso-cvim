@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
@@ -47,7 +48,7 @@ class ApiFetchHostInstances(ApiAccess):
         self.get_projects()
         host_id = id[:id.rindex("-")]
         host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host or "Compute" not in host.get("host_type", ""):
+        if not host or HostType.COMPUTE.value not in host.get("host_type", []):
             return []
         instances_found = self.get_instances_from_api(host_id)
         self.db_fetcher.get_instance_data(instances_found)

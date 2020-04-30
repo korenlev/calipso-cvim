@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.constants import HostType
 from scan.fetchers.cli.cli_fetch_host_vservice import CliFetchHostVservice
 
 
@@ -16,7 +17,7 @@ class CliFetchHostVservices(CliFetchHostVservice):
 
     def get(self, host_id):
         host = self.inv.get_single(self.get_env(), "host", host_id)
-        if "Network" not in host["host_type"]:
+        if HostType.NETWORK.value not in host["host_type"]:
             return []
         services_ids = [l[:l.index(' ')] if ' ' in l else l
                         for l in self.run_fetch_lines("ip netns list", host_id)]

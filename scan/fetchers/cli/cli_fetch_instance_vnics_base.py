@@ -11,6 +11,8 @@ import abc
 import re
 
 import xmltodict
+
+from base.utils.constants import HostType
 from base.utils.origins import Origin
 
 from base.utils.inventory_mgr import InventoryMgr
@@ -37,7 +39,7 @@ class CliFetchInstanceVnicsBase(CliFetcher):
             return []
 
         host = self.inv.get_by_id(self.get_env(), instance["host"])
-        if not host or "Compute" not in host["host_type"]:
+        if not host or HostType.COMPUTE.value not in host["host_type"]:
             return []
 
         if instance["host"] not in self.ports:

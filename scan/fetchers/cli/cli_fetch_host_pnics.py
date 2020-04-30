@@ -9,6 +9,7 @@
 ###############################################################################
 import re
 
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetch_interface_details \
     import CliFetchInterfaceDetails
@@ -19,6 +20,7 @@ class CliFetchHostPnics(CliFetcher):
 
     SUPPORTED_PORTS_REGEX = re.compile("Supported ports:\s*\[(?P<ports>.*)\]")
     SUPPORTED_LINK_MODES_REGEX = re.compile("Supported link modes:\s*(?P<link_modes>.*)")
+    ACCEPTED_HOST_TYPES = [ht.value for ht in (HostType.NETWORK, HostType.COMPUTE, HostType.STORAGE)]
 
     def __init__(self):
         super().__init__()
@@ -49,8 +51,7 @@ class CliFetchHostPnics(CliFetcher):
                            ", host: " + str(host))
             return []
         host_types = host["host_type"]
-        accepted_host_types = ['Network', 'Compute', 'Storage']
-        if not [t for t in accepted_host_types if t in host_types]:
+        if not [t for t in self.ACCEPTED_HOST_TYPES if t in host_types]:
             return []
 
         ls_cmd = 'ls -l /sys/class/net | grep ^l'

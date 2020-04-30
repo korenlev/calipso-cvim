@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 from inflection import pluralize
-from bson import ObjectId
+from bson import ObjectId, Int64
 
 
 def jsonify(obj, prettify=False):
@@ -22,18 +22,23 @@ def jsonify(obj, prettify=False):
 
 
 # stringify datetime object
-def stringify_datetime(dt):
+def stringify_datetime(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
 
 # stringify ObjectId
-def stringify_object_id(object_id):
+def stringify_object_id(object_id: ObjectId) -> str:
     return str(object_id)
+
+
+def convert_int64(int64: Int64) -> int:
+    return int(int64)
 
 
 stringify_map = {
     ObjectId: stringify_object_id,
-    datetime: stringify_datetime
+    datetime: stringify_datetime,
+    Int64: convert_int64
 }
 
 

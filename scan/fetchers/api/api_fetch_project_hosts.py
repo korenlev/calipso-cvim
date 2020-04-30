@@ -10,6 +10,8 @@
 import json
 import re
 from requests import exceptions
+
+from base.utils.constants import HostType
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
@@ -70,7 +72,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         for doc in az_info:
             az_hosts = self.get_hosts_from_az(doc)
             for h in az_hosts:
-                if "compute" in (ht.lower() for ht in h["host_type"]):
+                if HostType.COMPUTE.value in h["host_type"]:
                     self.fetch_host_resources(h)
 
                 if h["name"] in hosts:
@@ -121,8 +123,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         # then set root level flag in calipso environment config:
         # "cvim_ceph": true
         if self.configuration.environment.get('cvim_ceph'):
-            ssh_host = 'localhost'
-            ret = self.fetch_storage_hosts_details(ret, region, ssh_host)
+            ret = self.fetch_storage_hosts_details(ret=ret, region=region)
         return ret
 
     def get_hosts_from_az(self, az):
@@ -150,11 +151,11 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         if "nova-conductor" in services:
             s = services["nova-conductor"]
             if s["available"] and s["active"]:
-                self.add_host_type(host_doc, "Controller", az['zoneName'])
+                self.add_host_type(host_doc, HostType.CONTROLLER.value, az['zoneName'])
         if "nova-compute" in services:
             s = services["nova-compute"]
             if s["available"] and s["active"]:
-                self.add_host_type(host_doc, "Compute", az['zoneName'])
+                self.add_host_type(host_doc, HostType.COMPUTE.value, az['zoneName'])
         self.fetch_host_os_details(host_doc)
         return host_doc
 
@@ -206,7 +207,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 continue
             host = hosts[host]
             host["config"] = json.loads(r["configurations"])
-            self.add_host_type(host, "Network", '')
+            self.add_host_type(host, HostType.NETWORK.value, '')
 
     # fetch ip_address from nova.compute_nodes table if possible
     def fetch_compute_node_ip_address(self, doc, h):
@@ -222,7 +223,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
     def add_host_type(self, doc, host_type, zone):
         if host_type not in doc["host_type"]:
             doc["host_type"].append(host_type)
-            if host_type.lower() == 'compute':
+            if host_type == HostType.COMPUTE.value:
                 az_doc = self.availability_zones.get(zone)
                 if az_doc:
                     doc['zone'] = az_doc["name"]
@@ -250,7 +251,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
             for ironic in ironic_instances:
                 ironic.update({"id": ironic["uuid"], "ports": ports,
                                "name": "ironic-{}".format(ironic["uuid"]),
-                               "host_type": ["Bare_metal"],
+                               "host_type": [HostType.BAREMETAL.value],
                                "host": "host-{}".format(ironic["uuid"]),
                                "zone": "ironic",
                                "services": {"ironic-compute": {"created_at": ironic["created_at"],
