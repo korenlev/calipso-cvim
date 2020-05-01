@@ -307,5 +307,36 @@
             "hosts",
             "available"
         ]
-    }
+},
+{
+    "type" : "disk",
+    "attributes" : [
+        "device",
+        "state",
+        "size",
+        "serial",
+        "vendor",
+        "scsi_address",
+        "revision",
+        "wwn_address",
+        "model"
+    ]
+},
+{
+    "type" : "partition",
+    "attributes" : [
+        "device",
+        "master_disk",
+        "size",
+        "label",
+        "mount_point",
+        "osd_partition_type"
+    ]
+},
+{
+    "type" : "osd",
+    "attributes" : [
+        "metadata"
+    ]
+}
 ]

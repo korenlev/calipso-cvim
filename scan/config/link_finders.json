@@ -8,6 +8,7 @@
     "FindLinksForVedges",
     "FindLinksForVserviceVnics",
     "FindLinksForPnics",
+    "FindLinksForDisks",
     "FindLinksForContainers",
     "FindLinksForPods",
     "FindImplicitLinks"

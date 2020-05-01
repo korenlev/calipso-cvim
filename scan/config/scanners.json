@@ -89,13 +89,50 @@
           "types_name": "vservices",
           "parent_type": "host",
           "text": "vServices"
-        },
-        "children_scanner": "ScanInstancesRoot"
+        }
       },
       {
         "type": "vservice",
         "fetcher": "CliFetchHostVservices"
       },
+      {
+        "_comment": "creating only top folder for Disks",
+        "type": "disks_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "disks",
+          "parent_type": "host",
+          "text": "Disks"
+        },
+        "environment_condition": {"cvim_ceph": true},
+        "children_scanner": "ScanDisks"
+      },
+      {
+        "_comment": "creating only top folder for Partitions",
+        "type": "partitions_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "partitions",
+          "parent_type": "host",
+          "text": "Partitions"
+        },
+        "environment_condition": {"cvim_ceph": true},
+        "children_scanner": "ScanPartitions"
+      },
+
+      {
+        "_comment": "creating only top folder for OSDs",
+        "type": "osds_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "osds",
+          "parent_type": "host",
+          "text": "OSDs"
+        },
+        "environment_condition": {"cvim_ceph": true},
+        "children_scanner": "ScanOsds"
+      },
+
       {
         "_comment": "fetch vService vNICs from host for efficiency",
         "type": "vnic",
@@ -168,6 +205,22 @@
         "children_scanner": "ScanVedgesRoot"
       }
     ],
+    "ScanDisks": [      {
+        "type": "disk",
+        "fetcher": "CliFetchHostDisks",
+        "environment_condition": {"cvim_ceph": true}
+      }
+    ],
+    "ScanOsds":[{
+        "type": "osd",
+        "fetcher": "CliFetchHostOsds",
+        "environment_condition": {"cvim_ceph": true}
+      }],
+    "ScanPartitions":[{
+        "type": "partition",
+        "fetcher": "CliFetchHostPartitions",
+        "environment_condition": {"cvim_ceph": true}
+      }],
     "ScanInstance": [
       {
         "type": "vnics_folder",
@@ -453,12 +506,6 @@
           "environment_type": ["OpenStack", "Kubernetes"]
         },
         "children_scanner": "ScanSpines"
-      }
-    ],
-    "ScanVservicesRoot": [
-      {
-        "type": "vservice",
-        "fetcher": "CliFetchHostVservices"
       }
     ],
     "ScanNodesRoot": [

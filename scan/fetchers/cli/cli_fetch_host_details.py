@@ -19,6 +19,8 @@ class CliFetchHostDetails(CliFetcher):
     CEPH_PG_STATS_CMD = "cephmon ceph pg stat -f json"
     CEPH_OSD_STATS_CMD = "cephmon ceph osd stat -f json"
     CEPH_FEATURES_CMD = "cephmon ceph features -f json"
+    CEPH_UTIL_CMD = 'cephmon ceph osd utilization -f json'
+    CEPH_QUORUM_CMD = 'cephmon ceph quorum_status -f json'
 
     def fetch_host_os_details(self, doc: dict) -> None:
         cmd = 'cat /etc/os-release && echo "ARCHITECURE=`arch`"'
@@ -41,10 +43,11 @@ class CliFetchHostDetails(CliFetcher):
             doc['OS'] = os_attributes
 
     def fetch_storage_hosts_details(self, ret: list, region: str) -> list:
+        node_ls_response = self.run_fetch_json_response(self.CEPH_NODE_LS_CMD)
+        if not node_ls_response:
+            return ret
         osd_df_response = self.run_fetch_json_response(self.CEPH_OSD_DF_CMD)
         osds = osd_df_response.get("nodes", [])
-
-        node_ls_response = self.run_fetch_json_response(self.CEPH_NODE_LS_CMD)
         stores = [
             {
                 'name': name,
@@ -65,15 +68,19 @@ class CliFetchHostDetails(CliFetcher):
         pg_stats = self.run_fetch_json_response(self.CEPH_PG_STATS_CMD)
         osd_stats = self.run_fetch_json_response(self.CEPH_OSD_STATS_CMD)
         features = self.run_fetch_json_response(self.CEPH_FEATURES_CMD)
+        utilization = self.run_fetch_json_response(self.CEPH_UTIL_CMD)
+        quorum = self.run_fetch_json_response(self.CEPH_QUORUM_CMD)
 
         for store in stores:
             ceph_details = {
                 'ceph_features': features,
-                'cluster_status': cluster_status,
-                'pg_stats': pg_stats,
-                'osd_stats': osd_stats,
+                'ceph_cluster_status': cluster_status,
+                'ceph_pg_stats': pg_stats,
+                'ceph_osd_stats': osd_stats,
                 'ceph_controllers': controllers,
-                'osds': store['osds']
+                'ceph_osds': store['osds'],
+                'ceph_utilizations': utilization,
+                'ceph_quorum': quorum
             }
 
             host_matched = False
@@ -81,6 +88,7 @@ class CliFetchHostDetails(CliFetcher):
                 if store['name'] == h['name']:
                     # aio controllers may also be ceph storage nodes, so we'll only append new data:
                     h.update(ceph_details)
+                    h['host_type'].append(HostType.STORAGE.value)
                     host_matched = True
 
             # completely new host of type Storage:
