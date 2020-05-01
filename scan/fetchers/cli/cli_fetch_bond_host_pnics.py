@@ -17,6 +17,7 @@ from scan.fetchers.cli.cli_fetcher import CliFetcher
 class CliFetchBondHostPnics(CliFetcher):
     BOND_DIR = '/proc/net/bonding/'
     SLAVE_INTERFACE_HEADER = 'Slave Interface: '
+    ACCEPTED_HOST_TYPES = [ht.value for ht in (HostType.NETWORK, HostType.COMPUTE, HostType.STORAGE)]
 
     def __init__(self):
         super().__init__()
@@ -32,7 +33,7 @@ class CliFetchBondHostPnics(CliFetcher):
             self.log.error('CliFetchBondHostPnics: host not found: {}'.format(host_id))
             return []
         host_types = host['host_type']
-        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
+        if not [t for t in self.ACCEPTED_HOST_TYPES if t in host_types]:
             return []
         lines = self.run_fetch_lines(cmd, host_id)
         if lines and 'No such file or directory' in lines[0]:

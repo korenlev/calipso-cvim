@@ -38,6 +38,6 @@ class CliFetchVconnectors(CliFetcher, metaclass=ABCSingleton):
             self.log.error("host does not have host_type: " + host_id +
                            ", host: " + str(host))
             return []
-        if host['host_type'] == HostType.STORAGE.value:
+        if HostType.STORAGE.value in host.get('host_type'):
             return []
         return self.get_vconnectors(host)
