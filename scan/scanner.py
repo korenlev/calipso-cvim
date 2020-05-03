@@ -104,7 +104,7 @@ class Scanner(Fetcher):
     @classmethod
     def _match_conditions(cls, conf, condition):
         for attr, required_val in condition.items():
-            if cls._match_condition_values(conf[attr], required_val) is False:
+            if cls._match_condition_values(conf.get(attr, None), required_val) is False:
                 return False
         return True
 
