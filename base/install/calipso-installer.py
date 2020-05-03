@@ -220,7 +220,7 @@ def start_mongo(dbport, copy):
                         db="calipso", db_label="db") as conn:
         for collection in ("attributes_for_hover_on_data", "clique_constraints", "clique_types",
                            "connection_tests", "constants", "environment_options", "indexes", "link_types",
-                           "messages", "monitoring_config_templates", "network_agent_types", "role",
+                           "messages", "monitoring_config_templates", "network_agent_types", "roles",
                            "supported_environments", "user_settings", "users"):
             insert_data(conn, collection)
     # note : 'messages', 'roles', 'users' and some of the 'constants'
