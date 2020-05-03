@@ -180,20 +180,23 @@
         ]
     },
     {
-        "type" : "host",
-        "attributes" : [
-            "OS",
-            "parent_id",
-            "host_type",
-            "ip_address",
-            "services",
-            "config",
-            "flavor_resources",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
+    "type" : "host",
+    "attributes" : [
+        "OS",
+        "parent_id",
+        "host_type",
+        "ip_address",
+        "services",
+        "config",
+        "flavor_resources",
+        "ceph_cluster_status",
+        "ceph_quorum",
+        "ceph_utilizations",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ]
     },
     {
         "type" : "instance",

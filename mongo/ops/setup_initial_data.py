@@ -35,12 +35,10 @@ CALIPSO_DB = os.environ.get("CALIPSO_MONGO_SERVICE_AUTH_DB", DEFAULT_DB)
 STATUS_CODES = ["OK", "ERROR"]
 
 max_connection_attempts = 3
-initial_collections = {"api_tokens", "attributes_for_hover_on_data", "clique_constraints", "clique_types",
-                       "cliques", "connection_tests", "constants", "environment_options", "environments_config",
-                       "graphs", "inventory", "link_types", "links", "messages",
-                       "meteor_accounts_loginServiceConfiguration", "monitoring_config", "monitoring_config_templates",
-                       "network_agent_types", "roles", "scans", "scheduled_scans", "schemas", "statistics",
-                       "supported_environments", "user_settings", "users", "validations"}
+initial_collections = {"attributes_for_hover_on_data", "clique_constraints", "clique_types",
+                       "connection_tests", "constants", "environment_options", "indexes",
+                       "link_types", "messages", "monitoring_config_templates",
+                       "network_agent_types", "roles", "supported_environments", "user_settings", "users"}
 
 
 class MongoConnector(object):
