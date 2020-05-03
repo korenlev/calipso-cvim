@@ -13,10 +13,17 @@ from scan.link_finders.find_links import FindLinks
 
 
 class FindLinksForDisks(FindLinks):
+    # per future ceph releases this might need revisions
+    DB_PARTITION_PATH_ATT = 'bluefs_db_partition_path'
+    BLK_PARTITION_PATH_ATT = 'bluestore_bdev_partition_path'
 
     def __init__(self):
         super().__init__()
         self.environment_type = None
+        self.hosts = []
+        self.osds = []
+        self.disks = []
+        self.partitions = []
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
@@ -41,29 +48,47 @@ class FindLinksForDisks(FindLinks):
             "environment": self.get_env(),
             "type": "disk"
         })
-        for d in self.disks:
-            self.add_link_for_hosts(d)
-        for o in self.osds:
-            self.add_link_for_osds(o)
-        for p in self.partitions:
-            self.add_link_for_partitions(p)
+        for osd in self.osds:
+            self.add_link_for_hosts(osd)
+        for partition in self.partitions:
+            self.add_link_for_osds(partition)
+        for disk in self.disks:
+            self.add_link_for_partitions(disk)
 
-    @staticmethod
-    def match_host_and_osd(host, osd):
-        return (
-            "{}|{}".format(host["host"], osd["devname"]) == osd["id"]
-            or
-            host["mac_address"] == osd["address"]
-        )
-
-    def add_link_for_hosts(self, d):
+    def add_link_for_hosts(self, osd):
         # link_type: "host-osd"
-        print(None)
+        metadata = osd.get('metadata', '')
+        for host in self.hosts:
+            if host.get('id', 'None') == osd.get('host', ''):
+                self.add_links_with_specifics(host, osd,
+                                              extra_att={"osd_data": metadata.get('osd_data', '')})
 
-    def add_link_for_osds(self, d):
+    def add_link_for_osds(self, partition):
         # link_type: "osd-partition"
-        print(None)
+        for osd in self.osds:
+            metadata = osd.get('metadata', '')
+            if ((metadata.get(self.DB_PARTITION_PATH_ATT, 'None') == partition.get('device', '')) and (
+                    osd.get('host', 'None') == partition.get('host', ''))) or ((
+                    metadata.get(self.BLK_PARTITION_PATH_ATT, 'None') == partition.get('device', '')) and (
+                    osd.get('host', 'None') == partition.get('host', ''))) or (
+                    metadata.get('osd_data', 'None') == partition.get('mount_point', '')):
+                self.add_links_with_specifics(osd, partition,
+                                              extra_att={"osd_objectstore": metadata.get('osd_objectstore', '')})
 
-    def add_link_for_partitions(self, d):
+    def add_link_for_partitions(self, disk):
         # link_type: "partition-disk"
-        print(None)
+        for partition in self.partitions:
+            if (partition.get('master_disk', 'None') == disk.get('name', '')) and (
+                    partition.get('host', 'None') == disk.get('host', 'None')):
+                self.add_links_with_specifics(partition, disk,
+                                              extra_att={"partition_type": partition.get('label', '')})
+
+    def add_links_with_specifics(self, source, target, extra_att=None):
+        link_name = '{}-{}'.format(source.get('name', 'None'), target.get('name', ''))
+        source_label = '{}-{}-{}'.format(source.get('cvim_region', ''), source.get('cvim_metro', ''),
+                                         source.get('id', ''))
+        target_label = target.get('id', '')
+        extra = {"source_label": source_label, "target_label": target_label}
+        if extra_att:
+            extra.update(extra_att)
+        self.link_items(source, target, link_name=link_name, extra_attributes=extra)

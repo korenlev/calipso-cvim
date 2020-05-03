@@ -1,4 +1,15 @@
 [
+{
+    "name" : "mercury_osd_clique",
+    "distribution" : "Mercury",
+    "environment" : "",
+    "link_types" : [
+        "osd-host",
+        "osd-partition",
+        "partition-disk"
+    ],
+    "focal_point_type" : "osd"
+},
 { 
     "environment" : "ANY", 
     "focal_point_type" : "instance", 
