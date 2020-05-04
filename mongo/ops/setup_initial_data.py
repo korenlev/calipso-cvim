@@ -230,30 +230,32 @@ def run():
 
     indexes_file = None
     try:
-        environments_collection = mongo_connector.database['environments_config']
-        if environments_collection.count() > 0:
-            print("Database and at least one environment already exist, skipping data setup...")
-        else:
-            indexes = {}
-            try:
-                indexes_file = open(os.path.join(args.data_path, "indexes.json"))
-                indexes = json.load(indexes_file)
-            except ValueError:
-                print("Failed to parse indexes from indexes.json file")
-            except IOError:
-                print("Indexes file not found")
-
+        if mongo_connector.collection_exists('environments_config'):
+            print("at least one environment already exists, cleaning up collections...")
+            mongo_connector.drop_collection('environments_config')
             for collection_name in initial_collections:
-                filepath = os.path.join(args.data_path, "{}.json".format(collection_name))
-                if os.path.exists(filepath):
-                    mongo_connector.insert_collection_from_file(path=filepath, collection=collection_name,
-                                                                indexes=indexes.get(collection_name))
-                else:
-                    mongo_connector.create_collection(name=collection_name, recreate=True)
-                    if indexes:
-                        mongo_connector.create_indexes(collection=collection_name,
-                                                       indexes=indexes.get(collection_name))
-                    print("Inserted empty '%s' collection in db" % (collection_name,))
+                if mongo_connector.database[collection_name]:
+                    mongo_connector.drop_collection(collection_name)
+        indexes = {}
+        try:
+            indexes_file = open(os.path.join(args.data_path, "indexes.json"))
+            indexes = json.load(indexes_file)
+        except ValueError:
+            print("Failed to parse indexes from indexes.json file")
+        except IOError:
+            print("Indexes file not found")
+
+        for collection_name in initial_collections:
+            filepath = os.path.join(args.data_path, "{}.json".format(collection_name))
+            if os.path.exists(filepath):
+                mongo_connector.insert_collection_from_file(path=filepath, collection=collection_name,
+                                                            indexes=indexes.get(collection_name))
+            else:
+                mongo_connector.create_collection(name=collection_name, recreate=True)
+                if indexes:
+                    mongo_connector.create_indexes(collection=collection_name,
+                                                   indexes=indexes.get(collection_name))
+                print("Inserted empty '%s' collection in db" % (collection_name,))
     finally:
         mongo_connector.disconnect()
         if indexes_file:
