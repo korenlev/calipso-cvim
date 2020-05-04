@@ -43,22 +43,25 @@ class CliFetchHostDisks(CliFetcher):
         disk_lines = self.run_fetch_lines(self.DISKS_CMD, host_id)
         disks = []
         for line in disk_lines:
-            line_parts = line.split()
-            disks.append({
-                'type': 'disk',
-                'parent_id': parent_id,
-                'parent_type': 'disks_folder',
-                'id': '{}|dev|{}'.format(host_id, line_parts[0]),
-                'name': line.split()[0],
-                'host': host_id,
-                'device': '/dev/{}'.format(line_parts[0]),
-                'state': line_parts[1],
-                'size': line_parts[2],
-                'serial': line_parts[3],
-                'vendor': line_parts[4],
-                'scsi_address': line_parts[5],
-                'revision': line_parts[6],
-                'wwn_address': line_parts[7],
-                'model': " ".join(line_parts[8:]) if len(line_parts) > 9 else line_parts[8]
-            })
+            try:
+                line_parts = line.split()
+                disks.append({
+                    'type': 'disk',
+                    'parent_id': parent_id,
+                    'parent_type': 'disks_folder',
+                    'id': '{}|dev|{}'.format(host_id, line_parts[0]),
+                    'name': line.split()[0],
+                    'host': host_id,
+                    'device': '/dev/{}'.format(line_parts[0]),
+                    'state': line_parts[1],
+                    'size': line_parts[2],
+                    'serial': line_parts[3],
+                    'vendor': line_parts[4],
+                    'scsi_address': line_parts[5],
+                    'revision': line_parts[6],
+                    'wwn_address': line_parts[7],
+                    'model': " ".join(line_parts[8:]) if len(line_parts) > 9 else line_parts[8]
+                })
+            except IndexError:
+                continue
         return disks

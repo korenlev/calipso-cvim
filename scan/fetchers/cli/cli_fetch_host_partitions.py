@@ -44,19 +44,22 @@ class CliFetchHostPartitions(CliFetcher):
         part_lines = self.run_fetch_lines(self.PARTS_CMD, host_id)
         parts = []
         for line in part_lines:
-            line_parts = line.split()
-            parts.append({
-                'type': 'partition',
-                'parent_id': parent_id,
-                'parent_type': 'partitions_folder',
-                'id': '{}|dev|{}'.format(host_id, line_parts[0]),
-                'name': '{}-{}'.format(line_parts[0], line_parts[4]),
-                'host': host_id,
-                'device': '/dev/{}'.format(line_parts[0]),
-                'master_disk': line_parts[1],
-                'size': line_parts[2],
-                'label': '{}-{}'.format(line_parts[3], line_parts[4]),
-                'mount_point': line_parts[5] if len(line_parts) == 6 else '',
-                'osd_partition_type': line_parts[4]
-            })
+            try:
+                line_parts = line.split()
+                parts.append({
+                    'type': 'partition',
+                    'parent_id': parent_id,
+                    'parent_type': 'partitions_folder',
+                    'id': '{}|dev|{}'.format(host_id, line_parts[0]),
+                    'name': '{}-{}'.format(line_parts[0], line_parts[4]),
+                    'host': host_id,
+                    'device': '/dev/{}'.format(line_parts[0]),
+                    'master_disk': line_parts[1],
+                    'size': line_parts[2],
+                    'label': '{}-{}'.format(line_parts[3], line_parts[4]),
+                    'mount_point': line_parts[5] if len(line_parts) == 6 else '',
+                    'osd_partition_type': line_parts[4]
+                })
+            except IndexError:
+                continue
         return parts
