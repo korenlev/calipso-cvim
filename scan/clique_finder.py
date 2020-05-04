@@ -22,7 +22,7 @@ from base.utils.origins import Origin
 
 class CliqueFinder(Fetcher):
     DEFAULT_GRAPH_NODES_ATTRIBUTES = ["_id", "id", "type", "name", "host"]
-    DEFAULT_GRAPH_LINKS_ATTRIBUTES = ["_id", "id", "link_type", "source", "target", "host"]
+    DEFAULT_GRAPH_LINKS_ATTRIBUTES = ["link_type", "source_id", "target_id", "host"]
 
     reversed_link_types = {}
 
@@ -335,10 +335,13 @@ class CliqueFinder(Fetcher):
             search={"_id": {"$in": clique["nodes"]}},
             projection=graph_attributes.get("nodes", self.DEFAULT_GRAPH_NODES_ATTRIBUTES)
         )
-        graph["graph"]["links"] = [
-            {k: link.get(k) for k in graph_attributes.get("links", self.DEFAULT_GRAPH_LINKS_ATTRIBUTES)}
-            for link in clique["links_detailed"]
-        ]
+        graph_links = []
+        for link in clique["links_detailed"]:
+            graph_link = {k: link.get(k) for k in graph_attributes.get("links", self.DEFAULT_GRAPH_LINKS_ATTRIBUTES)}
+            graph_link['source'] = graph_link.pop('source_id')
+            graph_link['target'] = graph_link.pop('target_id')
+            graph_links.append(graph_link)
+        graph["graph"]["links"] = graph_links
 
         self.graphs.update_one({
             "environment": graph["environment"],
