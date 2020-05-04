@@ -50,7 +50,7 @@ class CliFetchHostPartitions(CliFetcher):
                 'parent_id': parent_id,
                 'parent_type': 'partitions_folder',
                 'id': '{}|dev|{}'.format(host_id, line_parts[0]),
-                'name': line_parts[0],
+                'name': '{}-{}'.format(line_parts[0], line_parts[4]),
                 'host': host_id,
                 'device': '/dev/{}'.format(line_parts[0]),
                 'master_disk': line_parts[1],
