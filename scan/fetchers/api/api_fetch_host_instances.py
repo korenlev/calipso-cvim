@@ -143,6 +143,12 @@ class ApiFetchHostInstances(ApiAccess):
         if response and "image" in response:
             image = response["image"]
             image.pop("links", None)
+            if image.get('metadata'):
+                meta_keys = list(image['metadata'].keys())
+                for k in meta_keys:
+                    if '.' in k:
+                        nk = k.replace('.', '[dot]')
+                        image['metadata'][nk] = image['metadata'].pop(k)
             self.images[image_id] = image
         return image
 
