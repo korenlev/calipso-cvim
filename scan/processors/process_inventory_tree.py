@@ -34,7 +34,7 @@ class ProcessInventoryTree(Processor):
             'host': doc.get('host')
         } for doc in self.inv.find_items({"environment": self.env})])
 
-        graph_doc = self.inv.find_one({"environment": self.env}, collection=self.COLLECTION)
+        graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY.value}, collection=self.COLLECTION)
         if not graph_doc:
             graph_doc = {
                 "name": self.GRAPH_NAME,
@@ -42,11 +42,22 @@ class ProcessInventoryTree(Processor):
                 "environment": self.env
             }
 
+        links = [self.find_tree_links(data_list, item) for item in data_list]
+
         graph_doc.update({
             "graph": {
-                "tree": data_list
+                "nodes": data_list,
+                "links": links
             },
             "last_scanned": datetime.now()
         })
 
         self.inv.set(collection="graphs", item=graph_doc, allow_new_docs=True)
+
+    @staticmethod
+    def find_tree_links(data_list, item):
+        if not item.get('parent'):
+            # meaning it is the root node
+            item.update({'parent': item['id']})
+        tree_links = [{"source": d['id'], "target": item['id']} for d in data_list if d['id'] == item['parent']][0]
+        return tree_links
