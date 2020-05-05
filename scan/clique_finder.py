@@ -484,7 +484,7 @@ class CliqueFinder(Fetcher):
         if not graph:
             return
 
-        for obj in graph["graph"]["tree"]:
+        for obj in graph["graph"]["nodes"]:
             obj["clique"] = obj["id"] in self.active_focal_points
 
         self.graphs.update_one({
