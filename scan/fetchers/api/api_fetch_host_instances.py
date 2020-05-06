@@ -147,7 +147,7 @@ class ApiFetchHostInstances(ApiAccess):
                 meta_keys = list(image['metadata'].keys())
                 for k in meta_keys:
                     if '.' in k:
-                        nk = k.replace('.', '[dot]')
+                        nk = k.replace('.', '|')
                         image['metadata'][nk] = image['metadata'].pop(k)
             self.images[image_id] = image
         return image
