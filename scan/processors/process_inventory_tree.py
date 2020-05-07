@@ -28,6 +28,7 @@ class ProcessInventoryTree(Processor):
 
         data_list.extend([{
             'id': doc['id'],
+            'id_path': doc['id_path'],
             'name': doc['name'],
             'parent': doc['parent_id'],
             'type': doc['type'],
