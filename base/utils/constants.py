@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from collections import namedtuple
 from enum import Enum
 
 
@@ -90,3 +91,18 @@ class HostType(StringEnum):
     STORAGE = "Storage"
     BAREMETAL = "Bare-metal"
     KUBEMASTER = "Kube-Master"
+
+
+NetworkAgentType = namedtuple("NetworkAgentType", ["folder_text", "description"])
+NETWORK_AGENT_TYPES = {
+    "dhcp": NetworkAgentType(folder_text="DHCP servers", description="DHCP agent"),
+    "firewall": NetworkAgentType(folder_text="Firewalls", description="Firewall agent"),
+    "load_balancer": NetworkAgentType(folder_text="Load-Balancers", description="Load Balancing agent"),
+    "metadata": NetworkAgentType(folder_text="Metadata", description="Metadata agent"),
+    "orchestrator": NetworkAgentType(folder_text="Orchestrators", description="Orchestrator"),
+    "router": NetworkAgentType(folder_text="Gateways", description="L3 agent"),
+    "vconnector": NetworkAgentType(folder_text="vConnectors", description="Linux bridge agent, VPP Bridge Domains"),
+    "vedge": NetworkAgentType(folder_text="vEdges", description="Open vSwitch agent, VPP agent, SRIOV agent"),
+    "vpn": NetworkAgentType(folder_text="VPNs", description="VPN agent"),
+}
+MISC_AGENT_TYPE = NetworkAgentType(folder_text="Misc. services", description="Miscellaneous")
