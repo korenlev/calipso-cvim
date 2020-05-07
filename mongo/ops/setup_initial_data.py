@@ -1,19 +1,8 @@
-from __future__ import print_function
-
-try:
-    from future import standard_library
-    standard_library.install_aliases()
-except ImportError:
-    pass
-
 import argparse
 import json
 import os
 import ssl
-try:
-    from urllib import quote_plus
-except ImportError:
-    from urllib.parse import quote_plus
+from urllib.parse import quote_plus
 from pymongo import MongoClient, IndexModel, ASCENDING
 from pymongo.errors import OperationFailure, ConnectionFailure
 
@@ -35,10 +24,19 @@ CALIPSO_DB = os.environ.get("CALIPSO_MONGO_SERVICE_AUTH_DB", DEFAULT_DB)
 STATUS_CODES = ["OK", "ERROR"]
 
 max_connection_attempts = 3
-initial_collections = {"attributes_for_hover_on_data", "clique_constraints", "clique_types",
-                       "connection_tests", "constants", "environment_options", "indexes",
-                       "link_types", "messages", "monitoring_config_templates",
-                       "network_agent_types", "roles", "supported_environments", "user_settings", "users"}
+
+
+# Lists of collections expected to exist in calipso DB
+# Persistent collections will only be populated with initial data if they don't already exist in db
+persistent_collections = {
+    "api_tokens", "cliques", "connection_tests", "environments_config", "graphs",
+    "inventory", "links", "messages", "scans", "scheduled_scans", "schemas", "validations"
+}
+# Predefined collections will always clear the existing data and repopulate the collections
+predefined_collections = {
+    "attributes_for_hover_on_data", "clique_constraints", "clique_types", "constants", "environment_options",
+    "link_types", "supported_environments"
+}
 
 
 class MongoConnector(object):
@@ -68,11 +66,11 @@ class MongoConnector(object):
         self.pwd = pwd
         if user and pwd:
             self.auth_enabled = True
-            uri = "mongodb://%s:%s@%s:%s/%s" % (quote_plus(self.user), quote_plus(self.pwd),
-                                                self.host, self.port, self.db)
+            uri = "mongodb://{}:{}@{}:{}/{}".format(quote_plus(self.user), quote_plus(self.pwd),
+                                                    self.host, self.port, self.db)
         else:
             self.auth_enabled = False
-            uri = "mongodb://%s:%s/" % (self.host, self.port)
+            uri = "mongodb://{}:{}/".format(self.host, self.port)
 
         if SSL_ENABLED:
             self.client = MongoClient(uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE, connect=True)
@@ -106,24 +104,33 @@ class MongoConnector(object):
         if self.auth_enabled and not self.user == ADMIN_USER and self.user != user:
             raise ValueError("Only admin user can change other users' passwords while auth is enabled")
 
-        print("Changing password for user '%s'" % user)
+        print("Changing password for user '{}'".format(user))
         self.client[db if db else self.db].command("updateUser", user, pwd=new_pwd)
         if self.user == user:
             self.pwd = new_pwd
-        print("Password for user '%s' successfully changed" % user)
+        print("Password for user '{}' successfully changed".format(user))
+
+    def list_collections(self):
+        # List all collections except for system ones
+        return self.database.list_collection_names(filter={"name": {"$regex": r"^(?!system\\.)"}})
 
     def collection_exists(self, name):
-        return name in self.database.collection_names()
+        return name in self.list_collections()
 
     def create_collection(self, name, recreate=False):
+        """
+        :param name: collection name
+        :param recreate: if True, drop the collection before creation
+        :return: collection handle and the fact whether the collection was newly created
+        """
         if self.collection_exists(name):
             if recreate:
                 self.drop_collection(name)
             else:
-                return self.database[name]
-        return self.database.create_collection(name)
+                return self.database[name], False
+        return self.database.create_collection(name), True
 
-    def create_indexes(self, collection, indexes):
+    def create_indexes(self, collection, indexes, recreate=True):
         if not indexes:
             return
 
@@ -136,6 +143,8 @@ class MongoConnector(object):
             else:
                 index_models.append(IndexModel([(index, ASCENDING)]))
 
+        if recreate:
+            self.database[collection].drop_indexes()
         return self.database[collection].create_indexes(index_models)
 
     def drop_collection(self, name):
@@ -153,7 +162,10 @@ class MongoConnector(object):
     def update(self, collection, spec, doc, upsert=False):
         return self.database[collection].update(spec, doc, upsert=upsert)
 
-    def insert_collection_from_file(self, path, collection, indexes=None):
+    def insert_collection_from_file(self, path, collection, indexes=None, recreate=True):
+        if self.collection_exists(collection) and not recreate:
+            return
+
         with open(path) as f:
             data = json.load(f)
             self.create_collection(name=collection, recreate=True)
@@ -161,10 +173,25 @@ class MongoConnector(object):
             if data:
                 doc_ids = self.insert(collection, data)
                 doc_count = len(doc_ids) if isinstance(doc_ids, list) else 1
-                print("Inserted '%s' collection in db. Documents inserted: %s" % (collection, doc_count))
+                print("Inserted '{}' collection in db. Documents inserted: {}".format(collection, doc_count))
 
             if indexes:
                 self.database[collection].create_indexes(indexes)
+
+    def insert_collection(self, data_path, collection_name, indexes, recreate=True):
+        filepath = os.path.join(data_path, "{}.json".format(collection_name))
+        if os.path.exists(filepath):
+            self.insert_collection_from_file(path=filepath, collection=collection_name,
+                                             indexes=indexes, recreate=recreate)
+        else:
+            _, created = self.create_collection(name=collection_name, recreate=recreate)
+            if indexes:
+                self.create_indexes(collection=collection_name, indexes=indexes)
+
+            if created:
+                print("Inserted empty '{}' collection in db".format(collection_name))
+            else:
+                print("Persistent collection '{}' already exists in db".format(collection_name))
 
     def disconnect(self):
         if self.is_connected:
@@ -176,7 +203,7 @@ class MongoConnector(object):
 # Exit with a pre-formatted message
 def _exit(status_code, exit_code=None):
     # check STATUS_CODES for appropriate status texts
-    print("Status code: %s" % STATUS_CODES[status_code])
+    print("Status code: {}".format(STATUS_CODES[status_code]))
     exit(exit_code if exit_code is not None else status_code)
 
 
@@ -207,35 +234,28 @@ def run():
             mongo_connector.create_user(db=CALIPSO_DB, user=CALIPSO_USER, pwd=CALIPSO_PWD,
                                         roles=[{"role": "readWrite", "db": CALIPSO_DB}])
             break
-        except OperationFailure as e:  # TODO!
-            print(e)
-            # print("Initial data already setup. Exiting")
+        except OperationFailure:
+            print("Users are already configured")
             mongo_connector.disconnect()
-            _exit(0)
+            break
         except ConnectionFailure:
             if attempt >= max_connection_attempts:
                 mongo_connector.disconnect()
-                raise ValueError("Failed to connect to mongod. Tried %s times" % attempt)
+                raise ValueError("Failed to connect to mongod. Tried {} times".format(attempt))
             attempt += 1
-            print("Waiting for mongod to come online... Attempt #%s" % attempt)
+            print("Waiting for mongod to come online... Attempt #{}".format(attempt))
             # No need to use backoff since Mongo client has built-in timeout handling
 
     try:
         # Try connecting to calipso db with newly created user
         mongo_connector.connect(db=CALIPSO_DB, user=CALIPSO_USER, pwd=CALIPSO_PWD)
     except OperationFailure:
-        print("Failed to setup calipso user")
+        print("Failed to connect as {} user".format(CALIPSO_USER))
         mongo_connector.disconnect()
         _exit(1)
 
     indexes_file = None
     try:
-        if mongo_connector.collection_exists('environments_config'):
-            print("at least one environment already exists, cleaning up collections...")
-            mongo_connector.drop_collection('environments_config')
-            for collection_name in initial_collections:
-                if mongo_connector.database[collection_name]:
-                    mongo_connector.drop_collection(collection_name)
         indexes = {}
         try:
             indexes_file = open(os.path.join(args.data_path, "indexes.json"))
@@ -245,17 +265,26 @@ def run():
         except IOError:
             print("Indexes file not found")
 
-        for collection_name in initial_collections:
-            filepath = os.path.join(args.data_path, "{}.json".format(collection_name))
-            if os.path.exists(filepath):
-                mongo_connector.insert_collection_from_file(path=filepath, collection=collection_name,
-                                                            indexes=indexes.get(collection_name))
-            else:
-                mongo_connector.create_collection(name=collection_name, recreate=True)
-                if indexes:
-                    mongo_connector.create_indexes(collection=collection_name,
-                                                   indexes=indexes.get(collection_name))
-                print("Inserted empty '%s' collection in db" % (collection_name,))
+        existing_collections = mongo_connector.list_collections()
+        # Go through all defined initial collections and them remove all deprecated ones
+        for collection_name in persistent_collections:
+            if collection_name in existing_collections:
+                existing_collections.remove(collection_name)
+            mongo_connector.insert_collection(data_path=args.data_path,
+                                              collection_name=collection_name,
+                                              indexes=indexes.get(collection_name),
+                                              recreate=False)
+        for collection_name in predefined_collections:
+            if collection_name in existing_collections:
+                existing_collections.remove(collection_name)
+            mongo_connector.insert_collection(data_path=args.data_path,
+                                              collection_name=collection_name,
+                                              indexes=indexes.get(collection_name),
+                                              recreate=True)
+
+        for collection_name in existing_collections:
+            print("Removing deprecated '{}' collection".format(collection_name))
+            mongo_connector.drop_collection(collection_name)
     finally:
         mongo_connector.disconnect()
         if indexes_file:
