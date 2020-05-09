@@ -76,13 +76,16 @@ def error(err, code=1):
 
 
 class CalipsoClient:
-    def __init__(self, api_host, api_port, api_password, verify_tls=False):
+    def __init__(self, api_host, api_port, api_password, unverify_tls=False):
         self.api_server = "[{}]".format(api_host) if ":" in api_host and "[" not in api_host else api_host
         self.username = "calipso"
         self.password = api_password
         self.port = api_port
         self.schema = "https"
-        self.verify_tls = verify_tls
+        if not unverify_tls:
+            self.verify_tls = True
+        else:
+            self.verify_tls = False
         self.auth_url = "auth/tokens"
         self.headers = {'Content-Type': 'application/json'}
         self.token = None
@@ -308,8 +311,8 @@ def run():
                         help="API password (secret) used by the API Server",
                         type=str,
                         required=False)
-    parser.add_argument("--verify_tls",
-                        help="verify full certificate chain from server"
+    parser.add_argument("--unverify_tls",
+                        help="disable verification of certificate chain from server, set this to allow self-signed cert"
                              " (default=False)",
                         action='store_true',
                         default=False,
@@ -405,7 +408,7 @@ def run():
     args = parser.parse_args()
     try:
         return args.handler(CalipsoClient(api_host=args.api_server, api_port=args.api_port,
-                                          api_password=args.api_password, verify_tls=args.verify_tls),
+                                          api_password=args.api_password, unverify_tls=args.unverify_tls),
                             args)
     except Exception as e:
         return error(e)
