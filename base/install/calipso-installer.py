@@ -218,10 +218,11 @@ def start_mongo(dbport, copy):
     print("-----------------------------------------\n\n")
     with MongoConnector(host=args.hostname, port=args.dbport, user=args.dbuser, pwd=args.dbpassword,
                         db="calipso", db_label="db") as conn:
+        # TODO: clean up this list (many empty initial data files have been deprecated)
         for collection in ("attributes_for_hover_on_data", "clique_constraints", "clique_types",
                            "connection_tests", "constants", "environment_options", "indexes", "link_types",
-                           "messages", "monitoring_config_templates", "network_agent_types", "roles",
-                           "supported_environments", "user_settings", "users"):
+                           "messages", "monitoring_config_templates", "roles", "supported_environments",
+                           "user_settings", "users"):
             insert_data(conn, collection)
     # note : 'messages', 'roles', 'users' and some of the 'constants'
     # are filled by calipso-ui at runtime

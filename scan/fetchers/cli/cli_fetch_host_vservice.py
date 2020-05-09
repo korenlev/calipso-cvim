@@ -9,10 +9,11 @@
 ###############################################################################
 import re
 
+from base.utils.constants import NETWORK_AGENT_TYPES, MISC_AGENT_TYPE
 from base.utils.inventory_mgr import InventoryMgr
+from base.utils.string_utils import plural
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
-from scan.network_agents_list import NetworkAgentsList
 
 
 class CliFetchHostVservice(CliFetcher, DbAccess):
@@ -21,7 +22,6 @@ class CliFetchHostVservice(CliFetcher, DbAccess):
         # match only DHCP agent and router (L3 agent)
         self.type_re = re.compile("^q(dhcp|router)-")
         self.inv = InventoryMgr()
-        self.agents_list = NetworkAgentsList()
 
     def get_vservice(self, host_id, name_space):
         result = {"local_service_id": name_space}
@@ -34,10 +34,8 @@ class CliFetchHostVservice(CliFetcher, DbAccess):
         prefix = id_full[:id_full.index('-')]
         id_clean = id_full[len(prefix)+1:]
         r["service_type"] = prefix[1:]
-        name = self.get_router_name(r, id_clean) \
-            if r["service_type"] == "router" \
-            else self.get_network_name(id_clean)
-        r["name"] = prefix + "-" + name
+        name = self.get_router_name(r, id_clean) if r["service_type"] == "router" else self.get_network_name(id_clean)
+        r["name"] = "{}-{}".format(prefix, name)
         r["host"] = host_id
         r["id"] = "{}-{}".format(host_id, id_full)
         if r.get('admin_state_up') in (0, 1):
@@ -69,16 +67,14 @@ class CliFetchHostVservice(CliFetcher, DbAccess):
         return r["name"]
 
     # dynamically create sub-folder for vService by type
-    def set_agent_type(self, o):
-        o["master_parent_id"] = o["host"] + "-vservices"
+    @staticmethod
+    def set_agent_type(o):
+        o["master_parent_id"] = "{}-vservices".format(o["host"])
         o["master_parent_type"] = "vservices_folder"
-        atype = o["service_type"]
-        agent = self.agents_list.get_type(atype)
-        try:
-            o["parent_id"] = o["master_parent_id"] + "-" + agent["type"] + "s"
-            o["parent_type"] = "vservice_" + agent["type"] + "s_folder"
-            o["parent_text"] = agent["folder_text"]
-        except KeyError:
-            o["parent_id"] = o["master_parent_id"] + "-" + "miscellenaous"
-            o["parent_type"] = "vservice_miscellenaous_folder"
-            o["parent_text"] = "Misc. services"
+        agent_type = o["service_type"]
+        agent = NETWORK_AGENT_TYPES.get(agent_type, MISC_AGENT_TYPE)
+        o.update({
+            "parent_id": "{}-{}s".format(o["master_parent_id"], agent_type),
+            "parent_type": "vservice_{}_folder".format(plural(agent_type)),
+            "parent_text": agent.folder_text
+        })
