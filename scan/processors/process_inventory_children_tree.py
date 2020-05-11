@@ -13,10 +13,10 @@ from base.utils.constants import GraphType
 from scan.processors.processor import Processor
 
 
-class ProcessInventoryForce(Processor):
+class ProcessInventoryChildrenTree(Processor):
     PREREQUISITES = []
     COLLECTION = "graphs"
-    GRAPH_NAME = "Inventory force graph"
+    GRAPH_NAME = "Inventory children tree"
 
     def run(self):
         super().run()
@@ -35,31 +35,35 @@ class ProcessInventoryForce(Processor):
             'host': doc.get('host')
         } for doc in self.inv.find_items({"environment": self.env})])
 
-        graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY_FORCE.value},
+        graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY_TREE.value},
                                       collection=self.COLLECTION)
         if not graph_doc:
             graph_doc = {
                 "name": self.GRAPH_NAME,
-                "type": GraphType.INVENTORY_FORCE.value,
+                "type": GraphType.INVENTORY_TREE.value,
                 "environment": self.env
             }
 
-        links = [self.find_tree_links(data_list, item) for item in data_list]
+        for i in data_list:
+            if not i.get('parent'):
+                # meaning it is the root node
+                i.update({'parent': 'root'})
+            tree = self.build_doc_children(data_list, i)
+            i.update(tree)
 
         graph_doc.update({
-            "graph": {
-                "nodes": data_list,
-                "links": links
-            },
+            "graph": data_list[0],
             "last_scanned": datetime.now()
         })
 
         self.inv.set(collection="graphs", item=graph_doc, allow_new_docs=True)
 
     @staticmethod
-    def find_tree_links(data_list, item):
-        if not item.get('parent'):
-            # meaning it is the root node
-            item.update({'parent': item['id']})
-        tree_links = [{"source": d['id'], "target": item['id']} for d in data_list if d['id'] == item['parent']][0]
-        return tree_links
+    def build_doc_children(data_list, item) -> dict:
+        item_children = []
+        tree = {}
+        for d in data_list:
+            if d['parent'] == item['id']:
+                item_children.append(d)
+        tree.update({'children': item_children})
+        return tree
