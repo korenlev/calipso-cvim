@@ -66,8 +66,14 @@ class Query(ResponderBase):
             scans_table = self.get_scans_table(environment=environment, date_filter=date_filter)
             scheduled_scans_table = self.get_scheduled_scans_table(environment=environment)
             objects = [scans_table, scheduled_scans_table]
-        elif endpoint == "tree":
-            tree_table = self.get_inventory_tree_table(environment=environment)
+        elif endpoint == "vega_tree":
+            tree_table = self.get_inventory_tree_table(environment=environment, graph_type="vega_tree")
+            objects = [tree_table]
+        elif endpoint == "force_tree":
+            tree_table = self.get_inventory_tree_table(environment=environment, graph_type="force_tree")
+            objects = [tree_table]
+        elif endpoint == "children_tree":
+            tree_table = self.get_inventory_tree_table(environment=environment, graph_type="children_tree")
             objects = [tree_table]
         else:
             return self.bad_request("Unsupported data type")
@@ -150,8 +156,8 @@ class Query(ResponderBase):
                                         sort=sort)
         return self._build_grafana_table(columns=projection, objects=objects, target="scheduled_scans")
 
-    def get_inventory_tree_table(self, environment: str) -> dict:
-        query = self.build_tree_query(environment=environment)
+    def get_inventory_tree_table(self, environment: str, graph_type: str) -> dict:
+        query = self.build_tree_query(environment=environment, graph_type=graph_type)
 
         tree = self.get_single_object(collection="graphs", query=query)
         objects = [{"results": tree}] if tree else []
@@ -206,9 +212,9 @@ class Query(ResponderBase):
     def build_scheduled_scans_query(self, environment: str) -> dict:
         return self.build_base_query(environment=environment)
 
-    def build_tree_query(self, environment: str) -> dict:
+    def build_tree_query(self, environment: str, graph_type: str) -> dict:
         query = self.build_base_query(environment=environment)
-        query["type"] = GraphType.INVENTORY.value
+        query["type"] = graph_type
         return query
 
     @staticmethod

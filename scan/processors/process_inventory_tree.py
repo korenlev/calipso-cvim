@@ -16,7 +16,7 @@ from scan.processors.processor import Processor
 class ProcessInventoryTree(Processor):
     PREREQUISITES = []
     COLLECTION = "graphs"
-    GRAPH_NAME = "Inventory graph"
+    GRAPH_NAME = "Inventory tree graph"
 
     def run(self):
         super().run()
