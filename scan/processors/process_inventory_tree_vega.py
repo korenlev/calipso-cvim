@@ -13,7 +13,7 @@ from base.utils.constants import GraphType
 from scan.processors.processor import Processor
 
 
-class ProcessInventoryTree(Processor):
+class ProcessInventoryTreeVega(Processor):
     PREREQUISITES = []
     COLLECTION = "graphs"
     GRAPH_NAME = "Inventory graph"
@@ -44,26 +44,11 @@ class ProcessInventoryTree(Processor):
                 "environment": self.env
             }
 
-        for i in data_list:
-            if not i.get('parent'):
-                # meaning it is the root node
-                i.update({'parent': 'root'})
-            tree = self.build_doc_children(data_list, i)
-            i.update(tree)
-
         graph_doc.update({
-            "graph": data_list[0],
+            "graph": {
+                "tree": data_list
+            },
             "last_scanned": datetime.now()
         })
 
         self.inv.set(collection="graphs", item=graph_doc, allow_new_docs=True)
-
-    @staticmethod
-    def build_doc_children(data_list, item) -> dict:
-        item_children = []
-        tree = {}
-        for d in data_list:
-            if d['parent'] == item['id']:
-                item_children.append(d)
-        tree.update({'children': item_children})
-        return tree
