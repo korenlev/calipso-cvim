@@ -23,7 +23,7 @@ class CliFetchHostDetails(CliFetcher):
     CEPH_QUORUM_CMD = 'cephmon ceph quorum_status -f json'
 
     def fetch_host_os_details(self, doc: dict) -> None:
-        cmd = 'cat /etc/os-release && echo "ARCHITECURE=`arch`"'
+        cmd = 'cat /etc/os-release && echo "ARCHITECTURE=`arch`"'
         lines = self.run_fetch_lines(cmd, ssh_to_host=doc['host'])
         os_attributes = {}
         attributes_to_fetch = {
@@ -31,7 +31,7 @@ class CliFetchHostDetails(CliFetcher):
             'VERSION': 'version',
             'ID': 'ID',
             'ID_LIKE': 'ID_LIKE',
-            'ARCHITECURE': 'architecure'
+            'ARCHITECTURE': 'architecture'
         }
         for attr in attributes_to_fetch:
             matches = [l for l in lines if l.startswith(attr + '=')]
