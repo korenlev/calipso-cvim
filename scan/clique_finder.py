@@ -480,12 +480,15 @@ class CliqueFinder(Fetcher):
         if not self.active_focal_points:
             return
 
-        graph = self.graphs.find_one({"environment": self.env, "type": GraphType.INVENTORY.value})
+        graph = self.graphs.find_one({"environment": self.env, "type": GraphType.INVENTORY_FORCE.value})
         if not graph:
             return
 
-        for obj in graph["graph"]["nodes"]:
-            obj["clique"] = obj["id"] in self.active_focal_points
+        graphs = graph.get("graph", "")
+        nodes = graphs.get("nodes", "")
+        if nodes:
+            for obj in nodes:
+                obj["clique"] = obj["id"] in self.active_focal_points
 
         self.graphs.update_one({
             "environment": graph["environment"],

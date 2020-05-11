@@ -35,12 +35,12 @@ class ProcessInventoryTree(Processor):
             'host': doc.get('host')
         } for doc in self.inv.find_items({"environment": self.env})])
 
-        graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY.value},
+        graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY_TREE.value},
                                       collection=self.COLLECTION)
         if not graph_doc:
             graph_doc = {
                 "name": self.GRAPH_NAME,
-                "type": GraphType.INVENTORY.value,
+                "type": GraphType.INVENTORY_TREE.value,
                 "environment": self.env
             }
 

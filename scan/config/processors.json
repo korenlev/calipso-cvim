@@ -4,6 +4,8 @@
   "processors": [
     "ProcessVedgeType",
     "ProcessVnicCount",
+    "ProcessInventoryForce",
+    "ProcessInventoryVega",
     "ProcessInventoryTree",
     "ProcessInventorySchema",
     "ProcessRegionsMetros"
