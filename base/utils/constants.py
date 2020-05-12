@@ -80,7 +80,9 @@ class EnvironmentFeatures(StringEnum):
 
 
 class GraphType(StringEnum):
-    INVENTORY = "inventory"
+    INVENTORY_VEGA = "vega_tree"
+    INVENTORY_FORCE = "force_tree"
+    INVENTORY_TREE = "children_tree"
     CLIQUE = "clique"
 
 

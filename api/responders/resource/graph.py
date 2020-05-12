@@ -25,7 +25,7 @@ class Graph(ResponderBase):
 
         if filters['type'] == GraphType.CLIQUE.value and not filters.get('focal_point_id'):
             self.bad_request("Request for clique graphs requires focal_point_id")
-        elif filters['type'] == GraphType.INVENTORY.value and filters.get('focal_point_id'):
+        elif filters['type'] == GraphType.INVENTORY_FORCE.value and filters.get('focal_point_id'):
             self.bad_request("Request for inventory graph doesn't support focal_point_id")
 
         self.validate_query_data(filters, filters_requirements)

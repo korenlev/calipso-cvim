@@ -151,10 +151,13 @@ class Query(ResponderBase):
         return self._build_grafana_table(columns=projection, objects=objects, target="scheduled_scans")
 
     def get_inventory_tree_table(self, environment: str) -> dict:
-        query = self.build_tree_query(environment=environment)
-
-        tree = self.get_single_object(collection="graphs", query=query)
-        objects = [{"results": tree}] if tree else []
+        types = [GraphType.INVENTORY_FORCE.value, GraphType.INVENTORY_TREE.value]
+        trees = []
+        for t in types:
+            query = self.build_tree_query(environment=environment, graph_type=t)
+            tree = self.get_single_object(collection="graphs", query=query)
+            trees.append(tree)
+        objects = [{"results": trees}] if trees else []
         return self._build_grafana_table(columns={"results": True}, objects=objects, target="tree")
 
     # #### Query builders
@@ -206,9 +209,9 @@ class Query(ResponderBase):
     def build_scheduled_scans_query(self, environment: str) -> dict:
         return self.build_base_query(environment=environment)
 
-    def build_tree_query(self, environment: str) -> dict:
+    def build_tree_query(self, environment: str, graph_type: str) -> dict:
         query = self.build_base_query(environment=environment)
-        query["type"] = GraphType.INVENTORY.value
+        query["type"] = graph_type
         return query
 
     @staticmethod
