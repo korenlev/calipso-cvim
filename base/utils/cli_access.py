@@ -24,7 +24,7 @@ class CliAccess(BinaryConverter):
     ssh_cmd = "ssh -q -o StrictHostKeyChecking=no "
     call_count_per_con = {}
     max_call_count_per_con = 100
-    cache_lifetime = 60  # no. of seconds to cache results
+    cache_lifetime = 3600  # no. of seconds to cache results
     cached_commands = {}
 
     def __init__(self):
