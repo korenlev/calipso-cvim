@@ -183,6 +183,7 @@
     "type" : "host",
     "attributes" : [
         "OS",
+        "cvim_details",
         "parent_id",
         "host_type",
         "ip_address",
