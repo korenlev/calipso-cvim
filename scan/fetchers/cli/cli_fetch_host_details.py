@@ -19,7 +19,7 @@ from scan.fetchers.cli.cli_fetcher import CliFetcher
 class CliFetchHostDetails(CliFetcher):
 
     OS_DETAILS_CMD = 'cat /etc/os-release && echo "ARCHITECTURE=`arch`"'
-    HOSTNAME_CMD = 'grep "^{} " /etc/hosts'
+    HOSTNAME_CMD = 'cat /etc/hostname'
     SETUP_DATA_CMD = 'cat /root/openstack-configs/setup_data.yaml'
 
     CEPH_OSD_DF_CMD = "cephmon ceph osd df -f json"
@@ -50,7 +50,7 @@ class CliFetchHostDetails(CliFetcher):
     }
 
     def fetch_host_os_details(self, doc: dict) -> None:
-        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=doc['host'], use_ssh_key=True)
+        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=doc['host'])
         os_attributes = {}
         attributes_to_fetch = {
             'NAME': 'name',
@@ -134,7 +134,7 @@ class CliFetchHostDetails(CliFetcher):
         return ret
 
     def get_mgmt_node_details(self, mgmt_ip: str, parent_id: str) -> Optional[dict]:
-        mgmt_host = self.get_host_name_from_ip(ip_address=mgmt_ip, host=mgmt_ip)
+        mgmt_host = self.get_hostname(ip_address=mgmt_ip)
 
         host_doc = {
             "id": mgmt_host,
@@ -154,26 +154,19 @@ class CliFetchHostDetails(CliFetcher):
 
         return host_doc
 
-    def get_host_name_from_ip(self, ip_address: str, host: str = "") -> str:
+    def get_hostname(self, ip_address: str = "") -> str:
         """
-        Find matching host name from IP address
-
-        :param ip_address: IP address to lookup
-        :param host: host where to run the search
-        :return: Matching host name or ip address if no host name matched
+            Fetch host name by ip address
+        :param ip_address: IP of target host
+        :return: host name if found, ip address otherwise (in case of any error)
         """
         try:
-            matches = self.run_fetch_lines(self.HOSTNAME_CMD.format(ip_address), ssh_to_host=host,
-                                           use_ssh_key=True)
+            lines = self.run_fetch_lines(self.HOSTNAME_CMD, ssh_to_host=ip_address)
         except SshError as e:
             self.log.error(e)
             return ip_address
 
-        if not matches:
-            return ip_address
-
-        matched_line = matches[0].split()
-        return matched_line[1] if len(matched_line) >= 2 else ip_address
+        return lines[0].strip() if lines else ip_address
 
     def fetch_setup_data_details(self, doc: dict) -> None:
         """
@@ -183,7 +176,7 @@ class CliFetchHostDetails(CliFetcher):
         :return: nothin'
         """
         try:
-            setup_data_str = self.run(self.SETUP_DATA_CMD, ssh_to_host=doc['host'], use_ssh_key=True)
+            setup_data_str = self.run(self.SETUP_DATA_CMD, ssh_to_host=doc['host'])
         except SshError:
             # Missing setup data file is not a fatal error
             return
