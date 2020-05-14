@@ -11,14 +11,9 @@ import abc
 
 from base.fetcher import Fetcher
 from base.utils.constants import EnvironmentFeatures
-from base.utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchOtepsBase(Fetcher, metaclass=abc.ABCMeta):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
-
     def get_ports(self, host: str, ip: str, overlay_type: str) -> list:
         ports = []
         existing_oteps = self.inv.get_by_field(self.env, 'otep')

@@ -87,12 +87,13 @@ class GraphType(StringEnum):
 
 
 class HostType(StringEnum):
+    BAREMETAL = "Bare-metal"
     COMPUTE = "Compute"
     CONTROLLER = "Controller"
+    KUBEMASTER = "Kube-Master"
+    MANAGEMENT = "Management"
     NETWORK = "Network"
     STORAGE = "Storage"
-    BAREMETAL = "Bare-metal"
-    KUBEMASTER = "Kube-Master"
 
 
 NetworkAgentType = namedtuple("NetworkAgentType", ["folder_text", "description"])

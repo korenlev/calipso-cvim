@@ -9,16 +9,19 @@
 ###############################################################################
 from base.utils.constants import HostType
 from scan.fetchers.cli.cli_fetch_host_vservice import CliFetchHostVservice
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class CliFetchHostVservices(CliFetchHostVservice):
+class CliFetchHostVservices(CliFetchHostVservice, HostTypeValidator):
+    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value]
+
     def __init__(self):
         super(CliFetchHostVservices, self).__init__()
 
     def get(self, host_id):
-        host = self.inv.get_single(self.get_env(), "host", host_id)
-        if HostType.NETWORK.value not in host["host_type"]:
+        if not self.validate_host(host_id):
             return []
+
         services_ids = [l[:l.index(' ')] if ' ' in l else l
                         for l in self.run_fetch_lines("ip netns list", host_id)]
         results = [{"local_service_id": s} for s in services_ids if self.type_re.match(s)]

@@ -12,7 +12,6 @@ from json import JSONDecodeError
 
 import re
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
@@ -21,10 +20,6 @@ class CliFetchTeamHostPnics(CliFetcher):
     TEAM_DETAILS_CMD = "teamdctl {} state dump"
 
     TEAM_NAME_REGEX = re.compile("teamd@(.*)[.]service")
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def get(self, parent_id):
         self.log.info('{}: checking under {}'.format(self.__class__.__name__, parent_id))

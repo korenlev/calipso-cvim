@@ -9,9 +9,6 @@
 ###############################################################################
 import re
 
-from base.utils.origins import Origin
-
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.util import encode_aci_dn
 from scan.fetchers.aci.aci_access import aci_config_required
 from scan.fetchers.aci.aci_base_fetch_switch import AciBaseFetchSwitch
@@ -27,7 +24,6 @@ class AciFetchSwitchPnic(AciBaseFetchSwitch):
 
     def __init__(self, config=None):
         super().__init__(config=config)
-        self.inv = InventoryMgr()
         self.discovered_macs = []  # Persist MACs that were already used for switch pNICs discovery
 
     def fetch_pnics_by_mac_address(self, mac_address):

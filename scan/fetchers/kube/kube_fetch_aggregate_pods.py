@@ -10,7 +10,6 @@
 import bson
 
 from base.fetcher import Fetcher
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.kube.kube_fetch_pod_aggregates import \
     KubeFetchPodAggregates
 
@@ -18,10 +17,6 @@ from scan.fetchers.kube.kube_fetch_pod_aggregates import \
 class KubeFetchAggregatePods(Fetcher):
 
     REF_SUFFIX = '-ref'
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def get(self, aggregate_id):
         id_prefix = KubeFetchPodAggregates.AGGREGATE_ID_PREFIX

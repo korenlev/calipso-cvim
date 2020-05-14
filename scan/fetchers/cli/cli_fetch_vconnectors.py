@@ -10,34 +10,24 @@
 from abc import abstractmethod, ABCMeta
 
 from base.utils.constants import HostType
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.singleton import Singleton
 from scan.fetchers.cli.cli_fetcher import CliFetcher
+from scan.fetchers.util.validators import HostTypeValidator
 
 
 class ABCSingleton(ABCMeta, Singleton):
     pass
 
 
-class CliFetchVconnectors(CliFetcher, metaclass=ABCSingleton):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class CliFetchVconnectors(CliFetcher, HostTypeValidator, metaclass=ABCSingleton):
+    ACCEPTED_HOST_TYPES = [HostType.COMPUTE.value, HostType.NETWORK.value]
 
     @abstractmethod
-    def get_vconnectors(self, host):
+    def get_vconnectors(self, host_id: str):
         raise NotImplementedError("Subclass must override get_vconnectors()")
 
-    def get(self, id):
-        host_id = id[:id.rindex('-')]
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host:
-            self.log.error("CliFetchVconnectors: host not found: " + host_id)
+    def get(self, parent_id):
+        host_id = parent_id[:parent_id.rindex('-')]
+        if not self.validate_host(host_id):
             return []
-        if "host_type" not in host:
-            self.log.error("host does not have host_type: " + host_id +
-                           ", host: " + str(host))
-            return []
-        if (HostType.STORAGE.value in host.get('host_type', [])) and (len(host.get('host_type', [])) == 1):
-            return []
-        return self.get_vconnectors(host)
+        return self.get_vconnectors(host_id)

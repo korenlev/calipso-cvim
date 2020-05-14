@@ -7,15 +7,10 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.kube.kube_fetch_oteps_base import KubeFetchOtepsBase
 
 
 class KubeFetchOtepsVpp(KubeFetchOtepsBase):
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     OTEP_UDP_PORT = 8285
 

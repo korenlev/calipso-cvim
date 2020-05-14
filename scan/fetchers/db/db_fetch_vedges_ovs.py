@@ -12,20 +12,24 @@ import json
 import re
 
 from base.utils.constants import HostType
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class DbFetchVedgesOvs(DbAccess, CliFetcher):
+class DbFetchVedgesOvs(DbAccess, CliFetcher, HostTypeValidator):
+    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value, HostType.COMPUTE.value]
+
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.port_re = re.compile("^\s*port (\d+): ([^(]+)( \(internal\))?$")
         self.port_line_header_prefix = " " * 8 + "Port "
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex('-')]
+        if not self.validate_host(host_id):
+            return []
+
         results = self.get_objects_list_for_id(
             """
               SELECT *
@@ -33,15 +37,9 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
               WHERE host = %s AND agent_type = 'Open vSwitch agent'
             """.format(self.neutron_db),
             "vedge", host_id)
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host:
-            self.log.error("unable to find host in inventory: %s", host_id)
-            return []
-        host_types = host["host_type"]
-        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
-            return []
-        vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host["id"])
-        ports = self.fetch_ports(host, vsctl_lines)
+
+        vsctl_lines = self.run_fetch_lines("ovs-vsctl show", host_id)
+        ports = self.fetch_ports(host_id=host_id, vsctl_lines=vsctl_lines)
         for doc in results:
             doc["vedge_type"] = "OVS"
             doc["name"] = "{}-OVS".format(doc["host"])
@@ -52,15 +50,12 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
             doc["tunnel_ports"] = self.get_overlay_tunnels(doc, vsctl_lines)
         return results
 
-    def fetch_ports(self, host, vsctl_lines) -> dict:
-        host_types = host["host_type"]
-        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
-            return {}
-        ports = self.fetch_ports_from_dpctl(host["id"])
-        self.fetch_port_tags_from_vsctl(vsctl_lines, ports)
+    def fetch_ports(self, host_id: str, vsctl_lines: list) -> dict:
+        ports = self.fetch_ports_from_dpctl(host_id)
+        self.fetch_port_tags_from_vsctl(vsctl_lines=vsctl_lines, ports=ports)
         return ports
 
-    def fetch_ports_from_dpctl(self, host_id) -> dict:
+    def fetch_ports_from_dpctl(self, host_id: str) -> dict:
         cmd = "ovs-dpctl show"
         lines = self.run_fetch_lines(cmd, host_id)
         ports = {}
@@ -83,8 +78,8 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher):
     #        Port "tap9f94d28e-7b"
     #            tag: 5
     #            Interface "tap9f94d28e-7b"
-    #                type: internal
-    def fetch_port_tags_from_vsctl(self, vsctl_lines, ports):
+    #               type: internal
+    def fetch_port_tags_from_vsctl(self, vsctl_lines: list, ports: dict):
         port = None
         for l in vsctl_lines:
             if l.startswith(self.port_line_header_prefix):

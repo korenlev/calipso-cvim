@@ -9,10 +9,10 @@
 ###############################################################################
 import json
 import re
+
 from requests import exceptions
 
 from base.utils.constants import HostType
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
@@ -23,7 +23,6 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
 
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.nova_endpoint = None
         self.ironic_endpoint = None
         self.token = None
@@ -48,9 +47,19 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         self.token = self.auth(self.admin_project)
         if not self.token:
             return []
+
         ret = []
         for region in self.regions:
             ret.extend(self.get_for_region(region))
+
+        mgmt_ip = self.configuration.environment.get("management_ip")
+        if mgmt_ip:
+            # TODO: revise mgmt node region?
+            region = list(self.regions.values())[0]["id"] if self.regions else "unknown"
+            mgmt_node_doc = self.get_mgmt_node_details(mgmt_ip=mgmt_ip, parent_id=region)
+            if mgmt_node_doc:
+                ret.append(mgmt_node_doc)
+
         return ret
 
     def get_for_region(self, region):
@@ -261,4 +270,3 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
                 for e in ["links", "uuid"]:
                     ironic.pop(e)
         return ironic_instances
-

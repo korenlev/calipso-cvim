@@ -10,7 +10,6 @@
 import re
 
 from base.utils.constants import NETWORK_AGENT_TYPES, MISC_AGENT_TYPE
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.string_utils import plural
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
@@ -21,7 +20,6 @@ class CliFetchHostVservice(CliFetcher, DbAccess):
         super(CliFetchHostVservice, self).__init__()
         # match only DHCP agent and router (L3 agent)
         self.type_re = re.compile("^q(dhcp|router)-")
-        self.inv = InventoryMgr()
 
     def get_vservice(self, host_id, name_space):
         result = {"local_service_id": name_space}

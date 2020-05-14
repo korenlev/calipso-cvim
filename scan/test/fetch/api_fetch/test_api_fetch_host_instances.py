@@ -9,7 +9,7 @@
 ###############################################################################
 from unittest.mock import MagicMock
 
-from scan.fetchers.api.api_fetch_host_instances import ApiFetchHostInstances
+from scan.fetchers.api.api_fetch_host_instances import ApiFetchHostTypeInstances
 from scan.test.fetch.api_fetch.test_data.api_fetch_host_instances import *
 from scan.test.fetch.api_fetch.test_data.token import TOKEN
 from scan.test.fetch.test_fetch import TestFetch
@@ -21,10 +21,10 @@ class TestApiFetchHostInstances(TestFetch):
         super().setUp()
         self.configure_environment()
 
-        self._v2_auth_pwd = ApiFetchHostInstances.v2_auth_pwd
-        ApiFetchHostInstances.v2_auth_pwd = MagicMock(return_value=TOKEN)
+        self._v2_auth_pwd = ApiFetchHostTypeInstances.v2_auth_pwd
+        ApiFetchHostTypeInstances.v2_auth_pwd = MagicMock(return_value=TOKEN)
 
-        self.fetcher = ApiFetchHostInstances()
+        self.fetcher = ApiFetchHostTypeInstances()
         self.set_regions_for_fetcher(self.fetcher)
 
     def test_get_projects(self):
@@ -89,5 +89,5 @@ class TestApiFetchHostInstances(TestFetch):
 
     def tearDown(self):
         super().tearDown()
-        ApiFetchHostInstances.v2_auth_pwd = self._v2_auth_pwd
+        ApiFetchHostTypeInstances.v2_auth_pwd = self._v2_auth_pwd
         self.reset_regions_for_fetcher(self.fetcher)

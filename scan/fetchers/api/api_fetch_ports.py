@@ -9,14 +9,12 @@
 ###############################################################################
 from base.utils.origins import Origin
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.api.api_access import ApiAccess
 
 
 class ApiFetchPorts(ApiAccess):
     def __init__(self):
         super(ApiFetchPorts, self).__init__()
-        self.inv = InventoryMgr()
         self.token = None
         self.auth_headers = None
 

@@ -11,6 +11,7 @@ import time
 from pipes import quote
 
 import re
+from typing import Optional
 
 from base.utils.binary_converter import BinaryConverter
 from base.utils.cli_dist_translator import CliDistTranslator
@@ -24,7 +25,7 @@ class CliAccess(BinaryConverter):
     ssh_cmd = "ssh -q -o StrictHostKeyChecking=no "
     call_count_per_con = {}
     max_call_count_per_con = 100
-    cache_lifetime = 60  # no. of seconds to cache results
+    cache_lifetime = 3600  # no. of seconds to cache results
     cached_commands = {}
 
     def __init__(self):
@@ -42,23 +43,22 @@ class CliAccess(BinaryConverter):
         self.run(cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
                  on_gateway=True, use_sudo=use_sudo)
 
-    def run(self, cmd, ssh_to_host="", enable_cache=True, on_gateway=False,
-            ssh=None, use_sudo=True):
+    def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True, on_gateway: bool = False,
+            ssh: Optional[SshConn] = None, use_sudo: bool = True, use_ssh_key: bool = False):
         ssh_conn = ssh if ssh else SshConn(ssh_to_host)
-        commands = self.adapt_cmd_to_env(ssh_conn, cmd, use_sudo, on_gateway,
-                                         ssh_to_host)
+        commands = self.adapt_cmd_to_env(ssh_conn=ssh_conn, cmd=cmd, use_sudo=use_sudo, on_gateway=on_gateway,
+                                         ssh_to_host=ssh_to_host, use_ssh_key=use_ssh_key)
         out = ''
         for c in commands:
-            ret = self.run_single_command(c, ssh_conn, ssh_to_host,
-                                           enable_cache=enable_cache)
+            ret = self.run_single_command(cmd=c, ssh_conn=ssh_conn, ssh_to_host=ssh_to_host,
+                                          enable_cache=enable_cache)
             out += ret if ret is not None else ''
         return out
 
-    def run_single_command(self, cmd: str=None, ssh_conn=None,
-                           ssh_to_host: str="",
-                           enable_cache=True) -> str:
+    def run_single_command(self, cmd: str, ssh_conn: Optional[SshConn] = None,
+                           ssh_to_host: str = "", enable_cache: bool = True) -> str:
         curr_time = time.time()
-        cmd_path = ssh_to_host + ',' + cmd
+        cmd_path = '{},{}'.format(ssh_to_host, cmd)
         if enable_cache and cmd_path in self.cached_commands:
             # try to re-use output from last call
             cached = self.cached_commands[cmd_path]
@@ -67,18 +67,19 @@ class CliAccess(BinaryConverter):
                 self.cached_commands.pop(cmd_path, None)
             else:
                 # result is good to use - skip the SSH call
-                self.log.info('CliAccess: ****** using cached result, ' +
-                              'host: ' + ssh_to_host + ', cmd: %s ******', cmd)
+                self.log.info('CliAccess: ****** using cached result, '
+                              'host: {}, cmd: {} ******'.format(ssh_to_host, cmd))
                 return cached["result"]
 
-        self.log.info('CliAccess: host: %s, cmd: %s', ssh_to_host, cmd)
+        self.log.info('CliAccess: host: {}, cmd: {}'.format(ssh_to_host, cmd))
         ret = ssh_conn.exec(cmd)
         self.cached_commands[cmd_path] = {"timestamp": curr_time, "result": ret}
         return ret
 
-    def run_fetch_lines(self, cmd, ssh_to_host="", enable_cache=True,
-                        use_sudo=True):
-        out = self.run(cmd, ssh_to_host, enable_cache, use_sudo=use_sudo)
+    def run_fetch_lines(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
+                        use_sudo: bool = True, use_ssh_key: bool = False):
+        out = self.run(cmd=cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
+                       use_sudo=use_sudo, use_ssh_key=use_ssh_key)
         if not out:
             return []
         # first try to split lines by whitespace
@@ -96,25 +97,25 @@ class CliAccess(BinaryConverter):
             return cmd.split(CliAccess.MULTI_COMMAND_SEPARATOR)
         return [cmd]
 
-    def adapt_cmd_to_env(self, ssh_conn, cmd, use_sudo, on_gateway,
-                         ssh_to_host):
+    def adapt_cmd_to_env(self, ssh_conn: SshConn, cmd: str, use_sudo: bool, on_gateway: bool,
+                         ssh_to_host: str, use_ssh_key: bool = False):
         cmd = self.adapt_cmd_to_dist(cmd)
         commands = self.handle_split_cmd(cmd)
-        return [self.adapt_cmd_to_environment(c, use_sudo, on_gateway,
-                                              ssh_to_host, ssh_conn)
+        return [self.adapt_cmd_to_environment(cmd=c, use_sudo=use_sudo, on_gateway=on_gateway,
+                                              ssh_to_host=ssh_to_host, ssh_conn=ssh_conn, use_ssh_key=use_ssh_key)
                 for c in commands]
 
-    def adapt_cmd_to_environment(self, cmd, use_sudo, on_gateway, ssh_to_host,
-                                 ssh_conn):
+    def adapt_cmd_to_environment(self, cmd: str, use_sudo: bool, on_gateway: bool, ssh_to_host: str,
+                                 ssh_conn: SshConn, use_ssh_key: bool = False):
         if self.configuration.environment["distribution"] == "Mercury":
             use_sudo = False
         if ssh_conn.user == 'root':
             use_sudo = False
         if use_sudo and not cmd.strip().startswith("sudo "):
             cmd = "sudo {}".format(cmd)
-        if not on_gateway and ssh_to_host \
-                and not ssh_conn.is_gateway_host(ssh_to_host):
-            cmd = self.ssh_cmd + ssh_to_host + " " + quote(cmd)
+        if not on_gateway and ssh_to_host and not ssh_conn.is_gateway_host(ssh_to_host):
+            ssh_key_arg = "-i {} ".format(ssh_conn.key) if use_ssh_key and ssh_conn.key else ""
+            cmd = "{}{}{} {}".format(self.ssh_cmd, ssh_key_arg, ssh_to_host, quote(cmd))
         return cmd
 
     def adapt_cmd_to_dist(self, cmd):
@@ -176,7 +177,7 @@ class CliAccess(BinaryConverter):
     @staticmethod
     def merge_ws_spillover_lines(lines):
         # with WS-separated output, extra output sometimes spills to next line
-        # detect that and add to the end of the previous line for our procesing
+        # detect that and add to the end of the previous line for our processing
         pending_line = None
         fixed_lines = []
         # remove headers line

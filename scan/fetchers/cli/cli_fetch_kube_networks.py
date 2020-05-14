@@ -10,15 +10,10 @@
 import json
 from json import JSONDecodeError
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
 class CliFetchKubeNetworks(CliFetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
-
     def get(self, host_id: str) -> list:
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:

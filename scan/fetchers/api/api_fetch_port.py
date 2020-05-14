@@ -7,15 +7,10 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.api.api_access import ApiAccess
 
 
 class ApiFetchPort(ApiAccess):
-    def __init__(self):
-        super(ApiFetchPort, self).__init__()
-        self.inv = InventoryMgr()
-
     def get(self, project_id):
         if not project_id:
             self.log.info("Get method needs ID parameter")

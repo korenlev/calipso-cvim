@@ -9,7 +9,7 @@
 ###############################################################################
 from listen.events.event_base import EventResult
 from listen.events.event_delete_base import EventDeleteBase
-from scan.fetchers.api.api_fetch_host_instances import ApiFetchHostInstances
+from scan.fetchers.api.api_fetch_host_instances import ApiFetchHostTypeInstances
 
 
 class EventPortDelete(EventDeleteBase):
@@ -60,7 +60,7 @@ class EventPortDelete(EventDeleteBase):
 
             # update instance mac address.
             if port_doc['mac_address'] == instance_doc['mac_address']:
-                instance_fetcher = ApiFetchHostInstances()
+                instance_fetcher = ApiFetchHostTypeInstances()
                 instance_fetcher.setup(env=env, origin=self.origin)
                 host_id = port_doc['binding:host_id']
                 instance_id = port_doc['device_id']

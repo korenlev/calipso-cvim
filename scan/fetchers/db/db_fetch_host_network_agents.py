@@ -9,14 +9,12 @@
 ###############################################################################
 import json
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.db.db_access import DbAccess
 
 
 class DbFetchHostNetworkAgents(DbAccess):
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.env_config = self.config.get_env_config()
 
     def get(self, id):

@@ -8,16 +8,17 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.constants import HostType
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.origins import Origin
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.db.db_fetch_instances import DbFetchInstances
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class ApiFetchHostInstances(ApiAccess):
+class ApiFetchHostInstances(ApiAccess, HostTypeValidator):
+    ACCEPTED_HOST_TYPES = [HostType.COMPUTE.value]
+
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.token = None
         self.nova_endpoint = None
         self.neutron_endpoint = None
@@ -44,12 +45,12 @@ class ApiFetchHostInstances(ApiAccess):
             projects_list = self.inv.get(self.get_env(), "project", None)
             self.projects = [{"name": p["name"], "id": p["id"], "domain_id": p["domain_id"]} for p in projects_list]
 
-    def get(self, id):
+    def get(self, parent_id):
         self.get_projects()
-        host_id = id[:id.rindex("-")]
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host or HostType.COMPUTE.value not in host.get("host_type", []):
+        host_id = parent_id[:parent_id.rindex("-")]
+        if not self.validate_host(host_id):
             return []
+
         instances_found = self.get_instances_from_api(host_id)
         self.db_fetcher.get_instance_data(instances_found)
         return instances_found

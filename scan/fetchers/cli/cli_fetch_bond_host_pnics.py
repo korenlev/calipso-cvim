@@ -10,31 +10,25 @@
 from collections import deque
 
 from base.utils.constants import HostType
-from base.utils.inventory_mgr import InventoryMgr
+
 from scan.fetchers.cli.cli_fetcher import CliFetcher
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class CliFetchBondHostPnics(CliFetcher):
+class CliFetchBondHostPnics(CliFetcher, HostTypeValidator):
     BOND_DIR = '/proc/net/bonding/'
     SLAVE_INTERFACE_HEADER = 'Slave Interface: '
     ACCEPTED_HOST_TYPES = [ht.value for ht in (HostType.NETWORK, HostType.COMPUTE, HostType.STORAGE)]
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def get(self, parent_id: str):
         self.log.info('CliFetchBondHostPnics: checking under {}'
                       .format(parent_id))
         host_id = parent_id[:parent_id.rindex('-')]
+        if not self.validate_host(host_id):
+            return []
+
         cmd = 'ls -1 {} 2>&1'.format(self.BOND_DIR)
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host:
-            self.log.error('CliFetchBondHostPnics: host not found: {}'.format(host_id))
-            return []
-        host_types = host['host_type']
-        if not [t for t in self.ACCEPTED_HOST_TYPES if t in host_types]:
-            return []
+
         lines = self.run_fetch_lines(cmd, host_id)
         if lines and 'No such file or directory' in lines[0]:
             return []  # no bonds so directory does not exist

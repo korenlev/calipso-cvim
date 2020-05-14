@@ -7,15 +7,10 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.api.api_access import ApiAccess
 
 
 class ApiFetchNetworks(ApiAccess):
-    def __init__(self):
-        super(ApiFetchNetworks, self).__init__()
-        self.inv = InventoryMgr()
-
     def get(self, project_id=None):
         # use project admin credentials, to be able to fetch all networks
         token = self.auth(self.admin_project)

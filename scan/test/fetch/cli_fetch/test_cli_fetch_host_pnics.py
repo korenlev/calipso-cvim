@@ -11,7 +11,7 @@
 from unittest.mock import MagicMock
 from unittest.mock import call
 
-from scan.fetchers.cli.cli_fetch_host_pnics import CliFetchHostPnics
+from scan.fetchers.cli.cli_fetch_host_pnics import CliFetchHostTypePnics
 from scan.test.fetch.cli_fetch.test_data.cli_fetch_host_pnics import *
 from scan.test.fetch.test_fetch import TestFetch
 
@@ -21,7 +21,7 @@ class TestCliFetchHostPnics(TestFetch):
     def setUp(self):
         super().setUp()
         self.configure_environment()
-        self.fetcher = CliFetchHostPnics()
+        self.fetcher = CliFetchHostTypePnics()
         self.fetcher.set_env(self.env)
 
     def check_get_result(self, host,

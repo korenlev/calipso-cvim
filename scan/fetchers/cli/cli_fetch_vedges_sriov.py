@@ -9,8 +9,6 @@
 ###############################################################################
 import re
 
-from base.utils.inventory_mgr import InventoryMgr
-
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
@@ -20,10 +18,6 @@ class CliFetchVedgesSriov(CliFetcher):
                           "(\s+spoof checking\s+(?P<spoof_checking>\w+),)?"
                           "(\s+link-state\s+(?P<link_state>\w+),)?"
                           "(\s+trust\s+(?P<trust>\w+))?")
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def get(self, parent_id):
         host_id = parent_id.replace('-vedges', '')

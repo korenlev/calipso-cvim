@@ -23,6 +23,9 @@ class CliFetchVserviceVnicsVpp(CliFetchVserviceVnics):
         self.vpp_interfaces = {}
 
     def get(self, host_id):
+        if not self.validate_host(host_id):
+            return []
+
         if host_id not in self.vpp_interfaces:
             vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", host_id)
             self.vpp_interfaces[host_id] = parse_hw_interfaces(vpp_show_lines)

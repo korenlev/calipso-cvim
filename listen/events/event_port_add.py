@@ -11,7 +11,7 @@ import datetime
 
 from base.utils.string_utils import plural
 from listen.events.event_base import EventBase, EventResult
-from scan.fetchers.api.api_fetch_host_instances import ApiFetchHostInstances
+from scan.fetchers.api.api_fetch_host_instances import ApiFetchHostTypeInstances
 from scan.fetchers.cli.cli_fetch_instance_vnics import CliFetchInstanceVnics
 from scan.fetchers.cli.cli_fetch_instance_vnics_vpp import \
     CliFetchInstanceVnicsVpp
@@ -270,7 +270,7 @@ class EventPortAdd(EventBase):
                 return EventResult(result=False, retry=True)
 
             # update instance
-            instance_fetcher = ApiFetchHostInstances()
+            instance_fetcher = ApiFetchHostTypeInstances()
             instance_fetcher.setup(env=env, origin=self.origin)
             instance_docs = instance_fetcher.get(host_id + '-')
             instance = next(filter(lambda i: i['id'] == instance_id, instance_docs), None)

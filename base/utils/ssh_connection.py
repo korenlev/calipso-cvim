@@ -30,8 +30,8 @@ class SshConnection(BinaryConverter):
 
     DEFAULT_PORT = 22
 
-    def __init__(self, _host: str, _user: str, _pwd: str=None, _key: str = None,
-                 _port: int = None,  _call_count_limit: int=None,
+    def __init__(self, _host: str, _user: str, _pwd: str = None, _key: str = None,
+                 _port: int = None,  _call_count_limit: int = None,
                  for_sftp: bool = False):
         super().__init__()
         self.host = _host

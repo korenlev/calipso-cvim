@@ -9,7 +9,7 @@
 ###############################################################################
 from unittest.mock import MagicMock
 
-from scan.fetchers.cli.cli_fetch_host_pnics_vpp import CliFetchHostPnicsVpp
+from scan.fetchers.cli.cli_fetch_host_pnics_vpp import CliFetchHostTypePnicsVpp
 from scan.test.fetch.cli_fetch.test_data.cli_fetch_host_pnics_vpp import *
 from scan.test.fetch.test_fetch import TestFetch
 
@@ -19,7 +19,7 @@ class TestCliFetchHostPnicsVpp(TestFetch):
     def setUp(self):
         super().setUp()
         self.configure_environment()
-        self.fetcher = CliFetchHostPnicsVpp()
+        self.fetcher = CliFetchHostTypePnicsVpp()
         self.fetcher.set_env(self.env)
 
     def test_get(self):

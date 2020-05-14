@@ -11,7 +11,6 @@
 import kubernetes.client as kube_client
 
 from base.utils.api_access_base import ApiAccessBase
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.kube_utils import update_resource_version
 from base.utils.origins import Origin
 
@@ -24,7 +23,6 @@ class KubeAccess(ApiAccessBase):
 
         super().__init__('Kubernetes', config)
 
-        self.inv = InventoryMgr()
         self.base_url = None
         self.bearer_token = None
         self.api = None

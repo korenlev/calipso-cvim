@@ -16,8 +16,7 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
     def __init__(self):
         super().__init__()
 
-    def get_vconnectors(self, host):
-        host_id = host['id']
+    def get_vconnectors(self, host_id):
         lines = self.run_fetch_lines('brctl show', host_id)
         headers = ['bridge_name', 'bridge_id', 'stp_enabled', 'interfaces']
         headers_count = len(headers)

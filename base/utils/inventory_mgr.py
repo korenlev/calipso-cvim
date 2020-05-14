@@ -375,8 +375,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         return features_in_env.get(feature.value) is True
 
     def save_inventory_object(self, o: dict, parent: dict,
-                              environment: str, type_to_fetch: dict = None) \
-            -> bool:
+                              environment: str, type_to_fetch: dict = None) -> bool:
         if not type_to_fetch:
             type_to_fetch = {}
 

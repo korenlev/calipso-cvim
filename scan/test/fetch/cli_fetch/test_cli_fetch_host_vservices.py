@@ -9,7 +9,7 @@
 ###############################################################################
 from unittest.mock import MagicMock
 
-from scan.fetchers.cli.cli_fetch_host_vservices import CliFetchHostVservices
+from scan.fetchers.cli.cli_fetch_host_vservices import CliFetchHostTypeVservices
 from scan.test.fetch.cli_fetch.test_data.cli_fetch_host_verservices import *
 from scan.test.fetch.test_fetch import TestFetch
 
@@ -19,7 +19,7 @@ class TestCliFetchHostVservices(TestFetch):
     def setUp(self):
         super().setUp()
         self.configure_environment()
-        self.fetcher = CliFetchHostVservices()
+        self.fetcher = CliFetchHostTypeVservices()
         self.fetcher.set_env(self.env)
 
     def test_get(self):

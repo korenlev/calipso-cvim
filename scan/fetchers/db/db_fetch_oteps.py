@@ -9,7 +9,6 @@
 ###############################################################################
 import re
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
 
@@ -17,7 +16,6 @@ from scan.fetchers.db.db_access import DbAccess
 class DbFetchOteps(DbAccess, CliFetcher):
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.port_re = re.compile("^\s*port (\d+): ([^(]+)( \(internal\))?$")
 
     def get(self, id):

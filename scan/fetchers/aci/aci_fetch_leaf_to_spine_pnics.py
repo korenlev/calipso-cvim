@@ -9,7 +9,6 @@
 ###############################################################################
 import re
 
-from base.utils.inventory_mgr import InventoryMgr
 from base.utils.util import decode_aci_dn, encode_aci_dn
 from scan.fetchers.aci.aci_access import aci_config_required
 from scan.fetchers.aci.aci_base_fetch_switch import AciBaseFetchSwitch
@@ -26,7 +25,6 @@ class AciFetchLeafToSpinePnics(AciBaseFetchSwitch):
 
     def __init__(self, config=None):
         super().__init__(config=config)
-        self.inv = InventoryMgr()
         self.spines = {}  # Persist spines data for the duration of scan
 
     def fetch_switches_by_role(self, role_name):

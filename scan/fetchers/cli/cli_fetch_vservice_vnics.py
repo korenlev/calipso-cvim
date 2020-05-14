@@ -12,14 +12,15 @@ import re
 from base.utils.constants import HostType
 from base.utils.origins import Origin
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class CliFetchVserviceVnics(CliFetcher):
+class CliFetchVserviceVnics(CliFetcher, HostTypeValidator):
+    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value]
+
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.if_header = re.compile('^\d+: ([^:]+): (.+)')
         self.regexps = [
             {'name': 'mac_address', 're': '^.*\slink/ether\s(\S+)\s'},
@@ -34,15 +35,7 @@ class CliFetchVserviceVnics(CliFetcher):
         self.ports = {}
 
     def get(self, host_id):
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host:
-            self.log.error("host not found: " + host_id)
-            return []
-        if "host_type" not in host:
-            self.log.error("host does not have host_type: " + host_id +
-                           ", host: " + str(host))
-            return []
-        if HostType.NETWORK.value not in host["host_type"]:
+        if not self.validate_host(host_id):
             return []
 
         if host_id not in self.ports:

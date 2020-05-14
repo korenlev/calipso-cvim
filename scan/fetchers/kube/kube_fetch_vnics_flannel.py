@@ -8,14 +8,9 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.fetcher import Fetcher
-from base.utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchVnicsFlannel(Fetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
-
     def get(self, host_id: str) -> list:
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:

@@ -53,6 +53,7 @@ class App:
         "/grafana/search": "grafana.search.Search",
         "/grafana/query": "grafana.query.Query",
         "/grafana/query/graph": "resource.graph.Graph",
+        "/grafana/query/inventory": "resource.inventory.Inventory",
         "/grafana/query/scans": "resource.scans.Scans",
         "/grafana/query/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
     }

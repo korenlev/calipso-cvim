@@ -7,11 +7,20 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional
+
+import yaml
+
 from base.utils.constants import HostType
+from base.utils.ssh_connection import SshError
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 
 class CliFetchHostDetails(CliFetcher):
+
+    OS_DETAILS_CMD = 'cat /etc/os-release && echo "ARCHITECTURE=`arch`"'
+    HOSTNAME_CMD = 'grep "^{} " /etc/hosts'
+    SETUP_DATA_CMD = 'cat /root/openstack-configs/setup_data.yaml'
 
     CEPH_OSD_DF_CMD = "cephmon ceph osd df -f json"
     CEPH_NODE_LS_CMD = "cephmon ceph node ls -f json"
@@ -22,9 +31,26 @@ class CliFetchHostDetails(CliFetcher):
     CEPH_UTIL_CMD = 'cephmon ceph osd utilization -f json'
     CEPH_QUORUM_CMD = 'cephmon ceph quorum_status -f json'
 
+    # Setup data field -> MongoDB field
+    SETUP_DATA_TRANSLATIONS = {
+        "PODNAME": "pod_name",
+        "PODTYPE": "pod_type",
+        "CVIM_MON": "cvim_mon",
+        "STORE_BACKEND": "store_backend",
+        "VOLUME_DRIVER": "volume_driver",
+        "TENANT_NETWORK_TYPES": "tenant_network_types",
+        "external_lb_vip_address": "external_lb_vip_address",
+        "external_lb_vip_ipv6_address": "external_lb_vip_ipv6_address",
+        "internal_lb_vip_address": "internal_lb_vip_address",
+        "internal_lb_vip_ipv6_address": "internal_lb_vip_ipv6_address",
+        "OPTIONAL_SERVICE_LIST": "optional_service_list",
+        "ROLES": "roles",
+        "INTEL_SRIOV_PHYS_PORTS": "sriov_phys_ports",
+        "INTEL_SRIOV_VFS": "sriov_vfs"
+    }
+
     def fetch_host_os_details(self, doc: dict) -> None:
-        cmd = 'cat /etc/os-release && echo "ARCHITECTURE=`arch`"'
-        lines = self.run_fetch_lines(cmd, ssh_to_host=doc['host'])
+        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=doc['host'], use_ssh_key=True)
         os_attributes = {}
         attributes_to_fetch = {
             'NAME': 'name',
@@ -46,6 +72,7 @@ class CliFetchHostDetails(CliFetcher):
         node_ls_response = self.run_fetch_json_response(self.CEPH_NODE_LS_CMD)
         if not node_ls_response:
             return ret
+
         osd_df_response = self.run_fetch_json_response(self.CEPH_OSD_DF_CMD)
         osds = osd_df_response.get("nodes", [])
         stores = [
@@ -105,3 +132,73 @@ class CliFetchHostDetails(CliFetcher):
                 self.fetch_host_os_details(host)
                 ret.append(host)
         return ret
+
+    def get_mgmt_node_details(self, mgmt_ip: str, parent_id: str) -> Optional[dict]:
+        mgmt_host = self.get_host_name_from_ip(ip_address=mgmt_ip, host=mgmt_ip)
+
+        host_doc = {
+            "id": mgmt_host,
+            "host": mgmt_host,
+            "name": mgmt_host,
+            "zone": "unknown",
+            "parent_type": "region",
+            "parent_id": parent_id,
+            "host_type": [HostType.MANAGEMENT.value],
+            "ip_address": mgmt_ip,
+        }
+        # TODO: verify object_name
+        self.fetch_host_os_details(doc=host_doc)
+        self.fetch_setup_data_details(doc=host_doc)
+
+        # TODO: discover pnics here?
+
+        return host_doc
+
+    def get_host_name_from_ip(self, ip_address: str, host: str = "") -> str:
+        """
+        Find matching host name from IP address
+
+        :param ip_address: IP address to lookup
+        :param host: host where to run the search
+        :return: Matching host name or ip address if no host name matched
+        """
+        try:
+            matches = self.run_fetch_lines(self.HOSTNAME_CMD.format(ip_address), ssh_to_host=host,
+                                           use_ssh_key=True)
+        except SshError as e:
+            self.log.error(e)
+            return ip_address
+
+        if not matches:
+            return ip_address
+
+        matched_line = matches[0].split()
+        return matched_line[1] if len(matched_line) >= 2 else ip_address
+
+    def fetch_setup_data_details(self, doc: dict) -> None:
+        """
+        Fetch select setup data fields from CVIM setup data
+
+        :param doc: Host document to update inplace
+        :return: nothin'
+        """
+        try:
+            setup_data_str = self.run(self.SETUP_DATA_CMD, ssh_to_host=doc['host'], use_ssh_key=True)
+        except SshError:
+            # Missing setup data file is not a fatal error
+            return
+
+        try:
+            setup_data = yaml.safe_load(setup_data_str)
+            if not isinstance(setup_data, dict):
+                raise yaml.YAMLError()
+        except yaml.YAMLError:
+            self.log.error("Failed to parse valid YAML from supplied setup data file")
+            return
+
+        cvim_details = {
+            key_to: setup_data[key_from]
+            for key_from, key_to in self.SETUP_DATA_TRANSLATIONS.items()
+            if key_from in setup_data
+        }
+        doc["cvim_details"] = cvim_details

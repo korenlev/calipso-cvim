@@ -8,17 +8,18 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.constants import HostType
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class CliFetchVedgesVpp(CliFetcher):
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
+class CliFetchVedgesVpp(CliFetcher, HostTypeValidator):
+    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value, HostType.COMPUTE.value]
 
     def get(self, parent_id) -> list:
         host_id = parent_id.replace('-vedges', '')
+        if not self.validate_host(host_id):
+            return []
+
         vedge = {
             'host': host_id,
             'id': host_id + '-VPP',
@@ -30,13 +31,7 @@ class CliFetchVedgesVpp(CliFetcher):
         if ver:
             ver = ver[0]
             vedge['binary'] = ver[:ver.index(' ', ver.index(' ') + 1)]
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host:
-            self.log.error("unable to find host in inventory: %s", host_id)
-            return []
-        host_types = host["host_type"]
-        if HostType.NETWORK.value not in host_types and HostType.COMPUTE.value not in host_types:
-            return []
+
         interfaces = self.run_fetch_lines('vppctl show int', host_id)
         vedge['ports'] = self.fetch_ports(interfaces)
         self.set_folder_parent(vedge, 'vedge', parent_text='vEdges',

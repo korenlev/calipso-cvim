@@ -35,9 +35,9 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
                 return ''.join(match.groups()[g] for g in mapping[1])
         return name
 
-    def get_vconnectors(self, host):
+    def get_vconnectors(self, host_id: str):
         self.vconnectors = {}
-        lines = self.run_fetch_lines("vppctl show mode", host['id'])
+        lines = self.run_fetch_lines("vppctl show mode", host_id)
         is_kubernetes = self.ENV_TYPE_KUBERNETES == \
             self.configuration.environment.get('environment_type')
         self.interfaces = defaultdict(dict)
@@ -49,8 +49,8 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
             line_parts = l.strip().split(' ')
             name = line_parts[2 if is_l2_bridge else 1]
             bd_id = line_parts[4] if is_l2_bridge else ''
-            self.add_vconnector(host=host, bd_id=bd_id)
-            interface = self.get_interface_details(host, name)
+            self.add_vconnector(host_id=host_id, bd_id=bd_id)
+            interface = self.get_interface_details(host_id=host_id, name=name)
             if interface:
                 interface['name'] = name  # Avoid bond interface name substitution
                 self.interfaces[bd_id][name] = interface
@@ -62,20 +62,20 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
         return list(self.vconnectors.values())
 
-    def add_vconnector(self, host: dict = None, bd_id: str = ''):
+    def add_vconnector(self, host_id: str = '', bd_id: str = ''):
         if not bd_id or bd_id in self.vconnectors:
             return
         self.vconnectors[bd_id] = dict(
-            host=host['id'],
-            id='{}-vconnector-{}'.format(host['id'], bd_id),
+            host=host_id,
+            id='{}-vconnector-{}'.format(host_id, bd_id),
             bd_id=bd_id,
             name='bridge-domain-{}'.format(bd_id),
-            object_name='{}-VPP-bridge-domain-{}'.format(host['id'], bd_id),
+            object_name='{}-VPP-bridge-domain-{}'.format(host_id, bd_id),
         )
 
-    def get_interface_details(self, host, name):
+    def get_interface_details(self, host_id: str, name: str):
         # find vconnector interfaces
         cmd = "vppctl show hardware-interfaces {}".format(self.clean_interface(name))
-        interface_lines = self.run_fetch_lines(cmd, host['id'])
+        interface_lines = self.run_fetch_lines(cmd, host_id)
         interfaces = parse_hw_interfaces(interface_lines)
         return interfaces[0] if interfaces else None

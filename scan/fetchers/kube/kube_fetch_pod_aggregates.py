@@ -8,16 +8,11 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.fetcher import Fetcher
-from base.utils.inventory_mgr import InventoryMgr
 
 
 class KubeFetchPodAggregates(Fetcher):
 
     AGGREGATE_ID_PREFIX = 'pod-aggregate-'
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
 
     def get(self, aggregate_id):
         aggregate = self.inv.get_by_id(self.env, aggregate_id)

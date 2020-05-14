@@ -7,17 +7,11 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.db.db_access import DbAccess
 
 
 class CliFetchOtepsLxb(CliFetcher, DbAccess):
-
-    def __init__(self):
-        super().__init__()
-        self.inv = InventoryMgr()
-
     def get(self, parent_id):
         vconnector = self.inv.get_by_id(self.get_env(), parent_id)
         if not vconnector:

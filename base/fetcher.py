@@ -10,6 +10,7 @@
 from typing import Optional
 
 from base.utils.configuration import Configuration
+from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.full_logger import FullLogger
 from base.utils.logging.logger import Logger
 from base.utils.origins import Origin
@@ -27,6 +28,7 @@ class Fetcher:
         self.log: Logger = FullLogger()
         self.configuration: Optional[Configuration] = None
         self.origin: Optional[str] = None
+        self.inv: InventoryMgr = InventoryMgr()
 
     @staticmethod
     def escape(string):

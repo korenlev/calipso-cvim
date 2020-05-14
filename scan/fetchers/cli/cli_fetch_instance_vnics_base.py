@@ -15,31 +15,30 @@ import xmltodict
 from base.utils.constants import HostType
 from base.utils.origins import Origin
 
-from base.utils.inventory_mgr import InventoryMgr
 from scan.fetchers.cli.cli_fetch_vservice_vnics import CliFetchVserviceVnics
 from scan.fetchers.cli.cli_fetcher import CliFetcher
+from scan.fetchers.util.validators import HostTypeValidator
 
 
-class CliFetchInstanceVnicsBase(CliFetcher):
+class CliFetchInstanceVnicsBase(CliFetcher, HostTypeValidator):
+    ACCEPTED_HOST_TYPES = [HostType.COMPUTE.value]
     PATH_UUID_REGEX = re.compile(".*([A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-4[A-Fa-f0-9]{3}-[89aAbB][A-Fa-f0-9]{3}-[A-Fa-f0-9]{12})")
 
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.ports = None
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
         self.ports = {}
 
-    def get(self, id):
-        instance_uuid = id[:id.rindex('-')]
+    def get(self, parent_id):
+        instance_uuid = parent_id[:parent_id.rindex('-')]
         instance = self.inv.get_by_id(self.get_env(), instance_uuid)
         if not instance:
             return []
 
-        host = self.inv.get_by_id(self.get_env(), instance["host"])
-        if not host or HostType.COMPUTE.value not in host["host_type"]:
+        if not self.validate_host(instance["host"]):
             return []
 
         if instance["host"] not in self.ports:

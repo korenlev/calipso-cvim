@@ -9,31 +9,36 @@
 ###############################################################################
 import re
 
-from base.utils.inventory_mgr import InventoryMgr
-from scan.fetchers.cli.cli_fetch_interface_hardware_details_vpp \
-    import CliFetchInterfaceHardwareDetailsVpp
+from base.utils.constants import HostType
+from scan.fetchers.cli.cli_fetch_interface_hardware_details_vpp import CliFetchInterfaceHardwareDetailsVpp
 from scan.fetchers.cli.cli_fetcher import CliFetcher
+from scan.fetchers.util.validators import HostTypeValidator
 
 NAME_RE = '^\w*(?<!Virtual)Ethernet'
 MAC_FIELD_RE = '^.*\sEthernet address\s(\S+)(\s.*)?$'
 PNIC_WITH_NETWORK_RE = '.*\.([0-9]+)$'
 
 
-class CliFetchHostPnicsVpp(CliFetcher):
+class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
+    # TODO: controller host accepted?
+    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value, HostType.COMPUTE.value]
+
     def __init__(self):
         super().__init__()
-        self.inv = InventoryMgr()
         self.name_re = re.compile(NAME_RE)
         self.pnic_with_network_re = re.compile(PNIC_WITH_NETWORK_RE)
-        self.if_details_fetcher = CliFetchInterfaceHardwareDetailsVpp()
+        self.details_fetcher = CliFetchInterfaceHardwareDetailsVpp()
 
     def set_env(self, env):
         super().set_env(env)
-        self.if_details_fetcher.set_env(env)
+        self.details_fetcher.set_env(env)
 
     def get(self, parent_id):
-        host_id = parent_id[:parent_id.rindex("-")]
-        host_id = parent_id[:host_id.rindex("-")]
+        # Assume the parent id is in format <host>-<vedge>-host_pnics
+        host_id = "-".join(parent_id.split("-")[:-2])
+        if not self.validate_host(host_id):
+            return []
+
         vedges = self.inv.find_items({
             "environment": self.get_env(),
             "type": "vedge",
@@ -58,7 +63,7 @@ class CliFetchHostPnicsVpp(CliFetcher):
                                        master_parent_id=host_id,
                                        parent_text='pNICs')
                 ret.append(pnic)
-        self.if_details_fetcher.add_hardware_interfaces_details(host_id, ret)
+        self.details_fetcher.add_hardware_interfaces_details(host_id, ret)
         self.add_pnic_ip_addresses(host_id, ret)
         self.add_interfaces_bond_details(host_id, ret)
         return ret
