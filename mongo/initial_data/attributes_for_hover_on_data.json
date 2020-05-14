@@ -232,6 +232,7 @@
     {
         "type" : "otep",
         "attributes" : [
+            "host",
             "overlay_type",
             "ip_address",
             "ports",
@@ -314,6 +315,7 @@
 {
     "type" : "disk",
     "attributes" : [
+        "host",
         "device",
         "state",
         "size",
@@ -328,6 +330,7 @@
 {
     "type" : "partition",
     "attributes" : [
+        "host",
         "device",
         "master_disk",
         "size",
@@ -339,6 +342,7 @@
 {
     "type" : "osd",
     "attributes" : [
+        "host",
         "metadata"
     ]
 }
