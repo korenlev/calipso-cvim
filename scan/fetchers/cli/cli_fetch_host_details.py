@@ -135,8 +135,8 @@ class CliFetchHostDetails(CliFetcher):
 
     def get_mgmt_node_details(self, mgmt_ip: str, parent_id: str) -> Optional[dict]:
         host_doc = {
-            "id": mgmt_ip,
-            "host": mgmt_ip,
+            "id": self.get_hostname(ip_address=mgmt_ip),
+            "host": self.get_hostname(ip_address=mgmt_ip),
             "name": self.get_hostname(ip_address=mgmt_ip),
             "zone": "unknown",
             "parent_type": "region",
@@ -174,7 +174,7 @@ class CliFetchHostDetails(CliFetcher):
         :return: nothin'
         """
         try:
-            setup_data_str = self.run(self.SETUP_DATA_CMD, ssh_to_host=doc['host'])
+            setup_data_str = self.run(self.SETUP_DATA_CMD, ssh_to_host=doc['ip_address'])
         except SshError:
             # Missing setup data file is not a fatal error
             return
