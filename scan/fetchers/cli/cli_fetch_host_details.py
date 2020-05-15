@@ -134,12 +134,10 @@ class CliFetchHostDetails(CliFetcher):
         return ret
 
     def get_mgmt_node_details(self, mgmt_ip: str, parent_id: str) -> Optional[dict]:
-        mgmt_host = self.get_hostname(ip_address=mgmt_ip)
-
         host_doc = {
-            "id": mgmt_host,
-            "host": mgmt_host,
-            "name": mgmt_host,
+            "id": mgmt_ip,
+            "host": mgmt_ip,
+            "name": self.get_hostname(ip_address=mgmt_ip),
             "zone": "unknown",
             "parent_type": "region",
             "parent_id": parent_id,
