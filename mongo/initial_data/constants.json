@@ -847,6 +847,14 @@
         {
             "value" : "partition", 
             "label" : "partition"
+        },
+        {
+            "label" : "monitoring_agents_folder",
+            "value" : "monitoring_agents_folder"
+        },
+        {
+            "label" : "monitoring_agent",
+            "value" : "monitoring_agent"
         }
     ], 
     "name" : "scan_object_types"
@@ -959,6 +967,10 @@
         {
             "value" : "partition", 
             "label" : "partition"
+        },
+        {
+            "label" : "monitoring_agent",
+            "value" : "monitoring_agent"
         }
     ], 
     "name" : "object_types", 

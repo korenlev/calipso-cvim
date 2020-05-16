@@ -250,6 +250,12 @@
         ]
     },
     {
+        "type" : "monitoring_agent",
+        "attributes" : [
+            "configuration"
+        ]
+    },
+    {
         "type" : "link",
         "attributes" : [
             "type",
