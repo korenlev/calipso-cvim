@@ -7,35 +7,48 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional
+
+from base.utils.constants import MonitoringAgentType
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 import toml
 
 
 class CliFetchHostMonitoringAgent(CliFetcher):
-    # todo: class will get agent_type in the future
-    AGENT_TYPE = 'telegraf'
-    AGENT_CMD = 'cat /etc/telegraf.conf'
+    TELEGRAF_CMD = 'cat /etc/telegraf.conf 2>/dev/null || echo'
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex("-")]
-        parsed_config = {}
-        if self.AGENT_TYPE == 'telegraf':
-            agent_string = self.run(cmd=self.AGENT_CMD, ssh_to_host=host_id)
-            parsed_config = toml.loads(agent_string)
+
         agents = []
-        try:
-            agents.append({
-                'type': 'monitoring_agent',
-                'agent_type': self.AGENT_TYPE,
-                'parent_id': parent_id,
-                'parent_type': 'monitoring_agents_folder',
-                'id': '{}-{}'.format(host_id, self.AGENT_TYPE),
-                'name': '{}-{}'.format(host_id, self.AGENT_TYPE),
-                'host': host_id,
-                'configuration': parsed_config
-                })
-        except IndexError:
-            print('agents not found on host {}'.format(host_id))
+        # TODO: more agent types
+        telegraf_agent = self.get_telegraf_agent(host_id)
+        if telegraf_agent:
+            agents.append(telegraf_agent)
 
         return agents
 
+    def get_telegraf_agent(self, host_id: str) -> Optional[dict]:
+        agent_string = self.run(cmd=self.TELEGRAF_CMD, ssh_to_host=host_id)
+        if not agent_string:
+            return None
+
+        try:
+            parsed_config = toml.loads(agent_string)
+        except toml.TomlDecodeError:
+            self.log.error("Failed to parse valid toml from telegraf config file")
+            return None
+
+        doc = self.build_agent_document(host_id=host_id, agent_type=MonitoringAgentType.TELEGRAF.value)
+        doc['configuration'] = parsed_config
+        return doc
+
+    @staticmethod
+    def build_agent_document(host_id: str, agent_type: str) -> dict:
+        return {
+            'type': 'monitoring_agent',
+            'agent_type': agent_type,
+            'host': host_id,
+            'id': '{}-{}'.format(host_id, agent_type),
+            'name': '{}-{}'.format(host_id, agent_type),
+        }

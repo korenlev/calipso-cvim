@@ -7,71 +7,25 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from datetime import datetime
-
 from base.utils.constants import GraphType
-from scan.processors.processor import Processor
+from scan.processors.graph_processor import GraphProcessor
 
 
-class ProcessInventoryChildrenTree(Processor):
+class ProcessInventoryChildrenTree(GraphProcessor):
     PREREQUISITES = []
-    COLLECTION = "graphs"
     GRAPH_NAME = "Inventory children tree"
+    GRAPH_TYPE = GraphType.INVENTORY_TREE.value
 
     def run(self):
         super().run()
-
-        data_list = [{
-            'id': self.env,
-            'name': self.env,
-        }]
-
-        for doc in self.inv.find_items({"environment": self.env}):
-            d = {}
-            if 'folder' in doc['type']:
-                d = {'name': doc.get('text', doc['name'])}
-            else:
-                d = {'name': doc['name']}
-            d.update(
-                {
-                    'id': doc['id'],
-                    'id_path': doc['id_path'],
-                    'parent': doc['parent_id'],
-                    'type': doc['type'],
-                    'host': doc.get('host')
-                }
-            )
-            data_list.append(d)
-
-        graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY_TREE.value},
-                                      collection=self.COLLECTION)
-        if not graph_doc:
-            graph_doc = {
-                "name": self.GRAPH_NAME,
-                "type": GraphType.INVENTORY_TREE.value,
-                "environment": self.env
-            }
+        data_list, graph_doc = self.get_data_list_and_graph_doc()
 
         for i in data_list:
             if not i.get('parent'):
                 # meaning it is the root node
-                i.update({'parent': 'root'})
-            tree = self.build_doc_children(data_list, i)
-            i.update(tree)
+                i['parent'] = 'root'
+            i.update({'children': [d for d in data_list if d['parent'] == i['id']]})
 
-        graph_doc.update({
-            "graph": data_list[0],
-            "last_scanned": datetime.now()
-        })
+        graph_doc["graph"] = data_list[0]
 
         self.inv.set(collection="graphs", item=graph_doc, allow_new_docs=True)
-
-    @staticmethod
-    def build_doc_children(data_list, item) -> dict:
-        item_children = []
-        tree = {}
-        for d in data_list:
-            if d['parent'] == item['id']:
-                item_children.append(d)
-        tree.update({'children': item_children})
-        return tree

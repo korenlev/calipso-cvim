@@ -47,12 +47,9 @@ class ApiFetchNetworks(ApiAccess):
             if self.HA_NETWORK_NAME in doc['name']:
                 ha_net_name = doc['name'].split()
                 if len(ha_net_name) == 4:
-                    ha_net_tenant_id = ha_net_name[3]
-                    doc["tenant_id"] = ha_net_tenant_id
-                    project_id = doc["tenant_id"]
-                else:
-                    project_id = ""
+                    doc["tenant_id"] = ha_net_name[3]
                 doc['name'] = 'HA net'
+
             project_id = doc["tenant_id"]
             if not project_id:
                 # find project ID of admin project

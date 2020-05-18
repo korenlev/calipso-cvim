@@ -96,6 +96,10 @@ class HostType(StringEnum):
     STORAGE = "Storage"
 
 
+class MonitoringAgentType(StringEnum):
+    TELEGRAF = "telegraf"
+
+
 NetworkAgentType = namedtuple("NetworkAgentType", ["folder_text", "description"])
 NETWORK_AGENT_TYPES = {
     "dhcp": NetworkAgentType(folder_text="DHCP servers", description="DHCP agent"),

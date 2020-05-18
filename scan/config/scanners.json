@@ -136,12 +136,12 @@
         "type": "monitoring_agents_folder",
         "fetcher": {
           "folder": true,
-          "types_name": "monitoring_agent",
+          "types_name": "monitoring_agents",
           "parent_type": "host",
           "text": "Monitoring_agents"
         },
         "environment_condition": {"distribution" : "Mercury"},
-        "children_scanner": "ScanMonitoring_agents"
+        "children_scanner": "ScanMonitoringAgents"
       },
       {
         "_comment": "fetch vService vNICs from host for efficiency",
@@ -225,7 +225,7 @@
         "fetcher": "CliFetchHostPartitions",
         "environment_condition": {"cvim_ceph": true}
       }],
-    "ScanMonitoring_agents":[{
+    "ScanMonitoringAgents":[{
         "type": "monitoring_agent",
         "fetcher": "CliFetchHostMonitoringAgent",
         "environment_condition": {"distribution" : "Mercury"}
