@@ -9,7 +9,9 @@
 ###############################################################################
 import logging
 import logging.handlers
+import os
 
+from base.utils.logging.file_logger import FileLogger
 from base.utils.logging.logger import Logger
 from base.utils.logging.mongo_logging_handler import MongoLoggingHandler
 from base.utils.origins import Origin
@@ -35,7 +37,10 @@ class FullLogger(Logger):
 
         # File handler
         if log_file:
-            self.add_handler(logging.handlers.WatchedFileHandler(log_file))
+            log_file_path = os.path.join(FileLogger.LOG_DIRECTORY, log_file)
+            file_handler = logging.handlers.WatchedFileHandler(log_file_path)
+            file_handler.setLevel(self.level)
+            self.add_handler(file_handler)
 
     def _get_message_handler(self):
         defined_handlers = [h for h in self.log.handlers

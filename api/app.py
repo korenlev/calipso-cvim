@@ -60,16 +60,18 @@ class App:
 
     responders_path = "api.responders"
 
-    def __init__(self, mongo_config="", ldap_enabled=True, ldap_config="", auth_config="",
-                 log_level="", inventory="", token_lifetime=86400):
+    def __init__(self, mongo_config: str = "", ldap_enabled: bool = True, ldap_config: str = "", auth_config: str = "",
+                 log_level: str = "", log_file: str = "", inventory: str = "", token_lifetime: int = 86400):
         MongoAccess.set_config_file(mongo_config)
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory)
-        self.log = FullLogger()
-        self.log.set_loglevel(log_level)
-        self.setup_auth_backend(ldap_enabled=ldap_enabled, ldap_config=ldap_config, auth_config=auth_config)
+
+        self.log = FullLogger(name="API", log_file=log_file, level=log_level)
+        self.setup_auth_backend(ldap_enabled=ldap_enabled, ldap_config=ldap_config, auth_config=auth_config,
+                                log_file=log_file, log_level=log_level)
         Token.set_token_lifetime(token_lifetime)
-        self.middleware = AuthenticationMiddleware()
+        self.middleware = AuthenticationMiddleware(log_file=log_file, log_level=log_level)
+
         self.app = falcon.API(middleware=[self.middleware])
         self.app.add_error_handler(CalipsoApiException)
         self.app.req_options.strip_url_path_trailing_slash = True
@@ -88,10 +90,11 @@ class App:
             resource = class_()
             app.add_route(url, resource)
 
-    def setup_auth_backend(self, ldap_enabled, ldap_config, auth_config=""):
+    def setup_auth_backend(self, ldap_enabled: bool, ldap_config: str, auth_config: str = "",
+                           log_file: str = "", log_level: str = ""):
         if ldap_enabled:
             try:
-                auth_backend.ApiAuth = LDAPBackend(ldap_config)
+                auth_backend.ApiAuth = LDAPBackend(config_file_path=ldap_config, log_file=log_file, log_level=log_level)
                 return
             except ValueError as e:
                 self.log.error("Failed to setup LDAP access. Exception: {}".format(e))
@@ -99,6 +102,7 @@ class App:
         elif auth_config:
             try:
                 auth_backend.ApiAuth = CredentialsBackend(auth_config)
+                self.log.info("Set up credentials authentication")
                 return
             except ValueError as e:
                 self.log.error("Failed to setup credentials access. Exception: {}".format(e))

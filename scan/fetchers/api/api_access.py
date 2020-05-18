@@ -101,7 +101,8 @@ class ApiAccess(ApiAccessBase):
 
                 self.log.info("ApiAccess: Using keystone API version: '{}'".format(version_id))
                 return auth_class(base_url=self.base_url, version=version_id,
-                                  project=self.admin_project, api_config=self.api_config)
+                                  project=self.admin_project, api_config=self.api_config,
+                                  log=self.log)
         raise ValueError("ApiAccess: Failed to determine stable OpenStack auth version")
 
     def get_auth_response(self, project_id):

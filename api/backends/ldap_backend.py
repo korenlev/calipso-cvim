@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import ssl
+from typing import Optional
 
 from ldap3 import Server, Connection, Tls
 
@@ -44,9 +45,10 @@ class LDAPBackend(AuthBackend):
         'group_member_attribute': 'CALIPSO_LDAP_SERVICE_GROUP_MEMBER_ATTRIBUTE'
     }
 
-    def __init__(self, config_file_path=""):
+    def __init__(self, config_file_path: str = "",
+                 log_file: Optional[str] = None, log_level: Optional[str] = None):
         super().__init__()
-        self.log = FullLogger()
+        self.log = FullLogger(name="LDAP auth", log_file=log_file, level=log_level)
         self._ldap_params = {
             "url": "ldap://localhost:389"
         }

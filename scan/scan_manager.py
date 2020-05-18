@@ -17,6 +17,7 @@ from functools import partial
 
 import urllib3
 
+from base.fetcher import Fetcher
 from base.utils.constants import ScanStatus, EnvironmentFeatures, ScheduledScanInterval, ScheduledScanStatus
 from base.utils.elastic_access import ElasticAccess
 from base.utils.exceptions import ScanArgumentsError
@@ -39,7 +40,8 @@ class ScanManager(Manager):
         "scheduled_scans": "scheduled_scans",
         "environments": "environments_config",
         "interval": 1,
-        "loglevel": "INFO"
+        "loglevel": "INFO",
+        "logfile": "scan_manager.log",
     }
 
     MIN_INTERVAL = 0.1  # To prevent needlessly frequent scans
@@ -56,6 +58,8 @@ class ScanManager(Manager):
     def __init__(self):
         self.args = self.get_args()
         super().__init__(log_directory=self.args.log_directory,
+                         log_level=self.args.loglevel,
+                         log_file=self.args.logfile,
                          mongo_config_file=self.args.mongo_config)
         self.db_client = None
         self.environments_collection = None
@@ -92,6 +96,10 @@ class ScanManager(Manager):
                             help="Interval between collection polls"
                                  "(must be more than {} seconds)"
                                  .format(ScanManager.MIN_INTERVAL))
+        parser.add_argument("-f", "--logfile", nargs="?", type=str,
+                            default=ScanManager.DEFAULTS["logfile"],
+                            help="Scan manager log file name \n(default: '{}')"
+                                 .format(ScanManager.DEFAULTS["logfile"]))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=ScanManager.DEFAULTS["loglevel"],
                             help="Logging level \n(default: '{}')"
@@ -112,7 +120,6 @@ class ScanManager(Manager):
         self.environments_collection = self.db_client.db[self.args.environments_collection]
         self._update_document = partial(MongoAccess.update_document, self.scans_collection)
         self.interval = max(self.MIN_INTERVAL, self.args.interval)
-        self.log.set_loglevel(self.args.loglevel)
 
         # ElasticSearch post-scan indexing is disabled in this release, no ES connection
         self.es_client = ElasticAccess()
@@ -283,9 +290,12 @@ class ScanManager(Manager):
                                 origin_type=(ScanOrigins.SCHEDULED
                                              if scan_request.get("scheduled")
                                              else ScanOrigins.MANUAL))
-            logger = FullLogger(name="scan-{}-logger".format(env),
+
+            Fetcher.LOG_LEVEL = scan_request.get('loglevel', Logger.default_level)
+            logger = FullLogger(name=Fetcher.LOG_NAME,
+                                log_file=Fetcher.LOG_FILE,
                                 env=env, origin=origin,
-                                level=scan_request.get('loglevel', Logger.default_level))
+                                level=Fetcher.LOG_LEVEL)
             if not self.inv.is_feature_supported(env, scan_feature):
                 logger.error("Scanning is not supported for env '{}'".format(scan_request.get('environment')))
                 self._fail_scan(scan_request)

@@ -15,6 +15,7 @@ import paramiko.buffered_pipe
 
 from base.utils.binary_converter import BinaryConverter
 from base.utils.exceptions import CredentialsError, HostAddressError
+from base.utils.util import measure_perf_time
 
 
 class SshError(Exception):
@@ -100,12 +101,10 @@ class SshConnection(BinaryConverter):
         if connection and connection.ssh_client:
             self.ssh_client = connection.ssh_client
             if reconnect:
-                self.log.info("SshConnection: " +
-                              "****** forcing reconnect: %s ******",
+                self.log.info("SshConnection: ****** forcing reconnect: %s ******",
                               self.host)
             elif self.call_count >= self.call_count_limit > 0:
-                self.log.info("SshConnection: ****** reconnecting: %s, " +
-                              "due to call count: %s ******",
+                self.log.info("SshConnection: ****** reconnecting: %s, due to call count: %s ******",
                               self.host, self.call_count)
             else:
                 return True
@@ -155,6 +154,7 @@ class SshConnection(BinaryConverter):
         self.call_count = 0
         return self.ssh_client is not None
 
+    @measure_perf_time()
     def exec(self, cmd):
         if not self.connect():
             return ''

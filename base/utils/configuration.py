@@ -8,7 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.logging.full_logger import FullLogger
+from base.utils.logging.console_logger import ConsoleLogger
 from base.utils.mongo_access import MongoAccess
 from base.utils.singleton import Singleton
 
@@ -23,7 +23,7 @@ class Configuration(metaclass=Singleton):
         self.env_name = None
         self.environment = None
         self.configuration = None
-        self.log = FullLogger()
+        self.log = ConsoleLogger()
 
     def use_env(self, env_name):
         self.log.debug("Configuration taken from environment: {}"

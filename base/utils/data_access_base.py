@@ -44,17 +44,16 @@ class DataAccessBase:
     def set_config_file(_conf_file):
         DataAccessBase.config_file = _conf_file
 
-    @staticmethod
-    def get_logger(directory):
+    @classmethod
+    def get_logger(cls, directory):
         if not os.path.isdir(directory):
             ConsoleLogger().warning('Can\'t use inexistent directory {} '
                                     'for logging'.format(directory))
             return None
-        log_file = os.path.join(directory, DataAccessBase.LOG_FILENAME)
+        log_file = os.path.join(directory, cls.LOG_FILENAME)
 
         try:
-            log = FileLogger(log_file)
-            return log
+            return FileLogger(log_file=log_file)
         except OSError as e:
             ConsoleLogger().warning("Couldn't use file {} for logging. "
                                     "Error: {}".format(log_file, e))

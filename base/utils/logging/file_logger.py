@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import logging.handlers
+import os
 
 from base.utils.logging.logger import Logger
 
@@ -20,5 +21,6 @@ class FileLogger(Logger):
                  level: str = Logger.default_level):
         super().__init__(logger_name=name if name else "{}-File".format(self.PROJECT_NAME),
                          level=level)
-        self.add_handler(logging.handlers.WatchedFileHandler(log_file))
+        log_file_path = os.path.join(FileLogger.LOG_DIRECTORY, log_file)
+        self.add_handler(logging.handlers.WatchedFileHandler(log_file_path))
 

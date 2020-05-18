@@ -9,12 +9,13 @@
 ###############################################################################
 import calendar
 import time
+from typing import Optional
 
 import requests
 from abc import abstractmethod, ABCMeta
 
-
-from base.utils.logging.full_logger import FullLogger
+from base.utils.logging.console_logger import ConsoleLogger
+from base.utils.logging.logger import Logger
 
 
 class KeystoneClient(metaclass=ABCMeta):
@@ -26,12 +27,12 @@ class KeystoneClient(metaclass=ABCMeta):
     tokens = {}
     auth_responses = {}
 
-    def __init__(self, base_url, version, project, api_config):
+    def __init__(self, base_url: str, version: str, project: str, api_config: str, log: Optional[Logger] = None):
         self.auth_url = "/".join((base_url.rstrip("/"), self.auth_path.lstrip("/")))
         self.version = version
         self.project = project
         self.api_config = api_config
-        self.log = FullLogger()
+        self.log = log if log else ConsoleLogger()
 
     @property
     def tenants_enabled(self):

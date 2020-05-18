@@ -207,7 +207,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         if args["metadata_file"]:
             import_metadata(event_handler, event_queues, args["metadata_file"])
 
-        logger = FullLogger()
+        logger = FullLogger()  # TODO
         logger.set_loglevel(args["loglevel"])
 
         amqp_config = conf.get("AMQP")

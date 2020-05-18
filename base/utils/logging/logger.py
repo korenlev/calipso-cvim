@@ -22,7 +22,7 @@ class Logger(ABC):
     PROJECT_NAME = 'Calipso'
 
     levels = [DEBUG, INFO, WARNING, ERROR, CRITICAL]
-    log_format = '%(asctime)s %(levelname)s: %(message)s'
+    log_format = '%(asctime)s|%(levelname)s|%(message)s'
     formatter = logging.Formatter(log_format)
     default_level = INFO
 

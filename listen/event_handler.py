@@ -20,7 +20,7 @@ class EventHandler:
         self.inv = InventoryMgr()
         self.inv.set_collections(inventory_collection)
         self.env = env
-        self.log = FullLogger(env=env)
+        self.log = FullLogger(env=env)  # TODO
         self.handlers = {}
 
     def discover_handlers(self, handlers_package: str, event_handlers: dict):

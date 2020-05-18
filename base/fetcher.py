@@ -22,10 +22,15 @@ class Fetcher:
     ENV_TYPE_KUBERNETES = 'Kubernetes'
     ENV_TYPE_OPENSTACK = 'OpenStack'
 
+    # To be set by caller prior to instance creation
+    LOG_NAME = "Scanner"
+    LOG_FILE = "scanner.log"
+    LOG_LEVEL = Logger.INFO
+
     def __init__(self):
         super().__init__()
         self.env: Optional[str] = None
-        self.log: Logger = FullLogger()
+        self.log: Logger = FullLogger(name=self.LOG_NAME, log_file=self.LOG_FILE, level=self.LOG_LEVEL)
         self.configuration: Optional[Configuration] = None
         self.origin: Optional[str] = None
         self.inv: InventoryMgr = InventoryMgr()
@@ -43,7 +48,7 @@ class Fetcher:
         self.set_env(env=env)
         if origin:
             self.origin = origin
-            self.log.setup(origin=origin)
+            self.log.setup(origin=origin, env=env)
 
     def get_env(self):
         return self.env

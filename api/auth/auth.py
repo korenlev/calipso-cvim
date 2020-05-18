@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional
+
 from api.backends import auth_backend
 from api.auth.token import Token
 from base.utils.inventory_mgr import InventoryMgr
@@ -15,10 +17,10 @@ from base.utils.logging.full_logger import FullLogger
 
 class Auth:
 
-    def __init__(self):
+    def __init__(self, log_file: Optional[str] = None, log_level: Optional[str] = None):
         super().__init__()
         self.inv = InventoryMgr()
-        self.log = FullLogger()
+        self.log = FullLogger(name="API auth", log_file=log_file, level=log_level)
         self.tokens_coll = self.inv.collections['api_tokens']
 
     def get_token(self, token):

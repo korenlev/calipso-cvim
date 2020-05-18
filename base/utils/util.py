@@ -12,6 +12,9 @@ import signal
 
 import os
 import re
+import time
+from typing import Optional
+
 from bson.objectid import ObjectId
 
 
@@ -201,3 +204,35 @@ def read_environment_variables(required=None, optional=None, empty_is_none=False
             results[key] = os.environ[variable_name]
 
     return results
+
+
+def measure_perf_time(time_format=":.02f"):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            start = time.perf_counter()
+            res = func(*args, **kwargs)
+            t_str = ("{%s}" % time_format).format(time.perf_counter() - start)
+            if hasattr(args[0], "log") and hasattr(args[0].log, "info"):
+                args[0].log.info(t_str)
+            else:
+                print(t_str)
+            return res
+        return wrapper
+    return decorator
+
+
+class MeasurePerfTime:
+    def __init__(self, instance=None, time_format: str = ":.02f"):
+        self.start: Optional[float] = None
+        self.time_format: Optional[str] = time_format
+        self.instance = instance
+
+    def __enter__(self):
+        self.start = time.perf_counter()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        t_str = ("{%s}" % self.time_format).format(time.perf_counter() - self.start)
+        if self.instance and hasattr(self.instance, "log") and hasattr(self.instance.log, "info"):
+            self.instance.log.info(t_str)
+        else:
+            print(t_str)

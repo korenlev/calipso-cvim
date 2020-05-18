@@ -117,7 +117,8 @@ class EventManager(Manager):
         "collection": "environments_config",
         "inventory": "inventory",
         "interval": 5,
-        "loglevel": "INFO"
+        "loglevel": "INFO",
+        "logfile": "event_manager.log"
     }
 
     LISTENERS = {
@@ -130,7 +131,9 @@ class EventManager(Manager):
     def __init__(self):
         self.args = self.get_args()
         super().__init__(log_directory=self.args.log_directory,
-                         mongo_config_file=self.args.mongo_config)
+                         mongo_config_file=self.args.mongo_config,
+                         log_file=self.args.log_file,
+                         log_level=self.args.log_level)
         self.db_client = None
         self.interval = None
         self.processes = {}
@@ -170,6 +173,10 @@ class EventManager(Manager):
                                  "(must be more than {} seconds. Default: {})"
                                  .format(ProcessMonitor.MIN_RETRY_DELAY_LIMIT,
                                          ProcessMonitor.RETRY_DELAY_LIMIT))
+        parser.add_argument("-f", "--logfile", nargs="?", type=str,
+                            default=EventManager.DEFAULTS["logfile"],
+                            help="Log filename \n(default: '{}')"
+                                 .format(EventManager.DEFAULTS["logfile"]))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=EventManager.DEFAULTS["loglevel"],
                             help="Logging level \n(default: '{}')"
@@ -331,7 +338,7 @@ class EventManager(Manager):
 
                 # Iterate over environments that don't have an event listener attached
                 for env_name in environments:
-                    logger = FullLogger(env=env_name, level=self.args.loglevel)
+                    logger = FullLogger(env=env_name, level=self.args.loglevel)  # TODO
 
                     if not self.inv.is_feature_supported(env_name, EnvironmentFeatures.LISTENING):
                         logger.error("Listening is not supported for env '{}'".format(env_name))

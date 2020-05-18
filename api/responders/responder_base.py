@@ -35,9 +35,9 @@ class ResponderBase(DataValidate, DictNamingConverter):
     ID = "_id"
     COLLECTION = None
 
-    def __init__(self):
+    def __init__(self, log_file: Optional[str] = None, log_level: Optional[str] = None):
         super().__init__()
-        self.log = FullLogger()
+        self.log = FullLogger(name="API Responder", log_file=log_file, level=log_level)
         self.inv = InventoryMgr()
 
     ######################

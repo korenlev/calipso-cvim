@@ -21,12 +21,13 @@ class Manager(ABC):
 
     def __init__(self, log_directory: Optional[str] = None,
                  mongo_config_file: Optional[str] = None,
+                 log_file: Optional[str] = None,
                  log_level: Optional[str] = None):
         super().__init__()
         if log_directory:
             FileLogger.LOG_DIRECTORY = log_directory
         MongoAccess.config_file = mongo_config_file
-        self.log = FullLogger(level=log_level)
+        self.log = FullLogger(name=self.__class__.__name__, log_file=log_file, level=log_level)
         self.conf = None
         self.inv = None
         self.collection = None
