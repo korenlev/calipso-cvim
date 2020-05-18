@@ -119,7 +119,6 @@
         "environment_condition": {"cvim_ceph": true},
         "children_scanner": "ScanPartitions"
       },
-
       {
         "_comment": "creating only top folder for OSDs",
         "type": "osds_folder",
@@ -132,7 +131,18 @@
         "environment_condition": {"cvim_ceph": true},
         "children_scanner": "ScanOsds"
       },
-
+      {
+        "_comment": "creating only top folder for Monitoring_agents",
+        "type": "monitoring_agents_folder",
+        "fetcher": {
+          "folder": true,
+          "types_name": "monitoring_agent",
+          "parent_type": "host",
+          "text": "Monitoring_agents"
+        },
+        "environment_condition": {"distribution" : "Mercury"},
+        "children_scanner": "ScanMonitoring_agents"
+      },
       {
         "_comment": "fetch vService vNICs from host for efficiency",
         "type": "vnic",
@@ -214,6 +224,11 @@
         "type": "partition",
         "fetcher": "CliFetchHostPartitions",
         "environment_condition": {"cvim_ceph": true}
+      }],
+    "ScanMonitoring_agents":[{
+        "type": "monitoring_agent",
+        "fetcher": "CliFetchHostMonitoringAgent",
+        "environment_condition": {"distribution" : "Mercury"}
       }],
     "ScanInstance": [
       {

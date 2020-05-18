@@ -26,14 +26,22 @@ class ProcessInventoryVegaTree(Processor):
             'name': self.env,
         }]
 
-        data_list.extend([{
-            'id': doc['id'],
-            'id_path': doc['id_path'],
-            'name': doc['name'],
-            'parent': doc['parent_id'],
-            'type': doc['type'],
-            'host': doc.get('host')
-        } for doc in self.inv.find_items({"environment": self.env})])
+        for doc in self.inv.find_items({"environment": self.env}):
+            d = {}
+            if 'folder' in doc['type']:
+                d = {'name': doc.get('text', doc['name'])}
+            else:
+                d = {'name': doc['name']}
+            d.update(
+                {
+                    'id': doc['id'],
+                    'id_path': doc['id_path'],
+                    'parent': doc['parent_id'],
+                    'type': doc['type'],
+                    'host': doc.get('host')
+                }
+            )
+            data_list.append(d)
 
         graph_doc = self.inv.find_one({"environment": self.env, "type": GraphType.INVENTORY_VEGA.value},
                                       collection=self.COLLECTION)

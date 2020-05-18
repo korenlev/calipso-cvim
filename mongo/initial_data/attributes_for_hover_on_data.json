@@ -148,16 +148,13 @@
         "type": "network",
         "attributes" : [
             "project",
-            "subnets.ip_version",
-            "subnets.enable_dhcp",
-            "subnets.cidr",
-            "subnets.ipv6_ra_mode",
-            "subnets.host_routes",
-            "subnets.allocation_pools",
+            "subnets",
             "network",
+            "cidrs",
             "mtu",
             "created_at",
             "availability_zones",
+            "router:external",
             "ipv6_address_scope",
             "provider:network_type",
             "port_security_enabled",
@@ -250,6 +247,12 @@
             "aci_document",
             "parent_id",
             "role"
+        ]
+    },
+    {
+        "type" : "monitoring_agent",
+        "attributes" : [
+            "configuration"
         ]
     },
     {
