@@ -15,7 +15,7 @@ import argparse
 from subprocess import check_output
 import sys
 
-from utils.binary_converter import BinaryConverter
+from base.utils.string_utils import binary2str
 
 IMAGES_TO_SEARCH = ["ui", "monitor", "scan", "api", "ldap", "listen", "mongo"]
 
@@ -48,8 +48,7 @@ class DockerImageCheck:
         else:
             cmd = "sudo docker ps"
             output = check_output(cmd, shell=True)
-            converter = BinaryConverter()
-            output = converter.binary2str(output)
+            output = binary2str(output)
             self.docker_ps = output.splitlines()
         headers_line = self.docker_ps[0]
         self.header_location = {}

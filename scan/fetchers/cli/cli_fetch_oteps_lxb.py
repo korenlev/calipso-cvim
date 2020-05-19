@@ -43,7 +43,7 @@ class CliFetchOtepsLxb(CliFetcher, DbAccess):
     """
     def get_otep_ports(self, otep):
         cmd = 'ip -d link show'
-        lines = self.run_fetch_lines(cmd, otep['host'])
+        lines = self.run_fetch_lines(cmd, ssh_to_host=otep['host'])
         header_format = '[0-9]+: ' + otep['name'] + ':'
         interface_lines = self.get_section_lines(lines, header_format, '\S')
         otep['data'] = '\n'.join(interface_lines)
@@ -55,7 +55,7 @@ class CliFetchOtepsLxb(CliFetcher, DbAccess):
         self.get_object_data(otep, interface_lines, regexps)
         cmd = 'bridge fdb show'
         dst_line_format = ' dev ' + otep['name'] + ' dst '
-        lines = self.run_fetch_lines(cmd, otep['host'])
+        lines = self.run_fetch_lines(cmd, ssh_to_host=otep['host'])
         lines = [l for l in lines if dst_line_format in l]
         if lines:
             l = lines[0]

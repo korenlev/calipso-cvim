@@ -8,24 +8,22 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import json
-from typing import Union, Optional
+from typing import Union
 
 from base.fetcher import Fetcher
 from base.utils.cli_access import CliAccess
-from base.utils.exceptions import CredentialsError, HostAddressError
-from base.utils.ssh_conn import SshConn
-from base.utils.ssh_connection import SshError
+from base.utils.exceptions import CredentialsError, HostAddressError, SshError
 
 
 class CliFetcher(Fetcher, CliAccess):
 
     def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True, on_gateway: bool = False,
-            ssh: Optional[SshConn] = None, use_sudo: bool = True, use_ssh_key: bool = True) -> str:
+            use_sudo: bool = True, use_ssh_key: bool = True) -> str:
         try:
             output = super().run(cmd=cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
-                                 on_gateway=on_gateway, ssh=ssh, use_sudo=use_sudo, use_ssh_key=use_ssh_key)
+                                 use_sudo=use_sudo, use_ssh_key=use_ssh_key)
         except (SshError, CredentialsError, HostAddressError) as e:
-            msg = 'error running command {} (host:{}): {}'.format(cmd, ssh_to_host, str(e))
+            msg = 'error running command {} (host:{}): {}'.format(cmd, ssh_to_host, e)
             self.log.error(msg)
             raise SshError(msg)
         return output
@@ -39,8 +37,7 @@ class CliFetcher(Fetcher, CliAccess):
                                             use_sudo=use_sudo,
                                             use_ssh_key=use_ssh_key)
         except (SshError, CredentialsError, HostAddressError) as e:
-            msg = 'error running command {} (host:{}): {}'\
-                .format(cmd, ssh_to_host, str(e))
+            msg = 'error running command {} (host:{}): {}'.format(cmd, ssh_to_host, e)
             self.log.error(msg)
             raise SshError(msg)
         return lines
@@ -52,6 +49,6 @@ class CliFetcher(Fetcher, CliAccess):
         try:
             return json.loads(output)
         except (ValueError, TypeError) as e:
-            msg = 'error parsing json from command response {} (host:{}): {}'.format(cmd, ssh_to_host, str(e))
+            msg = 'error parsing json from command response {} (host:{}): {}'.format(cmd, ssh_to_host, e)
             self.log.error(msg)
             raise e

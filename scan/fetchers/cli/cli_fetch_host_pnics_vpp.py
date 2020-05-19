@@ -75,7 +75,7 @@ class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
             return
 
         cmd = 'vppctl show int addr'
-        lines = self.run_fetch_lines(cmd, host_id)
+        lines = self.run_fetch_lines(cmd, ssh_to_host=host_id)
         for pnic in pnics:
             self.add_pnic_ip_address(pnic, lines)
 
@@ -113,7 +113,7 @@ class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
 
     def add_interfaces_bond_details(self, host_id: str, interfaces: list):
         cmd = 'vppctl show bond'
-        lines = self.run_fetch_lines(cmd, host_id)
+        lines = self.run_fetch_lines(cmd, ssh_to_host=host_id)
         bond_keys = ["bond_master_interface", "sw_if_index", "mode", "local_balance", "active_slaves", "slaves"]
         bond_details = {}
         for line in lines:
@@ -121,7 +121,7 @@ class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
                 bond_values = line.split()
                 bond_details = dict(zip(bond_keys, bond_values))
         cmd = 'vppctl show bond details'
-        lines = self.run_fetch_lines(cmd, host_id)
+        lines = self.run_fetch_lines(cmd, ssh_to_host=host_id)
         members = []
         for interface in interfaces:
             for line in lines:
@@ -134,7 +134,7 @@ class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
                     interface["EtherChannel Master"] = bond_details["bond_master_interface"]
                     interface["EtherChannel Config"] = bond_details
                     details_cmd = 'vppctl show lacp details {} | grep -v "{}"'.format(interface["name"], interface["name"])
-                    interface["EtherChannel Runtime"] = {"lines": self.run_fetch_lines(details_cmd, host_id)}
+                    interface["EtherChannel Runtime"] = {"lines": self.run_fetch_lines(details_cmd, ssh_to_host=host_id)}
             interface["members"] = members
 
 

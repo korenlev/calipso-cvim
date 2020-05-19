@@ -7,8 +7,6 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-# base class for scanners
-
 import json
 import queue
 import traceback
@@ -17,13 +15,11 @@ import os
 
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
-from base.utils.exceptions import CredentialsError, HostAddressError
+from base.utils.exceptions import CredentialsError, HostAddressError, SshError, ScanError
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.ssh_connection import SshError
 from scan.clique_finder import CliqueFinder
 from scan.link_finders.find_links_metadata_parser import FindLinksMetadataParser
 from scan.processors.processors_metadata_parser import ProcessorsMetadataParser
-from scan.scan_error import ScanError
 from scan.scan_metadata_parser import ScanMetadataParser
 
 

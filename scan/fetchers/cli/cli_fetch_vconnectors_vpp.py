@@ -37,7 +37,7 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
 
     def get_vconnectors(self, host_id: str):
         self.vconnectors = {}
-        lines = self.run_fetch_lines("vppctl show mode", host_id)
+        lines = self.run_fetch_lines("vppctl show mode", ssh_to_host=host_id)
         is_kubernetes = self.ENV_TYPE_KUBERNETES == \
             self.configuration.environment.get('environment_type')
         self.interfaces = defaultdict(dict)
@@ -76,6 +76,6 @@ class CliFetchVconnectorsVpp(CliFetchVconnectors):
     def get_interface_details(self, host_id: str, name: str):
         # find vconnector interfaces
         cmd = "vppctl show hardware-interfaces {}".format(self.clean_interface(name))
-        interface_lines = self.run_fetch_lines(cmd, host_id)
+        interface_lines = self.run_fetch_lines(cmd, ssh_to_host=host_id)
         interfaces = parse_hw_interfaces(interface_lines)
         return interfaces[0] if interfaces else None

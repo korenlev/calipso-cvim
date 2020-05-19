@@ -55,6 +55,9 @@ class ScanManager(Manager):
         ScheduledScanInterval.YEARLY: relativedelta(years=1),
     }
 
+    LOG_NAME = "Scanner"
+    LOG_FILE = "scanner.log"
+
     def __init__(self):
         self.args = self.get_args()
         super().__init__(log_directory=self.args.log_directory,
@@ -291,11 +294,11 @@ class ScanManager(Manager):
                                              if scan_request.get("scheduled")
                                              else ScanOrigins.MANUAL))
 
-            Fetcher.LOG_LEVEL = scan_request.get('loglevel', Logger.default_level)
-            logger = FullLogger(name=Fetcher.LOG_NAME,
-                                log_file=Fetcher.LOG_FILE,
+            log_level = scan_request.get('log_level', Logger.default_level)
+            logger = FullLogger(name=self.LOG_NAME,
+                                log_file=self.LOG_FILE,
                                 env=env, origin=origin,
-                                level=Fetcher.LOG_LEVEL)
+                                level=log_level)
             if not self.inv.is_feature_supported(env, scan_feature):
                 logger.error("Scanning is not supported for env '{}'".format(scan_request.get('environment')))
                 self._fail_scan(scan_request)
@@ -308,8 +311,11 @@ class ScanManager(Manager):
             # Prepare scan arguments and run the scan with them
             try:
                 scan_args = self._build_scan_args(scan_request)
-                scan_args['origin'] = origin
-                scan_args['logger'] = logger
+                scan_args.update({
+                    'origin': origin,
+                    'logger': logger,
+                    'logfile': self.LOG_FILE
+                })
 
                 logger.info("Starting scan for '{}' environment".format(scan_args.get('env')))
                 logger.debug("Scan arguments: {}".format(scan_args))

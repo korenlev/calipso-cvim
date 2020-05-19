@@ -8,55 +8,40 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import time
-from pipes import quote
 
 import re
-from typing import Optional
 
-from base.utils.binary_converter import BinaryConverter
 from base.utils.cli_dist_translator import CliDistTranslator
 from base.utils.configuration import Configuration
 from base.utils.logging.console_logger import ConsoleLogger
-from base.utils.ssh_conn import SshConn
+from base.utils.ssh_tunnel_connection import SshTunnelConnection, MasterHostDetails
+from base.utils.string_utils import binary2str
 
 
-class CliAccess(BinaryConverter):
-    connections = {}
-    ssh_cmd = "ssh -q -o StrictHostKeyChecking=no "
-    call_count_per_con = {}
-    max_call_count_per_con = 100
+class CliAccess:
+    MULTI_COMMAND_SEPARATOR = ';;;'
+
+    call_count_per_con = {}  # TODO: deprecate?
+    max_call_count_per_con = 100  # TODO: deprecate?
     cache_lifetime = 3600  # no. of seconds to cache results
     cached_commands = {}
 
     def __init__(self):
         super().__init__()
         self.configuration = Configuration()
-        self.log = ConsoleLogger()
+        self.ssh_connection = SshTunnelConnection(master_host_details=MasterHostDetails.from_configuration())
+        self.log = ConsoleLogger(name="CliAccess")
 
-    @staticmethod
-    def is_gateway_host(ssh_to_host):
-        ssh_conn = SshConn(ssh_to_host)
-        return ssh_conn.is_gateway_host(ssh_to_host)
-
-    def run_on_gateway(self, cmd, ssh_to_host="", enable_cache=True,
-                       use_sudo=True):
-        self.run(cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
-                 on_gateway=True, use_sudo=use_sudo)
-
-    def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True, on_gateway: bool = False,
-            ssh: Optional[SshConn] = None, use_sudo: bool = True, use_ssh_key: bool = False):
-        ssh_conn = ssh if ssh else SshConn(ssh_to_host)
-        commands = self.adapt_cmd_to_env(ssh_conn=ssh_conn, cmd=cmd, use_sudo=use_sudo, on_gateway=on_gateway,
-                                         ssh_to_host=ssh_to_host, use_ssh_key=use_ssh_key)
+    def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
+            use_sudo: bool = True, use_ssh_key: bool = True):
+        commands = self.adapt_cmd_to_env(cmd=cmd, use_sudo=use_sudo)
         out = ''
         for c in commands:
-            ret = self.run_single_command(cmd=c, ssh_conn=ssh_conn, ssh_to_host=ssh_to_host,
-                                          enable_cache=enable_cache)
+            ret = self.run_single_command(cmd=c, ssh_to_host=ssh_to_host, enable_cache=enable_cache)
             out += ret if ret is not None else ''
         return out
 
-    def run_single_command(self, cmd: str, ssh_conn: Optional[SshConn] = None,
-                           ssh_to_host: str = "", enable_cache: bool = True) -> str:
+    def run_single_command(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True) -> str:
         curr_time = time.time()
         cmd_path = '{},{}'.format(ssh_to_host, cmd)
         if enable_cache and cmd_path in self.cached_commands:
@@ -72,12 +57,12 @@ class CliAccess(BinaryConverter):
                 return cached["result"]
 
         self.log.info('CliAccess: host: {}, cmd: {}'.format(ssh_to_host, cmd))
-        ret = ssh_conn.exec(cmd)
+        ret = self.ssh_connection.exec_on_host(cmd, host=ssh_to_host)
         self.cached_commands[cmd_path] = {"timestamp": curr_time, "result": ret}
         return ret
 
     def run_fetch_lines(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-                        use_sudo: bool = True, use_ssh_key: bool = False):
+                        use_sudo: bool = True, use_ssh_key: bool = True):
         out = self.run(cmd=cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
                        use_sudo=use_sudo, use_ssh_key=use_ssh_key)
         if not out:
@@ -89,33 +74,20 @@ class CliAccess(BinaryConverter):
             ret = [line for line in out.split("\\n") if line != ""]
         return ret
 
-    MULTI_COMMAND_SEPARATOR = ';;;'
-
     @staticmethod
     def handle_split_cmd(cmd: str):
-        if CliAccess.MULTI_COMMAND_SEPARATOR in cmd:
-            return cmd.split(CliAccess.MULTI_COMMAND_SEPARATOR)
-        return [cmd]
+        return cmd.split(CliAccess.MULTI_COMMAND_SEPARATOR)
 
-    def adapt_cmd_to_env(self, ssh_conn: SshConn, cmd: str, use_sudo: bool, on_gateway: bool,
-                         ssh_to_host: str, use_ssh_key: bool = False):
+    def adapt_cmd_to_env(self, cmd: str, use_sudo: bool, remote_user: str = "root"):
         cmd = self.adapt_cmd_to_dist(cmd)
         commands = self.handle_split_cmd(cmd)
-        return [self.adapt_cmd_to_environment(cmd=c, use_sudo=use_sudo, on_gateway=on_gateway,
-                                              ssh_to_host=ssh_to_host, ssh_conn=ssh_conn, use_ssh_key=use_ssh_key)
-                for c in commands]
+        return [self._adapt_cmd_to_env(cmd=c, use_sudo=use_sudo, remote_user=remote_user) for c in commands]
 
-    def adapt_cmd_to_environment(self, cmd: str, use_sudo: bool, on_gateway: bool, ssh_to_host: str,
-                                 ssh_conn: SshConn, use_ssh_key: bool = False):
-        if self.configuration.environment["distribution"] == "Mercury":
-            use_sudo = False
-        if ssh_conn.user == 'root':
+    def _adapt_cmd_to_env(self, cmd: str, remote_user: str = "root", use_sudo: bool = False):
+        if self.configuration.environment["distribution"] == "Mercury" or remote_user == 'root':
             use_sudo = False
         if use_sudo and not cmd.strip().startswith("sudo "):
             cmd = "sudo {}".format(cmd)
-        if not on_gateway and ssh_to_host and not ssh_conn.is_gateway_host(ssh_to_host):
-            ssh_key_arg = "-i {} ".format(ssh_conn.key) if use_ssh_key and ssh_conn.key else ""
-            cmd = "{}{}{} {}".format(self.ssh_cmd, ssh_key_arg, ssh_to_host, quote(cmd))
         return cmd
 
     def adapt_cmd_to_dist(self, cmd):
@@ -123,6 +95,10 @@ class CliAccess(BinaryConverter):
         translator = CliDistTranslator(env_conf)
         cmd = translator.translate(cmd)
         return cmd
+
+    #######################
+    # CONVENIENCE METHODS #
+    #######################
 
     # parse command output columns separated by whitespace
     # since headers can contain whitespace themselves,
@@ -148,7 +124,7 @@ class CliAccess(BinaryConverter):
 
     # parse a line with columns separated by whitespace
     def parse_line_with_ws(self, line, headers):
-        s = line if isinstance(line, str) else self.binary2str(line)
+        s = line if isinstance(line, str) else binary2str(line)
         parts = [word.strip() for word in s.split() if word.strip()]
         ret = {}
         for i, p in enumerate(parts):
@@ -158,7 +134,7 @@ class CliAccess(BinaryConverter):
 
     # parse a line with "|" column separators
     def parse_line_with_separators(self, line):
-        s = self.binary2str(line)
+        s = binary2str(line)
         parts = [word.strip() for word in s.split("|") if word.strip()]
         # remove the ID field
         del parts[:1]

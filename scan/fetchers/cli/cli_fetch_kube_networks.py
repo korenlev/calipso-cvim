@@ -19,7 +19,7 @@ class CliFetchKubeNetworks(CliFetcher):
         if not host:
             self.log.error('Failed to find host with ID: {}', host_id)
             return []
-        lines = self.run_fetch_lines('docker network ls', host_id)
+        lines = self.run_fetch_lines('docker network ls', ssh_to_host=host_id)
         ret = []
         headers = [
             'NETWORK ID',
@@ -57,7 +57,7 @@ class CliFetchKubeNetworks(CliFetcher):
 
     def get_network_data(self, network, host_id):
         cmd = 'docker network inspect {}'.format(network['local_name'])
-        output = self.run(cmd, host_id)
+        output = self.run(cmd, ssh_to_host=host_id)
         try:
             network_data = json.loads(output)
         except JSONDecodeError as e:

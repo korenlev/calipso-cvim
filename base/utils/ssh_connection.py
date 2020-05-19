@@ -13,16 +13,14 @@ import os
 import paramiko
 import paramiko.buffered_pipe
 
-from base.utils.binary_converter import BinaryConverter
-from base.utils.exceptions import CredentialsError, HostAddressError
+from base.utils.exceptions import CredentialsError, HostAddressError, SshError
+from base.utils.logging.console_logger import ConsoleLogger
+from base.utils.string_utils import binary2str
 from base.utils.util import measure_perf_time
 
 
-class SshError(Exception):
-    pass
-
-
-class SshConnection(BinaryConverter):
+# TODO: deprecate in monitoring handler?
+class SshConnection:
     connections = {}
 
     max_call_count_per_con = 100
@@ -32,9 +30,10 @@ class SshConnection(BinaryConverter):
     DEFAULT_PORT = 22
 
     def __init__(self, _host: str, _user: str, _pwd: str = None, _key: str = None,
-                 _port: int = None,  _call_count_limit: int = None,
+                 _port: int = None, _call_count_limit: int = None,
                  for_sftp: bool = False):
         super().__init__()
+        self.log = ConsoleLogger()
         self.host = _host
         self.ssh_client = None
         self.ftp = None
@@ -173,7 +172,7 @@ class SshConnection(BinaryConverter):
         stdin.close()
 
         try:
-            err = self.binary2str(stderr.read())
+            err = binary2str(stderr.read())
         except (paramiko.buffered_pipe.PipeTimeout, socket.timeout) \
                 as timeout_error:
             msg = 'Timeout when reading stderr from host {}, cmd={}: {}'\
@@ -190,7 +189,7 @@ class SshConnection(BinaryConverter):
                 raise SshError(msg)
 
         try:
-            ret = self.binary2str(stdout.read())
+            ret = binary2str(stdout.read())
         except (paramiko.buffered_pipe.PipeTimeout, socket.timeout) \
                 as timeout_error:
             msg = 'Timeout when reading stdout from host {}, cmd={}: {}' \

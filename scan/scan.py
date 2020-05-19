@@ -8,28 +8,23 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-
-# Scan an object and insert/update in the inventory
-
-# phase 2: either scan default environment, or scan specific object
-
 import argparse
 import sys
 
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
 from base.utils.constants import EnvironmentFeatures
-from base.utils.exceptions import ScanArgumentsError
+from base.utils.exceptions import ScanArgumentsError, ScanError
 from base.utils.inventory_mgr import InventoryMgr
+from base.utils.logging.logger import Logger
 from base.utils.mongo_access import MongoAccess
 from base.utils.origins import ScanOrigins, ScanOrigin
-from base.utils.ssh_connection import SshConnection
+from base.utils.ssh_tunnel_connection import SshTunnelConnection
 from base.utils.util import setup_args
 from monitoring.setup.monitoring_setup_manager import MonitoringSetupManager
 from scan.fetchers.aci.aci_access import AciAccess
 from scan.fetchers.api.api_access import ApiAccess
 from scan.fetchers.db.db_access import DbAccess
-from scan.scan_error import ScanError
 from scan.scanner import Scanner
 from scan.validators import validators
 
@@ -124,6 +119,7 @@ class ScanController(Fetcher):
         "parent_id": "",
         "parent_type": "",
         "id_field": "id",
+        "logfile": "scanner.log",
         "loglevel": "INFO",
         "inventory_only": False,
         "processors_only": False,
@@ -176,6 +172,10 @@ class ScanController(Fetcher):
                             default=self.DEFAULTS["id_field"],
                             help="name of ID field (when scan_self=true) \n"
                                  "(default: 'id', use 'name' for projects)")
+        parser.add_argument("--logfile", nargs="?", type=str,
+                            default=self.DEFAULTS["logfile"],
+                            help="Scanner log file name \n(default: '{}')"
+                                 .format(self.DEFAULTS["logfile"]))
         parser.add_argument("-l", "--loglevel", nargs="?", type=str,
                             default=self.DEFAULTS["loglevel"],
                             help="logging level \n(default: '{}')"
@@ -265,7 +265,7 @@ class ScanController(Fetcher):
         ApiAccess.reset()
         AciAccess().logout(ignore_errors=ignore_errors)
         DbAccess.close_connection()
-        SshConnection.disconnect_all()
+        SshTunnelConnection.disconnect_all()
 
     def validate_results(self, env):
         self.log.info("Running post-scan validations")
@@ -289,6 +289,7 @@ class ScanController(Fetcher):
         if args.get('logger'):
             self.log = args['logger']
         self.log.set_loglevel(args['loglevel'])
+        self.setup_loggers(level=args['loglevel'], log_file=args.get('logfile'))
 
         try:
             MongoAccess.set_config_file(args['mongo_config'])
@@ -296,6 +297,7 @@ class ScanController(Fetcher):
             self.inv.log.set_loglevel(args['loglevel'])
             self.inv.set_collections(args['inventory'])
             self.conf = Configuration()
+            self.conf.log.set_loglevel(args['loglevel'])
         except FileNotFoundError as e:
             return False, 'Mongo configuration file not found: {}'\
                 .format(str(e))
@@ -306,7 +308,6 @@ class ScanController(Fetcher):
         scan_plan = self.get_scan_plan(args)
         if scan_plan.clear or scan_plan.clear_all:
             self.inv.clear(scan_plan)
-        self.conf.log.set_loglevel(scan_plan.loglevel)
 
         env_name = scan_plan.env
         self.conf.use_env(env_name)
@@ -384,6 +385,13 @@ class ScanController(Fetcher):
         environments_collection \
             .update_one(filter={'name': env},
                         update={'$set': {'scanned': True}})
+
+    @staticmethod
+    def setup_loggers(level: str = Logger.INFO, log_file: str = ""):
+        if log_file:
+            Fetcher.LOG_FILE, SshTunnelConnection.LOG_FILE = log_file, log_file
+        Fetcher.LOG_LEVEL, SshTunnelConnection.LOG_LEVEL = level, level
+        # TODO: more log setups?
 
 
 if __name__ == '__main__':

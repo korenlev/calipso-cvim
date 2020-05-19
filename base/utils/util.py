@@ -109,9 +109,8 @@ class ClassResolver:
         return instance
 
 
-# TODO: translate the following comment
-# when search in the mongo initial_data, need to
-# generate the ObjectId with the string
+# when searching in the mongo initial_data,
+# need to convert string to ObjectID
 def generate_object_ids(keys, obj):
     for key in keys:
         if key in obj:
@@ -206,12 +205,12 @@ def read_environment_variables(required=None, optional=None, empty_is_none=False
     return results
 
 
-def measure_perf_time(time_format=":.02f"):
+def measure_perf_time(name="func", time_format=":.02f"):
     def decorator(func):
         def wrapper(*args, **kwargs):
             start = time.perf_counter()
             res = func(*args, **kwargs)
-            t_str = ("{%s}" % time_format).format(time.perf_counter() - start)
+            t_str = ("{} took {%s}s" % time_format).format(name, time.perf_counter() - start)
             if hasattr(args[0], "log") and hasattr(args[0].log, "info"):
                 args[0].log.info(t_str)
             else:

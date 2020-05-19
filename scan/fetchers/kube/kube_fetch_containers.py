@@ -17,8 +17,7 @@ from kubernetes.client.models import V1Container
 
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 from scan.fetchers.kube.kube_access import KubeAccess
-from base.utils.exceptions import CredentialsError, HostAddressError
-from base.utils.ssh_connection import SshError
+from base.utils.exceptions import CredentialsError, HostAddressError, SshError
 
 
 class KubeFetchContainers(KubeAccess, CliFetcher):

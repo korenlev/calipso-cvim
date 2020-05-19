@@ -26,7 +26,7 @@ class CliFetchInstanceVnicsVpp(CliFetchInstanceVnicsBase):
             v["name"] = v["id"]
 
     def get_vpp_interfaces(self, host):
-        vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", host)
+        vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", ssh_to_host=host)
         return parse_hw_interfaces(vpp_show_lines)
 
     def get_vnics_data(self, name, instance):

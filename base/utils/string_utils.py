@@ -14,6 +14,16 @@ from inflection import pluralize
 from bson import ObjectId, Int64
 
 
+def binary2str(txt):
+    if not isinstance(txt, bytes):
+        return str(txt)
+    try:
+        s = txt.decode("utf-8")
+    except TypeError:
+        s = str(txt)
+    return s
+
+
 def jsonify(obj, prettify=False):
     if prettify:
         return json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': '))

@@ -14,10 +14,10 @@ from base.utils.inventory_mgr import InventoryMgr
 from base.utils.ssh_connection import SshConnection
 
 
+# TODO: deprecate in monitoring handler?
 class SshConn(SshConnection):
     config = None
     ssh = None
-    connections = {}
 
     max_call_count_per_con = 100
     timeout = 15  # timeout for exec in seconds
@@ -38,7 +38,7 @@ class SshConn(SshConnection):
         self.user = None
         self.pwd = None
         self.check_definitions()
-        super().__init__(host_name, self.user, _pwd=self.pwd, _key=self.key,
+        super().__init__(_host=host_name, _user=self.user, _pwd=self.pwd, _key=self.key,
                          _port=self.port, for_sftp=for_sftp)
         self.inv = InventoryMgr()
         if host_name in self.connections and not self.ssh:

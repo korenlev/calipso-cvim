@@ -23,8 +23,8 @@ class Fetcher:
     ENV_TYPE_OPENSTACK = 'OpenStack'
 
     # To be set by caller prior to instance creation
-    LOG_NAME = "Scanner"
-    LOG_FILE = "scanner.log"
+    LOG_NAME = "Fetcher"
+    LOG_FILE = "fetcher.log"
     LOG_LEVEL = Logger.INFO
 
     def __init__(self):

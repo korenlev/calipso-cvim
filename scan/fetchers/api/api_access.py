@@ -12,13 +12,11 @@ import re
 from urllib3 import Retry
 
 from base.utils.api_access_base import ApiAccessBase
-from base.utils.exceptions import CredentialsError
+from base.utils.exceptions import ScanError
 from base.utils.origins import Origin
 from base.utils.string_utils import jsonify
 from scan.fetchers.api.clients.keystone import *
 from requests import adapters
-
-from scan.scan_error import ScanError
 
 
 class ApiAccess(ApiAccessBase):

@@ -29,7 +29,7 @@ class CliFetchBondHostPnics(CliFetcher, HostTypeValidator):
 
         cmd = 'ls -1 {} 2>&1'.format(self.BOND_DIR)
 
-        lines = self.run_fetch_lines(cmd, host_id)
+        lines = self.run_fetch_lines(cmd=cmd, ssh_to_host=host_id)
         if lines and 'No such file or directory' in lines[0]:
             return []  # no bonds so directory does not exist
         bonds = []
@@ -40,9 +40,8 @@ class CliFetchBondHostPnics(CliFetcher, HostTypeValidator):
         return bonds
 
     def get_bond_details(self, host_id: str, interface_name: str) -> dict:
-        lines = self.run_fetch_lines('cat {}{}'
-                                     .format(self.BOND_DIR, interface_name),
-                                     host_id)
+        lines = self.run_fetch_lines(cmd='cat {}{}'.format(self.BOND_DIR, interface_name),
+                                     ssh_to_host=host_id)
         status, mac_address = \
             self.get_bond_status_and_mac_address(host_id, interface_name)
         interface_id = '{}-{}'.format(interface_name, mac_address)
@@ -85,7 +84,7 @@ class CliFetchBondHostPnics(CliFetcher, HostTypeValidator):
         return interface
 
     def get_bond_status_and_mac_address(self, host_id: str, name: str):
-        output = self.run_fetch_lines('ip link show {}'.format(name), host_id)
+        output = self.run_fetch_lines(cmd='ip link show {}'.format(name), ssh_to_host=host_id)
         status_line = output[0]
         status = status_line[status_line.index(' state ') + len(' state '):]
         status = status[:status.index(' ')]

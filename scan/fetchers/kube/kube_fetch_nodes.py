@@ -13,12 +13,11 @@ from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec, \
 
 from base.utils.constants import HostType
 from base.utils.origins import Origin
-from base.utils.ssh_connection import SshError
+from base.utils.exceptions import SshError, ScanError
 from scan.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from scan.fetchers.cli.cli_fetch_interface_details \
     import CliFetchInterfaceDetails
 from scan.fetchers.kube.kube_access import KubeAccess
-from scan.scan_error import ScanError
 
 
 class KubeFetchNodes(KubeAccess, CliFetchHostDetails):

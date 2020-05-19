@@ -36,7 +36,7 @@ class CliFetchTeamHostPnics(CliFetcher):
         return teams
 
     def list_teams(self, host_id):
-        lines = self.run_fetch_lines(self.LIST_TEAMS_CMD, host_id)
+        lines = self.run_fetch_lines(self.LIST_TEAMS_CMD, ssh_to_host=host_id)
         teams = []
         for line in lines:
             columns = line.split(None, 4)  # Expected 5 columns (4 separators)
@@ -60,7 +60,7 @@ class CliFetchTeamHostPnics(CliFetcher):
         return teams
 
     def update_team_details(self, team, host_id):
-        cmd_output = self.run(self.TEAM_DETAILS_CMD.format(team['name']), host_id)
+        cmd_output = self.run(self.TEAM_DETAILS_CMD.format(team['name']), ssh_to_host=host_id)
         try:
             cmd_output_json = json.loads(cmd_output)
         except JSONDecodeError as e:

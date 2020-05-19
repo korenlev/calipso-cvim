@@ -27,7 +27,7 @@ class CliFetchVserviceVnicsVpp(CliFetchVserviceVnics):
             return []
 
         if host_id not in self.vpp_interfaces:
-            vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", host_id)
+            vpp_show_lines = self.run_fetch_lines("vppctl show hardware-interfaces", ssh_to_host=host_id)
             self.vpp_interfaces[host_id] = parse_hw_interfaces(vpp_show_lines)
         return super().get(host_id)
 

@@ -34,3 +34,11 @@ class CredentialsError(ValueError):
 class SshKeyError(ValueError):
     def __init__(self, message=None):
         super().__init__(message if message else "Wrong SSH key")
+
+
+class SshError(Exception):
+    pass
+
+
+class ScanError(Exception):
+    pass

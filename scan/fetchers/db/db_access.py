@@ -12,9 +12,8 @@ import mysql.connector
 
 from base.fetcher import Fetcher
 from base.utils.configuration import Configuration
-from base.utils.exceptions import HostAddressError, CredentialsError
+from base.utils.exceptions import HostAddressError, CredentialsError, ScanError
 from base.utils.string_utils import jsonify
-from scan.scan_error import ScanError
 
 
 def with_cursor(method):

@@ -24,7 +24,7 @@ class CliFetchHostPartitions(CliFetcher, HostTypeValidator):
         if not self.validate_host(host_id):
             return []
 
-        part_lines = self.run_fetch_lines(self.PARTS_CMD, host_id)
+        part_lines = self.run_fetch_lines(self.PARTS_CMD, ssh_to_host=host_id)
         parts = []
         for line in part_lines:
             try:

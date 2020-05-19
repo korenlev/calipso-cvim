@@ -27,12 +27,12 @@ class CliFetchVedgesVpp(CliFetcher, HostTypeValidator):
             'agent_type': 'VPP',
             'vedge_type': 'VPP'
         }
-        ver = self.run_fetch_lines('vppctl show ver', host_id)
+        ver = self.run_fetch_lines('vppctl show ver', ssh_to_host=host_id)
         if ver:
             ver = ver[0]
             vedge['binary'] = ver[:ver.index(' ', ver.index(' ') + 1)]
 
-        interfaces = self.run_fetch_lines('vppctl show int', host_id)
+        interfaces = self.run_fetch_lines('vppctl show int', ssh_to_host=host_id)
         vedge['ports'] = self.fetch_ports(interfaces)
         self.set_folder_parent(vedge, 'vedge', parent_text='vEdges',
                                master_parent_type='host',

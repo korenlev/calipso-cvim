@@ -22,7 +22,6 @@ import stat
 import tempfile
 from boltons.iterutils import remap
 
-from base.utils.binary_converter import BinaryConverter
 from base.utils.cli_access import CliAccess
 from base.utils.configuration import Configuration
 from base.utils.deep_merge import remerge
@@ -30,10 +29,12 @@ from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.full_logger import FullLogger
 from base.utils.mongo_access import MongoAccess
 from base.utils.ssh_conn import SshConn
-from base.utils.ssh_connection import SshConnection, SshError
+from base.utils.ssh_connection import SshConnection
+from base.utils.exceptions import SshError
+from base.utils.string_utils import binary2str
 
 
-class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
+class MonitoringHandler(MongoAccess, CliAccess):
     PRODUCTION_CONFIG_DIR = '/etc/sensu/conf.d'
     APP_SCRIPTS_FOLDER = 'monitoring/checks'
     REMOTE_SCRIPTS_FOLDER = '/etc/sensu/plugins'
@@ -445,7 +446,7 @@ class MonitoringHandler(MongoAccess, CliAccess, BinaryConverter):
                              stderr=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
             print("Error running command: " + cmd +
-                  ", output: " + self.binary2str(e.output) + "\n")
+                  ", output: " + binary2str(e.output) + "\n")
 
     def move_setup_files_to_remote_host(self, host, local_dir):
         if self.provision < self.provision_levels['deploy']:

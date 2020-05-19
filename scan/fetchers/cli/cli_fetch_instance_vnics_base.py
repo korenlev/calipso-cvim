@@ -46,7 +46,7 @@ class CliFetchInstanceVnicsBase(CliFetcher, HostTypeValidator):
                                                           "type": "port",
                                                           "binding:host_id": instance["host"]})
 
-        lines = self.run_fetch_lines("virsh list --all", instance["host"])
+        lines = self.run_fetch_lines("virsh list --all", ssh_to_host=instance["host"])
         del lines[:2]  # remove header
         virsh_names = [l.split()[1] for l in lines if l > ""]  # need to use names instead of ids
         results = []
@@ -68,7 +68,7 @@ class CliFetchInstanceVnicsBase(CliFetcher, HostTypeValidator):
         self.inv.set(instance)
 
     def get_vnics_data(self, name, instance):
-        xml_string = self.run("virsh dumpxml {}".format(name), instance["host"])
+        xml_string = self.run("virsh dumpxml {}".format(name), ssh_to_host=instance["host"])
         if not xml_string.strip():
             return []
 

@@ -54,7 +54,7 @@ class CliFetchVedgesSriov(CliFetcher):
                 if not mapping:
                     continue
 
-                ip_link_output = self.run_fetch_lines("ip -d link show {}".format(mapping[0]), host_id)
+                ip_link_output = self.run_fetch_lines("ip -d link show {}".format(mapping[0]), ssh_to_host=host_id)
                 for line in ip_link_output:
                     vf_match = self.VF_REGEX.match(line.strip().lower())
                     if not vf_match:

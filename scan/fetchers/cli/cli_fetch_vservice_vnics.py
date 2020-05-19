@@ -43,7 +43,7 @@ class CliFetchVserviceVnics(CliFetcher, HostTypeValidator):
                                                  "type": "port",
                                                  "binding:host_id": host_id})
 
-        lines = self.run_fetch_lines("ip netns list", host_id)
+        lines = self.run_fetch_lines("ip netns list", ssh_to_host=host_id)
         ret = []
 
         for l in [l for l in lines
@@ -56,7 +56,7 @@ class CliFetchVserviceVnics(CliFetcher, HostTypeValidator):
 
     def handle_service(self, host, service, enable_cache=True):
         cmd = "ip netns exec " + service + " ip address show"
-        lines = self.run_fetch_lines(cmd, host, enable_cache)
+        lines = self.run_fetch_lines(cmd, ssh_to_host=host, enable_cache=enable_cache)
         interfaces = []
         current = None
         for line in lines:

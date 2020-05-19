@@ -12,7 +12,7 @@ from typing import Optional
 import yaml
 
 from base.utils.constants import HostType
-from base.utils.ssh_connection import SshError
+from base.utils.exceptions import SshError
 from scan.fetchers.cli.cli_fetcher import CliFetcher
 
 

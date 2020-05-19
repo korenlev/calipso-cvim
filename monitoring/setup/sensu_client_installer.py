@@ -11,9 +11,8 @@ import os.path
 from pkg_resources import parse_version
 
 from base.utils.cli_access import CliAccess
-from base.utils.exceptions import CredentialsError, HostAddressError
+from base.utils.exceptions import CredentialsError, HostAddressError, SshError
 from base.utils.inventory_mgr import InventoryMgr
-from base.utils.ssh_connection import SshError
 from monitoring.setup.monitoring_handler import MonitoringHandler
 
 
