@@ -252,7 +252,8 @@
     {
         "type" : "monitoring_agent",
         "attributes" : [
-            "configuration"
+            "configuration",
+            "host"
         ]
     },
     {
@@ -290,7 +291,8 @@
     {
         "type" : "network_agent",
         "attributes" : [
-            "configurations"
+            "configurations",
+            "host"
         ]
     },
     {

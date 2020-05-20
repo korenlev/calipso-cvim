@@ -60,7 +60,7 @@ class ApiAccessBase(Fetcher):
                 msg = ', reason: {}'.format(response.reason)
             else:
                 msg = ', response: {}'.format(response.text)
-            self.log.error('req_url: {} {}'.format(req_url, msg))
+            self.log.warn('req_url: {} {}'.format(req_url, msg))
             return None
         ret = response.json()
         return ret
