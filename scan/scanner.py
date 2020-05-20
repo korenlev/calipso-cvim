@@ -18,6 +18,7 @@ from base.utils.configuration import Configuration
 from base.utils.exceptions import CredentialsError, HostAddressError, SshError, ScanError
 from base.utils.inventory_mgr import InventoryMgr
 from scan.clique_finder import CliqueFinder
+from scan.link_finders.find_implicit_links import FindImplicitLinks
 from scan.link_finders.find_links_metadata_parser import FindLinksMetadataParser
 from scan.processors.processors_metadata_parser import ProcessorsMetadataParser
 from scan.scan_metadata_parser import ScanMetadataParser
@@ -311,6 +312,12 @@ class Scanner(Fetcher):
         for fetcher in self.link_finders:
             fetcher.setup(env=self.get_env(), origin=self.origin)
             fetcher.add_links()
+
+    def scan_implicit_links(self):
+        self.log.info("Scanning for implicit links")
+        fetcher = FindImplicitLinks()
+        fetcher.setup(env=self.env, origin=self.origin)
+        fetcher.add_links()
 
     def scan_cliques(self):
         clique_scanner = CliqueFinder()

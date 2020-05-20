@@ -29,6 +29,7 @@ class Logger(ABC):
     def __init__(self, logger_name: str = PROJECT_NAME,
                  level: str = default_level):
         super().__init__()
+        level = level.upper()
         self.check_level(level)
         self.log = logging.getLogger(logger_name)
         self.log.handlers.clear()

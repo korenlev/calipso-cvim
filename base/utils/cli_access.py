@@ -14,11 +14,14 @@ import re
 from base.utils.cli_dist_translator import CliDistTranslator
 from base.utils.configuration import Configuration
 from base.utils.logging.console_logger import ConsoleLogger
+from base.utils.logging.logger import Logger
 from base.utils.ssh_tunnel_connection import SshTunnelConnection, MasterHostDetails
 from base.utils.string_utils import binary2str
 
 
 class CliAccess:
+    LOG_LEVEL = Logger.INFO
+
     MULTI_COMMAND_SEPARATOR = ';;;'
 
     call_count_per_con = {}  # TODO: deprecate?
@@ -30,7 +33,7 @@ class CliAccess:
         super().__init__()
         self.configuration = Configuration()
         self.ssh_connection = SshTunnelConnection(master_host_details=MasterHostDetails.from_configuration())
-        self.log = ConsoleLogger(name="CliAccess")
+        self.log = ConsoleLogger(name="CliAccess", level=self.LOG_LEVEL)
 
     def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
             use_sudo: bool = True, use_ssh_key: bool = True):
@@ -234,3 +237,7 @@ class CliAccess:
                 except IndexError:
                     self.log.error('failed to find group 1 in match, {}'
                                    .format(str(regexp_tuple)))
+
+    @classmethod
+    def reset_cache(cls):
+        cls.cached_commands = {}

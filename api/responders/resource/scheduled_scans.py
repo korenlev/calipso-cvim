@@ -62,9 +62,10 @@ class ScheduledScans(ResponderWithOnDelete):
         log_levels = self.get_constants_by_name("log_levels")
         scheduled_scan_requirements = {
             "env_name": self.require(str, mandatory=True),
+            "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
             "scan_only_links": self.require(bool, convert_to_type=True, default=False),
             "scan_only_cliques": self.require(bool, convert_to_type=True, default=False),
-            "scan_only_inventory": self.require(bool, convert_to_type=True, default=False),
+            "implicit_links": self.require(bool, convert_to_type=True, default=False),
             "recurrence": self.require(str,
                                        mandatory=True,
                                        validate=DataValidate.LIST,
@@ -73,7 +74,7 @@ class ScheduledScans(ResponderWithOnDelete):
                                       validate=DataValidate.LIST,
                                       requirement=log_levels,
                                       mandatory=True),
-            "clear": self.require(bool, convert_to_type=True),
+            "clear": self.require(bool, convert_to_type=True, default=True),
             "scheduled_timestamp": self.require(str),
             "es_index": self.require(bool, convert_to_type=True, default=False)
         }

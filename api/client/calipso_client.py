@@ -165,9 +165,10 @@ class CalipsoClient:
 
         return content
 
-    def scan_handler(self, environment, es_index=False):
+    def scan_handler(self, environment, es_index=False, implicit_links=False):
         # post scan request, for specific environment, get doc_id
-        scan_reply = self.scan_request(environment=environment, es_index=es_index)
+        scan_reply = self.scan_request(environment=environment, es_index=es_index,
+                                       implicit_links=implicit_links)
         scan_doc_id = scan_reply["id"]
         print("Scan request posted for environment {}".format(environment))
 
@@ -187,7 +188,8 @@ class CalipsoClient:
         elif scan_status == "completed":
             print("Inventory, links and cliques has been discovered")
 
-    def scan_request(self, environment, recurrence=None, es_index=False, scheduled_timestamp=None):
+    def scan_request(self, environment, recurrence=None, implicit_links=False,
+                     es_index=False, scheduled_timestamp=None):
         if not recurrence:
             request_payload = {
                 "log_level": "warning",
@@ -195,6 +197,7 @@ class CalipsoClient:
                 "scan_only_inventory": False,
                 "scan_only_links": False,
                 "scan_only_cliques": False,
+                "implicit_links": implicit_links,
                 "env_name": environment,
                 "es_index": es_index
             }
@@ -204,11 +207,12 @@ class CalipsoClient:
                 "recurrence": recurrence,
                 "log_level": "warning",
                 "clear": True,
+                "scan_only_inventory": False,
                 "scan_only_links": False,
                 "scan_only_cliques": False,
+                "implicit_links": implicit_links,
                 "env_name": environment,
                 "es_index": es_index,
-                "scan_only_inventory": False,
                 "scheduled_timestamp": scheduled_timestamp
             }
             return self.call_api('post', 'scheduled_scans', request_payload)
@@ -225,7 +229,8 @@ def handle_scan(client, args):
     if not args.scan_recurrence:
         if args.scan_at != "NOW":
             return error("--scan_at can only be specified for recurring scans")
-        client.scan_handler(environment=args.environment)
+        client.scan_handler(environment=args.environment,
+                            implicit_links=args.implicit_links)
     else:
         # TODO: timezone support
         submit_timestamp = datetime.datetime.now()
@@ -247,6 +252,7 @@ def handle_scan(client, args):
         # post scan schedule, for specific environment, get doc_id
         schedule_reply = client.scan_request(environment=args.environment,
                                              recurrence=args.scan_recurrence,
+                                             implicit_links=args.implicit_links,
                                              es_index=args.es_index,
                                              scheduled_timestamp=scheduled_timestamp.strftime("%Y-%m-%dT%H:%M"))
 
@@ -357,6 +363,11 @@ def run():
                                   " options: boolean"
                                   " (default=False)",
                              action='store_true',
+                             default=False,
+                             required=False)
+    scan_parser.add_argument("--implicit_links",
+                             help="specify whether to collect indirect relationships "
+                                  "between discovered objects",
                              default=False,
                              required=False)
 

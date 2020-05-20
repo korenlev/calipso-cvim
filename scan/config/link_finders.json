@@ -10,7 +10,6 @@
     "FindLinksForPnics",
     "FindLinksForDisks",
     "FindLinksForContainers",
-    "FindLinksForPods",
-    "FindImplicitLinks"
+    "FindLinksForPods"
   ]
 }

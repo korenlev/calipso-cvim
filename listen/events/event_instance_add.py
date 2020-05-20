@@ -38,6 +38,8 @@ class EventInstanceAdd(EventBase):
                                           'vedges_folder'])
         scanner.scan_from_queue()
         scanner.scan_links()
+        # TODO: make conditional
+        scanner.scan_implicit_links()
         scanner.scan_cliques()
 
         return EventResult(result=True,

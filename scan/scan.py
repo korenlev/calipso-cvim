@@ -12,6 +12,7 @@ import argparse
 import sys
 
 from base.fetcher import Fetcher
+from base.utils.cli_access import CliAccess
 from base.utils.configuration import Configuration
 from base.utils.constants import EnvironmentFeatures
 from base.utils.exceptions import ScanArgumentsError, ScanError
@@ -44,6 +45,7 @@ class ScanPlan:
                          ("inventory_only",),
                          ("processors_only",),
                          ("links_only",),
+                         ("implicit_links",),
                          ("cliques_only",),
                          ("monitoring_setup_only",),
                          ("clear",),
@@ -125,6 +127,7 @@ class ScanController(Fetcher):
         "processors_only": False,
         "links_only": False,
         "cliques_only": False,
+        "implicit_links": False,
         "monitoring_setup_only": False,
         "clear": False,
         "clear_all": False,
@@ -190,6 +193,8 @@ class ScanController(Fetcher):
         parser.add_argument("--monitoring_setup_only", action="store_true",
                             help="do only monitoring setup deployment \n"
                                  "(default: False)")
+        parser.add_argument("--implicit_links", action="store_true",
+                            help="discover implicit links during scan \n(default: False)")
 
         # At most one of these arguments may be present
         scan_only_group = parser.add_mutually_exclusive_group()
@@ -264,6 +269,7 @@ class ScanController(Fetcher):
     def reset_connections(ignore_errors=False):
         ApiAccess.reset()
         AciAccess().logout(ignore_errors=ignore_errors)
+        CliAccess.reset_cache()
         DbAccess.close_connection()
         SshTunnelConnection.disconnect_all()
 
@@ -352,6 +358,8 @@ class ScanController(Fetcher):
                 scanner.run_processors()
             if links_only or run_all:
                 scanner.scan_links()
+                if scan_plan.implicit_links:
+                    scanner.scan_implicit_links()
             if cliques_only or run_all:
                 scanner.scan_cliques()
             if monitoring:
@@ -389,8 +397,10 @@ class ScanController(Fetcher):
     @staticmethod
     def setup_loggers(level: str = Logger.INFO, log_file: str = ""):
         if log_file:
-            Fetcher.LOG_FILE, SshTunnelConnection.LOG_FILE = log_file, log_file
-        Fetcher.LOG_LEVEL, SshTunnelConnection.LOG_LEVEL = level, level
+            for cls in (Fetcher, SshTunnelConnection):
+                cls.LOG_FILE = log_file
+        for cls in (Fetcher, SshTunnelConnection, CliAccess):
+            cls.LOG_LEVEL = level
         # TODO: more log setups?
 
 

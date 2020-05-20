@@ -172,6 +172,7 @@ class ScanManager(Manager):
         set_arg("scan_only_inventory", "inventory_only")
         set_arg("scan_only_links", "links_only")
         set_arg("scan_only_cliques", "cliques_only")
+        set_arg("implicit_links")
         set_arg("inventory")
         set_arg("clear")
         set_arg("clear_all")
@@ -236,6 +237,7 @@ class ScanManager(Manager):
             'scan_only_inventory': scheduled_scan['scan_only_inventory'],
             'scan_only_links': scheduled_scan['scan_only_links'],
             'scan_only_cliques': scheduled_scan['scan_only_cliques'],
+            'implicit_links': scheduled_scan.get('implicit_links', False),
             'submit_timestamp': ts,
             'environment': scheduled_scan['environment'],
             'es_index': scheduled_scan.get('es_index', False)
