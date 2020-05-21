@@ -36,11 +36,11 @@ class Query(ResponderBase):
 
             targets = request_data.get("targets")
             if not targets:
-                return self.bad_request("Missing targets")
+                return self.bad_request("Missing request targets")
 
             target = targets[0]
             if not target:
-                return self.bad_request("Missing target")
+                return self.bad_request("Missing request target")
 
             endpoint = target.get("type")
             if not endpoint:
@@ -70,7 +70,7 @@ class Query(ResponderBase):
             tree_table = self.get_inventory_tree_table(environment=environment)
             objects = [tree_table]
         else:
-            return self.bad_request("Unsupported data type")
+            return self.bad_request("Unsupported target: {}".format(endpoint))
 
         return self.set_ok_response(resp, objects)
 

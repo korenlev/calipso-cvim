@@ -62,5 +62,7 @@ class Search(ResponderBase):
             objects = self.distinct(collection="environments_config", field="name", query=filters)
         elif target == "object_types":
             objects = self.get_constants_by_name("object_types")
+        else:
+            return self.bad_request("Unknown target: {}".format(target))
 
         return self.set_ok_response(resp, objects)

@@ -56,6 +56,7 @@ class App:
         "/grafana/query/inventory": "resource.inventory.Inventory",
         "/grafana/query/scans": "resource.scans.Scans",
         "/grafana/query/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
+        "/grafana/query/timezone": "resource.timezone.Timezone",
     }
 
     responders_path = "api.responders"
