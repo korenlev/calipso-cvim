@@ -7,4 +7,4 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-VERSION = "1.1.5"
+VERSION = "1.1.7"
