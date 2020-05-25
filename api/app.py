@@ -24,11 +24,7 @@ from base.utils.mongo_access import MongoAccess
 
 class App:
 
-    ROUTE_DECLARATIONS = {
-        # Calipso API auth
-        "/auth/tokens": "auth.tokens.Tokens",
-
-        # Calipso API endpoints
+    CORE_ENDPOINTS = {
         "/aggregates": "resource.aggregates.Aggregates",
         "/clique_constraints": "resource.clique_constraints.CliqueConstraints",
         "/clique_types": "resource.clique_types.CliqueTypes",
@@ -47,16 +43,17 @@ class App:
         "/schema": "resource.schema.Schema",
         "/search": "resource.search.Search",
         "/timezone": "resource.timezone.Timezone",
-
-        # Grafana endpoints
+    }
+    BASE_GRAFANA_ENDPOINTS = {
         "/grafana": "grafana.__init__.Health",
         "/grafana/search": "grafana.search.Search",
         "/grafana/query": "grafana.query.Query",
-        "/grafana/query/graph": "resource.graph.Graph",
-        "/grafana/query/inventory": "resource.inventory.Inventory",
-        "/grafana/query/scans": "resource.scans.Scans",
-        "/grafana/query/scheduled_scans": "resource.scheduled_scans.ScheduledScans",
-        "/grafana/query/timezone": "resource.timezone.Timezone",
+    }
+    ROUTE_DECLARATIONS = {
+        "/auth/tokens": "auth.tokens.Tokens",
+        **CORE_ENDPOINTS,
+        **BASE_GRAFANA_ENDPOINTS,
+        **{"/grafana/query{}".format(k): v for k, v in CORE_ENDPOINTS.items()}
     }
 
     responders_path = "api.responders"
