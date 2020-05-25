@@ -132,8 +132,8 @@ class EventManager(Manager):
         self.args = self.get_args()
         super().__init__(log_directory=self.args.log_directory,
                          mongo_config_file=self.args.mongo_config,
-                         log_file=self.args.log_file,
-                         log_level=self.args.log_level)
+                         log_file=self.args.logfile,
+                         log_level=self.args.loglevel)
         self.db_client = None
         self.interval = None
         self.processes = {}
