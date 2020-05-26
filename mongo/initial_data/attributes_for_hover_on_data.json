@@ -42,10 +42,15 @@
         "attributes" : [
             "ip_address",
             "host",
+            "container_id",
+            "container_type",
+            "vnic_index",
+            "container_status",
+            "sandbox",
+            "volume_mounts",
             "nat_tables",
             "kube_proxy_config",
             "vservices",
-            "container_type",
             "ports",
             "pod",
             "namespace",
@@ -56,12 +61,28 @@
         ]
     },
     {
+
+        "type" : "namespace",
+        "attributes" : [
+            "pods",
+            "creation_timestamp",
+            "status",
+            "root_cause"
+        ]
+    },
+    {
         "type" : "pod",
         "attributes" : [
             "host",
             "namespace",
             "vservices",
             "pod_status",
+            "owner_references",
+            "containers",
+            "scheduler_name",
+            "labels",
+            "dns_policy",
+            "vservices",
             "status",
             "root_cause"
         ]
@@ -87,6 +108,11 @@
         "attributes" : [
             "host",
             "service_type",
+            "pods",
+            "session_affinity",
+            "external_traffic_policy",
+            "selector",
+            "namespace",
             "local_service_id",
             "tenant_id",
             "network",
