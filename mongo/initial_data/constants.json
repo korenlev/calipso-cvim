@@ -653,6 +653,18 @@
         {
             "value" : "partition", 
             "label" : "partition"
+        },
+        {
+            "value" : "aggregate",
+            "label" : "aggregate"
+        },
+        {
+            "value" : "pod_ref",
+            "label" : "pod_ref"
+        },
+        {
+            "value" : "host_ref",
+            "label" : "host_ref"
         }
     ], 
     "name" : "object_types_for_links"
@@ -889,8 +901,7 @@
     ], 
     "name" : "configuration_targets"
 },
-{ 
-
+{
     "data" : [
         {
             "value" : "vnic", 
@@ -972,12 +983,12 @@
             "label" : "monitoring_agent",
             "value" : "monitoring_agent"
         }
+
     ], 
     "name" : "object_types", 
     "environment_type" : "OpenStack"
 },
-{ 
-
+{
     "data" : [
         {
             "value" : "vnic", 
@@ -1038,6 +1049,14 @@
         {
             "value" : "disk", 
             "label" : "disk"
+        },
+        {
+            "value" : "aggregate",
+            "label" : "aggregate"
+        },
+        {
+            "value" : "pod_ref",
+            "label" : "pod_ref"
         }
     ], 
     "name" : "object_types", 
