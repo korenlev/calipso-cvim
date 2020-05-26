@@ -47,21 +47,29 @@ class Search(ResponderBase):
             filters = {}
             regions_filter = target_filters.get("regions", "All")
             if regions_filter and regions_filter != "All":
-                filters["cvim_region"] = target_filters["regions"]
+                filters["cvim_region"] = regions_filter
 
             objects = self.distinct(collection="environments_config", field="cvim_metro", query=filters)
         elif target == "environment_configs":
             filters = {}
             regions_filter = target_filters.get("regions", "All")
             if regions_filter and regions_filter != "All":
-                filters["cvim_region"] = target_filters["regions"]
+                filters["cvim_region"] = regions_filter
             metros_filter = target_filters.get("metros", "All")
             if metros_filter and metros_filter != "All":
-                filters["cvim_metro"] = target_filters["metros"]
+                filters["cvim_metro"] = metros_filter
 
             objects = self.distinct(collection="environments_config", field="name", query=filters)
         elif target == "object_types":
-            objects = self.get_constants_by_name("object_types")
+            environment_filter = target_filters.get("environment")
+            if environment_filter:
+                environment = self.get_single_object(collection="environments_config",
+                                                     query={"name": environment_filter})
+                if not environment:
+                    self.bad_request("unknown environment: {}".format(environment_filter))
+                objects = self.get_constants_by_name("object_types", environment_type=environment["environment_type"])
+            else:
+                objects = self.get_constants_by_name("object_types")
         else:
             return self.bad_request("Unknown target: {}".format(target))
 
