@@ -96,7 +96,7 @@ class DataValidate:
         }
 
     def validate_data(self, data: dict, requirements: dict,
-                      additional_key_re: Union[str, re.Pattern, None] = None,
+                      additional_key_re: Optional[str] = None,
                       can_be_empty_keys: Optional[list] = None) -> Optional[str]:
         if can_be_empty_keys is None:
             can_be_empty_keys = []

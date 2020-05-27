@@ -92,7 +92,7 @@ class ResponderBase(DataValidate, DictNamingConverter):
     ######################
 
     def validate_query_data(self, data: dict, data_requirements: dict,
-                            additional_key_reg: Union[str, re.Pattern, None] = None,
+                            additional_key_reg: Optional[str] = None,
                             can_be_empty_keys: Optional[list] = None) -> None:
         error_message = self.validate_data(data=data, requirements=data_requirements,
                                            additional_key_re=additional_key_reg,
