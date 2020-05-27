@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import re
+from typing import Union, Optional
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -94,9 +95,9 @@ class DataValidate:
             "default": default
         }
 
-    def validate_data(self, data, requirements,
-                      additional_key_re=None,
-                      can_be_empty_keys=None):
+    def validate_data(self, data: dict, requirements: dict,
+                      additional_key_re: Optional[str] = None,
+                      can_be_empty_keys: Optional[list] = None) -> Optional[str]:
         if can_be_empty_keys is None:
             can_be_empty_keys = []
 

@@ -20,10 +20,6 @@ class Query(ResponderBase):
         "scheduled_scans": ["id", "recurrence", "scheduled_timestamp"]
     }
 
-    def __init__(self):
-        super().__init__()
-        self.object_types = self.get_constants_by_name("object_types")
-
     def on_post(self, req, resp):
         if req.content_type == "application/json":
             error, request_data = self.get_content_from_request(req)
@@ -195,7 +191,7 @@ class Query(ResponderBase):
         query = self.build_base_query(environment=environment)
 
         if object_types and isinstance(object_types, list):
-            query["type"] = {"$in": [ot for ot in object_types if ot in self.object_types]}
+            query["type"] = {"$in": object_types}
 
         return query
 
