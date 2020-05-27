@@ -43,6 +43,7 @@
             "ip_address",
             "host",
             "container_id",
+            "config",
             "container_type",
             "vnic_index",
             "container_status",
