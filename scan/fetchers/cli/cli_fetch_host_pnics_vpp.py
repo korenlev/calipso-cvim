@@ -20,8 +20,7 @@ PNIC_WITH_NETWORK_RE = '.*\.([0-9]+)$'
 
 
 class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
-    # TODO: controller host accepted?
-    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value, HostType.COMPUTE.value]
+    ACCEPTED_HOST_TYPES = [HostType.CONTROLLER.value, HostType.NETWORK.value, HostType.COMPUTE.value]
 
     def __init__(self):
         super().__init__()
@@ -61,7 +60,7 @@ class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
                 self.set_folder_parent(pnic, object_type='pnic',
                                        master_parent_type='host',
                                        master_parent_id=host_id,
-                                       parent_text='pNICs')
+                                       parent_text='VPP-pNICs')
                 ret.append(pnic)
         self.details_fetcher.add_hardware_interfaces_details(host_id, ret)
         self.add_pnic_ip_addresses(host_id, ret)
