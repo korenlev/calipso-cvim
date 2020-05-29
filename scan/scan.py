@@ -77,7 +77,7 @@ class ScanPlan:
         if sum((self.inventory_only, self.processors_only, self.links_only, self.cliques_only)) > 1:
             errors.append("Only one of (inventory_only, processors_only, links_only, cliques_only) can be True.")
         if errors:
-            raise ScanArgumentsError("\n".join(errors))
+            raise ScanArgumentsError(";;; ".join(errors))
 
     def _set_arg_from_dict(self, attribute_name, arg_name=None,
                            default_key=None):

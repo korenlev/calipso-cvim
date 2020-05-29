@@ -222,10 +222,8 @@ class ConnectionTest(Manager):
         self.interval = max(self.DEFAULTS['interval'], self.args.interval)
         self.log.set_loglevel(self.args.loglevel)
 
-        self.log.info('Started ConnectionTest with following configuration:\n'
-                      '{1}\n'
-                      'connection_tests collection: '
-                      '{0.connection_tests_collection.name}\n'
+        self.log.info('Started ConnectionTest with following configuration: {1}. '
+                      'Connection_tests collection: {0.connection_tests_collection.name}.'
                       'Polling interval: {0.interval} second(s)'
                       .format(self, MongoAccess.get_source_text()))
 
@@ -300,7 +298,7 @@ class ConnectionTest(Manager):
             except Exception as e:
                 self.log.exception(e)
                 test_request['errors'][test_target] = str(e)
-                self.log.error('Test of target {} failed (id: {}):\n{}'
+                self.log.error('Test of target {} failed (id: {}): {}'
                                .format(test_target,
                                        test_request['_id'],
                                        str(e)))

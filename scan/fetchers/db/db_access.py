@@ -117,7 +117,7 @@ class DbAccess(Fetcher):
     @with_cursor
     def get_objects_list_for_id(self, query, object_type, object_id,
                                 cursor=None):
-        self.log.debug("query count: %s, running query:\n%s\n",
+        self.log.debug("query count: %s, running query: %s ",
                        str(DbAccess.query_count_per_con), query)
 
         try:

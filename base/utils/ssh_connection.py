@@ -158,7 +158,7 @@ class SshConnection:
         if not self.connect():
             return ''
         self.call_count += 1
-        self.log.debug("call count: %s, running call:\n%s\n",
+        self.log.debug("call count: %s, running call: %s.",
                        str(self.call_count), cmd)
         try:
             stdin, stdout, stderr = \

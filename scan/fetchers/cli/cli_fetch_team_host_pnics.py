@@ -64,7 +64,7 @@ class CliFetchTeamHostPnics(CliFetcher):
         try:
             cmd_output_json = json.loads(cmd_output)
         except JSONDecodeError as e:
-            self.log.error('{}: Failed to parse json from team details output\n{}'
+            self.log.error('{}: Failed to parse json from team details output: {}'
                            .format(self.__class__.__name__,  e))
             return
 

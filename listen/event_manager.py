@@ -199,9 +199,8 @@ class EventManager(Manager):
                                                self.args.max_delay)
         self.log.set_loglevel(self.args.loglevel)
 
-        self.log.info("Started EventManager with following configuration:\n"
-                      "{1}\n"
-                      "Collection: {0.collection.name}\n"
+        self.log.info("Started EventManager with following configuration: {1}. "
+                      "Collection: {0.collection.name}. "
                       "Polling interval: {0.interval} second(s)"
                       .format(self, MongoAccess.get_source_text()))
 

@@ -128,12 +128,9 @@ class ScanManager(Manager):
         self.es_client = ElasticAccess()
         #self._connect_es_client(self.args.es_config)
 
-        self.log.info("Started ScanManager with following configuration:\n"
-                      "{1}\n"
-                      "{2}\n"
-                      "Scans collection: {0.scans_collection.name}\n"
-                      "Environments collection: "
-                      "{0.environments_collection.name}\n"
+        self.log.info("Started ScanManager with following configuration: {1}. {2}. "
+                      "Scans collection: {0.scans_collection.name}. "
+                      "Environments collection: {0.environments_collection.name}. "
                       "Polling interval: {0.interval} second(s)"
                       .format(self,
                               MongoAccess.get_source_text(),
@@ -325,7 +322,7 @@ class ScanManager(Manager):
             except ScanArgumentsError as e:
                 logger.error("Scan request '{id}' "
                              "has invalid arguments. "
-                             "Errors:\n{errors}"
+                             "Errors: {errors}"
                              .format(id=scan_request['_id'],
                                      errors=e))
                 self._fail_scan(scan_request)

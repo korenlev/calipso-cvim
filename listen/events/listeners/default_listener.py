@@ -144,7 +144,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
     # 'Retry' flag specifies if the error is recoverable or not
     # 'Retry' flag is checked only is 'result' is False
     def handle_event(self, event_type: str, notification: dict) -> EventResult:
-        self.log.error("Got notification.\nEvent_type: {}\nNotification:\n{}".
+        self.log.error("Got notification. Event_type: {} Notification: {}".
                        format(event_type, notification))
         try:
             result = self.handler.handle(event_name=event_type,
