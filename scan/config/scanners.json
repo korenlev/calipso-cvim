@@ -309,7 +309,8 @@
           "mechanism_drivers": [
             "OVS",
             "LXB",
-            "Flannel"
+            "Flannel",
+            "VPP"
           ]
         },
         "fetcher": "CliFetchHostPnics",
@@ -440,7 +441,7 @@
           "folder": true,
           "types_name": "host_pnics",
           "parent_type": "vedge",
-          "text": "pNICs"
+          "text": "VPP-pNICs"
         },
         "environment_condition": {
           "environment_type": ["OpenStack", "Kubernetes"],

@@ -19,7 +19,7 @@ class CliFetchHostPnics(CliFetcher, HostTypeValidator):
 
     SUPPORTED_PORTS_REGEX = re.compile("Supported ports:\s*\[(?P<ports>.*)\]")
     SUPPORTED_LINK_MODES_REGEX = re.compile("Supported link modes:\s*(?P<link_modes>.*)")
-    ACCEPTED_HOST_TYPES = [HostType.NETWORK.value, HostType.COMPUTE.value]
+    ACCEPTED_HOST_TYPES = [HostType.CONTROLLER.value, HostType.NETWORK.value, HostType.COMPUTE.value]
 
     def __init__(self):
         super().__init__()
