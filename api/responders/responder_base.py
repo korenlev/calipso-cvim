@@ -10,7 +10,7 @@
 import json
 from http import HTTPStatus
 from json import JSONDecodeError
-from typing import Optional, Tuple, List, Union, Iterable
+from typing import Optional, Tuple, List
 from urllib import parse
 
 import re
@@ -154,10 +154,23 @@ class ResponderBase(DataValidate, DictNamingConverter):
             return self.inv.db[name]
         return self.inv.collections[name]
 
-    def get_constants_by_name(self, name: str, environment_type: str = None):
+    def get_constants_by_name(self, name: str, environment_type: str = None, environment_name: str = None) -> list:
+        """
+
+        :param name: constants object name
+        :param environment_type: environment type to lookup constants for (mutually exclusive with env name)
+        :param environment_name: environment to lookup constants for (mutually exclusive with env type)
+        :return: list of strings
+        """
         query = {"name": name}
         if environment_type:
             query["environment_type"] = environment_type
+        elif environment_name:
+            environment = self.get_single_object(collection="environments_config",
+                                                 query={"name": environment_name})
+            if not environment:
+                self.bad_request("unknown environment: {}".format(environment_name))
+            query["environment_type"] = environment["environment_type"]
         else:
             query["environment_type"] = {"$in": [None, "OpenStack"]}
 

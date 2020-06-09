@@ -36,7 +36,7 @@ class CliAccess:
         self.log = ConsoleLogger(name="CliAccess", level=self.LOG_LEVEL)
 
     def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-            use_sudo: bool = True, use_ssh_key: bool = True):
+            use_sudo: bool = True, use_ssh_key: bool = True, log_errors: bool = True):
         commands = self.adapt_cmd_to_env(cmd=cmd, use_sudo=use_sudo)
         out = ''
         for c in commands:
@@ -65,9 +65,9 @@ class CliAccess:
         return ret
 
     def run_fetch_lines(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-                        use_sudo: bool = True, use_ssh_key: bool = True):
+                        use_sudo: bool = True, use_ssh_key: bool = True, log_errors: bool = True):
         out = self.run(cmd=cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
-                       use_sudo=use_sudo, use_ssh_key=use_ssh_key)
+                       use_sudo=use_sudo, use_ssh_key=use_ssh_key, log_errors=log_errors)
         if not out:
             return []
         # first try to split lines by whitespace

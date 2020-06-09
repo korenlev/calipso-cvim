@@ -18,37 +18,54 @@ from base.utils.exceptions import CredentialsError, HostAddressError, SshError
 class CliFetcher(Fetcher, CliAccess):
 
     def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True, on_gateway: bool = False,
-            use_sudo: bool = True, use_ssh_key: bool = True) -> str:
+            use_sudo: bool = True, use_ssh_key: bool = True, log_errors: bool = True,
+            raise_errors: bool = True) -> str:
         try:
             output = super().run(cmd=cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
-                                 use_sudo=use_sudo, use_ssh_key=use_ssh_key)
+                                 use_sudo=use_sudo, use_ssh_key=use_ssh_key, log_errors=log_errors)
         except (SshError, CredentialsError, HostAddressError) as e:
             msg = 'error running command {} (host:{}): {}'.format(cmd, ssh_to_host, e)
-            self.log.error(msg)
-            raise SshError(msg)
+            if log_errors:
+                self.log.error(msg)
+            if raise_errors:
+                raise SshError(msg)
+            else:
+                return ""
         return output
 
     def run_fetch_lines(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-                        use_sudo: bool = True, use_ssh_key: bool = True) -> list:
+                        use_sudo: bool = True, use_ssh_key: bool = True, log_errors: bool = True,
+                        raise_errors: bool = True) -> list:
         try:
             lines = super().run_fetch_lines(cmd,
                                             ssh_to_host=ssh_to_host,
                                             enable_cache=enable_cache,
                                             use_sudo=use_sudo,
-                                            use_ssh_key=use_ssh_key)
+                                            use_ssh_key=use_ssh_key,
+                                            log_errors=False)
         except (SshError, CredentialsError, HostAddressError) as e:
             msg = 'error running command {} (host:{}): {}'.format(cmd, ssh_to_host, e)
-            self.log.error(msg)
-            raise SshError(msg)
+            if log_errors:
+                self.log.error(msg)
+            if raise_errors:
+                raise SshError(msg)
+            else:
+                return []
         return lines
 
     def run_fetch_json_response(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-                                use_sudo: bool = True, use_ssh_key: bool = False) -> Union[dict, list]:
+                                use_sudo: bool = True, use_ssh_key: bool = False,
+                                log_errors: bool = True, raise_errors: bool = True) -> Union[dict, list]:
         output = self.run(cmd=cmd, ssh_to_host=ssh_to_host,
-                          enable_cache=enable_cache, use_sudo=use_sudo, use_ssh_key=use_ssh_key)
+                          enable_cache=enable_cache, use_sudo=use_sudo, use_ssh_key=use_ssh_key,
+                          log_errors=log_errors, raise_errors=raise_errors)
         try:
             return json.loads(output)
         except (ValueError, TypeError) as e:
             msg = 'error parsing json from command response {} (host:{}): {}'.format(cmd, ssh_to_host, e)
-            self.log.error(msg)
-            raise e
+            if log_errors:
+                self.log.error(msg)
+            if raise_errors:
+                raise e
+            else:
+                return {}

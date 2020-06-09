@@ -123,6 +123,10 @@ class Query(ResponderBase):
         columns = {"type": True, "count": True}
         # "_id" values are moved to "id" field by object list fetcher
         counts = [{"type": o["id"], "count": o["count"]} for o in objects]
+        if not object_types:
+            object_types = self.get_constants_by_name("object_types", environment_name=environment)
+        zero_counts = set(object_types) - set(c["type"] for c in counts)
+        counts += [{"type": zc, "count": 0} for zc in zero_counts]
 
         return self._build_grafana_table(columns=columns,
                                          objects=counts,

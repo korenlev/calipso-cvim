@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+import logging
 import os
 import socket
 from typing import Dict
@@ -72,7 +73,7 @@ class RemoteHostConnection:
     @property
     def is_connected(self) -> bool:
         return (
-            self.ssh_tunnel.is_active
+            self.ssh_tunnel and self.ssh_tunnel.is_active and self.ssh_client
         )  # TODO: check ssh client connection?
 
     def disconnect(self) -> None:
@@ -96,6 +97,8 @@ class SshTunnelConnection(metaclass=Singleton):
     def __init__(self, master_host_details: MasterHostDetails):
         self.master_host_details: MasterHostDetails = master_host_details
         self.log: Logger = FullLogger(name=self.LOG_NAME, log_file=self.LOG_FILE, level=self.LOG_LEVEL)
+        # silence paramiko logger
+        logging.getLogger("paramiko").setLevel("CRITICAL")
 
     @classmethod
     def is_remote_host_connected(cls, host: str) -> bool:
@@ -103,6 +106,7 @@ class SshTunnelConnection(metaclass=Singleton):
 
     def connect_ssh_tunnel(self, host: str) -> SSHTunnelForwarder:
         try:
+            ssh_tunnel_logger = FullLogger(name="SSH Tunnel", log_file=self.LOG_FILE, level=Logger.ERROR)
             ssh_tunnel = SSHTunnelForwarder(
                 ssh_address_or_host=(self.master_host_details.host, self.master_host_details.port),
                 ssh_username=self.master_host_details.user,
@@ -110,7 +114,8 @@ class SshTunnelConnection(metaclass=Singleton):
                 ssh_pkey=self.master_host_details.key if self.master_host_details.key else None,
                 local_bind_address=(self.LOCAL_BIND_ADDRESS,),
                 remote_bind_address=(host, 22),
-                set_keepalive=self.KEEP_ALIVE
+                set_keepalive=self.KEEP_ALIVE,
+                logger=ssh_tunnel_logger.log
             )
             ssh_tunnel.start()
             if not ssh_tunnel.is_active:
@@ -139,6 +144,10 @@ class SshTunnelConnection(metaclass=Singleton):
             raise CredentialsError(msg)
         except (paramiko.ssh_exception.SSHException, TimeoutError, PipeTimeout):
             msg = 'Timeout creating SSH connection to host {}, port={}'.format(host, port)
+            self.log.error(msg)
+            raise HostAddressError(msg)
+        except Exception as e:
+            msg = 'Failed to connect to host {} via SSH. Error: {}'.format(host, e)
             self.log.error(msg)
             raise HostAddressError(msg)
         self.log.info("SshTunnelConnection: ****** Connected SSH client to host: {}".format(host))

@@ -50,7 +50,10 @@ class CliFetchHostDetails(CliFetcher):
     }
 
     def fetch_host_os_details(self, doc: dict) -> None:
-        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=doc['host'])
+        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=doc['host'], raise_errors=False)
+        if not lines:
+            return
+
         os_attributes = {}
         attributes_to_fetch = {
             'NAME': 'name',
