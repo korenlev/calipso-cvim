@@ -40,6 +40,7 @@
     ],
     "tooltip" : "a virtual nic attached to a resource (to a vservice or instance or container)"
 },
+},
 {
     "type" : "container",
     "attributes" : [
@@ -108,7 +109,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "an internal broadcast domain like a linux bridge"
+    "tooltip" : "an internal broadcast domain like a linux bridge and others"
 },
 {
     "type" : "vservice",
@@ -134,7 +135,7 @@
         "labels",
         "swagger_types"
     ],
-    "tooltip" : "a virtual service like a router, dhcp, fwaas etc"
+    "tooltip" : "a virtual service like a router, dhcp, fwaas and others"
 },
 {
     "type" : "vedge",
@@ -241,7 +242,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "a physical server or a vm in nested virtualization"
+    "tooltip" : "a physical server or a VM in nested virtualization"
 },
 {
     "type" : "instance",
@@ -273,7 +274,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "an openstack vm"
+    "tooltip" : "an openstack VM"
 },
 {
     "type" : "otep",
@@ -288,7 +289,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "an overlay tunneling endpoint like vxlan, geneve, gre"
+    "tooltip" : "an overlay tunneling endpoint like vxlan, geneve, gre and others"
 },
 {
     "type" : "switch_pnic",
