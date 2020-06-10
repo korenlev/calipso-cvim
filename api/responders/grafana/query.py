@@ -119,15 +119,26 @@ class Query(ResponderBase):
             }
         }]
 
-        objects = self.get_objects_list(collection="inventory", query=query, aggregate=aggregate)
-        columns = {"type": True, "count": True}
-        # "_id" values are moved to "id" field by object list fetcher
-        counts = [{"type": o["id"], "count": o["count"]} for o in objects]
+        object_type_attributes = {
+            o["type"]: o for o in self.inv.find({}, collection="attributes_for_hover_on_data")
+        }
+        objects = {
+            o["id"]: o for o in self.get_objects_list(collection="inventory", query=query, aggregate=aggregate)
+        }
+
         if not object_types:
             object_types = self.get_constants_by_name("object_types", environment_name=environment)
-        zero_counts = set(object_types) - set(c["type"] for c in counts)
-        counts += [{"type": zc, "count": 0} for zc in zero_counts]
 
+        counts = [
+            {
+                "type": ot,
+                "count": objects.get(ot, {}).get("count", 0),
+                "tooltip": object_type_attributes.get(ot, {}).get("tooltip", "")
+            }
+            for ot in object_types
+        ]
+
+        columns = {"type": True, "count": True, "tooltip": True}
         return self._build_grafana_table(columns=columns,
                                          objects=counts,
                                          target="inventoryCount")

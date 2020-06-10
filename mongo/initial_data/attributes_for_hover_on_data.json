@@ -16,7 +16,7 @@
         "ip_address",
         "aci_document"
     ],
-    "tooltip" : "a physical switch "
+    "tooltip" : "a physical switch"
 },
 {
     "type" : "vnic",
@@ -38,7 +38,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "a virtual nic attached to a resource (to a vservice or instance or container)"
+    "tooltip" : "a virtual nic attached to a resource (to a vService or instance or container)"
 },
 },
 {
@@ -64,7 +64,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "a docker container"
+    "tooltip" : "a Docker container"
 },
 {
     "type" : "namespace",
@@ -74,7 +74,7 @@
         "status",
         "root_cause"
     ],
-    "tooltip" : "a kubernetes namespace"
+    "tooltip" : "a Kubernetes namespace"
 },
 {
     "type" : "pod",
@@ -92,7 +92,7 @@
         "status",
         "root_cause"
     ],
-    "tooltip" : "a kubernetes pod"
+    "tooltip" : "a Kubernetes pod"
 },
 {
     "type" : "vconnector",
@@ -109,7 +109,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "an internal broadcast domain like a linux bridge and others"
+    "tooltip" : "an internal broadcast domain (like Linux bridge)"
 },
 {
     "type" : "vservice",
@@ -135,7 +135,7 @@
         "labels",
         "swagger_types"
     ],
-    "tooltip" : "a virtual service like a router, dhcp, fwaas and others"
+    "tooltip" : "a virtual service (like a router, DHCP, FWaaS, etc)"
 },
 {
     "type" : "vedge",
@@ -158,7 +158,7 @@
         "dns_policy",
         "namespace"
     ],
-    "tooltip" : "an edge communication device between physical and virtual, like VPP, SRIOV, OVS"
+    "tooltip" : "a virtual communication device handling physical to virtual networking (like VPP, SRIOV, OVS)"
 },
 {
     "type" : "host_pnic",
@@ -289,7 +289,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "an overlay tunneling endpoint like vxlan, geneve, gre and others"
+    "tooltip" : "an overlay tunneling endpoint (like VXLAN, Geneve, GRE, etc)"
 },
 {
     "type" : "switch_pnic",
@@ -306,7 +306,7 @@
         "configuration",
         "host"
     ],
-    "tooltip" : "a host side process collecting metrics, like telegraf"
+    "tooltip" : "a host side process collecting metrics (like telegraf)"
 },
 {
     "type" : "link",
@@ -324,7 +324,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "represent a relationship between 2 items"
+    "tooltip" : "represents a relationship between 2 items"
 },
 {
     "type" : "project",
@@ -334,14 +334,14 @@
         "parent_domain_id",
         "is_domain"
     ],
-    "tooltip" : "an openstack project"
+    "tooltip" : "an OpenStack project"
 },
 {
     "type" : "region",
     "attributes" : [
         "endpoints"
     ],
-    "tooltip" : "an openstack region"
+    "tooltip" : "an OpenStack region"
 },
 {
     "type" : "network_agent",
@@ -366,7 +366,7 @@
         "fixed_ips",
         "security_groups"
     ],
-    "tooltip" : "an openstack port"
+    "tooltip" : "an OpenStack port"
 },
 {
     "type" : "availability_zone",
@@ -374,7 +374,7 @@
         "hosts",
         "available"
     ],
-    "tooltip" : "an openstack zone"
+    "tooltip" : "an OpenStack zone"
 },
 {
     "type" : "disk",
@@ -411,6 +411,6 @@
         "host",
         "metadata"
     ],
-    "tooltip" : "a ceph object storage daemon"
+    "tooltip" : "a Ceph object storage daemon"
 }
 ]
