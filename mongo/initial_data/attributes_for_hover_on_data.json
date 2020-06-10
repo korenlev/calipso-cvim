@@ -1,209 +1,219 @@
 [
-    {
-        "type" : "ALL",
-        "attributes" : [
-            "type",
-            "name",
-            "name_path",
-            "id",
-            "last_scanned"
-        ]
-    },
-    {
-        "type" : "switch",
-        "attributes" : [
-            "ip_address",
-            "aci_document"
-        ]
-    },
-    {
-        "type" : "vnic",
-        "attributes" : [
-            "host",
-            "model",
-            "mac_address",
-            "vnic_type",
-            "vedge_type",
-            "network",
-            "port",
-            "addresses",
-            "source",
-            "target",
-            "alias",
-            "instance_id",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "container",
-        "attributes" : [
-            "ip_address",
-            "host",
-            "container_id",
-            "config",
-            "container_type",
-            "vnic_index",
-            "container_status",
-            "sandbox",
-            "volume_mounts",
-            "nat_tables",
-            "kube_proxy_config",
-            "vservices",
-            "ports",
-            "pod",
-            "namespace",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-
-        "type" : "namespace",
-        "attributes" : [
-            "pods",
-            "creation_timestamp",
-            "status",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "pod",
-        "attributes" : [
-            "host",
-            "namespace",
-            "vservices",
-            "pod_status",
-            "owner_references",
-            "containers",
-            "scheduler_name",
-            "labels",
-            "dns_policy",
-            "vservices",
-            "status",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "vconnector",
-        "attributes" : [
-            "host",
-            "vedge_type",
-            "vedge_port",
-            "connector_type",
-            "interfaces",
-            "stp_enabled",
-            "last_scanned",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "vservice",
-        "attributes" : [
-            "host",
-            "service_type",
-            "pods",
-            "session_affinity",
-            "external_traffic_policy",
-            "selector",
-            "namespace",
-            "local_service_id",
-            "tenant_id",
-            "network",
-            "gw_port_id",
-            "kube-proxy",
-            "status_text",
-            "status",
-            "status_timestamp",
-            "root_cause",
-            "cluster_ip",
-            "ports",
-            "labels",
-            "swagger_types"
-        ]
-    },
-    {
-        "type" : "vedge",
-        "attributes" : [
-            "host",
-            "agent_type",
-            "binary",
-            "started_at",
-            "configurations",
-            "ports",
-            "topic",
-            "resource_versions",
-            "heartbeat_timestamp",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause",
-            "qos_class",
-            "labels",
-            "dns_policy",
-            "namespace"
-        ]
-    },
-    {
-        "type" : "host_pnic",
-        "attributes" : [
-            "host",
-            "mac_address",
-            "state",
-            "data",
-            "members",
-            "team_device",
-            "EtherChannel Config",
-            "EtherChannel Runtime",
-            "Supported link modes",
-            "Supported FEC modes",
-            "Transceiver",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-        "type": "network",
-        "attributes" : [
-            "project",
-            "subnets",
-            "network",
-            "cidrs",
-            "mtu",
-            "created_at",
-            "availability_zones",
-            "router:external",
-            "ipv6_address_scope",
-            "provider:network_type",
-            "port_security_enabled",
-            "router:external",
-            "provider:physical_network",
-            "revision_number",
-            "provider:segmentation_id",
-            "provider:network_type",
-            "status",
-            "port_security_enabled",
-            "availability_zones",
-            "port_security_enabled",
-            "shared",
-            "scope",
-            "IPAM",
-            "local_name",
-            "driver",
-            "Containers",
-            "Options"
-        ]
-    },
-    {
+{
+    "type" : "ALL",
+    "attributes" : [
+        "type",
+        "name",
+        "name_path",
+        "id",
+        "last_scanned",
+        "tooltip"
+    ]
+},
+{
+    "type" : "switch",
+    "attributes" : [
+        "ip_address",
+        "aci_document"
+    ],
+    "tooltip" : "a physical switch "
+},
+{
+    "type" : "vnic",
+    "attributes" : [
+        "host",
+        "model",
+        "mac_address",
+        "vnic_type",
+        "vedge_type",
+        "network",
+        "port",
+        "addresses",
+        "source",
+        "target",
+        "alias",
+        "instance_id",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "a virtual nic attached to a resource (to a vservice or instance or container)"
+},
+{
+    "type" : "container",
+    "attributes" : [
+        "ip_address",
+        "host",
+        "container_id",
+        "config",
+        "container_type",
+        "vnic_index",
+        "container_status",
+        "sandbox",
+        "volume_mounts",
+        "nat_tables",
+        "kube_proxy_config",
+        "vservices",
+        "ports",
+        "pod",
+        "namespace",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "a docker container"
+},
+{
+    "type" : "namespace",
+    "attributes" : [
+        "pods",
+        "creation_timestamp",
+        "status",
+        "root_cause"
+    ],
+    "tooltip" : "a kubernetes namespace"
+},
+{
+    "type" : "pod",
+    "attributes" : [
+        "host",
+        "namespace",
+        "vservices",
+        "pod_status",
+        "owner_references",
+        "containers",
+        "scheduler_name",
+        "labels",
+        "dns_policy",
+        "vservices",
+        "status",
+        "root_cause"
+    ],
+    "tooltip" : "a kubernetes pod"
+},
+{
+    "type" : "vconnector",
+    "attributes" : [
+        "host",
+        "vedge_type",
+        "vedge_port",
+        "connector_type",
+        "interfaces",
+        "stp_enabled",
+        "last_scanned",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "an internal broadcast domain like a linux bridge"
+},
+{
+    "type" : "vservice",
+    "attributes" : [
+        "host",
+        "service_type",
+        "pods",
+        "session_affinity",
+        "external_traffic_policy",
+        "selector",
+        "namespace",
+        "local_service_id",
+        "tenant_id",
+        "network",
+        "gw_port_id",
+        "kube-proxy",
+        "status_text",
+        "status",
+        "status_timestamp",
+        "root_cause",
+        "cluster_ip",
+        "ports",
+        "labels",
+        "swagger_types"
+    ],
+    "tooltip" : "a virtual service like a router, dhcp, fwaas etc"
+},
+{
+    "type" : "vedge",
+    "attributes" : [
+        "host",
+        "agent_type",
+        "binary",
+        "started_at",
+        "configurations",
+        "ports",
+        "topic",
+        "resource_versions",
+        "heartbeat_timestamp",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause",
+        "qos_class",
+        "labels",
+        "dns_policy",
+        "namespace"
+    ],
+    "tooltip" : "an edge communication device between physical and virtual, like VPP, SRIOV, OVS"
+},
+{
+    "type" : "host_pnic",
+    "attributes" : [
+        "host",
+        "mac_address",
+        "state",
+        "data",
+        "members",
+        "team_device",
+        "EtherChannel Config",
+        "EtherChannel Runtime",
+        "Supported link modes",
+        "Supported FEC modes",
+        "Transceiver",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "a physical network card on a host"
+},
+{
+    "type" : "network",
+    "attributes" : [
+        "project",
+        "subnets",
+        "network",
+        "cidrs",
+        "mtu",
+        "created_at",
+        "availability_zones",
+        "router:external",
+        "ipv6_address_scope",
+        "provider:network_type",
+        "port_security_enabled",
+        "router:external",
+        "provider:physical_network",
+        "revision_number",
+        "provider:segmentation_id",
+        "provider:network_type",
+        "status",
+        "port_security_enabled",
+        "availability_zones",
+        "port_security_enabled",
+        "shared",
+        "scope",
+        "IPAM",
+        "local_name",
+        "driver",
+        "Containers",
+        "Options"
+    ],
+    "tooltip" : "a logical representation of a single communication segment"
+},
+{
     "type" : "host",
     "attributes" : [
         "OS",
@@ -230,129 +240,140 @@
         "status_timestamp",
         "status_text",
         "root_cause"
-    ]
-    },
-    {
-        "type" : "instance",
-        "attributes" : [
-            "vm_state",
-            "created_at",
-            "project_name",
-            "user_id",
-            "key_name",
-            "availability_zone",
-            "host",
-            "flavor",
-            "host_ip_address",
-            "project",
-            "addresses",
-            "ovs_vnic_count",
-            "sriov_vnic_count",
-            "vpp_vnic_count",
-            "image",
-            "disks",
-            "diskConfig",
-            "metadata",
-            "vcpu",
-            "security_groups",
-            "local_name",
-            "network",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "otep",
-        "attributes" : [
-            "host",
-            "overlay_type",
-            "ip_address",
-            "ports",
-            "overlay_mac_address",
-            "udp_port",
-            "status",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "switch_pnic",
-        "attributes" : [
-            "aci_document",
-            "parent_id",
-            "role"
-        ]
-    },
-    {
-        "type" : "monitoring_agent",
-        "attributes" : [
-            "configuration",
-            "host"
-        ]
-    },
-    {
-        "type" : "link",
-        "attributes" : [
-            "type",
-            "link_type",
-            "source_id",
-            "target_id",
-            "link_weight",
-            "state",
-            "link_name",
-            "host",
-            "status",
-            "status_timestamp",
-            "status_text",
-            "root_cause"
-        ]
-    },
-    {
-        "type" : "project",
-        "attributes" : [
-            "quota_set",
-            "domain_id",
-            "parent_domain_id",
-            "is_domain"
-        ]
-    },
-    {
-        "type" : "region",
-        "attributes" : [
-            "endpoints"
-        ]
-    },
-    {
-        "type" : "network_agent",
-        "attributes" : [
-            "configurations",
-            "host"
-        ]
-    },
-    {
-        "type" : "port",
-        "attributes" : [
-            "project",
-            "created_at",
-            "binding:vif_details",
-            "binding:vif_type",
-            "binding:vnic_type",
-            "binding:host_id",
-            "allowed_address_pairs",
-            "extra_dhcp_opts",
-            "device_owner",
-            "fixed_ips",
-            "security_groups"
-        ]
-    },
-    {
-        "type" : "availability_zone",
-        "attributes" : [
-            "hosts",
-            "available"
-        ]
+    ],
+    "tooltip" : "a physical server or a vm in nested virtualization"
+},
+{
+    "type" : "instance",
+    "attributes" : [
+        "vm_state",
+        "created_at",
+        "project_name",
+        "user_id",
+        "key_name",
+        "availability_zone",
+        "host",
+        "flavor",
+        "host_ip_address",
+        "project",
+        "addresses",
+        "ovs_vnic_count",
+        "sriov_vnic_count",
+        "vpp_vnic_count",
+        "image",
+        "disks",
+        "diskConfig",
+        "metadata",
+        "vcpu",
+        "security_groups",
+        "local_name",
+        "network",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "an openstack vm"
+},
+{
+    "type" : "otep",
+    "attributes" : [
+        "host",
+        "overlay_type",
+        "ip_address",
+        "ports",
+        "overlay_mac_address",
+        "udp_port",
+        "status",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "an overlay tunneling endpoint like vxlan, geneve, gre"
+},
+{
+    "type" : "switch_pnic",
+    "attributes" : [
+        "aci_document",
+        "parent_id",
+        "role"
+    ],
+    "tooltip" : "a physical network card on a switch"
+},
+{
+    "type" : "monitoring_agent",
+    "attributes" : [
+        "configuration",
+        "host"
+    ],
+    "tooltip" : "a host side process collecting metrics, like telegraf"
+},
+{
+    "type" : "link",
+    "attributes" : [
+        "type",
+        "link_type",
+        "source_id",
+        "target_id",
+        "link_weight",
+        "state",
+        "link_name",
+        "host",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "represent a relationship between 2 items"
+},
+{
+    "type" : "project",
+    "attributes" : [
+        "quota_set",
+        "domain_id",
+        "parent_domain_id",
+        "is_domain"
+    ],
+    "tooltip" : "an openstack project"
+},
+{
+    "type" : "region",
+    "attributes" : [
+        "endpoints"
+    ],
+    "tooltip" : "an openstack region"
+},
+{
+    "type" : "network_agent",
+    "attributes" : [
+        "configurations",
+        "host"
+    ],
+    "tooltip" : "a networking agent controller on a host"
+},
+{
+    "type" : "port",
+    "attributes" : [
+        "project",
+        "created_at",
+        "binding:vif_details",
+        "binding:vif_type",
+        "binding:vnic_type",
+        "binding:host_id",
+        "allowed_address_pairs",
+        "extra_dhcp_opts",
+        "device_owner",
+        "fixed_ips",
+        "security_groups"
+    ],
+    "tooltip" : "an openstack port"
+},
+{
+    "type" : "availability_zone",
+    "attributes" : [
+        "hosts",
+        "available"
+    ],
+    "tooltip" : "an openstack zone"
 },
 {
     "type" : "disk",
@@ -367,7 +388,8 @@
         "revision",
         "wwn_address",
         "model"
-    ]
+    ],
+    "tooltip" : "a disk storage device"
 },
 {
     "type" : "partition",
@@ -379,13 +401,15 @@
         "label",
         "mount_point",
         "osd_partition_type"
-    ]
+    ],
+    "tooltip" : "a logical part of a storage disk"
 },
 {
     "type" : "osd",
     "attributes" : [
         "host",
         "metadata"
-    ]
+    ],
+    "tooltip" : "a ceph object storage daemon"
 }
 ]
