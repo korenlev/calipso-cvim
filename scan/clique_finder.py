@@ -271,7 +271,7 @@ class CliqueFinder(Fetcher):
             "links": [],
             "links_detailed": [],
             "constraints": {c: focal_point.get(c) for c in constraints},
-            "last_scanned": datetime.now()
+            "last_scanned": datetime.utcnow()
         }
 
         focal_point_obj = self.inv.find_one({"_id": clique["focal_point"]})

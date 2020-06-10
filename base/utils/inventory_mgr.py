@@ -177,7 +177,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             self.check(item, "type")
             self.check(item, "id")
 
-            item["last_scanned"] = datetime.now()
+            item["last_scanned"] = datetime.utcnow()
             item.pop("projects", [])
 
             obj_name = item["name_path"]
@@ -284,7 +284,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
             "target_label": target_label,
             "implicit": implicit,
             "attributes": extra_attributes if extra_attributes else {},
-            "last_scanned": datetime.now()
+            "last_scanned": datetime.utcnow()
         }
         if host:
             link['host'] = host

@@ -294,6 +294,13 @@ class ScanManager(Manager):
                                              else ScanOrigins.MANUAL))
 
             log_level = scan_request.get('log_level', Logger.default_level)
+            try:
+                Logger.check_level(log_level)
+            except ValueError as e:
+                self.log.error(e)
+                self._fail_scan(scan_request)
+                return
+
             logger = FullLogger(name=self.LOG_NAME,
                                 log_file=self.LOG_FILE,
                                 env=env, origin=origin,

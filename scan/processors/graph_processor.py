@@ -35,7 +35,7 @@ class GraphProcessor(Processor):
             }
 
         graph_doc.update({
-            "last_scanned": datetime.now()
+            "last_scanned": datetime.utcnow()
         })
 
         return data_list, graph_doc
