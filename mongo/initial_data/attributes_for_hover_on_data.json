@@ -40,7 +40,6 @@
     ],
     "tooltip" : "Virtual NIC attached to a resource (to a vService or instance or container)"
 },
-},
 {
     "type" : "container",
     "attributes" : [
