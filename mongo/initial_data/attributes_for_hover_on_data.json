@@ -26,6 +26,7 @@
         "mac_address",
         "vnic_type",
         "vedge_type",
+        "vedge_port",
         "network",
         "port",
         "addresses",
@@ -411,5 +412,17 @@
         "metadata"
     ],
     "tooltip" : "Ceph object storage daemon"
+},
+{
+    "type" : "pod_ref",
+    "attributes" : [
+    ],
+    "tooltip" : "Kubernetes reference to a pod"
+},
+{
+    "type" : "aggregate",
+    "attributes" : [
+    ],
+    "tooltip" : "Group of pods, specific deployment"
 }
 ]

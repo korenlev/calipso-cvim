@@ -1,9 +1,9 @@
 [
 {
-    "environment" : "", 
-    "focal_point_type" : "instance", 
+    "environment" : "",
+    "focal_point_type" : "instance",
     "constraints" : [
-        "network", "vedge_type"
+        "network"
     ]
 },
 {
@@ -13,14 +13,14 @@
         "network"
     ]
 },
-{ 
+{
     "environment":"",
-    "focal_point_type" : "vservice", 
+    "focal_point_type" : "vservice",
     "constraints" : [
         "network"
     ]
 },
-{ 
+{
     "environment":"",
     "constraints" : [
         "network"
