@@ -16,7 +16,7 @@ from api.backends import auth_backend
 from api.backends.credentials_backend import CredentialsBackend
 from api.backends.ldap_backend import LDAPBackend
 from api.exceptions.exceptions import CalipsoApiException
-from api.middleware.authentication import AuthenticationMiddleware
+from api.middleware import AuthenticationMiddleware, CORSMiddleware
 from base.utils.inventory_mgr import InventoryMgr
 from base.utils.logging.full_logger import FullLogger
 from base.utils.mongo_access import MongoAccess
@@ -68,9 +68,12 @@ class App:
         self.setup_auth_backend(ldap_enabled=ldap_enabled, ldap_config=ldap_config, auth_config=auth_config,
                                 log_file=log_file, log_level=log_level)
         Token.set_token_lifetime(token_lifetime)
-        self.middleware = AuthenticationMiddleware(log_file=log_file, log_level=log_level)
+        self.middleware = [
+            AuthenticationMiddleware(log_file=log_file, log_level=log_level),
+            CORSMiddleware()
+        ]
 
-        self.app = falcon.API(middleware=[self.middleware])
+        self.app = falcon.API(middleware=self.middleware)
         self.app.add_error_handler(CalipsoApiException)
         self.app.req_options.strip_url_path_trailing_slash = True
         self.set_routes(self.app)
