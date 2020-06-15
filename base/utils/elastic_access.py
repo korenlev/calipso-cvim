@@ -132,7 +132,7 @@ class ElasticAccess(DataAccessBase):
 
         actions = []
         for col, projection in projections.items():
-            date = datetime.datetime.now().strftime("%Y.%m.%d")
+            date = datetime.datetime.utcnow().strftime("%Y.%m.%d")
             index_name = 'calipso-{}-{}'.format(col, date)
             self.create_index(index_name)
             self.delete_documents_by_env(index_name, env)
@@ -178,7 +178,7 @@ class ElasticAccess(DataAccessBase):
                 'environment': env
             })
 
-        index_name = 'calipso-tree-{}'.format(datetime.datetime.now().strftime("%Y.%m.%d"))
+        index_name = 'calipso-tree-{}'.format(datetime.datetime.utcnow().strftime("%Y.%m.%d"))
         doc_id = '1'
 
         doc = self.connection.get(index_name, doc_id, ignore=[400, 404])

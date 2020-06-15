@@ -82,7 +82,7 @@ class ProcessMonitor:
 
         # Listener has been suspended for the designated time
         # and is ready to be restarted again
-        if self.is_on_backoff and self.next_retry_time < datetime.now():
+        if self.is_on_backoff and self.next_retry_time < datetime.utcnow():
             self.is_on_backoff = False
             return
 
@@ -93,7 +93,7 @@ class ProcessMonitor:
             self.crash_count += 1
             retry_delay = int(min(self.crash_count * self.BASE_DELAY,
                                   self.RETRY_DELAY_LIMIT))
-            self.next_retry_time = datetime.now() + timedelta(seconds=retry_delay)
+            self.next_retry_time = datetime.utcnow() + timedelta(seconds=retry_delay)
 
     def start(self):
         return self.process.start()

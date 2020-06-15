@@ -100,7 +100,7 @@ class Scans(ResponderBase):
 
         scan.update({
             "status": self.DEFAULT_STATUS,
-            "submit_timestamp": datetime.now()
+            "submit_timestamp": datetime.utcnow()
         })
 
         result = self.write(scan, self.COLLECTION)

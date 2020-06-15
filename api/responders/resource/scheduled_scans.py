@@ -83,7 +83,7 @@ class ScheduledScans(ResponderWithOnDelete):
 
         self.check_and_convert_datetime("scheduled_timestamp", scheduled_scan)
 
-        submit_timestamp = datetime.now()
+        submit_timestamp = datetime.utcnow()
         if not scheduled_scan.get("scheduled_timestamp"):
             if scheduled_scan["recurrence"] == ScheduledScanInterval.ONCE:
                 self.bad_request("scheduled_timestamp field is mandatory "

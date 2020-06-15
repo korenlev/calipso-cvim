@@ -253,7 +253,7 @@ class ScanManager(Manager):
         self.scheduled_scans_collection.update({'_id': doc_id}, scheduled_scan)
 
     def _prepare_scheduled_requests_for_interval(self, interval):
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         condition = {'$and': [
             {'recurrence': interval.value},
             {'scheduled_timestamp': {'$lte': now}},
@@ -310,7 +310,7 @@ class ScanManager(Manager):
                 self._fail_scan(scan_request)
                 return
 
-            scan_request['start_timestamp'] = datetime.datetime.now()
+            scan_request['start_timestamp'] = datetime.datetime.utcnow()
             scan_request['status'] = ScanStatus.RUNNING.value
             self._update_document(scan_request)
 
@@ -350,7 +350,7 @@ class ScanManager(Manager):
                 # update the status and timestamps.
                 logger.info("Request '{}' has been scanned. ({})"
                             .format(scan_request['_id'], message))
-                end_time = datetime.datetime.now()
+                end_time = datetime.datetime.utcnow()
                 scan_request['end_timestamp'] = end_time
 
                 self._complete_scan(scan_request, message)

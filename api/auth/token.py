@@ -21,18 +21,19 @@ class Token:
 
     @classmethod
     def new_uuid_token(cls, method):
-        token = {}
-        token['issued_at'] = datetime.datetime.now()
-        token['expires_at'] = token['issued_at'] +\
-                              datetime.timedelta(seconds=Token.token_lifetime)
-        token['token'] = uuid.uuid4().hex
-        token['method'] = method
+        now = datetime.datetime.utcnow()
+        token = {
+            'token': uuid.uuid4().hex,
+            'method': method,
+            'issued_at': now,
+            'expires_at': now + datetime.timedelta(seconds=Token.token_lifetime),
+        }
         return token
 
     @classmethod
     def validate_token(cls, token):
         error = None
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         if now > token['expires_at']:
             error = 'Token {0} has expired'.format(token['token'])
 

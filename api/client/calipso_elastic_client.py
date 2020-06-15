@@ -40,7 +40,7 @@ class ESIndex(object):
 
     @property
     def full_name(self):
-        return "-".join(("calipso", self.name, datetime.now().strftime("%Y.%m.%d")))
+        return "-".join(("calipso", self.name, datetime.utcnow().strftime("%Y.%m.%d")))
 
 
 INDICES = [
@@ -188,7 +188,7 @@ class ElasticClient(object):
     def dump_tree(self, env=None):
         print("Creating VEGA tree model for visualizations...")
 
-        index_name = 'calipso-tree-{}'.format(datetime.now().strftime("%Y.%m.%d"))
+        index_name = 'calipso-tree-{}'.format(datetime.utcnow().strftime("%Y.%m.%d"))
         data_list = [{
             'id': self.TREE_ROOT_ID,
             'name': "enviroments",
@@ -223,7 +223,7 @@ class ElasticClient(object):
         # self.log.info("Successfully indexed {} documents to Elasticsearch index '{}', errors: {}".format(
         #     ok, index_name, errors)
         # )
-        tree_time = datetime.now()
+        tree_time = datetime.utcnow()
         self.connection.index(index=index_name, body={'last_scanned': tree_time, 'doc': data_list},
                               id=self.TREE_DOC_ID, request_timeout=30)
         self.connection.indices.refresh(index=index_name)

@@ -233,7 +233,7 @@ def handle_scan(client, args):
                             implicit_links=args.implicit_links)
     else:
         # TODO: timezone support
-        submit_timestamp = datetime.datetime.now()
+        submit_timestamp = datetime.datetime.utcnow()
         if args.scan_at == "NOW":
             # TODO: think more about this
             scheduled_timestamp = (

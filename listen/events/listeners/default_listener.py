@@ -93,7 +93,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
             return False, None
 
     def process_event(self, body, message):
-        received_timestamp = datetime.datetime.now()
+        received_timestamp = datetime.datetime.utcnow()
         processable, event_data = self._extract_event_data(body)
         # If env listener can't process the message
         # or it's not intended for env listener to handle,
@@ -101,7 +101,7 @@ class DefaultListener(ListenerBase, ConsumerMixin):
         if processable and event_data["event_type"] in self.handler.handlers:
             event_result = self.handle_event(event_data["event_type"],
                                              event_data)
-            finished_timestamp = datetime.datetime.now()
+            finished_timestamp = datetime.datetime.utcnow()
             self.save_message(message_body=event_data,
                               result=event_result,
                               started=received_timestamp,

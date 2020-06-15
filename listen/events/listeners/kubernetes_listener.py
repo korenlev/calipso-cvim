@@ -90,14 +90,14 @@ class KubernetesListener(ListenerBase):
         self.process_vars = process_vars if process_vars is not None else {}
 
     def process_event(self, event):
-        received_timestamp = datetime.datetime.now()
+        received_timestamp = datetime.datetime.utcnow()
 
         event_type = ".".join(
             (event['object'].kind, event['type'])
         ).lower()
         result = self.handle_event(event_type=event_type, notification=event)
 
-        finished_timestamp = datetime.datetime.now()
+        finished_timestamp = datetime.datetime.utcnow()
         self.save_message(message_body=event,
                           result=result,
                           started=received_timestamp,

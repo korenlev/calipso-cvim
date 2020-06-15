@@ -156,7 +156,7 @@ class ConnectionTests(ResponderBase):
                 self.bad_request("targets_configuration should contain "
                                  "an entry for target '{}'".format(test_target))
 
-        connection_test['submit_timestamp'] = datetime.datetime.now()
+        connection_test['submit_timestamp'] = datetime.datetime.utcnow()
 
         result = self.write(connection_test, self.COLLECTION)
         response_body = {
