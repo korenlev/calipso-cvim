@@ -91,8 +91,11 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
         if isinstance(collection, str):
             collection = MongoAccess.db[collection]
         doc_id = document.pop('_id')
-        collection.update_one({'_id': doc_id}, {'$set': document},
-                              upsert=upsert)
+        collection.update_one(
+            {'_id': doc_id},
+            {'$set': MongoAccess.encode_mongo_keys(document)},
+            upsert=upsert
+        )
         document['_id'] = doc_id
 
     @staticmethod

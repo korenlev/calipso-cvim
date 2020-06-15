@@ -190,7 +190,7 @@ class ScanManager(Manager):
 
             self.environments_collection\
                 .update_one(filter={'name': scan_request.get('environment')},
-                            update={'$set': env_update_data})
+                            update={'$set': MongoAccess.encode_mongo_keys(env_update_data)})
 
     def _fail_scan(self, scan_request: dict):
         self._finalize_scan(scan_request, ScanStatus.FAILED, False)

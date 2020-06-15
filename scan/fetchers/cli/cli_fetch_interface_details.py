@@ -66,7 +66,8 @@ class CliFetchInterfaceDetails(CliFetcher):
         interface["lines"].append(line.strip())
 
     def set_interface_data(self, interface, ethtool_lines):
-        if not interface:
+        # Ethtool output shorter than 2 lines doesn't contain useful data
+        if not interface or len(ethtool_lines) <= 2:
             return
         interface["data"] = "\n".join(interface["lines"])
         interface.pop("lines", None)

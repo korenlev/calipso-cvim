@@ -17,6 +17,7 @@ from datetime import datetime
 from base.fetcher import Fetcher
 from base.utils.constants import GraphType
 from base.utils.inventory_mgr import InventoryMgr
+from base.utils.mongo_access import MongoAccess
 from base.utils.origins import Origin
 
 
@@ -304,14 +305,14 @@ class CliqueFinder(Fetcher):
                 "environment": self.env,
                 "focal_point": clique["focal_point"]
             }, {
-                '$set': clique
+                '$set': MongoAccess.encode_mongo_keys(clique)
             },
             upsert=True
         )
         clique_document = self.inventory.update_one({
                 "_id": clique["focal_point"]
             }, {
-                '$set': focal_point_obj
+                '$set': MongoAccess.encode_mongo_keys(focal_point_obj)
             },
             upsert=True
         )
@@ -347,7 +348,7 @@ class CliqueFinder(Fetcher):
             "environment": graph["environment"],
             "focal_point_id": focal_point["id"],
         }, {
-            "$set": graph
+            "$set": MongoAccess.encode_mongo_keys(graph)
         },
             upsert=True
         )
@@ -494,7 +495,7 @@ class CliqueFinder(Fetcher):
             "environment": graph["environment"],
             "type": graph["type"],
         }, {
-            "$set": graph
+            "$set": MongoAccess.encode_mongo_keys(graph)
         },
             upsert=True
         )
