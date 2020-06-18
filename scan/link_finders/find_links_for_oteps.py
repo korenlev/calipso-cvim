@@ -55,3 +55,4 @@ class FindLinksForOteps(FindLinks):
             return
         link_name = '{}-pnic-{}'.format(otep["host"], pnic["name"])
         self.link_items(otep, pnic, link_name=link_name)
+

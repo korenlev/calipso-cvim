@@ -8,8 +8,10 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import functools
+from typing import Optional
 
 from base.utils.configuration import Configuration
+from base.utils.constants import KubeVedgeType
 from base.utils.origins import Origin
 from scan.link_finders.find_links import FindLinks
 
@@ -17,21 +19,27 @@ from scan.link_finders.find_links import FindLinks
 class FindLinksForVconnectors(FindLinks):
     def __init__(self):
         super().__init__()
-        self.environment_type = None
-        self.mechanism_drivers = None
+        self.environment_type: Optional[str] = None
+        self.mechanism_drivers: Optional[list] = None
+        self.is_kubernetes_calico: bool = False
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
         self.configuration = Configuration()
         self.environment_type = self.configuration.get_env_type()
         self.mechanism_drivers = self.configuration.get_env_config().get('mechanism_drivers', [])
+        self.is_kubernetes_calico = (
+            self.environment_type == self.ENV_TYPE_KUBERNETES
+            and KubeVedgeType.CALICO.value in self.mechanism_drivers
+        )
 
     def add_links(self):
         if self.environment_type == self.ENV_TYPE_OPENSTACK:
             self.log.info('adding links of type: vnic-vconnector, '
                           'vconnector-host_pnic')
         if self.environment_type == self.ENV_TYPE_KUBERNETES:
-            self.log.info('adding links of type: vconnector-vedge')
+            self.log.info('adding links of type: vconnector-vedge,'
+                          'vconnector-host_pnic')
         vconnectors = self.inv.find_items({
             'environment': self.get_env(),
             'type': 'vconnector'
@@ -39,10 +47,10 @@ class FindLinksForVconnectors(FindLinks):
         for vconnector in vconnectors:
             for interface in vconnector["interfaces_names"]:
                 self.add_vnic_vconnector_link(vconnector, interface)
-                if self.environment_type == self.ENV_TYPE_OPENSTACK:
+                if self.environment_type == self.ENV_TYPE_OPENSTACK or self.is_kubernetes_calico:
                     self.add_vconnector_pnic_link(vconnector, interface)
             if self.environment_type == self.ENV_TYPE_KUBERNETES \
-                    and 'Flannel' in self.mechanism_drivers:
+                    and KubeVedgeType.FLANNEL.value in self.mechanism_drivers:
                 self.add_k8s_vconnector_vedge_link(vconnector)
 
     def add_vnic_vconnector_link(self, vconnector, interface_name):

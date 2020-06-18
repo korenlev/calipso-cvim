@@ -11,7 +11,6 @@ import copy
 import functools
 
 from base.utils.origins import Origin
-
 from scan.processors.processor import Processor
 
 
@@ -95,7 +94,10 @@ class ProcessVedgeType(Processor):
                 self.inv.set(vservice)
 
     def find_vnic_for_vconnector_interface(self, vconnector, interface_name):
-        ovs_or_flannel = self.configuration.has_network_plugin('OVS') or self.configuration.has_network_plugin('Flannel')
+        ovs_or_flannel = (
+            self.configuration.has_network_plugin('OVS')
+            or self.configuration.has_network_plugin('Flannel')
+        )
         if ovs_or_flannel:
             # interface ID for OVS
             search_func = functools.partial(self.inv.get_by_field,
@@ -150,5 +152,5 @@ class ProcessVedgeType(Processor):
         vnics = self.find_by_type("vnic")
         for vnic in vnics:
             if not vnic.get('vedge_type'):
-                vnic['vedge_type'] = 'unknown'
+                vnic['vedge_type'] = 'Unknown'
                 self.inv.set(vnic)

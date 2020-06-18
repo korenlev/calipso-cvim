@@ -7,9 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-from base.utils.util import ClassResolver
-
 from base.utils.metadata_parser import MetadataParser
+from base.utils.util import ClassResolver
 
 
 class ProcessorsMetadataParser(MetadataParser):

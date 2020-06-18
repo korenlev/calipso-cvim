@@ -310,7 +310,8 @@
             "OVS",
             "LXB",
             "Flannel",
-            "VPP"
+            "VPP",
+            "Calico"
           ]
         },
         "fetcher": "CliFetchHostPnics",
@@ -327,8 +328,8 @@
           "environment_type": ["OpenStack", "Kubernetes"]
         },
         "environment_restriction": {
-          "distribution": ["Mercury"],
-          "mechanism_drivers": ["OVS"]
+          "distribution": ["Mercury", "Kubernetes"],
+          "mechanism_drivers": ["OVS", "LXB", "Flannel", "Calico"]
         },
         "children_scanner": "ScanHostPnic"
       },
@@ -337,8 +338,8 @@
         "fetcher": "CliFetchTeamHostPnics",
         "environment_condition": {
           "environment_type": ["OpenStack", "Kubernetes"],
-          "distribution": ["Mercury"],
-          "mechanism_drivers": ["OVS"]
+          "distribution": ["Mercury", "Kubernetes"],
+          "mechanism_drivers": ["OVS", "LXB", "Flannel", "Calico"]
         },
         "children_scanner": "ScanHostPnic"
       }
@@ -413,7 +414,7 @@
         "type": "vconnector",
         "environment_condition": {
           "environment_type": ["OpenStack", "Kubernetes"],
-          "mechanism_drivers": ["OVS", "Flannel"]
+          "mechanism_drivers": ["OVS", "Flannel", "Calico"]
         },
         "fetcher": "CliFetchVconnectorsOvs"
       },
@@ -542,9 +543,9 @@
         "fetcher": "KubeFetchVedges",
         "environment_condition": {
           "environment_type": "Kubernetes",
-          "mechanism_drivers": "Flannel"
+          "mechanism_drivers": ["Flannel", "Calico"]
         },
-        "children_scanner": "ScanVedge"
+        "children_scanner": "ScanKubeVedge"
       },
       {
         "type": "vedge",
@@ -553,7 +554,7 @@
           "environment_type": "Kubernetes",
           "mechanism_drivers": "VPP"
         },
-        "children_scanner": "ScanVedge"
+        "children_scanner": "ScanKubeVedge"
       },
       {
         "type": "network",
@@ -573,7 +574,8 @@
           "mechanism_drivers": [
             "OVS",
             "LXB",
-            "Flannel"
+            "Flannel",
+            "Calico"
           ]
         },
         "children_scanner": "ScanPnicsRoot"
@@ -595,6 +597,14 @@
         "environment_condition": {
           "environment_type": "Kubernetes",
           "mechanism_drivers": "Flannel"
+        }
+      },
+      {
+        "type": "vnic",
+        "fetcher": "KubeFetchVnicsCalico",
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": "Calico"
         }
       },
       {
@@ -683,7 +693,7 @@
         "environment_condition": {"environment_type": "Kubernetes"}
       }
     ],
-    "ScanVedge": [
+    "ScanKubeVedge": [
       {
         "type": "otep",
         "fetcher": "KubeFetchOtepsFlannel",
@@ -700,6 +710,14 @@
           "mechanism_drivers": "VPP"
         },
         "children_scanner": "ScanVedgePnicsRoot"
+      },
+      {
+        "type": "otep",
+        "fetcher": "KubeFetchOtepsCalico",
+        "environment_condition": {
+          "environment_type": "Kubernetes",
+          "mechanism_drivers": "Calico"
+        }
       }
     ]
   }

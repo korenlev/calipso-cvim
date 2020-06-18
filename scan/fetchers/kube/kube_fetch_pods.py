@@ -16,6 +16,37 @@ from scan.fetchers.kube.kube_access import KubeAccess
 
 class KubeFetchPods(KubeAccess, CliFetcher):
 
+    METADATA_ATTRIBUTES_TO_FETCH = [
+        'annotations',
+        'cluster_name',
+        'labels',
+        'name',
+        'namespace',
+        'owner_references',
+        'uid',
+    ]
+    DATA_ATTRIBUTES_TO_FETCH = [
+        'containers',
+        'dns_policy',
+        'node_name',
+        'scheduler_name',
+        'termination_grace_period_seconds',
+        'tolerations',
+        'volumes'
+    ]
+    STATUS_ATTRIBUTES_TO_FETCH = [
+        'conditions',
+        'container_statuses',
+        'host_ip',
+        'init_container_statuses',
+        'message',
+        'phase',
+        'pod_ip',
+        'qos_class',
+        'reason',
+        'start_time'
+    ]
+
     def __init__(self, config=None):
         super().__init__(config)
         self.k8s_host = None
@@ -56,9 +87,10 @@ class KubeFetchPods(KubeAccess, CliFetcher):
                 {'name': 'kube-proxy'}
             ]
         }
-        self.set_folder_parent(doc, object_type='pod',
-                                    master_parent_type='host',
-                                    master_parent_id=self.k8s_host['id'])
+        self.set_folder_parent(doc,
+                               object_type='pod',
+                               master_parent_type='host',
+                               master_parent_id=self.k8s_host['id'])
         doc['type'] = 'pod'
         self.add_pod_ref_to_namespace(doc)
         return doc
@@ -78,74 +110,36 @@ class KubeFetchPods(KubeAccess, CliFetcher):
     @classmethod
     def get_pod_details(cls, pod: V1Pod):
         doc = {}
-        try:
-            cls.get_pod_metadata(doc, pod.metadata)
-        except AttributeError:
-            pass
-        try:
-            cls.get_pod_data(doc, pod.spec)
-        except AttributeError:
-            pass
-        try:
-            cls.get_pod_status(doc, pod.status)
-        except AttributeError:
-            pass
+        cls.get_pod_metadata(doc, pod.metadata)
+        cls.get_pod_data(doc, pod.spec)
+        cls.get_pod_status(doc, pod.status)
         return doc
 
-    @staticmethod
-    def get_pod_metadata(doc: dict, metadata: V1ObjectMeta):
-        attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels',
-                 'owner_references', 'namespace']
-        for attr in attrs:
-            try:
-                val = getattr(metadata, attr)
-                if val is not None:
-                    doc[attr] = val
-            except AttributeError:
-                pass
-        doc['id'] = doc['uid']
+    @classmethod
+    def get_pod_metadata(cls, doc: dict, metadata: V1ObjectMeta):
+        for attr in cls.METADATA_ATTRIBUTES_TO_FETCH:
+            val = getattr(metadata, attr, None)
+            if val is not None:
+                doc[attr] = val
+        doc['id'] = doc.get('uid')
 
-    ATTRIBUTES_TO_FETCH = [
-        'containers',
-        'node_name',
-        'scheduler_name',
-        'dns_policy',
-        'termination_grace_period_seconds',
-        'tolerations',
-        'volumes'
-    ]
-
-    @staticmethod
-    def get_pod_data(doc: dict, spec: V1PodSpec):
-        for attr in KubeFetchPods.ATTRIBUTES_TO_FETCH:
-            try:
-                val = getattr(spec, attr)
+    @classmethod
+    def get_pod_data(cls, doc: dict, spec: V1PodSpec):
+        for attr in cls.DATA_ATTRIBUTES_TO_FETCH:
+            val = getattr(spec, attr, None)
+            if val:
                 KubeAccess.del_attribute_map(val)
                 doc[attr] = val
-            except AttributeError:
-                pass
 
-    @staticmethod
-    def get_pod_status(doc: dict, pod_status: V1PodStatus):
+    @classmethod
+    def get_pod_status(cls, doc: dict, pod_status: V1PodStatus):
         status_data = {}
         for k in dir(pod_status):
-            if k.startswith('_'):
+            if k.startswith('_') or k not in cls.STATUS_ATTRIBUTES_TO_FETCH:
                 continue
-            if k not in [
-                    'conditions',
-                    'container_statuses',
-                    'host_ip',
-                    'init_container_statuses',
-                    'message', 'phase',
-                    'pod_ip', 'qos_class', 'reason', 'start_time']:
-                continue
-            try:
-                val = getattr(pod_status, k)
-                if val is None:
-                    continue
+            val = getattr(pod_status, k, None)
+            if val is not None:
                 status_data[k] = val
-            except AttributeError:
-                pass
         if status_data:
             doc['pod_status'] = status_data
 

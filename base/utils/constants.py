@@ -113,3 +113,10 @@ NETWORK_AGENT_TYPES = {
     "vpn": NetworkAgentType(folder_text="VPNs", description="VPN agent"),
 }
 MISC_AGENT_TYPE = NetworkAgentType(folder_text="Misc. services", description="Miscellaneous")
+
+
+class KubeVedgeType(StringEnum):
+    FLANNEL = "Flannel"
+    CALICO = "Calico"
+    VPP = "VPP"
+

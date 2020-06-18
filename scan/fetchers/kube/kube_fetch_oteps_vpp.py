@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from base.utils.constants import KubeVedgeType
 from scan.fetchers.kube.kube_fetch_oteps_base import KubeFetchOtepsBase
 
 
@@ -36,7 +37,8 @@ class KubeFetchOtepsVpp(KubeFetchOtepsBase):
             'overlay_type': overlay_type,
             'overlay_mac_address': otep_mac,
             'ports': self.get_ports(host['name'], ip_address, overlay_type),
-            'udp_port': self.OTEP_UDP_PORT
+            'udp_port': self.OTEP_UDP_PORT,
+            'vedge_type': KubeVedgeType.VPP.value
         }
         return [doc]
 

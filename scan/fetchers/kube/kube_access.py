@@ -56,7 +56,10 @@ class KubeAccess(ApiAccessBase):
         else:
             for attr in ['attribute_map', 'swagger_types']:
                 if hasattr(o, attr):
-                    delattr(o, attr)
+                    try:
+                        delattr(o, attr)
+                    except AttributeError:
+                        pass
 
     def update_resource_version(self, method: str,
                                 resource_version):

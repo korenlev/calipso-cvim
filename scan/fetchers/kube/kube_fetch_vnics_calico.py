@@ -10,23 +10,32 @@
 from base.fetcher import Fetcher
 
 
-class KubeFetchVnicsFlannel(Fetcher):
+class KubeFetchVnicsCalico(Fetcher):
+    CALICO_INTERFACE_PREFIX = 'cali'
+
     def get(self, host_id: str) -> list:
         host = self.inv.get_by_id(self.get_env(), host_id)
         if not host:
             self.log.error('Failed to find host {}', host_id)
             return []
-        interfaces = [i for i in host['interfaces'] if i['id'].startswith('veth')]
-        ret = []
-        for interface in interfaces:
-            ret.append(self.process_interface(host_id, interface))
-        return ret
 
-    def process_interface(self, host_id, interface_details) -> dict:
-        interface = dict(vnic_type='container_vnic', host=host_id,
-                         containers=[])
-        interface['id'] = '{}|{}'.format(host_id, interface_details.pop('id'))
-        interface.update(interface_details)
+        interfaces = [
+            i for i in host['interfaces']
+            if i['id'].startswith(self.CALICO_INTERFACE_PREFIX)
+        ]
+        return [
+            self.process_interface(host_id=host_id, interface_details=interface)
+            for interface in interfaces
+        ]
+
+    def process_interface(self, host_id: str, interface_details: dict) -> dict:
+        interface = {
+            'id': '{}|{}'.format(host_id, interface_details.pop('id')),
+            'vnic_type': 'container_vnic',
+            'host': host_id,
+            'containers': [],
+            **interface_details
+        }
         self.set_folder_parent(interface, 'vnic',
                                master_parent_type='host',
                                master_parent_id=host_id,

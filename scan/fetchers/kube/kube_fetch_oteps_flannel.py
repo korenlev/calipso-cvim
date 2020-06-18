@@ -9,6 +9,7 @@
 ###############################################################################
 import json
 
+from base.utils.constants import KubeVedgeType
 from scan.fetchers.kube.kube_fetch_oteps_base import KubeFetchOtepsBase
 
 
@@ -43,7 +44,8 @@ class KubeFetchOtepsFlannel(KubeFetchOtepsBase):
             'overlay_type': overlay_type,
             'overlay_mac_address': otep_mac,
             'ports': self.get_ports(host['name'], ip_address, overlay_type),
-            'udp_port': self.OTEP_UDP_PORT
+            'udp_port': self.OTEP_UDP_PORT,
+            'vedge_type': KubeVedgeType.FLANNEL.value
         }
         return [doc]
 

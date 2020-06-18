@@ -57,7 +57,7 @@ class KubeFetchVnicsVpp(CliFetcher):
                          ip_address=details[1], host=host_id)
         if not interface['name'].startswith('tap'):
             return dict()
-        interface['id'] = '{}-{}'.format(host_id, interface['name'])
+        interface['id'] = '{}|{}'.format(host_id, interface['name'])
         self.set_folder_parent(interface, object_type='vnic',
                                master_parent_type='host',
                                master_parent_id=host_id,

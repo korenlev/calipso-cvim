@@ -2,12 +2,15 @@
   "processors_package": "scan.processors",
   "base_processor": "Processor",
   "processors": [
+    "ProcessCalicoVedges",
+    "ProcessKubeOteps",
     "ProcessVedgeType",
     "ProcessVnicCount",
+    "ProcessRegionsMetros",
+    "ProcessInventorySchema",
+
     "ProcessInventoryChildrenTree",
     "ProcessInventoryForceTree",
-    "ProcessInventoryVegaTree",
-    "ProcessInventorySchema",
-    "ProcessRegionsMetros"
+    "ProcessInventoryVegaTree"
   ]
 }

@@ -7,7 +7,10 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from typing import Optional
+
 from base.utils.configuration import Configuration
+from base.utils.constants import KubeVedgeType
 from base.utils.origins import Origin
 from scan.link_finders.find_links import FindLinks
 
@@ -15,9 +18,11 @@ from scan.link_finders.find_links import FindLinks
 class FindLinksForVedges(FindLinks):
     def __init__(self):
         super().__init__()
-        self.environment_type = None
-        self.mechanism_drivers = None
-        self.is_kubernetes_vpp = None
+        self.environment_type: Optional[str] = None
+        self.mechanism_drivers: Optional[list] = None
+        self.is_kubernetes_vpp: bool = False
+        self.is_kubernetes_calico: bool = False
+        self.is_kubernetes_flannel: bool = False
 
     def setup(self, env, origin: Origin = None):
         super().setup(env, origin)
@@ -25,8 +30,16 @@ class FindLinksForVedges(FindLinks):
         self.environment_type = self.configuration.get_env_type()
         self.mechanism_drivers = self.configuration.environment.get('mechanism_drivers', [])
         self.is_kubernetes_vpp = (
-                self.environment_type == self.ENV_TYPE_KUBERNETES
-                and 'VPP' in self.mechanism_drivers
+            self.environment_type == self.ENV_TYPE_KUBERNETES
+            and KubeVedgeType.VPP.value in self.mechanism_drivers
+        )
+        self.is_kubernetes_calico = (
+            self.environment_type == self.ENV_TYPE_KUBERNETES
+            and KubeVedgeType.CALICO.value in self.mechanism_drivers
+        )
+        self.is_kubernetes_flannel = (
+            self.environment_type == self.ENV_TYPE_KUBERNETES
+            and KubeVedgeType.FLANNEL.value in self.mechanism_drivers
         )
 
     def add_links(self):
@@ -36,21 +49,26 @@ class FindLinksForVedges(FindLinks):
             "type": "vedge"
         })
         for vedge in vedges:
-            if self.environment_type == self.ENV_TYPE_OPENSTACK or self.is_kubernetes_vpp:
+            if (
+                    self.environment_type == self.ENV_TYPE_OPENSTACK
+                    or self.is_kubernetes_vpp
+                    or self.is_kubernetes_calico
+            ):
                 ports = vedge.get("ports", [])
                 for p in ports:
                     self.add_links_for_vedge_port(vedge, p)
-            elif self.environment_type == self.ENV_TYPE_KUBERNETES:
+
+            if self.environment_type == self.ENV_TYPE_KUBERNETES:
                 self.add_link_for_kubernetes_vedge(vedge)
 
     def add_links_for_vedge_port(self, vedge, port):
-
         vnic = self.find_matching_vnic(vedge, port)
         if vnic:
             link_name = vnic["name"] + "-" + vedge["name"]
             if "tag" in port:
                 link_name += "-" + port["tag"]
             source_label = vnic["mac_address"]
+            target_label = ''
             if vedge["vedge_type"] == "SRIOV":
                 for vf in port["VFs"]:
                     if vf["mac_address"] == vnic["mac_address"]:
@@ -70,22 +88,21 @@ class FindLinksForVedges(FindLinks):
     def find_matching_vnic(self, vedge, port):
         # link_type: "vnic-vedge"
         vnic = None
-        if self.environment_type != self.ENV_TYPE_KUBERNETES:
-            if vedge["vedge_type"] == "SRIOV":
-                for vf in port["VFs"]:
-                    vf_mac = vf.get("mac_address")
-                    if not vf_mac or vf_mac == "00:00:00:00:00:00":
-                        continue
-                    vnic = self.inv.find_one({
-                        "environment": self.get_env(),
-                        "type": "vnic",
-                        "host": vedge["host"],
-                        "mac_address": vf_mac
-                    })
-                    if vnic:
-                        break
-            else:
-                vnic = self.inv.get_by_id(self.get_env(), '|'.join((vedge['host'], port["name"].replace("/", "."))))
+        if vedge["vedge_type"] == "SRIOV":
+            for vf in port["VFs"]:
+                vf_mac = vf.get("mac_address")
+                if not vf_mac or vf_mac == "00:00:00:00:00:00":
+                    continue
+                vnic = self.inv.find_one({
+                    "environment": self.get_env(),
+                    "type": "vnic",
+                    "host": vedge["host"],
+                    "mac_address": vf_mac
+                })
+                if vnic:
+                    break
+        else:
+            vnic = self.inv.get_by_id(self.get_env(), '|'.join((vedge['host'], port["name"].replace("/", "."))))
         return vnic
 
     def add_link_for_vconnector(self, vedge, port):
@@ -164,15 +181,27 @@ class FindLinksForVedges(FindLinks):
                         extra_attributes=attributes)
 
     def add_link_for_kubernetes_vedge(self, vedge):
-        # link_type: 'vedge-otep'
-        host_ip = vedge.get('status', {}).get('host_ip', '')
-        otep = self.inv.find_one({
-            'environment': self.get_env(),
-            'type': 'otep',
-            'ip_address': host_ip
-        })
+        otep = {}
+        link_name = ''
+        # link_type: 'vedge-otep' for flannel case
+        if self.is_kubernetes_flannel:
+            host_ip = vedge.get('pod_status', {}).get('host_ip', '')
+            otep = self.inv.find_one({
+                'environment': self.get_env(),
+                'type': 'otep',
+                'ip_address': host_ip
+            })
+            link_name = '{}-{}'.format(vedge['object_name'], otep.get('overlay_mac_address', 'Unknown'))
+        # link_type: 'vedge-otep' for calico case
+        elif self.is_kubernetes_calico:
+            ip_address = vedge.get('ip_address')
+            otep = self.inv.find_one({
+                'environment': self.get_env(),
+                'type': 'otep',
+                'ip_address': ip_address
+            })
+            link_name = '{}-{}'.format(vedge['object_name'], otep.get('tunnel_address', 'Unknown'))
+
         if not otep:
             return
-        link_name = '{}-{}'.format(vedge['object_name'],
-                                   otep['overlay_mac_address'])
         self.link_items(vedge, otep, link_name=link_name)

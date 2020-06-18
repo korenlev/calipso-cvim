@@ -20,6 +20,8 @@ class ProcessRegionsMetros(Processor):
         env_doc = self.inv.find_one({"name": self.env}, collection=self.COLLECTION)
         cvim_region = env_doc.get('cvim_region')
         cvim_metro = env_doc.get('cvim_metro')
+        if not cvim_region and not cvim_metro:
+            return
 
         docs = self.inv.find_items({"environment": self.env})
 
