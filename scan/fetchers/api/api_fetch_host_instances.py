@@ -48,7 +48,7 @@ class ApiFetchHostInstances(ApiAccess, HostTypeValidator):
     def get(self, parent_id):
         self.get_projects()
         host_id = parent_id[:parent_id.rindex("-")]
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         instances_found = self.get_instances_from_api(host_id)

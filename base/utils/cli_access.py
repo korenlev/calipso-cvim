@@ -35,12 +35,29 @@ class CliAccess:
         self.ssh_connection = SshTunnelConnection(master_host_details=MasterHostDetails.from_configuration())
         self.log = ConsoleLogger(name="CliAccess", level=self.LOG_LEVEL)
 
-    def run(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-            use_sudo: bool = True, use_ssh_key: bool = True, log_errors: bool = True):
+    def get_host_route(self, host_id: str) -> str:
+        """
+            To be overridden in subclasses
+        :param host_id: host id/name to lookup route for
+        :return: routable ip or hostname
+        """
+        return host_id
+
+    def run(self, cmd: str, ssh_to_host: str = "", find_route_to_host: bool = True,
+            enable_cache: bool = True, use_sudo: bool = True, use_ssh_key: bool = True,
+            log_errors: bool = True):
         commands = self.adapt_cmd_to_env(cmd=cmd, use_sudo=use_sudo)
         out = ''
+
+        if find_route_to_host and ssh_to_host:
+            host_route = self.get_host_route(host_id=ssh_to_host)
+            if not host_route:
+                return ""
+        else:
+            host_route = ssh_to_host
+
         for c in commands:
-            ret = self.run_single_command(cmd=c, ssh_to_host=ssh_to_host, enable_cache=enable_cache)
+            ret = self.run_single_command(cmd=c, ssh_to_host=host_route, enable_cache=enable_cache)
             out += ret if ret is not None else ''
         return out
 
@@ -64,10 +81,12 @@ class CliAccess:
         self.cached_commands[cmd_path] = {"timestamp": curr_time, "result": ret}
         return ret
 
-    def run_fetch_lines(self, cmd: str, ssh_to_host: str = "", enable_cache: bool = True,
-                        use_sudo: bool = True, use_ssh_key: bool = True, log_errors: bool = True):
-        out = self.run(cmd=cmd, ssh_to_host=ssh_to_host, enable_cache=enable_cache,
-                       use_sudo=use_sudo, use_ssh_key=use_ssh_key, log_errors=log_errors)
+    def run_fetch_lines(self, cmd: str, ssh_to_host: str = "", find_route_to_host: bool = True,
+                        enable_cache: bool = True, use_sudo: bool = True, use_ssh_key: bool = True,
+                        log_errors: bool = True):
+        out = self.run(cmd=cmd, ssh_to_host=ssh_to_host, find_route_to_host=find_route_to_host,
+                       enable_cache=enable_cache, use_sudo=use_sudo, use_ssh_key=use_ssh_key,
+                       log_errors=log_errors)
         if not out:
             return []
         # first try to split lines by whitespace

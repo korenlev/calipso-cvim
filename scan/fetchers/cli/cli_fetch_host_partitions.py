@@ -21,7 +21,7 @@ class CliFetchHostPartitions(CliFetcher, HostTypeValidator):
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex("-")]
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         part_lines = self.run_fetch_lines(self.PARTS_CMD, ssh_to_host=host_id)

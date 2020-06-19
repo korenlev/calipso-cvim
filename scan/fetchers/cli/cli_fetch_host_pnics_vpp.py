@@ -35,7 +35,7 @@ class CliFetchHostPnicsVpp(CliFetcher, HostTypeValidator):
     def get(self, parent_id):
         # Assume the parent id is in format <host>-<vedge>-host_pnics
         host_id = "-".join(parent_id.split("-")[:-2])
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         vedges = self.inv.find_items({

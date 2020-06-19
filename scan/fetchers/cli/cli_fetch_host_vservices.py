@@ -19,7 +19,7 @@ class CliFetchHostVservices(CliFetchHostVservice, HostTypeValidator):
         super(CliFetchHostVservices, self).__init__()
 
     def get(self, host_id):
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         services_ids = [l[:l.index(' ')] if ' ' in l else l

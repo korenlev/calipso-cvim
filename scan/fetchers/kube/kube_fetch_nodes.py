@@ -63,7 +63,7 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
         except AttributeError:
             pass
         doc['interfaces'] = self.get_host_interfaces(doc)
-        self.fetch_host_os_details(doc)
+        self.update_host_os_details(doc)
         return doc
 
     @staticmethod

@@ -17,7 +17,7 @@ class CliFetchVedgesVpp(CliFetcher, HostTypeValidator):
 
     def get(self, parent_id) -> list:
         host_id = parent_id.replace('-vedges', '')
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         vedge = {

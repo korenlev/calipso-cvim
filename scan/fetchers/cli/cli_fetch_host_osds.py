@@ -21,8 +21,8 @@ class CliFetchHostOsds(CliFetcher, HostTypeValidator):
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex("-")]
-        host = self.inv.get_by_id(self.get_env(), host_id)
-        if not host or not self.validate_host(host_id):
+        host = self.get_and_validate_host(host_id)
+        if not host:
             return []
 
         host_osds = host.get('ceph_osds', [])

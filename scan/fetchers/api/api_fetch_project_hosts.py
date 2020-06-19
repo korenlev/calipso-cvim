@@ -56,7 +56,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         if mgmt_ip:
             # TODO: revise mgmt node region?
             region = list(self.regions.values())[0]["id"] if self.regions else "unknown"
-            mgmt_node_doc = self.get_mgmt_node_details(mgmt_ip=mgmt_ip, parent_id=region)
+            mgmt_node_doc = self.fetch_mgmt_node_details(mgmt_ip=mgmt_ip, parent_id=region)
             if mgmt_node_doc:
                 ret.append(mgmt_node_doc)
 
@@ -165,7 +165,7 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
             s = services["nova-compute"]
             if s["available"] and s["active"]:
                 self.add_host_type(host_doc, HostType.COMPUTE.value, az['zoneName'])
-        self.fetch_host_os_details(host_doc)
+        self.update_host_os_details(host_doc)
         return host_doc
 
     def fetch_host_resources(self, host):
@@ -251,22 +251,31 @@ class ApiFetchProjectHosts(ApiAccess, DbAccess, CliFetchHostDetails):
         if response is not None:
             nodes = response["nodes"]
             ports = []
+
             for node in nodes:
                 ironic_instances.append(node)
                 ports_url = "{}/v1/nodes/{}/ports".format(self.ironic_endpoint, node["uuid"])
                 ports_resp = self.get_url(ports_url, {"X-Auth-Token": self.token["id"]})
                 if ports_resp is not None:
                     ports = ports_resp["ports"]
+
             for ironic in ironic_instances:
-                ironic.update({"id": ironic["uuid"], "ports": ports,
-                               "name": "ironic-{}".format(ironic["uuid"]),
-                               "host_type": [HostType.BAREMETAL.value],
-                               "host": "host-{}".format(ironic["uuid"]),
-                               "zone": "ironic",
-                               "services": {"ironic-compute": {"created_at": ironic["created_at"],
-                                                               "updated_at": ironic["updated_at"]}},
-                               "OS": {"name": "Red Hat Enterprise Linux Server"}
-                               })
+                ironic.update({
+                    "id": ironic["uuid"],
+                    "ports": ports,
+                    "name": "ironic-{}".format(ironic["uuid"]),
+                    "host_type": [HostType.BAREMETAL.value],
+                    "host": "host-{}".format(ironic["uuid"]),
+                    "zone": "ironic",
+                    "services": {
+                        "ironic-compute": {
+                            "created_at": ironic["created_at"],
+                            "updated_at": ironic["updated_at"]
+                        }
+                    },
+                    "OS": {"name": "Red Hat Enterprise Linux Server"},
+                    "ironic": True
+                })
                 for e in ["links", "uuid"]:
-                    ironic.pop(e)
+                    del ironic[e]
         return ironic_instances

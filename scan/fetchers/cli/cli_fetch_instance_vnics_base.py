@@ -38,7 +38,7 @@ class CliFetchInstanceVnicsBase(CliFetcher, HostTypeValidator):
         if not instance:
             return []
 
-        if not self.validate_host(instance["host"]):
+        if not self.get_and_validate_host(instance["host"]):
             return []
 
         if instance["host"] not in self.ports:

@@ -39,15 +39,15 @@ class TestApiFetchProjectHosts(TestFetch):
                                                                "type in host_type")
 
     def test_add_host_type_with_existent_host_type(self):
-        fetch_host_os_details = self.fetcher.fetch_host_os_details
-        self.fetcher.fetch_host_os_details = MagicMock()
+        fetch_host_os_details = self.fetcher.update_host_os_details
+        self.fetcher.update_host_os_details = MagicMock()
         # add nonexistent host type to host type
         HOST_DOC["host_type"] = [NONEXISTENT_TYPE]
         # try to add existing host type
         self.fetcher.add_host_type(HOST_DOC, NONEXISTENT_TYPE, HOST_ZONE)
         self.assertEqual(len(HOST_DOC['host_type']), 1,
                          "Add duplicate host type")
-        self.fetcher.fetch_host_os_details = fetch_host_os_details
+        self.fetcher.update_host_os_details = fetch_host_os_details
 
     def test_add_compute_host_type(self):
         doc = copy.deepcopy(HOST_DOC)
@@ -86,24 +86,24 @@ class TestApiFetchProjectHosts(TestFetch):
 
     def test_get_host_details(self):
         # test node have nova-conductor attribute, controller type will be added
-        fetch_host_os_details = self.fetcher.fetch_host_os_details
-        self.fetcher.fetch_host_os_details = MagicMock()
+        fetch_host_os_details = self.fetcher.update_host_os_details
+        self.fetcher.update_host_os_details = MagicMock()
         result = self.fetcher.get_host_details(AVAILABILITY_ZONE, HOST_NAME)
         self.assertIn("Controller", result['host_type'], "Can't put controller type " +
                                                          "in the compute node host_type")
-        self.fetcher.fetch_host_os_details = fetch_host_os_details
+        self.fetcher.update_host_os_details = fetch_host_os_details
 
     def test_get_hosts_from_az(self):
-        fetch_host_os_details = self.fetcher.fetch_host_os_details
-        self.fetcher.fetch_host_os_details = MagicMock()
+        fetch_host_os_details = self.fetcher.update_host_os_details
+        self.fetcher.update_host_os_details = MagicMock()
         result = self.fetcher.get_hosts_from_az(AVAILABILITY_ZONE)
         self.assertNotEqual(result, [], "Can't get hosts information from "
                                         "availability zone")
-        self.fetcher.fetch_host_os_details = fetch_host_os_details
+        self.fetcher.update_host_os_details = fetch_host_os_details
 
     def test_get_for_region(self):
-        fetch_host_os_details = self.fetcher.fetch_host_os_details
-        self.fetcher.fetch_host_os_details = MagicMock()
+        fetch_host_os_details = self.fetcher.update_host_os_details
+        self.fetcher.update_host_os_details = MagicMock()
         # mock region url for nova node
         self.fetcher.get_region_url = MagicMock(return_value=REGION_URL)
         # mock the response from OpenStack Api
@@ -112,7 +112,7 @@ class TestApiFetchProjectHosts(TestFetch):
 
         result = self.fetcher.get_for_region(self.region, TOKEN)
         self.assertNotEqual(result, [], "Can't get hosts information for region")
-        self.fetcher.fetch_host_os_details = fetch_host_os_details
+        self.fetcher.update_host_os_details = fetch_host_os_details
 
     def test_get_for_region_without_token(self):
         self.fetcher.get_region_url = MagicMock(return_value=REGION_URL)
@@ -129,8 +129,8 @@ class TestApiFetchProjectHosts(TestFetch):
         self.assertEqual(result, [], "Can't get [] when the response is wrong")
 
     def test_get_for_region_with_error_hypervisors_response(self):
-        fetch_host_os_details = self.fetcher.fetch_host_os_details
-        self.fetcher.fetch_host_os_details = MagicMock()
+        fetch_host_os_details = self.fetcher.update_host_os_details
+        self.fetcher.update_host_os_details = MagicMock()
         self.fetcher.get_region_url = MagicMock(return_value=REGION_URL)
         # mock error hypervisors response from OpenStack Api
         side_effect = [AVAILABILITY_ZONE_RESPONSE, HYPERVISORS_ERROR_RESPONSE]
@@ -139,7 +139,7 @@ class TestApiFetchProjectHosts(TestFetch):
         result = self.fetcher.get_for_region(self.region, TOKEN)
         self.assertNotEqual(result, [], "Can't get hosts information when " +
                                         "the hypervisors response is wrong")
-        self.fetcher.fetch_host_os_details = fetch_host_os_details
+        self.fetcher.update_host_os_details = fetch_host_os_details
 
     def test_get(self):
         original_method = self.fetcher.get_for_region
@@ -164,7 +164,7 @@ class TestApiFetchProjectHosts(TestFetch):
         original_method = self.fetcher.run
         self.fetcher.run = MagicMock(return_value=OS_DETAILS_INPUT)
         doc = {'host': 'host1'}
-        self.fetcher.fetch_host_os_details(doc)
+        self.fetcher.update_host_os_details(doc)
         self.assertEqual(doc.get('OS', {}), OS_DETAILS)
         self.fetcher.run = original_method
 

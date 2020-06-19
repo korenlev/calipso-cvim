@@ -28,6 +28,6 @@ class CliFetchVconnectors(CliFetcher, HostTypeValidator, metaclass=ABCSingleton)
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex('-')]
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
         return self.get_vconnectors(host_id)

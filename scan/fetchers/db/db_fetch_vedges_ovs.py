@@ -27,7 +27,7 @@ class DbFetchVedgesOvs(DbAccess, CliFetcher, HostTypeValidator):
 
     def get(self, parent_id):
         host_id = parent_id[:parent_id.rindex('-')]
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         results = self.get_objects_list_for_id(

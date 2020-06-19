@@ -23,7 +23,7 @@ class CliFetchVserviceVnicsVpp(CliFetchVserviceVnics):
         self.vpp_interfaces = {}
 
     def get(self, host_id):
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         if host_id not in self.vpp_interfaces:

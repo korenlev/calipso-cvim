@@ -24,7 +24,7 @@ class CliFetchBondHostPnics(CliFetcher, HostTypeValidator):
         self.log.info('CliFetchBondHostPnics: checking under {}'
                       .format(parent_id))
         host_id = parent_id[:parent_id.rindex('-')]
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
 
         cmd = 'ls -1 {} 2>&1'.format(self.BOND_DIR)

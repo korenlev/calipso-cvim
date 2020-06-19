@@ -49,8 +49,12 @@ class CliFetchHostDetails(CliFetcher):
         "INTEL_SRIOV_VFS": "sriov_vfs"
     }
 
-    def fetch_host_os_details(self, doc: dict) -> None:
-        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=doc['host'], raise_errors=False)
+    def update_host_os_details(self, host_doc: dict) -> None:
+        # This method is often called prior to host document insertion in DB,
+        # so CliFetcher may have no idea how to resolve host yet
+        lines = self.run_fetch_lines(self.OS_DETAILS_CMD, ssh_to_host=host_doc['host'],
+                                     find_route_to_host=False,
+                                     raise_errors=False)
         if not lines:
             return
 
@@ -69,7 +73,7 @@ class CliFetchHostDetails(CliFetcher):
                 attr_name = attributes_to_fetch[attr]
                 os_attributes[attr_name] = line[line.index('=')+1:].strip('"')
         if os_attributes:
-            doc['OS'] = os_attributes
+            host_doc['OS'] = os_attributes
 
     def fetch_storage_hosts_details(self, ret: list, region: str) -> list:
         node_ls_response = self.run_fetch_json_response(self.CEPH_NODE_LS_CMD)
@@ -132,55 +136,55 @@ class CliFetchHostDetails(CliFetcher):
                     'zone': 'unknown',
                     'host_type': [HostType.STORAGE.value]}
                 host.update(ceph_details)
-                self.fetch_host_os_details(host)
+                self.update_host_os_details(host)
                 ret.append(host)
         return ret
 
-    def get_mgmt_node_details(self, mgmt_ip: str, parent_id: str) -> Optional[dict]:
+    def fetch_mgmt_node_details(self, mgmt_ip: str, parent_id: str) -> Optional[dict]:
+        hostname = self.get_hostname(host_ip=mgmt_ip)
         host_doc = {
-            "id": mgmt_ip,
-            "host": mgmt_ip,
-            "name": self.get_hostname(ip_address=mgmt_ip),
+            "id": hostname,
+            "host": hostname,
+            "name": hostname,
             "zone": "unknown",
             "parent_type": "region",
             "parent_id": parent_id,
             "host_type": [HostType.MANAGEMENT.value],
             "ip_address": mgmt_ip,
+            "management_node": True
         }
-        # TODO: verify object_name
-        self.fetch_host_os_details(doc=host_doc)
-        self.fetch_setup_data_details(doc=host_doc)
-
-        # TODO: discover pnics here?
-
+        self.update_host_os_details(host_doc=host_doc)
+        host_doc["cvim_details"] = self.fetch_setup_data_details(host_ip=mgmt_ip)
         return host_doc
 
-    def get_hostname(self, ip_address: str = "") -> str:
+    def get_hostname(self, host_ip: str = "") -> str:
         """
             Fetch host name by ip address
-        :param ip_address: IP of target host
+        :param host_ip: IP of target host
         :return: host name if found, ip address otherwise (in case of any error)
         """
         try:
-            lines = self.run_fetch_lines(self.HOSTNAME_CMD, ssh_to_host=ip_address)
+            lines = self.run_fetch_lines(self.HOSTNAME_CMD, ssh_to_host=host_ip, find_route_to_host=False)
         except SshError as e:
             self.log.error(e)
-            return ip_address
+            return host_ip
 
-        return lines[0].strip() if lines else ip_address
+        return lines[0].strip() if lines else host_ip
 
-    def fetch_setup_data_details(self, doc: dict) -> None:
+    def fetch_setup_data_details(self, host_ip: str) -> dict:
         """
         Fetch select setup data fields from CVIM setup data
 
-        :param doc: Host document to update inplace
+        :param host_ip: IP of mgmt node (or other node with setup data)
         :return: nothin'
         """
         try:
-            setup_data_str = self.run(self.SETUP_DATA_CMD, ssh_to_host=doc['host'])
+            setup_data_str = self.run(self.SETUP_DATA_CMD,
+                                      ssh_to_host=host_ip,
+                                      find_route_to_host=False)
         except SshError:
             # Missing setup data file is not a fatal error
-            return
+            return {}
 
         try:
             setup_data = yaml.safe_load(setup_data_str)
@@ -188,11 +192,11 @@ class CliFetchHostDetails(CliFetcher):
                 raise yaml.YAMLError()
         except yaml.YAMLError:
             self.log.error("Failed to parse valid YAML from supplied setup data file")
-            return
+            return {}
 
         cvim_details = {
             key_to: setup_data[key_from]
             for key_from, key_to in self.SETUP_DATA_TRANSLATIONS.items()
             if key_from in setup_data
         }
-        doc["cvim_details"] = cvim_details
+        return cvim_details

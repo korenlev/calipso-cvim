@@ -42,6 +42,6 @@ class CliFetchExternalHostPnics(CliFetcher, HostTypeValidator):
         if not host_id:
             self.log.error("Failed to find host id for pnic folder: {}".format(parent_id))
             return []
-        if not self.validate_host(host_id):
+        if not self.get_and_validate_host(host_id):
             return []
         return self.fetcher.get_by_host_id(host_id)

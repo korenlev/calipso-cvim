@@ -17,7 +17,11 @@ class Health(ResponderBase):
     def on_get(self, req, resp):
         envs = self.get_objects_list(collection="environments_config", query={})
 
-        response_doc = {"version": VERSION, "environments": {}}
+        response_doc = {
+            "version": VERSION,
+            "environments": {}
+        }
+
         for env in envs:
             env_health = {"scanned": False}
 
@@ -26,7 +30,8 @@ class Health(ResponderBase):
                 env_health.update({
                     "scanned": latest_scans[0]["status"] == "completed",
                     "scan_in_progress": latest_scans[0]["status"] == "running",
-                    "last_scanned": env.get("last_scanned")
+                    "last_scanned": env.get("last_scanned"),
+                    "timezone": env.get("timezone")
                 })
 
             # validations = self.inv.find_one({"environment": env}, collection=ValidatorBase.COLLECTION)
