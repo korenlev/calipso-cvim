@@ -1,657 +1,661 @@
 [
-{ 
+{
 
     "data" : [
         {
-            "value" : "network", 
+            "value" : "network",
             "label" : "network"
         }
-    ], 
+    ],
     "name" : "constraints"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "development", 
+            "value" : "development",
             "label" : "Development"
-        }, 
+        },
         {
-            "value" : "testing", 
+            "value" : "testing",
             "label" : "Testing"
-        }, 
+        },
         {
-            "value" : "staging", 
+            "value" : "staging",
             "label" : "Staging"
-        }, 
+        },
         {
-            "value" : "production", 
+            "value" : "production",
             "label" : "Production"
         }
-    ], 
+    ],
     "name" : "env_types"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "critical", 
+            "value" : "critical",
             "label" : "CRITICAL"
-        }, 
+        },
         {
-            "value" : "error", 
+            "value" : "error",
             "label" : "ERROR"
-        }, 
+        },
         {
-            "value" : "warning", 
+            "value" : "warning",
             "label" : "WARNING"
-        }, 
+        },
         {
-            "value" : "info", 
+            "value" : "info",
             "label" : "INFO"
-        }, 
+        },
         {
-            "value" : "debug", 
+            "value" : "debug",
             "label" : "DEBUG"
-        }, 
+        },
         {
-            "value" : "notset", 
+            "value" : "notset",
             "label" : "NOTSET"
         }
-    ], 
+    ],
     "name" : "log_levels"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "OpenStack", 
+            "value" : "OpenStack",
             "label" : "OpenStack"
-        }, 
+        },
         {
-            "value" : "Kubernetes", 
+            "value" : "Kubernetes",
             "label" : "Kubernetes"
-        }, 
+        },
         {
-            "value" : "VMware", 
+            "value" : "VMware",
             "label" : "VMware"
-        }, 
+        },
         {
-            "value" : "Bare-metal", 
+            "value" : "Bare-metal",
             "label" : "Bare-metal"
         }
-    ], 
+    ],
     "name" : "environment_types"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "local", 
+            "value" : "local",
             "label" : "local"
-        }, 
+        },
         {
-            "value" : "vlan", 
+            "value" : "vlan",
             "label" : "vlan"
-        }, 
+        },
         {
-            "value" : "vxlan", 
+            "value" : "vxlan",
             "label" : "vxlan"
-        }, 
+        },
         {
-            "value" : "gre", 
+            "value" : "gre",
             "label" : "gre"
-        }, 
+        },
         {
-            "value" : "flat", 
+            "value" : "flat",
             "label" : "flat"
         }
-    ], 
+    ],
     "name" : "type_drivers"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "Sensu", 
+            "value" : "Sensu",
             "label" : "Sensu"
-        }, 
+        },
         {
-            "value" : "Telegraf", 
+            "value" : "Telegraf",
             "label" : "Telegraf"
         }
-    ], 
+    ],
     "name" : "environment_monitoring_types"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "0", 
+            "value" : "0",
             "label" : "OK"
-        }, 
+        },
         {
-            "value" : "1", 
+            "value" : "1",
             "label" : "Warning"
-        }, 
+        },
         {
-            "value" : "2", 
+            "value" : "2",
             "label" : "Error"
         }
-    ], 
+    ],
     "name" : "monitoring_check_statuses"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "up", 
+            "value" : "up",
             "label" : "up"
-        }, 
+        },
         {
-            "value" : "down", 
+            "value" : "down",
             "label" : "down"
         }
-    ], 
+    ],
     "name" : "link_states"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "None", 
+            "value" : "None",
             "label" : "None"
-        }, 
+        },
         {
-            "value" : "Deploy", 
+            "value" : "Deploy",
             "label" : "Deploy"
-        }, 
+        },
         {
-            "value" : "Files", 
+            "value" : "Files",
             "label" : "Files"
-        }, 
+        },
         {
-            "value" : "DB", 
+            "value" : "DB",
             "label" : "DB"
         }
-    ], 
+    ],
     "name" : "environment_provision_types"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "stopped", 
+            "value" : "stopped",
             "label" : "stopped"
-        }, 
+        },
         {
-            "value" : "running", 
+            "value" : "running",
             "label" : "running"
-        }, 
+        },
         {
-            "value" : "error", 
+            "value" : "error",
             "label" : "error"
         }
-    ], 
+    ],
     "name" : "environment_operational_status"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "instance-vnic", 
+            "value" : "instance-vnic",
             "label" : "instance-vnic"
-        }, 
+        },
         {
-            "value" : "vnic-instance", 
+            "value" : "vnic-instance",
             "label" : "vnic-instance"
-        }, 
+        },
         {
-            "value" : "vnic-vconnector", 
+            "value" : "vnic-vconnector",
             "label" : "vnic-vconnector"
-        }, 
+        },
         {
-            "value" : "vconnector-vnic", 
+            "value" : "vconnector-vnic",
             "label" : "vconnector-vnic"
-        }, 
+        },
         {
-            "value" : "vconnector-vedge", 
+            "value" : "vconnector-vedge",
             "label" : "vconnector-vedge"
-        }, 
+        },
         {
-            "value" : "vedge-vconnector", 
+            "value" : "vedge-vconnector",
             "label" : "vedge-vconnector"
-        }, 
+        },
         {
-            "value" : "vedge-host_pnic", 
+            "value" : "vedge-host_pnic",
             "label" : "vedge-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-vedge", 
+            "value" : "host_pnic-vedge",
             "label" : "host_pnic-vedge"
-        }, 
+        },
         {
-            "value" : "host_pnic-network", 
+            "value" : "host_pnic-network",
             "label" : "host_pnic-network"
-        }, 
+        },
         {
-            "value" : "network-host_pnic", 
+            "value" : "network-host_pnic",
             "label" : "network-host_pnic"
-        }, 
+        },
         {
-            "value" : "vedge-otep", 
+            "value" : "vedge-otep",
             "label" : "vedge-otep"
-        }, 
+        },
         {
-            "value" : "otep-vedge", 
+            "value" : "otep-vedge",
             "label" : "otep-vedge"
-        }, 
+        },
         {
-            "value" : "otep-vconnector", 
+            "value" : "otep-vconnector",
             "label" : "otep-vconnector"
-        }, 
+        },
         {
-            "value" : "vconnector-otep", 
+            "value" : "vconnector-otep",
             "label" : "vconnector-otep"
-        }, 
+        },
         {
-            "value" : "otep-host_pnic", 
+            "value" : "otep-host_pnic",
             "label" : "otep-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-otep", 
+            "value" : "host_pnic-otep",
             "label" : "host_pnic-otep"
-        }, 
+        },
         {
-            "value" : "vconnector-host_pnic", 
+            "value" : "vconnector-host_pnic",
             "label" : "vconnector-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-vconnector", 
+            "value" : "host_pnic-vconnector",
             "label" : "host_pnic-vconnector"
-        }, 
+        },
         {
-            "value" : "vnic-vedge", 
+            "value" : "vnic-vedge",
             "label" : "vnic-vedge"
-        }, 
+        },
         {
-            "value" : "vedge-vnic", 
+            "value" : "vedge-vnic",
             "label" : "vedge-vnic"
-        }, 
+        },
         {
-            "value" : "vservice-vnic", 
+            "value" : "vservice-vnic",
             "label" : "vservice-vnic"
-        }, 
+        },
         {
-            "value" : "vnic-vservice", 
+            "value" : "vnic-vservice",
             "label" : "vnic-vservice"
-        }, 
+        },
         {
-            "value" : "switch_pnic-host_pnic", 
+            "value" : "switch_pnic-host_pnic",
             "label" : "switch_pnic-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-switch_pnic", 
+            "value" : "host_pnic-switch_pnic",
             "label" : "host_pnic-switch_pnic"
-        }, 
+        },
         {
-            "value" : "switch_pnic-switch_pnic", 
+            "value" : "switch_pnic-switch_pnic",
             "label" : "switch_pnic-switch_pnic"
-        }, 
+        },
         {
-            "value" : "switch_pnic-switch", 
+            "value" : "switch_pnic-switch",
             "label" : "switch_pnic-switch"
-        }, 
+        },
         {
-            "value" : "switch-switch_pnic", 
+            "value" : "switch-switch_pnic",
             "label" : "switch-switch_pnic"
-        }, 
+        },
         {
-            "value" : "host-osd", 
+            "value" : "host-osd",
             "label" : "host-osd"
-        }, 
+        },
         {
-            "value" : "osd-partition", 
+            "value" : "osd-partition",
             "label" : "osd-partition"
-        }, 
+        },
         {
-            "value" : "partition-disk", 
+            "value" : "partition-disk",
             "label" : "partition-disk"
         }
-    ], 
-    "name" : "link_types", 
+    ],
+    "name" : "link_types",
     "environment_type" : "OpenStack"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "client", 
+            "value" : "client",
             "label" : "client"
-        }, 
+        },
         {
-            "value" : "server", 
+            "value" : "server",
             "label" : "server"
         }
-    ], 
+    ],
     "name" : "monitoring_sides"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "panic", 
+            "value" : "panic",
             "label" : "panic"
-        }, 
+        },
         {
-            "value" : "alert", 
+            "value" : "alert",
             "label" : "alert"
-        }, 
+        },
         {
-            "value" : "crit", 
+            "value" : "crit",
             "label" : "crit"
-        }, 
+        },
         {
-            "value" : "error", 
+            "value" : "error",
             "label" : "error"
-        }, 
+        },
         {
-            "value" : "warn", 
+            "value" : "warn",
             "label" : "warn"
-        }, 
+        },
         {
-            "value" : "notice", 
+            "value" : "notice",
             "label" : "notice"
-        }, 
+        },
         {
-            "value" : "info", 
+            "value" : "info",
             "label" : "info"
-        }, 
+        },
         {
-            "value" : "debug", 
+            "value" : "debug",
             "label" : "debug"
         }
-    ], 
+    ],
     "name" : "messages_severity"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "draft", 
+            "value" : "draft",
             "label" : "Draft"
-        }, 
+        },
         {
-            "value" : "pending", 
+            "value" : "pending",
             "label" : "Pending"
-        }, 
+        },
         {
-            "value" : "running", 
+            "value" : "running",
             "label" : "Running"
-        }, 
+        },
         {
-            "value" : "completed", 
+            "value" : "completed",
             "label" : "Completed"
-        }, 
+        },
         {
-            "value" : "completed_with_errors", 
+            "value" : "completed_with_errors",
             "label" : "Completed with errors"
-        }, 
+        },
         {
-            "value" : "failed", 
+            "value" : "failed",
             "label" : "Failed"
-        }, 
+        },
         {
-            "value" : "aborted", 
+            "value" : "aborted",
             "label" : "Aborted"
         }
-    ], 
+    ],
     "name" : "scans_statuses"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "Mirantis", 
+            "value" : "Mirantis",
             "label" : "Mirantis"
-        }, 
+        },
         {
-            "value" : "RDO", 
+            "value" : "RDO",
             "label" : "RDO"
-        }, 
+        },
         {
-            "value" : "Devstack", 
+            "value" : "Devstack",
             "label" : "Devstack"
-        }, 
+        },
         {
-            "value" : "Canonical", 
+            "value" : "Canonical",
             "label" : "Canonical"
-        }, 
+        },
         {
-            "value" : "Apex", 
+            "value" : "Apex",
             "label" : "Apex"
-        }, 
+        },
         {
-            "value" : "Packstack", 
+            "value" : "Packstack",
             "label" : "Packstack"
-        }, 
+        },
         {
-            "value" : "Stratoscale", 
+            "value" : "Stratoscale",
             "label" : "Stratoscale"
-        }, 
+        },
         {
-            "value" : "Mercury", 
+            "value" : "Mercury",
             "label" : "Mercury"
-        }, 
+        },
         {
-            "value" : "Kolla", 
+            "value" : "Kolla",
             "label" : "Kolla"
         }
-    ], 
-    "name" : "distributions", 
+    ],
+    "name" : "distributions",
     "environment_type" : "OpenStack"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "6.0", 
+            "value" : "6.0",
             "label" : "6.0"
-        }, 
+        },
         {
-            "value" : "1.9", 
+            "value" : "1.9",
             "label" : "1.9"
-        }, 
+        },
         {
-            "value" : "7.0", 
+            "value" : "1.17",
+            "label" : "1.17"
+        },
+        {
+            "value" : "7.0",
             "label" : "7.0"
-        }, 
+        },
         {
-            "value" : "8.0", 
+            "value" : "8.0",
             "label" : "8.0"
-        }, 
+        },
         {
-            "value" : "9.0", 
+            "value" : "9.0",
             "label" : "9.0"
-        }, 
+        },
         {
-            "value" : "Mitaka", 
+            "value" : "Mitaka",
             "label" : "Mitaka"
-        }, 
+        },
         {
-            "value" : "Liberty", 
+            "value" : "Liberty",
             "label" : "Liberty"
-        }, 
+        },
         {
-            "value" : "Newton", 
+            "value" : "Newton",
             "label" : "Newton"
-        }, 
+        },
         {
-            "value" : "Ocata", 
+            "value" : "Ocata",
             "label" : "Ocata"
-        }, 
+        },
         {
-            "value" : "Juno", 
+            "value" : "Juno",
             "label" : "Juno"
-        }, 
+        },
         {
-            "value" : "Kilo", 
+            "value" : "Kilo",
             "label" : "Kilo"
-        }, 
+        },
         {
-            "value" : "Icehouse", 
+            "value" : "Icehouse",
             "label" : "Icehouse"
-        }, 
+        },
         {
-            "value" : "7.0.0-0.10.dev1682", 
+            "value" : "7.0.0-0.10.dev1682",
             "label" : "7.0.0-0.10.dev1682"
-        }, 
+        },
         {
-            "value" : "2.1.6", 
+            "value" : "2.1.6",
             "label" : "2.1.6"
-        }, 
+        },
         {
-            "value" : "9.1", 
+            "value" : "9.1",
             "label" : "9.1"
-        }, 
+        },
         {
-            "value" : "10.0", 
+            "value" : "10.0",
             "label" : "10.0"
-        }, 
+        },
         {
-            "value" : "Euphrates", 
+            "value" : "Euphrates",
             "label" : "Euphrates"
-        }, 
+        },
         {
-            "value" : "18606", 
+            "value" : "18606",
             "label" : "18606"
-        }, 
+        },
         {
-            "value" : "18079", 
+            "value" : "18079",
             "label" : "18079"
-        }, 
+        },
         {
-            "value" : "19312", 
+            "value" : "19312",
             "label" : "19312"
-        }, 
+        },
         {
-            "value" : "11190", 
+            "value" : "11190",
             "label" : "11190"
-        }, 
+        },
         {
-            "value" : "13840", 
+            "value" : "13840",
             "label" : "13840"
-        }, 
+        },
         {
-            "value" : "train", 
+            "value" : "train",
             "label" : "train"
-        }, 
+        },
         {
-            "value" : "stein", 
+            "value" : "stein",
             "label" : "stein"
-        }, 
+        },
         {
-            "value" : "rocky", 
+            "value" : "rocky",
             "label" : "rocky"
-        }, 
+        },
         {
-            "value" : "queens", 
+            "value" : "queens",
             "label" : "queens"
-        }, 
+        },
         {
-            "value" : "25738", 
+            "value" : "25738",
             "label" : "25738"
         }
-    ], 
+    ],
     "name" : "distribution_versions"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "OpenStack", 
+            "value" : "OpenStack",
             "label" : "OpenStack"
-        }, 
+        },
         {
-            "value" : "Calipso", 
+            "value" : "Calipso",
             "label" : "Calipso"
-        }, 
+        },
         {
-            "value" : "Sensu", 
+            "value" : "Sensu",
             "label" : "Sensu"
-        }, 
+        },
         {
-            "value" : "Kubernetes", 
+            "value" : "Kubernetes",
             "label" : "Kubernetes"
         }
-    ], 
+    ],
     "name" : "message_source_systems"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "vnic", 
+            "value" : "vnic",
             "label" : "vnic"
-        }, 
+        },
         {
-            "value" : "container", 
+            "value" : "container",
             "label" : "container"
-        }, 
+        },
         {
-            "value" : "pod", 
+            "value" : "pod",
             "label" : "pod"
-        }, 
+        },
         {
-            "value" : "vconnector", 
+            "value" : "vconnector",
             "label" : "vconnector"
-        }, 
+        },
         {
-            "value" : "vedge", 
+            "value" : "vedge",
             "label" : "vedge"
-        }, 
+        },
         {
-            "value" : "instance", 
+            "value" : "instance",
             "label" : "instance"
-        }, 
+        },
         {
-            "value" : "vservice", 
+            "value" : "vservice",
             "label" : "vservice"
-        }, 
+        },
         {
-            "value" : "host_pnic", 
+            "value" : "host_pnic",
             "label" : "host_pnic"
-        }, 
+        },
         {
-            "value" : "network", 
+            "value" : "network",
             "label" : "network"
-        }, 
+        },
         {
-            "value" : "otep", 
+            "value" : "otep",
             "label" : "otep"
-        }, 
+        },
         {
-            "value" : "switch_pnic", 
+            "value" : "switch_pnic",
             "label" : "switch_pnic"
-        }, 
+        },
         {
-            "value" : "switch", 
+            "value" : "switch",
             "label" : "switch"
-        }, 
+        },
         {
-            "value" : "host", 
+            "value" : "host",
             "label" : "host"
-        }, 
+        },
         {
-            "value" : "disk", 
+            "value" : "disk",
             "label" : "disk"
-        }, 
+        },
         {
-            "value" : "osd", 
+            "value" : "osd",
             "label" : "osd"
-        }, 
+        },
         {
-            "value" : "partition", 
+            "value" : "partition",
             "label" : "partition"
         },
         {
@@ -666,198 +670,198 @@
             "value" : "host_ref",
             "label" : "host_ref"
         }
-    ], 
+    ],
     "name" : "object_types_for_links"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "vnic", 
+            "value" : "vnic",
             "label" : "vnic"
-        }, 
+        },
         {
-            "value" : "vconnector", 
+            "value" : "vconnector",
             "label" : "vconnector"
-        }, 
+        },
         {
-            "value" : "vedge", 
+            "value" : "vedge",
             "label" : "vedge"
-        }, 
+        },
         {
-            "value" : "instance", 
+            "value" : "instance",
             "label" : "instance"
-        }, 
+        },
         {
-            "value" : "vservice", 
+            "value" : "vservice",
             "label" : "vservice"
-        }, 
+        },
         {
-            "value" : "host_pnic", 
+            "value" : "host_pnic",
             "label" : "host_pnic"
-        }, 
+        },
         {
-            "value" : "network", 
+            "value" : "network",
             "label" : "network"
-        }, 
+        },
         {
-            "value" : "port", 
+            "value" : "port",
             "label" : "port"
-        }, 
+        },
         {
-            "value" : "otep", 
+            "value" : "otep",
             "label" : "otep"
-        }, 
+        },
         {
-            "value" : "agent", 
+            "value" : "agent",
             "label" : "agent"
-        }, 
+        },
         {
-            "value" : "availability_zone", 
+            "value" : "availability_zone",
             "label" : "availability_zone"
-        }, 
+        },
         {
-            "value" : "regions_folder", 
+            "value" : "regions_folder",
             "label" : "regions_folder"
-        }, 
+        },
         {
-            "value" : "instances_folder", 
+            "value" : "instances_folder",
             "label" : "instances_folder"
-        }, 
+        },
         {
-            "value" : "pnics_folder", 
+            "value" : "pnics_folder",
             "label" : "pnics_folder"
-        }, 
+        },
         {
-            "value" : "vconnectors_folder", 
+            "value" : "vconnectors_folder",
             "label" : "vconnectors_folder"
-        }, 
+        },
         {
-            "value" : "vedges_folder", 
+            "value" : "vedges_folder",
             "label" : "vedges_folder"
-        }, 
+        },
         {
-            "value" : "ports_folder", 
+            "value" : "ports_folder",
             "label" : "ports_folder"
-        }, 
+        },
         {
-            "value" : "aggregates_folder", 
+            "value" : "aggregates_folder",
             "label" : "aggregates_folder"
-        }, 
+        },
         {
-            "value" : "vservices_folder", 
+            "value" : "vservices_folder",
             "label" : "vservices_folder"
-        }, 
+        },
         {
-            "value" : "vnics_folder", 
+            "value" : "vnics_folder",
             "label" : "vnics_folder"
-        }, 
+        },
         {
-            "value" : "network_agent", 
+            "value" : "network_agent",
             "label" : "network_agent"
-        }, 
+        },
         {
-            "value" : "project", 
+            "value" : "project",
             "label" : "project"
-        }, 
+        },
         {
-            "value" : "projects_folder", 
+            "value" : "projects_folder",
             "label" : "projects_folder"
-        }, 
+        },
         {
-            "value" : "aggregate", 
+            "value" : "aggregate",
             "label" : "aggregate"
-        }, 
+        },
         {
-            "value" : "network_agents_folder", 
+            "value" : "network_agents_folder",
             "label" : "network_agents_folder"
-        }, 
+        },
         {
-            "value" : "host", 
+            "value" : "host",
             "label" : "host"
-        }, 
+        },
         {
-            "value" : "region", 
+            "value" : "region",
             "label" : "region"
-        }, 
+        },
         {
-            "value" : "host_ref", 
+            "value" : "host_ref",
             "label" : "host_ref"
-        }, 
+        },
         {
-            "value" : "network_services_folder", 
+            "value" : "network_services_folder",
             "label" : "network_services_folder"
-        }, 
+        },
         {
-            "value" : "switch_pnic", 
+            "value" : "switch_pnic",
             "label" : "switch_pnic"
-        }, 
+        },
         {
-            "value" : "switch", 
+            "value" : "switch",
             "label" : "switch"
-        }, 
+        },
         {
-            "value" : "cluster", 
+            "value" : "cluster",
             "label" : "cluster"
-        }, 
+        },
         {
-            "value" : "clusters_folder", 
+            "value" : "clusters_folder",
             "label" : "clusters_folder"
-        }, 
+        },
         {
-            "value" : "hosts_folder", 
+            "value" : "hosts_folder",
             "label" : "hosts_folder"
-        }, 
+        },
         {
-            "value" : "namespaces_folder", 
+            "value" : "namespaces_folder",
             "label" : "namespaces_folder"
-        }, 
+        },
         {
-            "value" : "namespace", 
+            "value" : "namespace",
             "label" : "namespace"
-        }, 
+        },
         {
-            "value" : "pod", 
+            "value" : "pod",
             "label" : "pod"
-        }, 
+        },
         {
-            "value" : "pod_ref", 
+            "value" : "pod_ref",
             "label" : "pod_ref"
-        }, 
+        },
         {
-            "value" : "pods_folder", 
+            "value" : "pods_folder",
             "label" : "pods_folder"
-        }, 
+        },
         {
-            "value" : "containers_folder", 
+            "value" : "containers_folder",
             "label" : "containers_folder"
-        }, 
+        },
         {
-            "value" : "container", 
+            "value" : "container",
             "label" : "container"
-        }, 
+        },
         {
-            "value" : "disks_folder", 
+            "value" : "disks_folder",
             "label" : "disks_folder"
-        }, 
+        },
         {
-            "value" : "disk", 
+            "value" : "disk",
             "label" : "disk"
-        }, 
+        },
         {
-            "value" : "osds_folder", 
+            "value" : "osds_folder",
             "label" : "osds_folder"
-        }, 
+        },
         {
-            "value" : "osd", 
+            "value" : "osd",
             "label" : "osd"
-        }, 
+        },
         {
-            "value" : "partitions_folder", 
+            "value" : "partitions_folder",
             "label" : "partitions_folder"
-        }, 
+        },
         {
-            "value" : "partition", 
+            "value" : "partition",
             "label" : "partition"
         },
         {
@@ -868,115 +872,115 @@
             "label" : "monitoring_agent",
             "value" : "monitoring_agent"
         }
-    ], 
+    ],
     "name" : "scan_object_types"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "AMQP", 
+            "value" : "AMQP",
             "label" : "AMQP"
-        }, 
+        },
         {
-            "value" : "CLI", 
+            "value" : "CLI",
             "label" : "CLI"
-        }, 
+        },
         {
-            "value" : "ACI", 
+            "value" : "ACI",
             "label" : "ACI"
-        }, 
+        },
         {
-            "value" : "mysql", 
+            "value" : "mysql",
             "label" : "mysql"
-        }, 
+        },
         {
-            "value" : "OpenStack", 
+            "value" : "OpenStack",
             "label" : "OpenStack"
-        }, 
+        },
         {
-            "value" : "Monitoring", 
+            "value" : "Monitoring",
             "label" : "Monitoring"
         }
-    ], 
+    ],
     "name" : "configuration_targets"
 },
 {
     "data" : [
         {
-            "value" : "vnic", 
+            "value" : "vnic",
             "label" : "vnic"
-        }, 
+        },
         {
-            "value" : "vconnector", 
+            "value" : "vconnector",
             "label" : "vconnector"
-        }, 
+        },
         {
-            "value" : "vedge", 
+            "value" : "vedge",
             "label" : "vedge"
-        }, 
+        },
         {
-            "value" : "instance", 
+            "value" : "instance",
             "label" : "instance"
-        }, 
+        },
         {
-            "value" : "vservice", 
+            "value" : "vservice",
             "label" : "vservice"
-        }, 
+        },
         {
-            "value" : "host_pnic", 
+            "value" : "host_pnic",
             "label" : "host_pnic"
-        }, 
+        },
         {
-            "value" : "switch_pnic", 
+            "value" : "switch_pnic",
             "label" : "switch_pnic"
-        }, 
+        },
         {
-            "value" : "network", 
+            "value" : "network",
             "label" : "network"
-        }, 
+        },
         {
-            "value" : "switch", 
+            "value" : "switch",
             "label" : "switch"
-        }, 
+        },
         {
-            "value" : "port", 
+            "value" : "port",
             "label" : "port"
-        }, 
+        },
         {
-            "value" : "otep", 
+            "value" : "otep",
             "label" : "otep"
-        }, 
+        },
         {
-            "value" : "network_agent", 
+            "value" : "network_agent",
             "label" : "network_agent"
-        }, 
+        },
         {
-            "value" : "host", 
+            "value" : "host",
             "label" : "host"
-        }, 
+        },
         {
-            "value" : "project", 
+            "value" : "project",
             "label" : "project"
-        }, 
+        },
         {
-            "value" : "region", 
+            "value" : "region",
             "label" : "region"
-        }, 
+        },
         {
-            "value" : "availability_zone", 
+            "value" : "availability_zone",
             "label" : "availability_zone"
-        }, 
+        },
         {
-            "value" : "disk", 
+            "value" : "disk",
             "label" : "disk"
-        }, 
+        },
         {
-            "value" : "osd", 
+            "value" : "osd",
             "label" : "osd"
-        }, 
+        },
         {
-            "value" : "partition", 
+            "value" : "partition",
             "label" : "partition"
         },
         {
@@ -984,70 +988,70 @@
             "value" : "monitoring_agent"
         }
 
-    ], 
-    "name" : "object_types", 
+    ],
+    "name" : "object_types",
     "environment_type" : "OpenStack"
 },
 {
     "data" : [
         {
-            "value" : "vnic", 
+            "value" : "vnic",
             "label" : "vnic"
-        }, 
+        },
         {
-            "value" : "vconnector", 
+            "value" : "vconnector",
             "label" : "vconnector"
-        }, 
+        },
         {
-            "value" : "vedge", 
+            "value" : "vedge",
             "label" : "vedge"
-        }, 
+        },
         {
-            "value" : "container", 
+            "value" : "container",
             "label" : "container"
-        }, 
+        },
         {
-            "value" : "pod", 
+            "value" : "pod",
             "label" : "pod"
-        }, 
+        },
         {
-            "value" : "vservice", 
+            "value" : "vservice",
             "label" : "vservice"
-        }, 
+        },
         {
-            "value" : "host_pnic", 
+            "value" : "host_pnic",
             "label" : "host_pnic"
-        }, 
+        },
         {
-            "value" : "switch_pnic", 
+            "value" : "switch_pnic",
             "label" : "switch_pnic"
-        }, 
+        },
         {
-            "value" : "network", 
+            "value" : "network",
             "label" : "network"
-        }, 
+        },
         {
-            "value" : "switch", 
+            "value" : "switch",
             "label" : "switch"
-        }, 
+        },
         {
-            "value" : "otep", 
+            "value" : "otep",
             "label" : "otep"
-        }, 
+        },
         {
-            "value" : "network_agent", 
+            "value" : "network_agent",
             "label" : "network_agent"
-        }, 
+        },
         {
-            "value" : "host", 
+            "value" : "host",
             "label" : "host"
-        }, 
+        },
         {
-            "value" : "namespace", 
+            "value" : "namespace",
             "label" : "namespace"
-        }, 
+        },
         {
-            "value" : "disk", 
+            "value" : "disk",
             "label" : "disk"
         },
         {
@@ -1058,228 +1062,228 @@
             "value" : "pod_ref",
             "label" : "pod_ref"
         }
-    ], 
-    "name" : "object_types", 
+    ],
+    "name" : "object_types",
     "environment_type" : "Kubernetes"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "vnic-vconnector", 
+            "value" : "vnic-vconnector",
             "label" : "vnic-vconnector"
-        }, 
+        },
         {
-            "value" : "vconnector-vnic", 
+            "value" : "vconnector-vnic",
             "label" : "vconnector-vnic"
-        }, 
+        },
         {
-            "value" : "vconnector-vedge", 
+            "value" : "vconnector-vedge",
             "label" : "vconnector-vedge"
-        }, 
+        },
         {
-            "value" : "vedge-vconnector", 
+            "value" : "vedge-vconnector",
             "label" : "vedge-vconnector"
-        }, 
+        },
         {
-            "value" : "vedge-host_pnic", 
+            "value" : "vedge-host_pnic",
             "label" : "vedge-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-vedge", 
+            "value" : "host_pnic-vedge",
             "label" : "host_pnic-vedge"
-        }, 
+        },
         {
-            "value" : "host_pnic-network", 
+            "value" : "host_pnic-network",
             "label" : "host_pnic-network"
-        }, 
+        },
         {
-            "value" : "network-host_pnic", 
+            "value" : "network-host_pnic",
             "label" : "network-host_pnic"
-        }, 
+        },
         {
-            "value" : "vedge-otep", 
+            "value" : "vedge-otep",
             "label" : "vedge-otep"
-        }, 
+        },
         {
-            "value" : "otep-vedge", 
+            "value" : "otep-vedge",
             "label" : "otep-vedge"
-        }, 
+        },
         {
-            "value" : "otep-vconnector", 
+            "value" : "otep-vconnector",
             "label" : "otep-vconnector"
-        }, 
+        },
         {
-            "value" : "vconnector-otep", 
+            "value" : "vconnector-otep",
             "label" : "vconnector-otep"
-        }, 
+        },
         {
-            "value" : "otep-host_pnic", 
+            "value" : "otep-host_pnic",
             "label" : "otep-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-otep", 
+            "value" : "host_pnic-otep",
             "label" : "host_pnic-otep"
-        }, 
+        },
         {
-            "value" : "vconnector-host_pnic", 
+            "value" : "vconnector-host_pnic",
             "label" : "vconnector-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-vconnector", 
+            "value" : "host_pnic-vconnector",
             "label" : "host_pnic-vconnector"
-        }, 
+        },
         {
-            "value" : "vnic-vedge", 
+            "value" : "vnic-vedge",
             "label" : "vnic-vedge"
-        }, 
+        },
         {
-            "value" : "vedge-vnic", 
+            "value" : "vedge-vnic",
             "label" : "vedge-vnic"
-        }, 
+        },
         {
-            "value" : "vservice-vnic", 
+            "value" : "vservice-vnic",
             "label" : "vservice-vnic"
-        }, 
+        },
         {
-            "value" : "vnic-vservice", 
+            "value" : "vnic-vservice",
             "label" : "vnic-vservice"
-        }, 
+        },
         {
-            "value" : "switch_pnic-host_pnic", 
+            "value" : "switch_pnic-host_pnic",
             "label" : "switch_pnic-host_pnic"
-        }, 
+        },
         {
-            "value" : "host_pnic-switch_pnic", 
+            "value" : "host_pnic-switch_pnic",
             "label" : "host_pnic-switch_pnic"
-        }, 
+        },
         {
-            "value" : "switch_pnic-switch_pnic", 
+            "value" : "switch_pnic-switch_pnic",
             "label" : "switch_pnic-switch_pnic"
-        }, 
+        },
         {
-            "value" : "switch_pnic-switch", 
+            "value" : "switch_pnic-switch",
             "label" : "switch_pnic-switch"
-        }, 
+        },
         {
-            "value" : "switch-switch_pnic", 
+            "value" : "switch-switch_pnic",
             "label" : "switch-switch_pnic"
-        }, 
+        },
         {
-            "value" : "container-vnic", 
+            "value" : "container-vnic",
             "label" : "container-vnic"
-        }, 
+        },
         {
-            "value" : "vnic-container", 
+            "value" : "vnic-container",
             "label" : "vnic-container"
-        }, 
+        },
         {
-            "value" : "container-vedge", 
+            "value" : "container-vedge",
             "label" : "container-vedge"
-        }, 
+        },
         {
-            "value" : "vedge-container", 
+            "value" : "vedge-container",
             "label" : "vedge-container"
-        }, 
+        },
         {
-            "value" : "vservice-pod", 
+            "value" : "vservice-pod",
             "label" : "vservice-pod"
-        }, 
+        },
         {
-            "value" : "pod-vservice", 
+            "value" : "pod-vservice",
             "label" : "pod-vservice"
-        }, 
+        },
         {
-            "value" : "pod-container", 
+            "value" : "pod-container",
             "label" : "pod-container"
-        }, 
+        },
         {
-            "value" : "container-pod", 
+            "value" : "container-pod",
             "label" : "container-pod"
-        }, 
+        },
         {
-            "value" : "container-network", 
+            "value" : "container-network",
             "label" : "container-network"
-        }, 
+        },
         {
-            "value" : "network-container", 
+            "value" : "network-container",
             "label" : "network-container"
         }
-    ], 
-    "name" : "link_types", 
+    ],
+    "name" : "link_types",
     "environment_type" : "Kubernetes"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "OVS", 
+            "value" : "OVS",
             "label" : "OVS"
-        }, 
+        },
         {
-            "value" : "VPP", 
+            "value" : "VPP",
             "label" : "VPP"
-        }, 
+        },
         {
-            "value" : "LXB", 
+            "value" : "LXB",
             "label" : "LXB"
-        }, 
+        },
         {
-            "value" : "SRIOV", 
+            "value" : "SRIOV",
             "label" : "SRIOV"
-        }, 
+        },
         {
-            "value" : "ACI", 
+            "value" : "ACI",
             "label" : "ACI"
-        }, 
+        },
         {
-            "value" : "Nexus", 
+            "value" : "Nexus",
             "label" : "Nexus"
         }
-    ], 
-    "name" : "mechanism_drivers", 
+    ],
+    "name" : "mechanism_drivers",
     "environment_type" : "OpenStack"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "OVS", 
+            "value" : "OVS",
             "label" : "OVS"
-        }, 
+        },
         {
-            "value" : "VPP", 
+            "value" : "VPP",
             "label" : "VPP"
-        }, 
+        },
         {
-            "value" : "SRIOV", 
+            "value" : "SRIOV",
             "label" : "SRIOV"
-        }, 
+        },
         {
-            "value" : "Calico", 
+            "value" : "Calico",
             "label" : "Calico"
-        }, 
+        },
         {
-            "value" : "Flannel", 
+            "value" : "Flannel",
             "label" : "Flannel"
         }
-    ], 
-    "name" : "mechanism_drivers", 
+    ],
+    "name" : "mechanism_drivers",
     "environment_type" : "Kubernetes"
 },
-{ 
+{
 
     "data" : [
         {
-            "value" : "Rancher", 
+            "value" : "Rancher",
             "label" : "Rancher"
-        }, 
+        },
         {
-            "value" : "Kubernetes", 
+            "value" : "Kubernetes",
             "label" : "Kubernetes"
         }
-    ], 
-    "name" : "distributions", 
+    ],
+    "name" : "distributions",
     "environment_type" : "Kubernetes"
 }
 ]
