@@ -8,12 +8,14 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import re
+from typing import List
+
 from kubernetes.client.models import V1Node, V1ObjectMeta, V1NodeSpec, \
     V1NodeStatus
 
 from base.utils.constants import HostType
-from base.utils.origins import Origin
 from base.utils.exceptions import SshError, ScanError
+from base.utils.origins import Origin
 from scan.fetchers.cli.cli_fetch_host_details import CliFetchHostDetails
 from scan.fetchers.cli.cli_fetch_interface_details \
     import CliFetchInterfaceDetails
@@ -21,6 +23,12 @@ from scan.fetchers.kube.kube_access import KubeAccess
 
 
 class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
+
+    METADATA_ATTRIBUTES = ['uid', 'name', 'cluster_name', 'annotations', 'labels']
+    SPEC_ATTRIBUTES = ['pod_cidr', 'provider_id', 'taints', 'unschedulable']
+
+    IP_SHOW_CMD = 'ip address show'
+    ID_REGEX = re.compile('^[0-9]+:\s([^@:]+)')
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -52,103 +60,71 @@ class KubeFetchNodes(KubeAccess, CliFetchHostDetails):
 
     def get_node_details(self, node: V1Node):
         doc = {'type': 'host'}
-        try:
-            self.get_node_metadata(doc, node.metadata)
-            doc['host'] = doc.get('name', '')
-        except AttributeError:
-            pass
-        try:
-            self.get_node_data_from_spec(doc, node.spec)
-            self.get_node_data_from_status(doc, node.status)
-        except AttributeError:
-            pass
-        doc['interfaces'] = self.get_host_interfaces(doc)
+        doc.update(self.get_node_metadata(metadata=node.metadata))
+        doc.update(self.get_node_data_from_spec(spec=node.spec))
+        doc.update(self.get_node_data_from_status(status=node.status))
+
+        doc.update({
+            'id': doc['name'],
+            'host': doc['name'],
+            'host_type': [HostType.NETWORK.value, HostType.COMPUTE.value],
+            'ip_address': next((addr.address for addr in doc['addresses'] if addr.type == 'InternalIP'), None),
+            'node_info': self.class_to_dict(data_object=doc['node_info']),
+            'interfaces': self.get_host_interfaces(host_id=doc['name'])
+        })
+        if 'node-role.kubernetes.io/master' in doc['labels']:
+            doc['host_type'].append(HostType.KUBEMASTER.value)
+
         self.update_host_os_details(doc)
         return doc
 
-    @staticmethod
-    def get_node_metadata(doc: dict, metadata: V1ObjectMeta):
-        attrs = ['uid', 'name', 'cluster_name', 'annotations', 'labels']
-        for attr in attrs:
-            try:
-                doc[attr] = getattr(metadata, attr)
-            except AttributeError:
-                pass
-        doc['id'] = doc['name']
-        doc['host_type'] = [HostType.NETWORK.value, HostType.COMPUTE.value]
+    @classmethod
+    def get_node_metadata(cls, metadata: V1ObjectMeta) -> dict:
+        return cls.class_to_dict(data_object=metadata, include=cls.METADATA_ATTRIBUTES)
 
-    @staticmethod
-    def get_node_data_from_spec(doc: dict, spec: V1NodeSpec):
-        if 'node-role.kubernetes.io/master' in doc['labels']:
-            doc['host_type'].append(HostType.KUBEMASTER.value)
-        attrs = ['pod_cidr', 'provider_id', 'taints', 'unschedulable']
-        for attr in attrs:
-            try:
-                doc[attr] = getattr(spec, attr)
-            except AttributeError:
-                pass
+    @classmethod
+    def get_node_data_from_spec(cls, spec: V1NodeSpec) -> dict:
+        return cls.class_to_dict(data_object=spec, include=cls.SPEC_ATTRIBUTES)
 
-    @staticmethod
-    def class_to_dict(data_object, exclude: list=None) -> dict:
-        ret = dict()
-        if exclude is None:
-            exclude = []
-        exclude.extend(['attribute_map', 'swagger_types'])
-        attrs = [attr for attr in dir(data_object)
-                 if not attr.startswith('_')
-                 and attr not in exclude]
-        for attr in attrs:
-            try:
-                v = getattr(data_object, attr)
-                if not callable(v):
-                    ret[attr] = v
-            except AttributeError:
-                pass
-        return ret
+    @classmethod
+    def get_node_data_from_status(cls, status: V1NodeStatus) -> dict:
+        return cls.class_to_dict(data_object=status, exclude=['daemon_endpoints'])
 
-    @staticmethod
-    def get_node_data_from_status(doc: dict, status: V1NodeStatus):
-        doc.update(KubeFetchNodes.class_to_dict(status,
-                                                exclude=['daemon_endpoints']))
-        addresses = doc['addresses']
-        ip_address = next(addr.address for addr in addresses
-                          if addr.type == 'InternalIP')
-        doc['ip_address'] = ip_address
-        node_info = KubeFetchNodes.class_to_dict(doc['node_info'])
-        doc['node_info'] = node_info
-
-    def get_interface_data(self, interface_name, interface_lines, host_id):
+    def get_interface_data(self, interface_name, interface_lines, host_id) -> dict:
         ethtool_cmd = 'ethtool {}'.format(interface_name)
-        ethtool_lines = self.run_fetch_lines(ethtool_cmd, host_id)
+        ethtool_lines = self.run_fetch_lines(ethtool_cmd, ssh_to_host=host_id, find_route_to_host=False)
         return self.details_fetcher.get_interface_details(host_id=host_id,
                                                           interface_name=interface_name,
                                                           ip_lines=interface_lines,
                                                           ethtool_lines=ethtool_lines)
 
-    def get_host_interfaces(self, host: dict) -> dict:
-        cmd = 'ip address show'
-        id_re = r'^[0-9]+:\s([^@:]+)'
-        lines = self.run_fetch_lines(cmd, host['id'])
+    def get_host_interfaces(self, host_id: str) -> List[dict]:
+        lines = self.run_fetch_lines(self.IP_SHOW_CMD, ssh_to_host=host_id, find_route_to_host=False)
         if not lines:
-            raise ScanError('No output returned by command: {}'.format(cmd))
+            raise ScanError('No output returned by command: {}'.format(self.IP_SHOW_CMD))
+
         interface_lines = []
         interface_name = None
         interfaces = []
         for line in lines:
             # look for interfaces sections in the output of 'ip address show'
-            matches = re.match(id_re, line)
+            matches = self.ID_REGEX.match(line)
             if not matches:
                 # add more lines to an already discovered interface
                 interface_lines.append(line)
                 continue
             if interface_lines and interface_name != 'lo':
                 # handle previous section
-                interface = self.get_interface_data(interface_name, interface_lines, host['id'])
+                interface = self.get_interface_data(interface_name, interface_lines, host_id)
                 interfaces.append(interface)
+
             interface_lines = []
             interface_name = matches.group(1)
             interface_lines.append(line)
-        # add last interface
-        interface = self.get_interface_data(interface_name, interface_lines, host['id'])
-        interfaces.append(interface)
+
+        if interface_lines:
+            # add last interface
+            interface = self.get_interface_data(interface_name, interface_lines, host_id)
+            interfaces.append(interface)
+
         return interfaces

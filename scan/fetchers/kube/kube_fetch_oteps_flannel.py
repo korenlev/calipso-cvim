@@ -51,14 +51,14 @@ class KubeFetchOtepsFlannel(KubeFetchOtepsBase):
 
     PORT_ID_PREFIX = 'vxlan-remote-'
 
-    @staticmethod
-    def get_port_id(remote_host_id: str) -> str:
-        return '{}{}'.format(KubeFetchOtepsFlannel.PORT_ID_PREFIX, remote_host_id)
+    @classmethod
+    def get_port_id(cls, remote_host_id: str) -> str:
+        return '{}{}'.format(cls.PORT_ID_PREFIX, remote_host_id)
 
     @classmethod
     def get_port(cls, overlay_type: str, local_ip: str,
                  remote_ip: str, remote_host: str) -> dict:
-        port_id = KubeFetchOtepsFlannel.get_port_id(remote_host)
+        port_id = cls.get_port_id(remote_host)
         return {
             'name': port_id,
             'type': overlay_type,

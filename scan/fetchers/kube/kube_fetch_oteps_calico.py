@@ -7,11 +7,9 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
-import json
 
 from base.fetcher import Fetcher
 from base.utils.constants import KubeVedgeType
-from scan.fetchers.kube.kube_fetch_oteps_base import KubeFetchOtepsBase
 
 
 class KubeFetchOtepsCalico(Fetcher):

@@ -24,6 +24,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
 
     PROXY_ATTR = 'kube-proxy'
     SANDBOX_ID_ATTR = 'io.kubernetes.sandbox.id'
+    ATTRIBUTES_TO_IGNORE = ['resources', 'liveness_probe', 'readiness_probe', 'security_context']
 
     def get(self, parent_id) -> list:
         pod_id = parent_id.replace('-containers', '')
@@ -43,11 +44,13 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         if not pods or len(pods.items) == 0:
             self.log.error('failed to find pod with nodeName={}'.format(host))
             return []
+
         pod = next((pod for pod in pods.items if pod.metadata.uid == pod_id),
                    None)
         if not pod:
             self.log.error('failed to find pod with uid={}'.format(pod_id))
             return []
+
         for container in pod.spec.containers:
             ret.append(self.get_container(container, pod, pod_obj))
         return ret
@@ -62,24 +65,33 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             'name': 'kube-proxy',
             'container_id': 'kube-proxy'
         }
-        self.get_container_config(doc, pod_obj)
-        self.get_interface_link(doc, pod_obj)
-        self.get_proxy_container_info(doc, pod_obj)
+        self.update_container_config(doc=doc, pod_obj=pod_obj)
+        self.update_interface_link(doc=doc, pod_obj=pod_obj)
+        self.update_proxy_container_info(container=doc, pod_obj=pod_obj)
         return doc
 
     def get_container(self, container, pod, pod_obj):
-        doc = {'type': 'container', 'environment': self.get_env(), 'namespace': pod.metadata.namespace}
-        self.get_container_data(doc, container)
-        self.fetch_container_status_data(doc, pod_obj)
-        doc['host'] = pod_obj['host']
-        doc['pod'] = dict(id=pod_obj['id'], name=pod_obj['object_name'])
-        doc['ip_address'] = pod_obj.get('pod_status', {}).get('pod_ip', '')
-        doc['id'] = '{}-{}'.format(pod_obj['id'], doc['name'])
+        doc = {
+            'type': 'container',
+            'environment': self.get_env(),
+            'namespace': pod.metadata.namespace,
+            **self.get_container_data(container)
+        }
+        self.update_container_status_data(doc, pod_obj)
+        doc.update({
+            'host': pod_obj['host'],
+            'pod': {
+                'id': pod_obj['id'],
+                'name': pod_obj['object_name']
+            },
+            'ip_address': pod_obj.get('pod_status', {}).get('pod_ip', ''),
+            'id': '{}-{}'.format(pod_obj['id'], doc['name'])
+        })
         if doc.get('image'):
             doc['image'] = {"name": doc['image']}
-        self.get_container_config(doc, pod_obj)
-        self.get_interface_link(doc, pod_obj)
-        self.get_proxy_container_info(doc, pod_obj)
+        self.update_container_config(doc=doc, pod_obj=pod_obj)
+        self.update_interface_link(doc=doc, pod_obj=pod_obj)
+        self.update_proxy_container_info(container=doc, pod_obj=pod_obj)
         return doc
 
     @staticmethod
@@ -88,7 +100,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             if container_status.get('state', {}).get(status_key):
                 return status_key
 
-    def fetch_container_status_data(self, doc, pod_obj):
+    def update_container_status_data(self, doc: dict, pod_obj: dict):
         container_statuses = pod_obj['pod_status']['container_statuses']
         container_status = next(s for s in container_statuses
                                 if s['name'] == doc['name'])
@@ -108,36 +120,17 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         doc['container_status'] = container_status
         doc['state'] = self._get_state_from_container_status(container_status)
 
-    @staticmethod
-    def get_container_data(doc: dict, container: V1Container):
-        for k in dir(container):
-            if k.startswith('_'):
-                continue
-            try:
-                # TBD a lot of attributes from V1Container fail the saving to DB
-                if k in ['to_dict', 'to_str', 'attribute_map', 'swagger_types',
-                         'resources',
-                         'liveness_probe',
-                         'readiness_probe',
-                         'security_context']:
-                    continue
-                val = getattr(container, k)
-                if isinstance(val, classmethod):
-                    continue
-                if isinstance(val, staticmethod):
-                    continue
-                if val is not None:
-                    doc[k] = val
-            except AttributeError:
-                pass
+    @classmethod
+    def get_container_data(cls, container: V1Container):
+        return cls.class_to_dict(data_object=container, exclude=cls.ATTRIBUTES_TO_IGNORE)
 
-    def get_container_config(self, doc, pod_obj):
+    def update_container_config(self, doc, pod_obj):
         if doc.get('state') == 'waiting':
             return
 
         cmd = 'docker inspect {}'.format(doc['container_id'])
         try:
-            output = self.run(cmd, pod_obj['host'])
+            output = self.run(cmd, ssh_to_host=pod_obj['host'])
             data = json.loads(output)
         except SshError as e:
             self.log.warning('"docker inspect" cmd failed for container {}. '
@@ -156,15 +149,15 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             doc['state'] = data['State']['Status']  # Prefer actual state to the one fetched from container_status
         if 'Config' in data:
             doc['config'] = data['Config']
-            self.get_container_sandbox(doc, pod_obj)
+            self.update_container_sandbox(doc=doc, pod_obj=pod_obj)
 
-    def get_container_sandbox(self, doc, pod_obj):
+    def update_container_sandbox(self, doc: dict, pod_obj: dict) -> None:
         sandbox_id = doc['config'].get('Labels').get(self.SANDBOX_ID_ATTR)
         if not sandbox_id:
             return
 
         cmd = 'docker inspect {}'.format(sandbox_id)
-        output = self.run(cmd, pod_obj['host'])
+        output = self.run(cmd, ssh_to_host=pod_obj['host'])
         try:
             data = json.loads(output)
         except JSONDecodeError as e:
@@ -177,7 +170,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         doc['sandbox'] = data[0]
         self.find_network(doc)
 
-    def get_interface_link(self, doc, pod_obj):
+    def update_interface_link(self, doc: dict, pod_obj: dict):
         if doc.get('state') != 'running' or doc['namespace'] == 'cattle-system' or doc['name'] == 'kubernetes-dashboard':
             doc['vnic_index'] = ''
             return
@@ -186,9 +179,9 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         file_name = "/sys/class/net/{}/iflink".format(interface_name)
         cmd = 'docker exec {0} sh -c "test -f {1} && cat {1} || exit 0"'.format(doc['container_id'], file_name)
         try:
-            output = self.run(cmd, pod_obj['host'])
+            output = self.run(cmd, ssh_to_host=pod_obj['host'])
             doc['vnic_index'] = output.strip()
-            self.add_container_to_vnic(doc, pod_obj)
+            self.add_container_to_vnic(container=doc, pod_obj=pod_obj)
         except (SshError, CredentialsError, HostAddressError):
             doc['vnic_index'] = ''
 
@@ -209,7 +202,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             return
         doc['network'] = network_id
 
-    def add_container_to_vnic(self, container, pod_obj):
+    def add_container_to_vnic(self, container: dict, pod_obj: dict) -> None:
         condition = {
             'environment': self.get_env(),
             'type': 'vnic',
@@ -237,16 +230,16 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         #                                parent=container,
         #                                environment=self.get_env())
 
-    def get_proxy_container_info(self, container, pod_obj):
+    def update_proxy_container_info(self, container, pod_obj):
         if container['name'] != self.PROXY_ATTR:
             return
         container['container_app'] = self.PROXY_ATTR
-        self.get_proxy_container_config(container)
-        self.get_proxy_nat_tables(container)
+        self.update_proxy_container_config(container)
+        self.update_proxy_nat_tables(container)
         container['vservices'] = self.get_proxy_container_vservices(pod_obj)
         self.add_proxy_container_to_vservices(container)
 
-    def get_proxy_container_config(self, container):
+    def update_proxy_container_config(self, container: dict) -> None:
         command = container.get('command')
         if not command or not isinstance(command, list) or len(command) < 2:
             self.log.error('unable to find {} command file '
@@ -266,7 +259,7 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
         conf_file_contents = self.run(cmd=cmd, ssh_to_host=container['host'])
         container['kube_proxy_config'] = conf_file_contents
 
-    def get_proxy_nat_tables(self, container):
+    def update_proxy_nat_tables(self, container: dict) -> None:
         cmd = 'docker exec {} iptables -t nat -n -L' \
             .format(container['container_id'])
         nat_tables = self.run(cmd=cmd, ssh_to_host=container['host'])
@@ -284,11 +277,11 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             vservices.extend(pod['vservices'])
         return vservices
 
-    def add_proxy_container_to_vservices(self, container: dict):
+    def add_proxy_container_to_vservices(self, container: dict) -> None:
         for vservice in list(container.get('vservices', [])):
-            self.add_proxy_container_to_vservice(container, vservice)
+            self.add_proxy_container_to_vservice(container=container, vservice=vservice)
 
-    def add_proxy_container_to_vservice(self, container: dict, vservice: dict):
+    def add_proxy_container_to_vservice(self, container: dict, vservice: dict) -> None:
         vservice_obj = self.inv.get_by_id(self.get_env(), vservice['id'])
         if not vservice_obj:
             self.log.error('failed to find vservice object with id {} '

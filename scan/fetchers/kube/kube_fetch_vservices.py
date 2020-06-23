@@ -16,6 +16,9 @@ from scan.fetchers.kube.kube_access import KubeAccess
 
 class KubeFetchVservices(KubeAccess):
 
+    LOAD_BALANCER_ATTR = 'load_balancer'
+    STATUS_ATTRIBUTES_TO_FETCH = [LOAD_BALANCER_ATTR]
+
     def get(self, object_id) -> list:
         parent = self.inv.get_by_id(self.env, object_id)
         if not parent:
@@ -55,24 +58,14 @@ class KubeFetchVservices(KubeAccess):
         return doc
 
     def get_service_details(self, service: V1Service):
-        doc = {}
-        try:
-            self.get_service_metadata(doc, service.metadata)
-        except AttributeError:
-            pass
-        try:
-            self.get_service_data(doc, service.spec)
-        except AttributeError:
-            pass
-        try:
-            self.get_service_status(doc, service.status)
-        except AttributeError:
-            pass
+        doc = {
+            **self.get_service_metadata(metadata=service.metadata),
+            **self.get_service_data(spec=service.spec),
+            **self.get_service_status(service_status=service.status),
+            'type': 'vservice',
+            'service_type': 'proxy'
+        }
         doc['id'] = doc['uid']
-        doc['type'] = 'vservice'
-        doc['local_service_id'] = doc['name']
-        doc['service_type'] = 'proxy'
-        KubeAccess.del_attribute_map(doc)
         doc['pods'] = self.get_service_pods(doc)
         return doc
 
@@ -81,41 +74,31 @@ class KubeFetchVservices(KubeAccess):
         'owner_references', 'namespace'
     ]
 
-    @staticmethod
-    def get_service_metadata(doc: dict, metadata: V1ObjectMeta):
-        for attr in KubeFetchVservices.METADATA_ATTRIBUTES_TO_FETCH:
-            try:
-                val = getattr(metadata, attr)
-                if val is not None:
-                    doc[attr] = val
-            except AttributeError:
-                pass
-        doc['id'] = doc['uid']
+    @classmethod
+    def get_service_metadata(cls, metadata: V1ObjectMeta) -> dict:
+        return cls.class_to_dict(data_object=metadata, include=cls.METADATA_ATTRIBUTES_TO_FETCH)
 
     @staticmethod
-    def get_service_data(doc: dict, spec: V1ServiceSpec):
-        for attr, val in spec.__dict__.items():
+    def get_service_data(spec: V1ServiceSpec) -> dict:
+        data = {}
+        for attr in spec.__dict__:
             try:
                 val = getattr(spec, attr)
                 if val is None:
                     continue
                 attr_name = attr[1:] if attr[1:] in spec.attribute_map else attr
-                KubeAccess.del_attribute_map(val)
-                doc[attr_name] = val
+                data[attr_name] = val
             except AttributeError:
-                pass
+                continue
+        return data
 
-    STATUS_ATTRIBUTES_TO_FETCH = ['load_balancer']
-
-    LOAD_BALANCER_ATTR = 'load_balancer'
-
-    @staticmethod
-    def get_service_status(doc: dict, service_status: V1ServiceStatus):
-        load_balancer = getattr(service_status,
-                                KubeFetchVservices.LOAD_BALANCER_ATTR)
-        if not load_balancer.get('ingress'):
-            return
-        doc['status'] = {KubeFetchVservices.LOAD_BALANCER_ATTR: load_balancer}
+    @classmethod
+    def get_service_status(cls, service_status: V1ServiceStatus) -> dict:
+        try:
+            ingress = getattr(getattr(service_status, cls.LOAD_BALANCER_ATTR), "ingress")
+        except AttributeError:
+            return {}
+        return {cls.LOAD_BALANCER_ATTR: ingress} if ingress else {}
 
     def get_service_pods(self, service: dict) -> list:
         selectors = service.get('selector')

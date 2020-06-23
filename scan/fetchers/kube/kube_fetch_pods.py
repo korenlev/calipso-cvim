@@ -7,6 +7,7 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+
 from kubernetes.client.models import V1Pod, V1ObjectMeta, V1PodSpec, V1PodStatus
 
 from base.utils.inventory_mgr import InventoryMgr
@@ -109,49 +110,32 @@ class KubeFetchPods(KubeAccess, CliFetcher):
 
     @classmethod
     def get_pod_details(cls, pod: V1Pod):
-        doc = {}
-        cls.get_pod_metadata(doc, pod.metadata)
-        cls.get_pod_data(doc, pod.spec)
-        cls.get_pod_status(doc, pod.status)
+        doc = {
+            **cls.get_pod_metadata(pod.metadata),
+            **cls.get_pod_data(pod.spec),
+            'pod_status': cls.get_pod_status(pod.status)
+        }
+        doc['id'] = doc['uid']
         return doc
 
     @classmethod
-    def get_pod_metadata(cls, doc: dict, metadata: V1ObjectMeta):
-        for attr in cls.METADATA_ATTRIBUTES_TO_FETCH:
-            val = getattr(metadata, attr, None)
-            if val is not None:
-                doc[attr] = val
-        doc['id'] = doc.get('uid')
+    def get_pod_metadata(cls, metadata: V1ObjectMeta) -> dict:
+        return cls.class_to_dict(data_object=metadata, include=cls.METADATA_ATTRIBUTES_TO_FETCH)
 
     @classmethod
-    def get_pod_data(cls, doc: dict, spec: V1PodSpec):
-        for attr in cls.DATA_ATTRIBUTES_TO_FETCH:
-            val = getattr(spec, attr, None)
-            if val:
-                KubeAccess.del_attribute_map(val)
-                doc[attr] = val
+    def get_pod_data(cls, spec: V1PodSpec) -> dict:
+        return cls.class_to_dict(data_object=spec, include=cls.DATA_ATTRIBUTES_TO_FETCH)
 
     @classmethod
-    def get_pod_status(cls, doc: dict, pod_status: V1PodStatus):
-        status_data = {}
-        for k in dir(pod_status):
-            if k.startswith('_') or k not in cls.STATUS_ATTRIBUTES_TO_FETCH:
-                continue
-            val = getattr(pod_status, k, None)
-            if val is not None:
-                status_data[k] = val
-        if status_data:
-            doc['pod_status'] = status_data
+    def get_pod_status(cls, pod_status: V1PodStatus) -> dict:
+        return cls.class_to_dict(data_object=pod_status, include=cls.STATUS_ATTRIBUTES_TO_FETCH)
 
     @staticmethod
     def get_pod_namespace(inv_mgr: InventoryMgr, pod: dict) -> dict:
-        namespace = inv_mgr.find_one({
+        return inv_mgr.find_one({
             'environment': pod['environment'],
             'name': pod['namespace']
         })
-        if not namespace:
-            return {}
-        return namespace
 
     def add_pod_ref_to_namespace(self, pod):
         namespace = self.get_pod_namespace(self.inv, pod)
@@ -161,6 +145,9 @@ class KubeFetchPods(KubeAccess, CliFetcher):
             return
         if 'pods' not in namespace:
             namespace['pods'] = []
-        namespace['pods'].append(dict(id=pod['id'], name=pod['name'],
-                                      host=pod['host']))
+        namespace['pods'].append({
+            'id': pod['id'],
+            'name': pod['name'],
+            'host': pod['host']
+        })
         self.inv.set(namespace)
