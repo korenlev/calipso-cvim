@@ -161,7 +161,7 @@
         "dns_policy",
         "namespace"
     ],
-    "tooltip" : "Virtual communication device handling physical to virtual networking (like VPP, SRIOV, OVS)"
+    "tooltip" : "Virtual communication device handling physical to virtual networking (like VPP, SRIOV, OVS, Calico, Flannel, )"
 },
 {
     "type" : "host_pnic",
@@ -297,7 +297,7 @@
         "status_text",
         "root_cause"
     ],
-    "tooltip" : "Overlay tunneling endpoint (like VXLAN, Geneve, GRE, etc)"
+    "tooltip" : "Overlay tunneling endpoint (like VXLAN, Geneve, GRE, IPIP, etc)"
 },
 {
     "type" : "switch_pnic",

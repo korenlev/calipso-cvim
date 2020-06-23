@@ -29,6 +29,7 @@
         "distribution_version" : [
             "1.9",
             "1.10",
+            "1.14",
             "1.17"
         ],
         "mechanism_drivers" : [
@@ -36,7 +37,7 @@
             "VPP",
             "Calico"
         ],
-        "type_drivers" : ["vxlan", "vlan", "bgp"]
+        "type_drivers" : ["vxlan", "vlan", "bgp", "ipip"]
     }
 },
 {

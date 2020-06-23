@@ -145,16 +145,13 @@
         "VPP"
     ],
     "distribution_versions" : [
-        "18606",
-        "18079",
-        "19312",
-        "11190",
-	"13840"
+        "26929"
     ],
     "type_drivers" : [
         "vlan",
         "vxlan",
-        "gre"
+        "gre",
+        "geneve"
     ]
 },
 {
@@ -171,13 +168,15 @@
     ],
     "distribution_versions" : [
         "1.9",
+        "1.14",
         "1.17"
     ],
     "type_drivers" : [
         "vlan",
         "vxlan",
         "gre",
-        "bgp"
+        "bgp",
+        "ipip"
     ]
 }
 ]
