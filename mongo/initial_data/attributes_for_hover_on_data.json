@@ -135,7 +135,7 @@
         "labels",
         "swagger_types"
     ],
-    "tooltip" : "Virtual service (like a router, DHCP, FWaaS, etc)"
+    "tooltip" : "Virtual service (like a router, kubeproxy, DHCP, ingress, FWaaS, etc)"
 },
 {
     "type" : "vedge",
