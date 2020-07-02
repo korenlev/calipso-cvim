@@ -101,13 +101,17 @@ class ScheduledScans(ResponderWithOnDelete):
                              .format(", ".join(scan_only_keys)))
 
         env_name = scheduled_scan.pop("env_name")
+        env = self.get_single_object(collection="environments_config",
+                                     query={"name": env_name})
+        if not env:
+            self.bad_request("unknown environment: {}".format(env_name))
+
         scheduled_scan.update({
             "environment": env_name,
+            "send_to_remote": env.get("imported", False),
             "submit_timestamp": submit_timestamp,
             "status": ScheduledScanStatus.UPCOMING.value,
         })
-        if not self.check_environment_name(env_name):
-            self.bad_request("unknown environment: {}".format(env_name))
 
         result = self.write(scheduled_scan, self.COLLECTION)
         response_body = {

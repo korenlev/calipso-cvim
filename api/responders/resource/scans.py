@@ -94,11 +94,14 @@ class Scans(ResponderBase):
                              .format(", ".join(scan_only_keys)))
 
         env_name = scan.pop("env_name")
-        scan["environment"] = env_name
-        if not self.check_environment_name(env_name):
+        env = self.get_single_object(collection="environments_config",
+                                     query={"name": env_name})
+        if not env:
             self.bad_request("unknown environment: {}".format(env_name))
 
         scan.update({
+            "environment": env_name,
+            "send_to_remote": env.get("imported", False),
             "status": self.DEFAULT_STATUS,
             "submit_timestamp": datetime.utcnow()
         })

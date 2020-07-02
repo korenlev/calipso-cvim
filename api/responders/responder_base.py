@@ -180,19 +180,20 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
         return constants
 
-    def check_environment_name(self, env_name):
+    def check_environment_name(self, env_name: str) -> bool:
         query = {"name": env_name}
         objects = self.read(collection="environments_config", query=query)
         if not objects:
             return False
         return True
 
-    def get_single_object(self, collection: str, query: dict, aggregate: Optional[list] = None):
+    def get_single_object(self, collection: str, query: dict, aggregate: Optional[list] = None) -> dict:
+        env_name = query.get("environment")
+        if env_name and not self.check_environment_name(env_name):
+            self.bad_request("unknown environment: " + env_name)
+
         objs = self.read(collection=collection, query=query, aggregate=aggregate)
         if not objs:
-            env_name = query.get("environment")
-            if env_name and not self.check_environment_name(env_name):
-                self.bad_request("unknown environment: " + env_name)
             return {}
 
         obj = objs[0]
@@ -204,25 +205,22 @@ class ResponderBase(DataValidate, DictNamingConverter):
 
     def get_objects_list(self, collection: str, query: dict, page: int = 0, page_size: int = 1000,
                          projection: Optional[dict] = None, aggregate: Optional[list] = None,
-                         sort: Optional[List[Tuple]] = None):
+                         sort: Optional[List[Tuple]] = None) -> list:
+        env_name = query.get("environment")
+        if env_name and not self.check_environment_name(env_name):
+            self.bad_request("Unknown environment: {}".format(env_name))
+
         objects = self.read(collection=collection, query=query, projection=projection, aggregate=aggregate,
                             sort=sort, skip=page, limit=page_size)
-        if not objects:
-            env_name = query.get("environment")
-            if env_name and not self.check_environment_name(env_name):
-                self.bad_request("Unknown environment: {}".format(env_name))
-            return []
 
         for obj in objects:
             if "id" not in obj and "_id" in obj:
-                obj["id"] = str(obj["_id"])
-            if "_id" in obj:
-                del obj["_id"]
+                obj["id"] = str(obj.pop("_id"))
 
         stringify_doc(objects)
         return objects
 
-    def delete_object_by_id(self, collection, query):
+    def delete_object_by_id(self, collection: str, query: dict):
         if self.ID not in query:
             self.bad_request("Object ID must be specified for deletion")
 
@@ -255,7 +253,6 @@ class ResponderBase(DataValidate, DictNamingConverter):
         collection = self.get_collection_by_name(collection)
         skip *= limit
         if aggregate:
-            # TODO: verify sequence
             pipeline = [
                 {"$match": query}
             ]

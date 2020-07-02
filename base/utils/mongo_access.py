@@ -48,6 +48,10 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
     def is_db_ready() -> bool:
         return MongoAccess.client is not None
 
+    @staticmethod
+    def escape_ipv6(host: str) -> str:
+        return "[{}]".format(host) if len(host.split(":")) > 1 else host
+
     def mongo_connect(self):
         if MongoAccess.client:
             return
@@ -81,7 +85,7 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
             uri = uri + params['user'] + ':' + params['pwd'] + '@'
         else:
             self.log.info('MongoDB credentials missing')
-        uri = uri + params['server']
+        uri = uri + self.escape_ipv6(params['server'])
         if 'auth_db' in params:
             uri = uri + '/' + params['auth_db']
         self.connect_params['server'] = uri

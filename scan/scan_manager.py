@@ -275,11 +275,14 @@ class ScanManager(Manager):
         self._prepare_scheduled_requests()
 
         # Find a pending request that is waiting the longest time
-        results = self.scans_collection \
-            .find({'status': ScanStatus.PENDING.value,
-                   'submit_timestamp': {'$ne': None}}) \
-            .sort("submit_timestamp", pymongo.ASCENDING) \
-            .limit(1)
+        results = (
+            self.scans_collection.find({
+                'status': ScanStatus.PENDING.value,
+                'submit_timestamp': {'$ne': None},
+                'imported': {'$ne': True},
+                'send_to_remote': {'$ne': True}
+            }).sort("submit_timestamp", pymongo.ASCENDING).limit(1)
+        )
 
         # If no scans are pending, sleep for some time
         if results.count() == 0:

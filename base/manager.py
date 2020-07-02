@@ -50,10 +50,12 @@ class AsyncManager(Manager, ABC):
 
     def __init__(self, log_directory: Optional[str] = None,
                  mongo_config_file: Optional[str] = None,
-                 log_level: Optional[str] = None):
+                 log_level: Optional[str] = None,
+                 log_file: Optional[str] = None):
         super().__init__(log_directory=log_directory,
                          mongo_config_file=mongo_config_file,
-                         log_level=log_level)
+                         log_level=log_level,
+                         log_file=log_file)
         self.task: Optional[asyncio.Future] = None
 
     @abstractmethod
@@ -65,6 +67,10 @@ class AsyncManager(Manager, ABC):
         pass
 
     def stop(self):
+        """
+            When overriding this method,
+            subclasses should call this one as the last action
+        """
         if self.task:
             self.task.cancel()
 
