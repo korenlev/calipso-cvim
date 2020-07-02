@@ -53,10 +53,6 @@
         {
             "value" : "debug",
             "label" : "DEBUG"
-        },
-        {
-            "value" : "notset",
-            "label" : "NOTSET"
         }
     ],
     "name" : "log_levels"
@@ -105,6 +101,10 @@
         {
             "value" : "flat",
             "label" : "flat"
+        },
+        {
+            "value" : "bgp",
+            "label" : "bgp"
         }
     ],
     "name" : "type_drivers"
