@@ -333,7 +333,6 @@
         "vconnector-host_pnic",
         "host_pnic-network"
     ],
-    "distribution_version" : "1.17",
     "mechanism_drivers" : "Calico",
     "environment" : "",
     "environment_type" : "Kubernetes",
@@ -353,7 +352,6 @@
         "vedge-vnic",
         "vnic-container"
     ],
-    "distribution_version" : "1.17",
     "mechanism_drivers" : "Calico",
     "environment" : "",
     "environment_type" : "Kubernetes",
@@ -369,7 +367,6 @@
         "pod-container",
         "container-network"
     ],
-    "distribution_version" : "1.17",
     "mechanism_drivers" : "Calico",
     "environment" : "",
     "environment_type" : "Kubernetes",
