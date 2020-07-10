@@ -55,11 +55,12 @@ def info(msg):
 
 
 class MongoConnector(object):
-    def __init__(self, host, port, user, pwd, db, db_label="central DB"):
+    def __init__(self, host, port, user, pwd, db, rs=None, db_label="central DB"):
 
         self.host = "[{}]".format(host) if ":" in host and "[" not in host else host
         self.port = port
         self.user = user
+        self.rs = rs
         self.pwd = pwd
         self.db = db
         self.db_label = db_label
@@ -76,6 +77,10 @@ class MongoConnector(object):
                                                      self.host, self.port, self.db)
         else:
             self.uri = "mongodb://%s:%s/%s" % (self.host, self.port, self.db)
+
+        if self.rs:
+            self.uri += "?replicaSet=%s" % (self.rs,)
+
         try:
             self.client = MongoClient(self.uri, connectTimeoutMS=10000, serverSelectionTimeoutMS=10000, ssl=True, ssl_cert_reqs=ssl.CERT_NONE)
         except pymongo.errors.ServerSelectionTimeoutError as e:
@@ -152,9 +157,15 @@ def read_servers_from_cli():
 
     central_host = input("Central Calipso Server Hostname/IP\n")
     central_port = input("Central Calipso Server Port (default: {})\n".format(DEFAULT_PORT))
+    central_rs = input("Central Calipso MongoDB replica set (default: None)")
     central_secret = input("Central Calipso Server Secret\n")
 
-    central = {'host': central_host, 'port': central_port if central_port else DEFAULT_PORT, 'mongo_pwd': central_secret}
+    central = {
+        'host': central_host,
+        'port': central_port if central_port else DEFAULT_PORT,
+        'rs': central_rs if central_rs else None,
+        'mongo_pwd': central_secret
+    }
     return servers, central
 
 
@@ -293,10 +304,10 @@ def run():
                         help="Print debug messages",
                         action="store_true",
                         required=False)
-    parser.add_argument("--deployment_type",
-                        type=str.lower,
-                        help="Deployment type (for central config discovery)",
-                        choices=DISCOVERABLE_DEPLOYMENT_TYPES)
+    # parser.add_argument("--deployment_type",
+    #                     type=str.lower,
+    #                     help="Deployment type (for central config discovery)",
+    #                     choices=DISCOVERABLE_DEPLOYMENT_TYPES)
     parser.add_argument("--namespace",
                         type=str,
                         help="K8s namespace with central mongo pod (deployment type: {}). Default: {}".format(K8S, DEFAULT_K8S_NAMESPACE),
@@ -325,7 +336,10 @@ def run():
 
     servers, central = read_servers_from_file(args.config) if args.config else read_servers_from_cli()
     if not central:
-        central = discover_mongo_active_node(args.deployment_type, namespace=args.namespace)
+        # Central config discovery is currently not supported
+        # central = discover_mongo_active_node(args.deployment_type, namespace=args.namespace)
+        print("No central config defined. Exiting")
+        return 1
     if len(servers) == 0:
         info("No remote servers defined. Nothing to replicate")
         return 0
@@ -343,7 +357,8 @@ def run():
 
     init_time = time.time()
     destination_connector = MongoConnector(host=central['host'], port=central.get('port', DEFAULT_PORT),
-                                           user=DEFAULT_USER, pwd=central['mongo_pwd'], db=AUTH_DB)
+                                           rs=central['rs'], user=DEFAULT_USER,
+                                           pwd=central['mongo_pwd'], db=AUTH_DB)
     for col in collection_names:
         info("Clearing collection {} from central...".format(col))
         destination_connector.clear_collection(col)

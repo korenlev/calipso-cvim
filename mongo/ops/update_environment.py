@@ -5,7 +5,7 @@ import os
 import json
 
 from pymongo.errors import OperationFailure, ConnectionFailure
-from setup_initial_data import HOST, PORT, CALIPSO_DB, CALIPSO_USER, CALIPSO_PWD, MongoConnector, _exit
+from setup_initial_data import HOST, PORT, CALIPSO_DB, CALIPSO_USER, CALIPSO_PWD, MongoConnector, _exit, REPLICA_SET
 
 # Required environment variables
 DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_PWD"]
@@ -178,7 +178,7 @@ def run():
                         required=False)
     args = parser.parse_args()
 
-    mongo_connector = MongoConnector(HOST, PORT)
+    mongo_connector = MongoConnector(host=HOST, port=PORT, rs=REPLICA_SET)
     try:
         mongo_connector.connect(db=CALIPSO_DB, user=CALIPSO_USER, pwd=CALIPSO_PWD)
         with open(args.source) as f:

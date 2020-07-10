@@ -17,6 +17,7 @@ ADMIN_DB = "admin"
 SSL_ENABLED = os.environ.get("CALIPSO_MONGO_SSL_ENABLED", True)
 HOST = os.environ.get("CALIPSO_MONGO_SERVICE_HOST", DEFAULT_HOST)
 PORT = os.environ.get("CALIPSO_MONGO_SERVICE_PORT", DEFAULT_PORT)
+REPLICA_SET = os.environ.get("CALIPSO_MONGO_SERVICE_RS_NAME", None)
 CALIPSO_USER = os.environ.get("CALIPSO_MONGO_SERVICE_USER", DEFAULT_USER)
 CALIPSO_PWD = os.environ.get("CALIPSO_MONGO_SERVICE_PWD")
 CALIPSO_DB = os.environ.get("CALIPSO_MONGO_SERVICE_AUTH_DB", DEFAULT_DB)
@@ -40,9 +41,10 @@ predefined_collections = {
 
 
 class MongoConnector(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, rs=None):
         self.host = host
         self.port = port
+        self.rs = rs
 
         self.user = None
         self.pwd = None
@@ -66,11 +68,16 @@ class MongoConnector(object):
         self.pwd = pwd
         if user and pwd:
             self.auth_enabled = True
-            uri = "mongodb://{}:{}@{}:{}/{}".format(quote_plus(self.user), quote_plus(self.pwd),
-                                                    self.host, self.port, self.db)
+            uri = "mongodb://{}:{}@{}:{}/".format(quote_plus(self.user), quote_plus(self.pwd),
+                                                  self.host, self.port)
         else:
             self.auth_enabled = False
             uri = "mongodb://{}:{}/".format(self.host, self.port)
+
+        if self.db:
+            uri += self.db
+        if self.rs:
+            uri += "?replicaSet={}".format(self.rs)
 
         if SSL_ENABLED:
             self.client = MongoClient(uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE, connect=True)
@@ -220,7 +227,7 @@ def run():
                         required=False)
     args = parser.parse_args()
 
-    mongo_connector = MongoConnector(HOST, PORT)
+    mongo_connector = MongoConnector(host=HOST, port=PORT, rs=REPLICA_SET)
     attempt = 1
     while True:
         try:
@@ -229,7 +236,8 @@ def run():
 
             # Create admin user
             mongo_connector.create_user(db=ADMIN_DB, user=ADMIN_USER, pwd=CALIPSO_PWD,
-                                        roles=[{"role": "userAdminAnyDatabase", "db": ADMIN_DB}])
+                                        roles=[{"role": "userAdminAnyDatabase", "db": ADMIN_DB},
+                                               "clusterAdmin", "userAdmin"])
             # Create calipso user
             mongo_connector.create_user(db=CALIPSO_DB, user=CALIPSO_USER, pwd=CALIPSO_PWD,
                                         roles=[{"role": "readWrite", "db": CALIPSO_DB}])

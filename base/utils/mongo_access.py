@@ -35,7 +35,8 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
     }
     OPTIONAL_ENV_VARIABLES = {
         'port': 'CALIPSO_MONGO_SERVICE_PORT',
-        'auth_db': 'CALIPSO_MONGO_SERVICE_AUTH_DB'
+        'auth_db': 'CALIPSO_MONGO_SERVICE_AUTH_DB',
+        'rs': 'CALIPSO_MONGO_SERVICE_RS_NAME'
     }
 
     def __init__(self):
@@ -81,13 +82,18 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
         self.log.debug('connecting to MongoDB server: {}'
                        .format(params['server']))
         uri = 'mongodb://'
-        if 'pwd' in params:
-            uri = uri + params['user'] + ':' + params['pwd'] + '@'
+        if 'user' in params and 'pwd' in params:
+            uri += '{}:{}@'.format(params['user'], params['pwd'])
         else:
             self.log.info('MongoDB credentials missing')
-        uri = uri + self.escape_ipv6(params['server'])
+
+        uri += "{}/".format(self.escape_ipv6(params['server']))
+
         if 'auth_db' in params:
-            uri = uri + '/' + params['auth_db']
+            uri += '{}'.format(params['auth_db'])
+        if 'rs' in params:
+            uri += '?replicaSet={}'.format(params['rs'])
+
         self.connect_params['server'] = uri
 
     @staticmethod
