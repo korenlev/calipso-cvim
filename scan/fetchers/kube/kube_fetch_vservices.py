@@ -87,6 +87,13 @@ class KubeFetchVservices(KubeAccess):
                 if val is None:
                     continue
                 attr_name = attr[1:] if attr[1:] in spec.attribute_map else attr
+
+                if hasattr(val, "to_dict"):
+                    try:
+                        val = val.to_dict()
+                    except TypeError:
+                        continue
+
                 data[attr_name] = val
             except AttributeError:
                 continue

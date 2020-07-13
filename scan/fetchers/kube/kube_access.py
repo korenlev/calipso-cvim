@@ -92,7 +92,9 @@ class KubeAccess(ApiAccessBase):
             try:
                 v = getattr(data_object, attr)
                 if not callable(v):
+                    if hasattr(v, "to_dict"):
+                        v = v.to_dict()
                     ret[attr] = v
-            except AttributeError:
+            except (TypeError, AttributeError):
                 continue
         return ret
