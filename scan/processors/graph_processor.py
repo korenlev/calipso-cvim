@@ -10,7 +10,7 @@ class GraphProcessor(Processor):
 
     def get_data_list_and_graph_doc(self) -> (list, dict):
         data_list = [{
-            'id': self.env,
+            'id': "env|{}".format(self.env),
             'name': self.env,
         }]
 
@@ -18,7 +18,7 @@ class GraphProcessor(Processor):
             data_list.append({
                 'id': doc['id'],
                 'id_path': doc['id_path'],
-                'parent': doc['parent_id'],
+                'parent': "env|{}".format(doc['parent_id']) if doc['parent_type'] == "environment" else doc['parent_id'],
                 'type': doc['type'],
                 'host': doc.get('host'),
                 'name': doc.get('text', doc['name']) if doc['type'].endswith('folder') else doc['name']

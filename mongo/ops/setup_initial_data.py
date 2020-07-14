@@ -17,7 +17,8 @@ ADMIN_DB = "admin"
 SSL_ENABLED = os.environ.get("CALIPSO_MONGO_SSL_ENABLED", True)
 HOST = os.environ.get("CALIPSO_MONGO_SERVICE_HOST", DEFAULT_HOST)
 PORT = os.environ.get("CALIPSO_MONGO_SERVICE_PORT", DEFAULT_PORT)
-REPLICA_SET = os.environ.get("CALIPSO_MONGO_SERVICE_RS_NAME", None)
+REPLICA_SET_ENABLED = os.environ.get("CALIPSO_MONGO_SERVICE_RS_ENABLED", False)
+REPLICA_SET_NAME = os.environ.get("CALIPSO_MONGO_SERVICE_RS_NAME", None)
 CALIPSO_USER = os.environ.get("CALIPSO_MONGO_SERVICE_USER", DEFAULT_USER)
 CALIPSO_PWD = os.environ.get("CALIPSO_MONGO_SERVICE_PWD")
 CALIPSO_DB = os.environ.get("CALIPSO_MONGO_SERVICE_AUTH_DB", DEFAULT_DB)
@@ -41,10 +42,12 @@ predefined_collections = {
 
 
 class MongoConnector(object):
-    def __init__(self, host, port, rs=None):
+    def __init__(self, host, port, rs_enabled=False, rs_name=None):
         self.host = host
         self.port = port
-        self.rs = rs
+
+        self.rs_enabled = rs_enabled
+        self.rs_name = rs_name
 
         self.user = None
         self.pwd = None
@@ -76,8 +79,8 @@ class MongoConnector(object):
 
         if self.db:
             uri += self.db
-        if self.rs:
-            uri += "?replicaSet={}".format(self.rs)
+        if self.rs_enabled and self.rs_name:
+            uri += "?replicaSet={}".format(self.rs_name)
 
         if SSL_ENABLED:
             self.client = MongoClient(uri, ssl=True, ssl_cert_reqs=ssl.CERT_NONE, connect=True)
@@ -227,7 +230,8 @@ def run():
                         required=False)
     args = parser.parse_args()
 
-    mongo_connector = MongoConnector(host=HOST, port=PORT, rs=REPLICA_SET)
+    mongo_connector = MongoConnector(host=HOST, port=PORT,
+                                     rs_enabled=REPLICA_SET_ENABLED, rs_name=REPLICA_SET_NAME)
     attempt = 1
     while True:
         try:

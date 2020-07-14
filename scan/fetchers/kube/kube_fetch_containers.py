@@ -34,7 +34,8 @@ class KubeFetchContainers(KubeAccess, CliFetcher):
             return []
 
         # TODO: temporary
-        if pod_obj.get('labels', {}).get('calipso-rancher-pod-for-kube-proxy'):
+        labels = pod_obj.get('labels', {})
+        if labels and labels.get('calipso-rancher-pod-for-kube-proxy'):
             return [self.get_rancher_proxy_container(pod_obj)]
 
         host = pod_obj['host']

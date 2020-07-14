@@ -2,7 +2,7 @@ import os
 from pymongo.errors import OperationFailure, ConnectionFailure
 
 from setup_initial_data import HOST, PORT, ADMIN_USER, ADMIN_DB, CALIPSO_DB, CALIPSO_USER, MongoConnector, _exit, \
-    REPLICA_SET
+    REPLICA_SET_ENABLED, REPLICA_SET_NAME
 
 # Required environment variables
 OLD_DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_OLD_PWD"]
@@ -10,7 +10,8 @@ NEW_DB_PWD = os.environ["CALIPSO_MONGO_SERVICE_NEW_PWD"]
 ################################
 
 if __name__ == "__main__":
-    mongo_connector = MongoConnector(host=HOST, port=PORT, rs=REPLICA_SET)
+    mongo_connector = MongoConnector(host=HOST, port=PORT,
+                                     rs_enabled=REPLICA_SET_ENABLED, rs_name=REPLICA_SET_NAME)
     try:
         # Connect to admin user
         mongo_connector.connect(db=ADMIN_DB, user=ADMIN_USER, pwd=OLD_DB_PWD)
