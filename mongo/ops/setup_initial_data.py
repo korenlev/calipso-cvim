@@ -46,7 +46,7 @@ class MongoConnector(object):
         self.host = host
         self.port = port
 
-        self.rs_enabled = rs_enabled
+        self.rs_enabled = rs_enabled is True or str(rs_enabled).lower() == "true"
         self.rs_name = rs_name
 
         self.user = None
