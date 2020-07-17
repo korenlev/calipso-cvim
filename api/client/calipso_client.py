@@ -63,7 +63,13 @@ class APIAuthException(APIException):
 
 
 class APICallException(APIException):
-    pass
+    def __init__(self, *args, message: str = "", url: str = ""):
+        super().__init__(*args)
+        self.message = message
+        self.url = url
+
+    def __str__(self) -> str:
+        return "url: {}, message: {}".format(self.url, self.message)
 
 
 class ScanError(Exception):
@@ -156,12 +162,16 @@ class CalipsoClient:
 
         if not content:
             if response.status_code == 404:
-                raise APICallException("Endpoint not found")
+                raise APICallException(message="Endpoint not found",
+                                       url=endpoint)
             if response.status_code == 400:
-                raise APICallException("Environment or resource not found, or invalid keys")
-            raise APICallException("API didn't return a valid JSON")
+                raise APICallException(message="Environment or resource not found, or invalid keys",
+                                       url=endpoint)
+            raise APICallException(message="API didn't return a valid JSON",
+                                   url=endpoint)
         if err and fail_on_error:
-            raise APICallException(err.get('message', err))
+            raise APICallException(message=err.get('message', err),
+                                   url=endpoint)
 
         return content
 

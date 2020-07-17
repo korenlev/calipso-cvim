@@ -74,7 +74,18 @@ class AsyncManager(Manager, ABC):
         if self.task:
             self.task.cancel()
 
-    def run(self):
+    def run(self, detach: bool = True):
+        """
+            Run async manager and cancel the task upon the main loop completion
+        :param detach: if true, this method will exit
+        after the do_action method is wrapped into a Future.
+        Otherwise, it will block until the Future exits
+        and propagate raised exceptions.
+        :return:
+        """
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.configure())
         self.task = asyncio.ensure_future(self.do_action())
+        self.task.add_done_callback(self.stop)
+        if not detach:
+            loop.run_until_complete(self.task)

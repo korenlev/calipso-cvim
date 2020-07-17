@@ -13,7 +13,8 @@ import signal
 import os
 import re
 import time
-from typing import Optional
+from functools import wraps
+from typing import Optional, Callable, Any, Tuple
 
 from bson.objectid import ObjectId
 
@@ -205,33 +206,86 @@ def read_environment_variables(required=None, optional=None, empty_is_none=False
     return results
 
 
-def measure_perf_time(name="func", time_format=":.02f"):
+def _log_perf_result(start_time: float, func_name: str, func_args: Tuple[Any, ...],
+                     time_format: str, print_func: Callable[[Any], None] = None):
+    t_str = ("{} took {%s}s" % time_format).format(func_name, time.perf_counter() - start_time)
+    if print_func:
+        print_func(t_str)
+    elif func_args and hasattr(func_args[0], "log") and hasattr(func_args[0].log, "debug"):
+        func_args[0].log.debug(t_str)
+    else:
+        print(t_str)
+
+
+# Performance measuring decorator for non-async functions and class methods
+# Usage example:
+#
+# @measure_perf_time(name="func doing stuff", print_func=pprint.pprint)
+# def func_does_stuff(*args, **kwargs):
+#   <do something>
+#
+def measure_perf_time(name=None, time_format=":.03f",
+                      print_func: Callable[[Any], None] = None):
     def decorator(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
             start = time.perf_counter()
             res = func(*args, **kwargs)
-            t_str = ("{} took {%s}s" % time_format).format(name, time.perf_counter() - start)
-            if hasattr(args[0], "log") and hasattr(args[0].log, "info"):
-                args[0].log.info(t_str)
-            else:
-                print(t_str)
+            _log_perf_result(start_time=start, func_name=name if name else func.__name__,
+                             func_args=args, time_format=time_format, print_func=print_func)
             return res
         return wrapper
     return decorator
 
 
+# Performance measuring decorator for async functions and class instance methods
+# Usage example:
+#
+# @async_measure_perf_time(name="async func doing stuff", print_func=pprint.pprint)
+# async def async_func_does_stuff(*args, **kwargs):
+#   <do something>
+#
+def async_measure_perf_time(name=None, time_format=":.03f",
+                            print_func: Callable[[Any], None] = None):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            start = time.perf_counter()
+            res = await func(*args, **kwargs)
+            _log_perf_result(start_time=start, func_name=name if name else func.__name__,
+                             func_args=args, time_format=time_format, print_func=print_func)
+            return res
+        return wrapper
+    return decorator
+
+
+# Performance measuring context manager for arbitrary blocks of code
+# Usage examples:
+#
+# def func_does_stuff(*args, **kwargs):
+#   with MeasurePerfTime(name="block doing stuff", print_func=pprint.pprint):
+#       <do something>
+#
+# If class instance has logger defined
+#
+# class StuffDoingClass:
+#     def func_does_stuff(self, *args, **kwargs):
+#         with MeasurePerfTime(name="block doing stuff", print_func=self.log.info):
+#             <do something>
 class MeasurePerfTime:
-    def __init__(self, instance=None, time_format: str = ":.02f"):
-        self.start: Optional[float] = None
+    def __init__(self, name="block", instance: Any = None, time_format: str = ":.03f",
+                 print_func: Callable[[Any], None] = print):
+        self.name = name
         self.time_format: Optional[str] = time_format
         self.instance = instance
+        self.print_func = print_func
+
+        self.start: Optional[float] = None
 
     def __enter__(self):
         self.start = time.perf_counter()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        t_str = ("{%s}" % self.time_format).format(time.perf_counter() - self.start)
-        if self.instance and hasattr(self.instance, "log") and hasattr(self.instance.log, "info"):
-            self.instance.log.info(t_str)
-        else:
-            print(t_str)
+        _log_perf_result(start_time=self.start, func_name=self.name,
+                         func_args=(self.instance,), time_format=self.time_format,
+                         print_func=self.print_func)

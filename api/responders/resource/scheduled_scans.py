@@ -108,7 +108,8 @@ class ScheduledScans(ResponderWithOnDelete):
 
         scheduled_scan.update({
             "environment": env_name,
-            "send_to_remote": env.get("imported", False),
+            "imported": env.get("imported", False),  # Scan manager should ignore this request
+            "send_to_remote": env.get("imported", False),  # Discovery manager should send this request to remote
             "submit_timestamp": submit_timestamp,
             "status": ScheduledScanStatus.UPCOMING.value,
         })
