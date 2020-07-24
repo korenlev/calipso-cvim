@@ -254,11 +254,13 @@ class ScanManager(Manager):
 
     def _prepare_scheduled_requests_for_interval(self, interval):
         now = datetime.datetime.utcnow()
-        condition = {'$and': [
-            {'recurrence': interval.value},
-            {'scheduled_timestamp': {'$lte': now}},
-            {'status': {'$ne': ScheduledScanStatus.FINISHED.value}}
-        ]}
+        condition = {
+            'imported': {'$ne': True},
+            'send_to_remote': {'$ne': True},
+            'recurrence': interval.value,
+            'scheduled_timestamp': {'$lte': now},
+            'status': {'$ne': ScheduledScanStatus.FINISHED.value}
+        }
         matches = self.scheduled_scans_collection.find(condition).sort('scheduled_timestamp', pymongo.ASCENDING)
         for match in matches:
             # first, submit a scan request where the scheduled time has come

@@ -305,11 +305,10 @@ class ResponderBase(DataValidate, DictNamingConverter):
         time = data.get(time_key)
 
         if time:
-            time = time.replace(' ', '+')
             try:
                 data[time_key] = parser.parse(time)
             except (ValueError, OverflowError):
-                self.bad_request("{0} must follow ISO 8610 date and time format,"
+                self.bad_request("{0} must follow ISO 8610 date and time format: "
                                  "YYYY-MM-DDThh:mm:ss.sss+hhmm".format(time_key))
 
     @staticmethod

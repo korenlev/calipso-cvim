@@ -63,13 +63,17 @@ class APIAuthException(APIException):
 
 
 class APICallException(APIException):
-    def __init__(self, *args, message: str = "", url: str = ""):
-        super().__init__(*args)
-        self.message = message
-        self.url = url
+    def __init__(self, *args, **kwargs):
+        super(APICallException, self).__init__(*args)
+        self.message = kwargs.get("message", "")
+        self.url = kwargs.get("url", "")
 
-    def __str__(self) -> str:
-        return "url: {}, message: {}".format(self.url, self.message)
+    def __str__(self):
+        return (
+            "url: {}, message: {}".format(self.url, self.message)
+            if self.url
+            else "{}".format(self.message)
+        )
 
 
 class ScanError(Exception):
@@ -167,20 +171,25 @@ class CalipsoClient:
             if response.status_code == 400:
                 raise APICallException(message="Environment or resource not found, or invalid keys",
                                        url=endpoint)
-            raise APICallException(message="API didn't return a valid JSON",
-                                   url=endpoint)
+            if fail_on_error:
+                raise APICallException(message="API didn't return a valid JSON",
+                                       url=endpoint)
         if err and fail_on_error:
             raise APICallException(message=err.get('message', err),
                                    url=endpoint)
 
         return content
 
-    def scan_handler(self, environment, es_index=False, implicit_links=False):
+    def scan_handler(self, environment, es_index=False, implicit_links=False, imported=False):
         # post scan request, for specific environment, get doc_id
         scan_reply = self.scan_request(environment=environment, es_index=es_index,
                                        implicit_links=implicit_links)
+        if imported:
+            print("Scan request posted for remote environment '{}'".format(environment))
+            return
+
         scan_doc_id = scan_reply["id"]
-        print("Scan request posted for environment {}".format(environment))
+        print("Scan request posted for environment '{}'".format(environment))
 
         # check status of scan id and wait till scan status is 'completed'
         scan_status = "pending"
@@ -236,13 +245,18 @@ class CalipsoClient:
 
 
 def handle_scan(client, args):
+    env_doc = client.call_api(method='get', endpoint='environment_configs',
+                              payload={"name": args.environment}, fail_on_error=False)
+    if not env_doc:
+        raise ValueError("Environment '{}' not found".format(args.environment))
+
     if not args.scan_recurrence:
         if args.scan_at != "NOW":
             return error("--scan_at can only be specified for recurring scans")
         client.scan_handler(environment=args.environment,
-                            implicit_links=args.implicit_links)
+                            implicit_links=args.implicit_links,
+                            imported=env_doc.get("imported", False))
     else:
-        # TODO: timezone support
         submit_timestamp = datetime.datetime.utcnow()
         if args.scan_at == "NOW":
             # TODO: think more about this
