@@ -50,49 +50,49 @@ class Tokens(ResponderBase):
             self.validate_query_data(auth['credentials'],
                                      self.credential_requirements)
 
-        auth_error = self.authenticate(auth)
-        if auth_error:
-            self.unauthorized(auth_error)
+        try:
+            self.authenticate(auth)
+        except KeyError as e:
+            self.unauthorized("Missing key in auth payload: {}".format(e))
+        except ValueError as e:
+            self.unauthorized(e)
 
         new_token = Token.new_uuid_token(auth['method'])
-        write_error = self.auth.write_token(new_token)
-
-        if write_error:
-            # TODO if writing token to the database failed, what kind of error should be return?
-            self.bad_request(write_error)
+        try:
+            self.auth.write_token(new_token)
+        except ValueError as e:
+            # TODO if writing token to the database failed, what kind of error should be returned?
+            self.bad_request(e)
 
         stringify_doc(new_token)
         self.set_created_response(resp, new_token)
 
-    def authenticate(self, auth):
-        error = None
+    def authenticate(self, auth: dict):
         methods = auth['methods']
         credentials = auth.get('credentials')
         token = auth.get('token')
 
         if not token and not credentials:
-            return 'must provide credentials or token'
+            raise ValueError('You must provide either credentials or token')
 
         if 'credentials' in methods:
             if not credentials:
-                return'credentials must be provided for credentials method'
+                raise ValueError('Credentials must be provided for credentials method')
             else:
                 if not self.auth.validate_credentials(credentials['username'],
                                                       credentials['password']):
-                    error = 'authentication failed'
+                    raise ValueError('Authentication failed')
                 else:
-                    auth['method'] = "credentials"
-                    return None
+                    auth['method'] = 'credentials'
+                    return
 
         if 'token' in methods:
             if not token:
-                return 'token must be provided for token method'
+                raise ValueError('Token must be provided for token method')
             else:
-                error = self.auth.validate_token(token)
-                if not error:
-                    auth['method'] = 'token'
-
-        return error
+                self.auth.validate_token(token)
+                auth['method'] = 'token'
+                return
 
     def on_delete(self, req, resp):
         headers = self.change_dict_naming_convention(req.headers,
@@ -101,9 +101,10 @@ class Tokens(ResponderBase):
             self.unauthorized('Authentication failed')
 
         token = headers[Token.FIELD]
-        error = self.auth.validate_token(token)
-        if error:
-            self.unauthorized(error)
+        try:
+            self.auth.validate_token(token)
+        except ValueError as e:
+            self.unauthorized(e)
 
         delete_error = self.auth.delete_token(token)
 

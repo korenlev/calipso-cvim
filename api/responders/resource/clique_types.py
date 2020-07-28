@@ -114,7 +114,7 @@ class CliqueTypes(ResponderBase):
 
         result = self.write(clique_type, self.COLLECTION)
         response_body = {
-            "message": "created a new clique_type",
+            "message": "Created a new clique_type",
             "id": str(result.inserted_id)
         }
         self.set_created_response(resp, response_body)

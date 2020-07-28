@@ -9,11 +9,29 @@
 ###############################################################################
 import json
 from json import JSONDecodeError
+from typing import Any
 
 from api.responders.responder_base import ResponderBase
 
 
 class Search(ResponderBase):
+    GRAFANA_FILTER_ALL_PLACEHOLDERS = ["all", "$__all"]
+
+    @classmethod
+    def is_filter_placeholder_or_empty(cls, _filter: Any) -> bool:
+        """
+            Check if the grafana filter value is either a placeholder value (e.g. "all") or empty
+        :param _filter: if a string, checked whether it is empty or matching any of placeholder values
+        :return: whether the filter is empty or a placeholder value
+        """
+        return (
+            not _filter
+            or (
+                isinstance(_filter, str)
+                and _filter.lower() in cls.GRAFANA_FILTER_ALL_PLACEHOLDERS
+            )
+        )
+
     def on_post(self, req, resp):
         if req.content_type != "application/json":
             return self.bad_request("Unsupported content type: {}".format(req.content_type))
@@ -45,18 +63,21 @@ class Search(ResponderBase):
             objects = self.distinct(collection="environments_config", field="cvim_region")
         elif target == "metros":
             filters = {}
-            regions_filter = target_filters.get("regions", "All")
-            if regions_filter and regions_filter != "All":
+
+            regions_filter = target_filters.get("regions")
+            if not self.is_filter_placeholder_or_empty(regions_filter):
                 filters["cvim_region"] = regions_filter
 
             objects = self.distinct(collection="environments_config", field="cvim_metro", query=filters)
         elif target == "environment_configs":
             filters = {}
-            regions_filter = target_filters.get("regions", "All")
-            if regions_filter and regions_filter != "All":
+
+            regions_filter = target_filters.get("regions")
+            if not self.is_filter_placeholder_or_empty(regions_filter):
                 filters["cvim_region"] = regions_filter
-            metros_filter = target_filters.get("metros", "All")
-            if metros_filter and metros_filter != "All":
+
+            metros_filter = target_filters.get("metros")
+            if not self.is_filter_placeholder_or_empty(metros_filter):
                 filters["cvim_metro"] = metros_filter
 
             objects = self.distinct(collection="environments_config", field="name", query=filters)

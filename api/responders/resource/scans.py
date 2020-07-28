@@ -89,15 +89,15 @@ class Scans(ResponderBase):
         self.validate_query_data(scan, scan_requirements)
         scan_only_keys = [k for k in scan if k.startswith("scan_only_") and scan[k] is True]
         if len(scan_only_keys) > 1:
-            self.bad_request("multiple scan_only_* flags are set to true: {0}. "
-                             "only one of them can be set to true."
+            self.bad_request("Multiple scan_only_* flags are set to true: {0}. "
+                             "Only one of them can be set to true at a time."
                              .format(", ".join(scan_only_keys)))
 
         env_name = scan.pop("env_name")
         env = self.get_single_object(collection="environments_config",
                                      query={"name": env_name})
         if not env:
-            self.bad_request("unknown environment: {}".format(env_name))
+            self.bad_request("Unknown environment: {}".format(env_name))
 
         scan.update({
             "environment": env_name,
@@ -109,7 +109,7 @@ class Scans(ResponderBase):
 
         result = self.write(scan, self.COLLECTION)
         response_body = {
-            "message": "created a new scan for environment {}".format(env_name),
+            "message": "Created a new scan for environment {}".format(env_name),
             "id": str(result.inserted_id)
         }
         self.set_created_response(resp, response_body)

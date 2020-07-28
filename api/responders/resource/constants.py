@@ -35,7 +35,7 @@ class Constants(ResponderBase):
             environment = self.get_single_object(collection="environments_config",
                                                  query={"name": env_name})
             if not environment:
-                self.bad_request("unknown environment: {}".format(env_name))
+                self.bad_request("Unknown environment: {}".format(env_name))
             filters["env_type"] = environment["environment_type"]
 
         query = self.build_query(filters)

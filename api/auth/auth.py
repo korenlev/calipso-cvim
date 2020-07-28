@@ -23,7 +23,7 @@ class Auth:
         self.log = FullLogger(name="API auth", log_file=log_file, level=log_level)
         self.tokens_coll = self.inv.collections['api_tokens']
 
-    def get_token(self, token):
+    def get_token(self, token: str) -> Optional[list]:
         tokens = None
         try:
             tokens = list(self.tokens_coll.find({'token': token}))
@@ -32,16 +32,13 @@ class Auth:
 
         return tokens
 
-    def write_token(self, token):
-        error = None
+    def write_token(self, token: dict) -> None:
         try:
             self.tokens_coll.insert_one(token)
         except Exception as e:
             self.log.error("Failed to write new token {0} to database for {1}"
                            .format(token['token'], str(e)))
-            error = 'Failed to create new token'
-
-        return error
+            raise ValueError('Failed to create new token')
 
     def delete_token(self, token):
         error = None
@@ -57,16 +54,13 @@ class Auth:
     def validate_credentials(self, username, pwd):
         return auth_backend.ApiAuth.authenticate_user(username, pwd)
 
-    def validate_token(self, token):
-        error = None
+    def validate_token(self, token) -> None:
         tokens = self.get_token(token)
         if not tokens:
-            error = "Token {0} doesn't exist".format(token)
+            raise ValueError("Token {0} doesn't exist".format(token))
         elif len(tokens) > 1:
             self.log.error('Multiple tokens found for {0}'.format(token))
-            error = "Multiple tokens found"
+            raise ValueError("Multiple tokens found")
         else:
             t = tokens[0]
-            error = Token.validate_token(t)
-
-        return error
+            Token.validate_token(t)

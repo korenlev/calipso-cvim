@@ -96,15 +96,15 @@ class ScheduledScans(ResponderWithOnDelete):
             k for k in scheduled_scan if k.startswith("scan_only_") and scheduled_scan[k] is True
         ]
         if len(scan_only_keys) > 1:
-            self.bad_request("multiple scan_only_* flags found: {0}. "
-                             "only one of them can be set."
+            self.bad_request("Multiple scan_only_* flags found: {0}. "
+                             "Only one of them can be set at a time."
                              .format(", ".join(scan_only_keys)))
 
         env_name = scheduled_scan.pop("env_name")
         env = self.get_single_object(collection="environments_config",
                                      query={"name": env_name})
         if not env:
-            self.bad_request("unknown environment: {}".format(env_name))
+            self.bad_request("Unknown environment: {}".format(env_name))
 
         scheduled_scan.update({
             "environment": env_name,
@@ -116,7 +116,7 @@ class ScheduledScans(ResponderWithOnDelete):
 
         result = self.write(scheduled_scan, self.COLLECTION)
         response_body = {
-            "message": "created a new scheduled scan for environment {}".format(env_name),
+            "message": "Created a new scheduled scan for environment {}".format(env_name),
             "id": str(result.inserted_id)
         }
         self.set_created_response(resp, response_body)

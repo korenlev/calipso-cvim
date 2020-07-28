@@ -127,9 +127,9 @@ class ResponderBase(DataValidate, DictNamingConverter):
         return query
 
     @staticmethod
-    def get_content_from_request(req):
+    def get_content_from_request(req) -> (str, dict):
         error = ""
-        content = ""
+        content = {}
         if not req.content_length:
             error = "No data found in the request body"
             return error, content

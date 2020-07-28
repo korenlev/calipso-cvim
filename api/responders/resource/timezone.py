@@ -29,7 +29,7 @@ class Timezone(ResponderBase):
             environment = self.get_single_object(collection="environments_config",
                                                  query={"name": env_name})
             if not environment:
-                self.bad_request("unknown environment: {}".format(env_name))
+                self.bad_request("Unknown environment: {}".format(env_name))
 
             tzinfo = tz.gettz(environment.get("timezone"))
         if not tzinfo:

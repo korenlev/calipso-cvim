@@ -19,6 +19,7 @@ class Query(ResponderBase):
         "scans": ["id", "status", "submit_timestamp", "start_timestamp", "end_timestamp"],
         "scheduled_scans": ["id", "recurrence", "scheduled_timestamp"]
     }
+    GRAFANA_FILTER_ALL_PLACEHOLDER = "$__all"
 
     def on_post(self, req, resp):
         if req.content_type == "application/json":
@@ -108,7 +109,11 @@ class Query(ResponderBase):
         return self._build_grafana_table(columns=projection, objects=objects)
 
     def get_inventory_count_table(self, environment: str, object_types: Optional[List[str]] = None):
-        query = self.build_inventory_count_query(environment=environment, object_types=object_types)
+        object_types_filter = []
+        if object_types and isinstance(object_types, list) and self.GRAFANA_FILTER_ALL_PLACEHOLDER not in object_types:
+            object_types_filter = object_types
+
+        query = self.build_inventory_count_query(environment=environment, object_types_filter=object_types_filter)
 
         aggregate = [{
             "$group": {
@@ -126,8 +131,8 @@ class Query(ResponderBase):
             o["id"]: o for o in self.get_objects_list(collection="inventory", query=query, aggregate=aggregate)
         }
 
-        if not object_types:
-            object_types = self.get_constants_by_name("object_types", environment_name=environment)
+        if not object_types_filter:
+            object_types_filter = self.get_constants_by_name("object_types", environment_name=environment)
 
         counts = [
             {
@@ -135,7 +140,7 @@ class Query(ResponderBase):
                 "count": objects.get(ot, {}).get("count", 0),
                 "tooltip": object_type_attributes.get(ot, {}).get("tooltip", "")
             }
-            for ot in object_types
+            for ot in object_types_filter
         ]
 
         columns = {"type": True, "count": True, "tooltip": True}
@@ -202,11 +207,11 @@ class Query(ResponderBase):
 
         return query
 
-    def build_inventory_count_query(self, environment: str, object_types: Optional[List[str]] = None) -> dict:
+    def build_inventory_count_query(self, environment: str, object_types_filter: Optional[List[str]] = None) -> dict:
         query = self.build_base_query(environment=environment)
 
-        if object_types and isinstance(object_types, list):
-            query["type"] = {"$in": object_types}
+        if object_types_filter:
+            query["type"] = {"$in": object_types_filter}
 
         return query
 

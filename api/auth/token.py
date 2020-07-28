@@ -31,10 +31,7 @@ class Token:
         return token
 
     @classmethod
-    def validate_token(cls, token):
-        error = None
+    def validate_token(cls, token: dict) -> None:
         now = datetime.datetime.utcnow()
         if now > token['expires_at']:
-            error = 'Token {0} has expired'.format(token['token'])
-
-        return error
+            raise ValueError('Token {0} has expired'.format(token['token']))

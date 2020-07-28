@@ -30,8 +30,7 @@ class Health(ResponderBase):
                 env_health.update({
                     "scanned": latest_scans[0]["status"] == "completed",
                     "scan_in_progress": latest_scans[0]["status"] == "running",
-                    "last_scanned": env.get("last_scanned"),
-                    "timezone": env.get("timezone")
+                    "last_scanned": env.get("last_scanned")
                 })
 
             # validations = self.inv.find_one({"environment": env}, collection=ValidatorBase.COLLECTION)

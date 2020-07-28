@@ -322,11 +322,11 @@ class EnvironmentConfigs(ResponderBase):
             err_msg = self.validate_data(env_config.get("auth"),
                                          self.AUTH_REQUIREMENTS)
             if err_msg:
-                self.bad_request("auth error: " + err_msg)
+                self.bad_request("Auth config error: {}".format(err_msg))
 
         result = self.write(env_config, self.COLLECTION)
         response_body = {
-            "message": "created environment_config for {0}".format(env_config["name"]),
+            "message": "Created environment configuration for {}".format(env_config["name"]),
             "id": str(result.inserted_id)
         }
         self.set_created_response(resp, response_body)

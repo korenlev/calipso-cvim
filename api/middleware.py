@@ -34,22 +34,27 @@ class AuthenticationMiddleware(ResponderBase):
             # basic authentication
             self.log.debug("Authenticating the basic credentials")
             basic = headers[self.BASIC_AUTH]
-            auth_error = self.authenticate_with_basic_auth(basic)
+            try:
+                self.authenticate_with_basic_auth(basic)
+            except ValueError as e:
+                auth_error = str(e)
         elif Token.FIELD in headers:
             # token authentication
             self.log.debug("Authenticating token")
             token = headers[Token.FIELD]
-            auth_error = self.auth.validate_token(token)
+            try:
+                self.auth.validate_token(token)
+            except ValueError as e:
+                auth_error = str(e)
         else:
             auth_error = "Authentication required"
 
         if auth_error:
             self.unauthorized(auth_error)
 
-    def authenticate_with_basic_auth(self, basic):
-        error = None
+    def authenticate_with_basic_auth(self, basic: str) -> None:
         if not basic or not basic.startswith("Basic"):
-            error = "Credentials not provided"
+            raise ValueError("Credentials not provided")
         else:
             # get username and password
             credential = basic.lstrip("Basic").lstrip()
@@ -57,11 +62,9 @@ class AuthenticationMiddleware(ResponderBase):
             credentials = username_password.split(":")
             if not self.auth.validate_credentials(credentials[0], credentials[1]):
                 self.log.info("Authentication for {0} failed".format(credentials[0]))
-                error = "Authentication failed"
+                raise ValueError("Authentication failed")
             else:
                 self.log.info("Authentication for {0} succeeded".format(credentials[0]))
-
-        return error
 
 
 class CORSMiddleware:
