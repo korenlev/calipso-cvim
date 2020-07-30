@@ -55,14 +55,14 @@ class Tokens(ResponderBase):
         except KeyError as e:
             self.unauthorized("Missing key in auth payload: {}".format(e))
         except ValueError as e:
-            self.unauthorized(e)
+            self.unauthorized(str(e))
 
         new_token = Token.new_uuid_token(auth['method'])
         try:
             self.auth.write_token(new_token)
         except ValueError as e:
             # TODO if writing token to the database failed, what kind of error should be returned?
-            self.bad_request(e)
+            self.bad_request(str(e))
 
         stringify_doc(new_token)
         self.set_created_response(resp, new_token)
@@ -104,7 +104,7 @@ class Tokens(ResponderBase):
         try:
             self.auth.validate_token(token)
         except ValueError as e:
-            self.unauthorized(e)
+            self.unauthorized(str(e))
 
         delete_error = self.auth.delete_token(token)
 

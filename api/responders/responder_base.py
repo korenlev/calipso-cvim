@@ -10,7 +10,7 @@
 import json
 from http import HTTPStatus
 from json import JSONDecodeError
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 from urllib import parse
 
 import re
@@ -45,47 +45,47 @@ class ResponderBase(DataValidate, DictNamingConverter):
     ######################
 
     @staticmethod
-    def _set_error_response(title="", code=HTTPStatus.BAD_REQUEST, message="", body=""):
-        code = str(code.value)
-        if body:
-            raise exceptions.CalipsoApiException(code, body, message)
+    def _set_error_response(title: str = "", status: Union[int, HTTPStatus] = HTTPStatus.BAD_REQUEST,
+                            message: str = "", body: str = ""):
+        status_code = str(status.value if isinstance(status, HTTPStatus) else status)
+        if not body:
+            body = jsonify({
+                "error": {
+                    "message": message,
+                    "code": status_code,
+                    "title": title
+                }
+            })
 
-        body = jsonify({
-            "error": {
-                "message": message,
-                "code": code,
-                "title": title
-            }
-        })
-        raise exceptions.CalipsoApiException(code, body, message)
+        raise exceptions.CalipsoApiException(status=status_code, body=body, message=message)
 
-    def _set_successful_response(self, resp, body: object = "", status=HTTPStatus.OK):
+    def _set_successful_response(self, resp, body: object = "", status: Union[int, HTTPStatus] = HTTPStatus.OK):
         if not isinstance(body, str):
             try:
                 body = jsonify(body)
             except Exception as e:
                 self.log.exception(e)
                 raise ValueError("The response body should be a string")
-        resp.status = str(status.value)
+        resp.status = str(status.value if isinstance(status, HTTPStatus) else status)
         resp.body = body
 
     def set_ok_response(self, resp, body: object = ""):
-        return self._set_successful_response(resp, body, HTTPStatus.OK)
+        return self._set_successful_response(resp=resp, body=body, status=HTTPStatus.OK)
 
     def set_created_response(self, resp, body: object = ""):
-        return self._set_successful_response(resp, body, HTTPStatus.CREATED)
+        return self._set_successful_response(resp=resp, body=body, status=HTTPStatus.CREATED)
 
-    def bad_request(self, message="Invalid request content"):
-        self._set_error_response("Bad Request", HTTPStatus.BAD_REQUEST, message)
+    def bad_request(self, message: str = "Invalid request content"):
+        self._set_error_response(title="Bad Request", status=HTTPStatus.BAD_REQUEST, message=message)
 
-    def unauthorized(self, message="Request requires authorization"):
-        self._set_error_response("Unauthorized", HTTPStatus.UNAUTHORIZED, message)
+    def unauthorized(self, message: str = "Request requires authorization"):
+        self._set_error_response(title="Unauthorized", status=HTTPStatus.UNAUTHORIZED, message=message)
 
-    def not_found(self, message="Requested resource not found"):
-        self._set_error_response("Not Found", HTTPStatus.NOT_FOUND, message)
+    def not_found(self, message: str = "Requested resource not found"):
+        self._set_error_response(title="Not Found", status=HTTPStatus.NOT_FOUND, message=message)
 
-    def conflict(self, message="The posted data conflicts with the existing data"):
-        self._set_error_response("Conflict", HTTPStatus.CONFLICT, message)
+    def conflict(self, message: str = "The posted data conflicts with the existing data"):
+        self._set_error_response(title="Conflict", status=HTTPStatus.CONFLICT, message=message)
 
     ######################
     # Query manipulation #

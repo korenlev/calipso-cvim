@@ -61,10 +61,10 @@ class AuthenticationMiddleware(ResponderBase):
             username_password = base64.b64decode(credential).decode("utf-8")
             credentials = username_password.split(":")
             if not self.auth.validate_credentials(credentials[0], credentials[1]):
-                self.log.info("Authentication for {0} failed".format(credentials[0]))
+                self.log.debug("Authentication for {0} failed".format(credentials[0]))
                 raise ValueError("Authentication failed")
             else:
-                self.log.info("Authentication for {0} succeeded".format(credentials[0]))
+                self.log.debug("Authentication for {0} succeeded".format(credentials[0]))
 
 
 class CORSMiddleware:
