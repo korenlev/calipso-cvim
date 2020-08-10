@@ -158,6 +158,19 @@
 {
     "environment" : "",
     "distribution" : "Mercury",
+    "focal_point_type" : "instance",
+    "link_types" : [
+        "instance-vnic",
+        "vnic-vedge",
+        "vedge-host_pnic",
+        "host_pnic-network"
+    ],
+    "name" : "mercury_instance_vedge_clique",
+    "distribution_version" : "27903"
+},
+{
+    "environment" : "",
+    "distribution" : "Mercury",
     "focal_point_type" : "network",
     "link_types" : [
         "network-host_pnic",

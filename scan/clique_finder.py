@@ -115,9 +115,18 @@ class CliqueFinder(Fetcher):
 
                 dv = clique_type.get('distribution_version')
                 if dv:
-                    if dv != config['distribution_version']:
-                        return 0
-                    score += 2**4
+                    # check if dv are numbers, to evaluate a minimum version
+                    if dv.isdigit() and config['distribution_version'].isdigit():
+                        dv = int(dv)
+                        env_dv = int(config['distribution_version'])
+                        if dv > env_dv:
+                            return 0
+                        # if clique_type dv <= environment dv then score it and consider for better match
+                        score += 2**4
+                    else:
+                        if dv != config['distribution_version']:
+                            return 0
+                        score += 2**4
 
             mechanism_drivers = clique_type.get('mechanism_drivers')
             if mechanism_drivers:
