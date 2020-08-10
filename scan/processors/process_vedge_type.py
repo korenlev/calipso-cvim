@@ -50,6 +50,10 @@ class ProcessVedgeType(Processor):
                         vnics.append(vnic)
             else:
                 vnic = self.inv.get_by_id(self.env, '|'.join((vedge['host'], port["name"].replace("/", "."))))
+                # try a match using port name to @dev name, as for rhel8 with OVS instance vnics attach to vedges directly
+                if not vnic and vedge['vedge_type'] == 'OVS':
+                    vnic = self.inv.get_by_field(environment=self.get_env(), item_type='vnic', field_name='target.@dev',
+                                                 field_value=port["name"], get_single=True)
                 if vnic:
                     vnic['vedge_port'] = port
                     vnic['vedge_id'] = vedge['id']
