@@ -60,6 +60,9 @@ class CliFetchVserviceVnics(CliFetcher, HostTypeValidator):
         interfaces = []
         current = None
         for line in lines:
+            # per rfc3927 we are ignoring any local addresses starting with '169.254...' (used in rhel8 and on)
+            if '169.254' in line:
+                continue
             matches = self.if_header.match(line)
             if matches:
                 if current:
