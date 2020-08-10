@@ -13,6 +13,8 @@ class CliDistTranslator:
 
     DOCKER_CALL = 'docker exec --user root'
 
+    MIN_RHEL8_VERSION = 27903
+
     TRANSLATIONS = {
         # special handling of cli commands in Mercury environments
         'Mercury': {
@@ -59,6 +61,12 @@ class CliDistTranslator:
 
     def __init__(self, env: dict):
         self.dist_version = env['distribution_version']
+        # since RHEL8 and docker version 18.x we need to add a --workdir to docker exec commands
+        # TODO rely on Docker version rather then mercury tag, but in any case this translations are done for mercury
+        current_dist_version = int(self.dist_version)
+        min_rhel8_dist_version = self.MIN_RHEL8_VERSION
+        if current_dist_version >= min_rhel8_dist_version:
+            self.DOCKER_CALL = 'docker exec --user root --workdir /root'
         self.translation = {}
         dist_translations = self.TRANSLATIONS.get(env['distribution'], {})
         if not dist_translations:
