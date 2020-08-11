@@ -13,7 +13,7 @@ class CliDistTranslator:
 
     DOCKER_CALL = 'docker exec --user root'
 
-    MIN_RHEL8_VERSION = 27903
+    MIN_RHEL8_VERSION = 27747
 
     TRANSLATIONS = {
         # special handling of cli commands in Mercury environments

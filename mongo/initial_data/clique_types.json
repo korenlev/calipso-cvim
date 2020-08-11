@@ -166,7 +166,7 @@
         "host_pnic-network"
     ],
     "name" : "mercury_instance_vedge_clique",
-    "distribution_version" : "27903"
+    "distribution_version" : "27747"
 },
 {
     "environment" : "",
