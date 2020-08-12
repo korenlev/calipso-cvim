@@ -20,34 +20,30 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
         # we handle cases where 'brctl' utility isn't available and will populate same data with 'ip' utility instead
         lines = self.run_fetch_lines('brctl show', ssh_to_host=host_id)
         results = []
-        if len(lines) <= 1:
+        # TODO: better check?
+        if not lines or "not found" in lines[0].lower():
             ip_link_details = self.run_fetch_json_response('ip -d -j link show', ssh_to_host=host_id)
             # TODO there are many more details here for host_pnics and vconnectors that we can add in the future
             for link in ip_link_details:
-                doc = {}
-                kind = ''
-                data = {}
-                doc['bridge_name'] = ''
-                info = link.get('linkinfo', '')
-                if info:
-                    kind = info.get('info_kind', '')
-                    data: dict = info.get('info_data', '')
-                if kind == 'bridge':
-                    doc = data
-                    doc['bridge_name'] = link['ifname']
-                    doc['bridge_id'] = data.get('bridge_id', '')
-                    doc['stp_enabled'] = data.get('stp_state')
-                    del doc['stp_state']
-                    doc['interfaces'] = ''
-                    for interface in ip_link_details:
-                        master = interface.get('master', '')
-                        if master == doc['bridge_name']:
-                            doc['interfaces'] = ','.join((doc['interfaces'], interface['ifname']))
-                    doc['interfaces'] = doc['interfaces'].replace(',', '', 1)
-                    results.append(doc)
+                info = link.get('linkinfo', {})
+                kind = info.get('info_kind', '')
+                if kind != 'bridge':
+                    continue
+
+                data = info.get('info_data', {})
+                data.update({
+                    'bridge_name': link['ifname'],
+                    'bridge_id': data.get('bridge_id', ''),
+                    'stp_enabled': data.pop('stp_state', None),
+                    'interfaces': ','.join(
+                        (interface['ifname']
+                         for interface in ip_link_details
+                         if interface.get('master', '') == link['ifname'])
+                    )
+                })
+                results.append(data)
         else:
             headers = ['bridge_name', 'bridge_id', 'stp_enabled', 'interfaces']
-            headers_count = len(headers)
             # since we hard-coded the headers list, remove the headers line
             del lines[:1]
             # intefaces can spill to next line - need to detect that and add
@@ -57,9 +53,11 @@ class CliFetchVconnectorsOvs(CliFetchVconnectors):
         ret = []
         for doc in results:
             doc['name'] = '{}-{}'.format(host_id, doc['bridge_name'])
-            doc['id'] = '{}-{}'.format(doc['name'], doc.pop('bridge_id'))
-            doc['host'] = host_id
-            doc['connector_type'] = 'bridge'
+            doc.update({
+                'id': '{}-{}'.format(doc['name'], doc.pop('bridge_id')),
+                'host': host_id,
+                'connector_type': 'bridge'
+            })
             self.get_vconnector_interfaces(doc, host_id)
             ret.append(doc)
         return ret

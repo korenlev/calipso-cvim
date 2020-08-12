@@ -18,6 +18,7 @@ from scan.fetchers.util.validators import HostTypeValidator
 
 class CliFetchVserviceVnics(CliFetcher, HostTypeValidator):
     ACCEPTED_HOST_TYPES = [HostType.NETWORK.value]
+    LINK_LOCAL_ADDR_REGEX = re.compile(".*169\.254\.\d{1,3}\.\d{1,3}.*")
 
     def __init__(self):
         super().__init__()
@@ -55,14 +56,15 @@ class CliFetchVserviceVnics(CliFetcher, HostTypeValidator):
         return ret
 
     def handle_service(self, host, service, enable_cache=True):
-        cmd = "ip netns exec " + service + " ip address show"
+        cmd = "ip netns exec {} ip address show".format(service)
         lines = self.run_fetch_lines(cmd, ssh_to_host=host, enable_cache=enable_cache)
         interfaces = []
         current = None
         for line in lines:
             # per rfc3927 we are ignoring any local addresses starting with '169.254...' (used in rhel8 and on)
-            if '169.254' in line:
+            if self.LINK_LOCAL_ADDR_REGEX.match(line):
                 continue
+
             matches = self.if_header.match(line)
             if matches:
                 if current:

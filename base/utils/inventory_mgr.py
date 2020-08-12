@@ -8,6 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 from datetime import datetime
+from typing import Any
 
 import bson
 
@@ -116,9 +117,9 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         })
 
     def get_by_field(self, environment: str, item_type: str,
-                     field_name: str=None,
-                     field_value=None,
-                     get_single=False):
+                     field_name: str = None,
+                     field_value: Any = None,
+                     get_single: bool = False):
         if field_value:
             return self.find({"environment": environment,
                               "type": item_type,
