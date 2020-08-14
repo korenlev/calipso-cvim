@@ -29,18 +29,19 @@ class AuthenticationMiddleware(ResponderBase):
         self.log.debug("Authentication middleware is processing the request")
         headers = self.change_dict_naming_convention(req.headers,
                                                      lambda s: s.upper())
+
         auth_error = None
-        if self.BASIC_AUTH in headers:
+        auth_header = headers.get(self.BASIC_AUTH)
+        if auth_header and "Basic" in auth_header:
             # basic authentication
-            self.log.debug("Authenticating the basic credentials")
-            basic = headers[self.BASIC_AUTH]
+            self.log.debug("Authenticating using Basic Auth")
             try:
-                self.authenticate_with_basic_auth(basic)
+                self.authenticate_with_basic_auth(auth_header)
             except ValueError as e:
                 auth_error = str(e)
         elif Token.FIELD in headers:
             # token authentication
-            self.log.debug("Authenticating token")
+            self.log.debug("Authenticating using token")
             token = headers[Token.FIELD]
             try:
                 self.auth.validate_token(token)

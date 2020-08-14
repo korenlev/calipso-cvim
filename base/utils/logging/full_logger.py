@@ -31,9 +31,9 @@ class FullLogger(Logger):
         stream_handler.setLevel(self.level)
         self.add_handler(stream_handler)
 
-        # Message handler
-        self.add_handler(MongoLoggingHandler(env=env, origin=origin,
-                                             level=self.level))
+        # TODO: Message handler temporarily disabled
+        # self.add_handler(MongoLoggingHandler(env=env, origin=origin,
+        #                                      level=self.level))
 
         # File handler
         if log_file:

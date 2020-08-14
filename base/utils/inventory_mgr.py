@@ -344,8 +344,7 @@ class InventoryMgr(MongoAccess, metaclass=Singleton):
         return self.find_one(search={'name': env},
                              collection='environments_config')
 
-    def is_feature_supported(self, env: str, feature: EnvironmentFeatures)\
-            -> bool:
+    def is_feature_supported(self, env: str, feature: EnvironmentFeatures) -> bool:
         env_config = self.get_env_config(env)
         if not env_config:
             return False
