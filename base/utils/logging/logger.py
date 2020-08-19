@@ -31,13 +31,14 @@ class Logger(ABC):
         super().__init__()
         level = level.upper()
         self.check_level(level)
+        self.level = level
+
         self.log = logging.getLogger(logger_name)
         self.log.handlers.clear()
         logging.basicConfig(format=self.log_format,
                             level=level)
         self.log.propagate = False
         self.set_loglevel(level)
-        self.level = level
 
     # Subclasses should override this method
     # to perform runtime changes to handlers, etc.
