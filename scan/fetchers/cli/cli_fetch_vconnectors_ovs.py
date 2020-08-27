@@ -13,16 +13,20 @@ from scan.fetchers.cli.cli_fetch_vconnectors import CliFetchVconnectors
 
 
 class CliFetchVconnectorsOvs(CliFetchVconnectors):
+    BRCTL_SHOW_CMD = 'brctl show'
+    IP_LINK_SHOW_CMD = 'ip -d -j link show'
+
     def __init__(self):
         super().__init__()
 
     def get_vconnectors(self, host_id):
         # we handle cases where 'brctl' utility isn't available and will populate same data with 'ip' utility instead
-        lines = self.run_fetch_lines('brctl show', ssh_to_host=host_id)
+        lines = self.run_fetch_lines(self.BRCTL_SHOW_CMD, ssh_to_host=host_id,
+                                     log_errors=False, raise_errors=False)
         results = []
         # TODO: better check?
         if not lines or "not found" in lines[0].lower():
-            ip_link_details = self.run_fetch_json_response('ip -d -j link show', ssh_to_host=host_id)
+            ip_link_details = self.run_fetch_json_response(self.IP_LINK_SHOW_CMD, ssh_to_host=host_id)
             # TODO there are many more details here for host_pnics and vconnectors that we can add in the future
             for link in ip_link_details:
                 info = link.get('linkinfo', {})

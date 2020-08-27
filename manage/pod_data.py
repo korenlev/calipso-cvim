@@ -27,13 +27,19 @@ class RemoteHealth:
         self.env_name: str = env_name
 
         self.version: Optional[str] = None
+
+        # Is matching environment found on remote
         self.defined: bool = False
+
         self.scanned: bool = False
         self.scan_in_progress: bool = False
         self.last_scanned: Optional[str] = None
 
     def set(self, health: dict):
-        self.version = health.get('version', 'unknown')
+        # Set health version to pod version if defined (keep last known otherwise)
+        pod_version = health.get('version')
+        if pod_version:
+            self.version = pod_version
 
         env_status = health.get('environments', {}).get(self.env_name, {})
         if env_status:
@@ -41,6 +47,11 @@ class RemoteHealth:
             self.scanned = env_status.get('scanned', False)
             self.scan_in_progress = env_status.get('scan_in_progress', False)
             self.last_scanned = env_status.get('last_scanned', None)
+
+            # Set health version to env version (prioritized) if defined (keep last known otherwise)
+            env_version = env_status.get('version')
+            if env_version:
+                self.version = env_version
         else:
             self.defined = False
             self.scanned = False
@@ -79,7 +90,7 @@ class PodData:
 
         # TODO: verify naming logic
         self.env_name = "cvim-{}".format(name)
-        self.full_name = "{}|{}|{}".format(region, metro, self.env_name)
+        self.full_name = "{}:{}:{}:{}".format(stack, region, metro, self.env_name)
 
         ip_parts = host.split(":")
         if len(ip_parts) == 1:
@@ -166,7 +177,8 @@ class PodData:
             "discovery_interval": "{}{}".format(self.discovery_interval.number, self.discovery_interval.unit),
             "replication_interval": "{}{}".format(self.replication_interval.number, self.replication_interval.unit),
             "next_discovery": self.next_discovery,
-            "next_replication": self.next_replication
+            "next_replication": self.next_replication,
+            "imported": True
         }
 
     def is_same_pod(self, other: 'PodData') -> bool:
@@ -263,9 +275,9 @@ def parse_pods_config(stacks_data: dict) -> list:
                     )
 
                     pod = PodData(
-                        stack=stack['name'],
                         discovery_interval=discovery_interval,
                         replication_interval=replication_interval,
+                        stack=stack['name'],
                         region=region['name'],
                         metro=metro['name'],
                         name=pod['name'],

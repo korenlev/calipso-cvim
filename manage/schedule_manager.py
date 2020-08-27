@@ -63,6 +63,9 @@ class ScheduleManager(AsyncManager):
         self.failing_streak: int = 0
         self.latest_error: Optional[Exception] = None
 
+    def set_op(self, name: str):
+        self.current_op = name
+
     def _reset_error(self):
         self.failing_streak = 0
         self.latest_error = None
@@ -91,6 +94,7 @@ class ScheduleManager(AsyncManager):
             Set all valid environments as remotes to control.
         :return:
         """
+        self.set_op("load_environments")
         environments_cursor = self.central_mongo_connection.find(
             collection=AsyncMongoConnector.environments_collection,
             query={"imported": True}
@@ -104,6 +108,7 @@ class ScheduleManager(AsyncManager):
             self.pods[pod.full_name] = pod
 
     async def save_environments(self, pods: List[PodData] = None, _all: bool = False) -> None:
+        self.set_op("save_environments")
         if _all:
             pods = self.pods.values()
         if not pods:
@@ -125,6 +130,7 @@ class ScheduleManager(AsyncManager):
         :param force_reconnect: whether to reconnect to already connected remotes
         :return:
         """
+        self.set_op("connect_remotes")
         # Filter out failing connections
         pods_to_connect = [pod for pod in pods if pod.is_available_to_connect]
 
@@ -155,6 +161,7 @@ class ScheduleManager(AsyncManager):
             Overlapping pods are left untouched.
         :return:
         """
+        self.set_op("update_remotes")
         if not self.refresh_pods:
             return
 
@@ -196,6 +203,7 @@ class ScheduleManager(AsyncManager):
             There is not much sense in reconnecting to remotes that are not due for discovery or replication
         :return:
         """
+        self.set_op("reconnect_remotes")
         pods_to_reconnect = [
             pod for pod in self.pods.values()
             if not pod.is_connected and any(await self.get_pending_actions(pod, verify_health=False))
@@ -239,6 +247,7 @@ class ScheduleManager(AsyncManager):
             pod.next_discovery += relativedelta(seconds=self.DISCOVERY_RETRY_BACKOFF)
 
     async def scan_pods(self, pods: List[PodData]) -> None:
+        self.set_op("scan_pods")
         results = await asyncio.gather(*[self._scan_pod(pod) for pod in pods], return_exceptions=True)
         for i, res in enumerate(results):
             if isinstance(res, Exception):
@@ -253,6 +262,7 @@ class ScheduleManager(AsyncManager):
         :param pods: list of remotes to replicate from
         :return:
         """
+        self.set_op("replicate_pods")
         if not pods:
             return
 
@@ -301,6 +311,7 @@ class ScheduleManager(AsyncManager):
             and set "replicate" flag to trigger a replication later.
         :return:
         """
+        self.set_op("send_manual_scan_requests")
         await self.central_mongo_connection.connect(force_reconnect=True)
 
         requests_to_send = []
@@ -367,6 +378,7 @@ class ScheduleManager(AsyncManager):
             After replication has finished successfully, unset the "replicate" flag.
         :return:
         """
+        self.set_op("perform_manual_replications")
         await self.central_mongo_connection.connect(force_reconnect=True)
 
         pending_requests = self.central_mongo_connection.find(
@@ -434,6 +446,7 @@ class ScheduleManager(AsyncManager):
         :param verify_health: whether to check pod connection or simply return pending actions
         :return: two flags: whether pod is pending discovery and replication
         """
+        self.set_op("get_pending_actions")
 
         # Setup first schedules for pod if missing
         if not pod.next_discovery or not pod.next_replication:
@@ -459,14 +472,17 @@ class ScheduleManager(AsyncManager):
 
         return pending_actions
 
+    async def idle(self) -> None:
+        self.set_op("idle")
+        await asyncio.sleep(1)
+
     async def _configure(self) -> None:
         # Set up connection to central MongoDB.
         # Schedule manager cannot proceed if this step fails.
-        self.current_op = "connect_to_central_db"
+        self.set_op("connect_to_central_db")
         await self.central_mongo_connection.connect()
 
         # Load environments documents for defined remotes
-        self.current_op = "load_environments"
         await self.load_environments()
 
     async def configure(self) -> None:
@@ -475,6 +491,7 @@ class ScheduleManager(AsyncManager):
             If configuration method is consistently unable to complete,
             the wrapper linearly backoffs further iterations.
         """
+        self.set_op("configure")
         self.failing_streak = 0
 
         def connection_backoff() -> int:
@@ -495,23 +512,18 @@ class ScheduleManager(AsyncManager):
     async def _do_action(self):
         while True:
             # Connect remotes with pending actions
-            self.current_op = "reconnect_remotes"
             await self.reconnect_remotes_with_pending_actions()
 
             # Check if new remotes were added via API and update the list
-            self.current_op = "update_remotes"
             await self.update_remotes()
 
             # Send manual scan and scheduled scan requests to remotes
-            self.current_op = "send_scan_requests"
             await self.send_manual_scan_requests()
 
             # Perform replications for manually submitted scans
-            self.current_op = "perform_manual_replications"
             await self.perform_manual_replications()
 
             # Find out pending actions (discovery, replication) for all remotes
-            self.current_op = "get_pending_actions"
             pods_list = list(self.pods.values())
             pod_actions = await asyncio.gather(
                 *[self.get_pending_actions(pod, verify_health=True) for pod in pods_list]
@@ -527,23 +539,19 @@ class ScheduleManager(AsyncManager):
 
             # Send scan requests to all pending remotes
             # (skipping the disconnected remotes and those that have an action in progress)
-            self.current_op = "scan_remotes"
             await self.scan_pods(sorted(discovery_requests, key=lambda p: p.next_discovery))
 
             # Replicate from all pending remotes
             # (skipping the disconnected remotes and those that have an action in progress)
-            self.current_op = "replicate_remotes"
             await self.replicate_pods(replications)
 
             if discovery_requests or replications:
                 # Save environments that had discovery or replication performed to the central DB
-                self.current_op = "save_environments"
                 await self.save_environments(pods=discovery_requests + replications)
             else:
                 # Sleep only if no action has been performed during the action loop
                 if not discovery_requests and not replications:
-                    self.current_op = "sleep"
-                    await asyncio.sleep(1)
+                    await self.idle()
 
             self._reset_error()
 
