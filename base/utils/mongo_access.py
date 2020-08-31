@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from urllib.parse import quote_plus
+
 from pymongo import MongoClient
 import ssl
 
@@ -83,7 +85,7 @@ class MongoAccess(DataAccessBase, DictNamingConverter):
                        .format(params['server']))
         uri = 'mongodb://'
         if 'user' in params and 'pwd' in params:
-            uri += '{}:{}@'.format(params['user'], params['pwd'])
+            uri += '{}:{}@'.format(quote_plus(params['user']), quote_plus(params['pwd']))
         else:
             self.log.info('MongoDB credentials missing')
 

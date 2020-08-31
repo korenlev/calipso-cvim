@@ -121,6 +121,7 @@ class ScheduleManager(AsyncManager):
             key="name",
             upsert=True,
         )
+        self.central_mongo_connection.disconnect()
 
     async def connect_remotes(self, pods: List[PodData], force_reconnect: bool = False) -> None:
         """
@@ -340,6 +341,7 @@ class ScheduleManager(AsyncManager):
                 })
 
         if not requests_to_send:
+            self.central_mongo_connection.disconnect()
             return
 
         await self.connect_remotes(pods=[r["pod"] for r in requests_to_send],
@@ -370,6 +372,7 @@ class ScheduleManager(AsyncManager):
                 key="_id",
                 upsert=False,
             )
+        self.central_mongo_connection.disconnect()
 
     async def perform_manual_replications(self) -> None:
         """
@@ -403,6 +406,7 @@ class ScheduleManager(AsyncManager):
 
             pods_to_replicate.append({"pod": pod, "request_id": request["_id"]})
 
+        self.central_mongo_connection.disconnect()
         if not pods_to_replicate:
             return
 
@@ -484,6 +488,7 @@ class ScheduleManager(AsyncManager):
 
         # Load environments documents for defined remotes
         await self.load_environments()
+        self.central_mongo_connection.disconnect()
 
     async def configure(self) -> None:
         """
@@ -507,6 +512,7 @@ class ScheduleManager(AsyncManager):
                 self.log.error("Schedule manager configure() failed. Error: {}".format(e))
                 self.failing_streak += 1
                 self.latest_error = e
+                self.central_mongo_connection.disconnect()
                 await asyncio.sleep(connection_backoff())
 
     async def _do_action(self):
@@ -574,6 +580,7 @@ class ScheduleManager(AsyncManager):
                 self.log.error("Schedule manager failed. Error: {}".format(e))
                 self.failing_streak += 1
                 self.latest_error = e
+                self.central_mongo_connection.disconnect()
                 await asyncio.sleep(connection_backoff())
 
     def stop(self):

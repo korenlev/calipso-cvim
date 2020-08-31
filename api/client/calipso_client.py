@@ -441,6 +441,10 @@ def run():
                              required=False)
 
     args = parser.parse_args()
+    if not hasattr(args, "handler"):
+        parser.print_help()
+        return 1
+
     try:
         return args.handler(CalipsoClient(api_host=args.api_server, api_port=args.api_port,
                                           api_password=args.api_password, unverify_tls=args.unverify_tls),
