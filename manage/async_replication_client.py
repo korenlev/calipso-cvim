@@ -157,8 +157,22 @@ class AsyncReplicationClient:
                 destination_conn.disconnect()
             jobs_queue.task_done()
 
-    async def clear(self, remotes: List[PodData]) -> None:
-        # Clear central collections for replication purposes
+    async def clear(self, remotes: List[PodData] = None, _all: bool = False,
+                    clear_env_config: bool = False) -> None:
+        """
+            Clear central collections for replication purposes
+        :param remotes: list of PodData objects to clear envs for
+        :param _all: if True, clear the whole colletions (disregard "remotes" argument)
+        :param clear_env_config: if True, clear environment configs collection as well
+            (only per env mode is supported)
+        :return:
+        """
+        #
+        if not remotes:
+            remotes = []
+        if not remotes and not _all:
+            return
+
         central_conn = None
         try:
             central_conn = await AsyncMongoConnector.create(
@@ -166,8 +180,16 @@ class AsyncReplicationClient:
                 connect=True
             )
             for col in self.collection_names:
-                self.log.info("Clearing collection {} from central...".format(col))
-                await central_conn.clear_collection(col, [r.full_name for r in remotes])
+                self.log.info("Selectively clearing collection {} from central...".format(col))
+                await central_conn.clear_collection(col,
+                                                    envs=[r.full_name for r in remotes],
+                                                    _all=_all)
+            if clear_env_config:
+                self.log.info("Selectively clearing collection {} from central..."
+                              .format(AsyncMongoConnector.environments_collection))
+                await central_conn.clear_collection(AsyncMongoConnector.environments_collection,
+                                                    envs=[r.full_name for r in remotes],
+                                                    _all=False)
         finally:
             if central_conn:
                 central_conn.disconnect()

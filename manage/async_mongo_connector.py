@@ -80,11 +80,15 @@ class AsyncMongoConnector(object):
             self.client.close()
             self.client = None
 
-    async def clear_collection(self, collection: str, envs: List[str] = None) -> None:
-        if envs:
-            return await self.database[collection].delete_many({"environment": {"$in": envs}})
-        else:
+    async def clear_collection(self, collection: str, envs: List[str] = None, _all: bool = False) -> None:
+        if _all:
             return await self.database[collection].clear()
+        elif not envs:
+            return
+
+        if collection == self.environments_collection:
+            return await self.database[collection].delete_many({"name": {"$in": envs}})
+        return await self.database[collection].delete_many({"environment": {"$in": envs}})
 
     def _build_find_query(self, collection: str, query: dict = None, env: str = None) -> dict:
         if not query:

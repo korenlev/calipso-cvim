@@ -55,6 +55,7 @@ async def get_remotes(request: web.Request) -> web.Response:
         "next_discovery": pod.next_discovery,
         "next_replication": pod.next_replication,
         "api_version": pod.health.version,
+        "env_timezone": pod.health.timezone,
         "connected": pod.is_connected,
         "environment_defined": pod.health.defined,
         "environment_discovered": pod.health.scanned,

@@ -32,8 +32,8 @@ class FullLogger(Logger):
         self.add_handler(stream_handler)
 
         # TODO: Message handler temporarily disabled
-        # self.add_handler(MongoLoggingHandler(env=env, origin=origin,
-        #                                      level=self.level))
+        self.add_handler(MongoLoggingHandler(env=env, origin=origin,
+                                             level=self.level))
 
         # File handler
         if log_file:
@@ -42,7 +42,6 @@ class FullLogger(Logger):
             file_handler.setLevel(self.level)
             self.add_handler(file_handler)
 
-    # Temporarily unused
     def _get_message_handler(self):
         defined_handlers = [h for h in self.log.handlers
                             if isinstance(h, MongoLoggingHandler)]
@@ -52,22 +51,22 @@ class FullLogger(Logger):
     def set_env(self, env):
         self.env = env
 
-        # handler = self._get_message_handler()
-        # if handler:
-        #     handler.env = env
-        # else:
-        #     self.add_handler(MongoLoggingHandler(env, self.level))
+        handler = self._get_message_handler()
+        if handler:
+            handler.env = env
+        else:
+            self.add_handler(MongoLoggingHandler(env, self.level))
 
     def set_origin(self, origin: Origin):
         self.origin = origin
 
-        # handler = self._get_message_handler()
-        # if handler:
-        #     handler.origin = origin
-        # else:
-        #     self.add_handler(MongoLoggingHandler(env=self.env,
-        #                                          level=self.level,
-        #                                          origin=origin))
+        handler = self._get_message_handler()
+        if handler:
+            handler.origin = origin
+        else:
+            self.add_handler(MongoLoggingHandler(env=self.env,
+                                                 level=self.level,
+                                                 origin=origin))
 
     def setup(self, **kwargs):
         env = kwargs.get('env')

@@ -27,6 +27,7 @@ class RemoteHealth:
         self.env_name: str = env_name
 
         self.version: Optional[str] = None
+        self.timezone: Optional[str] = None
 
         # Is matching environment found on remote
         self.defined: bool = False
@@ -40,6 +41,9 @@ class RemoteHealth:
         pod_version = health.get('version')
         if pod_version:
             self.version = pod_version
+        pod_timezone = health.get('timezone')
+        if pod_timezone:
+            self.timezone = pod_timezone
 
         env_status = health.get('environments', {}).get(self.env_name, {})
         if env_status:
@@ -52,6 +56,11 @@ class RemoteHealth:
             env_version = env_status.get('version')
             if env_version:
                 self.version = env_version
+            env_timezone = env_status.get('timezone')
+            if isinstance(env_timezone, str):
+                self.timezone = env_timezone
+            elif isinstance(env_timezone, dict) and 'tz_name' in env_timezone:
+                self.timezone = env_timezone['tz_name']
         else:
             self.defined = False
             self.scanned = False
@@ -138,6 +147,7 @@ class PodData:
         """
         try:
             env_pod_data = env["pod_data"]
+
             pod = PodData(
                 stack=env["cvim_stack"],
                 region=env["cvim_region"],
@@ -149,6 +159,9 @@ class PodData:
                 discovery_interval=parse_interval(env["discovery_interval"]),
                 replication_interval=parse_interval(env["replication_interval"])
             )
+            pod.health.version = env.get('version')
+            pod.health.timezone = env.get('timezone')
+
             if "next_discovery" in env and "next_replication" in env:
                 # TODO: test timezones
                 pod.next_discovery = env["next_discovery"]
@@ -163,6 +176,12 @@ class PodData:
             Resulting document should be merged with a valid environment config document.
         :return: env config document
         """
+        optional_fields = {}
+        if self.health.version:
+            optional_fields['version'] = self.health.version
+        if self.health.timezone:
+            optional_fields['timezone'] = self.health.timezone
+
         return {
             "name": self.full_name,
             "cvim_stack": self.stack,
@@ -178,7 +197,8 @@ class PodData:
             "replication_interval": "{}{}".format(self.replication_interval.number, self.replication_interval.unit),
             "next_discovery": self.next_discovery,
             "next_replication": self.next_replication,
-            "imported": True
+            "imported": True,
+            **optional_fields
         }
 
     def is_same_pod(self, other: 'PodData') -> bool:

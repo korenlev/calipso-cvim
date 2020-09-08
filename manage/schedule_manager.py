@@ -108,6 +108,12 @@ class ScheduleManager(AsyncManager):
             self.pods[pod.full_name] = pod
 
     async def save_environments(self, pods: List[PodData] = None, _all: bool = False) -> None:
+        """
+            Save environments from memory to central DB
+        :param pods: list of PodData objects to save
+        :param _all: save all remotes data from memory (takes priority over "pods" argument)
+        :return:
+        """
         self.set_op("save_environments")
         if _all:
             pods = self.pods.values()
@@ -122,6 +128,21 @@ class ScheduleManager(AsyncManager):
             upsert=True,
         )
         self.central_mongo_connection.disconnect()
+
+    async def clear_environments(self, pods: List[PodData] = None, _all: bool = False):
+        """
+            Clear collections in central DB for environments based on given list of pods
+        :param pods: list of PodData objects to clear environments for
+        :param _all: clear environments for all remotes in memory
+        :return:
+        """
+        self.set_op("clear_environments")
+        if _all:
+            pods = self.pods.values()
+        if not pods:
+            return
+
+        await self.replication_client.clear(remotes=pods, clear_env_config=True)
 
     async def connect_remotes(self, pods: List[PodData], force_reconnect: bool = False) -> None:
         """
@@ -179,7 +200,12 @@ class ScheduleManager(AsyncManager):
             else:
                 added_pods[new_pod.full_name] = new_pod
 
-        # Disconnect removed/reconfigured pods and add what's left to the remaining pods list
+        # Disconnect removed/reconfigured pods, clear the respective envs from central DB
+        # and add what's left to the remaining pods list
+        await self.clear_environments(
+            pods=[pod for pod in self.pods.values() if not pod.is_kept]
+        )
+
         remaining_pods = {}
         for pod in self.pods.values():
             if not pod.is_kept:
