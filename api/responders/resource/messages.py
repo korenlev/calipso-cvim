@@ -7,6 +7,8 @@
 # which accompanies this distribution, and is available at                    #
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
+from bson import ObjectId
+
 from api.responders.responder_base import ResponderWithOnDelete
 from api.validation.data_validate import DataValidate
 
@@ -30,7 +32,7 @@ class Messages(ResponderWithOnDelete):
         filters_requirements = {
             'env_name': self.require(str, mandatory=True),
             'source_system': self.require(str),
-            'id': self.require(str),
+            'id': self.require(ObjectId, convert_to_type=True),
             'level': self.require(str,
                                   validate=DataValidate.LIST,
                                   requirement=messages_severity),
