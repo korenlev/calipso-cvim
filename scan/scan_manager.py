@@ -135,8 +135,6 @@ class ScanManager(Manager):
                       .format(self,
                               MongoAccess.get_source_text(),
                               self.es_client.get_connection_text()))
-        #  Log will include: "ElasticAccess not initialized. ElasticAccess is not connected"
-
 
     def _connect_es_client(self, es_config, retries=ElasticAccess.CONNECTION_RETRIES):
         if not self.es_client:

@@ -84,8 +84,8 @@ class ScheduleManager(AsyncManager):
         if pod.next_discovery or pod.next_replication:
             # First schedules are already set up
             return
-        pod.next_discovery = datetime.datetime.utcnow()  # TODO: configurable first schedule?
-        pod.next_replication = datetime.datetime.utcnow()  # TODO: configurable discovery-replication delta??
+        pod.next_discovery = datetime.datetime.utcnow()
+        pod.next_replication = datetime.datetime.utcnow()
 
     async def load_environments(self) -> None:
         """
@@ -171,7 +171,7 @@ class ScheduleManager(AsyncManager):
                     else ""
                 )
                 self.log.warning("Failed to connect to remote: {}.{}"
-                                 .format(pods_to_connect[i].name, error_msg))
+                                 .format(pods_to_connect[i].full_name, error_msg))
 
     async def update_remotes(self) -> None:
         """
@@ -454,20 +454,6 @@ class ScheduleManager(AsyncManager):
             if replication_error and isinstance(replication_error, Exception):
                 self.log.error("Failed to replicate from remote {}. Error: {}"
                                .format(pods_to_replicate[i]["pod"].name, replication_error))
-            # else:
-            #     successful_replication_docs.append({
-            #         "_id": pods_to_replicate[i]["request_id"],
-            #         "replicate": False
-            #     })
-
-        # TODO: Remove this bc scan docs will be overwritten by replication
-        # Remove replication flag from replicated scan docs (central DB)
-        # await self.central_mongo_connection.bulk_update(
-        #     collection="scans",
-        #     docs=successful_replication_docs,
-        #     key="_id",
-        #     upsert=False,
-        # )
 
     async def get_pending_actions(self, pod: PodData, verify_health: bool) -> (bool, bool):
         """

@@ -8,7 +8,6 @@
 # http://www.apache.org/licenses/LICENSE-2.0                                  #
 ###############################################################################
 import asyncio
-import traceback
 from typing import List, Union, Optional
 
 from pymongo.errors import ConnectionFailure, OperationFailure
@@ -31,7 +30,6 @@ class AsyncReplicationClient:
                  central_port: int = AsyncMongoConnector.DEFAULT_PORT,
                  central_user: str = AsyncMongoConnector.DEFAULT_USER,
                  max_concurrent_replications: int = 10):
-        # TODO: revise logging levels
         self.max_concurrent_replications = max(1, max_concurrent_replications)
         self.central_host = central_host
         self.central_port = central_port
@@ -152,7 +150,6 @@ class AsyncReplicationClient:
                 await self.reconstruct_ids(destination_conn=destination_conn, env_name=env_name)
             except Exception as e:
                 self.log.error("Failed to reconstruct ids for environment: {}. Error: {}".format(env_name, e))
-                traceback.print_exc()  # TODO: remove traceback!
             finally:
                 destination_conn.disconnect()
             jobs_queue.task_done()
@@ -167,7 +164,6 @@ class AsyncReplicationClient:
             (only per env mode is supported)
         :return:
         """
-        #
         if not remotes:
             remotes = []
         if not remotes and not _all:

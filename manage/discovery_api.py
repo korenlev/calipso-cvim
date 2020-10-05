@@ -44,6 +44,10 @@ async def set_remotes(request: web.Request) -> web.Response:
                             text="Request body must be a valid JSON")
 
     remotes = parse_pods_config(stacks)
+    if remotes is None or not isinstance(remotes, list):
+        return web.Response(status=BAD_REQUEST,
+                            text="Stacks document has invalid structure")
+
     discovery_manager.schedule_manager.set_new_pods(remotes)
     return json_response(status_code=CREATED, body={"submitted": len(remotes)})
 
@@ -101,31 +105,23 @@ async def next_schedules(request: web.Request) -> web.Response:
     schedule_manager = discovery_manager.schedule_manager
     schedules = []
     for pod in schedule_manager.pods.values():
-        if not pod.next_discovery or not pod.next_replication:
-            continue
-        schedules.extend([
-            {
+        if pod.next_discovery:
+            schedules.append({
                 "remote": pod.name,
                 "full_env_name": pod.full_name,
                 "operation": "discovery",
                 "datetime": pod.next_discovery
-            },
-            {
+            })
+        if pod.next_replication:
+            schedules.append({
                 "remote": pod.name,
                 "full_env_name": pod.full_name,
                 "operation": "replication",
                 "datetime": pod.next_replication
-            }
-        ])
+            })
+
     schedules.sort(key=lambda k: k["datetime"])
     return json_response(body=schedules[:limit])
-
-
-# TODO: remove
-@routes.post("/log")
-async def log_post(request: web.Request) -> web.Response:
-    discovery_manager.log.info(await request.text())
-    return web.Response(text="ok")
 
 
 class DiscoveryAPI:

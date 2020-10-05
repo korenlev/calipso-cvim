@@ -17,6 +17,7 @@ from base.utils.logging.logger import Logger
 from manage import discovery_api
 from manage.async_mongo_connector import AsyncMongoConnector
 from manage.async_replication_client import AsyncReplicationClient
+from manage.pod_data import PodData
 from manage.pod_manager import PodManager
 from manage.schedule_manager import ScheduleManager
 
@@ -40,6 +41,7 @@ class DiscoveryManager(Manager, DataAccessBase):
         "log_level": Logger.INFO,
         "cert_file": "",
         "key_file": "",
+        "project_prefix": "cvim"
     }
 
     def __init__(self):
@@ -48,6 +50,8 @@ class DiscoveryManager(Manager, DataAccessBase):
                          log_level=self.args.log_level, log_file=self.args.log_file)
 
         self.setup_data: Optional[dict] = None
+        self.project_prefix: str = self.args.project_prefix
+        self.verify_remotes_tls: bool = not self.args.skip_remotes_tls_verify
 
         calipso_connection_params = self.get_connection_parameters()
         self.central_mongo_host: str = calipso_connection_params['central_mongo_host']
@@ -97,6 +101,11 @@ class DiscoveryManager(Manager, DataAccessBase):
                             default=DiscoveryManager.DEFAULTS["log_level"],
                             help="Logging level \n(default: '{}')"
                             .format(DiscoveryManager.DEFAULTS["log_level"]))
+        parser.add_argument("--project_prefix", nargs="?", type=str,
+                            default=DiscoveryManager.DEFAULTS["project_prefix"],
+                            help="Project prefix to use in environment configurations")
+        parser.add_argument("--skip_remotes_tls_verify", action="store_true",
+                            help="Skip TLS verification on remotes")
         parser.add_argument("--skip_discovery", action="store_true", default=False,
                             help="Skip remotes discovery (simulate schedules only)"
                             .format(DiscoveryManager.DEFAULTS["log_level"]))
@@ -107,6 +116,9 @@ class DiscoveryManager(Manager, DataAccessBase):
         return args
 
     def configure_central_pod(self) -> None:
+        PodData.set_project_prefix(self.project_prefix)
+        PodData.VERIFY_TLS = self.verify_remotes_tls
+
         self.schedule_manager = ScheduleManager(mongo_host=self.central_mongo_host,
                                                 mongo_port=self.central_mongo_port,
                                                 mongo_pwd=self.central_mongo_password,
