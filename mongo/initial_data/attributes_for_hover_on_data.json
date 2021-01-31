@@ -1,0 +1,436 @@
+[
+{
+    "type" : "ALL",
+    "attributes" : [
+        "type",
+        "name",
+        "name_path",
+        "id",
+        "last_scanned",
+        "tooltip"
+    ]
+},
+{
+    "type" : "switch",
+    "attributes" : [
+        "ip_address",
+        "aci_document"
+    ],
+    "tooltip" : "Physical switch"
+},
+{
+    "type" : "vnic",
+    "attributes" : [
+        "host",
+        "model",
+        "mac_address",
+        "vnic_type",
+        "vedge_type",
+        "vedge_port",
+        "network",
+        "port",
+        "addresses",
+        "source",
+        "target",
+        "alias",
+        "instance_id",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Virtual NIC attached to a resource (to a vService or instance or container)"
+},
+{
+    "type" : "container",
+    "attributes" : [
+        "ip_address",
+        "host",
+        "container_id",
+        "config",
+        "container_type",
+        "vnic_index",
+        "container_status",
+        "sandbox",
+        "volume_mounts",
+        "nat_tables",
+        "kube_proxy_config",
+        "vservices",
+        "ports",
+        "pod",
+        "namespace",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Docker container"
+},
+{
+    "type" : "namespace",
+    "attributes" : [
+        "pods",
+        "creation_timestamp",
+        "status",
+        "root_cause"
+    ],
+    "tooltip" : "Kubernetes namespace"
+},
+{
+    "type" : "pod",
+    "attributes" : [
+        "host",
+        "namespace",
+        "vservices",
+        "pod_status",
+        "owner_references",
+        "containers",
+        "scheduler_name",
+        "labels",
+        "dns_policy",
+        "vservices",
+        "status",
+        "root_cause"
+    ],
+    "tooltip" : "Kubernetes pod"
+},
+{
+    "type" : "vconnector",
+    "attributes" : [
+        "host",
+        "vedge_type",
+        "vedge_port",
+        "connector_type",
+        "interfaces",
+        "stp_enabled",
+        "last_scanned",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Internal broadcast domain (like Linux bridge)"
+},
+{
+    "type" : "vservice",
+    "attributes" : [
+        "host",
+        "service_type",
+        "pods",
+        "session_affinity",
+        "external_traffic_policy",
+        "selector",
+        "namespace",
+        "local_service_id",
+        "tenant_id",
+        "network",
+        "gw_port_id",
+        "kube-proxy",
+        "status_text",
+        "status",
+        "status_timestamp",
+        "root_cause",
+        "cluster_ip",
+        "ports",
+        "labels",
+        "swagger_types"
+    ],
+    "tooltip" : "Virtual service (like a router, kubeproxy, DHCP, ingress, FWaaS, etc)"
+},
+{
+    "type" : "vedge",
+    "attributes" : [
+        "host",
+        "agent_type",
+        "binary",
+        "started_at",
+        "configurations",
+        "routing_table",
+        "vconnector",
+        "ports",
+        "topic",
+        "resource_versions",
+        "heartbeat_timestamp",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause",
+        "qos_class",
+        "labels",
+        "bgp_as",
+        "dns_policy",
+        "namespace"
+    ],
+    "tooltip" : "Virtual communication device handling physical to virtual networking (like VPP, SRIOV, OVS, Calico, Flannel, )"
+},
+{
+    "type" : "host_pnic",
+    "attributes" : [
+        "host",
+        "mac_address",
+        "state",
+        "data",
+        "members",
+        "team_device",
+        "EtherChannel Config",
+        "EtherChannel Runtime",
+        "Supported link modes",
+        "Supported FEC modes",
+        "Transceiver",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Physical network card on a host"
+},
+{
+    "type" : "network",
+    "attributes" : [
+        "project",
+        "subnets",
+        "network",
+        "cidrs",
+        "mtu",
+        "created_at",
+        "availability_zones",
+        "router:external",
+        "ipv6_address_scope",
+        "provider:network_type",
+        "port_security_enabled",
+        "router:external",
+        "provider:physical_network",
+        "revision_number",
+        "provider:segmentation_id",
+        "provider:network_type",
+        "status",
+        "port_security_enabled",
+        "availability_zones",
+        "port_security_enabled",
+        "shared",
+        "scope",
+        "IPAM",
+        "local_name",
+        "driver",
+        "Containers",
+        "Options"
+    ],
+    "tooltip" : "Logical representation of a single communication segment"
+},
+{
+    "type" : "host",
+    "attributes" : [
+        "OS",
+        "cvim_details",
+        "parent_id",
+        "host_type",
+        "ip_address",
+        "services",
+        "config",
+        "labels",
+        "addresses",
+        "taints",
+        "annotations",
+        "images",
+        "capacity",
+        "unschedulable",
+        "conditions",
+        "node_info",
+        "flavor_resources",
+        "ceph_cluster_status",
+        "ceph_quorum",
+        "ceph_utilizations",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Physical server or a VM in nested virtualization"
+},
+{
+    "type" : "instance",
+    "attributes" : [
+        "vm_state",
+        "created_at",
+        "project_name",
+        "user_id",
+        "key_name",
+        "availability_zone",
+        "host",
+        "flavor",
+        "host_ip_address",
+        "project",
+        "addresses",
+        "ovs_vnic_count",
+        "sriov_vnic_count",
+        "vpp_vnic_count",
+        "image",
+        "disks",
+        "diskConfig",
+        "metadata",
+        "vcpu",
+        "security_groups",
+        "local_name",
+        "network",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "OpenStack VM"
+},
+{
+    "type" : "otep",
+    "attributes" : [
+        "host",
+        "overlay_type",
+        "overlay_state",
+        "overlay_data",
+        "ip_address",
+        "vconnector",
+        "ports",
+        "overlay_mac_address",
+        "config",
+        "tunnel_address",
+        "udp_port",
+        "status",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Overlay tunneling endpoint (like VXLAN, Geneve, GRE, IPIP, etc)"
+},
+{
+    "type" : "switch_pnic",
+    "attributes" : [
+        "aci_document",
+        "parent_id",
+        "role"
+    ],
+    "tooltip" : "Physical network card on a switch"
+},
+{
+    "type" : "monitoring_agent",
+    "attributes" : [
+        "configuration",
+        "host"
+    ],
+    "tooltip" : "Host side process collecting metrics (like telegraf)"
+},
+{
+    "type" : "link",
+    "attributes" : [
+        "type",
+        "link_type",
+        "source_id",
+        "target_id",
+        "link_weight",
+        "state",
+        "link_name",
+        "host",
+        "status",
+        "status_timestamp",
+        "status_text",
+        "root_cause"
+    ],
+    "tooltip" : "Represents a relationship between 2 items"
+},
+{
+    "type" : "project",
+    "attributes" : [
+        "quota_set",
+        "domain_id",
+        "parent_domain_id",
+        "is_domain"
+    ],
+    "tooltip" : "OpenStack project"
+},
+{
+    "type" : "region",
+    "attributes" : [
+        "endpoints"
+    ],
+    "tooltip" : "OpenStack region"
+},
+{
+    "type" : "network_agent",
+    "attributes" : [
+        "configurations",
+        "host"
+    ],
+    "tooltip" : "Networking agent controller on a host"
+},
+{
+    "type" : "port",
+    "attributes" : [
+        "project",
+        "created_at",
+        "binding:vif_details",
+        "binding:vif_type",
+        "binding:vnic_type",
+        "binding:host_id",
+        "allowed_address_pairs",
+        "extra_dhcp_opts",
+        "device_owner",
+        "fixed_ips",
+        "security_groups"
+    ],
+    "tooltip" : "OpenStack port"
+},
+{
+    "type" : "availability_zone",
+    "attributes" : [
+        "hosts",
+        "available"
+    ],
+    "tooltip" : "OpenStack zone"
+},
+{
+    "type" : "disk",
+    "attributes" : [
+        "host",
+        "device",
+        "state",
+        "size",
+        "serial",
+        "vendor",
+        "scsi_address",
+        "revision",
+        "wwn_address",
+        "model"
+    ],
+    "tooltip" : "Disk storage device"
+},
+{
+    "type" : "partition",
+    "attributes" : [
+        "host",
+        "device",
+        "master_disk",
+        "size",
+        "label",
+        "mount_point",
+        "osd_partition_type"
+    ],
+    "tooltip" : "Logical part of a storage disk"
+},
+{
+    "type" : "osd",
+    "attributes" : [
+        "host",
+        "metadata"
+    ],
+    "tooltip" : "Ceph object storage daemon"
+},
+{
+    "type" : "pod_ref",
+    "attributes" : [
+    ],
+    "tooltip" : "Kubernetes reference to a pod"
+},
+{
+    "type" : "aggregate",
+    "attributes" : [
+    ],
+    "tooltip" : "Group of pods, specific deployment"
+}
+]

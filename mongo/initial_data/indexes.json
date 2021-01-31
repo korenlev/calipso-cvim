@@ -1,0 +1,25 @@
+{
+  "cliques": [
+    "environment"
+  ],
+  "graphs": [
+    "environment",
+    "type"
+  ],
+  "inventory": [
+    "environment",
+    "name",
+    {"type": 1, "last_scanned": -1}
+  ],
+  "links": [
+    "environment"
+  ],
+  "scans": [
+    "environment",
+    {"submit_timestamp":  -1}
+  ],
+  "scheduled_scans": [
+    "environment",
+    {"scheduled_timestamp":  -1}
+  ]
+}
